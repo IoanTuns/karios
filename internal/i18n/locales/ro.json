@@ -1,4 +1,8 @@
 {
+  "aplicatie.titlu": "Pontix",
+  "aplicatie.versiune": "Versiunea {{versiune}}",
+  "aplicatie.subtitlu": "Pontajul lunar cu ture",
+
   "tip_zi.LUCRATOARE": "Zi lucrătoare",
   "tip_zi.SAMBATA": "Sâmbătă",
   "tip_zi.DUMINICA": "Duminică",

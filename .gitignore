@@ -16,7 +16,11 @@ karios/
 # Build
 build/bin/
 frontend/node_modules/
-frontend/dist/
+frontend/dist/*
+!frontend/dist/gitkeep
 
 # Medii locale
 .venv/
+
+# Cache Wails
+frontend/package.json.md5

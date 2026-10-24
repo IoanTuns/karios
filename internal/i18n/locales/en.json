@@ -1,4 +1,8 @@
 {
+  "aplicatie.titlu": "Pontix",
+  "aplicatie.versiune": "Version {{versiune}}",
+  "aplicatie.subtitlu": "Monthly shift timesheets",
+
   "tip_zi.LUCRATOARE": "Working day",
   "tip_zi.SAMBATA": "Saturday",
   "tip_zi.DUMINICA": "Sunday",

@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"regexp"
 	"sort"
+	"strings"
 	"testing"
 )
 
@@ -118,6 +119,23 @@ func TestAdaugaFolderErori(t *testing.T) {
 	}
 	if err := AdaugaFolder(filepath.Join(t.TempDir(), "nu-exista")); err != nil {
 		t.Errorf("un folder lipsă nu e eroare: %v", err)
+	}
+}
+
+func TestCatalog(t *testing.T) {
+	err := cuFolder(t, map[string]string{"hu.json": `{"tip_zi.SAMBATA": "Szombat"}`})
+	if err != nil {
+		t.Fatal(err)
+	}
+	c := Catalog("hu")
+	if len(c) != len(cataloage[Implicita]) {
+		t.Errorf("catalogul are %d chei, așteptat %d", len(c), len(cataloage[Implicita]))
+	}
+	if c["tip_zi.SAMBATA"] != "Szombat" || c["tip_zi.DUMINICA"] != "Duminică" {
+		t.Errorf("traducerea și rezerva din limba implicită: %q, %q", c["tip_zi.SAMBATA"], c["tip_zi.DUMINICA"])
+	}
+	if got := Catalog(Engleza)["reguli.gol"]; !strings.Contains(got, "{{de_la}}") {
+		t.Errorf("parametrii trebuie să rămână pentru interfață: %q", got)
 	}
 }
 

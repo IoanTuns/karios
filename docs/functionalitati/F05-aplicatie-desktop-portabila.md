@@ -16,7 +16,7 @@ Un singur `.exe` care pornește pe orice Windows, fără instalare și fără dr
 | ID | Task | Stare | Responsabil | Note |
 | --- | --- | --- | --- | --- |
 | F05-T01 | Stabilește ultima versiune stabilă de Wails și verifică ce implică pentru proiect | gata | Claude | 2026-10-24: **Wails v2.17.0** (v3 e încă beta, exclus de D007; vezi I007). Node.js **24.22.1 LTS**. Wails v2 are opțiunea `WebviewUserDataPath` cerută de D002 |
-| F05-T02 | Scheletul Wails + React + TypeScript | în lucru | Claude | Mediu pregătit 2026-10-24: Node.js 24.22.1 LTS, npm 11.19.1, Wails CLI v2.17.0, WebView2 156; `wails doctor` fără probleme |
+| F05-T02 | Scheletul Wails + React + TypeScript | gata | Claude | 2026-10-24, versiunea 0.2.0: Wails 2.17.0, React 19.3.1, TypeScript 7.0.2, Vite 8.3.5; `pontix.exe` 11,5 MB. Nepornit încă: întâi F05-T03 (altfel WebView2 scrie în `%APPDATA%`) |
 | F05-T03 | Datele în `karios/` lângă `.exe`; cache-ul WebView2 în `karios/webview/` | de făcut | | `WebviewUserDataPath`; D002 |
 | F05-T04 | Setările aplicației | de făcut | | Include F03-T05. Dacă D008 e acceptată: în baza criptată, nu în `config.toml` |
 | F05-T05 | SQLite în modul WAL; verificarea dreptului de scriere în `karios/` | de făcut | | Discurile din rețea sunt amânate (D002 punctul 4, I005) |
@@ -27,3 +27,4 @@ Un singur `.exe` care pornește pe orice Windows, fără instalare și fără dr
 | F05-T10 | Seiful: cheia de date cu copiile A (cheia din `.exe`), P și R (pe cont) | de făcut | | D008 punctul 2; conturile sunt în F15 |
 | F05-T11 | Fișierul de blocare: a doua instanță pornește doar în citire | de făcut | | D002 punctul 6 (aprobat) |
 | F05-T12 | Gestionarea cheii aplicației: generare, păstrare în afara repo-ului, injectare la build | de făcut | | Aceeași cheie la toate versiunile; pierderea ei = date vechi ilizibile. Cine o păstrează: de decis |
+| F05-T13 | Script de build: versiunea din `versiune.go` în proprietățile `.exe` și commit-ul prin `-ldflags` | de făcut | | Acum `wails build` simplu lasă commit-ul „necunoscut” și versiunea fișierului implicită |

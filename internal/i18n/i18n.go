@@ -117,6 +117,16 @@ func T(limba Limba, cheie string, param map[string]string) string {
 	return text
 }
 
+// Catalog întoarce toate textele unei limbi, cu golurile completate din limba
+// implicită. Parametrii {{nume}} rămân neînlocuiți; îi completează interfața.
+func Catalog(limba Limba) map[string]string {
+	rez := make(map[string]string, len(cataloage[Implicita]))
+	for cheie := range cataloage[Implicita] {
+		rez[cheie] = T(limba, cheie, nil)
+	}
+	return rez
+}
+
 // Lipsa întoarce cheile din limba implicită care nu au traducere în limba
 // cerută, ca ecranul de setări să arate ce mai e de tradus.
 func Lipsa(limba Limba) []string {

@@ -1,0 +1,30 @@
+:root {
+    --fundal: #ffffff;
+    --text: #1f2328;
+    --text-secundar: #59636e;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    color: var(--text);
+    background: var(--fundal);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --fundal: #1b1f24;
+        --text: #e6edf3;
+        --text-secundar: #9198a1;
+    }
+}
+
+body {
+    margin: 0;
+    background: var(--fundal);
+}
+
+.ecran {
+    padding: 32px;
+}
+
+.versiune {
+    color: var(--text-secundar);
+    font-size: 0.875rem;
+}
