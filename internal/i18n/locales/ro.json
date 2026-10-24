@@ -1,0 +1,14 @@
+{
+  "tip_zi.LUCRATOARE": "Zi lucrătoare",
+  "tip_zi.SAMBATA": "Sâmbătă",
+  "tip_zi.DUMINICA": "Duminică",
+  "tip_zi.SARBATOARE": "Sărbătoare legală",
+
+  "calcul.tura_inversata": "Tura se termină ({{sfarsit}}) înainte să înceapă ({{start}}).",
+  "calcul.regula_lipsa": "Nu există nicio regulă pentru {{tip}} la ora {{ora}}.",
+
+  "reguli.tip_zi_necunoscut": "Tip de zi necunoscut: {{tip}}.",
+  "reguli.interval_invalid": "{{tip}}: intervalul {{de_la}}–{{pana_la}} nu este valid.",
+  "reguli.gol": "{{tip}}: există un gol între {{de_la}} și {{pana_la}}.",
+  "reguli.suprapunere": "{{tip}}: intervalele se suprapun între {{de_la}} și {{pana_la}}."
+}

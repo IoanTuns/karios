@@ -1,0 +1,14 @@
+{
+  "tip_zi.LUCRATOARE": "Working day",
+  "tip_zi.SAMBATA": "Saturday",
+  "tip_zi.DUMINICA": "Sunday",
+  "tip_zi.SARBATOARE": "Public holiday",
+
+  "calcul.tura_inversata": "The shift ends ({{sfarsit}}) before it starts ({{start}}).",
+  "calcul.regula_lipsa": "There is no rule for {{tip}} at {{ora}}.",
+
+  "reguli.tip_zi_necunoscut": "Unknown day type: {{tip}}.",
+  "reguli.interval_invalid": "{{tip}}: the interval {{de_la}}–{{pana_la}} is not valid.",
+  "reguli.gol": "{{tip}}: there is a gap between {{de_la}} and {{pana_la}}.",
+  "reguli.suprapunere": "{{tip}}: intervals overlap between {{de_la}} and {{pana_la}}."
+}
