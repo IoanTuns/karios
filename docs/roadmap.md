@@ -10,7 +10,7 @@ Actualizat: 2026-10-24
 | [F02](functionalitati/F02-fundatia-proiectului.md) | Fundația proiectului | V1 | în lucru | — |
 | [F03](functionalitati/F03-traduceri.md) | Traduceri (minim română și engleză) | V1 | în lucru | F02 |
 | [F04](functionalitati/F04-motor-calcul.md) | Motorul de calcul al orelor și tarifelor | V1 | în lucru | F01, F02 |
-| [F05](functionalitati/F05-aplicatie-desktop-portabila.md) | Aplicația desktop portabilă | V1 | de făcut | F02 |
+| [F05](functionalitati/F05-aplicatie-desktop-portabila.md) | Aplicația desktop portabilă | V1 | în lucru | F02 |
 | [F06](functionalitati/F06-baza-de-date.md) | Baza de date și migrările | V1 | de făcut | F05 |
 | [F07](functionalitati/F07-date-de-baza.md) | Date de bază | V1 | de făcut | F03, F06 |
 | [F08](functionalitati/F08-grila-pontaj.md) | Grila lunară de pontaj | V1 | de făcut | F04, F07 |

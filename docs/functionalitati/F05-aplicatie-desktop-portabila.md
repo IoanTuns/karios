@@ -1,6 +1,6 @@
 # F05 · Aplicația desktop portabilă
 
-Etapă: V1 · Stare: de făcut · Depinde de: F02
+Etapă: V1 · Stare: în lucru · Depinde de: F02
 
 ## Scop
 
@@ -15,7 +15,7 @@ Un singur `.exe` care pornește pe orice Windows, fără instalare și fără dr
 
 | ID | Task | Stare | Responsabil | Note |
 | --- | --- | --- | --- | --- |
-| F05-T01 | Stabilește ultima versiune stabilă de Wails și verifică ce implică pentru proiect | de făcut | | După D007; o versiune majoră nouă față de documentul de design se notează în jurnal |
+| F05-T01 | Stabilește ultima versiune stabilă de Wails și verifică ce implică pentru proiect | gata | Claude | 2026-10-24: **Wails v2.17.0** (v3 e încă beta, exclus de D007; vezi I007). Node.js **24.22.1 LTS**. Wails v2 are opțiunea `WebviewUserDataPath` cerută de D002 |
 | F05-T02 | Scheletul Wails + React + TypeScript | de făcut | | |
 | F05-T03 | Datele în `karios/` lângă `.exe`; cache-ul WebView2 în `karios/webview/` | de făcut | | `WebviewUserDataPath`; D002 |
 | F05-T04 | Setările aplicației | de făcut | | Include F03-T05. Dacă D008 e acceptată: în baza criptată, nu în `config.toml` |
