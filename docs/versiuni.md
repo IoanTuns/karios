@@ -4,6 +4,15 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.3.3 · 2026-10-24
+
+Scriptul de build (F05-T13).
+
+- `build.ps1` construiește `pontix.exe` cu versiunea în proprietățile fișierului și commit-ul curent (cu sufixul `-modificat` dacă există fișiere necomise).
+- `wails.json` are secțiunea `info` (nume, versiune, copyright); testul `TestWailsJSON` verifică faptul că versiunea e aceeași ca în `versiune.go`.
+
+Rapoarte: niciunul încă. Baza de date: nicio migrare încă.
+
 ## 0.3.2 · 2026-10-24
 
 Prototipul migrărilor (F06-T01). Aplicația nu se schimbă.

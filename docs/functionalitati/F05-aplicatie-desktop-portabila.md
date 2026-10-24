@@ -27,5 +27,5 @@ Un singur `.exe` care pornește pe orice Windows, fără instalare și fără dr
 | F05-T10 | Seiful: cheia de date cu copiile A (cheia din `.exe`), P și R (pe cont) | de făcut | | D008 punctul 2; conturile sunt în F15 |
 | F05-T11 | Fișierul de blocare: a doua instanță pornește doar în citire | de făcut | | D002 punctul 6 (aprobat) |
 | F05-T12 | Gestionarea cheii aplicației: generare, păstrare în afara repo-ului, injectare la build | de făcut | | Aceeași cheie la toate versiunile; pierderea ei = date vechi ilizibile. Cine o păstrează: de decis |
-| F05-T13 | Script de build: versiunea din `versiune.go` în proprietățile `.exe` și commit-ul prin `-ldflags` | de făcut | | Acum `wails build` simplu lasă commit-ul „necunoscut” și versiunea fișierului implicită |
+| F05-T13 | Script de build: versiunea din `versiune.go` în proprietățile `.exe` și commit-ul prin `-ldflags` | gata | Claude | 2026-10-24, versiunea 0.3.3: `build.ps1`; versiunea în proprietățile `.exe` (verificată în Explorer: 0.3.3, Pontix, copyright) și commit-ul prin `-ldflags`. Câmpurile text ale versiunii nu se citesc din .NET (resursă în limba neutră), deci scriptul verifică partea numerică |
 | F05-T14 | Semnătura backup-urilor (HMAC-SHA256), verificată înainte de restaurare | de făcut | | D008 punctul 4: criptarea nu detectează modificările |

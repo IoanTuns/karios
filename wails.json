@@ -8,5 +8,10 @@
   "frontend:dev:serverUrl": "auto",
   "author": {
     "name": "Ioan Tuns"
+  },
+  "info": {
+    "productName": "Pontix",
+    "productVersion": "0.3.3",
+    "copyright": "© 2026 Ioan Tuns"
   }
 }

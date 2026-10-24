@@ -34,6 +34,7 @@ Faptele despre proiect stau în repo, nu în memoria privată a unui agent, pe c
 - **Datele reale ale angajaților nu intră în repo** (date personale, GDPR). Stau în `date-reale/`, ignorat de git. În teste intră doar date anonimizate.
 - **Niciun secret în repo:** tokenuri, parole, chei. Fișierele cu secrete sunt ignorate de git.
 - **O bibliotecă nouă** cere o decizie scrisă, cu licența verificată.
+- **Nu se rulează `wails build -v 2`** sau alte comenzi care afișează toate variabilele de mediu: pot conține parole și tokenuri, care ajung apoi în jurnale și conversații.
 
 ## 5. Calitatea lucrului
 
@@ -76,6 +77,7 @@ Niciun text afișat utilizatorului nu se scrie direct în cod ([D004](docs/deciz
 - Logica de calcul stă în `internal/calcul` și nu depinde de bază de date sau de interfață.
 - Versiunea Go a proiectului e cea din `toolchain` în `go.mod` (secțiunea 6).
 - Terminațiile de linie sunt LF (`.gitattributes`).
+- **Build:** `.\build.ps1` (PowerShell). Pune versiunea în proprietățile `.exe`, commit-ul prin `-ldflags` și verifică rezultatul. La creșterea versiunii se actualizează și `info.productVersion` din `wails.json` (verificat de `TestWailsJSON`).
 
 ## 10. Limba
 
