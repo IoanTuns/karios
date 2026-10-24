@@ -16,7 +16,7 @@ Un singur `.exe` care pornește pe orice Windows, fără instalare și fără dr
 | ID | Task | Stare | Responsabil | Note |
 | --- | --- | --- | --- | --- |
 | F05-T01 | Stabilește ultima versiune stabilă de Wails și verifică ce implică pentru proiect | gata | Claude | 2026-10-24: **Wails v2.17.0** (v3 e încă beta, exclus de D007; vezi I007). Node.js **24.22.1 LTS**. Wails v2 are opțiunea `WebviewUserDataPath` cerută de D002 |
-| F05-T02 | Scheletul Wails + React + TypeScript | de făcut | | |
+| F05-T02 | Scheletul Wails + React + TypeScript | în lucru | Claude | Mediu pregătit 2026-10-24: Node.js 24.22.1 LTS, npm 11.19.1, Wails CLI v2.17.0, WebView2 156; `wails doctor` fără probleme |
 | F05-T03 | Datele în `karios/` lângă `.exe`; cache-ul WebView2 în `karios/webview/` | de făcut | | `WebviewUserDataPath`; D002 |
 | F05-T04 | Setările aplicației | de făcut | | Include F03-T05. Dacă D008 e acceptată: în baza criptată, nu în `config.toml` |
 | F05-T05 | SQLite în modul WAL; verificarea dreptului de scriere în `karios/` | de făcut | | Discurile din rețea sunt amânate (D002 punctul 4, I005) |

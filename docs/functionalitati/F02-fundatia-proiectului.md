@@ -16,7 +16,7 @@ Proiectul are structura, uneltele și regulile de lucru pe care se construiește
 | ID | Task | Stare | Responsabil | Note |
 | --- | --- | --- | --- | --- |
 | F02-T01 | Modulul Go `pontix`, cod în `internal/` | gata | Claude | `go.mod`, 2026-10-24 |
-| F02-T02 | Instalează Go permanent pe calculatorul de dezvoltare | de făcut | | `winget install GoLang.Go`, ultima versiune stabilă (D007). Instalarea MSI a eșuat pe 2026-10-24 (alt installer rula); se folosește temporar Go portabil |
+| F02-T02 | Instalează Go permanent pe calculatorul de dezvoltare | gata | Claude | 2026-10-24: Go 1.27.3 în `D:\Apps\Go` (era deja instalat; winget a confirmat că nu există versiune mai nouă) |
 | F02-T03 | `CLAUDE.md` cu regulile proiectului | gata | Claude | 2026-10-24 |
 | F02-T04 | Structura de documentare: roadmap, funcționalități, decizii, jurnal | gata | Claude | [docs/README.md](../README.md), 2026-10-24 |
 | F02-T05 | Primul commit cu codul și documentația | gata | Claude | 2026-10-24, pe ramura `fundatie` |

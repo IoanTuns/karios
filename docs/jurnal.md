@@ -4,6 +4,8 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 
 | Data | Acțiune | Cine | Legături |
 | --- | --- | --- | --- |
+| 2026-10-24 | Merge `F05-T01-wails` → `main` (aduce și F15-conturi și F02-T10-versionare); tag `v0.1.0` | Ioan Tuns (aprobare), Claude | F05-T01, F02-T10, F15 |
+| 2026-10-24 | Instalări aprobate de Ioan Tuns: Node.js 24.22.1 LTS (winget), Wails CLI v2.17.0 (`go install`). Go 1.27.3 era deja instalat în `D:\Apps\Go`. `wails doctor`: sistem pregătit | Claude | F02-T02, F05-T02 |
 | 2026-10-24 | F05-T01: ultima versiune stabilă Wails = v2.17.0 (v3 doar beta, deci exclus); Node.js 24.22.1 LTS. Sursa: GitHub releases wailsapp/wails și nodejs.org/dist | Claude | F05-T01, [I007](idei.md) |
 | 2026-10-24 | Cerințe noi: fiecare modificare de cod = versiune nouă; fiecare raport și fiecare schimbare a bazei de date au versiunea lor. D009 propusă cu mecanismele; prima versiune 0.1.0; hook `.githooks/pre-commit` activat local (`core.hooksPath`) | Ioan Tuns (cerințe), Claude | [D009](decizii/D009-versionare.md), [versiuni.md](versiuni.md), F02-T10, F06-T06, F09-T06, F10-T05 |
 | 2026-10-24 | Decizii: D002 și D006 acceptate. Pentru D008: conturi în aplicație, auto-login pentru ultimul cont pe același Windows și calculator, primul cont = administrator, fără blocare la inactivitate în V1. Funcționalitate nouă F15 (conturi și acces); F12 depinde de ea | Ioan Tuns (decizii), Claude | [D002](decizii/D002-portabilitate.md), [D006](decizii/D006-reguli-agenti.md), [D008](decizii/D008-criptarea-datelor.md), [F15](functionalitati/F15-conturi-acces.md) |
