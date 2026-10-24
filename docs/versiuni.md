@@ -4,6 +4,15 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.3.0 · 2026-10-24
+
+Datele lângă executabil (F05-T03, D002).
+
+- Pachetul `internal/portabil` creează la pornire folderul `karios/` lângă `.exe`, cu `webview/` și `backup/`.
+- Cache-ul WebView2 stă în `karios/webview/` (`WebviewUserDataPath`). Verificat: aplicația nu mai creează nimic în `%APPDATA%` sau `%LOCALAPPDATA%`.
+
+Rapoarte: niciunul încă. Baza de date: nicio migrare încă.
+
 ## 0.2.0 · 2026-10-24
 
 Scheletul aplicației desktop (F05-T02).

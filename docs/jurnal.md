@@ -4,6 +4,7 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 
 | Data | Acțiune | Cine | Legături |
 | --- | --- | --- | --- |
+| 2026-10-24 | F05-T03: folderul de date `karios/` lângă `.exe` și cache-ul WebView2 în `karios/webview/` (versiunea 0.3.0). Prima pornire a aplicației: 8 s de rulare, `%APPDATA%` și `%LOCALAPPDATA%` au rămas fără foldere noi | Claude | F05-T03, [D002](decizii/D002-portabilitate.md) |
 | 2026-10-24 | F05-T02: scheletul aplicației (versiunea 0.2.0). Șablonul Wails react-ts adaptat: texte din cataloagele Go, fără exemplul Greet, fără installer NSIS și fișiere macOS. TypeScript 7 a cerut un `tsconfig.json` nou (opțiuni vechi eliminate). Pachete npm la ultimele versiuni stabile, fixate exact; licențe MIT (Wails, React, i18next, Vite) și Apache 2.0 (TypeScript). `npm audit`: 0 vulnerabilități | Claude | F05-T02, F03-T06, F05-T13, [versiuni.md](versiuni.md) |
 | 2026-10-24 | Merge `F05-T01-wails` → `main` (aduce și F15-conturi și F02-T10-versionare); tag `v0.1.0` | Ioan Tuns (aprobare), Claude | F05-T01, F02-T10, F15 |
 | 2026-10-24 | Instalări aprobate de Ioan Tuns: Node.js 24.22.1 LTS (winget), Wails CLI v2.17.0 (`go install`). Go 1.27.3 era deja instalat în `D:\Apps\Go`. `wails doctor`: sistem pregătit | Claude | F02-T02, F05-T02 |
