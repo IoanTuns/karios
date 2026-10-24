@@ -1,6 +1,6 @@
 # D009 · Versionarea aplicației, a rapoartelor și a bazei de date
 
-Stare: propusă (cele trei principii decise de Ioan Tuns; mecanismele propuse de Claude) · Data: 2026-10-24 · Taskuri: F02-T10, F06-T01, F09-T06, F10-T05
+Stare: acceptată · Data: 2026-10-24 · Decisă de: Ioan Tuns · Taskuri: F02-T10, F06-T01, F09-T06, F10-T05
 
 ## Context
 
