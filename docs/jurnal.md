@@ -4,6 +4,7 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 
 | Data | Acțiune | Cine | Legături |
 | --- | --- | --- | --- |
+| 2026-10-24 | `build.ps1` verifică proprietățile `.exe` prin Windows Shell (ca Explorer), nu prin .NET, care nu citea câmpurile text; aplicația nu depinde de .NET. Merge `F05-T13-script-build` → `main`; tag `v0.3.3` | Ioan Tuns (aprobare), Claude | F05-T13 |
 | 2026-10-24 | F05-T13: scriptul `build.ps1` și `info` în `wails.json` (versiunea 0.3.3). Verificat: Explorer arată 0.3.3, Pontix, © 2026 Ioan Tuns. Observație: `wails build -v 2` afișează toate variabilele de mediu, inclusiv valori sensibile; regulă nouă în AGENTS.md secțiunea 4 | Claude | F05-T13 |
 | 2026-10-24 | D008 (criptarea, varianta `xts`) și D010 (migrările cu goose) acceptate; note în D001 și D004 despre ce înlocuiesc. Merge `F06-T01-migrari` → `main`; tag-uri `v0.3.1` și `v0.3.2` | Ioan Tuns (decizii, aprobare), Claude | [D008](decizii/D008-criptarea-datelor.md), [D010](decizii/D010-migrari-goose.md) |
 | 2026-10-24 | F06-T01: goose v3.29.0 (MIT) verificat pe baza criptată: ordine, istoric cu dată, versiunea aplicației, fără reaplicare, detectarea downgrade-ului. D010 propusă. Hook corectat: protejează doar migrările din `main`, ca o migrare de pe o ramură să poată fi renumerotată la merge (versiunea 0.3.2) | Claude | F06-T01, [D010](decizii/D010-migrari-goose.md) |

@@ -18,11 +18,11 @@ if (git status --porcelain) {
 wails build -clean -trimpath -ldflags "-X pontix/internal/versiune.Commit=$commit"
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-# Partea numerică a versiunii; câmpurile text le arată Explorer, dar .NET nu le citește
-# din resursa scrisă de Wails (limba neutră).
-$info = [Diagnostics.FileVersionInfo]::GetVersionInfo((Resolve-Path build/bin/pontix.exe).Path)
-$inExe = "$($info.FileMajorPart).$($info.FileMinorPart).$($info.FileBuildPart)"
-if ($inExe -ne $versiune) {
-    throw "pontix.exe are versiunea $inExe, așteptat $versiune"
+# Proprietățile se citesc prin Windows Shell, aceeași sursă ca fereastra Proprietăți din Explorer.
+$exe = (New-Object -ComObject Shell.Application).Namespace((Resolve-Path build/bin).Path).ParseName('pontix.exe')
+$inExe = $exe.ExtendedProperty('System.Software.ProductVersion')
+$nume = $exe.ExtendedProperty('System.Software.ProductName')
+if ($inExe -ne $versiune -or $nume -ne 'Pontix') {
+    throw "pontix.exe are produsul '$nume', versiunea '$inExe'; așteptat 'Pontix', $versiune"
 }
-Write-Output "build/bin/pontix.exe: versiunea $inExe, commit $commit"
+Write-Output "build/bin/pontix.exe: $nume $inExe, commit $commit"
