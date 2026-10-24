@@ -56,10 +56,27 @@ O codare (base64, XOR, compresie) nu îndeplinește cerința: se decodează făr
 
 ### 4. Cum se criptează baza
 
-- **Propunere:** driverul SQLite `github.com/ncruces/go-sqlite3`, tot Go pur, fără CGO, cu VFS de criptare pe pagini (Adiantum sau AES-XTS). Toată baza, inclusiv jurnalul WAL, e criptată pe disc, iar interogările SQL funcționează normal.
+- **Propunere:** driverul SQLite `github.com/ncruces/go-sqlite3` (v0.35.6, licență MIT), tot Go pur, fără CGO, cu **VFS-ul `xts` (AES-256-XTS)**. Toată baza, inclusiv jurnalul WAL, e criptată pe disc, iar interogările SQL funcționează normal, prin interfața standard `database/sql`, pe care o folosește și `sqlc`.
 - **Ar înlocui** `modernc.org/sqlite` din D001, care nu are criptare.
 - **Respinse:** SQLCipher (cere CGO); criptarea câmp cu câmp în aplicație (fără căutare și sortare în SQL, ușor de uitat un câmp).
-- **De confirmat prin prototip (F05-T09):** modul WAL, `VACUUM INTO` cu baza criptată, `sqlc`, performanța pe o lună de pontaj, ultima versiune stabilă (D007).
+
+**Rezultatele prototipului (F05-T09, 2026-10-24),** `prototipuri/sqlite-criptat/`:
+
+| Verificare | `adiantum` | `xts` |
+| --- | --- | --- |
+| Modul WAL pe Windows | da | da |
+| Nimic lizibil pe disc (baza și jurnalul WAL) | da | da |
+| `VACUUM INTO` dă un backup criptat, care se redeschide cu cheia | da | da |
+| Cheie greșită sau deschidere fără criptare → refuz | da | da |
+| 4650 de rânduri (50 angajați × 31 zile × 3 segmente): scriere / totaluri | 19–34 ms / 7–11 ms | 22–51 ms / 7–16 ms |
+
+Un test de control confirmă că verificarea găsește textul într-o bază necriptată, deci rezultatele „nimic lizibil” sunt reale.
+
+**De ce `xts`:** folosește doar AES, un algoritm standard aprobat NIST/FIPS. Procesoarele actuale au instrucțiuni AES, deci diferența de viteză față de `adiantum` e neglijabilă la volumul nostru.
+
+**Limite găsite la prototip (valabile pentru ambele variante):**
+- **Criptarea nu detectează modificările.** Cine are fișierul poate strica sau înlocui pagini fără să știe ce conțin, iar aplicația nu-și dă seama. **Măsură:** fiecare backup primește o semnătură (HMAC-SHA256 cu o cheie derivată din cheia de date), verificată înainte de restaurare.
+- **Criptarea e deterministă.** Comparând două copii ale aceluiași fișier, se vede care pagini s-au schimbat, nu și ce conțin. Pentru amenințările din etapa 1 e acceptabil.
 
 ## Ce protejează și ce nu (etapa 1)
 

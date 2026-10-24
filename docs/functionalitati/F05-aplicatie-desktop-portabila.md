@@ -23,8 +23,9 @@ Un singur `.exe` care pornește pe orice Windows, fără instalare și fără dr
 | F05-T06 | Backup cu `VACUUM INTO`, automat înainte de migrări și la închiderea lunii | de făcut | | |
 | F05-T07 | Probă pe un PC Windows curat și de pe un stick USB | de făcut | | |
 | F05-T08 | Semnarea digitală a `.exe` | de făcut | | De ales furnizorul și costul; fără ea apar avertismente SmartScreen |
-| F05-T09 | Prototip SQLite criptat cu `ncruces/go-sqlite3`: WAL, `VACUUM INTO`, `sqlc`, performanță | de făcut | | D008 |
+| F05-T09 | Prototip SQLite criptat cu `ncruces/go-sqlite3`: WAL, `VACUUM INTO`, `sqlc`, performanță | gata | Claude | 2026-10-24, versiunea 0.3.1: toate verificările trec pe `adiantum` și `xts`; propus `xts`. Limite: fără detectarea modificărilor (backup-uri semnate), criptare deterministă. Rezultate în D008 |
 | F05-T10 | Seiful: cheia de date cu copiile A (cheia din `.exe`), P și R (pe cont) | de făcut | | D008 punctul 2; conturile sunt în F15 |
 | F05-T11 | Fișierul de blocare: a doua instanță pornește doar în citire | de făcut | | D002 punctul 6 (aprobat) |
 | F05-T12 | Gestionarea cheii aplicației: generare, păstrare în afara repo-ului, injectare la build | de făcut | | Aceeași cheie la toate versiunile; pierderea ei = date vechi ilizibile. Cine o păstrează: de decis |
 | F05-T13 | Script de build: versiunea din `versiune.go` în proprietățile `.exe` și commit-ul prin `-ldflags` | de făcut | | Acum `wails build` simplu lasă commit-ul „necunoscut” și versiunea fișierului implicită |
+| F05-T14 | Semnătura backup-urilor (HMAC-SHA256), verificată înainte de restaurare | de făcut | | D008 punctul 4: criptarea nu detectează modificările |
