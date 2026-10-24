@@ -1,6 +1,6 @@
 # D006 · Reguli de lucru pentru agenți
 
-Stare: propusă · Data: 2026-10-24 · Taskuri: F02-T07, F02-T08
+Stare: acceptată · Data: 2026-10-24 · Decisă de: Ioan Tuns · Taskuri: F02-T07, F02-T08
 
 ## Context
 

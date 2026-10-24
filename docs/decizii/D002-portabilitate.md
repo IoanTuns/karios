@@ -1,6 +1,6 @@
 # D002 · Reguli pentru portabilitate
 
-Stare: propusă (punctele 4 și 6 decise de Ioan Tuns) · Data: 2026-10-24 · Taskuri: F05-T03 … F05-T07, F05-T11
+Stare: acceptată · Data: 2026-10-24 · Decisă de: Ioan Tuns · Taskuri: F05-T03 … F05-T07, F05-T11
 
 ## Context
 

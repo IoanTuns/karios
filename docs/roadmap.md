@@ -17,9 +17,10 @@ Actualizat: 2026-10-24
 | [F09](functionalitati/F09-rapoarte-pdf.md) | Rapoarte PDF | V1 | de făcut | F04, F08 |
 | [F10](functionalitati/F10-export-excel.md) | Export Excel pentru salarizare | V1 | de făcut | F01, F04 |
 | [F11](functionalitati/F11-planificare.md) | Planificare și planificat vs. realizat | V1.1 | de făcut | F08 |
-| [F12](functionalitati/F12-inchidere-luna.md) | Închiderea lunii și jurnalul de modificări | V1.1 | de făcut | F06, F08 |
+| [F12](functionalitati/F12-inchidere-luna.md) | Închiderea lunii și jurnalul de modificări | V1.1 | de făcut | F06, F08, F15 |
 | [F13](functionalitati/F13-autentificare-sincronizare.md) | Autentificare și sincronizare | Ulterior | amânat | F06 |
 | [F14](functionalitati/F14-asistent-llm.md) | Asistent LLM local | Ulterior | amânat | F07, F08 |
+| [F15](functionalitati/F15-conturi-acces.md) | Conturi și acces (auto-login, roluri, recuperare) | V1 | de făcut | F05, F06 |
 
 ## Ordinea de lucru
 

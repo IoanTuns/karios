@@ -1,6 +1,6 @@
-# D008 · Criptarea datelor operaționale
+# D008 · Criptarea datelor și accesul
 
-Stare: propusă (varianta de cheie decisă de Ioan Tuns) · Data: 2026-10-24 · Taskuri: F05-T09, F05-T10, F05-T12
+Stare: propusă (punctele 1–3 decise de Ioan Tuns; driverul SQLite se confirmă prin F05-T09) · Data: 2026-10-24 · Taskuri: F05-T09, F05-T10, F05-T12, F15
 
 ## Context
 
@@ -14,9 +14,9 @@ O codare (base64, XOR, compresie) nu îndeplinește cerința: se decodează făr
 
 | Fișier | Conținut | Protecție |
 | --- | --- | --- |
-| `karios/pontix.db` (+ `-wal`, `-shm`) | toate datele, inclusiv setările | criptată pe pagini (punctul 4) |
+| `karios/pontix.db` (+ `-wal`, `-shm`) | toate datele, inclusiv setările și conturile | criptată pe pagini (punctul 4) |
 | `karios/backup/*.db` | copiile de siguranță | criptate cu aceeași cheie |
-| `karios/seif` | cheia de date împachetată, ultimul utilizator, întrebările de recuperare | criptat; răspunsurile doar ca hash |
+| `karios/seif` | copiile împachetate ale cheii de date, ultimul cont | criptat; parolele și răspunsurile doar ca hash |
 | `karios/pontix.lock` | cine are aplicația deschisă | criptat |
 | `karios/webview/` | cache-ul WebView2 | interfața nu păstrează date în browser (fără `localStorage`); folderul se golește la închidere |
 
@@ -24,31 +24,35 @@ O codare (base64, XOR, compresie) nu îndeplinește cerința: se decodează făr
 - **Traducerile corectate** (D004) se importă din aplicație și se păstrează în bază. Fișierele JSON aduse de utilizator sunt doar intrare pentru import.
 - **Excepție voită:** exporturile (PDF, Excel) sunt create la cererea utilizatorului, acolo unde alege el, și sunt lizibile.
 
-### 2. Cheia — etapa 1: cheie ascunsă în `.exe` (decizie Ioan Tuns, 2026-10-24)
-
-Se folosesc două niveluri de chei. Așa, nivelul de protecție se poate schimba mai târziu fără recriptarea bazei:
+### 2. Cheia — etapa 1: cheie ascunsă în `.exe` (decizie Ioan Tuns)
 
 - **Cheia de date:** aleatoare (256 biți), generată la prima pornire, diferită pentru fiecare folder `karios/`. Cu ea se criptează baza și backup-urile.
-- **Cheia aplicației:** ascunsă în `.exe`. Cu ea se împachetează cheia de date în `karios/seif` (AES-256-GCM).
-
-**Cheia aplicației nu intră în repo** (AGENTS.md, secțiunea 4). Se injectează la build (`-ldflags`) dintr-un fișier secret, ignorat de git, păstrat de un om. **Aceeași cheie trebuie folosită la toate versiunile.** Dacă se pierde, versiunile noi nu mai pot deschide datele vechi (F05-T12).
-
-### 3. Accesul: validarea ultimului utilizator, apoi întrebări de recuperare
-
-1. `karios/seif` reține **ultimul utilizator**: utilizatorul Windows (SID) și calculatorul.
-2. **Același utilizator, același calculator** → aplicația se deschide direct.
-3. **Utilizator sau calculator diferit** (folder mutat, alt cont) → aplicația cere **răspunsurile la întrebările de recuperare**. Dacă sunt corecte, noul utilizator devine „ultimul utilizator”.
-4. **Întrebările se stabilesc la prima pornire:** 3 întrebări alese sau scrise de utilizator, cu răspunsuri normalizate (fără diferențe de majuscule, diacritice sau spații). Răspunsurile se păstrează doar ca hash Argon2id, niciodată în clar.
-5. **După 5 încercări greșite**, așteptarea crește progresiv (1 min, 5 min, 30 min…), iar fiecare încercare se notează în jurnalul de modificări.
-
-**Împachetare dublă de la început (decizie Ioan Tuns, 2026-10-24):** cheia de date se împachetează *și* cu o cheie derivată din răspunsurile la întrebări (Argon2id peste răspunsurile normalizate). Seiful conține deci două copii împachetate ale aceleiași chei de date:
+- **Seiful păstrează mai multe copii împachetate (AES-256-GCM) ale aceleiași chei de date:**
 
 | Copie | Deschisă cu | Folosită când |
 | --- | --- | --- |
-| A | cheia din `.exe` | ultimul utilizator e același (etapa 1) |
-| B | cheia derivată din răspunsuri | recuperare; în etapa 2, singura copie |
+| A | cheia aplicației, ascunsă în `.exe` | pornire normală, auto-login (etapa 1) |
+| P (câte una pe cont) | cheia derivată din parola contului (Argon2id) | login cu parolă; în etapa 2, fără copia A |
+| R (câte una pe cont) | cheia derivată din răspunsurile la întrebările de recuperare ale contului | parolă uitată |
 
-Trecerea la etapa 2 înseamnă doar ștergerea copiei A, fără recriptarea bazei. Schimbarea întrebărilor sau a răspunsurilor reface doar copia B.
+- **Împachetarea multiplă e decisă de la început** (Ioan Tuns). Trecerea la etapa 2 înseamnă ștergerea copiei A, fără recriptarea bazei ([I006](../idei.md)). Schimbarea unei parole sau a unor răspunsuri reface doar copia acelui cont.
+- **Cheia aplicației nu intră în repo** (AGENTS.md, secțiunea 4). Se injectează la build (`-ldflags`) dintr-un fișier secret, ignorat de git, păstrat de un om. **Aceeași cheie trebuie folosită la toate versiunile.** Dacă se pierde, versiunile noi nu mai pot deschide datele vechi (F05-T12).
+
+### 3. Accesul: conturi în aplicație, cu auto-login pentru ultimul cont (decizii Ioan Tuns)
+
+- **Conturi în aplicație.** Fiecare persoană are cont propriu, cu parolă și 3 întrebări de recuperare. Parolele și răspunsurile se păstrează doar ca hash Argon2id; răspunsurile se normalizează (majuscule, diacritice, spații).
+- **Roluri.** Contul creat la prima pornire e **administrator**: creează și dezactivează conturi și poate reseta parola unui utilizator. Celelalte conturi sunt **operatori**. Ultimul administrator nu poate fi șters sau retrogradat.
+- **Pornirea:**
+  1. Seiful reține ultimul cont, împreună cu utilizatorul Windows (SID) și calculatorul pe care s-a autentificat.
+  2. **Același utilizator Windows, același calculator** → **auto-login** în ultimul cont.
+  3. **Altfel** (alt cont Windows, alt PC, folder mutat) → ecran de login, cu numele ultimului cont precompletat; se cere parola.
+  4. **„Ieșire din cont”** oprește auto-login-ul până la următorul login cu parolă. Așa, cine lasă calculatorul altcuiva poate închide accesul.
+- **Parolă uitată:** răspunsurile la întrebările contului sau resetarea de către un administrator.
+- **Încercări greșite:** după 5, așteptarea crește progresiv (1 min, 5 min, 30 min…); fiecare încercare se notează în jurnalul de modificări.
+- **„Cine”** din jurnalul de modificări (F12) este contul din aplicație.
+- **Fără blocare automată la inactivitate în V1** (Ioan Tuns). Se poate adăuga ulterior.
+
+**Risc asumat (auto-login):** oricine folosește aceeași sesiune Windows pe același calculator intră ca ultimul cont. În acest caz, „Cine” din jurnal arată contul, nu neapărat persoana. Măsura e „Ieșire din cont”.
 
 ### 4. Cum se criptează baza
 
@@ -63,27 +67,28 @@ Trecerea la etapa 2 înseamnă doar ștergerea copiei A, fără recriptarea baze
 | --- | --- |
 | Cineva deschide `karios/pontix.db` cu un program SQLite sau într-un editor | **da**, vede doar octeți criptați |
 | Folderul `karios/` copiat sau furat, fără `.exe` | **da** |
-| Folderul mutat pe alt calculator, deschis cu aplicația, fără răspunsurile la întrebări | **da**, cât timp nu se ocolește aplicația |
+| Folderul mutat pe alt calculator și deschis cu aplicația, fără parola unui cont | **da**, cât timp nu se ocolește aplicația |
+| Altcineva în aceeași sesiune Windows, pe același calculator | **nu**: auto-login (risc asumat, vezi punctul 3) |
 | Cineva cu `.exe` care analizează programul și scoate cheia | **nu**: o poate face un specialist; programele Go se analizează relativ ușor |
-| Răspunsuri la întrebări ușor de ghicit (data nașterii, numele orașului) | **slab**; de aceea întrebările sunt alese de utilizator |
 
-Pentru o protecție reală împotriva unui atacator hotărât e nevoie de etapa 2 (parolă sau răspunsuri care derivă cheia). Ideea e înregistrată ca [I006](../idei.md).
+Protecția reală împotriva unui atacator hotărât vine în etapa 2 ([I006](../idei.md)): fără copia A și fără auto-login, cheia de date se deschide doar cu parola unui cont.
 
 ## Variante respinse
 
 - **Codare (base64, XOR)** — nu protejează nimic.
 - **Windows DPAPI ca singură cheie** — folderul mutat pe alt calculator nu s-ar mai putea deschide; contrazice D002.
-- **Parolă la fiecare pornire, din prima etapă** — amânată la cererea lui Ioan Tuns (I006).
+- **Utilizatorul Windows ca identitate** — înlocuit de conturile din aplicație (Ioan Tuns).
+- **Parolă la fiecare pornire** — înlocuită de auto-login pentru ultimul cont (Ioan Tuns).
+- **Toate conturile egale** — înlocuit de rolurile administrator și operator (Ioan Tuns).
 
 ## Întrebări deschise
 
-1. **Utilizatori:** rămâne utilizatorul Windows singura identitate, sau se fac conturi în aplicație? Conturile ar completa „Cine” în jurnalul de modificări (F12) și s-ar lega de autentificarea viitoare (F13).
-2. **Blocarea automată** după inactivitate: da sau nu? Cu etapa 1, ar însemna reverificarea utilizatorului sau a întrebărilor.
-3. **Cine păstrează cheia aplicației** și unde (F05-T12).
+1. **Cine păstrează cheia aplicației** și unde (F05-T12).
 
 ## Consecințe
 
-- Datele nu pot fi citite cu alte programe; accesul trece prin aplicație.
-- Apare un ecran pentru stabilirea întrebărilor la prima pornire și unul pentru recuperare, cu texte traduse (D004). Limba lor se ia din Windows, fiindcă setările sunt încă criptate în acel moment.
+- Datele nu pot fi citite cu alte programe; accesul trece prin aplicație și printr-un cont.
+- Ecrane noi, cu texte traduse (D004): crearea administratorului la prima pornire, login, recuperare, gestionarea conturilor. Limba ecranelor dinaintea deblocării se ia din Windows.
+- Conturile devin o funcționalitate de V1 ([F15](../functionalitati/F15-conturi-acces.md)); jurnalul de modificări (F12) depinde de ele.
 - Cheia aplicației devine un secret critic al proiectului (F05-T12).
 - După acceptare se schimbă: D001 (driverul SQLite), D004 (traducerile din folder devin import), F05-T04 (setările în bază).

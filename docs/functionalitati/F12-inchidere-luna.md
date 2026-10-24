@@ -1,6 +1,6 @@
 # F12 · Închiderea lunii și jurnalul de modificări
 
-Etapă: V1.1 · Stare: de făcut · Depinde de: F06, F08
+Etapă: V1.1 · Stare: de făcut · Depinde de: F06, F08, F15
 
 ## Scop
 
@@ -12,4 +12,4 @@ O lună închisă nu se mai poate modifica și calculul ei rămâne înghețat. 
 | --- | --- | --- | --- | --- |
 | F12-T01 | Închiderea și redeschiderea lunii; înghețarea `pontaj_segmente` cu procentele de atunci | de făcut | | |
 | F12-T02 | Ecranul jurnalului de modificări | de făcut | | Tabelul vine din F06-T04 |
-| F12-T03 | „Cine” în jurnal = utilizatorul Windows, până la autentificare | de făcut | | |
+| F12-T03 | „Cine” în jurnal = contul din aplicație | de făcut | | Vine din F15-T08 |

@@ -6,7 +6,7 @@ Stări: `nouă`, `în analiză`, `transformată` (în task sau decizie), `amâna
 
 | ID | Data | Idee | Cine | Stare | Legături / motiv |
 | --- | --- | --- | --- | --- | --- |
-| I006 | 2026-10-24 | Etapa 2 a criptării: cheia de date protejată doar de răspunsurile la întrebări (sau de o parolă), nu de cheia din `.exe` | Claude | amânată | Etapa 1 = cheie în `.exe` (decizie Ioan Tuns). Copia împachetată cu răspunsurile există de la început, deci trecerea = ștergerea copiei A ([D008](decizii/D008-criptarea-datelor.md)) |
+| I006 | 2026-10-24 | Etapa 2 a criptării: cheia de date deschisă doar cu parola sau răspunsurile unui cont; fără cheia din `.exe` și fără auto-login | Claude | amânată | Copiile P și R există de la început, deci trecerea = ștergerea copiei A ([D008](decizii/D008-criptarea-datelor.md)) |
 | I005 | 2026-10-24 | Folderul de date pe un disc din rețea, atașat de utilizator | Ioan Tuns | amânată | Se adaugă ulterior ca opțiune a utilizatorului ([D002](decizii/D002-portabilitate.md) punctul 4). Atenție: WAL nu merge pe rețea, risc de corupere cu mai mulți utilizatori |
 | I004 | 2026-10-24 | Avertisment când după o gardă de 24 h nu urmează ziua liberă obligatorie | Claude | nouă | Depinde de răspunsul la întrebarea 3.4 din chestionar (F01-T02) |
 | I003 | 2026-10-24 | GitHub Issues legate de ID-urile de task | Claude | amânată | Repo-ul nu are remote; vezi [D005](decizii/D005-documentare.md) |

@@ -4,6 +4,7 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 
 | Data | Acțiune | Cine | Legături |
 | --- | --- | --- | --- |
+| 2026-10-24 | Decizii: D002 și D006 acceptate. Pentru D008: conturi în aplicație, auto-login pentru ultimul cont pe același Windows și calculator, primul cont = administrator, fără blocare la inactivitate în V1. Funcționalitate nouă F15 (conturi și acces); F12 depinde de ea | Ioan Tuns (decizii), Claude | [D002](decizii/D002-portabilitate.md), [D006](decizii/D006-reguli-agenti.md), [D008](decizii/D008-criptarea-datelor.md), [F15](functionalitati/F15-conturi-acces.md) |
 | 2026-10-24 | Merge `fundatie` → `main`, la cererea lui Ioan Tuns | Ioan Tuns (aprobare), Claude | F02-T05 … T09 |
 | 2026-10-24 | Două commit-uri pe `fundatie`: actualizarea Go (separat, după D007) și regulile pentru agenți, deciziile D002 și D006–D008, ideile. `gofmt`, `go vet` și testele trec | Claude | F02-T07 … T09 |
 | 2026-10-24 | Decizie: cheia de date se împachetează de la început și cu cheia derivată din răspunsurile la întrebări (două copii în seif); trecerea la etapa 2 nu va cere recriptare | Ioan Tuns (decizie), Claude | [D008](decizii/D008-criptarea-datelor.md), [I006](idei.md) |
