@@ -4,6 +4,7 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 
 | Data | Acțiune | Cine | Legături |
 | --- | --- | --- | --- |
+| 2026-10-24 | D008 (criptarea, varianta `xts`) și D010 (migrările cu goose) acceptate; note în D001 și D004 despre ce înlocuiesc. Merge `F06-T01-migrari` → `main`; tag-uri `v0.3.1` și `v0.3.2` | Ioan Tuns (decizii, aprobare), Claude | [D008](decizii/D008-criptarea-datelor.md), [D010](decizii/D010-migrari-goose.md) |
 | 2026-10-24 | F06-T01: goose v3.29.0 (MIT) verificat pe baza criptată: ordine, istoric cu dată, versiunea aplicației, fără reaplicare, detectarea downgrade-ului. D010 propusă. Hook corectat: protejează doar migrările din `main`, ca o migrare de pe o ramură să poată fi renumerotată la merge (versiunea 0.3.2) | Claude | F06-T01, [D010](decizii/D010-migrari-goose.md) |
 | 2026-10-24 | F05-T09: prototipul SQLite criptat (`prototipuri/sqlite-criptat/`, modul Go separat). `ncruces/go-sqlite3` v0.35.6 (MIT): WAL, nimic lizibil pe disc, backup `VACUUM INTO` criptat, refuz cu cheie greșită; 4650 de rânduri în sub 60 ms. Test de control pentru verificare. Propus VFS-ul `xts`; limite găsite: fără detectarea modificărilor, criptare deterministă → task F05-T14 | Claude | F05-T09, F05-T14, [D008](decizii/D008-criptarea-datelor.md) |
 | 2026-10-24 | D009 (versionarea) acceptată. Merge `F05-T03-date-langa-exe` → `main` (aduce și F05-T02); tag-uri `v0.2.0` și `v0.3.0` | Ioan Tuns (decizie, aprobare), Claude | [D009](decizii/D009-versionare.md), F05-T02, F05-T03 |

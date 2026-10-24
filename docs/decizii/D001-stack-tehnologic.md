@@ -3,6 +3,8 @@
 Stare: acceptată · Data: 2026-10-23 · Taskuri: F02-T01, F05-T01, F05-T02
 
 > Versiunile fixe de mai jos (Wails v2, maroto v2) sunt înlocuite de [D007](D007-versiuni-stabile.md): se folosește mereu ultima versiune stabilă.
+>
+> Driverul SQLite `modernc.org/sqlite` e înlocuit de `ncruces/go-sqlite3` cu criptare `xts` ([D008](D008-criptarea-datelor.md)). Migrările: goose ([D010](D010-migrari-goose.md)). Setările stau în baza criptată, nu în `config.toml` (D008).
 
 ## Context
 

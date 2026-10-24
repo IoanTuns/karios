@@ -1,6 +1,6 @@
 # D010 · Migrările bazei de date cu goose
 
-Stare: propusă · Data: 2026-10-24 · Taskuri: F06-T01, F06-T06
+Stare: acceptată · Data: 2026-10-24 · Decisă de: Ioan Tuns · Taskuri: F06-T01, F06-T06
 
 ## Context
 

@@ -1,6 +1,6 @@
 # D008 · Criptarea datelor și accesul
 
-Stare: propusă (punctele 1–3 decise de Ioan Tuns; driverul SQLite se confirmă prin F05-T09) · Data: 2026-10-24 · Taskuri: F05-T09, F05-T10, F05-T12, F15
+Stare: acceptată · Data: 2026-10-24 · Decisă de: Ioan Tuns · Taskuri: F05-T09, F05-T10, F05-T12, F15
 
 ## Context
 

@@ -2,6 +2,8 @@
 
 Stare: acceptată · Data: 2026-10-24 · Taskuri: toate din F03
 
+> Folderul de traduceri de lângă `.exe` devine sursă de import: traducerile corectate se păstrează în baza criptată ([D008](D008-criptarea-datelor.md)).
+
 ## Context
 
 Aplicația trebuie să fie disponibilă cel puțin în română și engleză. Cerința s-a extins în aceeași zi: totul să fie configurabil și traductibil, inclusiv rapoartele și datele introduse de utilizator.
