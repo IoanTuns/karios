@@ -21,7 +21,14 @@ if [ -n "$cod" ]; then
 fi
 
 # 2. O migrare salvată nu se mai modifică; orice schimbare a bazei e o migrare nouă.
-modificate=$(git diff --cached --name-only --diff-filter=MDR -- internal/bd/migrari/)
+# „Salvată” = există în main (D010). Pe o ramură încă neadusă în main, o migrare
+# se poate redenumi, de exemplu când altă ramură a folosit deja același număr.
+modificate=""
+for f in $(git diff --cached --name-only --no-renames --diff-filter=MD -- internal/bd/migrari/); do
+	if git cat-file -e "main:$f" 2>/dev/null; then
+		modificate="$modificate $f"
+	fi
+done
 if [ -n "$modificate" ]; then
 	echo "D009: migrările existente nu se modifică; scrie o migrare nouă:" >&2
 	printf '  %s\n' $modificate >&2

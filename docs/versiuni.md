@@ -4,6 +4,15 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.3.2 · 2026-10-24
+
+Prototipul migrărilor (F06-T01). Aplicația nu se schimbă.
+
+- `prototipuri/sqlite-criptat/migrari_test.go`: goose v3.29.0 pe baza criptată; rezultatele sunt în D010.
+- Hook-ul `pre-commit` protejează doar migrările existente în `main`.
+
+Rapoarte: niciunul încă. Baza de date: nicio migrare încă.
+
 ## 0.3.1 · 2026-10-24
 
 Prototipul bazei de date criptate (F05-T09). Aplicația nu se schimbă.
