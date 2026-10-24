@@ -1,0 +1,31 @@
+#!/bin/sh
+# Verificările de versionare (D009). Activare, o dată pe clonă:
+#   git config core.hooksPath .githooks
+
+staged=$(git diff --cached --name-only --diff-filter=ACMRD)
+
+# 1. Orice schimbare de cod crește versiunea aplicației și are intrare în istoric.
+cod=$(printf '%s\n' "$staged" \
+	| grep -E '\.(go|sql|ts|tsx|js|jsx|css|json)$|^go\.(mod|sum)$' \
+	| grep -vE '^docs/|^internal/versiune/versiune\.go$')
+if [ -n "$cod" ]; then
+	if ! git diff --cached -- internal/versiune/versiune.go | grep -q '^+const Aplicatie'; then
+		echo "D009: commit-ul schimbă codul, dar nu crește versiunea din internal/versiune/versiune.go:" >&2
+		printf '  %s\n' $cod >&2
+		exit 1
+	fi
+	if ! printf '%s\n' "$staged" | grep -qx 'docs/versiuni.md'; then
+		echo "D009: versiunea nouă trebuie descrisă în docs/versiuni.md" >&2
+		exit 1
+	fi
+fi
+
+# 2. O migrare salvată nu se mai modifică; orice schimbare a bazei e o migrare nouă.
+modificate=$(git diff --cached --name-only --diff-filter=MDR -- internal/bd/migrari/)
+if [ -n "$modificate" ]; then
+	echo "D009: migrările existente nu se modifică; scrie o migrare nouă:" >&2
+	printf '  %s\n' $modificate >&2
+	exit 1
+fi
+
+exit 0

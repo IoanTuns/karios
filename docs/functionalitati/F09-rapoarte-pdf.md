@@ -15,3 +15,4 @@ Rapoartele se tipăresc dintr-un PDF generat, cu același aspect pe orice calcul
 | F09-T03 | Fișa individuală pe angajat și lună | de făcut | | |
 | F09-T04 | Graficul de schimburi | de făcut | | |
 | F09-T05 | Textele rapoartelor din cataloage, în limba din `limba_rapoarte` | de făcut | | F03-T09 |
+| F09-T06 | Versiunea fiecărui raport, subsolul cu versiuni și testele cu fișier de referință | de făcut | | D009 punctul 2 |

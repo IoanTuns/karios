@@ -14,3 +14,4 @@ Datele lunii ajung în programul de salarizare fără să fie retastate.
 | F10-T02 | Exportul centralizatorului în Excel (`excelize`), cu același aspect | de făcut | | |
 | F10-T03 | Exportul pentru salarizare în formatul de la F10-T01 | de făcut | | Limba din `limba_rapoarte` |
 | F10-T04 | Import din Excel (opțional) | de făcut | | |
+| F10-T05 | Versiunea fiecărui export și testele cu fișier de referință | de făcut | | D009 punctul 2 |

@@ -53,7 +53,16 @@ Se folosește mereu cea mai nouă versiune stabilă pentru tot: Go, Wails, Node,
 - **Versiune majoră nouă** (schimbări incompatibile): agentul citește notele de lansare și verifică licența. Dacă se schimbă licența → decizie nouă și aprobare.
 - **Dacă ultima versiune strică ceva** ce nu se poate repara în task, se rămâne temporar la cea anterioară, cu motivul în jurnal și un task pentru actualizare.
 
-## 7. Traduceri
+## 7. Versionarea aplicației, a rapoartelor și a bazei de date
+
+Detalii în [D009](docs/decizii/D009-versionare.md).
+
+- **Aplicația:** orice commit care schimbă codul crește `const Aplicatie` din `internal/versiune/versiune.go` (`MAJOR.MINOR.PATCH`) și adaugă o secțiune în [docs/versiuni.md](docs/versiuni.md), în același commit. Commit-urile doar cu documentație nu schimbă versiunea.
+- **Rapoartele:** fiecare raport are versiunea lui (`const Versiune` în pachetul raportului), care crește când se schimbă conținutul, aspectul sau calculul. Testul cu fișier de referință al raportului trebuie actualizat odată cu versiunea.
+- **Baza de date:** orice schimbare e o migrare nouă, numerotată, în `internal/bd/migrari/`. O migrare salvată nu se mai modifică.
+- **Hook-ul** `.githooks/pre-commit` verifică primele și ultimele reguli. Se activează o dată pe clonă: `git config core.hooksPath .githooks`. Nu se ocolește (`--no-verify`).
+
+## 8. Traduceri
 
 Niciun text afișat utilizatorului nu se scrie direct în cod ([D004](docs/decizii/D004-traduceri.md)).
 
@@ -61,14 +70,14 @@ Niciun text afișat utilizatorului nu se scrie direct în cod ([D004](docs/deciz
 - Erori pentru utilizator → `calcul.Eroare{Cod, Param}` sau un tip asemănător, nu `fmt.Errorf` cu text.
 - Denumiri introduse de utilizator → `i18n.Text`.
 
-## 8. Cod și mediu
+## 9. Cod și mediu
 
 - Identificatorii și comentariile sunt în română, fără diacritice în identificatori.
 - Logica de calcul stă în `internal/calcul` și nu depinde de bază de date sau de interfață.
 - Versiunea Go a proiectului e cea din `toolchain` în `go.mod` (secțiunea 6).
 - Terminațiile de linie sunt LF (`.gitattributes`).
 
-## 9. Limba
+## 10. Limba
 
 - Documentația, comentariile și mesajele de commit: română.
 - Conversația cu utilizatorul: în limba în care scrie el.
