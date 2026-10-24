@@ -8,7 +8,7 @@ Graficul planificat se face separat de ce s-a lucrat efectiv, iar diferențele s
 
 ## Taskuri
 
-| ID | Task | Stare | Note |
-| --- | --- | --- | --- |
-| F11-T01 | Grila de planificare (tabelul `planificare`) | de făcut | Dacă se planifică lunar: F01-T02 |
-| F11-T02 | Raportul planificat vs. realizat | de făcut | |
+| ID | Task | Stare | Responsabil | Note |
+| --- | --- | --- | --- | --- |
+| F11-T01 | Grila de planificare (tabelul `planificare`) | de făcut | | Dacă se planifică lunar: F01-T02 |
+| F11-T02 | Raportul planificat vs. realizat | de făcut | | |

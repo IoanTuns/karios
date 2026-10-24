@@ -8,9 +8,9 @@ Utilizatorul se autentifică printr-un API GraphQL (de exemplu contul Saleor), i
 
 ## Taskuri
 
-| ID | Task | Stare | Note |
-| --- | --- | --- | --- |
-| F13-T01 | Pregătire în V1: `current_user()`, adresa API în `config.toml`, coloanele de sincronizare | de făcut | Coloanele intră în F06-T02 |
-| F13-T02 | Login cu `tokenCreate`, reînnoire cu `tokenRefresh` (`genqlient`) | amânat | |
-| F13-T03 | Tokenuri în Windows Credential Manager (`go-keyring`) | amânat | Excepție de la portabilitate, vezi D002 |
-| F13-T04 | Sincronizarea datelor | amânat | |
+| ID | Task | Stare | Responsabil | Note |
+| --- | --- | --- | --- | --- |
+| F13-T01 | Pregătire în V1: `current_user()`, adresa API în `config.toml`, coloanele de sincronizare | de făcut | | Coloanele intră în F06-T02 |
+| F13-T02 | Login cu `tokenCreate`, reînnoire cu `tokenRefresh` (`genqlient`) | amânat | | |
+| F13-T03 | Tokenuri în Windows Credential Manager (`go-keyring`) | amânat | | Excepție de la portabilitate, vezi D002 |
+| F13-T04 | Sincronizarea datelor | amânat | | |

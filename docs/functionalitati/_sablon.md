@@ -12,6 +12,6 @@ Ce poate face utilizatorul după ce funcționalitatea e gata, în una-două prop
 
 ## Taskuri
 
-| ID | Task | Stare | Note |
-| --- | --- | --- | --- |
-| Fxx-T01 | | de făcut | |
+| ID | Task | Stare | Responsabil | Note |
+| --- | --- | --- | --- | --- |
+| Fxx-T01 | | de făcut | | |

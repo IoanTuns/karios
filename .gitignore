@@ -1,0 +1,22 @@
+# Date reale ale angajaților (GDPR) — nu intră niciodată în repo
+date-reale/
+
+# Folderul de date operaționale al aplicației (D002), dacă e creat la rularea din repo
+karios/
+
+# Baze de date locale
+*.db
+*.db-wal
+*.db-shm
+
+# Secrete și configurări locale
+.env
+*.local.toml
+
+# Build
+build/bin/
+frontend/node_modules/
+frontend/dist/
+
+# Medii locale
+.venv/
