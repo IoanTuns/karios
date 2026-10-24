@@ -19,7 +19,7 @@ Un singur `.exe` care pornește pe orice Windows, fără instalare și fără dr
 | F05-T02 | Scheletul Wails + React + TypeScript | gata | Claude | 2026-10-24, versiunea 0.2.0: Wails 2.17.0, React 19.3.1, TypeScript 7.0.2, Vite 8.3.5; `pontix.exe` 11,5 MB. Nepornit încă: întâi F05-T03 (altfel WebView2 scrie în `%APPDATA%`) |
 | F05-T03 | Datele în `karios/` lângă `.exe`; cache-ul WebView2 în `karios/webview/` | gata | Claude | 2026-10-24, versiunea 0.3.0: `internal/portabil`, `WebviewUserDataPath`. Verificat: după 8 s de rulare, niciun folder nou în `%APPDATA%` sau `%LOCALAPPDATA%`; cache-ul în `karios/webview/` |
 | F05-T04 | Setările aplicației | de făcut | | Include F03-T05. Dacă D008 e acceptată: în baza criptată, nu în `config.toml` |
-| F05-T05 | SQLite în modul WAL; verificarea dreptului de scriere în `karios/` | de făcut | | Discurile din rețea sunt amânate (D002 punctul 4, I005) |
+| F05-T05 | Verificarea dreptului de scriere în `karios/`, cu mesaj tradus | gata | Claude | 2026-10-24, versiunea 0.4.0: fereastră Windows de eroare în limba Windows. Verificat pe `.exe`: folder fără drept de scriere (ACL) și fișier `karios` care blochează folderul; în ambele cazuri apare mesajul și nu se creează nimic. Modul WAL a trecut la F06-T02 |
 | F05-T06 | Backup cu `VACUUM INTO`, automat înainte de migrări și la închiderea lunii | de făcut | | |
 | F05-T07 | Probă pe un PC Windows curat și de pe un stick USB | de făcut | | |
 | F05-T08 | Semnarea digitală a `.exe` | de făcut | | De ales furnizorul și costul; fără ea apar avertismente SmartScreen |

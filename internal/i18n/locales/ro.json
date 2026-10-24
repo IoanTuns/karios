@@ -2,6 +2,9 @@
   "aplicatie.titlu": "Pontix",
   "aplicatie.versiune": "Versiunea {{versiune}}",
   "aplicatie.subtitlu": "Pontajul lunar cu ture",
+  "aplicatie.eroare_pornire": "Pontix nu poate porni.\n\nDetalii: {{detalii}}",
+
+  "portabil.fara_scriere": "Pontix nu poate scrie în folderul:\n{{folder}}\n\nMută aplicația (pontix.exe) într-un folder în care ai drept de scriere, de exemplu în Documente sau pe un stick USB, și pornește-o din nou.",
 
   "tip_zi.LUCRATOARE": "Zi lucrătoare",
   "tip_zi.SAMBATA": "Sâmbătă",

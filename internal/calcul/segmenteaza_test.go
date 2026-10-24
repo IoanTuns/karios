@@ -201,7 +201,7 @@ func TestValideaza(t *testing.T) {
 	}
 
 	lucr := func(cod, deLa, panaLa string) *Eroare {
-		return &Eroare{cod, map[string]string{"tip": "LUCRATOARE", "de_la": deLa, "pana_la": panaLa}}
+		return &Eroare{Cod: cod, Param: map[string]string{"tip": "LUCRATOARE", "de_la": deLa, "pana_la": panaLa}}
 	}
 
 	cazuri := []struct {
@@ -226,7 +226,7 @@ func TestValideaza(t *testing.T) {
 		), lucr("reguli.interval_invalid", "22:00", "06:00")},
 		{"tip de zi necunoscut",
 			SetReguli{Intervale: append([]Interval{{"LUNI", 0, 1440, "ZI"}}, reguliDoc.Intervale...)},
-			&Eroare{"reguli.tip_zi_necunoscut", map[string]string{"tip": "LUNI"}}},
+			&Eroare{Cod: "reguli.tip_zi_necunoscut", Param: map[string]string{"tip": "LUNI"}}},
 	}
 	for _, c := range cazuri {
 		t.Run(c.nume, func(t *testing.T) {

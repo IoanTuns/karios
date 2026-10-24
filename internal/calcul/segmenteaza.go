@@ -22,7 +22,7 @@ type Segment struct {
 func Segmenteaza(start, sfarsit time.Time, reguli SetReguli, cal Calendar) ([]Segment, error) {
 	start, sfarsit = start.In(Locatie), sfarsit.In(Locatie)
 	if !sfarsit.After(start) {
-		return nil, &Eroare{"calcul.tura_inversata", map[string]string{
+		return nil, &Eroare{Cod: "calcul.tura_inversata", Param: map[string]string{
 			"start": start.Format(formatOra), "sfarsit": sfarsit.Format(formatOra)}}
 	}
 
@@ -47,7 +47,7 @@ func Segmenteaza(start, sfarsit time.Time, reguli SetReguli, cal Calendar) ([]Se
 			}
 		}
 		if categorie == "" {
-			return nil, &Eroare{"calcul.regula_lipsa", map[string]string{"tip": string(tip), "ora": t.Format(formatOra)}}
+			return nil, &Eroare{Cod: "calcul.regula_lipsa", Param: map[string]string{"tip": string(tip), "ora": t.Format(formatOra)}}
 		}
 		if limita.After(sfarsit) {
 			limita = sfarsit

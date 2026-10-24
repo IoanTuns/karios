@@ -5,6 +5,8 @@ package portabil
 import (
 	"os"
 	"path/filepath"
+
+	"pontix/internal/i18n"
 )
 
 // NumeFolderDate este folderul de lângă .exe în care stau toate datele operaționale.
@@ -29,7 +31,9 @@ func Pregateste() (Foldere, error) {
 	return PregatesteIn(filepath.Dir(exe))
 }
 
-// PregatesteIn creează folderul de date în dir și subfolderele lui.
+// PregatesteIn creează folderul de date în dir, cu subfolderele lui, și verifică
+// faptul că aplicația poate scrie în el. Dacă nu poate, întoarce *i18n.Eroare
+// cu codul "portabil.fara_scriere" (D002 punctul 5).
 func PregatesteIn(dir string) (Foldere, error) {
 	radacina := filepath.Join(dir, NumeFolderDate)
 	f := Foldere{
@@ -37,10 +41,19 @@ func PregatesteIn(dir string) (Foldere, error) {
 		WebView:  filepath.Join(radacina, "webview"),
 		Backup:   filepath.Join(radacina, "backup"),
 	}
+	faraScriere := &i18n.Eroare{Cod: "portabil.fara_scriere", Param: map[string]string{"folder": radacina}}
+
 	for _, d := range []string{f.Radacina, f.WebView, f.Backup} {
 		if err := os.MkdirAll(d, 0o700); err != nil {
-			return Foldere{}, err
+			return Foldere{}, faraScriere
 		}
 	}
+	// Un folder existent poate fi totuși fără drept de scriere.
+	proba, err := os.CreateTemp(f.Radacina, "verificare-*")
+	if err != nil {
+		return Foldere{}, faraScriere
+	}
+	proba.Close()
+	os.Remove(proba.Name())
 	return f, nil
 }

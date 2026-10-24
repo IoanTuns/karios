@@ -1,9 +1,12 @@
 package portabil
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"pontix/internal/i18n"
 )
 
 func TestPregatesteIn(t *testing.T) {
@@ -38,7 +41,34 @@ func TestPregatesteInEroare(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(dir, NumeFolderDate), nil, 0o600); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := PregatesteIn(dir); err == nil {
-		t.Error("aștepta eroare când folderul de date nu poate fi creat")
+	_, err := PregatesteIn(dir)
+	var e *i18n.Eroare
+	if !errors.As(err, &e) || e.Cod != "portabil.fara_scriere" {
+		t.Fatalf("aștepta eroarea portabil.fara_scriere, a primit %v", err)
+	}
+	if e.Param["folder"] != filepath.Join(dir, NumeFolderDate) {
+		t.Errorf("parametrul folder: %q", e.Param["folder"])
+	}
+	for _, l := range i18n.Limbi() {
+		if e.Text(l) == e.Cod {
+			t.Errorf("%s: mesajul nu are traducere", l)
+		}
+	}
+}
+
+func TestPregatesteInFaraFisiereRamase(t *testing.T) {
+	dir := t.TempDir()
+	f, err := PregatesteIn(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	intrari, err := os.ReadDir(f.Radacina)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, i := range intrari {
+		if !i.IsDir() {
+			t.Errorf("fișierul de verificare a rămas: %s", i.Name())
+		}
 	}
 }

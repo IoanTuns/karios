@@ -139,6 +139,34 @@ func TestCatalog(t *testing.T) {
 	}
 }
 
+func TestAlegeLimba(t *testing.T) {
+	cazuri := []struct {
+		preferate []string
+		asteptat  Limba
+	}{
+		{[]string{"en-US", "ro-RO"}, Engleza},
+		{[]string{"ro-RO"}, Romana},
+		{[]string{"de-DE", "en-GB"}, Engleza},
+		{[]string{"de-DE"}, Implicita},
+		{nil, Implicita},
+	}
+	for _, c := range cazuri {
+		if got := alegeLimba(c.preferate); got != c.asteptat {
+			t.Errorf("alegeLimba(%v) = %q, așteptat %q", c.preferate, got, c.asteptat)
+		}
+	}
+}
+
+func TestEroare(t *testing.T) {
+	e := &Eroare{"reguli.gol", map[string]string{"tip": "SAMBATA", "de_la": "06:00", "pana_la": "07:00"}}
+	if got := e.Text(Engleza); got != "SAMBATA: there is a gap between 06:00 and 07:00." {
+		t.Errorf("en: %q", got)
+	}
+	if e.Error() != e.Text(Implicita) {
+		t.Errorf("Error() trebuie să fie textul în limba implicită: %q", e.Error())
+	}
+}
+
 func TestText(t *testing.T) {
 	noapte := Text{Romana: "Noapte", Engleza: "Night"}
 	if got := noapte.In(Engleza); got != "Night" {

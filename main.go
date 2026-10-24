@@ -2,7 +2,9 @@ package main
 
 import (
 	"embed"
+	"errors"
 	"log"
+	"os"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -19,8 +21,15 @@ var resurse embed.FS
 func main() {
 	foldere, err := portabil.Pregateste()
 	if err != nil {
-		// Mesajul pentru utilizator și verificarea dreptului de scriere vin cu F05-T05.
-		log.Fatal(err)
+		// Setările nu se pot citi încă, deci mesajul e în limba Windows (D008).
+		limba := i18n.LimbaSistem()
+		text := i18n.T(limba, "aplicatie.eroare_pornire", map[string]string{"detalii": err.Error()})
+		var e *i18n.Eroare
+		if errors.As(err, &e) {
+			text = e.Text(limba)
+		}
+		arataEroare(i18n.T(limba, "aplicatie.titlu", nil), text)
+		os.Exit(1)
 	}
 
 	app := NewApp()

@@ -4,6 +4,17 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.4.0 · 2026-10-24
+
+Mesaj clar când folderul de date nu permite scrierea (F05-T05, D002 punctul 5).
+
+- La pornire, aplicația verifică faptul că poate scrie în `karios/`. Dacă nu poate, afișează o fereastră Windows cu un mesaj tradus, în limba Windows, care spune unde să fie mutată aplicația.
+- `i18n.Eroare` e acum tipul comun de eroare traductibilă; `calcul.Eroare` e un alias.
+- `i18n.LimbaSistem`: limba interfeței Windows, dacă are catalog.
+- Textele noi: `aplicatie.eroare_pornire`, `portabil.fara_scriere`.
+
+Rapoarte: niciunul încă. Baza de date: nicio migrare încă.
+
 ## 0.3.3 · 2026-10-24
 
 Scriptul de build (F05-T13).

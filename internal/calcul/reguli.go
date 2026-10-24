@@ -38,7 +38,7 @@ type SetReguli struct {
 func (s SetReguli) Valideaza() error {
 	for _, iv := range s.Intervale {
 		if !tipCunoscut(iv.TipZi) {
-			return &Eroare{"reguli.tip_zi_necunoscut", map[string]string{"tip": string(iv.TipZi)}}
+			return &Eroare{Cod: "reguli.tip_zi_necunoscut", Param: map[string]string{"tip": string(iv.TipZi)}}
 		}
 		if iv.Start < 0 || iv.Sfarsit > minuteZi || iv.Sfarsit <= iv.Start {
 			return eroareInterval("reguli.interval_invalid", iv.TipZi, iv.Start, iv.Sfarsit)
@@ -63,7 +63,7 @@ func (s SetReguli) Valideaza() error {
 }
 
 func eroareInterval(cod string, tip TipZi, deLa, panaLa int) *Eroare {
-	return &Eroare{cod, map[string]string{"tip": string(tip), "de_la": hm(deLa), "pana_la": hm(panaLa)}}
+	return &Eroare{Cod: cod, Param: map[string]string{"tip": string(tip), "de_la": hm(deLa), "pana_la": hm(panaLa)}}
 }
 
 // intervale întoarce intervalele unui tip de zi, ordonate după ora de start.
