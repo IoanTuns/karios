@@ -15,6 +15,7 @@ Ioan Tuns a cerut primele funcționalități implementate și un set de date dem
 - Datele demo sunt un JSON inclus în aplicație, cu nume fictive și mărci `DEMO-…`, norme întregi/parțiale, concedii și stări active/inactive. Secțiile au denumiri `i18n.Text`.
 - Încărcarea demo este explicită, tranzacțională și permisă numai dacă nu există angajați (inclusiv șterși logic) sau pontaje. Nu suprascrie date, nu schimbă norma globală și nu rulează automat. Interfața explică ce va fi adăugat înaintea acțiunii. Datele rămân între porniri.
 - Modificările acestui flux sunt înregistrate în jurnal cu actorul provizoriu `local`; identificarea persoanei vine cu F15. F06-T04 rămâne pentru acoperirea celorlalte fluxuri.
+- Verificarea UI folosește Edge headless deja instalat și protocolul CDP prin Node, fără biblioteci noi. Doar testul injectează o punte Wails simulată și date fictive într-un profil temporar; testele Go verifică separat backendul real și persistența criptată.
 
 ## Variante evaluate
 

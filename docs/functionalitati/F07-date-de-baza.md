@@ -10,12 +10,13 @@ Utilizatorul poate gestiona angajații și listele de care depinde pontajul.
 
 | ID | Task | Stare | Responsabil | Note |
 | --- | --- | --- | --- | --- |
-| F07-T01 | Administrarea angajaților: nume, prenume, marcă, tip contract, normă parțială, concediu anual, funcție, secție, activ | de făcut | | Schema: F07-T06; interfața și accesul la date rămân de implementat |
+| F07-T01 | Administrarea angajaților: nume, prenume, marcă, tip contract, normă parțială, concediu anual, funcție, secție, activ | gata | Codex | 2026-10-25, 0.10.0: interfață, metode Wails și serviciu Go peste sqlc; listare/căutare/filtre, creare/editare, dezactivare/reactivare, secții și norma globală. Teste Go pe baza criptată, UI în Edge cu punte simulată și build Windows trecute; [ghid](../ghid-primele-functionalitati.md). Urmează F07-T03 și prototipul F08-T01; [D013](../decizii/D013-primele-functionalitati-demo.md) rămâne propusă |
 | F07-T02 | Tipuri de schimb și codurile lor scurte (`7`, `12`, `N12`, `G24`) | de făcut | | De stabilit orele exacte pentru fiecare cod |
 | F07-T03 | Administrarea sărbătorilor pentru fiecare an | de făcut | | Denumiri `Text`; schema și filtrarea pe an: F07-T06. Precompletarea nu înlocuiește editarea manuală |
 | F07-T04 | Coduri de absență | de făcut | | Lista finală din F01-T02 |
 | F07-T05 | Categorii de ore și coloanele centralizatorului | de făcut | | O singură sursă pentru legătura categorie → coloană |
 | F07-T06 | Schema angajaților, norma întreagă globală și sărbătorile pe ani | gata | Codex | 2026-10-25, versiunea 0.9.0, migrările 0002 și 0003; păstrarea datelor vechi, constrângeri, normă efectivă și backup înainte de migrare verificate prin teste. Build Windows verificat. Pas următor: F06-T03, F07-T01 și F07-T03; [D012](../decizii/D012-date-angajati-norme-sarbatori.md) rămâne propusă pentru reprezentarea tehnică |
+| F07-T07 | Set de date demo fictive și încărcare explicită, tranzacțională | gata | Codex | 2026-10-25, 0.10.0: 12 angajați și 3 secții, JSON inclus în aplicație; confirmare în UI și refuz în backend dacă există angajați/pontaje. Testate anularea integrală la eroare și păstrarea normei globale. Datele demo nu sunt încărcate în baza operațională de agent |
 
 ## Schema F07-T06
 
