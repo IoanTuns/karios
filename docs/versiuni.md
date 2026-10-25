@@ -4,6 +4,16 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.12.1 · 2026-10-25
+
+Corecția build-ului pentru păstrarea datelor portabile (F05-T15, D017).
+
+- Eliminată curățarea `build/bin`, care poate conține folderul de date `karios/`.
+- Parametru `-NumeExecutabil` pentru o ieșire alternativă; căile invalide și fișierele blocate sunt refuzate înainte de compilare.
+- Proprietățile Windows sunt verificate pentru fișierul de ieșire ales. Test PowerShell de regresie pentru refuzuri.
+
+Rapoarte: nicio schimbare. Baza de date: nicio migrare nouă.
+
 ## 0.12.0 · 2026-10-25
 
 Nomenclatorul configurabil de schimburi (F07-T02, D015).
