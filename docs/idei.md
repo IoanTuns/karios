@@ -6,6 +6,7 @@ Stări: `nouă`, `în analiză`, `transformată` (în task sau decizie), `amâna
 
 | ID | Data | Idee | Cine | Stare | Legături / motiv |
 | --- | --- | --- | --- | --- | --- |
+| I019 | 2026-10-25 | Fiecare raport are antet, conținut și subsol configurabile separat, într-un meniu dedicat, cu previzualizare și tipărire | Ioan Tuns | transformată | F09-T07, [D024](decizii/D024-definitii-rapoarte.md) |
 | I018 | 2026-10-25 | Revizii de concurență separate de timestamp, ca două salvări în același tic al ceasului să rămână distincte | Codex | transformată | F06-T07; observat prin două teste de conflict la verificarea F07-T10 |
 | I017 | 2026-10-25 | Programe reale 07–14/15–22/22–07 și intrare 22–07 distinctă pentru weekend/sărbătoare, urmată de opțiuni de 12/24 ore | Ioan Tuns | transformată | F07-T10, [D021](decizii/D021-programe-lucru.md) |
 | I016 | 2026-10-25 | Evidență concedii de odihnă, medicale și libere speciale, cu tipuri speciale configurabile | Ioan Tuns | transformată | F07-T04, [D020](decizii/D020-concedii-absente.md) |
