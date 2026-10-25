@@ -1,0 +1,88 @@
+{
+  "document": {
+    "titlu": "Evidența absențelor",
+    "sursa": "ABSENTE_ANUALE",
+    "versiune_raport": 1,
+    "revizie_model": "1",
+    "pagina": {
+      "format": "A4",
+      "orientare": "PEISAJ",
+      "margine_mm": 10,
+      "font_pt": 8
+    },
+    "antet": [
+      "",
+      "EVIDENȚA ABSENȚELOR · 2026",
+      ""
+    ],
+    "introducere": "",
+    "coloane": [
+      {
+        "cod": "data",
+        "titlu": "Data",
+        "pondere": 14,
+        "culoare": ""
+      },
+      {
+        "cod": "angajat",
+        "titlu": "Angajat",
+        "pondere": 28,
+        "culoare": ""
+      },
+      {
+        "cod": "marca",
+        "titlu": "Marcă",
+        "pondere": 10,
+        "culoare": ""
+      },
+      {
+        "cod": "cod",
+        "titlu": "Cod",
+        "pondere": 10,
+        "culoare": ""
+      },
+      {
+        "cod": "descriere",
+        "titlu": "Descriere",
+        "pondere": 40,
+        "culoare": ""
+      },
+      {
+        "cod": "categorie",
+        "titlu": "Categorie",
+        "pondere": 22,
+        "culoare": ""
+      }
+    ],
+    "randuri": [
+      {
+        "valori": [
+          "24.10.2026",
+          "Șerban Ana",
+          "DEMO-R01",
+          "CO",
+          "Concediu de odihnă",
+          "Concediu de odihnă"
+        ],
+        "culori": [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ]
+      }
+    ],
+    "subsol": [
+      "Întocmit: __________________",
+      "",
+      "Verificat: __________________"
+    ],
+    "metadate": "Evidența absențelor · v1 · definiție r1 · Pontix \u003caplicatie\u003e · reguli: neaplicate (schiță) · 25.10.2026 14:30 · utilizator local",
+    "nota": "DOCUMENT DE LUCRU · valori din schița de pontaj și absențe; fără calcul de salarizare.",
+    "fara_date": "Nu există înregistrări pentru selecția curentă.",
+    "paginare": "Pagina {current} din {total}"
+  },
+  "structura": {}
+}

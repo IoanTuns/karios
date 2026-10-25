@@ -7,8 +7,9 @@ import {Sarbatori} from './Sarbatori';
 import {Schimburi} from './Schimburi';
 import {Pontaj} from './Pontaj';
 import {Absente} from './Absente';
+import {DefinireRapoarte, GenerareRapoarte} from './Rapoarte';
 
-type Ecran = 'angajati' | 'pontaj' | 'sarbatori' | 'schimburi' | 'absente' | 'setari';
+type Ecran = 'angajati' | 'pontaj' | 'sarbatori' | 'schimburi' | 'absente' | 'definire_rapoarte' | 'rapoarte' | 'setari';
 
 function normalizat(text: string): string {
     return text.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLocaleLowerCase();
@@ -99,7 +100,7 @@ function App() {
             <div className="marca-aplicatie"><span className="sigla" aria-hidden="true">p<span>·</span></span><strong>{t('aplicatie.titlu')}</strong></div>
             <p className="eticheta-meniu">{t('ui.date_baza')}</p>
             <nav aria-label={t('ui.date_baza')}>
-                {(['angajati', 'pontaj', 'absente', 'sarbatori', 'schimburi', 'setari'] as Ecran[]).map(item => <button key={item} className={`navigare ${ecran === item ? 'selectat' : ''}`}
+                {(['angajati', 'pontaj', 'absente', 'sarbatori', 'schimburi', 'rapoarte', 'definire_rapoarte', 'setari'] as Ecran[]).map(item => <button key={item} className={`navigare ${ecran === item ? 'selectat' : ''}`}
                     aria-current={ecran === item ? 'page' : undefined} disabled={ocupat || pontajOcupat}
                     onClick={() => { if (item !== ecran && pontajModificat && !window.confirm(t('ui.renunta'))) return; if (item !== ecran) setPontajModificat(false); setEcran(item); setEroare(''); setMesaj(''); }}>
                     <Simbol tip={item}/>{t(`ui.${item}`)}</button>)}
@@ -123,6 +124,8 @@ function App() {
                 : ecran === 'sarbatori' ? <Sarbatori/>
                 : ecran === 'schimburi' ? <Schimburi/>
                 : ecran === 'absente' ? <Absente date={date}/>
+                : ecran === 'definire_rapoarte' ? <DefinireRapoarte/>
+                : ecran === 'rapoarte' ? <GenerareRapoarte date={date}/>
                 : ecran === 'setari' ? <Setari date={date} ocupat={ocupat}
                     salveazaNorma={minute => executa(() => SalveazaNormaIntreaga(minute))}
                     adaugaSectie={denumire => executa(() => AdaugaSectie({[i18n.language]: denumire}))}

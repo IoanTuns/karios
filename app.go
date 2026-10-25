@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"sync"
 
 	"pontix/internal/i18n"
 	"pontix/internal/versiune"
@@ -10,8 +11,11 @@ import (
 
 // App conține metodele apelate din interfața React.
 type App struct {
-	ctx context.Context
-	db  *sql.DB
+	ctx          context.Context
+	db           *sql.DB
+	raportMu     sync.Mutex
+	raportCache  map[string]raportPregatit
+	raportOrdine []string
 }
 
 func NewApp(db *sql.DB) *App {

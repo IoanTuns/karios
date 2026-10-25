@@ -38,6 +38,10 @@ export function DateInitiale() {
   return window['go']['main']['App']['DateInitiale']();
 }
 
+export function DeschidePDFPentruTiparire(arg1) {
+  return window['go']['main']['App']['DeschidePDFPentruTiparire'](arg1);
+}
+
 export function IncarcaDemo() {
   return window['go']['main']['App']['IncarcaDemo']();
 }
@@ -50,8 +54,16 @@ export function Limbi() {
   return window['go']['main']['App']['Limbi']();
 }
 
+export function ListaModeleRapoarte() {
+  return window['go']['main']['App']['ListaModeleRapoarte']();
+}
+
 export function ListaSchimburi() {
   return window['go']['main']['App']['ListaSchimburi']();
+}
+
+export function PregatesteRaport(arg1) {
+  return window['go']['main']['App']['PregatesteRaport'](arg1);
 }
 
 export function SalveazaAbsente(arg1, arg2) {
@@ -62,8 +74,16 @@ export function SalveazaAngajat(arg1) {
   return window['go']['main']['App']['SalveazaAngajat'](arg1);
 }
 
+export function SalveazaModelRaport(arg1) {
+  return window['go']['main']['App']['SalveazaModelRaport'](arg1);
+}
+
 export function SalveazaNormaIntreaga(arg1) {
   return window['go']['main']['App']['SalveazaNormaIntreaga'](arg1);
+}
+
+export function SalveazaPDFRaport(arg1) {
+  return window['go']['main']['App']['SalveazaPDFRaport'](arg1);
 }
 
 export function SalveazaSarbatoare(arg1, arg2, arg3) {

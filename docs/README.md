@@ -11,6 +11,7 @@ Orice idee, decizie și acțiune a proiectului se documentează aici, în acela�
 | Jurnal | [jurnal.md](jurnal.md) | se face orice acțiune: cod, document, instalare, discuție cu contabilitatea |
 | Versiuni | [versiuni.md](versiuni.md) | se schimbă codul, un raport sau baza de date (D009) |
 | Ghid de utilizare | [primele funcționalități și demo](ghid-primele-functionalitati.md) | se schimbă fluxurile disponibile în aplicație |
+| Ghid rapoarte | [definire, PDF și tipărire](ghid-rapoarte.md) | se schimbă modelele, generarea sau tipărirea rapoartelor |
 | Design inițial | [Aplicația de pontaj — tehnologii și decizii.pdf](Aplicația%20de%20pontaj%20—%20tehnologii%20și%20decizii.pdf) | nu se mai modifică; schimbările față de el devin decizii noi |
 
 ## Reguli

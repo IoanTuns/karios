@@ -4,6 +4,17 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.19.0 · 2026-10-25
+
+Definire rapoarte și PDF pentru tipărire (F09-T07, D024).
+
+- Meniu separat pentru modele cu antet, conținut și subsol proprii, texte RO/EN cu câmpuri de context, surse/coloane configurabile, format A4/A3, orientare, margini și font.
+- Definiții persistente cu revizii și jurnal, creare/editare/duplicare/dezactivare. Modele inițiale pentru pontaj lunar, fișă individuală și evidența anuală a absențelor.
+- Generare PDF locală cu fonturi incluse pentru diacritice, antet/subsol repetate, paginare și metadatele D009. Previzualizare, salvare explicită și deschidere în aplicația PDF pentru alegerea imprimantei.
+- Datele sunt o fotografie consistentă a schițelor și absențelor; nu sunt deduse totaluri salariale sau reguli neconfirmate.
+
+Rapoarte: **Pontaj lunar v1, Fișă individuală v1, Evidența absențelor v1.** Baza de date: **0012_definitii_rapoarte**, după migrarea 0011 rezervată taskului paralel pentru categorii.
+
 ## 0.17.3 · 2026-10-25
 
 Pregătire F09-T07: maroto v2.4.4 și x/image v0.47.0 pentru PDF local și fonturi cu diacritice, versiuni exacte și licențe verificate în D024. Include dependențele tranzitive ale bibliotecii PDF și actualizarea i18next 26.5.10 → 26.5.11; fără instalare de programe pe sistem. Funcționalitatea și testele PDF urmează în 0.19.0, pe worktree separat de F07-T11.

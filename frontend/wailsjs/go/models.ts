@@ -439,6 +439,112 @@ export namespace main {
 		    return a;
 		}
 	}
+	export class RaspunsFisierRaport {
+	    anulat: boolean;
+	    cale: string;
+	    eroare?: MesajEroare;
+
+	    static createFrom(source: any = {}) {
+	        return new RaspunsFisierRaport(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.anulat = source["anulat"];
+	        this.cale = source["cale"];
+	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class RaspunsModeleRapoarte {
+	    configuratie?: rapoarte.Configuratie;
+	    salvat_id: string;
+	    eroare?: MesajEroare;
+
+	    static createFrom(source: any = {}) {
+	        return new RaspunsModeleRapoarte(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.configuratie = this.convertValues(source["configuratie"], rapoarte.Configuratie);
+	        this.salvat_id = source["salvat_id"];
+	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class RaspunsRaport {
+	    document?: rapoarte.Document;
+	    pdf: string;
+	    token: string;
+	    nume_fisier: string;
+	    eroare?: MesajEroare;
+
+	    static createFrom(source: any = {}) {
+	        return new RaspunsRaport(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.document = this.convertValues(source["document"], rapoarte.Document);
+	        this.pdf = source["pdf"];
+	        this.token = source["token"];
+	        this.nume_fisier = source["nume_fisier"];
+	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 	export class RaspunsSchimburi {
 	    adaugate: number;
 	    schimburi: datebaza.Schimb[];
@@ -505,6 +611,271 @@ export namespace main {
 		    return a;
 		}
 	}
+
+}
+
+export namespace rapoarte {
+
+	export class Bloc {
+	    stanga: Record<string, string>;
+	    centru: Record<string, string>;
+	    dreapta: Record<string, string>;
+
+	    static createFrom(source: any = {}) {
+	        return new Bloc(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.stanga = source["stanga"];
+	        this.centru = source["centru"];
+	        this.dreapta = source["dreapta"];
+	    }
+	}
+	export class Cerere {
+	    model_id: string;
+	    revizie: string;
+	    an: number;
+	    luna: number;
+	    sectie_id: string;
+	    departament_id: string;
+	    angajat_id: string;
+	    limba: string;
+
+	    static createFrom(source: any = {}) {
+	        return new Cerere(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.model_id = source["model_id"];
+	        this.revizie = source["revizie"];
+	        this.an = source["an"];
+	        this.luna = source["luna"];
+	        this.sectie_id = source["sectie_id"];
+	        this.departament_id = source["departament_id"];
+	        this.angajat_id = source["angajat_id"];
+	        this.limba = source["limba"];
+	    }
+	}
+	export class Coloana {
+	    cod: string;
+	    titlu: string;
+	    pondere: number;
+	    culoare: string;
+
+	    static createFrom(source: any = {}) {
+	        return new Coloana(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.cod = source["cod"];
+	        this.titlu = source["titlu"];
+	        this.pondere = source["pondere"];
+	        this.culoare = source["culoare"];
+	    }
+	}
+	export class Sursa {
+	    cod: string;
+	    coloane: string[];
+
+	    static createFrom(source: any = {}) {
+	        return new Sursa(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.cod = source["cod"];
+	        this.coloane = source["coloane"];
+	    }
+	}
+	export class Pagina {
+	    format: string;
+	    orientare: string;
+	    margine_mm: number;
+	    font_pt: number;
+
+	    static createFrom(source: any = {}) {
+	        return new Pagina(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.format = source["format"];
+	        this.orientare = source["orientare"];
+	        this.margine_mm = source["margine_mm"];
+	        this.font_pt = source["font_pt"];
+	    }
+	}
+	export class Continut {
+	    sursa: string;
+	    coloane: string[];
+	    text: Record<string, string>;
+
+	    static createFrom(source: any = {}) {
+	        return new Continut(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.sursa = source["sursa"];
+	        this.coloane = source["coloane"];
+	        this.text = source["text"];
+	    }
+	}
+	export class Definitie {
+	    id: string;
+	    denumire: Record<string, string>;
+	    antet: Bloc;
+	    continut: Continut;
+	    subsol: Bloc;
+	    pagina: Pagina;
+	    activ: boolean;
+	    revizie: string;
+
+	    static createFrom(source: any = {}) {
+	        return new Definitie(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.denumire = source["denumire"];
+	        this.antet = this.convertValues(source["antet"], Bloc);
+	        this.continut = this.convertValues(source["continut"], Continut);
+	        this.subsol = this.convertValues(source["subsol"], Bloc);
+	        this.pagina = this.convertValues(source["pagina"], Pagina);
+	        this.activ = source["activ"];
+	        this.revizie = source["revizie"];
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class Configuratie {
+	    modele: Definitie[];
+	    surse: Sursa[];
+	    variabile: string[];
+
+	    static createFrom(source: any = {}) {
+	        return new Configuratie(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.modele = this.convertValues(source["modele"], Definitie);
+	        this.surse = this.convertValues(source["surse"], Sursa);
+	        this.variabile = source["variabile"];
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+
+
+	export class Rand {
+	    valori: string[];
+	    culori: string[];
+
+	    static createFrom(source: any = {}) {
+	        return new Rand(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.valori = source["valori"];
+	        this.culori = source["culori"];
+	    }
+	}
+	export class Document {
+	    titlu: string;
+	    sursa: string;
+	    versiune_raport: number;
+	    revizie_model: string;
+	    pagina: Pagina;
+	    antet: string[];
+	    introducere: string;
+	    coloane: Coloana[];
+	    randuri: Rand[];
+	    subsol: string[];
+	    metadate: string;
+	    nota: string;
+	    fara_date: string;
+	    paginare: string;
+
+	    static createFrom(source: any = {}) {
+	        return new Document(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.titlu = source["titlu"];
+	        this.sursa = source["sursa"];
+	        this.versiune_raport = source["versiune_raport"];
+	        this.revizie_model = source["revizie_model"];
+	        this.pagina = this.convertValues(source["pagina"], Pagina);
+	        this.antet = source["antet"];
+	        this.introducere = source["introducere"];
+	        this.coloane = this.convertValues(source["coloane"], Coloana);
+	        this.randuri = this.convertValues(source["randuri"], Rand);
+	        this.subsol = source["subsol"];
+	        this.metadate = source["metadate"];
+	        this.nota = source["nota"];
+	        this.fara_date = source["fara_date"];
+	        this.paginare = source["paginare"];
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+
+
 
 }
 

@@ -18,6 +18,7 @@ assert(existsSync(join(dist, 'index.html')), 'Rulează întâi npm run build în
 const demo = JSON.parse(readFileSync(join(radacina, 'internal/datebaza/demo/angajati.json'), 'utf8'));
 const calendarSursa = JSON.parse(readFileSync(join(radacina, 'internal/datebaza/calendare/romania-2026.json'), 'utf8'));
 const schimburiSursa = JSON.parse(readFileSync(join(radacina, 'internal/datebaza/initiale/schimburi.json'), 'utf8'));
+const rapoarteSursa = {configuratie:JSON.parse(readFileSync(join(radacina,'internal/rapoarte/testdata/modele-v1.json'),'utf8')),document:JSON.parse(readFileSync(join(radacina,'internal/rapoarte/testdata/raport-pontaj-v1.json'),'utf8')).document,pdf:readFileSync(join(radacina,'build/bin/rapoarte-demo/raport-pontaj.pdf')).toString('base64')};
 const versiuneAplicatie = readFileSync(join(radacina, 'internal/versiune/versiune.go'), 'utf8').match(/const Aplicatie = "([^"]+)"/)[1];
 const cataloage = Object.fromEntries(['ro', 'en'].map(limba => [limba,
     JSON.parse(readFileSync(join(radacina, `internal/i18n/locales/${limba}.json`), 'utf8'))]));
@@ -73,13 +74,13 @@ async function apasa(text) {
 
 async function completeaza(selector, valoare) {
     await evalueaza(`(() => { const e = document.querySelector(${JSON.stringify(selector)}); if (!e) throw new Error('Câmp lipsă');
-        Object.getOwnPropertyDescriptor(e.tagName === 'SELECT' ? HTMLSelectElement.prototype : HTMLInputElement.prototype, 'value').set.call(e, ${JSON.stringify(valoare)});
+        Object.getOwnPropertyDescriptor(e.tagName === 'SELECT' ? HTMLSelectElement.prototype : e.tagName === 'TEXTAREA' ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype, 'value').set.call(e, ${JSON.stringify(valoare)});
         e.dispatchEvent(new Event(e.tagName === 'SELECT' ? 'change' : 'input', {bubbles:true})); })()`);
 }
 
 // Se injectează înaintea React; toate mutațiile sunt limitate la localStorage
 // din profilul temporar al testului, cu datele fictive incluse în repo.
-function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schimburiSursa) {
+function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schimburiSursa, rapoarteSursa) {
     let stare = JSON.parse(localStorage.getItem('pontix-test') || 'null') || {angajati: [], sectii: [], norma_intreaga_minute: 420, demo_disponibil: true};
     stare.sarbatori ??= structuredClone(calendarSursa);
     stare.schimburi ??= structuredClone(schimburiSursa);
@@ -87,6 +88,7 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
     stare.departamente ??= [];
     stare.tipuriAbsenta ??= [{cod:'CO',denumire:{ro:'Concediu de odihnă',en:'Annual leave'},categorie:'ODIHNA',activ:true}, {cod:'CM',denumire:{ro:'Concediu medical',en:'Medical leave'},categorie:'MEDICAL',activ:true}];
     stare.absente ??= [];
+    stare.modeleRapoarte ??= structuredClone(rapoarteSursa.configuratie.modele);
     const raspuns = () => {
         stare.angajati = stare.angajati.map(a => ({...a, departament_id: a.departament_id || '', norma_minute: a.tip_contract === 'PARTIALA' ? a.norma_partiala_minute : stare.norma_intreaga_minute}));
         stare.demo_disponibil = stare.angajati.length === 0;
@@ -95,10 +97,27 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
     };
     const calendar = an => ({calendar: {an, sarbatori: structuredClone(stare.sarbatori.filter(s => Number(s.data.slice(0, 4)) === an).sort((a, b) => a.data.localeCompare(b.data))), import_disponibil: an === 2026}, adaugate: 0, eroare: null});
     const absente = an => ({absente:{an,tipuri:structuredClone(stare.tipuriAbsenta),zile:structuredClone(stare.absente.filter(z => Number(z.data.slice(0,4)) === an).sort((a,b) => a.data.localeCompare(b.data)))},eroare:null});
+    const modele = () => ({configuratie:{...structuredClone(rapoarteSursa.configuratie),modele:structuredClone(stare.modeleRapoarte)},eroare:null});
     window.go = {main: {App: {
         Limbi: async () => [limba, ...Object.keys(cataloage).filter(l => l !== limba)],
         Catalog: async l => cataloage[l], Informatii: async () => ({versiune: versiuneAplicatie, commit: 'verificare'}),
         DateInitiale: async () => raspuns(),
+        ListaModeleRapoarte: async () => modele(),
+        SalveazaModelRaport: async d => {
+            const texte=[...Object.values(d.antet),...Object.values(d.subsol),d.continut.text].flatMap(v => Object.values(v));
+            if (texte.some(v => [...v.matchAll(/\{\{([^{}]+)\}\}/g)].some(m => !rapoarteSursa.configuratie.variabile.includes(m[1])))) return {configuratie:null,eroare:{cod:'rapoarte.variabila_invalida'}};
+            const i=stare.modeleRapoarte.findIndex(v => v.id === d.id);
+            if(i>=0 && stare.modeleRapoarte[i].revizie!==d.revizie) return {configuratie:null,eroare:{cod:'rapoarte.conflict'}};
+            if(i<0){d={...d,id:'model-'+crypto.randomUUID(),revizie:'1'};stare.modeleRapoarte.push(d);}else{d={...d,revizie:String(Number(d.revizie)+1)};stare.modeleRapoarte[i]=d;}
+            raspuns();return {...modele(),salvat_id:d.id};
+        },
+        PregatesteRaport: async c => {
+            stare.ultimaCerereRaport=c;stare.ultimTokenRaport=crypto.randomUUID();raspuns();
+            const d=stare.modeleRapoarte.find(d => d.id===c.model_id);
+            return {document:{...structuredClone(rapoarteSursa.document),titlu:d.denumire[c.limba]||d.denumire.ro,sursa:d.continut.sursa,revizie_model:d.revizie},pdf:rapoarteSursa.pdf,token:stare.ultimTokenRaport,nume_fisier:'raport-demo.pdf',eroare:null};
+        },
+        SalveazaPDFRaport: async token => { if(token!==stare.ultimTokenRaport) return {eroare:{cod:'rapoarte.expirat'}};stare.exporturiRaport=(stare.exporturiRaport||0)+1;raspuns();return {anulat:false,cale:'raport-demo.pdf',eroare:null}; },
+        DeschidePDFPentruTiparire: async token => { if(token!==stare.ultimTokenRaport) return {eroare:{cod:'rapoarte.expirat'}};stare.tipaririRaport=(stare.tipaririRaport||0)+1;raspuns();return {anulat:false,cale:'raport-demo.pdf',eroare:null}; },
         IncarcaDemo: async () => { stare.angajati = structuredClone(demo.angajati); stare.sectii = structuredClone(demo.sectii); return raspuns(); },
         SalveazaAngajat: async a => {
             if (stare.angajati.some(b => b.id !== a.id && b.marca === a.marca)) return {date: null, eroare: {cod: 'date.marca_duplicata', param: {}}};
@@ -185,7 +204,7 @@ try {
     };
     await cdp('Page.enable'); await cdp('Runtime.enable');
     await cdp('Emulation.setDeviceMetricsOverride', {width: 1440, height: 960, deviceScaleFactor: 1, mobile: false});
-    const injectat = await cdp('Page.addScriptToEvaluateOnNewDocument', {source: `(${simulare})(${JSON.stringify(demo)},${JSON.stringify(cataloage)},'ro',${JSON.stringify(calendarSursa)},${JSON.stringify(versiuneAplicatie)},${JSON.stringify(schimburiSursa)})`});
+    const injectat = await cdp('Page.addScriptToEvaluateOnNewDocument', {source: `(${simulare})(${JSON.stringify(demo)},${JSON.stringify(cataloage)},'ro',${JSON.stringify(calendarSursa)},${JSON.stringify(versiuneAplicatie)},${JSON.stringify(schimburiSursa)},${JSON.stringify(rapoarteSursa)})`});
     await cdp('Page.navigate', {url});
     await asteapta(() => evalueaza(`Boolean(document.body?.textContent.includes('Adaugă primii membri'))`), 'Starea goală nu apare.');
     await apasa('Încarcă date demo');
@@ -387,6 +406,60 @@ try {
     await completeaza('.modul-absente .unelte-perioada input','2027'); await apasa('Arată anul');
     await asteapta(() => evalueaza(`document.querySelectorAll('.tabel-absente tbody tr').length === 0 && document.querySelectorAll('.tabel-tipuri-absenta tbody tr').length === 3`),'Filtrarea anuală a absențelor a eșuat.');
     assert(await evalueaza(`document.documentElement.scrollWidth <= 1024`),'Modulul de absențe depășește fereastra.');
+    await apasa('Definire rapoarte');
+    await asteapta(() => evalueaza(`document.querySelectorAll('.tabel-modele-rapoarte tbody tr').length===3`),'Modelele inițiale nu apar.');
+    await evalueaza(`[...document.querySelectorAll('.tabel-modele-rapoarte tbody tr')].find(r => r.cells[0].textContent==='Pontaj lunar').querySelector('button').click()`);
+    await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog textarea[name="antet_stanga"]'))`),'Editorul de raport nu apare.');
+    assert.deepEqual(await evalueaza(`[...document.querySelectorAll('dialog legend')].slice(0,3).map(e=>e.textContent)`),['1 · Antet','2 · Conținut','3 · Subsol'],'Cele trei componente nu sunt separate.');
+    await completeaza('dialog textarea[name="antet_stanga"]','Unitate demo\n{{sectie}}');
+    await completeaza('dialog textarea[name="subsol_dreapta"]','Avizat demo');
+    await completeaza('dialog textarea[name="introducere"]','{{executa_sql}}');await apasa('Salvează');
+    await asteapta(() => evalueaza(`document.querySelector('dialog [role="alert"]')?.textContent.includes('câmp necunoscut')`),'Câmpul necunoscut nu este refuzat.');
+    await completeaza('dialog textarea[name="introducere"]','Perioada {{perioada}}');
+    await completeaza('dialog select[name="limba_texte"]','en');
+    await completeaza('dialog textarea[name="antet_stanga"]','Demo organisation\n{{sectie}}');
+    await completeaza('dialog select[name="limba_texte"]','ro');
+    assert.equal(await evalueaza(`document.querySelector('dialog textarea[name="antet_stanga"]').value`),'Unitate demo\n{{sectie}}','Schimbarea limbii a pierdut textul RO.');
+    await evalueaza(`document.querySelector('dialog input[name="coloana_functie"]').click()`);
+    await completeaza('dialog input[name="margine_mm"]','12');
+    await completeaza('dialog input[name="font_pt"]','9');
+    const capturaEditor=await cdp('Page.captureScreenshot',{format:'png'});writeFileSync(join(radacina,'build/bin/definire-rapoarte.png'),Buffer.from(capturaEditor.data,'base64'));
+    await apasa('Salvează');
+    await asteapta(() => evalueaza(`!document.querySelector('dialog') && [...document.querySelectorAll('.tabel-modele-rapoarte tbody tr')].find(r=>r.cells[0].textContent==='Pontaj lunar').cells[2].textContent==='2'`),'Modelul nu se salvează cu revizie nouă.');
+    const modeleDupaEditare=await evalueaza(`JSON.parse(localStorage.getItem('pontix-test')).modeleRapoarte`);
+    assert.equal(modeleDupaEditare.find(d=>d.id==='raport-fisa').antet.stanga.ro,'','Editarea unui raport a schimbat alt model.');
+    assert(modeleDupaEditare.find(d=>d.id==='raport-pontaj').continut.coloane.includes('functie'),'Coloana configurată s-a pierdut.');
+    await evalueaza(`[...document.querySelectorAll('.tabel-modele-rapoarte tbody tr')].find(r=>r.cells[0].textContent==='Pontaj lunar').querySelectorAll('button')[1].click()`);
+    await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog input[name="denumire_ro"]'))`),'Duplicarea nu deschide editorul.');
+    await completeaza('dialog input[name="denumire_ro"]','Raport demo separat');
+    await evalueaza(`document.querySelector('dialog input[name="activ_model"]').click()`);await apasa('Salvează');
+    await asteapta(() => evalueaza(`!document.querySelector('dialog')&&document.querySelectorAll('.tabel-modele-rapoarte tbody tr').length===4`),'Copia independentă nu a fost creată.');
+    await evalueaza(`[...document.querySelectorAll('.tabel-modele-rapoarte tbody tr')].find(r=>r.cells[0].textContent==='Pontaj lunar').querySelector('button').click()`);
+    await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog textarea[name="antet_stanga"]'))`),'Formular conflict model lipsă.');
+    await completeaza('dialog textarea[name="antet_stanga"]','Modificare locală nesalvată');
+    await evalueaza(`(async()=>{const r=await window.go.main.App.ListaModeleRapoarte();await window.go.main.App.SalveazaModelRaport(r.configuratie.modele.find(d=>d.id==='raport-pontaj'));})()`);
+    await apasa('Salvează');
+    await asteapta(() => evalueaza(`document.querySelector('dialog [role="alert"]')?.textContent.includes('modificat între timp')`),'Conflictul definiției nu este semnalat.');
+    assert.equal(await evalueaza(`document.querySelector('dialog textarea[name="antet_stanga"]').value`),'Modificare locală nesalvată','Conflictul a pierdut editarea locală.');
+    await apasa('Anulează');await apasa('Rapoarte');
+    await asteapta(() => evalueaza(`Boolean(document.querySelector('select[name="model_raport"]'))`),'Meniul Rapoarte lipsește.');
+    assert.equal(await evalueaza(`document.querySelectorAll('select[name="model_raport"] option').length`),3,'Copia inactivă apare la generare.');
+    await completeaza('select[name="model_raport"]','raport-pontaj');await completeaza('input[name="an_raport"]','2026');await completeaza('select[name="luna_raport"]','10');
+    await completeaza('select[name="sectie_raport"]',demo.sectii[0].id);await completeaza('select[name="limba_raport"]','en');await apasa('Generează și previzualizează');
+    await asteapta(() => evalueaza(`document.querySelector('iframe.previzualizare-pdf')?.src.startsWith('blob:')`),'PDF-ul nu apare în previzualizare.');
+    const cerereRaport=await evalueaza(`JSON.parse(localStorage.getItem('pontix-test')).ultimaCerereRaport`);
+    assert(cerereRaport.an===2026&&cerereRaport.luna===10&&cerereRaport.sectie_id===demo.sectii[0].id&&cerereRaport.limba==='en','Filtrele raportului nu sunt trimise corect.');
+    await apasa('Salvează PDF');await asteapta(() => evalueaza(`document.querySelector('.generare-rapoarte [role="status"]')?.textContent.includes('PDF salvat')`),'Salvarea PDF nu este semnalată.');
+    await apasa('Deschide pentru tipărire');await asteapta(() => evalueaza(`document.querySelector('.generare-rapoarte [role="status"]')?.textContent.includes('deschis')`),'Deschiderea pentru tipărire nu este semnalată.');
+    assert.equal(await evalueaza(`JSON.parse(localStorage.getItem('pontix-test')).tipaririRaport`),1,'Acțiunea de tipărire nu este apelată o singură dată.');
+    const capturaRaport=await cdp('Page.captureScreenshot',{format:'png'});writeFileSync(join(radacina,'build/bin/previzualizare-raport.png'),Buffer.from(capturaRaport.data,'base64'));
+    await completeaza('select[name="luna_raport"]','11');
+    assert(await evalueaza(`!document.querySelector('iframe.previzualizare-pdf')`),'Schimbarea perioadei păstrează PDF-ul vechi ca și când ar fi nou.');
+    await completeaza('select[name="model_raport"]','raport-fisa');
+    assert(await evalueaza(`document.querySelector('select[name="angajat_raport"]').required`),'Fișa individuală nu cere angajat.');
+    await completeaza('select[name="angajat_raport"]',persoanaAbsenta);await apasa('Generează și previzualizează');
+    await asteapta(() => evalueaza(`Boolean(document.querySelector('iframe.previzualizare-pdf'))`),'Fișa individuală nu se previzualizează.');
+    assert(await evalueaza(`document.documentElement.scrollWidth<=1024`),'Rapoartele depășesc fereastra.');
     // Încărcăm 50 de persoane strict în profilul simulat, fără date reale.
     await evalueaza(`(() => { const s = JSON.parse(localStorage.getItem('pontix-test')); const bio = s.departamente.find(d => d.denumire.ro === 'Biochimie').id; s.angajati = Array.from({length:50}, (_, i) => ({...s.angajati[0], id:'grila-'+i, nume:'Exemplu '+String(i+1).padStart(2,'0'), prenume:'Test', marca:'TEST-'+String(i+1).padStart(3,'0'), activ:true, departament_id: i % 2 ? bio : s.angajati[0].departament_id})); s.ciorne = []; localStorage.setItem('pontix-test', JSON.stringify(s)); })()`);
     await cdp('Page.reload');
@@ -441,7 +514,7 @@ try {
     await asteapta(() => evalueaza(`document.querySelector('input[data-rand="0"][data-zi="0"]')?.value === 'extern'`), 'Reîncărcarea nu arată revizia nouă.');
     assert(await evalueaza(`document.documentElement.scrollWidth <= 1024`), 'Grila depășește fereastra în afara containerului de derulare.');
     await cdp('Page.removeScriptToEvaluateOnNewDocument', {identifier: injectat.identifier});
-    await cdp('Page.addScriptToEvaluateOnNewDocument', {source: `(${simulare})(${JSON.stringify(demo)},${JSON.stringify(cataloage)},'en',${JSON.stringify(calendarSursa)},${JSON.stringify(versiuneAplicatie)},${JSON.stringify(schimburiSursa)})`});
+    await cdp('Page.addScriptToEvaluateOnNewDocument', {source: `(${simulare})(${JSON.stringify(demo)},${JSON.stringify(cataloage)},'en',${JSON.stringify(calendarSursa)},${JSON.stringify(versiuneAplicatie)},${JSON.stringify(schimburiSursa)},${JSON.stringify(rapoarteSursa)})`});
     await cdp('Page.reload');
     await asteapta(() => evalueaza(`document.querySelector('h1')?.textContent === 'Employees'`), 'Traducerea EN nu apare.');
     await apasa('Leave and absences');

@@ -23,6 +23,19 @@ type CoduriAbsentum struct {
 	Categorie   string
 }
 
+type DefinitiiRapoarte struct {
+	ID          string
+	Denumire    string
+	Antet       string
+	Continut    string
+	Subsol      string
+	Pagina      string
+	Activ       int64
+	Revizie     int64
+	CreatLa     string
+	ModificatLa string
+}
+
 type PontajCiorne struct {
 	AngajatID   string
 	Data        string
