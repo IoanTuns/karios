@@ -8,8 +8,11 @@ Rapoartele se tipăresc dintr-un PDF generat, cu același aspect pe orice calcul
 
 ## Taskuri
 
+F09-T08 extinde modelele cu imagini locale în antet și subsol și verifică rapoarte cu una sau mai multe pagini; conținutul continuă automat pe paginile necesare.
+
 | ID | Task | Stare | Responsabil | Note |
 | --- | --- | --- | --- | --- |
+| F09-T08 | Imagini în antet/subsol și rapoarte cu una sau mai multe pagini | în lucru | Codex | Cerut de Ioan Tuns la 2026-10-25. Ramură F09-T08-imagini-paginare în worktree-ul rapoartelor; integrează F07-T12 din a132a27 numai aici. PNG/JPEG per zonă, înălțime configurabilă și proporții păstrate, repetare pe pagini, teste PDF/UI. [D026](../decizii/D026-imagini-rapoarte.md) |
 | F09-T01 | Prototip: o pagină A3 a centralizatorului cu diacritice, celule colorate și antet repetat | de făcut | | Confirmă `maroto` sau alege altă bibliotecă; fontul TTF trebuie inclus pentru ș, ț, ă |
 | F09-T02 | Centralizatorul lunar (A4/A3 peisaj, o pagină pe secție, antet repetat) | de făcut | | Doar pentru V1 |
 | F09-T03 | Fișa individuală pe angajat și lună | de făcut | | |
