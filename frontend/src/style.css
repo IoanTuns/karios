@@ -172,3 +172,13 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .pontaj-lunar .nota-calendar { margin-bottom: 12px; padding-block: 9px; font-size: 11px; }
 .pontaj-lunar .indiciu-grila { margin-block: 7px; }
 .pontaj-lunar .mesaj.succes { position: fixed; right: 24px; bottom: 16px; z-index: 5; max-width: min(420px, 70vw); margin: 0; box-shadow: 0 4px 20px #163f2514; }
+.card-departamente { grid-column: 1 / -1; }
+.organizare-departamente { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+.organizare-departamente form { margin-top: 0; }
+.organizare-departamente select { margin-bottom: 15px; }
+.arbore-departamente { list-style: none; padding: 0; margin: 0; }
+.arbore-departamente > li { margin-bottom: 20px; font-size: 12px; }
+.arbore-departamente ul { padding: 7px 0 0 20px; list-style: none; border-left: 1px solid var(--linie); margin: 8px 0 0 4px; }
+.arbore-departamente ul li { padding-block: 5px; }
+.unelte-grila > select { max-width: 220px; }
+@media (max-width: 1100px) { .unelte { flex-wrap: wrap; } .cautare { flex-basis: 100%; } .unelte select { max-width: none; flex: 1; } }

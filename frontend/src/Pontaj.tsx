@@ -2,7 +2,7 @@ import {useEffect, useMemo, useRef, useState, type ClipboardEvent, type Keyboard
 import {useTranslation} from 'react-i18next';
 import {CitesteCalendar, CitesteSchita, ListaSchimburi, SalveazaSchita} from '../wailsjs/go/main/App';
 import {datebaza} from '../wailsjs/go/models';
-import {denumireSectie} from './Formulare';
+import {denumireSectie, denumireDepartament} from './Formulare';
 
 type Pozitie = {rand: number; zi: number};
 type Selectie = {inceput: Pozitie; sfarsit: Pozitie};
@@ -16,6 +16,7 @@ export function Pontaj({date, onModificari, onOcupat}: {date: datebaza.Date; onM
     const [luna, setLuna] = useState(acum.current.getMonth() + 1);
     const [anText, setAnText] = useState(String(an));
     const [sectie, setSectie] = useState('');
+    const [departament, setDepartament] = useState('');
     const [schita, setSchita] = useState<datebaza.SchitaLuna | null>(null);
     const [calendar, setCalendar] = useState<datebaza.CalendarAn | null>(null);
     const [schimburi, setSchimburi] = useState<datebaza.Schimb[]>([]);
@@ -55,11 +56,12 @@ export function Pontaj({date, onModificari, onOcupat}: {date: datebaza.Date; onM
     const originale = useMemo(() => new Map((schita?.celule ?? []).map(c => [cheie(c.angajat_id, c.data), c])), [schita]);
     const randuri = useMemo(() => {
         const cuSchite = new Set((schita?.celule ?? []).map(c => c.angajat_id));
-        return date.angajati.filter(a => (a.activ || cuSchite.has(a.id)) && (!sectie || a.sectie_id === sectie));
-    }, [date.angajati, schita, sectie]);
+        return date.angajati.filter(a => (a.activ || cuSchite.has(a.id)) && (!sectie || a.sectie_id === sectie) && (!departament || a.departament_id === departament));
+    }, [date.angajati, schita, sectie, departament]);
     const numarZile = [31, an % 400 === 0 || (an % 4 === 0 && an % 100 !== 0) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][luna - 1];
     const zile = Array.from({length: numarZile}, (_, i) => `${String(an).padStart(4, '0')}-${String(luna).padStart(2, '0')}-${String(i + 1).padStart(2, '0')}`);
     const sarbatori = new Map((calendar?.sarbatori ?? []).map(s => [s.data, s.denumire[i18n.language] || s.denumire.ro || Object.values(s.denumire).find(Boolean) || '']));
+    const numeSectie = (id: string) => { const s = date.sectii.find(s => s.id === id); return s ? denumireSectie(s, i18n.language) : t('ui.fara_sectie'); };
     const inceputRand = Math.min(selectie.inceput.rand, selectie.sfarsit.rand), sfarsitRand = Math.max(selectie.inceput.rand, selectie.sfarsit.rand);
     const inceputZi = Math.min(selectie.inceput.zi, selectie.sfarsit.zi), sfarsitZi = Math.max(selectie.inceput.zi, selectie.sfarsit.zi);
     const valoare = (rand: number, zi: number) => {
@@ -68,7 +70,7 @@ export function Pontaj({date, onModificari, onOcupat}: {date: datebaza.Date; onM
         return modificari.get(k)?.valoare ?? originale.get(k)?.valoare ?? '';
     };
 
-    useEffect(() => { setSelectie({inceput: {rand: 0, zi: 0}, sfarsit: {rand: 0, zi: 0}}); }, [sectie, an, luna]);
+    useEffect(() => { setSelectie({inceput: {rand: 0, zi: 0}, sfarsit: {rand: 0, zi: 0}}); }, [sectie, departament, an, luna]);
 
     function aplicaCelule(celule: {rand: number; zi: number; text: string}[]) {
         if (celule.some(c => !randuri[c.rand] || !zile[c.zi] || Array.from(c.text).length > 16 || /[\0\t\r\n]/.test(c.text))) { setEroare(t('pontaj.lipire_invalida')); return; }
@@ -147,8 +149,10 @@ export function Pontaj({date, onModificari, onOcupat}: {date: datebaza.Date; onM
         <p className="nota-calendar eticheta-schita">{t('pontaj.schita_indiciu')}</p>
         {eroare && <div className="mesaj eroare" role="alert">{eroare}</div>}{mesaj && <div className="mesaj succes" role="status">{mesaj}</div>}
         {incarcare ? <p role="status">{t('ui.incarcare')}</p> : !schita ? <button className="buton secundar" onClick={() => setReincarcare(x => x + 1)}>{t('ui.reincearca')}</button> : <>
-            <div className="unelte-grila"><select aria-label={t('ui.sectie')} value={sectie} disabled={ocupat} onChange={e => setSectie(e.target.value)}><option value="">{t('ui.toate_sectiile')}</option>
+            <div className="unelte-grila"><select aria-label={t('ui.sectie')} value={sectie} disabled={ocupat} onChange={e => { setSectie(e.target.value); setDepartament(''); }}><option value="">{t('ui.toate_sectiile')}</option>
                 {date.sectii.map(s => <option key={s.id} value={s.id}>{denumireSectie(s, i18n.language)}</option>)}</select>
+                <select aria-label={t('ui.departament')} value={departament} disabled={ocupat} onChange={e => setDepartament(e.target.value)}><option value="">{t('ui.toate_departamentele')}</option>
+                    {(date.departamente ?? []).filter(d => !sectie || d.sectie_id === sectie).map(d => <option key={d.id} value={d.id}>{!sectie ? `${numeSectie(d.sectie_id)} / ` : ''}{denumireDepartament(d, i18n.language)}</option>)}</select>
                 <input aria-label={t('pontaj.valoare_completare')} placeholder={t('pontaj.valoare_completare')} maxLength={16} list="coduri-pontaj" value={valoareCompletare} disabled={ocupat} onChange={e => setValoareCompletare(e.target.value)}/>
                 <button className="buton secundar" disabled={ocupat || !randuri.length} onClick={() => completeaza(valoareCompletare)}>{t('pontaj.completeaza_selectia')}</button>
                 <button className="buton secundar" disabled={ocupat || !randuri.length} onClick={async () => { try { await navigator.clipboard.writeText(textSelectat()); } catch { setEroare(t('pontaj.clipboard')); } }}>{t('pontaj.copiaza')}</button>

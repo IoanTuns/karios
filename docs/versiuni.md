@@ -4,6 +4,16 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.14.0 · 2026-10-25
+
+Departamente în cadrul secțiilor (F07-T08, D018).
+
+- Setări: creare de departamente sub o secție și afișare ierarhică.
+- Angajați: departament opțional, ales numai dintre cele ale secției; schimbarea secției golește selecția. Filtre pe secție și departament în listă și grila lunară.
+- Migrarea păstrează secțiile și angajații existenți, fără atribuiri automate; validarea relației se face în serviciu și prin constrângeri/trigger în bază. Schimburile existente se păstrează.
+
+Rapoarte: nicio schimbare. **Baza de date: migrarea `0006_departamente`.**
+
 ## 0.13.0 · 2026-10-25
 
 Prima grilă lunară după structura modelului primit (F08-T01, D016).

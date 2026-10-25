@@ -28,9 +28,9 @@ func (q *Queries) ActualizeazaSetare(ctx context.Context, arg ActualizeazaSetare
 }
 
 const adaugaAngajat = `-- name: AdaugaAngajat :exec
-INSERT INTO angajati (id, nume, prenume, marca, functie, sectie_id, tip_contract,
+INSERT INTO angajati (id, nume, prenume, marca, functie, sectie_id, departament_id, tip_contract,
     norma_partiala_minute, concediu_zile_an, activ, creat_la, modificat_la)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `
 
 type AdaugaAngajatParams struct {
@@ -40,6 +40,7 @@ type AdaugaAngajatParams struct {
 	Marca               string
 	Functie             *string
 	SectieID            *string
+	DepartamentID       *string
 	TipContract         string
 	NormaPartialaMinute *int64
 	ConcediuZileAn      *int64
@@ -56,10 +57,34 @@ func (q *Queries) AdaugaAngajat(ctx context.Context, arg AdaugaAngajatParams) er
 		arg.Marca,
 		arg.Functie,
 		arg.SectieID,
+		arg.DepartamentID,
 		arg.TipContract,
 		arg.NormaPartialaMinute,
 		arg.ConcediuZileAn,
 		arg.Activ,
+		arg.CreatLa,
+		arg.ModificatLa,
+	)
+	return err
+}
+
+const adaugaDepartament = `-- name: AdaugaDepartament :exec
+INSERT INTO departamente (id, sectie_id, denumire, creat_la, modificat_la) VALUES (?, ?, ?, ?, ?)
+`
+
+type AdaugaDepartamentParams struct {
+	ID          string
+	SectieID    string
+	Denumire    string
+	CreatLa     string
+	ModificatLa string
+}
+
+func (q *Queries) AdaugaDepartament(ctx context.Context, arg AdaugaDepartamentParams) error {
+	_, err := q.db.ExecContext(ctx, adaugaDepartament,
+		arg.ID,
+		arg.SectieID,
+		arg.Denumire,
 		arg.CreatLa,
 		arg.ModificatLa,
 	)
@@ -114,7 +139,7 @@ func (q *Queries) AdaugaSectie(ctx context.Context, arg AdaugaSectieParams) erro
 }
 
 const citesteAngajat = `-- name: CitesteAngajat :one
-SELECT id, nume, prenume, marca, functie, sectie_id, tip_contract,
+SELECT id, nume, prenume, marca, functie, sectie_id, departament_id, tip_contract,
     norma_partiala_minute, concediu_zile_an, activ
 FROM angajati WHERE id = ? AND sters_la IS NULL
 `
@@ -126,6 +151,7 @@ type CitesteAngajatRow struct {
 	Marca               string
 	Functie             *string
 	SectieID            *string
+	DepartamentID       *string
 	TipContract         string
 	NormaPartialaMinute *int64
 	ConcediuZileAn      *int64
@@ -142,12 +168,40 @@ func (q *Queries) CitesteAngajat(ctx context.Context, id string) (CitesteAngajat
 		&i.Marca,
 		&i.Functie,
 		&i.SectieID,
+		&i.DepartamentID,
 		&i.TipContract,
 		&i.NormaPartialaMinute,
 		&i.ConcediuZileAn,
 		&i.Activ,
 	)
 	return i, err
+}
+
+const citesteDepartamentActiv = `-- name: CitesteDepartamentActiv :one
+SELECT id, sectie_id FROM departamente WHERE id = ? AND sters_la IS NULL AND activ = 1
+`
+
+type CitesteDepartamentActivRow struct {
+	ID       string
+	SectieID string
+}
+
+func (q *Queries) CitesteDepartamentActiv(ctx context.Context, id string) (CitesteDepartamentActivRow, error) {
+	row := q.db.QueryRowContext(ctx, citesteDepartamentActiv, id)
+	var i CitesteDepartamentActivRow
+	err := row.Scan(&i.ID, &i.SectieID)
+	return i, err
+}
+
+const citesteSectieActiva = `-- name: CitesteSectieActiva :one
+SELECT id FROM sectii WHERE id = ? AND sters_la IS NULL AND activ = 1
+`
+
+func (q *Queries) CitesteSectieActiva(ctx context.Context, id string) (string, error) {
+	row := q.db.QueryRowContext(ctx, citesteSectieActiva, id)
+	var id_2 string
+	err := row.Scan(&id_2)
+	return id_2, err
 }
 
 const citesteSetare = `-- name: CitesteSetare :one
@@ -162,7 +216,7 @@ func (q *Queries) CitesteSetare(ctx context.Context, cheie string) (string, erro
 }
 
 const listaAngajati = `-- name: ListaAngajati :many
-SELECT id, nume, prenume, marca, functie, sectie_id, tip_contract,
+SELECT id, nume, prenume, marca, functie, sectie_id, departament_id, tip_contract,
     norma_partiala_minute, concediu_zile_an, activ
 FROM angajati WHERE sters_la IS NULL
 ORDER BY nume COLLATE NOCASE, prenume COLLATE NOCASE, marca
@@ -175,6 +229,7 @@ type ListaAngajatiRow struct {
 	Marca               string
 	Functie             *string
 	SectieID            *string
+	DepartamentID       *string
 	TipContract         string
 	NormaPartialaMinute *int64
 	ConcediuZileAn      *int64
@@ -197,11 +252,46 @@ func (q *Queries) ListaAngajati(ctx context.Context) ([]ListaAngajatiRow, error)
 			&i.Marca,
 			&i.Functie,
 			&i.SectieID,
+			&i.DepartamentID,
 			&i.TipContract,
 			&i.NormaPartialaMinute,
 			&i.ConcediuZileAn,
 			&i.Activ,
 		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listaDepartamente = `-- name: ListaDepartamente :many
+SELECT id, sectie_id, denumire FROM departamente WHERE sters_la IS NULL AND activ = 1
+ORDER BY sectie_id, denumire
+`
+
+type ListaDepartamenteRow struct {
+	ID       string
+	SectieID string
+	Denumire string
+}
+
+func (q *Queries) ListaDepartamente(ctx context.Context) ([]ListaDepartamenteRow, error) {
+	rows, err := q.db.QueryContext(ctx, listaDepartamente)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListaDepartamenteRow{}
+	for rows.Next() {
+		var i ListaDepartamenteRow
+		if err := rows.Scan(&i.ID, &i.SectieID, &i.Denumire); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -248,7 +338,7 @@ func (q *Queries) ListaSectii(ctx context.Context) ([]ListaSectiiRow, error) {
 }
 
 const modificaAngajat = `-- name: ModificaAngajat :execrows
-UPDATE angajati SET nume = ?, prenume = ?, marca = ?, functie = ?, sectie_id = ?,
+UPDATE angajati SET nume = ?, prenume = ?, marca = ?, functie = ?, sectie_id = ?, departament_id = ?,
     tip_contract = ?, norma_partiala_minute = ?, concediu_zile_an = ?, activ = ?, modificat_la = ?
 WHERE id = ? AND sters_la IS NULL
 `
@@ -259,6 +349,7 @@ type ModificaAngajatParams struct {
 	Marca               string
 	Functie             *string
 	SectieID            *string
+	DepartamentID       *string
 	TipContract         string
 	NormaPartialaMinute *int64
 	ConcediuZileAn      *int64
@@ -274,6 +365,7 @@ func (q *Queries) ModificaAngajat(ctx context.Context, arg ModificaAngajatParams
 		arg.Marca,
 		arg.Functie,
 		arg.SectieID,
+		arg.DepartamentID,
 		arg.TipContract,
 		arg.NormaPartialaMinute,
 		arg.ConcediuZileAn,

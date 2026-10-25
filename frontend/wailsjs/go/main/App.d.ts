@@ -4,6 +4,8 @@ import {i18n} from '../models';
 import {main} from '../models';
 import {datebaza} from '../models';
 
+export function AdaugaDepartament(arg1:string,arg2:i18n.Text):Promise<main.RaspunsDate>;
+
 export function AdaugaSectie(arg1:i18n.Text):Promise<main.RaspunsDate>;
 
 export function Catalog(arg1:string):Promise<Record<string, string>>;

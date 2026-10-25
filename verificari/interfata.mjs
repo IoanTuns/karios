@@ -83,8 +83,9 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie) {
     stare.sarbatori ??= structuredClone(calendarSursa);
     stare.schimburi ??= [];
     stare.ciorne ??= [];
+    stare.departamente ??= [];
     const raspuns = () => {
-        stare.angajati = stare.angajati.map(a => ({...a, norma_minute: a.tip_contract === 'PARTIALA' ? a.norma_partiala_minute : stare.norma_intreaga_minute}));
+        stare.angajati = stare.angajati.map(a => ({...a, departament_id: a.departament_id || '', norma_minute: a.tip_contract === 'PARTIALA' ? a.norma_partiala_minute : stare.norma_intreaga_minute}));
         stare.demo_disponibil = stare.angajati.length === 0;
         localStorage.setItem('pontix-test', JSON.stringify(stare));
         return {date: structuredClone(stare), eroare: null};
@@ -104,6 +105,7 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie) {
         SchimbaActivAngajat: async (id, activ) => { stare.angajati.find(a => a.id === id).activ = activ; return raspuns(); },
         SalveazaNormaIntreaga: async minute => { stare.norma_intreaga_minute = minute; return raspuns(); },
         AdaugaSectie: async denumire => { stare.sectii.push({id: 'sectie-' + Date.now(), denumire}); return raspuns(); },
+        AdaugaDepartament: async (sectie_id, denumire) => { stare.departamente.push({id: crypto.randomUUID(), sectie_id, denumire}); return raspuns(); },
         CitesteCalendar: async an => calendar(an),
         SalveazaSarbatoare: async (initiala, s, an) => {
             if (stare.sarbatori.some(v => v.data === s.data && v.data !== initiala)) return {calendar: null, eroare: {cod: 'sarbatori.data_duplicata', param: {}}};
@@ -185,8 +187,25 @@ try {
     await asteapta(() => evalueaza(`document.querySelector('[role="status"]')?.textContent.includes('salvate')`), 'Norma globală nu se salvează.');
     await completeaza('.card-setari:nth-child(2) input', 'Secție de test'); await apasa('Adaugă secție');
     await asteapta(() => evalueaza(`document.querySelectorAll('.lista-sectii li').length === 4`), 'Secția nu se adaugă.');
+    await completeaza('.card-departamente select', demo.sectii[0].id);
+    await completeaza('.card-departamente input', 'Laborator'); await apasa('Adaugă departament');
+    await asteapta(() => evalueaza(`document.querySelectorAll('.arbore-departamente ul li:not(.text-discret)').length === 1`), 'Primul departament nu apare.');
+    await completeaza('.card-departamente input', 'Biochimie'); await apasa('Adaugă departament');
+    await asteapta(() => evalueaza(`document.querySelectorAll('.arbore-departamente ul li:not(.text-discret)').length === 2`), 'O secție nu poate primi două departamente.');
+    await completeaza('.card-departamente select', demo.sectii[1].id);
+    await completeaza('.card-departamente input', 'Laborator Sud'); await apasa('Adaugă departament');
+    await asteapta(() => evalueaza(`document.querySelectorAll('.arbore-departamente ul li:not(.text-discret)').length === 3`), 'Departamentul celeilalte secții nu apare.');
+    const departamentNord = await evalueaza(`JSON.parse(localStorage.getItem('pontix-test')).departamente.find(d => d.denumire.ro === 'Laborator').id`);
     await apasa('Angajați'); await completeaza('.cautare input', 'DEMO-001');
     await asteapta(() => evalueaza(`document.querySelector('tbody')?.textContent.includes('8 h')`), 'Norma întreagă nu se actualizează.');
+    await apasa('Editează');
+    await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog[open]'))`), 'Formular atribuire departament lipsă.');
+    assert(!(await evalueaza(`document.querySelector('dialog select[aria-label="Departament"]').textContent.includes('Laborator Sud')`)), 'Formularul arată departamente din altă secție.');
+    await completeaza('dialog select[aria-label="Departament"]', departamentNord); await apasa('Salvează');
+    await asteapta(() => evalueaza(`!document.querySelector('dialog') && document.querySelector('tbody').textContent.includes('Laborator')`), 'Departamentul angajatului nu se salvează.');
+    await completeaza('.cautare input', ''); await completeaza('select[aria-label="Departament"]', departamentNord);
+    await asteapta(() => evalueaza(`document.querySelectorAll('tbody tr').length === 1`), 'Filtrul de departament nu funcționează.');
+    await completeaza('select[aria-label="Departament"]', '');
     await completeaza('.cautare input', 'DEMO-002');
     await asteapta(() => evalueaza(`document.querySelector('tbody')?.textContent.includes('4 h 30 min')`), 'Norma globală a schimbat norma parțială.');
     await apasa('Adaugă angajat');
@@ -255,7 +274,7 @@ try {
     await asteapta(() => evalueaza(`document.querySelector('dialog [role="alert"]')?.textContent.includes('acest cod')`), 'Codul duplicat nu este semnalat.');
     await apasa('Anulează');
     // Încărcăm 50 de persoane strict în profilul simulat, fără date reale.
-    await evalueaza(`(() => { const s = JSON.parse(localStorage.getItem('pontix-test')); s.angajati = Array.from({length:50}, (_, i) => ({...s.angajati[0], id:'grila-'+i, nume:'Exemplu '+String(i+1).padStart(2,'0'), prenume:'Test', marca:'TEST-'+String(i+1).padStart(3,'0'), activ:true})); s.ciorne = []; localStorage.setItem('pontix-test', JSON.stringify(s)); })()`);
+    await evalueaza(`(() => { const s = JSON.parse(localStorage.getItem('pontix-test')); const bio = s.departamente.find(d => d.denumire.ro === 'Biochimie').id; s.angajati = Array.from({length:50}, (_, i) => ({...s.angajati[0], id:'grila-'+i, nume:'Exemplu '+String(i+1).padStart(2,'0'), prenume:'Test', marca:'TEST-'+String(i+1).padStart(3,'0'), activ:true, departament_id: i % 2 ? bio : s.angajati[0].departament_id})); s.ciorne = []; localStorage.setItem('pontix-test', JSON.stringify(s)); })()`);
     await cdp('Page.reload');
     await asteapta(() => evalueaza(`document.querySelectorAll('tbody tr').length === 50`), 'Fixture 50 persoane lipsă.');
     await apasa('Pontaj');
@@ -263,6 +282,10 @@ try {
     await completeaza('.unelte-perioada input', '2026'); await apasa('Arată anul');
     await completeaza('.unelte-perioada select', '10');
     await asteapta(() => evalueaza(`document.querySelectorAll('.grila-pontaj tbody input').length === 1550`), 'Grila 50×31 nu are toate celulele.');
+    await completeaza('.unelte-grila select[aria-label="Departament"]', departamentNord);
+    await asteapta(() => evalueaza(`document.querySelectorAll('.grila-pontaj tbody input').length === 775`), 'Filtrul departamentului în grilă nu funcționează.');
+    await completeaza('.unelte-grila select[aria-label="Departament"]', '');
+    await asteapta(() => evalueaza(`document.querySelectorAll('.grila-pontaj tbody input').length === 1550`), 'Eliminarea filtrului nu reface grila.');
     await evalueaza(`document.querySelector('input[data-rand="0"][data-zi="0"]').focus()`);
     await completeaza('input[data-rand="0"][data-zi="0"]', 'N12');
     await evalueaza(`document.querySelector('input[data-rand="0"][data-zi="0"]').dispatchEvent(new KeyboardEvent('keydown', {key:'ArrowRight',shiftKey:true,bubbles:true}))`);

@@ -7,6 +7,7 @@ export namespace datebaza {
 	    marca: string;
 	    functie: string;
 	    sectie_id: string;
+	    departament_id: string;
 	    tip_contract: string;
 	    norma_partiala_minute?: number;
 	    norma_minute: number;
@@ -25,6 +26,7 @@ export namespace datebaza {
 	        this.marca = source["marca"];
 	        this.functie = source["functie"];
 	        this.sectie_id = source["sectie_id"];
+	        this.departament_id = source["departament_id"];
 	        this.tip_contract = source["tip_contract"];
 	        this.norma_partiala_minute = source["norma_partiala_minute"];
 	        this.norma_minute = source["norma_minute"];
@@ -98,6 +100,22 @@ export namespace datebaza {
 	        this.revizie = source["revizie"];
 	    }
 	}
+	export class Departament {
+	    id: string;
+	    sectie_id: string;
+	    denumire: Record<string, string>;
+
+	    static createFrom(source: any = {}) {
+	        return new Departament(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.sectie_id = source["sectie_id"];
+	        this.denumire = source["denumire"];
+	    }
+	}
 	export class Sectie {
 	    id: string;
 	    denumire: Record<string, string>;
@@ -115,6 +133,7 @@ export namespace datebaza {
 	export class Date {
 	    angajati: Angajat[];
 	    sectii: Sectie[];
+	    departamente: Departament[];
 	    norma_intreaga_minute: number;
 	    demo_disponibil: boolean;
 
@@ -126,6 +145,7 @@ export namespace datebaza {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.angajati = this.convertValues(source["angajati"], Angajat);
 	        this.sectii = this.convertValues(source["sectii"], Sectie);
+	        this.departamente = this.convertValues(source["departamente"], Departament);
 	        this.norma_intreaga_minute = source["norma_intreaga_minute"];
 	        this.demo_disponibil = source["demo_disponibil"];
 	    }
@@ -148,6 +168,7 @@ export namespace datebaza {
 		    return a;
 		}
 	}
+
 
 	export class Schimb {
 	    id: string;

@@ -25,6 +25,7 @@ type Angajat struct {
 	Marca               string `json:"marca"`
 	Functie             string `json:"functie"`
 	SectieID            string `json:"sectie_id"`
+	DepartamentID       string `json:"departament_id"`
 	TipContract         string `json:"tip_contract"`
 	NormaPartialaMinute *int64 `json:"norma_partiala_minute"`
 	NormaMinute         int64  `json:"norma_minute"`
@@ -37,11 +38,18 @@ type Sectie struct {
 	Denumire i18n.Text `json:"denumire"`
 }
 
+type Departament struct {
+	ID       string    `json:"id"`
+	SectieID string    `json:"sectie_id"`
+	Denumire i18n.Text `json:"denumire"`
+}
+
 type Date struct {
-	Angajati            []Angajat `json:"angajati"`
-	Sectii              []Sectie  `json:"sectii"`
-	NormaIntreagaMinute int64     `json:"norma_intreaga_minute"`
-	DemoDisponibil      bool      `json:"demo_disponibil"`
+	Angajati            []Angajat     `json:"angajati"`
+	Sectii              []Sectie      `json:"sectii"`
+	Departamente        []Departament `json:"departamente"`
+	NormaIntreagaMinute int64         `json:"norma_intreaga_minute"`
+	DemoDisponibil      bool          `json:"demo_disponibil"`
 }
 
 type Serviciu struct{ db *sql.DB }
@@ -55,7 +63,7 @@ func (s *Serviciu) Citeste(ctx context.Context) (Date, error) {
 	}
 	defer tx.Rollback()
 	q := acces.New(tx)
-	rez := Date{Angajati: []Angajat{}, Sectii: []Sectie{}}
+	rez := Date{Angajati: []Angajat{}, Sectii: []Sectie{}, Departamente: []Departament{}}
 	valoare, err := q.CitesteSetare(ctx, "norma_intreaga_minute")
 	if err != nil {
 		return Date{}, traduceEroare(err)
@@ -75,7 +83,8 @@ func (s *Serviciu) Citeste(ctx context.Context) (Date, error) {
 		}
 		rez.Angajati = append(rez.Angajati, Angajat{ID: a.ID, Nume: a.Nume, Prenume: a.Prenume,
 			Marca: a.Marca, Functie: textSauGol(a.Functie), SectieID: textSauGol(a.SectieID),
-			TipContract: a.TipContract, NormaPartialaMinute: a.NormaPartialaMinute,
+			DepartamentID: textSauGol(a.DepartamentID),
+			TipContract:   a.TipContract, NormaPartialaMinute: a.NormaPartialaMinute,
 			NormaMinute: norma, ConcediuZileAn: a.ConcediuZileAn, Activ: a.Activ == 1})
 	}
 	sectii, err := q.ListaSectii(ctx)
@@ -88,6 +97,17 @@ func (s *Serviciu) Citeste(ctx context.Context) (Date, error) {
 			return Date{}, traduceEroare(err)
 		}
 		rez.Sectii = append(rez.Sectii, Sectie{ID: r.ID, Denumire: denumire})
+	}
+	departamente, err := q.ListaDepartamente(ctx)
+	if err != nil {
+		return Date{}, traduceEroare(err)
+	}
+	for _, r := range departamente {
+		var denumire i18n.Text
+		if err := json.Unmarshal([]byte(r.Denumire), &denumire); err != nil {
+			return Date{}, traduceEroare(err)
+		}
+		rez.Departamente = append(rez.Departamente, Departament{ID: r.ID, SectieID: r.SectieID, Denumire: denumire})
 	}
 	n, err := q.NumaraAngajati(ctx)
 	if err != nil {
@@ -122,13 +142,23 @@ func (s *Serviciu) SalveazaAngajat(ctx context.Context, a Angajat) error {
 		return eroare("date.concediu_invalid")
 	}
 	return s.modifica(ctx, func(q *acces.Queries) error {
+		if a.DepartamentID != "" {
+			d, err := q.CitesteDepartamentActiv(ctx, a.DepartamentID)
+			if errors.Is(err, sql.ErrNoRows) || (err == nil && d.SectieID != a.SectieID) {
+				return eroare("date.departament_invalid")
+			}
+			if err != nil {
+				return err
+			}
+		}
 		acum := moment()
 		var vechi any
 		if a.ID == "" {
 			a.ID = idNou()
 			if err := q.AdaugaAngajat(ctx, acces.AdaugaAngajatParams{ID: a.ID, Nume: a.Nume, Prenume: a.Prenume,
 				Marca: a.Marca, Functie: textOptional(a.Functie), SectieID: textOptional(a.SectieID),
-				TipContract: a.TipContract, NormaPartialaMinute: a.NormaPartialaMinute,
+				DepartamentID: textOptional(a.DepartamentID),
+				TipContract:   a.TipContract, NormaPartialaMinute: a.NormaPartialaMinute,
 				ConcediuZileAn: a.ConcediuZileAn, Activ: numarBool(a.Activ), CreatLa: acum, ModificatLa: acum}); err != nil {
 				return err
 			}
@@ -140,7 +170,8 @@ func (s *Serviciu) SalveazaAngajat(ctx context.Context, a Angajat) error {
 			vechi = r
 			n, err := q.ModificaAngajat(ctx, acces.ModificaAngajatParams{ID: a.ID, Nume: a.Nume, Prenume: a.Prenume,
 				Marca: a.Marca, Functie: textOptional(a.Functie), SectieID: textOptional(a.SectieID),
-				TipContract: a.TipContract, NormaPartialaMinute: a.NormaPartialaMinute,
+				DepartamentID: textOptional(a.DepartamentID),
+				TipContract:   a.TipContract, NormaPartialaMinute: a.NormaPartialaMinute,
 				ConcediuZileAn: a.ConcediuZileAn, Activ: numarBool(a.Activ), ModificatLa: acum})
 			if err != nil {
 				return err
@@ -217,6 +248,35 @@ func adaugaSectie(ctx context.Context, q *acces.Queries, s Sectie) error {
 	}
 	acum := moment()
 	return q.AdaugaSectie(ctx, acces.AdaugaSectieParams{ID: s.ID, Denumire: string(text), CreatLa: acum, ModificatLa: acum})
+}
+
+func (s *Serviciu) AdaugaDepartament(ctx context.Context, sectieID string, denumire i18n.Text) error {
+	curata := i18n.Text{}
+	for l, text := range denumire {
+		if text = strings.TrimSpace(text); text != "" {
+			curata[l] = text
+		}
+	}
+	if len(curata) == 0 {
+		return eroare("date.departament_obligatoriu")
+	}
+	return s.modifica(ctx, func(q *acces.Queries) error {
+		if _, err := q.CitesteSectieActiva(ctx, sectieID); err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				return eroare("date.sectie_invalida")
+			}
+			return err
+		}
+		id := idNou()
+		text, err := json.Marshal(curata)
+		if err != nil {
+			return err
+		}
+		if err := q.AdaugaDepartament(ctx, acces.AdaugaDepartamentParams{ID: id, SectieID: sectieID, Denumire: string(text), CreatLa: moment(), ModificatLa: moment()}); err != nil {
+			return err
+		}
+		return jurnal(ctx, q, "departamente", id, nil, Departament{ID: id, SectieID: sectieID, Denumire: curata})
+	})
 }
 
 func (s *Serviciu) modifica(ctx context.Context, actiune func(*acces.Queries) error) error {

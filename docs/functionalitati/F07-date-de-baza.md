@@ -17,6 +17,8 @@ Utilizatorul poate gestiona angajații și listele de care depinde pontajul.
 | F07-T05 | Categorii de ore și coloanele centralizatorului | de făcut | | O singură sursă pentru legătura categorie → coloană |
 | F07-T06 | Schema angajaților, norma întreagă globală și sărbătorile pe ani | gata | Codex | 2026-10-25, versiunea 0.9.0, migrările 0002 și 0003; păstrarea datelor vechi, constrângeri, normă efectivă și backup înainte de migrare verificate prin teste. Build Windows verificat. Pas următor: F06-T03, F07-T01 și F07-T03; [D012](../decizii/D012-date-angajati-norme-sarbatori.md) rămâne propusă pentru reprezentarea tehnică |
 | F07-T07 | Set de date demo fictive și încărcare explicită, tranzacțională | gata | Codex | 2026-10-25, 0.10.0: 12 angajați și 3 secții, JSON inclus în aplicație; confirmare în UI și refuz în backend dacă există angajați/pontaje. Testate anularea integrală la eroare și păstrarea normei globale. Datele demo nu sunt încărcate în baza operațională de agent |
+| F07-T08 | Departamente multiple în fiecare secție, atribuire angajați și filtre | gata | Codex | 2026-10-25, 0.14.0: migrarea 0006, creare în Setări, atribuire filtrată după secție, filtre în Angajați/Pontaj. Verificate integritatea relației și păstrarea configurațiilor vechi. Urmează F07-T09; [D018](../decizii/D018-sectii-departamente.md) rămâne propusă |
+| F07-T09 | Setările inițiale ale schimburilor din PDF | de făcut | | Ioan Tuns a precizat sursa: PDF-ul, nu valori inventate. Se extrag exact valorile disponibile; schimburile deja configurate se păstrează |
 
 ## Schema F07-T06
 

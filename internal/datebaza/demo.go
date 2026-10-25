@@ -43,7 +43,8 @@ func (s *Serviciu) IncarcaDemo(ctx context.Context) error {
 			acum := moment()
 			if err := q.AdaugaAngajat(ctx, acces.AdaugaAngajatParams{ID: a.ID, Nume: a.Nume, Prenume: a.Prenume,
 				Marca: a.Marca, Functie: textOptional(a.Functie), SectieID: textOptional(a.SectieID),
-				TipContract: a.TipContract, NormaPartialaMinute: a.NormaPartialaMinute,
+				DepartamentID: textOptional(a.DepartamentID),
+				TipContract:   a.TipContract, NormaPartialaMinute: a.NormaPartialaMinute,
 				ConcediuZileAn: a.ConcediuZileAn, Activ: numarBool(a.Activ), CreatLa: acum, ModificatLa: acum}); err != nil {
 				return err
 			}

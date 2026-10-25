@@ -11,6 +11,10 @@ export function denumireSectie(s: datebaza.Sectie, limba: string): string {
     return s.denumire[limba] || s.denumire.ro || Object.values(s.denumire).find(Boolean) || '';
 }
 
+export function denumireDepartament(d: datebaza.Departament, limba: string): string {
+    return d.denumire[limba] || d.denumire.ro || Object.values(d.denumire).find(Boolean) || '';
+}
+
 function minuteDinOre(valoare: string): number | null {
     const minute = Number(valoare) * 60;
     const intreg = Math.round(minute);
@@ -43,15 +47,16 @@ export function FormularAngajat({angajat, date, ocupat, eroare, inchide, salveaz
     const [marca, setMarca] = useState(angajat.marca);
     const [functie, setFunctie] = useState(angajat.functie);
     const [sectie, setSectie] = useState(angajat.sectie_id);
+    const [departament, setDepartament] = useState(angajat.departament_id || '');
     const [contract, setContract] = useState(angajat.tip_contract);
     const [ore, setOre] = useState(angajat.norma_partiala_minute == null ? '' : String(angajat.norma_partiala_minute / 60));
     const [concediu, setConcediu] = useState(angajat.concediu_zile_an == null ? '' : String(angajat.concediu_zile_an));
     const [activ, setActiv] = useState(angajat.activ);
     const [validare, setValidare] = useState('');
-    const initial = useRef(JSON.stringify([nume, prenume, marca, functie, sectie, contract, ore, concediu, activ]));
+    const initial = useRef(JSON.stringify([nume, prenume, marca, functie, sectie, departament, contract, ore, concediu, activ]));
 
     function inchideCuVerificare() {
-        const modificat = initial.current !== JSON.stringify([nume, prenume, marca, functie, sectie, contract, ore, concediu, activ]);
+        const modificat = initial.current !== JSON.stringify([nume, prenume, marca, functie, sectie, departament, contract, ore, concediu, activ]);
         if (!ocupat && (!modificat || window.confirm(t('ui.renunta')))) inchide();
     }
 
@@ -62,7 +67,7 @@ export function FormularAngajat({angajat, date, ocupat, eroare, inchide, salveaz
         if (contract === 'PARTIALA' && minute === null) { setValidare(t('date.norma_invalida')); return; }
         const zile = concediu === '' ? null : Number(concediu);
         if (zile !== null && (!Number.isSafeInteger(zile) || zile < 0)) { setValidare(t('date.concediu_invalid')); return; }
-        await salveaza(new datebaza.Angajat({...angajat, nume, prenume, marca, functie, sectie_id: sectie,
+        await salveaza(new datebaza.Angajat({...angajat, nume, prenume, marca, functie, sectie_id: sectie, departament_id: departament,
             tip_contract: contract, norma_partiala_minute: minute, concediu_zile_an: zile, activ}));
     }
 
@@ -75,8 +80,11 @@ export function FormularAngajat({angajat, date, ocupat, eroare, inchide, salveaz
                     <label>{t('ui.prenume')} *<input required value={prenume} onChange={e => setPrenume(e.target.value)}/></label>
                     <label>{t('ui.marca')} *<input required value={marca} onChange={e => setMarca(e.target.value)}/></label>
                     <label>{t('ui.functie')}<input value={functie} onChange={e => setFunctie(e.target.value)}/></label>
-                    <label className="latime-completa">{t('ui.sectie')}<select value={sectie} onChange={e => setSectie(e.target.value)}>
+                    <label>{t('ui.sectie')}<select value={sectie} onChange={e => { setSectie(e.target.value); setDepartament(''); }}>
                         <option value="">{t('ui.fara_sectie')}</option>{date.sectii.map(s => <option value={s.id} key={s.id}>{denumireSectie(s, i18n.language)}</option>)}
+                    </select></label>
+                    <label>{t('ui.departament')}<select aria-label={t('ui.departament')} value={departament} disabled={!sectie} onChange={e => setDepartament(e.target.value)}>
+                        <option value="">{t('ui.fara_departament')}</option>{(date.departamente ?? []).filter(d => d.sectie_id === sectie).map(d => <option value={d.id} key={d.id}>{denumireDepartament(d, i18n.language)}</option>)}
                     </select></label>
                     <label>{t('ui.contract')} *<select value={contract} onChange={e => setContract(e.target.value)}>
                         <option value="INTREAGA">{t('ui.intreaga')}</option><option value="PARTIALA">{t('ui.partiala')}</option></select></label>
@@ -103,12 +111,15 @@ export function DialogDemo({ocupat, eroare, inchide, confirma}: {ocupat: boolean
     </Dialog>;
 }
 
-export function Setari({date, ocupat, salveazaNorma, adaugaSectie}: {date: datebaza.Date; ocupat: boolean;
+export function Setari({date, ocupat, salveazaNorma, adaugaSectie, adaugaDepartament}: {date: datebaza.Date; ocupat: boolean;
     salveazaNorma: (minute: number) => Promise<boolean>; adaugaSectie: (denumire: string) => Promise<boolean>;
+    adaugaDepartament: (sectieID: string, denumire: string) => Promise<boolean>;
 }) {
     const {t, i18n} = useTranslation();
     const [ore, setOre] = useState(String(date.norma_intreaga_minute / 60));
     const [sectie, setSectie] = useState('');
+    const [sectieDepartament, setSectieDepartament] = useState(date.sectii[0]?.id || '');
+    const [numeDepartament, setNumeDepartament] = useState('');
     const [validare, setValidare] = useState('');
     useEffect(() => { setOre(String(date.norma_intreaga_minute / 60)); }, [date.norma_intreaga_minute]);
 
@@ -134,6 +145,17 @@ export function Setari({date, ocupat, salveazaNorma, adaugaSectie}: {date: dateb
                 <label>{t('ui.sectie_noua')}<input required value={sectie} disabled={ocupat} onChange={e => setSectie(e.target.value)}/></label>
                 <button className="buton secundar" disabled={ocupat || !sectie.trim()}>{t('ui.adauga_sectie')}</button>
             </form>
+        </section>
+        <section className="panou card-setari card-departamente"><h2>{t('ui.departamente')}</h2><p>{t('ui.departamente_descriere')}</p>
+            <div className="organizare-departamente"><div>
+                {date.sectii.length ? <ul className="arbore-departamente">{date.sectii.map(s => <li key={s.id}><strong>{denumireSectie(s, i18n.language)}</strong>
+                    <ul>{(date.departamente ?? []).filter(d => d.sectie_id === s.id).map(d => <li key={d.id}>{denumireDepartament(d, i18n.language)}</li>)}
+                        {!(date.departamente ?? []).some(d => d.sectie_id === s.id) && <li className="text-discret">{t('ui.fara_departamente')}</li>}</ul></li>)}</ul> : <p>{t('ui.fara_sectii')}</p>}
+            </div><form onSubmit={async e => { e.preventDefault(); if (numeDepartament.trim() && sectieDepartament && await adaugaDepartament(sectieDepartament, numeDepartament)) setNumeDepartament(''); }}>
+                <label>{t('ui.sectie')}<select required aria-label={t('ui.sectie_departament')} disabled={ocupat} value={sectieDepartament} onChange={e => setSectieDepartament(e.target.value)}><option value="">{t('ui.alege_sectia')}</option>{date.sectii.map(s => <option value={s.id} key={s.id}>{denumireSectie(s, i18n.language)}</option>)}</select></label>
+                <label>{t('ui.departament_nou')}<input required aria-label={t('ui.departament_nou')} value={numeDepartament} disabled={ocupat} onChange={e => setNumeDepartament(e.target.value)}/></label>
+                <button className="buton secundar" disabled={ocupat || !sectieDepartament || !numeDepartament.trim()}>{t('ui.adauga_departament')}</button>
+            </form></div>
         </section>
     </div>;
 }

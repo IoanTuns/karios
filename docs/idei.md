@@ -6,6 +6,7 @@ Stări: `nouă`, `în analiză`, `transformată` (în task sau decizie), `amâna
 
 | ID | Data | Idee | Cine | Stare | Legături / motiv |
 | --- | --- | --- | --- | --- | --- |
+| I015 | 2026-10-25 | Fiecare secție are mai multe departamente; schimburile inițiale sunt cele din PDF | Ioan Tuns | transformată | F07-T08, F07-T09 |
 | I014 | 2026-10-25 | Build-ul să păstreze întotdeauna datele portabile și să permită alt nume de executabil când aplicația rulează | Codex | transformată | F05-T15, D017; `-clean` poate șterge date din `build/bin/karios` |
 | I013 | 2026-10-25 | Modelarea persoanei cu mai multe contracte/mărci și rânduri separate de gardă, plus grupări profesionale ca în raport | Codex | în analiză | F01: captura arată rânduri GARDĂ cu mărci proprii; relația contractuală nu este confirmată. Nu deducem legătura din nume |
 | I012 | 2026-10-25 | Sărbători legale România 2026 cu interfață și începutul grilei după modelul de raport primit | Ioan Tuns | transformată | F07-T03, F08-T01; numai structura anonimizată a raportului este descrisă în documentație |

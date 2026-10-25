@@ -1,8 +1,8 @@
 import {useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {AdaugaSectie, DateInitiale, IncarcaDemo, Informatii, SalveazaAngajat, SalveazaNormaIntreaga, SchimbaActivAngajat} from '../wailsjs/go/main/App';
+import {AdaugaDepartament, AdaugaSectie, DateInitiale, IncarcaDemo, Informatii, SalveazaAngajat, SalveazaNormaIntreaga, SchimbaActivAngajat} from '../wailsjs/go/main/App';
 import {datebaza, main} from '../wailsjs/go/models';
-import {DialogDemo, FormularAngajat, Setari, durata, denumireSectie} from './Formulare';
+import {DialogDemo, FormularAngajat, Setari, durata, denumireSectie, denumireDepartament} from './Formulare';
 import {Sarbatori} from './Sarbatori';
 import {Schimburi} from './Schimburi';
 import {Pontaj} from './Pontaj';
@@ -37,6 +37,7 @@ function App() {
     const [cautare, setCautare] = useState('');
     const [stare, setStare] = useState('toti');
     const [sectie, setSectie] = useState('');
+    const [departament, setDepartament] = useState('');
     const [editare, setEditare] = useState<datebaza.Angajat | null>(null);
     const [demo, setDemo] = useState(false);
     const [pontajModificat, setPontajModificat] = useState(false);
@@ -76,16 +77,20 @@ function App() {
     function deschide(angajat?: datebaza.Angajat) {
         setEroare(''); setMesaj('');
         setEditare(angajat ?? new datebaza.Angajat({id: '', nume: '', prenume: '', marca: '', functie: '',
-            sectie_id: '', tip_contract: 'INTREAGA', norma_partiala_minute: null, norma_minute: 0,
+            sectie_id: '', departament_id: '', tip_contract: 'INTREAGA', norma_partiala_minute: null, norma_minute: 0,
             concediu_zile_an: null, activ: true}));
     }
 
     const lista = date?.angajati ?? [];
     const vizibili = lista.filter(a => normalizat(`${a.nume} ${a.prenume} ${a.marca}`).includes(normalizat(cautare.trim()))
-        && (stare === 'toti' || (stare === 'activi' ? a.activ : !a.activ)) && (!sectie || a.sectie_id === sectie));
+        && (stare === 'toti' || (stare === 'activi' ? a.activ : !a.activ)) && (!sectie || a.sectie_id === sectie) && (!departament || a.departament_id === departament));
     const sectiePentru = (id: string) => {
         const gasita = date?.sectii.find(s => s.id === id);
         return gasita ? denumireSectie(gasita, i18n.language) : t('ui.fara_sectie');
+    };
+    const departamentPentru = (id: string) => {
+        const gasit = (date?.departamente ?? []).find(d => d.id === id);
+        return gasit ? denumireDepartament(gasit, i18n.language) : t('ui.fara_departament');
     };
 
     return <div className="aplicatie">
@@ -118,7 +123,8 @@ function App() {
                 : ecran === 'schimburi' ? <Schimburi/>
                 : ecran === 'setari' ? <Setari date={date} ocupat={ocupat}
                     salveazaNorma={minute => executa(() => SalveazaNormaIntreaga(minute))}
-                    adaugaSectie={denumire => executa(() => AdaugaSectie({[i18n.language]: denumire}))}/>
+                    adaugaSectie={denumire => executa(() => AdaugaSectie({[i18n.language]: denumire}))}
+                    adaugaDepartament={(sectieID, denumire) => executa(() => AdaugaDepartament(sectieID, {[i18n.language]: denumire}))}/>
                 : <>
                     <section className="indicatori" aria-label={t('ui.angajati')}>
                         {[['ui.total', lista.length], ['ui.activi', lista.filter(a => a.activ).length],
@@ -133,21 +139,23 @@ function App() {
                             <select aria-label={t('ui.stare')} value={stare} onChange={e => setStare(e.target.value)}>
                                 <option value="toti">{t('ui.toti')}</option><option value="activi">{t('ui.doar_activi')}</option><option value="inactivi">{t('ui.doar_inactivi')}</option>
                             </select>
-                            <select aria-label={t('ui.sectie')} value={sectie} onChange={e => setSectie(e.target.value)}>
+                            <select aria-label={t('ui.sectie')} value={sectie} onChange={e => { setSectie(e.target.value); setDepartament(''); }}>
                                 <option value="">{t('ui.toate_sectiile')}</option>
                                 {date.sectii.map(s => <option key={s.id} value={s.id}>{denumireSectie(s, i18n.language)}</option>)}
                             </select>
+                            <select aria-label={t('ui.departament')} value={departament} onChange={e => setDepartament(e.target.value)}><option value="">{t('ui.toate_departamentele')}</option>
+                                {(date.departamente ?? []).filter(d => !sectie || d.sectie_id === sectie).map(d => <option key={d.id} value={d.id}>{!sectie ? `${sectiePentru(d.sectie_id)} / ` : ''}{denumireDepartament(d, i18n.language)}</option>)}</select>
                         </div>
                         {lista.length === 0 ? <div className="stare-goala">
                             <span className="simbol-gol" aria-hidden="true"><Simbol tip="angajati"/></span>
                             <h2>{t('ui.gol_titlu')}</h2><p>{t('ui.gol_descriere')}</p>
                             {date.demo_disponibil && <button className="buton secundar" disabled={ocupat} onClick={() => { setEroare(''); setDemo(true); }}>{t('ui.demo')}</button>}
                         </div> : <div className="tabel-derulant"><table>
-                            <thead><tr>{['angajat', 'marca', 'sectie', 'contract', 'norma', 'concediu', 'stare', 'actiuni'].map(c => <th key={c} scope="col">{t(`ui.${c}`)}</th>)}</tr></thead>
+                            <thead><tr>{['angajat', 'marca', 'sectie', 'departament', 'contract', 'norma', 'concediu', 'stare', 'actiuni'].map(c => <th key={c} scope="col">{t(`ui.${c}`)}</th>)}</tr></thead>
                             <tbody>{vizibili.map(a => <tr key={a.id} className={a.activ ? '' : 'rand-inactiv'}>
                                 <td><div className="identitate"><span className="avatar" aria-hidden="true">{a.prenume.charAt(0)}{a.nume.charAt(0)}</span>
                                     <span><strong>{a.nume} {a.prenume}</strong>{a.functie && <small>{a.functie}</small>}</span></div></td>
-                                <td className="marca-angajat">{a.marca}</td><td>{sectiePentru(a.sectie_id)}</td>
+                                <td className="marca-angajat">{a.marca}</td><td>{sectiePentru(a.sectie_id)}</td><td>{departamentPentru(a.departament_id)}</td>
                                 <td><span className={`eticheta-contract ${a.tip_contract === 'PARTIALA' ? 'partial' : ''}`}>{t(a.tip_contract === 'PARTIALA' ? 'ui.partiala' : 'ui.intreaga')}</span></td>
                                 <td className="durata">{durata(a.norma_minute, t)}</td><td>{a.concediu_zile_an == null ? <span className="text-discret">{t('ui.necompletat')}</span> : t('ui.zile', {numar: a.concediu_zile_an})}</td>
                                 <td><span className={`stare-angajat ${a.activ ? 'activ' : ''}`}><i/>{t(a.activ ? 'ui.activ' : 'ui.inactiv')}</span></td>

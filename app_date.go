@@ -37,6 +37,10 @@ func (a *App) AdaugaSectie(denumire i18n.Text) RaspunsDate {
 	return a.raspunsDate(datebaza.Nou(a.db).AdaugaSectie(a.contextLucru(), denumire))
 }
 
+func (a *App) AdaugaDepartament(sectieID string, denumire i18n.Text) RaspunsDate {
+	return a.raspunsDate(datebaza.Nou(a.db).AdaugaDepartament(a.contextLucru(), sectieID, denumire))
+}
+
 func (a *App) IncarcaDemo() RaspunsDate {
 	return a.raspunsDate(datebaza.Nou(a.db).IncarcaDemo(a.contextLucru()))
 }
