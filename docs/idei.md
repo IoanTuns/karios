@@ -6,6 +6,7 @@ Stări: `nouă`, `în analiză`, `transformată` (în task sau decizie), `amâna
 
 | ID | Data | Idee | Cine | Stare | Legături / motiv |
 | --- | --- | --- | --- | --- | --- |
+| I020 | 2026-10-25 | Separarea inițializării bazei de date de generarea legăturilor Wails și izolarea temporarelor de build per checkout | Codex | nouă | F09-T07: generatorul Wails rulează main dintr-un executabil temporar; main deschide baza înaintea wails.Run. Două ramuri pot ajunge la același folder temporar karios și la istorice de migrare diferite. Soluție temporară în această sesiune: TEMP/TMP proprii doar pentru procesul de build; corecția pornirii necesită task separat |
 | I019 | 2026-10-25 | Fiecare raport are antet, conținut și subsol configurabile separat, într-un meniu dedicat, cu previzualizare și tipărire | Ioan Tuns | transformată | F09-T07, [D025](decizii/D025-definitii-rapoarte.md) |
 | I018 | 2026-10-25 | Revizii de concurență separate de timestamp, ca două salvări în același tic al ceasului să rămână distincte | Codex | transformată | F06-T07; observat prin două teste de conflict la verificarea F07-T10 |
 | I017 | 2026-10-25 | Programe reale 07–14/15–22/22–07 și intrare 22–07 distinctă pentru weekend/sărbătoare, urmată de opțiuni de 12/24 ore | Ioan Tuns | transformată | F07-T10, [D021](decizii/D021-programe-lucru.md) |
