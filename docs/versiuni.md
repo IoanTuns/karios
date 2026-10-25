@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.20.2 · 2026-10-25
+
+F09-T08, actualizare separată a dependențelor declarate: pdfcpu 0.16.2 → 0.16.3 (Apache-2.0), go-runewidth 0.0.30 → 0.0.31 (MIT). Licențele noilor versiuni verificate și păstrate. Go 1.27.3 și npm sunt la versiunile verificate; fără schimbări ale rapoartelor sau bazei.
+
 ## 0.20.1 · 2026-10-25
 
 F09-T08: integrarea cererilor de concediu F07-T12 din a132a27 în ramura rapoartelor; migrările 0012 și 0013 coexistă, iar documentele și stările de aprobare rămân în aplicație. Pregătire pentru imagini și paginare în 0.21.0; rapoartele sunt încă v1.
