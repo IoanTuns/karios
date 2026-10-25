@@ -4,6 +4,16 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.8.0 · 2026-10-25
+
+Backup automat înaintea actualizărilor bazei de date (F05-T06, D002 punctul 3).
+
+- Înainte de orice migrare pe o bază care are deja date, aplicația face o copie criptată în `karios/backup/pontix-AAAA-LL-ZZ-HHMMSS-vX.Y.Z.db` (`bd.Backup`, cu `VACUUM INTO`).
+- Dacă backup-ul eșuează, migrarea nu pornește și aplicația arată eroarea `stocare.backup_esuat`.
+- Se păstrează cele mai noi **7** backup-uri automate; alte fișiere din `backup/` nu se ating.
+
+Rapoarte: niciunul încă. Baza de date: nicio migrare nouă.
+
 ## 0.7.0 · 2026-10-25
 
 Aplicația își deschide datele criptate la pornire (F05-T12, D011).

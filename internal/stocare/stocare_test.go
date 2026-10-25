@@ -3,10 +3,16 @@ package stocare
 import (
 	"context"
 	"errors"
+	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
+	"testing/fstest"
+	"time"
 
+	"pontix/internal/bd"
 	"pontix/internal/seif"
 )
 
@@ -58,5 +64,144 @@ func TestBazaFaraSeif(t *testing.T) {
 	}
 	if _, err := os.Stat(filepath.Join(dir, NumeSeif)); !os.IsNotExist(err) {
 		t.Error("s-a creat un seif nou peste o bază existentă")
+	}
+}
+
+// migrariPana întoarce migrările reale plus n-1 migrări de probă (0002 … 000n).
+func migrariPana(t *testing.T, n int) fs.FS {
+	t.Helper()
+	initiala, err := fs.ReadFile(bd.Migrari, "0001_schema_initiala.sql")
+	if err != nil {
+		t.Fatal(err)
+	}
+	m := fstest.MapFS{"0001_schema_initiala.sql": {Data: initiala}}
+	for i := 2; i <= n; i++ {
+		m[fmt.Sprintf("%04d_proba.sql", i)] = &fstest.MapFile{Data: []byte(fmt.Sprintf(
+			"-- +goose Up\nCREATE TABLE proba_%d (x INTEGER) STRICT;\n", i))}
+	}
+	return m
+}
+
+func ceas(minute int) func() time.Time {
+	return func() time.Time { return time.Date(2026, 10, 25, 8, minute, 0, 0, time.UTC) }
+}
+
+func backupuri(t *testing.T, dir string) []string {
+	t.Helper()
+	intrari, err := os.ReadDir(filepath.Join(dir, "backup"))
+	if os.IsNotExist(err) {
+		return nil
+	}
+	if err != nil {
+		t.Fatal(err)
+	}
+	var rez []string
+	for _, i := range intrari {
+		rez = append(rez, i.Name())
+	}
+	return rez
+}
+
+func TestBackupInainteDeMigrare(t *testing.T) {
+	ctx := context.Background()
+	dir := t.TempDir()
+
+	// Baza nouă: nimic de salvat, deci niciun backup.
+	db, err := deschide(ctx, dir, migrariPana(t, 1), ceas(0))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.Exec(`INSERT INTO setari (cheie, valoare, modificat_la) VALUES ('proba', 'inainte', 'x')`); err != nil {
+		t.Fatal(err)
+	}
+	db.Close()
+	if b := backupuri(t, dir); len(b) != 0 {
+		t.Fatalf("backup la o bază nouă: %v", b)
+	}
+
+	// O versiune nouă aduce migrarea 0002: întâi backup, apoi migrare.
+	db, err = deschide(ctx, dir, migrariPana(t, 2), ceas(1))
+	if err != nil {
+		t.Fatal(err)
+	}
+	db.Close()
+	b := backupuri(t, dir)
+	if len(b) != 1 {
+		t.Fatalf("backup-uri după migrare: %v", b)
+	}
+	if !strings.HasPrefix(b[0], "pontix-2026-10-25-080100-v") {
+		t.Errorf("numele backup-ului: %s", b[0])
+	}
+
+	// Backup-ul are datele de dinainte și schema de dinainte de migrare.
+	s, err := seif.Deschide(filepath.Join(dir, NumeSeif))
+	if err != nil {
+		t.Fatal(err)
+	}
+	copie, err := bd.Deschide(filepath.Join(dir, "backup", b[0]), s.CheieDate)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var v string
+	if err := copie.QueryRow(`SELECT valoare FROM setari WHERE cheie = 'proba'`).Scan(&v); err != nil || v != "inainte" {
+		t.Errorf("datele din backup: %q, %v", v, err)
+	}
+	var n int
+	copie.QueryRow(`SELECT count(*) FROM sqlite_schema WHERE name = 'proba_2'`).Scan(&n)
+	if n != 0 {
+		t.Error("backup-ul conține deja migrarea 0002")
+	}
+	copie.Close()
+
+	// Fără migrări noi, nu se face alt backup.
+	db, err = deschide(ctx, dir, migrariPana(t, 2), ceas(2))
+	if err != nil {
+		t.Fatal(err)
+	}
+	db.Close()
+	if b := backupuri(t, dir); len(b) != 1 {
+		t.Errorf("backup fără migrări noi: %v", b)
+	}
+}
+
+// După 10 actualizări rămân doar cele mai noi 7 backup-uri; alte fișiere nu se ating.
+func TestCelMult7Backupuri(t *testing.T) {
+	ctx := context.Background()
+	dir := t.TempDir()
+	db, err := deschide(ctx, dir, migrariPana(t, 1), ceas(0))
+	if err != nil {
+		t.Fatal(err)
+	}
+	db.Close()
+	if err := os.MkdirAll(filepath.Join(dir, "backup"), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "backup", "notite.txt"), []byte("ale utilizatorului"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	for i := 2; i <= 11; i++ {
+		db, err := deschide(ctx, dir, migrariPana(t, i), ceas(i))
+		if err != nil {
+			t.Fatal(err)
+		}
+		db.Close()
+	}
+
+	b := backupuri(t, dir)
+	var automate []string
+	for _, f := range b {
+		if strings.HasPrefix(f, "pontix-") {
+			automate = append(automate, f)
+		}
+	}
+	if len(automate) != MaxBackupuri {
+		t.Fatalf("backup-uri păstrate: %d, așteptat %d (%v)", len(automate), MaxBackupuri, automate)
+	}
+	if !strings.HasPrefix(automate[0], "pontix-2026-10-25-080500-") || !strings.HasPrefix(automate[6], "pontix-2026-10-25-081100-") {
+		t.Errorf("nu s-au păstrat cele mai noi: %v", automate)
+	}
+	if len(b) != MaxBackupuri+1 {
+		t.Errorf("fișierul utilizatorului din backup/ a fost atins: %v", b)
 	}
 }

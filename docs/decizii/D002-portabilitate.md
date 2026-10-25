@@ -2,6 +2,8 @@
 
 Stare: acceptată · Data: 2026-10-24 · Decisă de: Ioan Tuns · Taskuri: F05-T03 … F05-T07, F05-T11
 
+> Punctul 3: se păstrează **cel mult 7** backup-uri automate, număr fix, nu configurabil (decizie Ioan Tuns, 2026-10-25, F05-T06).
+
 ## Context
 
 Aplicația trebuie să fie un singur folder care se poate copia sau muta: fără instalare, fără drepturi de administrator. Revizuirea din 2026-10-24 a găsit locuri unde, cu setările implicite, regula nu se respectă sau datele se pot pierde.

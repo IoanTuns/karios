@@ -7,6 +7,8 @@
   "bd.nu_se_deschide": "The database cannot be opened:\n{{fisier}}\n\nThe key does not match or the file is damaged. You can restore the latest backup from the karios\\backup folder.",
   "bd.cheie_invalida": "The database key does not have the correct length.",
 
+  "stocare.backup_esuat": "The backup before the database update could not be made, so the update did not start. The data is unchanged.\n\nDetails: {{detalii}}",
+
   "seif.fara_cheie_aplicatie": "This copy of the application was built without the encryption key and cannot open the data. Use an official version of the application.",
   "seif.deteriorat": "The data key file (karios\\seif) is missing, damaged or belongs to another version of the application.",
   "seif.secret_gresit": "The password or the answers are not correct.",

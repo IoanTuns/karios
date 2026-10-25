@@ -28,7 +28,7 @@ func deschideMigrata(t *testing.T, cale string, cheie []byte) {
 		t.Fatal(err)
 	}
 	defer db.Close()
-	if _, err := Migreaza(context.Background(), db); err != nil {
+	if _, err := Migreaza(context.Background(), db, Migrari); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -42,7 +42,7 @@ func TestDeschideSiMigreaza(t *testing.T) {
 	}
 	defer db.Close()
 
-	n, err := Migreaza(context.Background(), db)
+	n, err := Migreaza(context.Background(), db, Migrari)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -69,7 +69,7 @@ func TestDeschideSiMigreaza(t *testing.T) {
 	}
 
 	// A doua rulare nu mai aplică nimic.
-	if n, err := Migreaza(context.Background(), db); err != nil || n != 0 {
+	if n, err := Migreaza(context.Background(), db, Migrari); err != nil || n != 0 {
 		t.Errorf("a doua migrare: %d, %v", n, err)
 	}
 }
@@ -153,7 +153,7 @@ func TestNimicLizibilPeDisc(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := Migreaza(context.Background(), db); err != nil {
+	if _, err := Migreaza(context.Background(), db, Migrari); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := db.Exec(`INSERT INTO angajati (id, nume, marca, creat_la, modificat_la) VALUES ('a1', 'Popescu Marcaj', '7', 'x', 'x')`); err != nil {
@@ -171,4 +171,46 @@ func TestNimicLizibilPeDisc(t *testing.T) {
 		}
 	}
 	db.Close()
+}
+
+func TestBackup(t *testing.T) {
+	dir := t.TempDir()
+	cale := filepath.Join(dir, "pontix.db")
+	cheie := cheieNoua(t)
+	db, err := Deschide(cale, cheie)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	if _, err := Migreaza(context.Background(), db, Migrari); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.Exec(`INSERT INTO angajati (id, nume, marca, creat_la, modificat_la) VALUES ('a1', 'Popescu Marcaj', '7', 'x', 'x')`); err != nil {
+		t.Fatal(err)
+	}
+
+	copie := filepath.Join(dir, "backup.db")
+	if err := Backup(context.Background(), db, copie, cheie); err != nil {
+		t.Fatal(err)
+	}
+	data, err := os.ReadFile(copie)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if bytes.Contains(data, []byte("Popescu Marcaj")) {
+		t.Error("backup-ul conține text lizibil")
+	}
+
+	b, err := Deschide(copie, cheie)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer b.Close()
+	var nume string
+	if err := b.QueryRow(`SELECT nume FROM angajati WHERE id = 'a1'`).Scan(&nume); err != nil || nume != "Popescu Marcaj" {
+		t.Errorf("backup redeschis: %q, %v", nume, err)
+	}
+	if _, err := Deschide(copie, cheieNoua(t)); err == nil {
+		t.Error("backup-ul s-a deschis cu altă cheie")
+	}
 }

@@ -63,16 +63,45 @@ func nuSeDeschide(cale string) error {
 	return &i18n.Eroare{Cod: "bd.nu_se_deschide", Param: map[string]string{"fisier": cale}}
 }
 
-// Migreaza aplică migrările care lipsesc și întoarce câte s-au aplicat.
-func Migreaza(ctx context.Context, db *sql.DB) (int, error) {
+// Migrari sunt migrările incluse în .exe.
+var Migrari = func() fs.FS {
 	surse, err := fs.Sub(fisiereMigrari, "migrari")
 	if err != nil {
-		return 0, err
+		panic(err)
 	}
+	return surse
+}()
+
+// StareMigrari întoarce versiunea bazei (0 pentru o bază nouă) și dacă există
+// migrări neaplicate.
+func StareMigrari(ctx context.Context, db *sql.DB, surse fs.FS) (versiune int64, inAsteptare bool, err error) {
+	p, err := goose.NewProvider(goose.DialectSQLite3, db, surse)
+	if err != nil {
+		return 0, false, err
+	}
+	if versiune, err = p.GetDBVersion(ctx); err != nil {
+		return 0, false, err
+	}
+	inAsteptare, err = p.HasPending(ctx)
+	return versiune, inAsteptare, err
+}
+
+// Migreaza aplică migrările care lipsesc și întoarce câte s-au aplicat.
+func Migreaza(ctx context.Context, db *sql.DB, surse fs.FS) (int, error) {
 	p, err := goose.NewProvider(goose.DialectSQLite3, db, surse)
 	if err != nil {
 		return 0, err
 	}
 	rezultate, err := p.Up(ctx)
 	return len(rezultate), err
+}
+
+// Backup scrie o copie consecventă a bazei la cale, criptată cu aceeași cheie
+// (VACUUM INTO, D002). Merge și cu baza deschisă, în modul WAL.
+func Backup(ctx context.Context, db *sql.DB, cale string, cheie []byte) error {
+	// Fișierul țintă are nevoie de cheie la deschidere; aici apare scurt în textul
+	// conexiunii, doar pe durata comenzii.
+	tinta := "file:" + filepath.ToSlash(cale) + "?vfs=xts&hexkey=" + hex.EncodeToString(cheie)
+	_, err := db.ExecContext(ctx, `VACUUM INTO ?`, tinta)
+	return err
 }

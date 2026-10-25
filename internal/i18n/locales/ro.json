@@ -7,6 +7,8 @@
   "bd.nu_se_deschide": "Baza de date nu poate fi deschisă:\n{{fisier}}\n\nCheia nu se potrivește sau fișierul e deteriorat. Poți restaura ultimul backup din folderul karios\\backup.",
   "bd.cheie_invalida": "Cheia bazei de date nu are lungimea corectă.",
 
+  "stocare.backup_esuat": "Copia de siguranță dinaintea actualizării bazei de date nu s-a putut face, așa că actualizarea nu a pornit. Datele au rămas neschimbate.\n\nDetalii: {{detalii}}",
+
   "seif.fara_cheie_aplicatie": "Această copie a aplicației a fost construită fără cheia de criptare și nu poate deschide datele. Folosește o versiune oficială a aplicației.",
   "seif.deteriorat": "Fișierul cu cheia datelor (karios\\seif) lipsește, e deteriorat sau aparține altei versiuni a aplicației.",
   "seif.secret_gresit": "Parola sau răspunsurile nu sunt corecte.",
