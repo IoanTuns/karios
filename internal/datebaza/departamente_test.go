@@ -144,8 +144,13 @@ func TestMigrareDepartamentePastreazaOrganizareaSiSchimburile(t *testing.T) {
 	if len(d.Angajati) != 1 || d.Angajati[0].SectieID != "s" || d.Angajati[0].DepartamentID != "" || len(d.Departamente) != 0 {
 		t.Fatalf("date vechi schimbate: %+v", d)
 	}
-	schimburi, err := Nou(db).ListaSchimburi(ctx)
-	if err != nil || len(schimburi) != 1 || schimburi[0].Cod != "CONFIG" || schimburi[0].OraStart != 330 || schimburi[0].DurataMinute != 300 || schimburi[0].PauzaMinute != 12 {
-		t.Fatalf("configurație schimbată: %+v, %v", schimburi, err)
+	// Verificăm schema istorică 0006 fără serviciul care cere schema curentă.
+	var cod string
+	var start, durata, pauza, numar int
+	if err := db.QueryRow(`SELECT cod, ora_start, durata_minute, pauza_minute FROM tipuri_schimb WHERE id = 't'`).Scan(&cod, &start, &durata, &pauza); err != nil || cod != "CONFIG" || start != 330 || durata != 300 || pauza != 12 {
+		t.Fatalf("configurație schimbată: %s %d %d %d %v", cod, start, durata, pauza, err)
+	}
+	if err := db.QueryRow(`SELECT count(*) FROM tipuri_schimb`).Scan(&numar); err != nil || numar != 1 {
+		t.Fatalf("număr schimburi: %d %v", numar, err)
 	}
 }

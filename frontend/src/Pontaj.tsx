@@ -161,7 +161,7 @@ export function Pontaj({date, onModificari, onOcupat}: {date: datebaza.Date; onM
                 <button className="buton secundar" disabled={ocupat || !randuri.length} onClick={() => completeaza(valoareCompletare)}>{t('pontaj.completeaza_selectia')}</button>
                 <button className="buton secundar" disabled={ocupat || !randuri.length} onClick={async () => { try { await navigator.clipboard.writeText(textSelectat()); } catch { setEroare(t('pontaj.clipboard')); } }}>{t('pontaj.copiaza')}</button>
                 <button className="legatura" disabled={ocupat} onClick={() => { if (poateAbandona()) setReincarcare(x => x + 1); }}>{t('pontaj.reincarca')}</button></div>
-            <datalist id="coduri-pontaj">{schimburi.filter(s => s.activ).map(s => <option key={s.id} value={s.cod}>{s.denumire[i18n.language] || s.denumire.ro}</option>)}</datalist>
+            <datalist id="coduri-pontaj">{schimburi.filter(s => s.activ).map(s => <option key={s.id} value={s.cod}>{s.denumire[i18n.language] || s.denumire.ro} · {t(`schimburi.regim_${s.regim || 'GENERAL'}`)}</option>)}</datalist>
             <p className="indiciu-grila">{t('pontaj.tastatura')} <span>{t('pontaj.modificate', {numar: modificari.size})}</span></p>
             <div className="panou grila-container" ref={grila} onPaste={lipeste} onCopy={e => { e.preventDefault(); e.clipboardData.setData('text/plain', textSelectat()); }}>
                 <table className="grila-pontaj" aria-label={t('pontaj.grila', {an, luna})}><thead><tr><th className="fix-nume">{t('ui.angajat')}</th><th className="fix-marca">{t('ui.marca')}</th>

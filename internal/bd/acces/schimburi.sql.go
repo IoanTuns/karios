@@ -10,8 +10,8 @@ import (
 )
 
 const adaugaSchimb = `-- name: AdaugaSchimb :exec
-INSERT INTO tipuri_schimb (id, cod, denumire, ora_start, durata_minute, pauza_minute, tip, activ, creat_la, modificat_la)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+INSERT INTO tipuri_schimb (id, cod, denumire, ora_start, durata_minute, pauza_minute, tip, regim, activ, creat_la, modificat_la)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `
 
 type AdaugaSchimbParams struct {
@@ -22,6 +22,7 @@ type AdaugaSchimbParams struct {
 	DurataMinute int64
 	PauzaMinute  int64
 	Tip          string
+	Regim        string
 	Activ        int64
 	CreatLa      string
 	ModificatLa  string
@@ -36,6 +37,7 @@ func (q *Queries) AdaugaSchimb(ctx context.Context, arg AdaugaSchimbParams) erro
 		arg.DurataMinute,
 		arg.PauzaMinute,
 		arg.Tip,
+		arg.Regim,
 		arg.Activ,
 		arg.CreatLa,
 		arg.ModificatLa,
@@ -44,8 +46,8 @@ func (q *Queries) AdaugaSchimb(ctx context.Context, arg AdaugaSchimbParams) erro
 }
 
 const adaugaSchimbInitial = `-- name: AdaugaSchimbInitial :execrows
-INSERT INTO tipuri_schimb (id, cod, denumire, ora_start, durata_minute, pauza_minute, tip, activ, creat_la, modificat_la)
-SELECT ?1, ?2, ?3, ?4, ?5, 0, ?6, 1, ?7, ?8
+INSERT INTO tipuri_schimb (id, cod, denumire, ora_start, durata_minute, pauza_minute, tip, regim, activ, creat_la, modificat_la)
+SELECT ?1, ?2, ?3, ?4, ?5, 0, ?6, ?7, 1, ?8, ?9
 WHERE NOT EXISTS (SELECT 1 FROM tipuri_schimb WHERE upper(cod) = upper(?2))
   AND NOT EXISTS (SELECT 1 FROM coduri_absenta WHERE upper(cod) = upper(?2))
 ON CONFLICT (id) DO NOTHING
@@ -58,6 +60,7 @@ type AdaugaSchimbInitialParams struct {
 	OraStart     int64
 	DurataMinute int64
 	Tip          string
+	Regim        string
 	CreatLa      string
 	ModificatLa  string
 }
@@ -70,6 +73,7 @@ func (q *Queries) AdaugaSchimbInitial(ctx context.Context, arg AdaugaSchimbIniti
 		arg.OraStart,
 		arg.DurataMinute,
 		arg.Tip,
+		arg.Regim,
 		arg.CreatLa,
 		arg.ModificatLa,
 	)
@@ -91,7 +95,7 @@ func (q *Queries) CitesteCodSchimb(ctx context.Context, upper string) (string, e
 }
 
 const citesteSchimb = `-- name: CitesteSchimb :one
-SELECT id, cod, denumire, ora_start, durata_minute, pauza_minute, tip, activ
+SELECT id, cod, denumire, ora_start, durata_minute, pauza_minute, tip, regim, activ
 FROM tipuri_schimb WHERE id = ? AND sters_la IS NULL
 `
 
@@ -103,6 +107,7 @@ type CitesteSchimbRow struct {
 	DurataMinute int64
 	PauzaMinute  int64
 	Tip          string
+	Regim        string
 	Activ        int64
 }
 
@@ -117,13 +122,14 @@ func (q *Queries) CitesteSchimb(ctx context.Context, id string) (CitesteSchimbRo
 		&i.DurataMinute,
 		&i.PauzaMinute,
 		&i.Tip,
+		&i.Regim,
 		&i.Activ,
 	)
 	return i, err
 }
 
 const listaSchimburi = `-- name: ListaSchimburi :many
-SELECT id, cod, denumire, ora_start, durata_minute, pauza_minute, tip, activ
+SELECT id, cod, denumire, ora_start, durata_minute, pauza_minute, tip, regim, activ
 FROM tipuri_schimb WHERE sters_la IS NULL ORDER BY cod
 `
 
@@ -135,6 +141,7 @@ type ListaSchimburiRow struct {
 	DurataMinute int64
 	PauzaMinute  int64
 	Tip          string
+	Regim        string
 	Activ        int64
 }
 
@@ -155,6 +162,7 @@ func (q *Queries) ListaSchimburi(ctx context.Context) ([]ListaSchimburiRow, erro
 			&i.DurataMinute,
 			&i.PauzaMinute,
 			&i.Tip,
+			&i.Regim,
 			&i.Activ,
 		); err != nil {
 			return nil, err
@@ -171,7 +179,7 @@ func (q *Queries) ListaSchimburi(ctx context.Context) ([]ListaSchimburiRow, erro
 }
 
 const modificaSchimb = `-- name: ModificaSchimb :execrows
-UPDATE tipuri_schimb SET cod = ?, denumire = ?, ora_start = ?, durata_minute = ?, pauza_minute = ?, tip = ?, activ = ?, modificat_la = ?
+UPDATE tipuri_schimb SET cod = ?, denumire = ?, ora_start = ?, durata_minute = ?, pauza_minute = ?, tip = ?, regim = ?, activ = ?, modificat_la = ?
 WHERE id = ? AND sters_la IS NULL
 `
 
@@ -182,6 +190,7 @@ type ModificaSchimbParams struct {
 	DurataMinute int64
 	PauzaMinute  int64
 	Tip          string
+	Regim        string
 	Activ        int64
 	ModificatLa  string
 	ID           string
@@ -195,6 +204,7 @@ func (q *Queries) ModificaSchimb(ctx context.Context, arg ModificaSchimbParams) 
 		arg.DurataMinute,
 		arg.PauzaMinute,
 		arg.Tip,
+		arg.Regim,
 		arg.Activ,
 		arg.ModificatLa,
 		arg.ID,

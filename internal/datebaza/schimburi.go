@@ -20,6 +20,7 @@ type Schimb struct {
 	DurataMinute int64     `json:"durata_minute"`
 	PauzaMinute  int64     `json:"pauza_minute"`
 	Tip          string    `json:"tip"`
+	Regim        string    `json:"regim"`
 	Activ        bool      `json:"activ"`
 }
 
@@ -40,7 +41,7 @@ func (s *Serviciu) CompleteazaSchimburiInitiale(ctx context.Context) (int64, err
 			if err != nil {
 				return err
 			}
-			n, err := q.AdaugaSchimbInitial(ctx, acces.AdaugaSchimbInitialParams{ID: schimb.ID, Cod: schimb.Cod, Denumire: string(text), OraStart: schimb.OraStart, DurataMinute: schimb.DurataMinute, Tip: schimb.Tip, CreatLa: moment(), ModificatLa: moment()})
+			n, err := q.AdaugaSchimbInitial(ctx, acces.AdaugaSchimbInitialParams{ID: schimb.ID, Cod: schimb.Cod, Denumire: string(text), OraStart: schimb.OraStart, DurataMinute: schimb.DurataMinute, Tip: schimb.Tip, Regim: schimb.Regim, CreatLa: moment(), ModificatLa: moment()})
 			if err != nil {
 				return err
 			}
@@ -71,7 +72,7 @@ func (s *Serviciu) ListaSchimburi(ctx context.Context) ([]Schimb, error) {
 		if err := json.Unmarshal([]byte(r.Denumire), &denumire); err != nil {
 			return nil, traduceEroare(err)
 		}
-		rez = append(rez, Schimb{ID: r.ID, Cod: r.Cod, Denumire: denumire, OraStart: r.OraStart, DurataMinute: r.DurataMinute, PauzaMinute: r.PauzaMinute, Tip: r.Tip, Activ: r.Activ == 1})
+		rez = append(rez, Schimb{ID: r.ID, Cod: r.Cod, Denumire: denumire, OraStart: r.OraStart, DurataMinute: r.DurataMinute, PauzaMinute: r.PauzaMinute, Tip: r.Tip, Regim: r.Regim, Activ: r.Activ == 1})
 	}
 	return rez, nil
 }
@@ -107,6 +108,14 @@ func (s *Serviciu) SalveazaSchimb(ctx context.Context, schimb Schimb) error {
 		} else if !errors.Is(err, sql.ErrNoRows) {
 			return err
 		}
+		if schimb.Regim == "" {
+			schimb.Regim = "GENERAL"
+		}
+		switch schimb.Regim {
+		case "GENERAL", "LUCRATOARE", "NELUCRATOARE", "INTRARE_ZI_LIBERA":
+		default:
+			return eroare("schimburi.regim_invalid")
+		}
 		idExistent, err := q.CitesteCodSchimb(ctx, schimb.Cod)
 		if err != nil && !errors.Is(err, sql.ErrNoRows) {
 			return err
@@ -122,7 +131,7 @@ func (s *Serviciu) SalveazaSchimb(ctx context.Context, schimb Schimb) error {
 		var vechi any
 		if schimb.ID == "" {
 			schimb.ID = idNou()
-			err = q.AdaugaSchimb(ctx, acces.AdaugaSchimbParams{ID: schimb.ID, Cod: schimb.Cod, Denumire: string(text), OraStart: schimb.OraStart, DurataMinute: schimb.DurataMinute, PauzaMinute: schimb.PauzaMinute, Tip: schimb.Tip, Activ: numarBool(schimb.Activ), CreatLa: acum, ModificatLa: acum})
+			err = q.AdaugaSchimb(ctx, acces.AdaugaSchimbParams{ID: schimb.ID, Cod: schimb.Cod, Denumire: string(text), OraStart: schimb.OraStart, DurataMinute: schimb.DurataMinute, PauzaMinute: schimb.PauzaMinute, Tip: schimb.Tip, Regim: schimb.Regim, Activ: numarBool(schimb.Activ), CreatLa: acum, ModificatLa: acum})
 		} else {
 			r, citireErr := q.CitesteSchimb(ctx, schimb.ID)
 			if errors.Is(citireErr, sql.ErrNoRows) {
@@ -132,7 +141,7 @@ func (s *Serviciu) SalveazaSchimb(ctx context.Context, schimb Schimb) error {
 				return citireErr
 			}
 			vechi = r
-			_, err = q.ModificaSchimb(ctx, acces.ModificaSchimbParams{ID: schimb.ID, Cod: schimb.Cod, Denumire: string(text), OraStart: schimb.OraStart, DurataMinute: schimb.DurataMinute, PauzaMinute: schimb.PauzaMinute, Tip: schimb.Tip, Activ: numarBool(schimb.Activ), ModificatLa: acum})
+			_, err = q.ModificaSchimb(ctx, acces.ModificaSchimbParams{ID: schimb.ID, Cod: schimb.Cod, Denumire: string(text), OraStart: schimb.OraStart, DurataMinute: schimb.DurataMinute, PauzaMinute: schimb.PauzaMinute, Tip: schimb.Tip, Regim: schimb.Regim, Activ: numarBool(schimb.Activ), ModificatLa: acum})
 		}
 		if err != nil {
 			return err

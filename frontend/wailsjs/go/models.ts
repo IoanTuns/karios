@@ -250,6 +250,7 @@ export namespace datebaza {
 	    durata_minute: number;
 	    pauza_minute: number;
 	    tip: string;
+	    regim: string;
 	    activ: boolean;
 
 	    static createFrom(source: any = {}) {
@@ -265,6 +266,7 @@ export namespace datebaza {
 	        this.durata_minute = source["durata_minute"];
 	        this.pauza_minute = source["pauza_minute"];
 	        this.tip = source["tip"];
+	        this.regim = source["regim"];
 	        this.activ = source["activ"];
 	    }
 	}

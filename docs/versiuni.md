@@ -4,6 +4,17 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.17.0 · 2026-10-25
+
+Programele reale și intrarea specială în weekend/sărbătoare (F07-T10, D021).
+
+- Z7 07–14, S7 15–22, N9 22–07; IN9 22–07 distinct, început în seara precedentă zilei libere. Pentru weekenduri/sărbători: Z12 07–19, N12 19–07 și G24 07–07.
+- Regim separat de tipul activității, vizibil și editabil în nomenclator, filtrabil în listă și afișat în sugestiile din pontaj. GENERAL păstrează configurațiile vechi neclasificate.
+- Completarea adaugă numai lipsurile. Codurile istorice și personalizările se păstrează; numai metadatele șabloanelor originale nemodificate N12/G24 sunt încadrate automat în regimul pentru zile libere.
+- Fără alocare automată de ture, reguli noi de plată sau interpretarea golului 14–15 ca pauză scăzută.
+
+Rapoarte: nicio schimbare. **Baza de date: migrarea `0009_programe_lucru`.**
+
 ## 0.16.0 · 2026-10-25
 
 Modul Concedii și absențe (F07-T04, D020).

@@ -20,7 +20,7 @@ func TestNomenclatorSchimburiSiLegaturaPontaj(t *testing.T) {
 		t.Fatal(err)
 	}
 	lista, err := m.serviciu.ListaSchimburi(ctx)
-	if err != nil || len(lista) != 7 {
+	if err != nil || len(lista) != 12 {
 		t.Fatalf("lista: %+v, %v", lista, err)
 	}
 	var s Schimb
@@ -94,7 +94,7 @@ func TestValidareSchimburi(t *testing.T) {
 		})
 	}
 	lista, err := m.serviciu.ListaSchimburi(context.Background())
-	if err != nil || len(lista) != 6 {
+	if err != nil || len(lista) != 11 {
 		t.Fatalf("salvare parțială: %+v, %v", lista, err)
 	}
 }

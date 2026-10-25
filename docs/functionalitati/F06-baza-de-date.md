@@ -21,3 +21,4 @@ Datele stau într-un singur fișier SQLite, iar un fișier dintr-o versiune mai 
 | F06-T04 | `jurnal_modificari` de la prima schemă | de făcut | | Tabelul există din migrarea 0001. F07-T01 scrie tranzacțional pentru angajați/secții/norma globală cu actor `local`; rămâne acoperirea celorlalte fluxuri și identificarea contului prin F15 |
 | F06-T05 | Absențele: în `pontaj` sau într-un tabel separat; zi cu ore lucrate și absență parțială | de făcut | | Depinde de F01-T02 |
 | F06-T06 | Istoricul migrărilor (dată, versiunea aplicației) și refuzul unei baze migrate de o versiune mai nouă | de făcut | | D009 punctul 3 |
+| F06-T07 | Revizii unice independente de rezoluția ceasului pentru schițe și absențe | de făcut | | Descoperit la verificarea F07-T10: două salvări foarte apropiate pot primi aceeași modificat_la și rata conflictul. Se corectează separat, fără schimbarea testelor de referință |

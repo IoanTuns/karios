@@ -193,3 +193,4 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .zile-absenta .zi-sarbatoare { background: #fff2cf; }
 .zile-absenta small { display: block; color: #52655c; margin-top: 3px; }
 .grila-pontaj input.celula-absenta { background: #e2efe8; color: #285a40; font-weight: 700; cursor: default; }
+.eticheta-intrare { display: inline-block; background: #fff2cf; color: #735014; border-radius: 5px; padding: 4px 7px; font-weight: 600; }

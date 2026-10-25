@@ -6,6 +6,8 @@ Stări: `nouă`, `în analiză`, `transformată` (în task sau decizie), `amâna
 
 | ID | Data | Idee | Cine | Stare | Legături / motiv |
 | --- | --- | --- | --- | --- | --- |
+| I018 | 2026-10-25 | Revizii de concurență separate de timestamp, ca două salvări în același tic al ceasului să rămână distincte | Codex | transformată | F06-T07; observat prin două teste de conflict la verificarea F07-T10 |
+| I017 | 2026-10-25 | Programe reale 07–14/15–22/22–07 și intrare 22–07 distinctă pentru weekend/sărbătoare, urmată de opțiuni de 12/24 ore | Ioan Tuns | transformată | F07-T10, [D021](decizii/D021-programe-lucru.md) |
 | I016 | 2026-10-25 | Evidență concedii de odihnă, medicale și libere speciale, cu tipuri speciale configurabile | Ioan Tuns | transformată | F07-T04, [D020](decizii/D020-concedii-absente.md) |
 | I015 | 2026-10-25 | Fiecare secție are mai multe departamente; schimburile inițiale sunt cele din PDF | Ioan Tuns | transformată | F07-T08, F07-T09 |
 | I014 | 2026-10-25 | Build-ul să păstreze întotdeauna datele portabile și să permită alt nume de executabil când aplicația rulează | Codex | transformată | F05-T15, D017; `-clean` poate șterge date din `build/bin/karios` |
