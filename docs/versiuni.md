@@ -4,6 +4,14 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.17.2 · 2026-10-25
+
+Actualizare de dependențe (F07-T11, D007).
+
+- `react-i18next` actualizat 17.1.8 → 17.1.9 (MIT).
+
+Rapoarte: nicio schimbare. Baza de date: nicio schimbare.
+
 ## 0.17.1 · 2026-10-25
 
 Corecție a detectării conflictelor la salvări rapide (F06-T07, D022).
