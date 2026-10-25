@@ -4,6 +4,9 @@
   "aplicatie.subtitlu": "Monthly shift timesheets",
   "aplicatie.eroare_pornire": "Pontix cannot start.\n\nDetails: {{detalii}}",
 
+  "bd.nu_se_deschide": "The database cannot be opened:\n{{fisier}}\n\nThe key does not match or the file is damaged. You can restore the latest backup from the karios\\backup folder.",
+  "bd.cheie_invalida": "The database key does not have the correct length.",
+
   "portabil.fara_scriere": "Pontix cannot write to the folder:\n{{folder}}\n\nMove the application (pontix.exe) to a folder where you have write access, for example Documents or a USB stick, and start it again.",
 
   "tip_zi.LUCRATOARE": "Working day",

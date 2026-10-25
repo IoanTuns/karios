@@ -4,6 +4,17 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.5.0 · 2026-10-25
+
+Baza de date criptată și schema inițială (F06-T02).
+
+- Pachetul `internal/bd`: `Deschide` (SQLite criptat AES-256-XTS, modul WAL, cheile străine active, cheia verificată la deschidere) și `Migreaza` (goose).
+- Dependențe noi: `ncruces/go-sqlite3` v0.35.6 și `pressly/goose/v3` v3.29.0 (D008, D010).
+- Textele noi: `bd.nu_se_deschide`, `bd.cheie_invalida`.
+- Pachetul nu e încă folosit de aplicație; legătura vine cu seiful cheii (F05-T10).
+
+Rapoarte: niciunul încă. **Baza de date: migrarea `0001_schema_initiala`** — tabelele `setari`, `sectii`, `angajati`, `tipuri_schimb`, `coduri_absenta`, `sarbatori`, `categorii_ore`, `seturi_reguli`, `reguli_interval`, `pontaj`, `jurnal_modificari`.
+
 ## 0.4.0 · 2026-10-24
 
 Mesaj clar când folderul de date nu permite scrierea (F05-T05, D002 punctul 5).

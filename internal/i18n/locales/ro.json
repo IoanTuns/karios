@@ -4,6 +4,9 @@
   "aplicatie.subtitlu": "Pontajul lunar cu ture",
   "aplicatie.eroare_pornire": "Pontix nu poate porni.\n\nDetalii: {{detalii}}",
 
+  "bd.nu_se_deschide": "Baza de date nu poate fi deschisă:\n{{fisier}}\n\nCheia nu se potrivește sau fișierul e deteriorat. Poți restaura ultimul backup din folderul karios\\backup.",
+  "bd.cheie_invalida": "Cheia bazei de date nu are lungimea corectă.",
+
   "portabil.fara_scriere": "Pontix nu poate scrie în folderul:\n{{folder}}\n\nMută aplicația (pontix.exe) într-un folder în care ai drept de scriere, de exemplu în Documente sau pe un stick USB, și pornește-o din nou.",
 
   "tip_zi.LUCRATOARE": "Zi lucrătoare",
