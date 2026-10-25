@@ -1,0 +1,12 @@
+version: "2"
+sql:
+  - engine: sqlite
+    schema: internal/bd/migrari
+    queries: internal/bd/interogari
+    gen:
+      go:
+        package: acces
+        out: internal/bd/acces
+        emit_empty_slices: true
+        emit_pointers_for_null_types: true
+        omit_unused_structs: true

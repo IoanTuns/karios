@@ -4,6 +4,12 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.9.1 · 2026-10-25
+
+Acces la date generat cu sqlc v1.31.1 (F06-T03), pentru angajați, secții, setări și jurnal. Configurația folosește direct migrările existente; `genereaza-date.ps1` fixează versiunea generatorului fără instalare globală. Nu adaugă o dependență în executabil.
+
+Rapoarte: niciunul încă. Baza de date: nicio migrare nouă.
+
 ## 0.9.0 · 2026-10-25
 
 Schema datelor de bază cerute pentru angajați și sărbători (F07-T06, D012).
