@@ -14,6 +14,10 @@ export function CitesteCalendar(arg1) {
   return window['go']['main']['App']['CitesteCalendar'](arg1);
 }
 
+export function CitesteSchita(arg1, arg2) {
+  return window['go']['main']['App']['CitesteSchita'](arg1, arg2);
+}
+
 export function CompleteazaSarbatori2026() {
   return window['go']['main']['App']['CompleteazaSarbatori2026']();
 }
@@ -52,6 +56,10 @@ export function SalveazaSarbatoare(arg1, arg2, arg3) {
 
 export function SalveazaSchimb(arg1) {
   return window['go']['main']['App']['SalveazaSchimb'](arg1);
+}
+
+export function SalveazaSchita(arg1, arg2, arg3) {
+  return window['go']['main']['App']['SalveazaSchita'](arg1, arg2, arg3);
 }
 
 export function SchimbaActivAngajat(arg1, arg2) {

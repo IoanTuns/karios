@@ -13,7 +13,7 @@ Actualizat: 2026-10-25
 | [F05](functionalitati/F05-aplicatie-desktop-portabila.md) | Aplicația desktop portabilă | V1 | în lucru | F02 |
 | [F06](functionalitati/F06-baza-de-date.md) | Baza de date și migrările | V1 | în lucru | F05 |
 | [F07](functionalitati/F07-date-de-baza.md) | Date de bază | V1 | în lucru | F03, F06 |
-| [F08](functionalitati/F08-grila-pontaj.md) | Grila lunară de pontaj | V1 | de făcut | F04, F07 |
+| [F08](functionalitati/F08-grila-pontaj.md) | Grila lunară de pontaj | V1 | în lucru | F04, F07 |
 | [F09](functionalitati/F09-rapoarte-pdf.md) | Rapoarte PDF | V1 | de făcut | F04, F08 |
 | [F10](functionalitati/F10-export-excel.md) | Export Excel pentru salarizare | V1 | de făcut | F01, F04 |
 | [F11](functionalitati/F11-planificare.md) | Planificare și planificat vs. realizat | V1.1 | de făcut | F08 |

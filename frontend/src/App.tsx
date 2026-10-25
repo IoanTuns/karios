@@ -5,8 +5,9 @@ import {datebaza, main} from '../wailsjs/go/models';
 import {DialogDemo, FormularAngajat, Setari, durata, denumireSectie} from './Formulare';
 import {Sarbatori} from './Sarbatori';
 import {Schimburi} from './Schimburi';
+import {Pontaj} from './Pontaj';
 
-type Ecran = 'angajati' | 'sarbatori' | 'schimburi' | 'setari';
+type Ecran = 'angajati' | 'pontaj' | 'sarbatori' | 'schimburi' | 'setari';
 
 function normalizat(text: string): string {
     return text.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLocaleLowerCase();
@@ -18,6 +19,7 @@ function Simbol({tip}: {tip: Ecran}) {
             ? <><circle cx="9" cy="8" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M16 5a3 3 0 0 1 0 6M18 15a5 5 0 0 1 3 5"/></>
             : tip === 'sarbatori' ? <><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M8 3v4M16 3v4M8 14h3M8 17h3M14 14h3"/></>
             : tip === 'schimburi' ? <><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></>
+            : tip === 'pontaj' ? <><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M9 9v12M15 9v12M3 15h18"/></>
             : <><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3" fill="currentColor"/><circle cx="15" cy="17" r="3" fill="currentColor"/></>}
     </svg>;
 }
@@ -37,6 +39,8 @@ function App() {
     const [sectie, setSectie] = useState('');
     const [editare, setEditare] = useState<datebaza.Angajat | null>(null);
     const [demo, setDemo] = useState(false);
+    const [pontajModificat, setPontajModificat] = useState(false);
+    const [pontajOcupat, setPontajOcupat] = useState(false);
 
     function aplica(raspuns: main.RaspunsDate): boolean {
         if (raspuns.eroare) {
@@ -89,16 +93,16 @@ function App() {
             <div className="marca-aplicatie"><span className="sigla" aria-hidden="true">p<span>·</span></span><strong>{t('aplicatie.titlu')}</strong></div>
             <p className="eticheta-meniu">{t('ui.date_baza')}</p>
             <nav aria-label={t('ui.date_baza')}>
-                {(['angajati', 'sarbatori', 'schimburi', 'setari'] as Ecran[]).map(item => <button key={item} className={`navigare ${ecran === item ? 'selectat' : ''}`}
-                    aria-current={ecran === item ? 'page' : undefined} disabled={ocupat}
-                    onClick={() => { setEcran(item); setEroare(''); setMesaj(''); }}>
+                {(['angajati', 'pontaj', 'sarbatori', 'schimburi', 'setari'] as Ecran[]).map(item => <button key={item} className={`navigare ${ecran === item ? 'selectat' : ''}`}
+                    aria-current={ecran === item ? 'page' : undefined} disabled={ocupat || pontajOcupat}
+                    onClick={() => { if (item !== ecran && pontajModificat && !window.confirm(t('ui.renunta'))) return; if (item !== ecran) setPontajModificat(false); setEcran(item); setEroare(''); setMesaj(''); }}>
                     <Simbol tip={item}/>{t(`ui.${item}`)}</button>)}
             </nav>
             <div className="subsol-meniu"><span className="punct-local"/>{t('ui.local')}
                 {versiune && <span className="versiune">{t('aplicatie.versiune', {versiune})}</span>}
             </div>
         </aside>
-        <main className="continut">
+        <main className={`continut ${ecran === 'pontaj' ? 'continut-pontaj' : ''}`}>
             <header className="antet">
                 <div><p className="fir-navigare">{t('ui.date_baza')} <span aria-hidden="true">/</span> {t(`ui.${ecran}`)}</p>
                     <h1>{t(`ui.${ecran}`)}</h1><p className="descriere">{t(`ui.${ecran}_descriere`)}</p></div>
@@ -109,6 +113,7 @@ function App() {
             {mesaj && <div className="mesaj succes" role="status">{mesaj}</div>}
             {incarcare ? <div className="asteptare" role="status">{t('ui.incarcare')}</div>
                 : !date ? <button className="buton secundar" disabled={ocupat} onClick={() => executa(DateInitiale, '')}>{t('ui.reincearca')}</button>
+                : ecran === 'pontaj' ? <Pontaj date={date} onModificari={setPontajModificat} onOcupat={setPontajOcupat}/>
                 : ecran === 'sarbatori' ? <Sarbatori/>
                 : ecran === 'schimburi' ? <Schimburi/>
                 : ecran === 'setari' ? <Setari date={date} ocupat={ocupat}

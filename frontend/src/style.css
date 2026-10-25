@@ -138,3 +138,37 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .nota-calendar { color: var(--discret); font-size: 12px; line-height: 1.7; max-width: 900px; margin: 0 0 22px; }
 .tabel-sarbatori { white-space: normal; }
 .tabel-sarbatori td:first-child, .tabel-sarbatori td:last-child { white-space: nowrap; }
+.eticheta-schita { background: #f6f1e5; border: 1px solid #e7dbc0; color: #7b643a; border-radius: 7px; padding: 12px 15px; max-width: none; }
+.unelte-perioada select { min-width: 130px; }
+.unelte-grila { display: flex; gap: 9px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+.unelte-grila > input { width: 180px; }
+.indiciu-grila { font-size: 11px; color: var(--discret); line-height: 1.8; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+.indiciu-grila > span { color: var(--verde); font-weight: 600; }
+.grila-container { max-width: 100%; max-height: calc(100vh - 350px); min-height: 260px; overflow: auto; border-radius: 7px; }
+.grila-pontaj { width: max-content; table-layout: fixed; border-collapse: separate; border-spacing: 0; }
+.grila-pontaj th, .grila-pontaj td { padding: 0; border-right: 1px solid #d7ded9; border-bottom: 1px solid #d7ded9; min-width: 52px; width: 52px; text-align: center; }
+.grila-pontaj thead th { position: sticky; top: 0; height: 48px; z-index: 3; background: #f2f6f1; font-size: 11px; font-weight: 600; }
+.grila-pontaj th strong { display: block; }
+.grila-pontaj thead th small { display: block; font-size: 9px; margin-top: 3px; font-weight: 400; }
+.grila-pontaj .fix-nume { position: sticky; left: 0; width: 180px; min-width: 180px; max-width: 180px; padding: 7px 10px; background: white; text-align: left; z-index: 2; white-space: normal; }
+.grila-pontaj .fix-nume strong { font-size: 11px; font-weight: 600; }
+.grila-pontaj .fix-nume small { display: block; color: var(--discret); font-size: 10px; }
+.grila-pontaj .fix-marca { position: sticky; left: 180px; width: 80px; min-width: 80px; max-width: 80px; font-size: 10px; background: #fff; z-index: 2; border-right: 2px solid #a8beb0; }
+.grila-pontaj thead .fix-nume, .grila-pontaj thead .fix-marca { z-index: 4; background: #f2f6f1; }
+.grila-pontaj input { width: 51px; min-width: 0; min-height: 37px; padding: 6px 3px; background: transparent; border: 0; border-radius: 0; text-align: center; color: #167d9d; font-size: 12px; font-weight: 550; }
+.grila-pontaj input:focus-visible { position: relative; outline: 2px solid var(--verde); outline-offset: -2px; z-index: 1; }
+.grila-pontaj .zi-weekend { background: #e5e8e5; }
+.grila-pontaj .zi-sarbatoare { background: #fff2cf; }
+.grila-pontaj .celula-selectata { background: #dcefe5; box-shadow: inset 0 0 0 1px #acd0b8; }
+.grila-pontaj .celula-modificata { background-image: linear-gradient(135deg, #c5983a 5px, transparent 5px); }
+.grila-pontaj .total-necalculat { min-width: 65px; width: 65px; max-width: 65px; padding: 5px; white-space: normal; background: #f8f9f6; color: #859087; font-size: 10px; }
+.continut-pontaj { height: 100vh; display: flex; flex-direction: column; padding-bottom: 16px; }
+.continut-pontaj .antet { flex-shrink: 0; margin-bottom: 16px; }
+.continut-pontaj .fir-navigare { margin-bottom: 12px; }
+.pontaj-lunar { display: flex; flex-direction: column; min-height: 0; flex: 1; }
+.pontaj-lunar > * { flex-shrink: 0; }
+.pontaj-lunar .grila-container { flex: 1; min-height: 130px; max-height: none; }
+.pontaj-lunar .unelte-calendar { margin-bottom: 12px; }
+.pontaj-lunar .nota-calendar { margin-bottom: 12px; padding-block: 9px; font-size: 11px; }
+.pontaj-lunar .indiciu-grila { margin-block: 7px; }
+.pontaj-lunar .mesaj.succes { position: fixed; right: 24px; bottom: 16px; z-index: 5; max-width: min(420px, 70vw); margin: 0; box-shadow: 0 4px 20px #163f2514; }

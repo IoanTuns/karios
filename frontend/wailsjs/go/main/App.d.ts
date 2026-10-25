@@ -10,6 +10,8 @@ export function Catalog(arg1:string):Promise<Record<string, string>>;
 
 export function CitesteCalendar(arg1:number):Promise<main.RaspunsCalendar>;
 
+export function CitesteSchita(arg1:number,arg2:number):Promise<main.RaspunsSchita>;
+
 export function CompleteazaSarbatori2026():Promise<main.RaspunsCalendar>;
 
 export function DateInitiale():Promise<main.RaspunsDate>;
@@ -29,6 +31,8 @@ export function SalveazaNormaIntreaga(arg1:number):Promise<main.RaspunsDate>;
 export function SalveazaSarbatoare(arg1:string,arg2:datebaza.Sarbatoare,arg3:number):Promise<main.RaspunsCalendar>;
 
 export function SalveazaSchimb(arg1:datebaza.Schimb):Promise<main.RaspunsSchimburi>;
+
+export function SalveazaSchita(arg1:number,arg2:number,arg3:Array<datebaza.CelulaSchita>):Promise<main.RaspunsSchita>;
 
 export function SchimbaActivAngajat(arg1:string,arg2:boolean):Promise<main.RaspunsDate>;
 

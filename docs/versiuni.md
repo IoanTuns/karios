@@ -4,6 +4,17 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.13.0 · 2026-10-25
+
+Prima grilă lunară după structura modelului primit (F08-T01, D016).
+
+- An/lună, filtru pe secție, zilele reale ale lunii, weekenduri și sărbători, antet și identificarea angajatului fixate la derulare.
+- Introducere din tastatură, selecție cu Shift, copiere/lipire TSV și completare pe intervale; sugestii din schimburile active.
+- Salvarea explicită și tranzacțională a schiței text, cu revizii per celulă, refuzul suprascrierii la conflict și jurnal. Avertizare pentru modificări nesalvate.
+- Coloanele de total din model sunt prezente, necalculate. Codurile necunoscute nu se transformă în ore sau plăți.
+
+Rapoarte: niciun PDF generat încă. **Baza de date: migrarea `0005_pontaj_ciorne`.**
+
 ## 0.12.1 · 2026-10-25
 
 Corecția build-ului pentru păstrarea datelor portabile (F05-T15, D017).

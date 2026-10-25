@@ -80,6 +80,24 @@ export namespace datebaza {
 		    return a;
 		}
 	}
+	export class CelulaSchita {
+	    angajat_id: string;
+	    data: string;
+	    valoare: string;
+	    revizie: string;
+
+	    static createFrom(source: any = {}) {
+	        return new CelulaSchita(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.angajat_id = source["angajat_id"];
+	        this.data = source["data"];
+	        this.valoare = source["valoare"];
+	        this.revizie = source["revizie"];
+	    }
+	}
 	export class Sectie {
 	    id: string;
 	    denumire: Record<string, string>;
@@ -156,6 +174,40 @@ export namespace datebaza {
 	        this.tip = source["tip"];
 	        this.activ = source["activ"];
 	    }
+	}
+	export class SchitaLuna {
+	    an: number;
+	    luna: number;
+	    celule: CelulaSchita[];
+
+	    static createFrom(source: any = {}) {
+	        return new SchitaLuna(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.an = source["an"];
+	        this.luna = source["luna"];
+	        this.celule = this.convertValues(source["celule"], CelulaSchita);
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
 	}
 
 }
@@ -267,6 +319,38 @@ export namespace main {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.schimburi = this.convertValues(source["schimburi"], datebaza.Schimb);
+	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class RaspunsSchita {
+	    schita?: datebaza.SchitaLuna;
+	    eroare?: MesajEroare;
+
+	    static createFrom(source: any = {}) {
+	        return new RaspunsSchita(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.schita = this.convertValues(source["schita"], datebaza.SchitaLuna);
 	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
 	    }
 

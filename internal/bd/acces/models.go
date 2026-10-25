@@ -3,3 +3,10 @@
 //   sqlc v1.31.1
 
 package acces
+
+type PontajCiorne struct {
+	AngajatID   string
+	Data        string
+	Valoare     string
+	ModificatLa string
+}

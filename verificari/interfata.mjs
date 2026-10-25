@@ -62,7 +62,7 @@ function cdp(method, params = {}) {
 
 async function evalueaza(expression) {
     const r = await cdp('Runtime.evaluate', {expression, returnByValue: true, awaitPromise: true});
-    if (r.exceptionDetails) throw new Error(r.exceptionDetails.text);
+    if (r.exceptionDetails) throw new Error(r.exceptionDetails.exception?.description || r.exceptionDetails.text);
     return r.result?.value;
 }
 
@@ -82,6 +82,7 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie) {
     let stare = JSON.parse(localStorage.getItem('pontix-test') || 'null') || {angajati: [], sectii: [], norma_intreaga_minute: 420, demo_disponibil: true};
     stare.sarbatori ??= structuredClone(calendarSursa);
     stare.schimburi ??= [];
+    stare.ciorne ??= [];
     const raspuns = () => {
         stare.angajati = stare.angajati.map(a => ({...a, norma_minute: a.tip_contract === 'PARTIALA' ? a.norma_partiala_minute : stare.norma_intreaga_minute}));
         stare.demo_disponibil = stare.angajati.length === 0;
@@ -122,7 +123,17 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie) {
             if (i < 0) stare.schimburi.push({...s, id: 'schimb-' + Date.now()}); else stare.schimburi[i] = s;
             raspuns(); return {schimburi: structuredClone(stare.schimburi), eroare: null};
         },
-        SchimbaActivSchimb: async (id, activ) => { stare.schimburi.find(s => s.id === id).activ = activ; raspuns(); return {schimburi: structuredClone(stare.schimburi), eroare: null}; }
+        SchimbaActivSchimb: async (id, activ) => { stare.schimburi.find(s => s.id === id).activ = activ; raspuns(); return {schimburi: structuredClone(stare.schimburi), eroare: null}; },
+        CitesteSchita: async (an, luna) => ({schita: {an, luna, celule: structuredClone(stare.ciorne.filter(c => c.data.startsWith(`${String(an).padStart(4, '0')}-${String(luna).padStart(2, '0')}-`)))}, eroare: null}),
+        SalveazaSchita: async (an, luna, celule) => {
+            if (celule.some(c => (stare.ciorne.find(v => v.angajat_id === c.angajat_id && v.data === c.data)?.revizie || '') !== c.revizie)) return {schita: null, eroare: {cod: 'pontaj.conflict', param: {}}};
+            for (const c of celule) {
+                const i = stare.ciorne.findIndex(v => v.angajat_id === c.angajat_id && v.data === c.data);
+                const nou = {...c, valoare: c.valoare.trim(), revizie: crypto.randomUUID()};
+                if (i < 0) stare.ciorne.push(nou); else stare.ciorne[i] = nou;
+            }
+            raspuns(); return {schita: {an, luna, celule: structuredClone(stare.ciorne.filter(c => c.data.startsWith(`${String(an).padStart(4, '0')}-${String(luna).padStart(2, '0')}-`)))}, eroare: null};
+        }
     }}};
 }
 
@@ -144,7 +155,7 @@ try {
     await cdp('Emulation.setDeviceMetricsOverride', {width: 1440, height: 960, deviceScaleFactor: 1, mobile: false});
     const injectat = await cdp('Page.addScriptToEvaluateOnNewDocument', {source: `(${simulare})(${JSON.stringify(demo)},${JSON.stringify(cataloage)},'ro',${JSON.stringify(calendarSursa)},${JSON.stringify(versiuneAplicatie)})`});
     await cdp('Page.navigate', {url});
-    await asteapta(() => evalueaza(`document.body.textContent.includes('Adaugă primii membri')`), 'Starea goală nu apare.');
+    await asteapta(() => evalueaza(`Boolean(document.body?.textContent.includes('Adaugă primii membri'))`), 'Starea goală nu apare.');
     await apasa('Încarcă date demo');
     await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog[open]'))`), 'Dialog demo lipsă.');
     await apasa('Încarcă exemplele');
@@ -243,12 +254,61 @@ try {
     await completeaza('dialog .campuri label:nth-child(6) input', '720'); await apasa('Salvează');
     await asteapta(() => evalueaza(`document.querySelector('dialog [role="alert"]')?.textContent.includes('acest cod')`), 'Codul duplicat nu este semnalat.');
     await apasa('Anulează');
+    // Încărcăm 50 de persoane strict în profilul simulat, fără date reale.
+    await evalueaza(`(() => { const s = JSON.parse(localStorage.getItem('pontix-test')); s.angajati = Array.from({length:50}, (_, i) => ({...s.angajati[0], id:'grila-'+i, nume:'Exemplu '+String(i+1).padStart(2,'0'), prenume:'Test', marca:'TEST-'+String(i+1).padStart(3,'0'), activ:true})); s.ciorne = []; localStorage.setItem('pontix-test', JSON.stringify(s)); })()`);
+    await cdp('Page.reload');
+    await asteapta(() => evalueaza(`document.querySelectorAll('tbody tr').length === 50`), 'Fixture 50 persoane lipsă.');
+    await apasa('Pontaj');
+    await asteapta(() => evalueaza(`Boolean(document.querySelector('.grila-pontaj tbody input'))`), 'Grila lunară lipsește.');
+    await completeaza('.unelte-perioada input', '2026'); await apasa('Arată anul');
+    await completeaza('.unelte-perioada select', '10');
+    await asteapta(() => evalueaza(`document.querySelectorAll('.grila-pontaj tbody input').length === 1550`), 'Grila 50×31 nu are toate celulele.');
+    await evalueaza(`document.querySelector('input[data-rand="0"][data-zi="0"]').focus()`);
+    await completeaza('input[data-rand="0"][data-zi="0"]', 'N12');
+    await evalueaza(`document.querySelector('input[data-rand="0"][data-zi="0"]').dispatchEvent(new KeyboardEvent('keydown', {key:'ArrowRight',shiftKey:true,bubbles:true}))`);
+    await completeaza('.unelte-grila input', '7'); await apasa('Completează selecția');
+    await asteapta(() => evalueaza(`document.querySelector('input[data-rand="0"][data-zi="1"]').value === '7'`), 'Completarea intervalului nu funcționează.');
+    const copiat = await evalueaza(`(() => { const dt = new DataTransfer(); document.querySelector('input[data-rand="0"][data-zi="1"]').dispatchEvent(new ClipboardEvent('copy', {bubbles:true, clipboardData:dt})); return dt.getData('text/plain'); })()`);
+    assert.equal(copiat, '7\t7', 'Copiere TSV greșită.');
+    const textLipire = '7\tN12\r\nC\tFP\r\n';
+    await evalueaza(`document.querySelector('input[data-rand="1"][data-zi="0"]').focus()`);
+    await evalueaza(`new Promise(resolve => requestAnimationFrame(() => resolve(true)))`);
+    await evalueaza(`(() => { const input = document.querySelector('input[data-rand="1"][data-zi="0"]'); const dt = new DataTransfer(); dt.setData('text/plain',${JSON.stringify(textLipire)}); input.dispatchEvent(new ClipboardEvent('paste',{bubbles:true,clipboardData:dt})); })()`);
+    await asteapta(() => evalueaza(`document.querySelector('input[data-rand="2"][data-zi="1"]').value === 'FP'`), 'Lipirea TSV nu funcționează.');
+    await apasa('Salvează schița');
+    await asteapta(() => evalueaza(`document.querySelector('.pontaj-lunar [role="status"]')?.textContent.includes('salvată')`), 'Schița nu se salvează.');
+    const capturaGrila = await cdp('Page.captureScreenshot', {format: 'png'});
+    writeFileSync(join(radacina, 'build/bin/pontaj-schita.png'), Buffer.from(capturaGrila.data, 'base64'));
+    await apasa('Angajați'); await apasa('Pontaj');
+    await asteapta(() => evalueaza(`document.querySelector('input[data-rand="2"][data-zi="1"]')?.value === 'FP'`), 'Schița nu se păstrează la revenire.');
+    await completeaza('.unelte-perioada select', '2');
+    await asteapta(() => evalueaza(`document.querySelectorAll('.grila-pontaj tbody input').length === 1400`), 'Februarie 2026 nu are 28 de zile.');
+    await completeaza('.unelte-perioada input', '2028'); await apasa('Arată anul');
+    await asteapta(() => evalueaza(`document.querySelectorAll('.grila-pontaj tbody input').length === 1450`), 'Februarie 2028 nu are 29 de zile.');
+    await completeaza('.unelte-perioada input', '2026'); await apasa('Arată anul');
+    await completeaza('.unelte-perioada select', '1');
+    await asteapta(() => evalueaza(`document.querySelector('.grila-pontaj thead th:nth-child(3)')?.classList.contains('zi-sarbatoare')`), 'Sărbătoarea nu este marcată în grilă.');
+    await completeaza('.unelte-perioada select', '10');
+    await asteapta(() => evalueaza(`document.querySelector('input[data-rand="0"][data-zi="0"]')?.value === '7'`), 'Revenirea în octombrie a pierdut datele.');
+    await completeaza('input[data-rand="0"][data-zi="0"]', '24');
+    await evalueaza(`window.confirm = () => false`); await apasa('Angajați');
+    assert(await evalueaza(`document.querySelector('h1').textContent === 'Pontaj'`), 'Navigarea a abandonat schița fără acord.');
+    await completeaza('.unelte-perioada input', '2027'); await apasa('Arată anul');
+    assert(await evalueaza(`document.querySelector('.unelte-perioada input').value === '2026' && document.querySelector('input[data-rand="0"][data-zi="0"]').value === '24'`), 'Anul afișat diferă de grilă după anulare.');
+    await evalueaza(`window.confirm = () => true`);
+    await evalueaza(`(async () => { const r = await window.go.main.App.CitesteSchita(2026,10); const c = r.schita.celule.find(c => c.angajat_id === 'grila-0' && c.data === '2026-10-01'); await window.go.main.App.SalveazaSchita(2026,10,[{...c, valoare:'extern'}]); })()`);
+    await apasa('Salvează schița');
+    await asteapta(() => evalueaza(`document.querySelector('.pontaj-lunar [role="alert"]')?.textContent.includes('altă instanță')`), 'Conflictul nu este semnalat în UI.');
+    assert(await evalueaza(`document.querySelector('input[data-rand="0"][data-zi="0"]').value === '24'`), 'Conflictul a pierdut modificarea locală.');
+    await apasa('Reîncarcă luna');
+    await asteapta(() => evalueaza(`document.querySelector('input[data-rand="0"][data-zi="0"]')?.value === 'extern'`), 'Reîncărcarea nu arată revizia nouă.');
+    assert(await evalueaza(`document.documentElement.scrollWidth <= 1024`), 'Grila depășește fereastra în afara containerului de derulare.');
     await cdp('Page.removeScriptToEvaluateOnNewDocument', {identifier: injectat.identifier});
     await cdp('Page.addScriptToEvaluateOnNewDocument', {source: `(${simulare})(${JSON.stringify(demo)},${JSON.stringify(cataloage)},'en',${JSON.stringify(calendarSursa)},${JSON.stringify(versiuneAplicatie)})`});
     await cdp('Page.reload');
     await asteapta(() => evalueaza(`document.querySelector('h1')?.textContent === 'Employees'`), 'Traducerea EN nu apare.');
     assert.deepEqual(erori, [], 'Erori JavaScript în interfață.');
-    console.log('UI verificată: angajați/demo/setări, calendar 2026, schimburi N12, duplicate, activare, import, ani, 1024px și EN.');
+    console.log('UI verificată: angajați/demo/setări, calendar 2026, schimburi N12, grilă 50×31, selecție/TSV, luni/an bisect, salvare/conflict, 1024px și EN.');
     console.log('Captură: build/bin/interfata-demo.png. Puntea Wails a fost simulată; baza reală este verificată de testele Go.');
 } finally {
     if (ws?.readyState === WebSocket.OPEN) {
