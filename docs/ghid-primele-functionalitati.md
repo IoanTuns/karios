@@ -1,10 +1,10 @@
-# Funcționalitățile disponibile · Pontix 0.17.1
+# Funcționalitățile disponibile · Pontix 0.18.0
 
 ## Pornire
 
 Executabilul se construiește cu `./build.ps1` și se găsește în `build/bin/pontix.exe`. Pornește-l dintr-un folder în care poți scrie; datele sunt în folderul `karios/` de lângă executabil.
 
-Livrarea actualizată este **`build/bin/pontix-0.13.0/pontix-0.17.1.exe`**, lângă aceleași date demo regenerate anterior la cererea utilizatorului. Închide versiunea veche înainte de pornire. Numele folderului a fost păstrat pentru a continua cu baza existentă; actualizarea copiază numai executabilul. La prima pornire, aplicația face backup înaintea migrărilor lipsă (0009 pentru programe și 0010 pentru revizii) și păstrează configurațiile existente. Baza veche separată a rămas în `build/bin/karios/`; seiful ei a fost eliminat de vechiul build cu `-clean`, deci nu se reutilizează cu o cheie nouă. Incidentul și corecția sunt în [D017](decizii/D017-build-fara-stergerea-datelor.md).
+Livrarea actualizată este **`build/bin/pontix-0.13.0/pontix-0.18.0.exe`**, lângă aceleași date demo regenerate anterior la cererea utilizatorului. Închide versiunea veche înainte de pornire. Numele folderului a fost păstrat pentru a continua cu baza existentă; actualizarea copiază numai executabilul. La prima pornire, aplicația face backup înaintea migrărilor lipsă (inclusiv 0011 pentru categoriile de schimburi) și păstrează configurațiile existente. Baza veche separată a rămas în `build/bin/karios/`; seiful ei a fost eliminat de vechiul build cu `-clean`, deci nu se reutilizează cu o cheie nouă. Incidentul și corecția sunt în [D017](decizii/D017-build-fara-stergerea-datelor.md).
 
 Scriptul corectat nu mai curăță folderul de ieșire. Dacă executabilul este deschis, construiește cu alt nume: `./build.ps1 -NumeExecutabil pontix-verificare.exe`.
 
@@ -45,21 +45,21 @@ Alege **Sărbători**, anul și **Arată anul**. Poți adăuga sau edita o dată
 
 ## Schimburi
 
-Migrarea 0009 adaugă programele confirmate ulterior de utilizator, numai pentru codurile lipsă:
+Migrarea 0009 adaugă programele confirmate ulterior de utilizator, numai pentru codurile lipsă, iar migrarea 0011 împarte tabelul de schimburi pe categorii (`Lab` pentru precompletare și `Custom` pentru restul):
 
-| Cod | Început | Sfârșit | Durată | Regim |
-| --- | --- | --- | --- | --- |
-| Z7 | 07:00 | 14:00 | 7 ore | Program obișnuit |
-| S7 | 15:00 | 22:00 | 7 ore | Program obișnuit |
-| N9 | 22:00 | 07:00 a doua zi | 9 ore | Program obișnuit |
-| IN9 | 22:00 | 07:00 a doua zi | 9 ore | Intrare specială în zi liberă |
-| Z12 | 07:00 | 19:00 | 12 ore | Weekend / sărbătoare |
-| N12 | 19:00 | 07:00 a doua zi | 12 ore | Weekend / sărbătoare |
-| G24 | 07:00 | 07:00 a doua zi | 24 ore | Weekend / sărbătoare |
+| Cod | Categorie | Început | Sfârșit | Durată | Regim |
+| --- | --- | --- | --- | --- | --- |
+| Z7 | Lab | 07:00 | 14:00 | 7 ore | Program obișnuit |
+| S7 | Lab | 15:00 | 22:00 | 7 ore | Program obișnuit |
+| N9 | Lab | 22:00 | 07:00 a doua zi | 9 ore | Program obișnuit |
+| IN9 | Lab | 22:00 | 07:00 a doua zi | 9 ore | Intrare specială în zi liberă |
+| Z12 | Lab | 07:00 | 19:00 | 12 ore | Weekend / sărbătoare |
+| N12 | Lab | 19:00 | 07:00 a doua zi | 12 ore | Weekend / sărbătoare |
+| G24 | Lab | 07:00 | 07:00 a doua zi | 24 ore | Weekend / sărbătoare |
 
-**IN9 începe în seara precedentă zilei libere.** Pentru intrarea în sâmbătă se scrie IN9 în celula de vineri. N9 și IN9 au aceeași durată nominală, dar regimuri distincte. Găsești IN9 prin filtrul **Regim de lucru → Intrare specială în zi liberă**; regimul poate fi ales explicit și în formular. Z12/N12 sau G24 sunt opțiuni de acoperire; nu se repartizează automat pe persoane.
+**IN9 începe în seara precedentă zilei libere.** Pentru intrarea în sâmbătă se scrie IN9 în celula de vineri. N9 și IN9 au aceeași durată nominală, dar regimuri distincte. Găsești IN9 prin filtrul **Regim de lucru → Intrare specială în zi liberă**; regimul și categoria pot fi alese explicit și în formular. Z12/N12 sau G24 sunt opțiuni de acoperire; nu se repartizează automat pe persoane.
 
-**Completează schimburile inițiale** adaugă lipsurile din setul curent, fără a suprascrie coduri existente, inclusiv inactive. Codurile vechi 7/12/S1/S3 rămân disponibile cu intervalele lor anterioare, în regimul General / anterior. Configurațiile personalizate se verifică manual și se încadrează explicit. Șabloanele folosesc pauza tehnică implicită 0, editabilă; golul 14–15 nu se scade automat din vreo tură. Sursa curentă și limitele sunt în [D021](decizii/D021-programe-lucru.md); [D019](decizii/D019-schimburi-initiale-pdf.md) descrie setul istoric.
+**Completează schimburile inițiale** adaugă lipsurile din categoria de precompletare aleasă (`Lab`), fără a suprascrie coduri existente, inclusiv inactive. Codurile vechi 7/12/S1/S3 și schimburile adăugate manual intră în categoria **Custom**, cu intervalele și regimurile lor păstrate. Șabloanele folosesc pauza tehnică implicită 0, editabilă; golul 14–15 nu se scade automat din vreo tură. Sursele și limitele sunt în [D023](decizii/D023-categorii-schimburi.md) și [D021](decizii/D021-programe-lucru.md); [D019](decizii/D019-schimburi-initiale-pdf.md) descrie setul istoric.
 
 Din **Schimburi → Adaugă schimb**, introdu codul, denumirea, ora de început, durata și pauza în minute și tipul activității. Intervalele rămân editabile. Coloana **Sfârșit nominal** arată și trecerea în ziua următoare. Codurile se normalizează la majuscule și nu pot fi duplicate, nici între schimburile inactive. Dezactivarea păstrează referințele din pontaj.
 

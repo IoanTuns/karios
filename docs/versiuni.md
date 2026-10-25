@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.19.1 · 2026-10-25
+
+Integrare F09-T07 cu categoriile LAB/CUSTOM din F07-T11 (bacd37b), pe ramura rapoartelor. Include migrările 0011 și 0012, păstrează filtrele și formularele categoriilor și regenerează accesul la date și puntea Wails. Versiunile rapoartelor rămân v1.
+
 ## 0.19.0 · 2026-10-25
 
 Definire rapoarte și PDF pentru tipărire (F09-T07, D024).
@@ -15,10 +19,19 @@ Definire rapoarte și PDF pentru tipărire (F09-T07, D024).
 
 Rapoarte: **Pontaj lunar v1, Fișă individuală v1, Evidența absențelor v1.** Baza de date: **0012_definitii_rapoarte**, după migrarea 0011 rezervată taskului paralel pentru categorii.
 
+## 0.18.0 · 2026-10-25
+
+Categorii în nomenclatorul de schimburi: `LAB` pentru precompletare și `CUSTOM` pentru restul (F07-T11, D023).
+
+- Câmpul `categorie` (`LAB` / `CUSTOM`) este separat de `tip` și `regim` în `tipuri_schimb`.
+- Codurile `G24`, `IN9`, `N12`, `N9`, `Z7`, `Z12`, `S7` intră în categoria de precompletare `LAB`; celelalte coduri existente (`7`, `12`, `S1`, `S3`) și schimburile create manual intră în `CUSTOM`, cu păstrarea intervalelor și personalizărilor.
+- Ecranul Schimburi oferă coloană și filtru pentru categorie, alegerea categoriei la precompletare și în formularul de adăugare/editare; sugestiile din pontaj includ categoria.
+
+Rapoarte: nicio schimbare. **Baza de date: migrarea `0011_categorii_schimburi`.**
+
 ## 0.17.3 · 2026-10-25
 
 Pregătire F09-T07: maroto v2.4.4 și x/image v0.47.0 pentru PDF local și fonturi cu diacritice, versiuni exacte și licențe verificate în D024. Include dependențele tranzitive ale bibliotecii PDF și actualizarea i18next 26.5.10 → 26.5.11; fără instalare de programe pe sistem. Funcționalitatea și testele PDF urmează în 0.19.0, pe worktree separat de F07-T11.
-
 ## 0.17.2 · 2026-10-25
 
 Actualizare de dependențe (F07-T11, D007).

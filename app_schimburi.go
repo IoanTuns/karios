@@ -15,8 +15,8 @@ type RaspunsSchimburi struct {
 
 func (a *App) ListaSchimburi() RaspunsSchimburi { return a.raspunsSchimburi(nil) }
 
-func (a *App) CompleteazaSchimburiInitiale() RaspunsSchimburi {
-	n, err := datebaza.Nou(a.db).CompleteazaSchimburiInitiale(a.contextLucru())
+func (a *App) CompleteazaSchimburiInitiale(categorie string) RaspunsSchimburi {
+	n, err := datebaza.Nou(a.db).CompleteazaSchimburiInitiale(a.contextLucru(), categorie)
 	r := a.raspunsSchimburi(err)
 	r.Adaugate = n
 	return r

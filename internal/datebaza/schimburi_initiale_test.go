@@ -27,7 +27,7 @@ func TestSchimburiInitialeConformSurselor(t *testing.T) {
 		for _, curent := range lista {
 			if curent.Cod == s.Cod {
 				gasit = true
-				if curent.OraStart != s.OraStart || curent.DurataMinute != s.DurataMinute || curent.PauzaMinute != 0 || curent.Tip != s.Tip || curent.Regim != s.Regim || !curent.Activ {
+				if curent.OraStart != s.OraStart || curent.DurataMinute != s.DurataMinute || curent.PauzaMinute != 0 || curent.Tip != s.Tip || curent.Regim != s.Regim || curent.Categorie != s.Categorie || !curent.Activ {
 					t.Fatalf("migrarea diferă de sursă: %+v", curent)
 				}
 			}
