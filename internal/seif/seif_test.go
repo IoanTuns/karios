@@ -68,6 +68,13 @@ func TestCreeazaSiDeschide(t *testing.T) {
 	}
 }
 
+// Cheia din cod trebuie să fie validă, altfel aplicația n-ar putea porni.
+func TestCheieAplicatieImplicita(t *testing.T) {
+	if _, err := cheieAplicatie(); err != nil {
+		t.Fatalf("cheia aplicației din cod nu e validă: %v", err)
+	}
+}
+
 func TestFaraCheieAplicatie(t *testing.T) {
 	vechi := CheieAplicatie
 	CheieAplicatie = ""

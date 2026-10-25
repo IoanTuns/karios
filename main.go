@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"embed"
 	"errors"
 	"log"
@@ -13,6 +14,7 @@ import (
 
 	"pontix/internal/i18n"
 	"pontix/internal/portabil"
+	"pontix/internal/stocare"
 )
 
 //go:embed all:frontend/dist
@@ -21,18 +23,14 @@ var resurse embed.FS
 func main() {
 	foldere, err := portabil.Pregateste()
 	if err != nil {
-		// Setările nu se pot citi încă, deci mesajul e în limba Windows (D008).
-		limba := i18n.LimbaSistem()
-		text := i18n.T(limba, "aplicatie.eroare_pornire", map[string]string{"detalii": err.Error()})
-		var e *i18n.Eroare
-		if errors.As(err, &e) {
-			text = e.Text(limba)
-		}
-		arataEroare(i18n.T(limba, "aplicatie.titlu", nil), text)
-		os.Exit(1)
+		oprireCuEroare(err)
+	}
+	db, err := stocare.Deschide(context.Background(), foldere.Radacina)
+	if err != nil {
+		oprireCuEroare(err)
 	}
 
-	app := NewApp()
+	app := NewApp(db)
 
 	err = wails.Run(&options.App{
 		Title:     i18n.T(i18n.Implicita, "aplicatie.titlu", nil),
@@ -47,7 +45,8 @@ func main() {
 			// Fără această opțiune, WebView2 își ține datele în %APPDATA% (D002).
 			WebviewUserDataPath: foldere.WebView,
 		},
-		OnStartup: app.pornire,
+		OnStartup:  app.pornire,
+		OnShutdown: app.oprire,
 		Bind: []any{
 			app,
 		},
@@ -55,4 +54,17 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+// oprireCuEroare arată eroarea într-o fereastră Windows și închide aplicația.
+// Setările nu se pot citi încă, deci mesajul e în limba Windows (D008).
+func oprireCuEroare(err error) {
+	limba := i18n.LimbaSistem()
+	text := i18n.T(limba, "aplicatie.eroare_pornire", map[string]string{"detalii": err.Error()})
+	var e *i18n.Eroare
+	if errors.As(err, &e) {
+		text = e.Text(limba)
+	}
+	arataEroare(i18n.T(limba, "aplicatie.titlu", nil), text)
+	os.Exit(1)
 }

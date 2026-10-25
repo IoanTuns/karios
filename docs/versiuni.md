@@ -4,6 +4,17 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.7.0 · 2026-10-25
+
+Aplicația își deschide datele criptate la pornire (F05-T12, D011).
+
+- Cheia aplicației stă în cod (decizia D011): datele din `karios/` nu se pot citi fără executabil.
+- Pachetul `internal/stocare`: la prima pornire creează `karios/seif` și `karios/pontix.db`; la următoarele le deschide și aplică migrările lipsă.
+- Dacă baza există, dar seiful lipsește, aplicația nu creează un seif nou (ar face baza ilizibilă), ci afișează eroarea `seif.deteriorat`.
+- Baza se închide la ieșirea din aplicație.
+
+Rapoarte: niciunul încă. Baza de date: nicio migrare nouă (prima pornire aplică `0001_schema_initiala`).
+
 ## 0.6.0 · 2026-10-25
 
 Seiful cheii de date (F05-T10, D008 punctul 2).

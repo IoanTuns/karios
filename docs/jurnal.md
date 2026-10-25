@@ -4,6 +4,7 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 
 | Data | Acțiune | Cine | Legături |
 | --- | --- | --- | --- |
+| 2026-10-25 | Decizie Ioan Tuns: o singură cheie a aplicației, în cod, ca datele să nu poată fi văzute fără executabil (D011, excepție în AGENTS.md secțiunea 4). F05-T12: cheia generată aleator; `internal/stocare` deschide seiful și baza la pornire (versiunea 0.7.0). Verificat pe `.exe`: prima pornire, repornire după oprire forțată, seif lipsă | Ioan Tuns (decizie), Claude | [D011](decizii/D011-cheia-aplicatiei-in-cod.md), F05-T12, [I008](idei.md) |
 | 2026-10-25 | F05-T10: seiful cheii de date (versiunea 0.6.0). Cheia aplicației nu e în repo; fără ea, seiful refuză să funcționeze (nicio cheie de rezervă). Fișierul seifului arată identificatorii copiilor (de exemplu `P:<uuid cont>`), dar nu nume sau chei. Integrarea în pornire așteaptă F05-T12 | Claude | F05-T10, F05-T12, [D008](decizii/D008-criptarea-datelor.md) |
 | 2026-10-25 | F06-T02: pachetul `internal/bd` și schema inițială (versiunea 0.5.0). Testele au găsit o greșeală în schemă: o dată invalidă trecea de `CHECK (data = date(data))`, fiindcă `date()` dă NULL; corectat cu `IS`. Notă tehnică: AES-256-XTS cere o cheie de date de 64 de octeți | Claude | F06-T02, [D008](decizii/D008-criptarea-datelor.md), [D010](decizii/D010-migrari-goose.md) |
 | 2026-10-25 | Merge `F05-T05-drept-scriere` → `main`; tag `v0.4.0` | Ioan Tuns (aprobare), Claude | F05-T05 |

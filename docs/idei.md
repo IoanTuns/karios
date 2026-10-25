@@ -6,6 +6,7 @@ Stări: `nouă`, `în analiză`, `transformată` (în task sau decizie), `amâna
 
 | ID | Data | Idee | Cine | Stare | Legături / motiv |
 | --- | --- | --- | --- | --- | --- |
+| I008 | 2026-10-25 | Cheia aplicației în afara codului, injectată la build dintr-un fișier păstrat separat | Claude | amânată | Decizia D011: deocamdată în cod. Mutarea se poate face fără recriptarea bazei |
 | I007 | 2026-10-24 | Trecerea la Wails v3 când apare prima versiune stabilă | Claude | amânată | Pe 2026-10-24, v3 era la 3.0.0-beta.34; D007 cere versiuni stabile. v3 schimbă API-ul, deci va fi un task separat |
 | I006 | 2026-10-24 | Etapa 2 a criptării: cheia de date deschisă doar cu parola sau răspunsurile unui cont; fără cheia din `.exe` și fără auto-login | Claude | amânată | Copiile P și R există de la început, deci trecerea = ștergerea copiei A ([D008](decizii/D008-criptarea-datelor.md)) |
 | I005 | 2026-10-24 | Folderul de date pe un disc din rețea, atașat de utilizator | Ioan Tuns | amânată | Se adaugă ulterior ca opțiune a utilizatorului ([D002](decizii/D002-portabilitate.md) punctul 4). Atenție: WAL nu merge pe rețea, risc de corupere cu mai mulți utilizatori |

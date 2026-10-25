@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 
 	"pontix/internal/i18n"
 	"pontix/internal/versiune"
@@ -10,14 +11,19 @@ import (
 // App conține metodele apelate din interfața React.
 type App struct {
 	ctx context.Context
+	db  *sql.DB
 }
 
-func NewApp() *App {
-	return &App{}
+func NewApp(db *sql.DB) *App {
+	return &App{db: db}
 }
 
 func (a *App) pornire(ctx context.Context) {
 	a.ctx = ctx
+}
+
+func (a *App) oprire(ctx context.Context) {
+	a.db.Close()
 }
 
 // Informatii descrie versiunea care rulează, pentru ecranul „Despre” și subsolul rapoartelor.

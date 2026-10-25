@@ -2,6 +2,8 @@
 
 Stare: acceptată · Data: 2026-10-24 · Decisă de: Ioan Tuns · Taskuri: F05-T09, F05-T10, F05-T12, F15
 
+> Cheia aplicației stă deocamdată în cod, nu în afara repo-ului: [D011](D011-cheia-aplicatiei-in-cod.md) (2026-10-25).
+>
 > Notă tehnică (2026-10-25, F06-T02): AES-256-XTS folosește două chei AES-256, deci cheia de date are 64 de octeți (512 biți), nu 256 de biți. Nivelul de protecție rămâne AES-256.
 
 ## Context

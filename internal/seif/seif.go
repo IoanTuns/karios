@@ -24,9 +24,13 @@ import (
 	"pontix/internal/i18n"
 )
 
-// CheieAplicatie este cheia aplicației, în hex (32 de octeți). Nu stă în repo:
-// se injectează la build cu -ldflags "-X pontix/internal/seif.CheieAplicatie=…" (F05-T12).
-var CheieAplicatie string
+// CheieAplicatie este cheia aplicației, în hex (32 de octeți). Deocamdată stă în cod
+// (D011): datele nu se pot citi fără executabil, dar oricine are codul sursă le poate
+// decripta. Mutarea ei în afara codului: I008. Poate fi înlocuită la build cu
+// -ldflags "-X pontix/internal/seif.CheieAplicatie=…".
+//
+// NU SE SCHIMBĂ: altă cheie face ilizibile toate folderele karios/ existente.
+var CheieAplicatie = "c9f3d6df617f8a72e9a7a8f8ee044173f0e6fb083526e7fbb12f1b649679ebbe"
 
 // IdAplicatie e copia deschisă cu cheia aplicației.
 const IdAplicatie = "A"
@@ -65,7 +69,8 @@ type Seif struct {
 
 var (
 	errFaraCheieAplicatie = &i18n.Eroare{Cod: "seif.fara_cheie_aplicatie"}
-	errDeteriorat         = &i18n.Eroare{Cod: "seif.deteriorat"}
+	// ErrDeteriorat: seiful lipsește din copia cerută, e modificat sau aparține altei chei.
+	ErrDeteriorat = &i18n.Eroare{Cod: "seif.deteriorat"}
 	// ErrSecretGresit: secretul nu deschide copia (parolă sau răspunsuri greșite).
 	ErrSecretGresit = &i18n.Eroare{Cod: "seif.secret_gresit"}
 )
@@ -111,10 +116,10 @@ func Deschide(cale string) (*Seif, error) {
 	}
 	c, ok := s.f.Copii[IdAplicatie]
 	if !ok {
-		return nil, errDeteriorat
+		return nil, ErrDeteriorat
 	}
 	if s.CheieDate, err = despacheteaza(ka, IdAplicatie, c); err != nil {
-		return nil, errDeteriorat
+		return nil, ErrDeteriorat
 	}
 	return s, nil
 }
@@ -213,7 +218,7 @@ func citeste(cale string) (*Seif, error) {
 	}
 	s := &Seif{cale: cale}
 	if err := json.Unmarshal(data, &s.f); err != nil || s.f.Versiune != versiuneFormat || len(s.f.Copii) == 0 {
-		return nil, errDeteriorat
+		return nil, ErrDeteriorat
 	}
 	return s, nil
 }
