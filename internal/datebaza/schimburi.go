@@ -102,6 +102,11 @@ func (s *Serviciu) SalveazaSchimb(ctx context.Context, schimb Schimb) error {
 		return eroare("schimburi.tip_invalid")
 	}
 	return s.modifica(ctx, func(q *acces.Queries) error {
+		if _, err := q.CautaCodAbsenta(ctx, schimb.Cod); err == nil {
+			return eroare("absente.cod_duplicat")
+		} else if !errors.Is(err, sql.ErrNoRows) {
+			return err
+		}
 		idExistent, err := q.CitesteCodSchimb(ctx, schimb.Cod)
 		if err != nil && !errors.Is(err, sql.ErrNoRows) {
 			return err

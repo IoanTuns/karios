@@ -85,6 +85,8 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
     stare.schimburi ??= structuredClone(schimburiSursa);
     stare.ciorne ??= [];
     stare.departamente ??= [];
+    stare.tipuriAbsenta ??= [{cod:'CO',denumire:{ro:'Concediu de odihnă',en:'Annual leave'},categorie:'ODIHNA',activ:true}, {cod:'CM',denumire:{ro:'Concediu medical',en:'Medical leave'},categorie:'MEDICAL',activ:true}];
+    stare.absente ??= [];
     const raspuns = () => {
         stare.angajati = stare.angajati.map(a => ({...a, departament_id: a.departament_id || '', norma_minute: a.tip_contract === 'PARTIALA' ? a.norma_partiala_minute : stare.norma_intreaga_minute}));
         stare.demo_disponibil = stare.angajati.length === 0;
@@ -92,6 +94,7 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
         return {date: structuredClone(stare), eroare: null};
     };
     const calendar = an => ({calendar: {an, sarbatori: structuredClone(stare.sarbatori.filter(s => Number(s.data.slice(0, 4)) === an).sort((a, b) => a.data.localeCompare(b.data))), import_disponibil: an === 2026}, adaugate: 0, eroare: null});
+    const absente = an => ({absente:{an,tipuri:structuredClone(stare.tipuriAbsenta),zile:structuredClone(stare.absente.filter(z => Number(z.data.slice(0,4)) === an).sort((a,b) => a.data.localeCompare(b.data)))},eroare:null});
     window.go = {main: {App: {
         Limbi: async () => [limba, ...Object.keys(cataloage).filter(l => l !== limba)],
         Catalog: async l => cataloage[l], Informatii: async () => ({versiune: versiuneAplicatie, commit: 'verificare'}),
@@ -131,8 +134,24 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
             raspuns(); return {schimburi: structuredClone(stare.schimburi), eroare: null};
         },
         SchimbaActivSchimb: async (id, activ) => { stare.schimburi.find(s => s.id === id).activ = activ; raspuns(); return {schimburi: structuredClone(stare.schimburi), eroare: null}; },
-        CitesteSchita: async (an, luna) => ({schita: {an, luna, celule: structuredClone(stare.ciorne.filter(c => c.data.startsWith(`${String(an).padStart(4, '0')}-${String(luna).padStart(2, '0')}-`)))}, eroare: null}),
+        CitesteAbsente: async an => absente(an),
+        SalveazaTipAbsenta: async (initial,tip,an) => {
+            tip.cod = tip.cod.trim().toUpperCase();
+            if (stare.schimburi.some(s => s.cod === tip.cod) || (!initial && stare.tipuriAbsenta.some(t => t.cod === tip.cod))) return {absente:null,eroare:{cod:'absente.cod_duplicat'}};
+            const i = stare.tipuriAbsenta.findIndex(t => t.cod === initial);
+            if (i >= 0 && stare.tipuriAbsenta[i].categorie !== tip.categorie && stare.absente.some(z => z.cod === initial)) return {absente:null,eroare:{cod:'absente.categorie_folosita'}};
+            if (i < 0) stare.tipuriAbsenta.push(tip); else stare.tipuriAbsenta[i] = tip;
+            raspuns(); return absente(an);
+        },
+        SalveazaAbsente: async (zile,an) => {
+            if (zile.some(z => (stare.absente.find(v => v.angajat_id === z.angajat_id && v.data === z.data)?.revizie || '') !== z.revizie)) return {absente:null,eroare:{cod:'absente.conflict'}};
+            if (zile.some(z => z.activ && stare.ciorne.some(c => c.angajat_id === z.angajat_id && c.data === z.data && c.valoare.trim()))) return {absente:null,eroare:{cod:'absente.pontaj_existent'}};
+            for (const z of zile) { const i = stare.absente.findIndex(v => v.angajat_id === z.angajat_id && v.data === z.data); const nou = {...z,revizie:crypto.randomUUID()}; if (i < 0) stare.absente.push(nou); else stare.absente[i] = nou; }
+            raspuns(); return absente(an);
+        },
+        CitesteSchita: async (an, luna) => ({schita: {an, luna, absente:structuredClone(stare.absente.filter(z => z.data.startsWith(`${String(an).padStart(4, '0')}-${String(luna).padStart(2, '0')}-`))), celule: structuredClone(stare.ciorne.filter(c => c.data.startsWith(`${String(an).padStart(4, '0')}-${String(luna).padStart(2, '0')}-`)))}, eroare: null}),
         SalveazaSchita: async (an, luna, celule) => {
+            if (celule.some(c => stare.absente.some(z => z.activ && z.angajat_id === c.angajat_id && z.data === c.data))) return {schita:null,eroare:{cod:'absente.celula_protejata'}};
             if (celule.some(c => (stare.ciorne.find(v => v.angajat_id === c.angajat_id && v.data === c.data)?.revizie || '') !== c.revizie)) return {schita: null, eroare: {cod: 'pontaj.conflict', param: {}}};
             for (const c of celule) {
                 const i = stare.ciorne.findIndex(v => v.angajat_id === c.angajat_id && v.data === c.data);
@@ -145,8 +164,14 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
 }
 
 try {
-    await asteapta(() => existsSync(join(profil, 'DevToolsActivePort')), 'Edge nu a pornit.');
-    const port = readFileSync(join(profil, 'DevToolsActivePort'), 'utf8').split('\n')[0];
+    let port;
+    await asteapta(() => {
+        try {
+            const linii = readFileSync(join(profil, 'DevToolsActivePort'), 'utf8').split('\n');
+            if (!/^\d+$/.test(linii[0]) || !linii[1]?.startsWith('/devtools/browser/')) return false;
+            port = linii[0]; return true;
+        } catch (err) { if (['ENOENT','EBUSY'].includes(err.code)) return false; throw err; }
+    }, 'Edge nu a pregătit portul de verificare.');
     const pagini = await (await fetch(`http://127.0.0.1:${port}/json/list`)).json();
     ws = new WebSocket(pagini.find(p => p.type === 'page').webSocketDebuggerUrl);
     await new Promise((resolve, reject) => { ws.onopen = resolve; ws.onerror = reject; });
@@ -283,6 +308,71 @@ try {
     await completeaza('dialog .campuri label:nth-child(6) input', '720'); await apasa('Salvează');
     await asteapta(() => evalueaza(`document.querySelector('dialog [role="alert"]')?.textContent.includes('acest cod')`), 'Codul duplicat nu este semnalat.');
     await apasa('Anulează');
+    await apasa('Concedii și absențe');
+    await asteapta(() => evalueaza(`document.querySelectorAll('.tabel-tipuri-absenta tbody tr').length === 2`), 'Tipurile CO/CM nu apar.');
+    const persoanaAbsenta = await evalueaza(`JSON.parse(localStorage.getItem('pontix-test')).angajati[0].id`);
+    await completeaza('.filtre-absente select[aria-label="Angajat"]',persoanaAbsenta);
+    await apasa('Adaugă tip de absență');
+    await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog input[name="cod"]'))`), 'Formular tip lipsă.');
+    await completeaza('dialog input[name="cod"]','N12'); await completeaza('dialog input[name="ro"]','Eveniment'); await apasa('Salvează');
+    await asteapta(() => evalueaza(`document.querySelector('dialog [role="alert"]')?.textContent.includes('deja folosit')`), 'Confuzie între cod de schimb și absență.');
+    await completeaza('dialog input[name="cod"]','EV'); await completeaza('dialog input[name="en"]','Family event'); await apasa('Salvează');
+    await asteapta(() => evalueaza(`!document.querySelector('dialog') && document.querySelectorAll('.tabel-tipuri-absenta tbody tr').length === 3`), 'Tipul special nu s-a salvat.');
+    await apasa('Înregistrează zile');
+    await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog input[name="de_la"]'))`), 'Formular interval lipsă.');
+    await completeaza('dialog input[name="de_la"]','2026-11-27'); await completeaza('dialog input[name="pana_la"]','2026-12-02');
+    await asteapta(() => evalueaza(`document.querySelectorAll('.zile-absenta input').length === 6 && [...document.querySelectorAll('dialog button')].some(b => b.textContent.includes('luni–vineri') && !b.disabled)`), 'Calendarul intervalului nu s-a încărcat.');
+    await apasa('Selectează luni–vineri, fără sărbători');
+    assert.equal(await evalueaza(`document.querySelectorAll('.zile-absenta input:checked').length`),2,'Selecția include weekenduri/30 noiembrie/1 decembrie.');
+    await apasa('Salvează');
+    await asteapta(() => evalueaza(`!document.querySelector('dialog') && document.querySelectorAll('.tabel-absente tbody tr').length === 2`), 'Intervalul nu s-a salvat.');
+    await apasa('Înregistrează zile'); await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog select[name="tip"]'))`),'Formular medical lipsă.');
+    await completeaza('dialog select[name="tip"]','CM'); await completeaza('dialog input[name="de_la"]','2026-11-28'); await completeaza('dialog input[name="pana_la"]','2026-11-29');
+    await apasa('Salvează');
+    await asteapta(() => evalueaza(`!document.querySelector('dialog') && document.querySelectorAll('.tabel-absente tbody tr').length === 4`), 'Medicalul pe date explicite nu apare.');
+    await apasa('Înregistrează zile'); await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog select[name="tip"]'))`),'Formular eveniment lipsă.');
+    await completeaza('dialog select[name="tip"]','EV'); await completeaza('dialog input[name="de_la"]','2026-11-30'); await completeaza('dialog input[name="pana_la"]','2026-11-30'); await apasa('Salvează');
+    await asteapta(() => evalueaza(`!document.querySelector('dialog') && document.querySelectorAll('.tabel-absente tbody tr').length === 5`),'Ziua specială nu apare.');
+    assert.deepEqual(await evalueaza(`[...document.querySelectorAll('.sumar-absente tbody tr:first-child td')].slice(2).map(c => c.textContent)`),['2','2','1'],'Sumar incorect pe categorii.');
+    await completeaza('.filtre-absente select[aria-label="Categorie"]','SPECIAL');
+    assert.equal(await evalueaza(`document.querySelectorAll('.tabel-absente tbody tr').length`),1,'Filtrul categoriei nu funcționează.');
+    await evalueaza(`[...document.querySelectorAll('.tabel-tipuri-absenta tbody tr')].find(r => r.cells[0].textContent === 'EV').querySelector('button').click()`);
+    await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog input[name="activ"]'))`),'Editare tip lipsă.');
+    await evalueaza(`document.querySelector('dialog input[name="activ"]').click()`); await apasa('Salvează');
+    await asteapta(() => evalueaza(`!document.querySelector('dialog') && document.querySelector('.tabel-tipuri-absenta').textContent.includes('Inactiv')`),'Tipul nu se dezactivează.');
+    assert.equal(await evalueaza(`document.querySelectorAll('.tabel-absente tbody tr').length`),1,'Dezactivarea a pierdut istoricul.');
+    await completeaza('.filtre-absente select[aria-label="Categorie"]','');
+    await evalueaza(`[...document.querySelectorAll('.tabel-absente tbody tr')].find(r => r.cells[2].textContent === '2026-11-28').querySelector('button').click()`);
+    await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog select[name="tip"]'))`),'Editarea zilei lipsește.');
+    await completeaza('dialog select[name="tip"]','CO'); await apasa('Salvează');
+    await asteapta(() => evalueaza(`!document.querySelector('dialog') && document.querySelector('.sumar-absente tbody tr').cells[2].textContent === '3'`),'Editarea nu actualizează sumarul.');
+    await completeaza('.filtre-absente select[aria-label="Categorie"]','MEDICAL');
+    await evalueaza(`document.querySelector('.tabel-absente thead input').click()`); await apasa('Anulează zilele selectate (1)');
+    await asteapta(() => evalueaza(`document.querySelectorAll('.tabel-absente tbody tr').length === 0`),'Anularea selecției nu funcționează.');
+    await completeaza('.filtre-absente select[aria-label="Categorie"]','');
+    assert.deepEqual(await evalueaza(`[...document.querySelectorAll('.sumar-absente tbody tr:first-child td')].slice(2).map(c => c.textContent)`),['3','0','1'],'Anularea nu actualizează sumarul.');
+    const capturaAbsente = await cdp('Page.captureScreenshot',{format:'png'}); writeFileSync(join(radacina,'build/bin/concedii-absente.png'),Buffer.from(capturaAbsente.data,'base64'));
+    await apasa('Pontaj');
+    await asteapta(() => evalueaza(`Boolean(document.querySelector('.unelte-perioada select'))`),'Pontaj lipsă după concedii.');
+    await completeaza('.unelte-perioada select','11');
+    await asteapta(() => evalueaza(`document.querySelectorAll('.grila-pontaj input[readonly]').length === 3`),'Pontajul nu arată absențele din noiembrie.');
+    const protejata = await evalueaza(`(() => { const e = document.querySelector('.grila-pontaj input[readonly]'); e.focus(); return {selector:'input[data-rand="'+e.dataset.rand+'"][data-zi="'+e.dataset.zi+'"]',valoare:e.value}; })()`);
+    await completeaza('.unelte-grila input','7'); await apasa('Completează selecția');
+    await asteapta(() => evalueaza(`document.querySelector('.pontaj-lunar [role="alert"]')?.textContent.includes('Concedii și absențe')`),'Grila suprascrie absența.');
+    assert.equal(await evalueaza(`document.querySelector(${JSON.stringify(protejata.selector)}).value`),protejata.valoare,'Absență suprascrisă.');
+    await apasa('Concedii și absențe');
+    await asteapta(() => evalueaza(`document.querySelectorAll('.tabel-absente tbody tr').length === 4`),'Revenirea a pierdut zilele salvate.');
+    await evalueaza(`document.querySelector('.tabel-absente tbody tr button').click()`);
+    await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog select[name="tip"]'))`),'Formular conflict lipsă.');
+    await completeaza('dialog select[name="tip"]','CM');
+    await evalueaza(`(async () => { const r = await window.go.main.App.CitesteAbsente(2026); await window.go.main.App.SalveazaAbsente([r.absente.zile[0]],2026); })()`);
+    await apasa('Salvează');
+    await asteapta(() => evalueaza(`document.querySelector('dialog [role="alert"]')?.textContent.includes('modificate între timp')`),'Conflictul absențelor nu este semnalat.');
+    await apasa('Anulează'); await apasa('Reîncarcă evidența');
+    await asteapta(() => evalueaza(`document.querySelectorAll('.tabel-absente tbody tr').length === 4`),'Reîncărcarea absențelor a eșuat.');
+    await completeaza('.modul-absente .unelte-perioada input','2027'); await apasa('Arată anul');
+    await asteapta(() => evalueaza(`document.querySelectorAll('.tabel-absente tbody tr').length === 0 && document.querySelectorAll('.tabel-tipuri-absenta tbody tr').length === 3`),'Filtrarea anuală a absențelor a eșuat.');
+    assert(await evalueaza(`document.documentElement.scrollWidth <= 1024`),'Modulul de absențe depășește fereastra.');
     // Încărcăm 50 de persoane strict în profilul simulat, fără date reale.
     await evalueaza(`(() => { const s = JSON.parse(localStorage.getItem('pontix-test')); const bio = s.departamente.find(d => d.denumire.ro === 'Biochimie').id; s.angajati = Array.from({length:50}, (_, i) => ({...s.angajati[0], id:'grila-'+i, nume:'Exemplu '+String(i+1).padStart(2,'0'), prenume:'Test', marca:'TEST-'+String(i+1).padStart(3,'0'), activ:true, departament_id: i % 2 ? bio : s.angajati[0].departament_id})); s.ciorne = []; localStorage.setItem('pontix-test', JSON.stringify(s)); })()`);
     await cdp('Page.reload');
@@ -340,8 +430,10 @@ try {
     await cdp('Page.addScriptToEvaluateOnNewDocument', {source: `(${simulare})(${JSON.stringify(demo)},${JSON.stringify(cataloage)},'en',${JSON.stringify(calendarSursa)},${JSON.stringify(versiuneAplicatie)},${JSON.stringify(schimburiSursa)})`});
     await cdp('Page.reload');
     await asteapta(() => evalueaza(`document.querySelector('h1')?.textContent === 'Employees'`), 'Traducerea EN nu apare.');
+    await apasa('Leave and absences');
+    await asteapta(() => evalueaza(`document.querySelector('h1')?.textContent === 'Leave and absences' && document.querySelector('.tabel-tipuri-absenta')?.textContent.includes('Family event')`),'Modulul de absențe nu este tradus în EN.');
     assert.deepEqual(erori, [], 'Erori JavaScript în interfață.');
-    console.log('UI verificată: angajați/demo/setări, calendar 2026, schimburi N12, grilă 50×31, selecție/TSV, luni/an bisect, salvare/conflict, 1024px și EN.');
+    console.log('UI verificată: angajați/departamente, calendar 2026, schimburi inițiale, concedii/medical/speciale, intervale și sumar, anulare și conflicte, protecție în pontaj, grilă 50×31/TSV, 1024px și EN.');
     console.log('Captură: build/bin/interfata-demo.png. Puntea Wails a fost simulată; baza reală este verificată de testele Go.');
 } finally {
     if (ws?.readyState === WebSocket.OPEN) {

@@ -46,8 +46,8 @@ func TestDeschideSiMigreaza(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if n != 7 {
-		t.Errorf("migrări aplicate: %d, așteptat 7", n)
+	if n != 8 {
+		t.Errorf("migrări aplicate: %d, așteptat 8", n)
 	}
 
 	// Setările fiecărei conexiuni.
@@ -113,12 +113,12 @@ func TestConstrangeri(t *testing.T) {
 	}
 
 	// O tură corectă și o absență se acceptă.
-	if _, err := db.Exec(`INSERT INTO coduri_absenta (cod, denumire, creat_la, modificat_la) VALUES ('CM', '{"ro":"Concediu medical","en":"Sick leave"}', ?, ?)`, acum, acum); err != nil {
+	if _, err := db.Exec(`INSERT INTO coduri_absenta (cod, denumire, creat_la, modificat_la) VALUES ('TEST_CM', '{"ro":"Absență test","en":"Test absence"}', ?, ?)`, acum, acum); err != nil {
 		t.Fatal(err)
 	}
 	for _, s := range []string{
 		`INSERT INTO pontaj (id, angajat_id, data, start, sfarsit, creat_la, modificat_la) VALUES ('p4', 'a1', '2026-10-24', '2026-10-24T16:00:00Z', '2026-10-25T05:00:00Z', 'x', 'x')`,
-		`INSERT INTO pontaj (id, angajat_id, data, cod_absenta, creat_la, modificat_la) VALUES ('p5', 'a1', '2026-10-26', 'CM', 'x', 'x')`,
+		`INSERT INTO pontaj (id, angajat_id, data, cod_absenta, creat_la, modificat_la) VALUES ('p5', 'a1', '2026-10-26', 'TEST_CM', 'x', 'x')`,
 	} {
 		if _, err := db.Exec(s); err != nil {
 			t.Errorf("aștepta acceptare: %v", err)

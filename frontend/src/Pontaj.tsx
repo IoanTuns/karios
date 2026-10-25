@@ -54,8 +54,10 @@ export function Pontaj({date, onModificari, onOcupat}: {date: datebaza.Date; onM
     }, [an, luna, reincarcare]);
 
     const originale = useMemo(() => new Map((schita?.celule ?? []).map(c => [cheie(c.angajat_id, c.data), c])), [schita]);
+    const absente = useMemo(() => new Map((schita?.absente ?? []).filter(z => z.activ).map(z => [cheie(z.angajat_id,z.data),z])), [schita]);
     const randuri = useMemo(() => {
         const cuSchite = new Set((schita?.celule ?? []).map(c => c.angajat_id));
+        for (const z of schita?.absente ?? []) if (z.activ) cuSchite.add(z.angajat_id);
         return date.angajati.filter(a => (a.activ || cuSchite.has(a.id)) && (!sectie || a.sectie_id === sectie) && (!departament || a.departament_id === departament));
     }, [date.angajati, schita, sectie, departament]);
     const numarZile = [31, an % 400 === 0 || (an % 4 === 0 && an % 100 !== 0) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][luna - 1];
@@ -67,6 +69,7 @@ export function Pontaj({date, onModificari, onOcupat}: {date: datebaza.Date; onM
     const valoare = (rand: number, zi: number) => {
         if (!randuri[rand] || !zile[zi]) return '';
         const k = cheie(randuri[rand].id, zile[zi]);
+        if (absente.has(k)) return absente.get(k)!.cod;
         return modificari.get(k)?.valoare ?? originale.get(k)?.valoare ?? '';
     };
 
@@ -74,6 +77,7 @@ export function Pontaj({date, onModificari, onOcupat}: {date: datebaza.Date; onM
 
     function aplicaCelule(celule: {rand: number; zi: number; text: string}[]) {
         if (celule.some(c => !randuri[c.rand] || !zile[c.zi] || Array.from(c.text).length > 16 || /[\0\t\r\n]/.test(c.text))) { setEroare(t('pontaj.lipire_invalida')); return; }
+        if (celule.some(c => absente.has(cheie(randuri[c.rand].id,zile[c.zi])))) { setEroare(t('absente.celula_protejata')); return; }
         setModificari(vechi => {
             const noi = new Map(vechi);
             for (const c of celule) {
@@ -165,7 +169,7 @@ export function Pontaj({date, onModificari, onOcupat}: {date: datebaza.Date; onM
                     {totaluri.map(c => <th key={c} className="total-necalculat" title={t('pontaj.necalculat')}>{t(`pontaj.total_${c}`)}</th>)}</tr></thead><tbody>
                     {randuri.map((a, r) => <tr key={a.id}><th scope="row" className="fix-nume"><strong>{a.nume} {a.prenume}</strong>{!a.activ && <small>{t('ui.inactiv')}</small>}</th><td className="fix-marca">{a.marca}</td>
                         {zile.map((data, z) => { const weekend = [0, 6].includes(new Date(`${data}T12:00:00Z`).getUTCDay()); const selectata = r >= inceputRand && r <= sfarsitRand && z >= inceputZi && z <= sfarsitZi; const k = cheie(a.id, data); return <td key={data} className={`${sarbatori.has(data) ? 'zi-sarbatoare' : weekend ? 'zi-weekend' : ''} ${selectata ? 'celula-selectata' : ''} ${modificari.has(k) ? 'celula-modificata' : ''}`}>
-                            <input data-rand={r} data-zi={z} aria-label={t('pontaj.celula', {nume: `${a.nume} ${a.prenume}`, data})} title={sarbatori.get(data) || data} maxLength={16} list="coduri-pontaj" disabled={ocupat} value={valoare(r, z)}
+                            <input data-rand={r} data-zi={z} aria-label={t('pontaj.celula', {nume: `${a.nume} ${a.prenume}`, data})} title={absente.has(k) ? t('absente.celula_protejata') : sarbatori.get(data) || data} maxLength={16} list="coduri-pontaj" disabled={ocupat} readOnly={absente.has(k)} className={absente.has(k) ? 'celula-absenta' : ''} value={valoare(r, z)}
                                 onFocus={() => { if (ignoraFocus.current) ignoraFocus.current = false; else setSelectie({inceput: {rand: r, zi: z}, sfarsit: {rand: r, zi: z}}); }}
                                 onMouseDown={e => { if (e.shiftKey) { e.preventDefault(); focalizeaza({rand: r, zi: z}, true); } }}
                                 onKeyDown={e => taste(e, r, z)} onChange={e => aplicaCelule([{rand: r, zi: z, text: e.target.value}])}/></td>; })}

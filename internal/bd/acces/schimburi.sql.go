@@ -47,6 +47,7 @@ const adaugaSchimbInitial = `-- name: AdaugaSchimbInitial :execrows
 INSERT INTO tipuri_schimb (id, cod, denumire, ora_start, durata_minute, pauza_minute, tip, activ, creat_la, modificat_la)
 SELECT ?1, ?2, ?3, ?4, ?5, 0, ?6, 1, ?7, ?8
 WHERE NOT EXISTS (SELECT 1 FROM tipuri_schimb WHERE upper(cod) = upper(?2))
+  AND NOT EXISTS (SELECT 1 FROM coduri_absenta WHERE upper(cod) = upper(?2))
 ON CONFLICT (id) DO NOTHING
 `
 

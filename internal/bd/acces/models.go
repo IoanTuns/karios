@@ -4,6 +4,24 @@
 
 package acces
 
+type AbsenteZile struct {
+	AngajatID   string
+	Data        string
+	Cod         string
+	Activ       int64
+	CreatLa     string
+	ModificatLa string
+}
+
+type CoduriAbsentum struct {
+	Cod         string
+	Denumire    string
+	Activ       int64
+	CreatLa     string
+	ModificatLa string
+	Categorie   string
+}
+
 type PontajCiorne struct {
 	AngajatID   string
 	Data        string

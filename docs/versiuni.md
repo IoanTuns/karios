@@ -4,6 +4,17 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.16.0 · 2026-10-25
+
+Modul Concedii și absențe (F07-T04, D020).
+
+- Tipuri de odihnă, medical și zile speciale; CO/CM inițiale și tipuri noi cu cod/denumiri RO/EN, editare și dezactivare. Codurile nu se confundă cu schimburile, iar categoria unui tip folosit se păstrează.
+- Înregistrare explicită pe zile sau intervale cu selecție individuală, weekenduri/sărbători vizibile și selectare opțională luni–vineri fără sărbători. Editare, anulare individuală/în lot cu istoric și revizii pentru conflicte.
+- Sumar anual pe angajat și categorie, cu dreptul contractual curent afișat separat. Pontajul arată absențele și le protejează împotriva suprascrierii; înregistrarea refuză zilele cu pontaj existent, inclusiv ture care traversează ziua.
+- Evidența nu produce solduri legale, reportări, indemnizații ori calcule de plată. Baza standard Go de fusuri orare este inclusă pentru executabilul portabil.
+
+Rapoarte: nicio schimbare. **Baza de date: migrarea `0008_concedii_absente`.**
+
 ## 0.15.0 · 2026-10-25
 
 Schimburi inițiale din PDF și intervalele precizate de Ioan Tuns (F07-T09, D019).

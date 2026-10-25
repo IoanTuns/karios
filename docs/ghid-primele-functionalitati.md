@@ -1,10 +1,10 @@
-# Funcționalitățile disponibile · Pontix 0.15.0
+# Funcționalitățile disponibile · Pontix 0.16.0
 
 ## Pornire
 
 Executabilul se construiește cu `./build.ps1` și se găsește în `build/bin/pontix.exe`. Pornește-l dintr-un folder în care poți scrie; datele sunt în folderul `karios/` de lângă executabil.
 
-Livrarea actualizată este **`build/bin/pontix-0.13.0/pontix-0.15.0.exe`**, lângă aceleași date demo regenerate anterior la cererea utilizatorului. Închide versiunea veche înainte de pornire. Numele folderului a fost păstrat pentru a continua cu baza existentă; actualizarea copiază numai executabilul. La prima pornire, aplicația face backup înaintea migrărilor 0006/0007 și păstrează configurațiile existente. Baza veche separată a rămas în `build/bin/karios/`; seiful ei a fost eliminat de vechiul build cu `-clean`, deci nu se reutilizează cu o cheie nouă. Incidentul și corecția sunt în [D017](decizii/D017-build-fara-stergerea-datelor.md).
+Livrarea actualizată este **`build/bin/pontix-0.13.0/pontix-0.16.0.exe`**, lângă aceleași date demo regenerate anterior la cererea utilizatorului. Închide versiunea veche înainte de pornire. Numele folderului a fost păstrat pentru a continua cu baza existentă; actualizarea copiază numai executabilul. La prima pornire, aplicația face backup înaintea migrărilor lipsă (inclusiv 0008 pentru absențe) și păstrează configurațiile existente. Baza veche separată a rămas în `build/bin/karios/`; seiful ei a fost eliminat de vechiul build cu `-clean`, deci nu se reutilizează cu o cheie nouă. Incidentul și corecția sunt în [D017](decizii/D017-build-fara-stergerea-datelor.md).
 
 Scriptul corectat nu mai curăță folderul de ieșire. Dacă executabilul este deschis, construiește cu alt nume: `./build.ps1 -NumeExecutabil pontix-verificare.exe`.
 
@@ -60,6 +60,19 @@ Migrarea 0007 adaugă numai codurile lipsă, pe baza PDF-ului și a orelor preci
 
 Din **Schimburi → Adaugă schimb**, introdu codul, denumirea, ora de început, durata și pauza în minute și tipul activității. Intervalele rămân editabile. Coloana **Sfârșit nominal** arată și trecerea în ziua următoare. Codurile se normalizează la majuscule și nu pot fi duplicate, nici între schimburile inactive. Dezactivarea păstrează referințele din pontaj.
 
+## Concedii și absențe
+
+1. Deschide **Concedii și absențe** și alege anul. Poți filtra lista după angajat și categorie.
+2. Pentru un tip special nou, apasă **Adaugă tip de absență**: introdu un cod unic (de exemplu `EV_FAMILIE`), denumirea RO/EN și categoria **Zile libere speciale**. Poți defini câte tipuri sunt necesare. CO și CM sunt inițiale pentru odihnă și medical, dacă aceste coduri nu erau deja ocupate.
+3. Apasă **Înregistrează zile**, alege angajatul, tipul și intervalul de cel mult 366 de zile. Inițial sunt bifate toate datele, inclusiv weekendurile și sărbătorile. Debifează zilele care nu trebuie înregistrate sau folosește explicit **Selectează luni–vineri, fără sărbători**, pe baza calendarului din aplicație. Pentru angajați cu ture, alege datele potrivite programului lor.
+4. Verifică numărul de zile selectate și apasă **Salvează**. Lotul se salvează integral sau deloc. O zi deja ocupată de o absență, o schiță nevidă ori un pontaj efectiv trebuie corectată înainte de înregistrare; turele efective care traversează ziua sunt și ele verificate.
+5. **Editează** schimbă tipul unei zile existente. **Anulează ziua** sau bifarea mai multor zile și **Anulează zilele selectate** retrag înregistrările cu păstrarea istoricului. În cazul unei modificări concurente, reîncarcă evidența înainte de reaplicare.
+6. Zilele salvate apar automat în **Pontaj**, cu fundal verde și codul tipului. Celulele sunt protejate; modificarea se face din modulul de concedii. Un cod scris manual într-o schiță de pontaj rămâne text și nu înregistrează automat o absență.
+
+Sumarul anual afișează separat numărul de zile de odihnă, medical și speciale înregistrate, plus dreptul contractual **curent** din fișa angajatului. Nu calculează soldul legal, reportările sau indemnizațiile. Înregistrările care traversează anul se văd în anii corespunzători.
+
+Un tip poate fi editat sau dezactivat din tabelul **Tipuri de absență**. Dezactivarea nu elimină zilele existente. Codul nu se redenumește; categoria unui tip folosit nu se schimbă, pentru a păstra sensul istoricului. Schema și limitele sunt în [D020](decizii/D020-concedii-absente.md).
+
 ## Grila lunară · schiță
 
 1. Deschide **Pontaj**, alege anul și luna; opțional filtrează secția și departamentul.
@@ -79,6 +92,6 @@ Istoricul contractual, conturile și rapoartele finale rămân în taskurile lor
 - `gofmt -l -w .`, `go vet ./...`, `go test ./...`: validări, tranzacții, persistență pe SQLite criptat, păstrarea pontajului, import demo atomic și refuzul suprascrierii datelor.
 - `./genereaza-date.ps1`: regenerează accesul SQL cu sqlc v1.31.1 fixat.
 - `./build.ps1`: construiește și verifică versiunea din proprietățile executabilului.
-- `node verificari/interfata.mjs`, după build-ul frontend: Edge headless deja instalat, profil temporar, fără biblioteci suplimentare. Verifică angajați/demo/setări, ierarhia secție/departament, atribuire și filtre, calendar 2026 și import repetat, cele șase schimburi inițiale și grilă 50×31, tastatură, TSV, luni/ani bisecți, salvare/conflict, lățime 1024px și EN. Puntea Wails este simulată numai în acest test; backendul real, inclusiv lotul 50×31 și conflictele, este testat separat prin Go pe SQLite criptat. Capturi în `build/bin/interfata-demo.png`, `calendar-2026.png` și `pontaj-schita.png`.
+- `node verificari/interfata.mjs`, după build-ul frontend: Edge headless deja instalat, profil temporar, fără biblioteci suplimentare. Verifică angajați/demo/setări, ierarhia secție/departament, atribuire și filtre, calendar 2026 și import repetat, cele șase schimburi inițiale, concedii/medical/tipuri speciale/intervale/sumar/anulare/conflicte și protecția în pontaj, plus grila 50×31, tastatură, TSV, luni/ani bisecți, salvare/conflict, lățime 1024px și EN. Puntea Wails este simulată numai în acest test; backendul real, inclusiv lotul 50×31 și conflictele, este testat separat prin Go pe SQLite criptat. Capturi în `build/bin/interfata-demo.png`, `calendar-2026.png`, `concedii-absente.png` și `pontaj-schita.png`.
 
-Versiunea anterioară 0.13.0 a trecut o probă de pornire ascunsă de 8 secunde, cu baza demo și seiful prezente. Pentru 0.15.0 verificările de interacțiune sunt cele din Edge cu puntea simulată; fereastra desktop nu a fost testată interactiv.
+Versiunea anterioară 0.13.0 a trecut o probă de pornire ascunsă de 8 secunde, cu baza demo și seiful prezente. Pentru 0.16.0 verificările de interacțiune sunt cele din Edge cu puntea simulată; fereastra desktop nu a fost testată interactiv.

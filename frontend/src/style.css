@@ -183,3 +183,13 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .zi-urmatoare { display: block; color: var(--discret); font-size: 10px; margin-top: 4px; }
 .unelte-grila > select { max-width: 220px; }
 @media (max-width: 1100px) { .unelte { flex-wrap: wrap; } .cautare { flex-basis: 100%; } .unelte select { max-width: none; flex: 1; } }
+.modul-absente h2 { margin: 26px 0 10px; font-size: 18px; }
+.filtre-absente { flex-wrap: wrap; }
+.filtre-absente label { display: grid; gap: 6px; font-size: 13px; }
+.modul-absente input[type="checkbox"], .zile-absenta input[type="checkbox"] { width: 17px; min-width: 17px; height: 17px; accent-color: var(--verde); }
+.zile-absenta { display: grid; gap: 5px; max-height: 240px; overflow-y: auto; margin-top: 12px; }
+.zile-absenta label { display: flex; align-items: center; gap: 9px; padding: 8px; border-radius: 5px; font-size: 13px; }
+.zile-absenta .zi-weekend { background: #e5e8e5; }
+.zile-absenta .zi-sarbatoare { background: #fff2cf; }
+.zile-absenta small { display: block; color: #52655c; margin-top: 3px; }
+.grila-pontaj input.celula-absenta { background: #e2efe8; color: #285a40; font-weight: 700; cursor: default; }

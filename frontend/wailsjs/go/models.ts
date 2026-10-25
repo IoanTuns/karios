@@ -1,5 +1,77 @@
 export namespace datebaza {
 
+	export class ZiAbsenta {
+	    angajat_id: string;
+	    data: string;
+	    cod: string;
+	    activ: boolean;
+	    revizie: string;
+
+	    static createFrom(source: any = {}) {
+	        return new ZiAbsenta(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.angajat_id = source["angajat_id"];
+	        this.data = source["data"];
+	        this.cod = source["cod"];
+	        this.activ = source["activ"];
+	        this.revizie = source["revizie"];
+	    }
+	}
+	export class TipAbsenta {
+	    cod: string;
+	    denumire: Record<string, string>;
+	    categorie: string;
+	    activ: boolean;
+
+	    static createFrom(source: any = {}) {
+	        return new TipAbsenta(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.cod = source["cod"];
+	        this.denumire = source["denumire"];
+	        this.categorie = source["categorie"];
+	        this.activ = source["activ"];
+	    }
+	}
+	export class AbsenteAn {
+	    an: number;
+	    tipuri: TipAbsenta[];
+	    zile: ZiAbsenta[];
+
+	    static createFrom(source: any = {}) {
+	        return new AbsenteAn(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.an = source["an"];
+	        this.tipuri = this.convertValues(source["tipuri"], TipAbsenta);
+	        this.zile = this.convertValues(source["zile"], ZiAbsenta);
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 	export class Angajat {
 	    id: string;
 	    nume: string;
@@ -200,6 +272,7 @@ export namespace datebaza {
 	    an: number;
 	    luna: number;
 	    celule: CelulaSchita[];
+	    absente: ZiAbsenta[];
 
 	    static createFrom(source: any = {}) {
 	        return new SchitaLuna(source);
@@ -210,6 +283,7 @@ export namespace datebaza {
 	        this.an = source["an"];
 	        this.luna = source["luna"];
 	        this.celule = this.convertValues(source["celule"], CelulaSchita);
+	        this.absente = this.convertValues(source["absente"], ZiAbsenta);
 	    }
 
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -230,6 +304,8 @@ export namespace datebaza {
 		    return a;
 		}
 	}
+
+
 
 }
 
@@ -262,6 +338,38 @@ export namespace main {
 	        this.cod = source["cod"];
 	        this.param = source["param"];
 	    }
+	}
+	export class RaspunsAbsente {
+	    absente?: datebaza.AbsenteAn;
+	    eroare?: MesajEroare;
+
+	    static createFrom(source: any = {}) {
+	        return new RaspunsAbsente(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.absente = this.convertValues(source["absente"], datebaza.AbsenteAn);
+	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
 	}
 	export class RaspunsCalendar {
 	    calendar?: datebaza.CalendarAn;

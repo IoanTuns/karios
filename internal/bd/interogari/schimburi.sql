@@ -24,4 +24,5 @@ UPDATE tipuri_schimb SET activ = ?, modificat_la = ? WHERE id = ? AND sters_la I
 INSERT INTO tipuri_schimb (id, cod, denumire, ora_start, durata_minute, pauza_minute, tip, activ, creat_la, modificat_la)
 SELECT sqlc.arg(id), sqlc.arg(cod), sqlc.arg(denumire), sqlc.arg(ora_start), sqlc.arg(durata_minute), 0, sqlc.arg(tip), 1, sqlc.arg(creat_la), sqlc.arg(modificat_la)
 WHERE NOT EXISTS (SELECT 1 FROM tipuri_schimb WHERE upper(cod) = upper(sqlc.arg(cod)))
+  AND NOT EXISTS (SELECT 1 FROM coduri_absenta WHERE upper(cod) = upper(sqlc.arg(cod)))
 ON CONFLICT (id) DO NOTHING;

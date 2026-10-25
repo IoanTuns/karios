@@ -20,9 +20,10 @@ type CelulaSchita struct {
 }
 
 type SchitaLuna struct {
-	An     int            `json:"an"`
-	Luna   int            `json:"luna"`
-	Celule []CelulaSchita `json:"celule"`
+	An      int            `json:"an"`
+	Luna    int            `json:"luna"`
+	Celule  []CelulaSchita `json:"celule"`
+	Absente []ZiAbsenta    `json:"absente"`
 }
 
 func limiteLuna(an, luna int) (string, string, error) {
@@ -44,6 +45,10 @@ func (s *Serviciu) CitesteSchita(ctx context.Context, an, luna int) (SchitaLuna,
 	rez := SchitaLuna{An: an, Luna: luna, Celule: []CelulaSchita{}}
 	for _, r := range randuri {
 		rez.Celule = append(rez.Celule, CelulaSchita{AngajatID: r.AngajatID, Data: r.Data, Valoare: r.Valoare, Revizie: r.ModificatLa})
+	}
+	rez.Absente, err = citesteAbsenteInterval(ctx, acces.New(s.db), deLa, panaLa)
+	if err != nil {
+		return SchitaLuna{}, traduceEroare(err)
 	}
 	return rez, nil
 }
@@ -70,6 +75,13 @@ func (s *Serviciu) SalveazaSchita(ctx context.Context, an, luna int, celule []Ce
 	return s.modifica(ctx, func(q *acces.Queries) error {
 		angajati := map[string]bool{}
 		for _, c := range celule {
+			absenta, err := q.CitesteZiAbsenta(ctx, acces.CitesteZiAbsentaParams{AngajatID: c.AngajatID, Data: c.Data})
+			if err != nil && !errors.Is(err, sql.ErrNoRows) {
+				return err
+			}
+			if err == nil && absenta.Activ == 1 {
+				return eroare("absente.celula_protejata")
+			}
 			if !angajati[c.AngajatID] {
 				if _, err := q.CitesteAngajat(ctx, c.AngajatID); err != nil {
 					return err

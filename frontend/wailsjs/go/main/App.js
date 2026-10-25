@@ -14,6 +14,10 @@ export function Catalog(arg1) {
   return window['go']['main']['App']['Catalog'](arg1);
 }
 
+export function CitesteAbsente(arg1) {
+  return window['go']['main']['App']['CitesteAbsente'](arg1);
+}
+
 export function CitesteCalendar(arg1) {
   return window['go']['main']['App']['CitesteCalendar'](arg1);
 }
@@ -50,6 +54,10 @@ export function ListaSchimburi() {
   return window['go']['main']['App']['ListaSchimburi']();
 }
 
+export function SalveazaAbsente(arg1, arg2) {
+  return window['go']['main']['App']['SalveazaAbsente'](arg1, arg2);
+}
+
 export function SalveazaAngajat(arg1) {
   return window['go']['main']['App']['SalveazaAngajat'](arg1);
 }
@@ -68,6 +76,10 @@ export function SalveazaSchimb(arg1) {
 
 export function SalveazaSchita(arg1, arg2, arg3) {
   return window['go']['main']['App']['SalveazaSchita'](arg1, arg2, arg3);
+}
+
+export function SalveazaTipAbsenta(arg1, arg2, arg3) {
+  return window['go']['main']['App']['SalveazaTipAbsenta'](arg1, arg2, arg3);
 }
 
 export function SchimbaActivAngajat(arg1, arg2) {
