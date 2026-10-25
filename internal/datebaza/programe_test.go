@@ -35,7 +35,7 @@ func TestProgrameConfirmateSiIntrareSeparata(t *testing.T) {
 	}
 	for _, c := range cazuri {
 		s, ok := dupaCod[c.cod]
-		if !ok || s.OraStart != c.start || s.DurataMinute != c.durata || (s.OraStart+s.DurataMinute)%1440 != c.sfarsit || s.Regim != c.regim || !s.Activ {
+		if !ok || s.OraStart != c.start || s.DurataMinute != c.durata || (s.OraStart+s.DurataMinute)%1440 != c.sfarsit || s.Regim != c.regim || s.Categorie != "LAB" || !s.Activ {
 			t.Fatalf("program %s: %+v", c.cod, s)
 		}
 	}
@@ -45,32 +45,43 @@ func TestProgrameConfirmateSiIntrareSeparata(t *testing.T) {
 	if dupaCod["S7"].OraStart-(dupaCod["Z7"].OraStart+dupaCod["Z7"].DurataMinute) != 60 {
 		t.Fatal("golul 14–15 a fost eliminat")
 	}
+	for _, codVechi := range []string{"7", "12", "S1", "S3"} {
+		if dupaCod[codVechi].Categorie != "CUSTOM" {
+			t.Fatalf("codul %s nu este încadrat în CUSTOM: %+v", codVechi, dupaCod[codVechi])
+		}
+	}
 	if dupaCod["12"].OraStart != 840 || dupaCod["S3"].DurataMinute != 480 || dupaCod["7"].Regim != "GENERAL" {
 		t.Fatal("codurile vechi au fost reinterpretate")
 	}
 	s := dupaCod["IN9"]
 	s.Denumire["ro"] = "Intrare personalizată"
 	s.Regim = "NELUCRATOARE"
+	s.Categorie = "CUSTOM"
 	if err := m.serviciu.SalveazaSchimb(context.Background(), s); err != nil {
 		t.Fatal(err)
 	}
 	if err := m.serviciu.SchimbaActivSchimb(context.Background(), s.ID, false); err != nil {
 		t.Fatal(err)
 	}
-	if n, err := m.serviciu.CompleteazaSchimburiInitiale(context.Background()); err != nil || n != 0 {
+	if n, err := m.serviciu.CompleteazaSchimburiInitiale(context.Background(), "LAB"); err != nil || n != 0 {
 		t.Fatalf("completare: %d %v", n, err)
 	}
+	_, err = m.serviciu.CompleteazaSchimburiInitiale(context.Background(), "CUSTOM")
+	verificaCod(t, err, "schimburi.categorie_invalida")
 	lista, err = m.serviciu.ListaSchimburi(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}
 	for _, actual := range lista {
-		if actual.ID == s.ID && (actual.Regim != "NELUCRATOARE" || actual.Activ || actual.Denumire["ro"] != "Intrare personalizată") {
+		if actual.ID == s.ID && (actual.Regim != "NELUCRATOARE" || actual.Categorie != "CUSTOM" || actual.Activ || actual.Denumire["ro"] != "Intrare personalizată") {
 			t.Fatal("editare/dezactivare pierdută")
 		}
 	}
 	s.Regim = "INVENTAT"
 	verificaCod(t, m.serviciu.SalveazaSchimb(context.Background(), s), "schimburi.regim_invalid")
+	s.Regim = "NELUCRATOARE"
+	s.Categorie = "INVENTATA"
+	verificaCod(t, m.serviciu.SalveazaSchimb(context.Background(), s), "schimburi.categorie_invalida")
 }
 
 func TestMigrareProgramePastreazaPersonalizariSiPontaj(t *testing.T) {
@@ -120,6 +131,9 @@ func TestMigrareProgramePastreazaPersonalizariSiPontaj(t *testing.T) {
 	if n, err := bd.Migreaza(ctx, db, surse); err != nil || n != 1 {
 		t.Fatalf("migrare: %d %v", n, err)
 	}
+	if _, err := bd.Migreaza(ctx, db, bd.Migrari); err != nil {
+		t.Fatal(err)
+	}
 	lista, err := Nou(db).ListaSchimburi(ctx)
 	if err != nil {
 		t.Fatal(err)
@@ -127,12 +141,16 @@ func TestMigrareProgramePastreazaPersonalizariSiPontaj(t *testing.T) {
 	for _, s := range lista {
 		switch s.Cod {
 		case "N12":
-			if s.OraStart != 1200 || s.DurataMinute != 660 || s.Activ || s.Regim != "GENERAL" {
+			if s.OraStart != 1200 || s.DurataMinute != 660 || s.Activ || s.Regim != "GENERAL" || s.Categorie != "LAB" {
 				t.Fatalf("N12 personalizat schimbat: %+v", s)
 			}
 		case "in9":
-			if s.ID != "intrare-config" || s.OraStart != 1260 || s.Regim != "GENERAL" || s.Activ {
+			if s.ID != "intrare-config" || s.OraStart != 1260 || s.Regim != "GENERAL" || s.Categorie != "LAB" || s.Activ {
 				t.Fatalf("intrare existentă schimbată: %+v", s)
+			}
+		case "7", "12", "S1", "S3":
+			if s.Categorie != "CUSTOM" {
+				t.Fatalf("cod vechi neîncadrat în CUSTOM: %+v", s)
 			}
 		case "IN9", "Z12", "G24":
 			t.Fatalf("cod recreat peste configurație/absență/ștergere: %+v", s)

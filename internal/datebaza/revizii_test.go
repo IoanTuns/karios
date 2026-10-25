@@ -106,7 +106,12 @@ func TestMigrareReviziiPastreazaContinutulSiMomentele(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	if n, err := bd.Migreaza(ctx, db, bd.Migrari); err != nil || n != 1 {
+	migrare, err := fs.ReadFile(bd.Migrari, "0010_revizii_concurenta.sql")
+	if err != nil {
+		t.Fatal(err)
+	}
+	surse["0010_revizii_concurenta.sql"] = &fstest.MapFile{Data: migrare}
+	if n, err := bd.Migreaza(ctx, db, surse); err != nil || n != 1 {
 		t.Fatalf("migrare: %d %v", n, err)
 	}
 	s := Nou(db)

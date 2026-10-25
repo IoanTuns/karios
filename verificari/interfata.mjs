@@ -122,8 +122,10 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
             stare.sarbatori.push(...structuredClone(lipsa)); raspuns(); return {...calendar(2026), adaugate: lipsa.length};
         },
         ListaSchimburi: async () => ({schimburi: structuredClone(stare.schimburi), eroare: null}),
-        CompleteazaSchimburiInitiale: async () => {
-            const lipsa = schimburiSursa.filter(s => !stare.schimburi.some(v => v.cod.toUpperCase() === s.cod));
+        CompleteazaSchimburiInitiale: async categorie => {
+            const cat = (categorie || 'LAB').toUpperCase();
+            if (cat !== 'LAB') return {schimburi: [], adaugate: 0, eroare: {cod: 'schimburi.categorie_invalida', param: {}}};
+            const lipsa = schimburiSursa.filter(s => (s.categorie || 'LAB') === cat && !stare.schimburi.some(v => v.cod.toUpperCase() === s.cod));
             stare.schimburi.push(...structuredClone(lipsa)); raspuns(); return {schimburi: structuredClone(stare.schimburi), adaugate: lipsa.length, eroare: null};
         },
         SalveazaSchimb: async s => {
@@ -288,7 +290,7 @@ try {
     assert(intrare.includes('22:00') && intrare.includes('07:00') && intrare.includes('9 h') && intrare.includes('+1') && intrare.includes('Intrare specială'), 'IN9 nu este distinct și nominal de 9 ore.');
     await completeaza('.schimburi select[aria-label="Regim de lucru"]','INTRARE_ZI_LIBERA');
     assert.equal(await evalueaza(`document.querySelectorAll('.tabel-schimburi tbody tr').length`),1,'Filtrul intrării speciale nu funcționează.');
-    await apasa('Editează'); await asteapta(() => evalueaza(`document.querySelector('dialog select[name="regim"]')?.value === 'INTRARE_ZI_LIBERA'`),'Regimul special lipsește în formular.');
+    await apasa('Editează'); await asteapta(() => evalueaza(`document.querySelector('dialog select[name="regim"]')?.value === 'INTRARE_ZI_LIBERA' && document.querySelector('dialog select[name="categorie"]')?.value === 'LAB'`),'Regimul sau categoria specială lipsește în formular.');
     await apasa('Salvează'); await asteapta(() => evalueaza(`!document.querySelector('dialog')`),'Regimul nu se păstrează la editare.');
     await completeaza('.schimburi select[aria-label="Regim de lucru"]','LUCRATOARE');
     assert.deepEqual(await evalueaza(`[...document.querySelectorAll('.tabel-schimburi tbody tr')].map(r => r.cells[0].textContent).sort()`),['N9','S7','Z7'],'Filtrul programului obișnuit diferă.');
@@ -297,10 +299,15 @@ try {
     await completeaza('.schimburi select[aria-label="Regim de lucru"]','NELUCRATOARE');
     assert.deepEqual(await evalueaza(`[...document.querySelectorAll('.tabel-schimburi tbody tr')].map(r => r.cells[0].textContent).sort()`),['G24','N12','Z12'],'Filtrul weekend/sărbătoare diferă.');
     await completeaza('.schimburi select[aria-label="Regim de lucru"]','');
+    await completeaza('.schimburi select[aria-label="Categorie"]','LAB');
+    assert.deepEqual(await evalueaza(`[...document.querySelectorAll('.tabel-schimburi tbody tr')].map(r => r.cells[0].textContent).sort()`),['G24','IN9','N12','N9','S7','Z12','Z7'],'Filtrul categoriei Lab diferă.');
+    await completeaza('.schimburi select[aria-label="Categorie"]','CUSTOM');
+    assert.equal(await evalueaza(`document.querySelectorAll('.tabel-schimburi tbody tr').length`),0,'Categoria Custom nu este inițial goală în testul izolat.');
+    await completeaza('.schimburi select[aria-label="Categorie"]','');
     await apasa('Completează schimburile inițiale');
     await asteapta(() => evalueaza(`document.querySelector('.schimburi [role="status"]')?.textContent.includes('0 schimburi')`), 'Completarea repetată dublează schimburile.');
     await apasa('Adaugă schimb');
-    await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog[open]'))`), 'Formular schimb lipsă.');
+    await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog[open]')) && document.querySelector('dialog select[name="categorie"]')?.value === 'CUSTOM'`), 'Formular schimb lipsă sau categorie implicită incorectă.');
     await completeaza('dialog .campuri label:nth-child(1) input', 'test_n12');
     await completeaza('dialog .campuri label:nth-child(2) select', 'NOAPTE');
     await completeaza('dialog .campuri label:nth-child(3) input', 'Tură de test');
@@ -308,6 +315,9 @@ try {
     await completeaza('dialog .campuri label:nth-child(6) input', '720');
     await completeaza('dialog .campuri label:nth-child(7) input', '30'); await apasa('Salvează');
     await asteapta(() => evalueaza(`!document.querySelector('dialog') && document.querySelector('.tabel-schimburi').textContent.includes('TEST_N12')`), 'Schimb nesalvat.');
+    await completeaza('.schimburi select[aria-label="Categorie"]','CUSTOM');
+    assert.deepEqual(await evalueaza(`[...document.querySelectorAll('.tabel-schimburi tbody tr')].map(r => r.cells[0].textContent)`),['TEST_N12'],'Filtrul categoriei Custom nu afișează schimbul nou.');
+    await completeaza('.schimburi select[aria-label="Categorie"]','');
     assert(await evalueaza(`document.querySelector('.tabel-schimburi').textContent.includes('19:00') && document.querySelector('.tabel-schimburi').textContent.includes('12 h')`), 'Intervalul schimbului diferă.');
     await evalueaza(`[...document.querySelectorAll('.tabel-schimburi tbody tr')].find(r => r.cells[0].textContent === 'TEST_N12').querySelectorAll('button')[1].click()`);
     await asteapta(() => evalueaza(`[...document.querySelectorAll('.tabel-schimburi tbody tr')].find(r => r.cells[0].textContent === 'TEST_N12').textContent.includes('Inactiv')`), 'Schimbul nu se dezactivează.');

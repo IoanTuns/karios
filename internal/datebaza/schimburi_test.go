@@ -29,7 +29,7 @@ func TestNomenclatorSchimburiSiLegaturaPontaj(t *testing.T) {
 			s = schimb
 		}
 	}
-	if s.Cod != "TEST_N12" || s.OraStart != 1140 || s.DurataMinute != 720 || s.PauzaMinute != 30 || s.Denumire.In(i18n.Romana) != "Noapte de test" {
+	if s.Cod != "TEST_N12" || s.OraStart != 1140 || s.DurataMinute != 720 || s.PauzaMinute != 30 || s.Categorie != "CUSTOM" || s.Denumire.In(i18n.Romana) != "Noapte de test" {
 		t.Fatalf("schimb: %+v", s)
 	}
 	verificaCod(t, m.serviciu.SalveazaSchimb(ctx, schimbTest()), "schimburi.cod_duplicat")
@@ -84,6 +84,7 @@ func TestValidareSchimburi(t *testing.T) {
 		{"schimburi.interval_invalid", func(s *Schimb) { s.DurataMinute = 2881 }},
 		{"schimburi.interval_invalid", func(s *Schimb) { s.PauzaMinute = 721 }},
 		{"schimburi.tip_invalid", func(s *Schimb) { s.Tip = "ALTUL" }},
+		{"schimburi.categorie_invalida", func(s *Schimb) { s.Categorie = "ALTCEVA" }},
 		{"schimburi.inexistent", func(s *Schimb) { s.ID = "inexistent" }},
 	}
 	for i, c := range cazuri {

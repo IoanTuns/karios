@@ -30,8 +30,8 @@ export function CompleteazaSarbatori2026() {
   return window['go']['main']['App']['CompleteazaSarbatori2026']();
 }
 
-export function CompleteazaSchimburiInitiale() {
-  return window['go']['main']['App']['CompleteazaSchimburiInitiale']();
+export function CompleteazaSchimburiInitiale(arg1) {
+  return window['go']['main']['App']['CompleteazaSchimburiInitiale'](arg1);
 }
 
 export function DateInitiale() {
