@@ -193,4 +193,9 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .zile-absenta .zi-sarbatoare { background: #fff2cf; }
 .zile-absenta small { display: block; color: #52655c; margin-top: 3px; }
 .grila-pontaj input.celula-absenta { background: #e2efe8; color: #285a40; font-weight: 700; cursor: default; }
-.eticheta-intrare { display: inline-block; background: #fff2cf; color: #735014; border-radius: 5px; padding: 4px 7px; font-weight: 600; }
+.grila-pontaj input.celula-absenta-IN_ASTEPTARE { background: #f8f1dc; color: #735014; }
+.grila-pontaj input.celula-absenta-RESPINSA { background: #fae4e2; color: #8c271e; text-decoration: line-through; }
+.eticheta-intrare, .eticheta-aprobare { display: inline-block; background: #fff2cf; color: #735014; border-radius: 5px; padding: 4px 7px; font-weight: 600; font-size: 12px; }
+.eticheta-aprobare.aprobare-APROBATA { background: #dcefe5; color: #22543a; }
+.eticheta-aprobare.aprobare-RESPINSA { background: #fae4e2; color: #8c271e; }
+.atasament-curent { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: #f2f6f1; padding: 8px 12px; border-radius: 5px; font-size: 13px; }

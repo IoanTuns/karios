@@ -1,11 +1,37 @@
 export namespace datebaza {
 
+	export class DocumentAbsenta {
+	    id: string;
+	    nume_fisier: string;
+	    tip_mime: string;
+	    continut_b64: string;
+
+	    static createFrom(source: any = {}) {
+	        return new DocumentAbsenta(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.nume_fisier = source["nume_fisier"];
+	        this.tip_mime = source["tip_mime"];
+	        this.continut_b64 = source["continut_b64"];
+	    }
+	}
 	export class ZiAbsenta {
 	    angajat_id: string;
 	    data: string;
 	    cod: string;
 	    activ: boolean;
 	    revizie: string;
+	    nr_inregistrare: string;
+	    inlocuitor_id: string;
+	    stare_aprobare: string;
+	    aprobat_de: string;
+	    document_id: string;
+	    document_nume: string;
+	    document_mime: string;
+	    document_continut_b64?: string;
 
 	    static createFrom(source: any = {}) {
 	        return new ZiAbsenta(source);
@@ -18,6 +44,14 @@ export namespace datebaza {
 	        this.cod = source["cod"];
 	        this.activ = source["activ"];
 	        this.revizie = source["revizie"];
+	        this.nr_inregistrare = source["nr_inregistrare"];
+	        this.inlocuitor_id = source["inlocuitor_id"];
+	        this.stare_aprobare = source["stare_aprobare"];
+	        this.aprobat_de = source["aprobat_de"];
+	        this.document_id = source["document_id"];
+	        this.document_nume = source["document_nume"];
+	        this.document_mime = source["document_mime"];
+	        this.document_continut_b64 = source["document_continut_b64"];
 	    }
 	}
 	export class TipAbsenta {
@@ -342,6 +376,38 @@ export namespace main {
 	        this.cod = source["cod"];
 	        this.param = source["param"];
 	    }
+	}
+	export class RaspunsDocumentAbsenta {
+	    document?: datebaza.DocumentAbsenta;
+	    eroare?: MesajEroare;
+
+	    static createFrom(source: any = {}) {
+	        return new RaspunsDocumentAbsenta(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.document = this.convertValues(source["document"], datebaza.DocumentAbsenta);
+	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
 	}
 	export class RaspunsAbsente {
 	    absente?: datebaza.AbsenteAn;

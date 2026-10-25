@@ -168,11 +168,20 @@ export function Pontaj({date, onModificari, onOcupat}: {date: datebaza.Date; onM
                     {zile.map((data, z) => { const d = new Date(`${data}T12:00:00Z`), weekend = [0, 6].includes(d.getUTCDay()); return <th key={data} className={sarbatori.has(data) ? 'zi-sarbatoare' : weekend ? 'zi-weekend' : ''} title={sarbatori.get(data) || ''} scope="col"><strong>{z + 1}</strong><small>{new Intl.DateTimeFormat(i18n.language, {weekday: 'short', timeZone: 'UTC'}).format(d)}</small></th>; })}
                     {totaluri.map(c => <th key={c} className="total-necalculat" title={t('pontaj.necalculat')}>{t(`pontaj.total_${c}`)}</th>)}</tr></thead><tbody>
                     {randuri.map((a, r) => <tr key={a.id}><th scope="row" className="fix-nume"><strong>{a.nume} {a.prenume}</strong>{!a.activ && <small>{t('ui.inactiv')}</small>}</th><td className="fix-marca">{a.marca}</td>
-                        {zile.map((data, z) => { const weekend = [0, 6].includes(new Date(`${data}T12:00:00Z`).getUTCDay()); const selectata = r >= inceputRand && r <= sfarsitRand && z >= inceputZi && z <= sfarsitZi; const k = cheie(a.id, data); return <td key={data} className={`${sarbatori.has(data) ? 'zi-sarbatoare' : weekend ? 'zi-weekend' : ''} ${selectata ? 'celula-selectata' : ''} ${modificari.has(k) ? 'celula-modificata' : ''}`}>
-                            <input data-rand={r} data-zi={z} aria-label={t('pontaj.celula', {nume: `${a.nume} ${a.prenume}`, data})} title={absente.has(k) ? t('absente.celula_protejata') : sarbatori.get(data) || data} maxLength={16} list="coduri-pontaj" disabled={ocupat} readOnly={absente.has(k)} className={absente.has(k) ? 'celula-absenta' : ''} value={valoare(r, z)}
+                        {zile.map((data, z) => {
+                            const weekend = [0, 6].includes(new Date(`${data}T12:00:00Z`).getUTCDay());
+                            const selectata = r >= inceputRand && r <= sfarsitRand && z >= inceputZi && z <= sfarsitZi;
+                            const k = cheie(a.id, data);
+                            const absenta = absente.get(k);
+                            const stareAbsenta = absenta?.stare_aprobare || 'IN_ASTEPTARE';
+                            const inlocuitor = absenta?.inlocuitor_id ? date.angajati.find(x => x.id === absenta.inlocuitor_id) : undefined;
+                            const titluAbsenta = absenta ? [t('absente.celula_protejata'), `${t(`absente.aprobare_${stareAbsenta}`)}${absenta.aprobat_de ? ` (${absenta.aprobat_de})` : ''}`, absenta.nr_inregistrare ? `${t('absente.nr_inregistrare')}: ${absenta.nr_inregistrare}` : '', inlocuitor ? `${t('absente.inlocuitor')}: ${inlocuitor.nume} ${inlocuitor.prenume}` : ''].filter(Boolean).join(' · ') : '';
+                            return <td key={data} className={`${sarbatori.has(data) ? 'zi-sarbatoare' : weekend ? 'zi-weekend' : ''} ${selectata ? 'celula-selectata' : ''} ${modificari.has(k) ? 'celula-modificata' : ''}`}>
+                            <input data-rand={r} data-zi={z} aria-label={t('pontaj.celula', {nume: `${a.nume} ${a.prenume}`, data})} title={absenta ? titluAbsenta : sarbatori.get(data) || data} maxLength={16} list="coduri-pontaj" disabled={ocupat} readOnly={Boolean(absenta)} className={absenta ? `celula-absenta celula-absenta-${stareAbsenta}` : ''} value={valoare(r, z)}
                                 onFocus={() => { if (ignoraFocus.current) ignoraFocus.current = false; else setSelectie({inceput: {rand: r, zi: z}, sfarsit: {rand: r, zi: z}}); }}
                                 onMouseDown={e => { if (e.shiftKey) { e.preventDefault(); focalizeaza({rand: r, zi: z}, true); } }}
-                                onKeyDown={e => taste(e, r, z)} onChange={e => aplicaCelule([{rand: r, zi: z, text: e.target.value}])}/></td>; })}
+                                onKeyDown={e => taste(e, r, z)} onChange={e => aplicaCelule([{rand: r, zi: z, text: e.target.value}])}/></td>;
+                        })}
                         {totaluri.map(c => <td key={c} className="total-necalculat" title={t('pontaj.necalculat')}>—</td>)}</tr>)}
                 </tbody></table>{randuri.length === 0 && <p className="fara-rezultate">{t('pontaj.fara_angajati')}</p>}
             </div>

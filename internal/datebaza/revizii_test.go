@@ -114,6 +114,9 @@ func TestMigrareReviziiPastreazaContinutulSiMomentele(t *testing.T) {
 	if n, err := bd.Migreaza(ctx, db, surse); err != nil || n != 1 {
 		t.Fatalf("migrare: %d %v", n, err)
 	}
+	if _, err := bd.Migreaza(ctx, db, bd.Migrari); err != nil {
+		t.Fatal(err)
+	}
 	s := Nou(db)
 	schita, err := s.CitesteSchita(ctx, 2026, 10)
 	if err != nil || schita.Celule[0].Valoare != "IN9" || schita.Celule[0].Revizie != "1" || len(schita.Absente) != 1 || schita.Absente[0].Activ {

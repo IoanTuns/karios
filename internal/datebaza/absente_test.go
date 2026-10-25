@@ -1,9 +1,13 @@
 package datebaza
 
 import (
+	"bytes"
 	"context"
+	"encoding/base64"
 	"io/fs"
+	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"testing/fstest"
 
@@ -249,5 +253,148 @@ func TestMigrareAbsentePastreazaDateleAnterioare(t *testing.T) {
 	}
 	if err := Nou(db).SalveazaTipAbsenta(ctx, "co", TipAbsenta{Cod: "co", Denumire: i18n.Text{"ro": "Personalizat actualizat"}, Categorie: "ODIHNA", Activ: true}); err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestCereriConcediuDocumentCriptatInlocuitorSiAprobare(t *testing.T) {
+	m := pregateste(t)
+	ctx := context.Background()
+	titular := persoanaAbsente(t, m)
+	if err := m.serviciu.SalveazaAngajat(ctx, angajatTest("INL-002")); err != nil {
+		t.Fatal(err)
+	}
+	var inlocuitor Angajat
+	for _, a := range citeste(t, m.serviciu).Angajati {
+		if a.ID != titular.ID {
+			inlocuitor = a
+		}
+	}
+	continutPDF := []byte("%PDF-1.4\n%CERERE_SEMNATA_CONFIDENTIALA_2026\n%%EOF\n")
+	b64 := base64.StdEncoding.EncodeToString(continutPDF)
+	lot := []ZiAbsenta{
+		{
+			AngajatID:           titular.ID,
+			Data:                "2026-08-10",
+			Cod:                 "CO",
+			Activ:               true,
+			NrInregistrare:      "  REG-2026/104  ",
+			InlocuitorID:        inlocuitor.ID,
+			StareAprobare:       "aprobata",
+			AprobatDe:           "  Director Medical  ",
+			DocumentNume:        " cerere-concediu-104.pdf ",
+			DocumentMime:        "application/pdf",
+			DocumentContinutB64: b64,
+		},
+		{
+			AngajatID:           titular.ID,
+			Data:                "2026-08-11",
+			Cod:                 "CO",
+			Activ:               true,
+			NrInregistrare:      "REG-2026/104",
+			InlocuitorID:        inlocuitor.ID,
+			StareAprobare:       "APROBATA",
+			AprobatDe:           "Director Medical",
+			DocumentNume:        "cerere-concediu-104.pdf",
+			DocumentMime:        "application/pdf",
+			DocumentContinutB64: b64,
+		},
+	}
+	if err := m.serviciu.SalveazaAbsente(ctx, lot); err != nil {
+		t.Fatal(err)
+	}
+	d := absenteTest(t, m, 2026)
+	if len(d.Zile) != 2 {
+		t.Fatalf("zile salvate: %+v", d.Zile)
+	}
+	z0, z1 := d.Zile[0], d.Zile[1]
+	if z0.NrInregistrare != "REG-2026/104" || z0.InlocuitorID != inlocuitor.ID || z0.StareAprobare != "APROBATA" || z0.AprobatDe != "Director Medical" || z0.DocumentID == "" || z0.DocumentNume != "cerere-concediu-104.pdf" || z0.DocumentMime != "application/pdf" {
+		t.Fatalf("metadate cerere: %+v", z0)
+	}
+	if z1.DocumentID != z0.DocumentID {
+		t.Fatalf("documentul din același lot a fost duplicat: %s vs %s", z0.DocumentID, z1.DocumentID)
+	}
+	var nrDoc int
+	if err := m.db.QueryRow(`SELECT count(*) FROM absente_documente`).Scan(&nrDoc); err != nil || nrDoc != 1 {
+		t.Fatalf("număr documente în bază: %d %v", nrDoc, err)
+	}
+	doc, err := m.serviciu.CitesteDocumentAbsenta(ctx, z0.DocumentID)
+	if err != nil || doc.NumeFisier != "cerere-concediu-104.pdf" || doc.TipMime != "application/pdf" || doc.ContinutB64 != b64 {
+		t.Fatalf("citire document: %+v %v", doc, err)
+	}
+	// Nimic din conținutul sau numele cererii nu apare în clar pe disc.
+	for _, f := range []string{m.cale, m.cale + "-wal"} {
+		octeti, err := os.ReadFile(f)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, secret := range []string{"CERERE_SEMNATA_CONFIDENTIALA_2026", "cerere-concediu-104.pdf", "REG-2026/104"} {
+			if bytes.Contains(octeti, []byte(secret)) {
+				t.Fatalf("text lizibil pe disc în %s: %s", filepath.Base(f), secret)
+			}
+		}
+	}
+	// Anularea păstrează metadatele cererii în istoric.
+	anulata := z1
+	anulata.Activ = false
+	anulata.NrInregistrare, anulata.InlocuitorID, anulata.StareAprobare, anulata.AprobatDe, anulata.DocumentID = "", "", "", "", ""
+	if err := m.serviciu.SalveazaAbsente(ctx, []ZiAbsenta{anulata}); err != nil {
+		t.Fatal(err)
+	}
+	dupaAnulare := absenteTest(t, m, 2026).Zile[1]
+	if dupaAnulare.Activ || dupaAnulare.NrInregistrare != "REG-2026/104" || dupaAnulare.DocumentID != z0.DocumentID || dupaAnulare.InlocuitorID != inlocuitor.ID {
+		t.Fatalf("metadate pierdute la anulare: %+v", dupaAnulare)
+	}
+
+	// Validări pentru înlocuitor, număr de înregistrare, aprobare și document.
+	buna := ZiAbsenta{AngajatID: titular.ID, Data: "2026-08-12", Cod: "CO", Activ: true}
+	autoInlocuitor := buna
+	autoInlocuitor.InlocuitorID = titular.ID
+	verificaCod(t, m.serviciu.SalveazaAbsente(ctx, []ZiAbsenta{autoInlocuitor}), "absente.inlocuitor_invalid")
+
+	inlocuitorLipsa := buna
+	inlocuitorLipsa.InlocuitorID = "inexistent"
+	verificaCod(t, m.serviciu.SalveazaAbsente(ctx, []ZiAbsenta{inlocuitorLipsa}), "absente.inlocuitor_invalid")
+
+	if err := m.serviciu.SchimbaActiv(ctx, inlocuitor.ID, false); err != nil {
+		t.Fatal(err)
+	}
+	inlocuitorInactiv := buna
+	inlocuitorInactiv.InlocuitorID = inlocuitor.ID
+	verificaCod(t, m.serviciu.SalveazaAbsente(ctx, []ZiAbsenta{inlocuitorInactiv}), "absente.inlocuitor_invalid")
+	// Dar o zi deja existentă cu acel înlocuitor poate fi editată (de ex. aprobată) fără pierderea înlocuitorului.
+	z0 = absenteTest(t, m, 2026).Zile[0]
+	z0.AprobatDe = "Manager"
+	if err := m.serviciu.SalveazaAbsente(ctx, []ZiAbsenta{z0}); err != nil {
+		t.Fatal(err)
+	}
+
+	nrPreaLung := buna
+	nrPreaLung.NrInregistrare = strings.Repeat("A", 65)
+	verificaCod(t, m.serviciu.SalveazaAbsente(ctx, []ZiAbsenta{nrPreaLung}), "absente.nr_inregistrare_invalid")
+
+	stareGresita := buna
+	stareGresita.StareAprobare = "INVENTATA"
+	verificaCod(t, m.serviciu.SalveazaAbsente(ctx, []ZiAbsenta{stareGresita}), "absente.aprobare_invalida")
+
+	aprobatPreaLung := buna
+	aprobatPreaLung.AprobatDe = strings.Repeat("B", 121)
+	verificaCod(t, m.serviciu.SalveazaAbsente(ctx, []ZiAbsenta{aprobatPreaLung}), "absente.aprobat_de_invalid")
+
+	docFals := buna
+	docFals.DocumentNume = "fals.pdf"
+	docFals.DocumentMime = "application/pdf"
+	docFals.DocumentContinutB64 = base64.StdEncoding.EncodeToString([]byte("nu este pdf"))
+	verificaCod(t, m.serviciu.SalveazaAbsente(ctx, []ZiAbsenta{docFals}), "absente.document_invalid")
+
+	docInexistent := buna
+	docInexistent.DocumentID = "id-lipsa"
+	verificaCod(t, m.serviciu.SalveazaAbsente(ctx, []ZiAbsenta{docInexistent}), "absente.document_invalid")
+
+	_, err = m.serviciu.CitesteDocumentAbsenta(ctx, "id-lipsa")
+	verificaCod(t, err, "absente.document_inexistent")
+
+	// Trigger-ul din baza de date blochează și direct inlocuitor_id = angajat_id.
+	if _, err := m.db.Exec(`UPDATE absente_zile SET inlocuitor_id = angajat_id WHERE data = '2026-08-10'`); err == nil {
+		t.Fatal("trigger-ul nu a refuzat inlocuitor_id = angajat_id")
 	}
 }

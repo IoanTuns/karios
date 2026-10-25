@@ -4,6 +4,16 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.19.0 · 2026-10-25
+
+Cereri de concediu semnate atașate, număr de înregistrare, persoană înlocuitoare și stare de aprobare pentru concedii și absențe (F07-T12, D024).
+
+- Zilele de concediu și absență includ opțional numărul de înregistrare al cererii, persoana care înlocuiește angajatul absent (validată ca fiind diferită de angajatul în concediu), starea aprobării (`IN_ASTEPTARE`, `APROBATA`, `RESPINSA`), numele celui care a aprobat și un document semnat atașat (PDF/PNG/JPG până la 10 MB), stocat în tabela `absente_documente` din baza SQLite criptată și partajat la salvarea unui interval.
+- Ecranul Concedii și absențe afișează și filtrează după starea aprobării, permite atașarea și descărcarea cererii semnate și oferă completarea ulterioară a cererii, înlocuitorului sau aprobării pentru o zi ori pentru un lot de zile selectate.
+- Grila de pontaj afișează în explicația celulei și prin stil vizual starea aprobării, numărul de înregistrare și persoana înlocuitoare pentru zilele de absență active.
+
+Rapoarte: nicio schimbare. **Baza de date: migrarea `0012_cereri_concediu`.**
+
 ## 0.18.0 · 2026-10-25
 
 Categorii în nomenclatorul de schimburi: `LAB` pentru precompletare și `CUSTOM` pentru restul (F07-T11, D023).

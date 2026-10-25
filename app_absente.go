@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+
 	"pontix/internal/datebaza"
 	"pontix/internal/i18n"
 )
@@ -9,6 +10,11 @@ import (
 type RaspunsAbsente struct {
 	Absente *datebaza.AbsenteAn `json:"absente"`
 	Eroare  *MesajEroare        `json:"eroare"`
+}
+
+type RaspunsDocumentAbsenta struct {
+	Document *datebaza.DocumentAbsenta `json:"document"`
+	Eroare   *MesajEroare              `json:"eroare"`
 }
 
 func (a *App) CitesteAbsente(an int) RaspunsAbsente { return a.raspunsAbsente(an, nil) }
@@ -19,6 +25,19 @@ func (a *App) SalveazaTipAbsenta(initial string, tip datebaza.TipAbsenta, an int
 
 func (a *App) SalveazaAbsente(zile []datebaza.ZiAbsenta, an int) RaspunsAbsente {
 	return a.raspunsAbsente(an, datebaza.Nou(a.db).SalveazaAbsente(a.contextLucru(), zile))
+}
+
+func (a *App) CitesteDocumentAbsenta(id string) RaspunsDocumentAbsenta {
+	doc, err := datebaza.Nou(a.db).CitesteDocumentAbsenta(a.contextLucru(), id)
+	if err != nil {
+		mesaj := &MesajEroare{Cod: "date.eroare"}
+		var e *i18n.Eroare
+		if errors.As(err, &e) {
+			mesaj.Cod, mesaj.Param = e.Cod, e.Param
+		}
+		return RaspunsDocumentAbsenta{Eroare: mesaj}
+	}
+	return RaspunsDocumentAbsenta{Document: &doc}
 }
 
 func (a *App) raspunsAbsente(an int, err error) RaspunsAbsente {
