@@ -1,5 +1,7 @@
 # Definirea, generarea și tipărirea rapoartelor
 
+Versiunea 0.20.0 este pregătită pe ramura izolată `F09-T07-definitii-rapoarte`, cu categoriile F07-T11. Lucrul nesalvat F07-T12 la cererile de concediu nu este inclus; integrarea lui trebuie făcută înaintea folosirii ambelor versiuni cu aceeași bază. Executabilul de probă se livrează separat, fără mutarea datelor existente.
+
 ## Definire rapoarte
 
 Deschide meniul **Definire rapoarte**. Sunt pregătite trei modele: Pontaj lunar, Fișă individuală și Evidența absențelor. **Adaugă model de raport** creează un model nou; **Duplică** copiază setările într-o definiție independentă.
@@ -52,4 +54,4 @@ node verificari/interfata.mjs
 
 Referințele sunt inițializate numai în acest task prin `-actualizeaza-rapoarte`; ulterior o schimbare cere verificarea și creșterea versiunii raportului conform D009. `verificari/randare-pdf.ps1` poate reda o pagină în PNG cu motorul PDF inclus în Windows, fără instalări.
 
-Interacțiunile UI se verifică în Edge cu punte Wails simulată; backendul PDF se testează separat, pe date fictive reale. Testele nu trimit documente către imprimantă. Bibliotecile și notificările de licență sunt în [D024](decizii/D024-definitii-rapoarte.md) și [licențe](licente/rapoarte/README.md).
+Interacțiunile UI se verifică în Edge cu punte Wails simulată; backendul PDF se testează separat, pe date fictive reale. Testele nu trimit documente către imprimantă. Bibliotecile și notificările de licență sunt în [D025](decizii/D025-definitii-rapoarte.md) și [licențe](licente/rapoarte/README.md).

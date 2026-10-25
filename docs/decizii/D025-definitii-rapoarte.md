@@ -1,4 +1,4 @@
-# D024 · Definiții de rapoarte și tipărire
+# D025 · Definiții de rapoarte și tipărire
 
 Stare: propusă · Data: 2026-10-25 · Task: F09-T07
 
@@ -9,7 +9,7 @@ Ioan Tuns cere rapoarte cu trei componente — header, content, footer — defin
 - Meniu **Definire rapoarte** pentru creare/editare/duplicare și dezactivare de modele, cu trei zone explicite Antet, Conținut, Subsol. Meniu **Rapoarte** pentru alegerea modelului, perioadei, limbii și filtrelor, previzualizare, generare PDF și deschidere pentru tipărire.
 - Antetul și subsolul au texte traductibile stânga/centru/dreapta. Variabilele sunt limitate la perioadă, secție, departament, angajat și data generării. Conținutul selectează sursa de date și coloanele; fără executare de HTML, SQL sau șabloane arbitrare introduse de utilizator.
 - Prima implementare folosește texte/câmpuri și coloane configurabile; întrebarea opțională despre editor vizual a fost trimisă utilizatorului. Setări de pagină per raport: A4/A3, orientare, margini, mărime font.
-- Definițiile stau în baza criptată (`0012_definitii_rapoarte.sql`; 0011 aparține taskului paralel F07-T11). Revizia este incrementată în SQL, cu refuzul editărilor concurente și jurnal. Copierea unui model creează o definiție independentă.
+- Definițiile stau în baza criptată (`0013_definitii_rapoarte.sql`; 0011 aparține taskului paralel F07-T11). Revizia este incrementată în SQL, cu refuzul editărilor concurente și jurnal. Copierea unui model creează o definiție independentă.
 - Surse inițiale: pontaj lunar din schițe și absențe, fișă individuală lunară și evidență anuală a absențelor. Documentele indică starea de schiță/reguli neaplicate; nu inventăm totaluri de salarizare sau interpretări ale codurilor.
 - PDF-ul este generat local în Go, cu diacritice, antet/subsol repetate și numere de pagină. Aceeași structură de date alimentează previzualizarea. Subsolul tehnic obligatoriu D009 include versiunea raportului, revizia definiției, aplicația, regulile folosite, momentul și actorul local până la F15.
 - Tipărirea se face din PDF-ul deschis în aplicația asociată, unde utilizatorul alege imprimanta și opțiunile. Nu trimitem automat documente către imprimantă în verificări. Exportul în afara folderului de date este numai la acțiunea explicită de salvare a utilizatorului.
@@ -25,4 +25,4 @@ Surse: [maroto](https://github.com/johnfercher/maroto), [fonturile Go](https://g
 
 ## Lucru în paralel
 
-Versiunea funcționalității este rezervată 0.19.0 pentru a evita suprapunerea cu 0.18.0 a categoriilor. Integrarea eventualelor commituri F07-T11 se face numai în ramura rapoartelor; checkout-ul utilizatorului rămâne neatins. Deciziile tehnice de aici rămân propuse.
+Versiunea livrată este 0.20.0. Include F07-T11 din bacd37b. După observarea lucrului nesalvat F07-T12 în checkoutul utilizatorului, migrarea rapoartelor a fost mutată din 0012 în 0013, iar această decizie din D024 în D025; 0012/D024 și versiunea 0.19.0 rămân acelui task. Renumerotarea este permisă pentru migrările neaduse în main. Modificările nesalvate F07-T12 nu se preiau. Integrarea lor trebuie făcută înaintea folosirii ambelor versiuni pe aceeași bază. Checkout-ul utilizatorului rămâne neatins. Deciziile tehnice de aici rămân propuse.
