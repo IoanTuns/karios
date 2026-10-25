@@ -4,6 +4,17 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.6.0 · 2026-10-25
+
+Seiful cheii de date (F05-T10, D008 punctul 2).
+
+- Pachetul `internal/seif`: generează cheia de date și o păstrează în `karios/seif`, în copii criptate cu AES-256-GCM: copia „A” cu cheia aplicației și copii deschise cu o parolă sau cu răspunsuri (Argon2id).
+- Cheia aplicației se injectează la build (`seif.CheieAplicatie`); fără ea, seiful refuză să funcționeze.
+- Textele noi: `seif.fara_cheie_aplicatie`, `seif.deteriorat`, `seif.secret_gresit`.
+- Nu e încă folosit de aplicație; integrarea vine cu F05-T12.
+
+Rapoarte: niciunul încă. Baza de date: nicio migrare nouă.
+
 ## 0.5.0 · 2026-10-25
 
 Baza de date criptată și schema inițială (F06-T02).
