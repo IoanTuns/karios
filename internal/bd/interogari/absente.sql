@@ -24,11 +24,12 @@ ORDER BY data, angajat_id;
 -- name: CitesteZiAbsenta :one
 SELECT * FROM absente_zile WHERE angajat_id = ? AND data = ?;
 
--- name: SalveazaZiAbsenta :exec
+-- name: SalveazaZiAbsenta :one
 INSERT INTO absente_zile (angajat_id, data, cod, activ, creat_la, modificat_la)
 VALUES (?, ?, ?, ?, ?, ?)
 ON CONFLICT(angajat_id, data) DO UPDATE SET cod = excluded.cod, activ = excluded.activ,
-    modificat_la = excluded.modificat_la;
+    modificat_la = excluded.modificat_la, revizie = absente_zile.revizie + 1
+RETURNING revizie;
 
 -- name: PontajExistentPeZi :one
 SELECT EXISTS (SELECT 1 FROM pontaj WHERE angajat_id = sqlc.arg(angajat_id) AND sters_la IS NULL

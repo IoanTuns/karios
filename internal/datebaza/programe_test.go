@@ -112,7 +112,12 @@ func TestMigrareProgramePastreazaPersonalizariSiPontaj(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	if n, err := bd.Migreaza(ctx, db, bd.Migrari); err != nil || n != 1 {
+	migrare, err := fs.ReadFile(bd.Migrari, "0009_programe_lucru.sql")
+	if err != nil {
+		t.Fatal(err)
+	}
+	surse["0009_programe_lucru.sql"] = &fstest.MapFile{Data: migrare}
+	if n, err := bd.Migreaza(ctx, db, surse); err != nil || n != 1 {
 		t.Fatalf("migrare: %d %v", n, err)
 	}
 	lista, err := Nou(db).ListaSchimburi(ctx)

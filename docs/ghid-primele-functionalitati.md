@@ -1,10 +1,10 @@
-# Funcționalitățile disponibile · Pontix 0.17.0
+# Funcționalitățile disponibile · Pontix 0.17.1
 
 ## Pornire
 
 Executabilul se construiește cu `./build.ps1` și se găsește în `build/bin/pontix.exe`. Pornește-l dintr-un folder în care poți scrie; datele sunt în folderul `karios/` de lângă executabil.
 
-Livrarea actualizată este **`build/bin/pontix-0.13.0/pontix-0.16.0.exe`**, lângă aceleași date demo regenerate anterior la cererea utilizatorului. Închide versiunea veche înainte de pornire. Numele folderului a fost păstrat pentru a continua cu baza existentă; actualizarea copiază numai executabilul. La prima pornire, aplicația face backup înaintea migrărilor lipsă (inclusiv 0008 pentru absențe) și păstrează configurațiile existente. Baza veche separată a rămas în `build/bin/karios/`; seiful ei a fost eliminat de vechiul build cu `-clean`, deci nu se reutilizează cu o cheie nouă. Incidentul și corecția sunt în [D017](decizii/D017-build-fara-stergerea-datelor.md).
+Livrarea actualizată este **`build/bin/pontix-0.13.0/pontix-0.17.1.exe`**, lângă aceleași date demo regenerate anterior la cererea utilizatorului. Închide versiunea veche înainte de pornire. Numele folderului a fost păstrat pentru a continua cu baza existentă; actualizarea copiază numai executabilul. La prima pornire, aplicația face backup înaintea migrărilor lipsă (0009 pentru programe și 0010 pentru revizii) și păstrează configurațiile existente. Baza veche separată a rămas în `build/bin/karios/`; seiful ei a fost eliminat de vechiul build cu `-clean`, deci nu se reutilizează cu o cheie nouă. Incidentul și corecția sunt în [D017](decizii/D017-build-fara-stergerea-datelor.md).
 
 Scriptul corectat nu mai curăță folderul de ieșire. Dacă executabilul este deschis, construiește cu alt nume: `./build.ps1 -NumeExecutabil pontix-verificare.exe`.
 
@@ -97,4 +97,4 @@ Istoricul contractual, conturile și rapoartele finale rămân în taskurile lor
 - `./build.ps1`: construiește și verifică versiunea din proprietățile executabilului.
 - `node verificari/interfata.mjs`, după build-ul frontend: Edge headless deja instalat, profil temporar, fără biblioteci suplimentare. Verifică angajați/demo/setări, ierarhia secție/departament, atribuire și filtre, calendar 2026 și import repetat, cele șase schimburi inițiale, concedii/medical/tipuri speciale/intervale/sumar/anulare/conflicte și protecția în pontaj, plus grila 50×31, tastatură, TSV, luni/ani bisecți, salvare/conflict, lățime 1024px și EN. Puntea Wails este simulată numai în acest test; backendul real, inclusiv lotul 50×31 și conflictele, este testat separat prin Go pe SQLite criptat. Capturi în `build/bin/interfata-demo.png`, `calendar-2026.png`, `concedii-absente.png` și `pontaj-schita.png`.
 
-Versiunea anterioară 0.13.0 a trecut o probă de pornire ascunsă de 8 secunde, cu baza demo și seiful prezente. Pentru 0.16.0 verificările de interacțiune sunt cele din Edge cu puntea simulată; fereastra desktop nu a fost testată interactiv.
+Versiunea anterioară 0.13.0 a trecut o probă de pornire ascunsă de 8 secunde, cu baza demo și seiful prezente. Pentru 0.17.1 verificările de interacțiune sunt cele din Edge cu puntea simulată; fereastra desktop nu a fost testată interactiv. Corecția [D022](decizii/D022-revizii-concurenta.md) păstrează detectarea conflictelor chiar când două salvări au același timestamp.

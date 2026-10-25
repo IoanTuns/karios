@@ -10,7 +10,7 @@ import (
 )
 
 const citesteCiorna = `-- name: CitesteCiorna :one
-SELECT valoare, modificat_la FROM pontaj_ciorne WHERE angajat_id = ? AND data = ?
+SELECT valoare, modificat_la, revizie FROM pontaj_ciorne WHERE angajat_id = ? AND data = ?
 `
 
 type CitesteCiornaParams struct {
@@ -21,17 +21,18 @@ type CitesteCiornaParams struct {
 type CitesteCiornaRow struct {
 	Valoare     string
 	ModificatLa string
+	Revizie     int64
 }
 
 func (q *Queries) CitesteCiorna(ctx context.Context, arg CitesteCiornaParams) (CitesteCiornaRow, error) {
 	row := q.db.QueryRowContext(ctx, citesteCiorna, arg.AngajatID, arg.Data)
 	var i CitesteCiornaRow
-	err := row.Scan(&i.Valoare, &i.ModificatLa)
+	err := row.Scan(&i.Valoare, &i.ModificatLa, &i.Revizie)
 	return i, err
 }
 
 const listaCiorneLuna = `-- name: ListaCiorneLuna :many
-SELECT angajat_id, data, valoare, modificat_la FROM pontaj_ciorne
+SELECT angajat_id, data, valoare, modificat_la, revizie FROM pontaj_ciorne
 WHERE data >= ?1 AND data <= ?2
 ORDER BY angajat_id, data
 `
@@ -55,6 +56,7 @@ func (q *Queries) ListaCiorneLuna(ctx context.Context, arg ListaCiorneLunaParams
 			&i.Data,
 			&i.Valoare,
 			&i.ModificatLa,
+			&i.Revizie,
 		); err != nil {
 			return nil, err
 		}
@@ -69,9 +71,10 @@ func (q *Queries) ListaCiorneLuna(ctx context.Context, arg ListaCiorneLunaParams
 	return items, nil
 }
 
-const salveazaCiorna = `-- name: SalveazaCiorna :exec
+const salveazaCiorna = `-- name: SalveazaCiorna :one
 INSERT INTO pontaj_ciorne (angajat_id, data, valoare, modificat_la) VALUES (?, ?, ?, ?)
-ON CONFLICT (angajat_id, data) DO UPDATE SET valoare = excluded.valoare, modificat_la = excluded.modificat_la
+ON CONFLICT (angajat_id, data) DO UPDATE SET valoare = excluded.valoare, modificat_la = excluded.modificat_la, revizie = pontaj_ciorne.revizie + 1
+RETURNING revizie
 `
 
 type SalveazaCiornaParams struct {
@@ -81,12 +84,14 @@ type SalveazaCiornaParams struct {
 	ModificatLa string
 }
 
-func (q *Queries) SalveazaCiorna(ctx context.Context, arg SalveazaCiornaParams) error {
-	_, err := q.db.ExecContext(ctx, salveazaCiorna,
+func (q *Queries) SalveazaCiorna(ctx context.Context, arg SalveazaCiornaParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, salveazaCiorna,
 		arg.AngajatID,
 		arg.Data,
 		arg.Valoare,
 		arg.ModificatLa,
 	)
-	return err
+	var revizie int64
+	err := row.Scan(&revizie)
+	return revizie, err
 }

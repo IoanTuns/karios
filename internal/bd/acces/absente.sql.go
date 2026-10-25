@@ -39,7 +39,7 @@ func (q *Queries) CitesteTipAbsenta(ctx context.Context, cod string) (CoduriAbse
 }
 
 const citesteZiAbsenta = `-- name: CitesteZiAbsenta :one
-SELECT angajat_id, data, cod, activ, creat_la, modificat_la FROM absente_zile WHERE angajat_id = ? AND data = ?
+SELECT angajat_id, data, cod, activ, creat_la, modificat_la, revizie FROM absente_zile WHERE angajat_id = ? AND data = ?
 `
 
 type CitesteZiAbsentaParams struct {
@@ -57,12 +57,13 @@ func (q *Queries) CitesteZiAbsenta(ctx context.Context, arg CitesteZiAbsentaPara
 		&i.Activ,
 		&i.CreatLa,
 		&i.ModificatLa,
+		&i.Revizie,
 	)
 	return i, err
 }
 
 const listaAbsenteInterval = `-- name: ListaAbsenteInterval :many
-SELECT angajat_id, data, cod, activ, creat_la, modificat_la FROM absente_zile WHERE data BETWEEN ?1 AND ?2
+SELECT angajat_id, data, cod, activ, creat_la, modificat_la, revizie FROM absente_zile WHERE data BETWEEN ?1 AND ?2
 ORDER BY data, angajat_id
 `
 
@@ -87,6 +88,7 @@ func (q *Queries) ListaAbsenteInterval(ctx context.Context, arg ListaAbsenteInte
 			&i.Activ,
 			&i.CreatLa,
 			&i.ModificatLa,
+			&i.Revizie,
 		); err != nil {
 			return nil, err
 		}
@@ -187,11 +189,12 @@ func (q *Queries) SalveazaTipAbsenta(ctx context.Context, arg SalveazaTipAbsenta
 	return err
 }
 
-const salveazaZiAbsenta = `-- name: SalveazaZiAbsenta :exec
+const salveazaZiAbsenta = `-- name: SalveazaZiAbsenta :one
 INSERT INTO absente_zile (angajat_id, data, cod, activ, creat_la, modificat_la)
 VALUES (?, ?, ?, ?, ?, ?)
 ON CONFLICT(angajat_id, data) DO UPDATE SET cod = excluded.cod, activ = excluded.activ,
-    modificat_la = excluded.modificat_la
+    modificat_la = excluded.modificat_la, revizie = absente_zile.revizie + 1
+RETURNING revizie
 `
 
 type SalveazaZiAbsentaParams struct {
@@ -203,8 +206,8 @@ type SalveazaZiAbsentaParams struct {
 	ModificatLa string
 }
 
-func (q *Queries) SalveazaZiAbsenta(ctx context.Context, arg SalveazaZiAbsentaParams) error {
-	_, err := q.db.ExecContext(ctx, salveazaZiAbsenta,
+func (q *Queries) SalveazaZiAbsenta(ctx context.Context, arg SalveazaZiAbsentaParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, salveazaZiAbsenta,
 		arg.AngajatID,
 		arg.Data,
 		arg.Cod,
@@ -212,7 +215,9 @@ func (q *Queries) SalveazaZiAbsenta(ctx context.Context, arg SalveazaZiAbsentaPa
 		arg.CreatLa,
 		arg.ModificatLa,
 	)
-	return err
+	var revizie int64
+	err := row.Scan(&revizie)
+	return revizie, err
 }
 
 const tipAbsentaFolosit = `-- name: TipAbsentaFolosit :one

@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"strconv"
 	"strings"
 	"time"
 	_ "time/tzdata" // Fusurile orare rămân disponibile în executabilul portabil.
@@ -75,7 +76,7 @@ func citesteAbsenteInterval(ctx context.Context, q *acces.Queries, deLa, panaLa 
 	}
 	rez := []ZiAbsenta{}
 	for _, r := range randuri {
-		rez = append(rez, ZiAbsenta{AngajatID: r.AngajatID, Data: r.Data, Cod: r.Cod, Activ: r.Activ == 1, Revizie: r.ModificatLa})
+		rez = append(rez, ZiAbsenta{AngajatID: r.AngajatID, Data: r.Data, Cod: r.Cod, Activ: r.Activ == 1, Revizie: strconv.FormatInt(r.Revizie, 10)})
 	}
 	return rez, nil
 }
@@ -176,7 +177,7 @@ func (s *Serviciu) SalveazaAbsente(ctx context.Context, zile []ZiAbsenta) error 
 			if err != nil && !errors.Is(err, sql.ErrNoRows) {
 				return err
 			}
-			if (exista && z.Revizie != veche.ModificatLa) || (!exista && z.Revizie != "") {
+			if (exista && z.Revizie != strconv.FormatInt(veche.Revizie, 10)) || (!exista && z.Revizie != "") {
 				return eroare("absente.conflict")
 			}
 			if !z.Activ && (!exista || veche.Cod != z.Cod) {
@@ -212,10 +213,12 @@ func (s *Serviciu) SalveazaAbsente(ctx context.Context, zile []ZiAbsenta) error 
 			if exista && veche.Cod == z.Cod && veche.Activ == numarBool(z.Activ) {
 				continue
 			}
-			z.Revizie = moment()
-			if err := q.SalveazaZiAbsenta(ctx, acces.SalveazaZiAbsentaParams{AngajatID: z.AngajatID, Data: z.Data, Cod: z.Cod, Activ: numarBool(z.Activ), CreatLa: z.Revizie, ModificatLa: z.Revizie}); err != nil {
+			acum := moment()
+			revizie, err := q.SalveazaZiAbsenta(ctx, acces.SalveazaZiAbsentaParams{AngajatID: z.AngajatID, Data: z.Data, Cod: z.Cod, Activ: numarBool(z.Activ), CreatLa: acum, ModificatLa: acum})
+			if err != nil {
 				return err
 			}
+			z.Revizie = strconv.FormatInt(revizie, 10)
 			var inainte any
 			if exista {
 				inainte = veche

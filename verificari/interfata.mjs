@@ -146,7 +146,7 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
         SalveazaAbsente: async (zile,an) => {
             if (zile.some(z => (stare.absente.find(v => v.angajat_id === z.angajat_id && v.data === z.data)?.revizie || '') !== z.revizie)) return {absente:null,eroare:{cod:'absente.conflict'}};
             if (zile.some(z => z.activ && stare.ciorne.some(c => c.angajat_id === z.angajat_id && c.data === z.data && c.valoare.trim()))) return {absente:null,eroare:{cod:'absente.pontaj_existent'}};
-            for (const z of zile) { const i = stare.absente.findIndex(v => v.angajat_id === z.angajat_id && v.data === z.data); const nou = {...z,revizie:crypto.randomUUID()}; if (i < 0) stare.absente.push(nou); else stare.absente[i] = nou; }
+            for (const z of zile) { const i = stare.absente.findIndex(v => v.angajat_id === z.angajat_id && v.data === z.data); const nou = {...z,revizie:String(i < 0 ? 1 : Number(stare.absente[i].revizie)+1)}; if (i < 0) stare.absente.push(nou); else stare.absente[i] = nou; }
             raspuns(); return absente(an);
         },
         CitesteSchita: async (an, luna) => ({schita: {an, luna, absente:structuredClone(stare.absente.filter(z => z.data.startsWith(`${String(an).padStart(4, '0')}-${String(luna).padStart(2, '0')}-`))), celule: structuredClone(stare.ciorne.filter(c => c.data.startsWith(`${String(an).padStart(4, '0')}-${String(luna).padStart(2, '0')}-`)))}, eroare: null}),
@@ -155,7 +155,7 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
             if (celule.some(c => (stare.ciorne.find(v => v.angajat_id === c.angajat_id && v.data === c.data)?.revizie || '') !== c.revizie)) return {schita: null, eroare: {cod: 'pontaj.conflict', param: {}}};
             for (const c of celule) {
                 const i = stare.ciorne.findIndex(v => v.angajat_id === c.angajat_id && v.data === c.data);
-                const nou = {...c, valoare: c.valoare.trim(), revizie: crypto.randomUUID()};
+                const nou = {...c, valoare: c.valoare.trim(), revizie: String(i < 0 ? 1 : Number(stare.ciorne[i].revizie)+1)};
                 if (i < 0) stare.ciorne.push(nou); else stare.ciorne[i] = nou;
             }
             raspuns(); return {schita: {an, luna, celule: structuredClone(stare.ciorne.filter(c => c.data.startsWith(`${String(an).padStart(4, '0')}-${String(luna).padStart(2, '0')}-`)))}, eroare: null};

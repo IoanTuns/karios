@@ -11,6 +11,7 @@ type AbsenteZile struct {
 	Activ       int64
 	CreatLa     string
 	ModificatLa string
+	Revizie     int64
 }
 
 type CoduriAbsentum struct {
@@ -27,4 +28,5 @@ type PontajCiorne struct {
 	Data        string
 	Valoare     string
 	ModificatLa string
+	Revizie     int64
 }

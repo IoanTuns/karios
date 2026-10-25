@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -44,7 +45,7 @@ func (s *Serviciu) CitesteSchita(ctx context.Context, an, luna int) (SchitaLuna,
 	}
 	rez := SchitaLuna{An: an, Luna: luna, Celule: []CelulaSchita{}}
 	for _, r := range randuri {
-		rez.Celule = append(rez.Celule, CelulaSchita{AngajatID: r.AngajatID, Data: r.Data, Valoare: r.Valoare, Revizie: r.ModificatLa})
+		rez.Celule = append(rez.Celule, CelulaSchita{AngajatID: r.AngajatID, Data: r.Data, Valoare: r.Valoare, Revizie: strconv.FormatInt(r.Revizie, 10)})
 	}
 	rez.Absente, err = citesteAbsenteInterval(ctx, acces.New(s.db), deLa, panaLa)
 	if err != nil {
@@ -93,17 +94,18 @@ func (s *Serviciu) SalveazaSchita(ctx context.Context, an, luna int, celule []Ce
 			if err != nil && !errors.Is(err, sql.ErrNoRows) {
 				return err
 			}
-			if (exista && c.Revizie != veche.ModificatLa) || (!exista && c.Revizie != "") {
+			if (exista && c.Revizie != strconv.FormatInt(veche.Revizie, 10)) || (!exista && c.Revizie != "") {
 				return eroare("pontaj.conflict")
 			}
 			c.Valoare = strings.TrimSpace(c.Valoare)
 			if (exista && c.Valoare == veche.Valoare) || (!exista && c.Valoare == "") {
 				continue
 			}
-			c.Revizie = moment()
-			if err := q.SalveazaCiorna(ctx, acces.SalveazaCiornaParams{AngajatID: c.AngajatID, Data: c.Data, Valoare: c.Valoare, ModificatLa: c.Revizie}); err != nil {
+			revizie, err := q.SalveazaCiorna(ctx, acces.SalveazaCiornaParams{AngajatID: c.AngajatID, Data: c.Data, Valoare: c.Valoare, ModificatLa: moment()})
+			if err != nil {
 				return err
 			}
+			c.Revizie = strconv.FormatInt(revizie, 10)
 			var inainte any
 			if exista {
 				inainte = veche

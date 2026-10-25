@@ -4,6 +4,15 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.17.1 · 2026-10-25
+
+Corecție a detectării conflictelor la salvări rapide (F06-T07, D022).
+
+- Revizie numerică per rând, incrementată în SQL, separată de timestampul de audit în schițe și absențe.
+- Două modificări în același tic al ceasului au revizii distincte; o salvare pe baza reviziei vechi refuză întregul lot. Conținutul și momentele înregistrărilor existente se păstrează la migrare.
+
+Rapoarte: nicio schimbare. **Baza de date: migrarea `0010_revizii_concurenta`.** Include programele și IN9 din 0.17.0.
+
 ## 0.17.0 · 2026-10-25
 
 Programele reale și intrarea specială în weekend/sărbătoare (F07-T10, D021).
