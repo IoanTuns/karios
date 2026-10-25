@@ -1,0 +1,492 @@
+{
+  "document": {
+    "titlu": "Fișă individuală",
+    "sursa": "FISA_INDIVIDUALA",
+    "versiune_raport": 2,
+    "revizie_model": "1",
+    "pagina": {
+      "format": "A4",
+      "orientare": "PORTRET",
+      "margine_mm": 10,
+      "font_pt": 8
+    },
+    "antet": [
+      "",
+      "FIȘĂ INDIVIDUALĂ · Șerban Ana\noctombrie 2026",
+      ""
+    ],
+    "introducere": "",
+    "coloane": [
+      {
+        "cod": "data",
+        "titlu": "Data",
+        "pondere": 14,
+        "culoare": ""
+      },
+      {
+        "cod": "zi",
+        "titlu": "Ziua",
+        "pondere": 10,
+        "culoare": ""
+      },
+      {
+        "cod": "cod",
+        "titlu": "Cod",
+        "pondere": 10,
+        "culoare": ""
+      },
+      {
+        "cod": "descriere",
+        "titlu": "Descriere",
+        "pondere": 40,
+        "culoare": ""
+      }
+    ],
+    "randuri": [
+      {
+        "valori": [
+          "01.10.2026",
+          "joi",
+          "",
+          ""
+        ],
+        "culori": [
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "valori": [
+          "02.10.2026",
+          "vineri",
+          "",
+          ""
+        ],
+        "culori": [
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "valori": [
+          "03.10.2026",
+          "sâmbătă",
+          "",
+          ""
+        ],
+        "culori": [
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "valori": [
+          "04.10.2026",
+          "duminică",
+          "",
+          ""
+        ],
+        "culori": [
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "valori": [
+          "05.10.2026",
+          "luni",
+          "",
+          ""
+        ],
+        "culori": [
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "valori": [
+          "06.10.2026",
+          "marți",
+          "",
+          ""
+        ],
+        "culori": [
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "valori": [
+          "07.10.2026",
+          "miercuri",
+          "",
+          ""
+        ],
+        "culori": [
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "valori": [
+          "08.10.2026",
+          "joi",
+          "",
+          ""
+        ],
+        "culori": [
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "valori": [
+          "09.10.2026",
+          "vineri",
+          "",
+          ""
+        ],
+        "culori": [
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "valori": [
+          "10.10.2026",
+          "sâmbătă",
+          "",
+          ""
+        ],
+        "culori": [
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "valori": [
+          "11.10.2026",
+          "duminică",
+          "",
+          ""
+        ],
+        "culori": [
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "valori": [
+          "12.10.2026",
+          "luni",
+          "",
+          ""
+        ],
+        "culori": [
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "valori": [
+          "13.10.2026",
+          "marți",
+          "",
+          ""
+        ],
+        "culori": [
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "valori": [
+          "14.10.2026",
+          "miercuri",
+          "",
+          ""
+        ],
+        "culori": [
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "valori": [
+          "15.10.2026",
+          "joi",
+          "",
+          ""
+        ],
+        "culori": [
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "valori": [
+          "16.10.2026",
+          "vineri",
+          "",
+          ""
+        ],
+        "culori": [
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "valori": [
+          "17.10.2026",
+          "sâmbătă",
+          "",
+          ""
+        ],
+        "culori": [
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "valori": [
+          "18.10.2026",
+          "duminică",
+          "",
+          ""
+        ],
+        "culori": [
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "valori": [
+          "19.10.2026",
+          "luni",
+          "",
+          ""
+        ],
+        "culori": [
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "valori": [
+          "20.10.2026",
+          "marți",
+          "",
+          ""
+        ],
+        "culori": [
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "valori": [
+          "21.10.2026",
+          "miercuri",
+          "",
+          ""
+        ],
+        "culori": [
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "valori": [
+          "22.10.2026",
+          "joi",
+          "",
+          ""
+        ],
+        "culori": [
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "valori": [
+          "23.10.2026",
+          "vineri",
+          "IN9",
+          "Intrare în weekend/sărbătoare 22–07"
+        ],
+        "culori": [
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "valori": [
+          "24.10.2026",
+          "sâmbătă",
+          "CO",
+          "Concediu de odihnă"
+        ],
+        "culori": [
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "valori": [
+          "25.10.2026",
+          "duminică",
+          "",
+          ""
+        ],
+        "culori": [
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "valori": [
+          "26.10.2026",
+          "luni",
+          "",
+          ""
+        ],
+        "culori": [
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "valori": [
+          "27.10.2026",
+          "marți",
+          "",
+          ""
+        ],
+        "culori": [
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "valori": [
+          "28.10.2026",
+          "miercuri",
+          "",
+          ""
+        ],
+        "culori": [
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "valori": [
+          "29.10.2026",
+          "joi",
+          "",
+          ""
+        ],
+        "culori": [
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "valori": [
+          "30.10.2026",
+          "vineri",
+          "",
+          ""
+        ],
+        "culori": [
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "valori": [
+          "31.10.2026",
+          "sâmbătă",
+          "",
+          ""
+        ],
+        "culori": [
+          "",
+          "",
+          "",
+          ""
+        ]
+      }
+    ],
+    "subsol": [
+      "Întocmit: __________________",
+      "",
+      "Verificat: __________________"
+    ],
+    "metadate": "Fișă individuală · v2 · definiție r1 · Pontix \u003caplicatie\u003e · reguli: neaplicate (schiță) · 25.10.2026 14:30 · utilizator local",
+    "nota": "DOCUMENT DE LUCRU · valori din schița de pontaj și absențe; fără calcul de salarizare.",
+    "fara_date": "Nu există înregistrări pentru selecția curentă.",
+    "paginare": "Pagina {current} din {total}"
+  },
+  "structura": {}
+}

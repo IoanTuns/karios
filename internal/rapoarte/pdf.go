@@ -1,21 +1,74 @@
 package rapoarte
 
 import (
+	"bytes"
+	"context"
+	"math"
+
 	"github.com/johnfercher/maroto/v2"
+	"github.com/johnfercher/maroto/v2/pkg/components/col"
+	imaginePDF "github.com/johnfercher/maroto/v2/pkg/components/image"
 	"github.com/johnfercher/maroto/v2/pkg/components/row"
 	"github.com/johnfercher/maroto/v2/pkg/components/text"
 	"github.com/johnfercher/maroto/v2/pkg/config"
 	"github.com/johnfercher/maroto/v2/pkg/consts/align"
 	"github.com/johnfercher/maroto/v2/pkg/consts/border"
+	"github.com/johnfercher/maroto/v2/pkg/consts/extension"
 	"github.com/johnfercher/maroto/v2/pkg/consts/fontstyle"
 	"github.com/johnfercher/maroto/v2/pkg/consts/orientation"
 	"github.com/johnfercher/maroto/v2/pkg/consts/pagesize"
 	"github.com/johnfercher/maroto/v2/pkg/core"
 	"github.com/johnfercher/maroto/v2/pkg/fontrepository"
 	"github.com/johnfercher/maroto/v2/pkg/props"
+	"github.com/pdfcpu/pdfcpu/pkg/api"
 	"golang.org/x/image/font/gofont/gobold"
 	"golang.org/x/image/font/gofont/goregular"
 )
+
+// Imaginile sunt încadrate în zona lor, fără deformare sau decupare.
+func randImagini(p Pagina, imagini map[string]Imagine) (core.Row, error) {
+	if len(imagini) == 0 {
+		return nil, nil
+	}
+	latimePagina := 210.0
+	if p.Format == "A3" {
+		latimePagina = 297
+	}
+	if p.Orientare == "PEISAJ" {
+		latimePagina = 297
+		if p.Format == "A3" {
+			latimePagina = 420
+		}
+	}
+	latimeZona := (latimePagina - 2*float64(p.MargineMM)) / 3
+	inaltime := 0.0
+	coloane := []core.Col{}
+	for pozitie, zona := range []string{"stanga", "centru", "dreapta"} {
+		i, exista := imagini[zona]
+		if !exista {
+			coloane = append(coloane, col.New(40))
+			continue
+		}
+		if err := valideazaImagine(i); err != nil {
+			return nil, err
+		}
+		date, cfg, format, err := dateImagine(i)
+		if err != nil {
+			return nil, err
+		}
+		latime := math.Min(latimeZona-2, float64(i.InaltimeMM)*float64(cfg.Width)/float64(cfg.Height))
+		inaltime = math.Max(inaltime, latime*float64(cfg.Height)/float64(cfg.Width))
+		extensie := extension.Png
+		if format == "jpeg" {
+			extensie = extension.Jpg
+		}
+		coloane = append(coloane, imaginePDF.NewFromBytesCol(40, date, extensie, props.Rect{
+			Top: 1, Left: 1 + (latimeZona-2-latime)*float64(pozitie)/2,
+			Percent: latime / latimeZona * 100, JustReferenceWidth: true,
+		}))
+	}
+	return row.New(inaltime + 2).Add(coloane...), nil
+}
 
 // ConstruiestePDF este folosit și de testele de referință ale structurii raportului.
 func ConstruiestePDF(d Document) (core.Maroto, error) {
@@ -99,6 +152,13 @@ func ConstruiestePDF(d Document) (core.Maroto, error) {
 		fundal = append(fundal, c.Culoare)
 	}
 	antet := []core.Row{bloc(d.Antet, float64(d.Pagina.FontPT)+2, fontstyle.Bold)}
+	imaginiAntet, err := randImagini(d.Pagina, d.AntetImagini)
+	if err != nil {
+		return nil, err
+	}
+	if imaginiAntet != nil {
+		antet = append([]core.Row{imaginiAntet}, antet...)
+	}
 	antet = append(antet, text.NewAutoRow(d.Nota, props.Text{Family: "Go", Size: 6, Top: 1, Bottom: 2}))
 	if d.Introducere != "" {
 		antet = append(antet, text.NewAutoRow(d.Introducere, props.Text{Family: "Go", Size: float64(d.Pagina.FontPT), Top: 2, Bottom: 3}))
@@ -107,7 +167,15 @@ func ConstruiestePDF(d Document) (core.Maroto, error) {
 	if err := m.RegisterHeader(antet...); err != nil {
 		return nil, eroare("rapoarte.aspect_prea_mare")
 	}
-	if err := m.RegisterFooter(bloc(d.Subsol, float64(d.Pagina.FontPT), fontstyle.Normal), text.NewAutoRow(d.Metadate, props.Text{Family: "Go", Size: 6, Top: 2, Bottom: 2})); err != nil {
+	subsol := []core.Row{bloc(d.Subsol, float64(d.Pagina.FontPT), fontstyle.Normal), text.NewAutoRow(d.Metadate, props.Text{Family: "Go", Size: 6, Top: 2, Bottom: 2})}
+	imaginiSubsol, err := randImagini(d.Pagina, d.SubsolImagini)
+	if err != nil {
+		return nil, err
+	}
+	if imaginiSubsol != nil {
+		subsol = append([]core.Row{imaginiSubsol}, subsol...)
+	}
+	if err := m.RegisterFooter(subsol...); err != nil {
 		return nil, eroare("rapoarte.aspect_prea_mare")
 	}
 	for _, r := range d.Randuri {
@@ -117,6 +185,11 @@ func ConstruiestePDF(d Document) (core.Maroto, error) {
 		m.AddRows(text.NewAutoRow(d.FaraDate, props.Text{Family: "Go", Size: float64(d.Pagina.FontPT), Top: 4, Bottom: 4}))
 	}
 	return m, nil
+}
+
+func NumaraPaginiPDF(ctx context.Context, pdf []byte) (int, error) {
+	n, err := api.PageCount(ctx, bytes.NewReader(pdf), nil)
+	return n, traduce(err)
 }
 
 func GenereazaPDF(d Document) ([]byte, error) {
@@ -130,6 +203,15 @@ func GenereazaPDF(d Document) ([]byte, error) {
 	pdf, err := m.Generate()
 	if err != nil {
 		return nil, eroare("rapoarte.aspect_prea_mare")
+	}
+	if len(d.AntetImagini)+len(d.SubsolImagini) > 0 {
+		// Maroto/gofpdf înregistrează din nou imaginile repetate, cu chei PDF
+		// duplicate. Rescrierea prin pdfcpu normalizează resursele documentului.
+		var normalizat bytes.Buffer
+		if err := api.Optimize(context.Background(), bytes.NewReader(pdf.GetBytes()), &normalizat, nil, nil); err != nil {
+			return nil, traduce(err)
+		}
+		return normalizat.Bytes(), nil
 	}
 	return pdf.GetBytes(), nil
 }

@@ -580,6 +580,7 @@ export namespace main {
 	    pdf: string;
 	    token: string;
 	    nume_fisier: string;
+	    pagini: number;
 	    eroare?: MesajEroare;
 
 	    static createFrom(source: any = {}) {
@@ -592,6 +593,7 @@ export namespace main {
 	        this.pdf = source["pdf"];
 	        this.token = source["token"];
 	        this.nume_fisier = source["nume_fisier"];
+	        this.pagini = source["pagini"];
 	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
 	    }
 
@@ -684,10 +686,27 @@ export namespace main {
 
 export namespace rapoarte {
 
+	export class Imagine {
+	    nume: string;
+	    date: string;
+	    inaltime_mm: number;
+
+	    static createFrom(source: any = {}) {
+	        return new Imagine(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.nume = source["nume"];
+	        this.date = source["date"];
+	        this.inaltime_mm = source["inaltime_mm"];
+	    }
+	}
 	export class Bloc {
 	    stanga: Record<string, string>;
 	    centru: Record<string, string>;
 	    dreapta: Record<string, string>;
+	    imagini?: Record<string, Imagine>;
 
 	    static createFrom(source: any = {}) {
 	        return new Bloc(source);
@@ -698,7 +717,26 @@ export namespace rapoarte {
 	        this.stanga = source["stanga"];
 	        this.centru = source["centru"];
 	        this.dreapta = source["dreapta"];
+	        this.imagini = this.convertValues(source["imagini"], Imagine, true);
 	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
 	}
 	export class Cerere {
 	    model_id: string;
@@ -893,10 +931,12 @@ export namespace rapoarte {
 	    revizie_model: string;
 	    pagina: Pagina;
 	    antet: string[];
+	    antet_imagini?: Record<string, Imagine>;
 	    introducere: string;
 	    coloane: Coloana[];
 	    randuri: Rand[];
 	    subsol: string[];
+	    subsol_imagini?: Record<string, Imagine>;
 	    metadate: string;
 	    nota: string;
 	    fara_date: string;
@@ -914,10 +954,12 @@ export namespace rapoarte {
 	        this.revizie_model = source["revizie_model"];
 	        this.pagina = this.convertValues(source["pagina"], Pagina);
 	        this.antet = source["antet"];
+	        this.antet_imagini = this.convertValues(source["antet_imagini"], Imagine, true);
 	        this.introducere = source["introducere"];
 	        this.coloane = this.convertValues(source["coloane"], Coloana);
 	        this.randuri = this.convertValues(source["randuri"], Rand);
 	        this.subsol = source["subsol"];
+	        this.subsol_imagini = this.convertValues(source["subsol_imagini"], Imagine, true);
 	        this.metadate = source["metadate"];
 	        this.nota = source["nota"];
 	        this.fara_date = source["fara_date"];
@@ -942,6 +984,7 @@ export namespace rapoarte {
 		    return a;
 		}
 	}
+
 
 
 

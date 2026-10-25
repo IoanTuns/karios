@@ -230,3 +230,13 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .eticheta-aprobare.aprobare-APROBATA { background: #dcefe5; color: #22543a; }
 .eticheta-aprobare.aprobare-RESPINSA { background: #fae4e2; color: #8c271e; }
 .atasament-curent { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: #f2f6f1; padding: 8px 12px; border-radius: 5px; font-size: 13px; }
+.zona-model-raport { min-width: 0; display: grid; align-content: start; gap: 10px; }
+.zona-model-raport input[type=file] { max-width: 100%; font-size: 11px; }
+.imagine-model-raport { display: grid; gap: 8px; background: #f2f6f1; border-radius: 5px; padding: 10px; }
+.imagine-model-raport img { max-width: 100%; max-height: 85px; object-fit: contain; justify-self: start; }
+.imagine-model-raport > span { overflow-wrap: anywhere; font-size: 11px; color: var(--discret); }
+.imagine-structura { display: block; max-width: 100%; max-height: 135px; object-fit: contain; margin-bottom: 6px; }
+.zone-previzualizare > div:nth-child(2) { text-align: center; }
+.zone-previzualizare > div:nth-child(3) { text-align: right; }
+.zone-previzualizare > div:nth-child(2) .imagine-structura { margin-inline: auto; }
+.zone-previzualizare > div:nth-child(3) .imagine-structura { margin-left: auto; }

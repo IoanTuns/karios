@@ -25,6 +25,7 @@ type RaspunsRaport struct {
 	PDF        string             `json:"pdf"`
 	Token      string             `json:"token"`
 	NumeFisier string             `json:"nume_fisier"`
+	Pagini     int                `json:"pagini"`
 	Eroare     *MesajEroare       `json:"eroare"`
 }
 type RaspunsFisierRaport struct {
@@ -74,6 +75,10 @@ func (a *App) PregatesteRaport(c rapoarte.Cerere) RaspunsRaport {
 	if err != nil {
 		return RaspunsRaport{Eroare: mesajRaport(err)}
 	}
+	pagini, err := rapoarte.NumaraPaginiPDF(a.contextLucru(), pdf)
+	if err != nil {
+		return RaspunsRaport{Eroare: mesajRaport(err)}
+	}
 	token := rapoarte.IDNou()
 	nume := doc.Sursa + "-" + doc.GeneratLa.Format("20060102-150405") + "-" + token[:8] + ".pdf"
 	a.raportMu.Lock()
@@ -87,7 +92,7 @@ func (a *App) PregatesteRaport(c rapoarte.Cerere) RaspunsRaport {
 		a.raportOrdine = a.raportOrdine[1:]
 	}
 	a.raportMu.Unlock()
-	return RaspunsRaport{Document: &doc, PDF: base64.StdEncoding.EncodeToString(pdf), Token: token, NumeFisier: nume}
+	return RaspunsRaport{Document: &doc, PDF: base64.StdEncoding.EncodeToString(pdf), Token: token, NumeFisier: nume, Pagini: pagini}
 }
 func (a *App) raportPentru(token string) (raportPregatit, bool) {
 	a.raportMu.Lock()

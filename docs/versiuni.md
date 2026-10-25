@@ -4,6 +4,16 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.21.0 · 2026-10-25
+
+F09-T08: imagini PNG/JPEG în antetul și subsolul fiecărui raport, în cele trei zone, alături de texte. Import local, înlocuire/eliminare, înălțime configurabilă cu proporții păstrate și validare a conținutului, dimensiunilor și volumului. Imaginile sunt păstrate în baza criptată și se repetă pe paginile documentului.
+
+Paginarea automată permite rapoarte de una sau mai multe pagini; previzualizarea afișează numărul real de pagini al PDF-ului. Include cererile de concediu și aprobările F07-T12, integrate din a132a27.
+
+Actualizarea recunoaște și istoricul exact al probei 0.20.0, completând migrarea cererilor lipsă înaintea imaginilor; modelele existente se păstrează. Celelalte istorice incomplete rămân refuzate.
+
+Rapoarte: **Pontaj lunar v2, Fișă individuală v2, Evidența absențelor v2**, cu referințe noi, păstrând referințele v1. Baza: **0014_imagini_rapoarte**, fără schimbarea textelor, reviziilor sau momentelor editărilor modelelor existente.
+
 ## 0.20.2 · 2026-10-25
 
 F09-T08, actualizare separată a dependențelor declarate: pdfcpu 0.16.2 → 0.16.3 (Apache-2.0), go-runewidth 0.0.30 → 0.0.31 (MIT). Licențele noilor versiuni verificate și păstrate. Go 1.27.3 și npm sunt la versiunile verificate; fără schimbări ale rapoartelor sau bazei.

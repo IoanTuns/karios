@@ -10,4 +10,8 @@ Imaginea se păstrează în definiția JSON din baza criptată, ca base64, împr
 
 Cele trei rapoarte cresc la v2 pentru aspectul nou, cu referințe noi păstrând fișierele v1. Se verifică imagini în documente de o pagină și în antetul/subsolul fiecărei pagini a unui document lung, inclusiv transparență PNG și JPEG.
 
+PDF-urile cu imagini sunt normalizate în memorie prin pdfcpu înainte de previzualizare/salvare. Verificarea independentă pypdf a semnalat chei XObject duplicate pentru imaginile repetate produse de maroto/gofpdf; rescrierea deduplică resursele, păstrând documentul și imaginile. Nu se introduc alte biblioteci sau fișiere intermediare.
+
+Compatibilitate cu livrarea de probă 0.20.0: aceasta avea istoricul 0001–0011 și 0013, fără cererile 0012. Goose respinge implicit completarea unei migrări mai vechi. Numai pentru acest istoric exact, cu tabelul definițiilor prezent și ambele surse 0012/0013 în executabil, furnizorul permite aplicarea 0012 înainte de continuarea la 0014. Citirea stării rămâne fără modificarea datelor, iar stocarea păstrează backupul înainte de aplicare. Orice alt gol rămâne refuzat. Test separat de actualizare păstrează modelul și revizia lui; cazuri negative protejează celelalte istorice.
+
 F07-T12 este acum comis (a132a27), deci se integrează în această ramură înaintea livrării comune. Checkoutul utilizatorului rămâne neatins. TEMP/TMP se izolează la generarea Wails, conform constatării I020. Versiunea vizată: 0.21.0, după integrarea tehnică 0.20.1.

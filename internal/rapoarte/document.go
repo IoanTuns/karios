@@ -39,21 +39,23 @@ type Rand struct {
 	Culori []string `json:"culori"`
 }
 type Document struct {
-	Titlu          string    `json:"titlu"`
-	Sursa          string    `json:"sursa"`
-	VersiuneRaport int       `json:"versiune_raport"`
-	RevizieModel   string    `json:"revizie_model"`
-	Pagina         Pagina    `json:"pagina"`
-	Antet          []string  `json:"antet"`
-	Introducere    string    `json:"introducere"`
-	Coloane        []Coloana `json:"coloane"`
-	Randuri        []Rand    `json:"randuri"`
-	Subsol         []string  `json:"subsol"`
-	Metadate       string    `json:"metadate"`
-	Nota           string    `json:"nota"`
-	FaraDate       string    `json:"fara_date"`
-	Paginare       string    `json:"paginare"`
-	GeneratLa      time.Time `json:"-"`
+	Titlu          string             `json:"titlu"`
+	Sursa          string             `json:"sursa"`
+	VersiuneRaport int                `json:"versiune_raport"`
+	RevizieModel   string             `json:"revizie_model"`
+	Pagina         Pagina             `json:"pagina"`
+	Antet          []string           `json:"antet"`
+	AntetImagini   map[string]Imagine `json:"antet_imagini,omitempty"`
+	Introducere    string             `json:"introducere"`
+	Coloane        []Coloana          `json:"coloane"`
+	Randuri        []Rand             `json:"randuri"`
+	Subsol         []string           `json:"subsol"`
+	SubsolImagini  map[string]Imagine `json:"subsol_imagini,omitempty"`
+	Metadate       string             `json:"metadate"`
+	Nota           string             `json:"nota"`
+	FaraDate       string             `json:"fara_date"`
+	Paginare       string             `json:"paginare"`
+	GeneratLa      time.Time          `json:"-"`
 }
 
 func textJSON(v string, limba i18n.Limba) string {
@@ -219,6 +221,7 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 		return []string{inlocuieste(b.Stanga.In(limba)), inlocuieste(b.Centru.In(limba)), inlocuieste(b.Dreapta.In(limba))}
 	}
 	doc := Document{Titlu: d.Denumire.In(limba), Sursa: d.Continut.Sursa, RevizieModel: d.Revizie, Pagina: d.Pagina, Antet: bloc(d.Antet), Introducere: inlocuieste(d.Continut.Text.In(limba)), Subsol: bloc(d.Subsol), Coloane: []Coloana{}, Randuri: []Rand{}, Nota: t("nota_schita"), FaraDate: t("fara_date"), Paginare: t("paginare"), GeneratLa: acum}
+	doc.AntetImagini, doc.SubsolImagini = d.Antet.Imagini, d.Subsol.Imagini
 	switch d.Continut.Sursa {
 	case "PONTAJ_LUNAR":
 		doc.VersiuneRaport = pontaj.Versiune

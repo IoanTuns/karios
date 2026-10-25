@@ -7,6 +7,7 @@ import {Dialog, denumireDepartament, denumireSectie} from './Formulare';
 const copiaza = <T,>(v: T): T => JSON.parse(JSON.stringify(v));
 type DateSimple<T> = T extends Array<infer V> ? DateSimple<V>[] : T extends object ? {[K in keyof T as T[K] extends Function ? never : K]: DateSimple<T[K]>} : T;
 const textIn = (v: {[limba: string]: string} | undefined, limba: string) => v?.[limba] || v?.ro || Object.values(v || {}).find(Boolean) || '';
+const adresaImagine = (i: DateSimple<rapoarte.Imagine>) => `data:image/${i.date.startsWith('iVBOR') ? 'png' : 'jpeg'};base64,${i.date}`;
 
 function useModele() {
     const {t} = useTranslation();
@@ -50,25 +51,52 @@ export function DefinireRapoarte() {
     </section>;
 }
 
-function EditorModel({initial,configuratie,ocupat,eroare,inchide,salveaza}: {initial: rapoarte.Definitie; configuratie: rapoarte.Configuratie; ocupat: boolean; eroare: string; inchide: () => void; salveaza: (d: rapoarte.Definitie) => Promise<void>}) {
+function EditorModel({initial,configuratie,ocupat:salvareInCurs,eroare,inchide,salveaza}: {initial: rapoarte.Definitie; configuratie: rapoarte.Configuratie; ocupat: boolean; eroare: string; inchide: () => void; salveaza: (d: rapoarte.Definitie) => Promise<void>}) {
     const {t,i18n} = useTranslation();
     const [model,setModel] = useState<DateSimple<rapoarte.Definitie>>(copiaza(initial));
     const [limba,setLimba] = useState(i18n.language === 'en' ? 'en' : 'ro');
     const [validare,setValidare] = useState('');
+    const [citireImagine,setCitireImagine] = useState(false);
+    const importInCurs = useRef(false);
+    const ocupat = salvareInCurs || citireImagine;
     const sursa = configuratie.surse.find(s => s.cod === model.continut.sursa)!;
     const modificate = JSON.stringify(model) !== JSON.stringify(initial);
     useEffect(() => { if (!modificate) return; const atentioneaza = (e: BeforeUnloadEvent) => { e.preventDefault();e.returnValue=''; }; window.addEventListener('beforeunload',atentioneaza);return () => window.removeEventListener('beforeunload',atentioneaza); },[modificate]);
     function renunta() { if (!modificate || window.confirm(t('ui.renunta'))) inchide(); }
     function textBloc(bloc: 'antet' | 'subsol',zona: 'stanga'|'centru'|'dreapta',v: string) { setModel(m => ({...m,[bloc]:{...m[bloc],[zona]:{...m[bloc][zona],[limba]:v}}})); }
+    function seteazaImagine(bloc: 'antet'|'subsol',zona: string,imagine?: DateSimple<rapoarte.Imagine>) {
+        setModel(m => { const imagini={...m[bloc].imagini}; if(imagine) imagini[zona]=imagine;else delete imagini[zona];return {...m,[bloc]:{...m[bloc],imagini}}; });
+    }
+    async function importaImagine(bloc: 'antet'|'subsol',zona: string,fisier?: File) {
+        if(!fisier || importInCurs.current) return;
+        importInCurs.current=true;setCitireImagine(true);setValidare('');
+        try {
+            if(fisier.size>2*1024*1024) throw new Error('rapoarte.imagine_prea_mare');
+            if(!['image/png','image/jpeg'].includes(fisier.type) || fisier.name.length>200) throw new Error('rapoarte.imagine_invalida');
+            const adresa=await new Promise<string>((rezolva,respinge) => { const cititor=new FileReader();cititor.onload=()=>rezolva(String(cititor.result));cititor.onerror=()=>respinge(new Error('rapoarte.imagine_invalida'));cititor.readAsDataURL(fisier); });
+            const imagine=await new Promise<HTMLImageElement>((rezolva,respinge) => { const img=new Image();img.onload=()=>rezolva(img);img.onerror=()=>respinge(new Error('rapoarte.imagine_invalida'));img.src=adresa; });
+            if(imagine.naturalWidth>4096 || imagine.naturalHeight>4096 || imagine.naturalWidth*imagine.naturalHeight>4_000_000) throw new Error('rapoarte.imagine_prea_mare');
+            seteazaImagine(bloc,zona,{nume:fisier.name,date:adresa.slice(adresa.indexOf(',')+1),inaltime_mm:model[bloc].imagini?.[zona]?.inaltime_mm || 15});
+        } catch(e) { setValidare(t(e instanceof Error && e.message.startsWith('rapoarte.') ? e.message : 'rapoarte.imagine_invalida')); }
+        finally { importInCurs.current=false;setCitireImagine(false); }
+    }
     function selecteazaColoana(cod: string,bifat: boolean) { setModel(m => ({...m,continut:{...m.continut,coloane:bifat ? [...m.continut.coloane,cod] : m.continut.coloane.filter(c => c!==cod)}})); }
     function muta(cod: string,sens: number) { setModel(m => { const coloane=[...m.continut.coloane],i=coloane.indexOf(cod),j=i+sens;if (i<0 || j<0 || j>=coloane.length) return m;[coloane[i],coloane[j]]=[coloane[j],coloane[i]];return {...m,continut:{...m.continut,coloane}}; }); }
-    const zone = (bloc: 'antet'|'subsol') => <div className="zone-raport">{(['stanga','centru','dreapta'] as const).map(z => <label key={z}>{t(`rapoarte.${z}`)}<textarea name={`${bloc}_${z}`} rows={3} maxLength={1000} value={model[bloc][z]?.[limba] || ''} onChange={e => textBloc(bloc,z,e.target.value)}/></label>)}</div>;
-    const previewBloc = (bloc: 'antet'|'subsol') => <div className="zone-previzualizare">{(['stanga','centru','dreapta'] as const).map(z => <span key={z}>{textIn(model[bloc][z],limba)}</span>)}</div>;
+    const zone = (bloc: 'antet'|'subsol') => <div className="zone-raport">{(['stanga','centru','dreapta'] as const).map(z => {
+        const imagine=model[bloc].imagini?.[z];
+        return <div className="zona-model-raport" key={z}>
+            <label>{t(`rapoarte.${z}`)}<textarea name={`${bloc}_${z}`} rows={3} maxLength={1000} value={model[bloc][z]?.[limba] || ''} onChange={e => textBloc(bloc,z,e.target.value)}/></label>
+            <label>{t('rapoarte.imagine_zona',{zona:t(`rapoarte.${z}`)})}<input name={`${bloc}_imagine_${z}`} type="file" accept="image/png,image/jpeg" onChange={e=>{importaImagine(bloc,z,e.target.files?.[0]);e.target.value='';}}/></label>
+            {imagine && <div className="imagine-model-raport"><img src={adresaImagine(imagine)} alt={imagine.nume}/><span>{imagine.nume}</span><label>{t('rapoarte.inaltime_imagine')}<input name={`${bloc}_inaltime_${z}`} type="number" min="5" max="35" required value={imagine.inaltime_mm} onChange={e=>seteazaImagine(bloc,z,{...imagine,inaltime_mm:Number(e.target.value)})}/></label><button type="button" className="legatura" onClick={()=>seteazaImagine(bloc,z)}>{t('rapoarte.elimina_imagine',{zona:t(`rapoarte.${z}`)})}</button></div>}
+        </div>;
+    })}</div>;
+    const previewBloc = (bloc: 'antet'|'subsol') => <div className="zone-previzualizare">{(['stanga','centru','dreapta'] as const).map(z => {const imagine=model[bloc].imagini?.[z];return <div key={z}>{imagine && <img className="imagine-structura" style={{height:`${imagine.inaltime_mm}mm`}} src={adresaImagine(imagine)} alt={imagine.nume}/>}<span>{textIn(model[bloc][z],limba)}</span></div>;})}</div>;
     return <Dialog titlu={t(initial.id ? 'rapoarte.editeaza_model':'rapoarte.model_nou')} ocupat={ocupat} inchide={renunta}><form className="formular-model-raport" onSubmit={e => { e.preventDefault(); if (!Object.values(model.denumire).some(v => v.trim())) { setValidare(t('rapoarte.nume_invalid'));return; } if (!model.continut.coloane.length) { setValidare(t('rapoarte.continut_invalid'));return; } setValidare('');salveaza(new rapoarte.Definitie(model)); }}>
         <div className="corp-dialog">{(eroare || validare) && <p className="mesaj eroare" role="alert">{validare || eroare}</p>}
             <fieldset className="campuri" disabled={ocupat}><label>{t('sarbatori.denumire_ro')} *<input name="denumire_ro" maxLength={100} value={model.denumire.ro || ''} onChange={e => setModel(m => ({...m,denumire:{...m.denumire,ro:e.target.value}}))}/></label><label>{t('sarbatori.denumire_en')}<input name="denumire_en" maxLength={100} value={model.denumire.en || ''} onChange={e => setModel(m => ({...m,denumire:{...m.denumire,en:e.target.value}}))}/></label>
                 <label>{t('rapoarte.limba_texte')}<select name="limba_texte" value={limba} onChange={e => setLimba(e.target.value)}><option value="ro">{t('rapoarte.ro')}</option><option value="en">{t('rapoarte.en')}</option></select></label><label className="bifa"><input name="activ_model" type="checkbox" checked={model.activ} onChange={e => setModel(m => ({...m,activ:e.target.checked}))}/>{t('rapoarte.model_activ')}</label></fieldset>
             <p className="variabile-raport"><strong>{t('rapoarte.variabile')}: </strong>{configuratie.variabile.map(v => <code key={v}>{`{{${v}}}`}</code>)}</p>
+            <p className="nota-calendar">{t('rapoarte.imagini_indiciu')}</p>{citireImagine && <p role="status">{t('ui.incarcare')}</p>}
             <fieldset className="componenta-raport" disabled={ocupat}><legend>1 · {t('rapoarte.antet')}</legend>{zone('antet')}</fieldset>
             <fieldset className="componenta-raport" disabled={ocupat}><legend>2 · {t('rapoarte.continut')}</legend><label>{t('rapoarte.sursa')}<select name="sursa" value={model.continut.sursa} onChange={e => { const cod=e.target.value,coloane=configuratie.surse.find(s => s.cod===cod)!.coloane;setModel(m => ({...m,continut:{...m.continut,sursa:cod,coloane:[...coloane]},pagina:{...m.pagina,format:cod==='PONTAJ_LUNAR'?'A3':'A4',orientare:cod==='FISA_INDIVIDUALA'?'PORTRET':'PEISAJ'}})); }}>{configuratie.surse.map(s => <option key={s.cod} value={s.cod}>{t(`rapoarte.sursa_${s.cod}`)}</option>)}</select></label>
                 <label>{t('rapoarte.introducere')}<textarea name="introducere" rows={2} maxLength={1000} value={model.continut.text?.[limba] || ''} onChange={e => setModel(m => ({...m,continut:{...m.continut,text:{...m.continut.text,[limba]:e.target.value}}}))}/></label>
@@ -107,6 +135,7 @@ export function GenerareRapoarte({date}: {date: datebaza.Date}) {
         catch { setEroare(t('rapoarte.eroare')); } finally { blocat.current=false;setOcupat(false); }
     }
     return <section className="generare-rapoarte">{eroare && <p className="mesaj eroare" role="alert">{eroare}</p>}{mesaj && <p className="mesaj succes" role="status">{mesaj}</p>}
+        <p className="nota-calendar">{t('rapoarte.paginare_indiciu')}</p>
         {incarcare ? <p role="status">{t('ui.incarcare')}</p> : <><form className="panou filtre-raport" onSubmit={e => { e.preventDefault();genereaza(); }}><fieldset disabled={ocupat}><label className="alegere-model">{t('rapoarte.model')}<select name="model_raport" required value={model?.id || ''} onChange={e => seteaza('model',e.target.value)}>{!modele.length && <option value="">{t('rapoarte.selecteaza_model')}</option>}{modele.map(d => <option key={d.id} value={d.id}>{textIn(d.denumire,i18n.language)}</option>)}</select></label>
             <label>{t('sarbatori.an')}<input name="an_raport" type="number" min="1" max="9999" required value={selectie.an} onChange={e => seteaza('an',Number(e.target.value))}/></label>
             {model?.continut.sursa!=='ABSENTE_ANUALE' && <label>{t('pontaj.luna')}<select name="luna_raport" value={selectie.luna} onChange={e => seteaza('luna',Number(e.target.value))}>{Array.from({length:12},(_,i) => <option key={i} value={i+1}>{t(`rapoarte.luna_${String(i+1).padStart(2,'0')}`)}</option>)}</select></label>}
@@ -116,7 +145,7 @@ export function GenerareRapoarte({date}: {date: datebaza.Date}) {
             <label>{t('ui.angajat')}<select name="angajat_raport" required={model?.continut.sursa==='FISA_INDIVIDUALA'} value={selectie.angajat} onChange={e => seteaza('angajat',e.target.value)}><option value="">{t(model?.continut.sursa==='FISA_INDIVIDUALA'?'absente.alege_angajat':'absente.toti_angajatii')}</option>{date.angajati.filter(a => (!selectie.sectie||a.sectie_id===selectie.sectie)&&(!selectie.departament||a.departament_id===selectie.departament)).map(a => <option key={a.id} value={a.id}>{a.nume} {a.prenume} · {a.marca}</option>)}</select></label>
             <button className="buton primar" disabled={!model}>{t('rapoarte.genereaza')}</button></fieldset></form>
             {!modele.length && <p className="fara-rezultate">{t('rapoarte.lista_goala')}</p>}<button className="legatura" disabled={ocupat} onClick={() => { setRezultat(null);reincarca(); }}>{t('rapoarte.reincarca')}</button>
-            {rezultat?.document && <div className="rezultat-raport"><div className="unelte-calendar"><p role="status">{t('rapoarte.generat',{randuri:rezultat.document.randuri.length,versiune:rezultat.document.versiune_raport,revizie:rezultat.document.revizie_model})}</p><div className="actiuni-calendar"><button className="buton secundar" disabled={ocupat} onClick={() => fisier(false)}>{t('rapoarte.salveaza_pdf')}</button><button className="buton primar" disabled={ocupat} onClick={() => fisier(true)}>{t('rapoarte.tipareste')}</button></div></div><p className="nota-calendar">{t('rapoarte.tiparire_indiciu')}</p>{url && <iframe className="previzualizare-pdf" title={t('rapoarte.previzualizare')} src={`${url}#view=FitH`}/>}</div>}
+            {rezultat?.document && <div className="rezultat-raport"><div className="unelte-calendar"><p role="status">{t('rapoarte.generat',{randuri:rezultat.document.randuri.length,versiune:rezultat.document.versiune_raport,revizie:rezultat.document.revizie_model})} · {t('rapoarte.numar_pagini',{numar:rezultat.pagini})}</p><div className="actiuni-calendar"><button className="buton secundar" disabled={ocupat} onClick={() => fisier(false)}>{t('rapoarte.salveaza_pdf')}</button><button className="buton primar" disabled={ocupat} onClick={() => fisier(true)}>{t('rapoarte.tipareste')}</button></div></div><p className="nota-calendar">{t('rapoarte.tiparire_indiciu')}</p>{url && <iframe className="previzualizare-pdf" title={t('rapoarte.previzualizare')} src={`${url}#view=FitH`}/>}</div>}
         </>}
     </section>;
 }

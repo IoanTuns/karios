@@ -1,6 +1,6 @@
 # Definirea, generarea și tipărirea rapoartelor
 
-Versiunea 0.20.0 este pregătită pe ramura izolată `F09-T07-definitii-rapoarte`, cu categoriile F07-T11. Lucrul nesalvat F07-T12 la cererile de concediu nu este inclus; integrarea lui trebuie făcută înaintea folosirii ambelor versiuni cu aceeași bază. Executabilul de probă se livrează separat, fără mutarea datelor existente.
+Versiunea 0.21.0 este pregătită pe ramura izolată `F09-T08-imagini-paginare`, cu categoriile F07-T11 și cererile de concediu F07-T12. Include imagini și rapoarte v2. Actualizarea păstrează modelele definite în proba 0.20.0 și completează migrarea cererilor care lipsea din acea probă; backupul automat rămâne înaintea aplicării migrărilor.
 
 ## Definire rapoarte
 
@@ -8,13 +8,19 @@ Deschide meniul **Definire rapoarte**. Sunt pregătite trei modele: Pontaj lunar
 
 Fiecare raport are trei componente proprii:
 
-1. **Antet** — texte stânga, centru și dreapta, de exemplu unitatea, titlul și perioada.
+1. **Antet** — texte și imagini stânga, centru și dreapta, de exemplu sigla unității, titlul și perioada.
 2. **Conținut** — sursa datelor, textul introductiv repetat înaintea tabelului pe pagini, coloanele și ordinea lor. Bifează coloanele dorite și folosește săgețile pentru reordonare.
-3. **Subsol** — texte stânga, centru și dreapta pentru explicații, semnături sau aprobări.
+3. **Subsol** — texte și imagini stânga, centru și dreapta pentru explicații, semnături sau aprobări.
+
+În fiecare zonă de antet/subsol poți încărca o imagine **PNG sau JPEG**, împreună cu textul. Importul păstrează conținutul în modelul din baza criptată; fișierul original poate fi mutat ulterior fără să afecteze raportul. Imaginile sunt comune limbilor modelului. Alege alt fișier pentru înlocuire sau **Elimină imaginea** pentru eliminarea din model, apoi salvează.
+
+**Înălțime maximă (mm)** acceptă 5–35 mm, implicit 15 mm. Imaginea își păstrează proporțiile și încape în lățimea zonei, fără decupare. Fiecare imagine poate avea cel mult 2 MiB, 4096 px pe axă și 4 milioane de pixeli. PNG permite transparență. SVG și URL-urile externe nu sunt acceptate.
 
 Completează variantele română/engleză folosind selectorul limbii textelor. Câmpurile afișate, precum `{{perioada}}`, `{{sectie}}`, `{{angajat}}` sau `{{generat_la}}`, se înlocuiesc la generare. Sunt acceptate numai câmpurile listate. Textele sunt texte simple; HTML-ul, SQL-ul sau codul nu se execută.
 
 Pagina se configurează separat pentru fiecare raport: A4/A3, portret/peisaj, margini între 5 și 25 mm și font de 6–14 pt. Pentru grila cu 31 de zile, punctul de pornire este A3 peisaj. Antetul și subsolul se repetă pe pagini, împreună cu numărul paginii.
+
+Fiecare raport poate avea **una sau mai multe pagini**. Conținutul continuă automat când pagina se umple; nu trebuie creat câte un model pentru fiecare pagină. Antetul, subsolul, imaginile și capul de tabel se repetă pe toate paginile; numerotarea este „Pagina X din Y”. Previzualizarea afișează numărul real de pagini. Dimensiunile imaginilor și textele lungi reduc spațiul disponibil conținutului.
 
 Salvează modelul înainte de generare. Un model inactiv rămâne în listă și poate fi reactivat prin editare, dar nu apare la generare. La modificări concurente, salvarea refuză versiunea veche și păstrează formularul pentru a putea copia textele înainte de reîncărcare.
 
@@ -40,12 +46,12 @@ Subsolul tehnic D009 rămâne prezent pe lângă subsolul configurabil: numele/v
 
 ## Verificări și licențe
 
-Modelele se testează pe SQLite criptat; sunt verificate independența definițiilor, reviziile, refuzul salvărilor concurente și jurnalul atomic. Fiecare dintre cele trei rapoarte v1 are un fișier de referință pentru date și structură. PDF-urile sunt validate cu pdfcpu și fonturile cu diacritice sunt incluse.
+Modelele se testează pe SQLite criptat; sunt verificate independența definițiilor, reviziile, refuzul salvărilor concurente și jurnalul atomic. Fiecare dintre cele trei rapoarte v2 are un fișier de referință pentru date și structură; referințele v1 sunt păstrate. PDF-urile sunt validate cu pdfcpu, iar imaginile PNG/JPEG sunt extrase și verificate pe fiecare pagină. Fonturile cu diacritice sunt incluse.
 
 Pentru PDF-uri fictive de probă și verificarea UI:
 
 ```powershell
-go test ./internal/rapoarte -run 'TestReferinteRapoarteSiPDF|TestPaginarePDFCuAntetSiSubsol' -director-demo <cale-absoluta-catre-build/bin/rapoarte-demo>
+go test ./internal/rapoarte -run 'TestReferinteRapoarteSiPDF|TestPaginarePDFCuAntetSiSubsol|TestPDFImaginiPeFiecarePagina' -director-demo <cale-absoluta-catre-build/bin/rapoarte-demo>
 cd frontend
 npm run build
 cd ..

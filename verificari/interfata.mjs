@@ -18,7 +18,9 @@ assert(existsSync(join(dist, 'index.html')), 'Rulează întâi npm run build în
 const demo = JSON.parse(readFileSync(join(radacina, 'internal/datebaza/demo/angajati.json'), 'utf8'));
 const calendarSursa = JSON.parse(readFileSync(join(radacina, 'internal/datebaza/calendare/romania-2026.json'), 'utf8'));
 const schimburiSursa = JSON.parse(readFileSync(join(radacina, 'internal/datebaza/initiale/schimburi.json'), 'utf8'));
-const rapoarteSursa = {configuratie:JSON.parse(readFileSync(join(radacina,'internal/rapoarte/testdata/modele-v1.json'),'utf8')),document:JSON.parse(readFileSync(join(radacina,'internal/rapoarte/testdata/raport-pontaj-v1.json'),'utf8')).document,pdf:readFileSync(join(radacina,'build/bin/rapoarte-demo/raport-pontaj.pdf')).toString('base64')};
+const rapoarteSursa = {configuratie:JSON.parse(readFileSync(join(radacina,'internal/rapoarte/testdata/modele-v2.json'),'utf8')),document:JSON.parse(readFileSync(join(radacina,'internal/rapoarte/testdata/raport-pontaj-v2.json'),'utf8')).document,pdf:readFileSync(join(radacina,'build/bin/rapoarte-demo/raport-pontaj.pdf')).toString('base64')};
+const imaginiDemo=join(radacina,'build/bin/rapoarte-demo');
+writeFileSync(join(imaginiDemo,'imagine-invalida.txt'),'exemplu de fisier care nu este imagine');
 const versiuneAplicatie = readFileSync(join(radacina, 'internal/versiune/versiune.go'), 'utf8').match(/const Aplicatie = "([^"]+)"/)[1];
 const cataloage = Object.fromEntries(['ro', 'en'].map(limba => [limba,
     JSON.parse(readFileSync(join(radacina, `internal/i18n/locales/${limba}.json`), 'utf8'))]));
@@ -72,6 +74,12 @@ async function apasa(text) {
     assert(await evalueaza(`(() => { const b = [...document.querySelectorAll('button')].find(b => { const copie = b.cloneNode(true); copie.querySelectorAll('[aria-hidden="true"]').forEach(e => e.remove()); return copie.textContent.trim() === ${JSON.stringify(text)} && !b.disabled; }); if (!b) return false; b.click(); return true; })()`), `Buton lipsă: ${text}`);
 }
 
+async function incarcaFisier(selector, cale) {
+    const {root}=await cdp('DOM.getDocument');
+    const {nodeId}=await cdp('DOM.querySelector',{nodeId:root.nodeId,selector});
+    assert(nodeId,`Campul de import lipseste: ${selector}`);
+    await cdp('DOM.setFileInputFiles',{nodeId,files:[cale]});
+}
 async function completeaza(selector, valoare) {
     await evalueaza(`(() => { const e = document.querySelector(${JSON.stringify(selector)}); if (!e) throw new Error('Câmp lipsă');
         Object.getOwnPropertyDescriptor(e.tagName === 'SELECT' ? HTMLSelectElement.prototype : e.tagName === 'TEXTAREA' ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype, 'value').set.call(e, ${JSON.stringify(valoare)});
@@ -105,7 +113,7 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
         DateInitiale: async () => raspuns(),
         ListaModeleRapoarte: async () => modele(),
         SalveazaModelRaport: async d => {
-            const texte=[...Object.values(d.antet),...Object.values(d.subsol),d.continut.text].flatMap(v => Object.values(v));
+            const texte=[d.antet.stanga,d.antet.centru,d.antet.dreapta,d.subsol.stanga,d.subsol.centru,d.subsol.dreapta,d.continut.text].flatMap(v => Object.values(v));
             if (texte.some(v => [...v.matchAll(/\{\{([^{}]+)\}\}/g)].some(m => !rapoarteSursa.configuratie.variabile.includes(m[1])))) return {configuratie:null,eroare:{cod:'rapoarte.variabila_invalida'}};
             const i=stare.modeleRapoarte.findIndex(v => v.id === d.id);
             if(i>=0 && stare.modeleRapoarte[i].revizie!==d.revizie) return {configuratie:null,eroare:{cod:'rapoarte.conflict'}};
@@ -115,7 +123,7 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
         PregatesteRaport: async c => {
             stare.ultimaCerereRaport=c;stare.ultimTokenRaport=crypto.randomUUID();raspuns();
             const d=stare.modeleRapoarte.find(d => d.id===c.model_id);
-            return {document:{...structuredClone(rapoarteSursa.document),titlu:d.denumire[c.limba]||d.denumire.ro,sursa:d.continut.sursa,revizie_model:d.revizie},pdf:rapoarteSursa.pdf,token:stare.ultimTokenRaport,nume_fisier:'raport-demo.pdf',eroare:null};
+            return {document:{...structuredClone(rapoarteSursa.document),titlu:d.denumire[c.limba]||d.denumire.ro,sursa:d.continut.sursa,revizie_model:d.revizie},pdf:rapoarteSursa.pdf,token:stare.ultimTokenRaport,nume_fisier:'raport-demo.pdf',pagini:4,eroare:null};
         },
         SalveazaPDFRaport: async token => { if(token!==stare.ultimTokenRaport) return {eroare:{cod:'rapoarte.expirat'}};stare.exporturiRaport=(stare.exporturiRaport||0)+1;raspuns();return {anulat:false,cale:'raport-demo.pdf',eroare:null}; },
         DeschidePDFPentruTiparire: async token => { if(token!==stare.ultimTokenRaport) return {eroare:{cod:'rapoarte.expirat'}};stare.tipaririRaport=(stare.tipaririRaport||0)+1;raspuns();return {anulat:false,cale:'raport-demo.pdf',eroare:null}; },
@@ -465,6 +473,18 @@ try {
     assert.deepEqual(await evalueaza(`[...document.querySelectorAll('dialog legend')].slice(0,3).map(e=>e.textContent)`),['1 · Antet','2 · Conținut','3 · Subsol'],'Cele trei componente nu sunt separate.');
     await completeaza('dialog textarea[name="antet_stanga"]','Unitate demo\n{{sectie}}');
     await completeaza('dialog textarea[name="subsol_dreapta"]','Avizat demo');
+    await incarcaFisier('dialog input[name="antet_imagine_stanga"]',join(imaginiDemo,'antet-demo.png'));
+    await asteapta(()=>evalueaza(`document.querySelector('.zona-model-raport img')?.src.startsWith('data:image/png;base64,')`),'Imaginea PNG nu este importata.');
+    await incarcaFisier('dialog input[name="subsol_imagine_dreapta"]',join(imaginiDemo,'subsol-demo.jpg'));
+    await asteapta(()=>evalueaza(`document.querySelectorAll('.imagine-model-raport img').length===2`),'Imaginea JPEG nu este importata.');
+    await completeaza('dialog input[name="antet_inaltime_stanga"]','22');
+    await incarcaFisier('dialog input[name="antet_imagine_stanga"]',join(imaginiDemo,'subsol-demo.jpg'));
+    await asteapta(()=>evalueaza(`document.querySelector('input[name="antet_imagine_stanga"]').closest('.zona-model-raport').querySelector('img').alt==='subsol-demo.jpg'`),'Inlocuirea imaginii nu functioneaza.');
+    await incarcaFisier('dialog input[name="antet_imagine_stanga"]',join(imaginiDemo,'imagine-invalida.txt'));
+    await asteapta(()=>evalueaza(`document.querySelector('dialog [role="alert"]')?.textContent.includes('Imaginea nu este validă')`),'Fisierul care nu este imagine nu este refuzat.');
+    assert.equal(await evalueaza(`document.querySelector('input[name="antet_imagine_stanga"]').closest('.zona-model-raport').querySelector('img').alt`),'subsol-demo.jpg','Importul invalid pierde imaginea existenta.');
+    await incarcaFisier('dialog input[name="antet_imagine_stanga"]',join(imaginiDemo,'antet-demo.png'));
+    await asteapta(()=>evalueaza(`document.querySelector('input[name="antet_imagine_stanga"]').closest('.zona-model-raport').querySelector('img').alt==='antet-demo.png'`),'Restaurarea PNG nu functioneaza.');
     await completeaza('dialog textarea[name="introducere"]','{{executa_sql}}');await apasa('Salvează');
     await asteapta(() => evalueaza(`document.querySelector('dialog [role="alert"]')?.textContent.includes('câmp necunoscut')`),'Câmpul necunoscut nu este refuzat.');
     await completeaza('dialog textarea[name="introducere"]','Perioada {{perioada}}');
@@ -479,15 +499,20 @@ try {
     await apasa('Salvează');
     await asteapta(() => evalueaza(`!document.querySelector('dialog') && [...document.querySelectorAll('.tabel-modele-rapoarte tbody tr')].find(r=>r.cells[0].textContent==='Pontaj lunar').cells[2].textContent==='2'`),'Modelul nu se salvează cu revizie nouă.');
     const modeleDupaEditare=await evalueaza(`JSON.parse(localStorage.getItem('pontix-test')).modeleRapoarte`);
+    assert.equal(modeleDupaEditare.find(d=>d.id==='raport-pontaj').antet.imagini.stanga.inaltime_mm,22,'Inaltimea imaginii s-a pierdut la inlocuire/salvare.');
+    assert.equal(modeleDupaEditare.find(d=>d.id==='raport-pontaj').subsol.imagini.dreapta.nume,'subsol-demo.jpg','Imaginea din subsol nu este salvata.');
     assert.equal(modeleDupaEditare.find(d=>d.id==='raport-fisa').antet.stanga.ro,'','Editarea unui raport a schimbat alt model.');
     assert(modeleDupaEditare.find(d=>d.id==='raport-pontaj').continut.coloane.includes('functie'),'Coloana configurată s-a pierdut.');
     await evalueaza(`[...document.querySelectorAll('.tabel-modele-rapoarte tbody tr')].find(r=>r.cells[0].textContent==='Pontaj lunar').querySelectorAll('button')[1].click()`);
     await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog input[name="denumire_ro"]'))`),'Duplicarea nu deschide editorul.');
     await completeaza('dialog input[name="denumire_ro"]','Raport demo separat');
+    await evalueaza(`document.querySelector('input[name="antet_imagine_stanga"]').closest('.zona-model-raport').querySelector('button').click()`);
+    assert(await evalueaza(`!document.querySelector('input[name="antet_imagine_stanga"]').closest('.zona-model-raport').querySelector('img')`),'Imaginea nu poate fi eliminata din copia modelului.');
     await evalueaza(`document.querySelector('dialog input[name="activ_model"]').click()`);await apasa('Salvează');
     await asteapta(() => evalueaza(`!document.querySelector('dialog')&&document.querySelectorAll('.tabel-modele-rapoarte tbody tr').length===4`),'Copia independentă nu a fost creată.');
     await evalueaza(`[...document.querySelectorAll('.tabel-modele-rapoarte tbody tr')].find(r=>r.cells[0].textContent==='Pontaj lunar').querySelector('button').click()`);
     await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog textarea[name="antet_stanga"]'))`),'Formular conflict model lipsă.');
+    assert.equal(await evalueaza(`document.querySelector('input[name="antet_imagine_stanga"]').closest('.zona-model-raport').querySelector('img').alt`),'antet-demo.png','Imaginea modelului original s-a pierdut la duplicare sau la redeschidere.');
     await completeaza('dialog textarea[name="antet_stanga"]','Modificare locală nesalvată');
     await evalueaza(`(async()=>{const r=await window.go.main.App.ListaModeleRapoarte();await window.go.main.App.SalveazaModelRaport(r.configuratie.modele.find(d=>d.id==='raport-pontaj'));})()`);
     await apasa('Salvează');
@@ -499,6 +524,7 @@ try {
     await completeaza('select[name="model_raport"]','raport-pontaj');await completeaza('input[name="an_raport"]','2026');await completeaza('select[name="luna_raport"]','10');
     await completeaza('select[name="sectie_raport"]',demo.sectii[0].id);await completeaza('select[name="limba_raport"]','en');await apasa('Generează și previzualizează');
     await asteapta(() => evalueaza(`document.querySelector('iframe.previzualizare-pdf')?.src.startsWith('blob:')`),'PDF-ul nu apare în previzualizare.');
+    assert(await evalueaza(`document.querySelector('.rezultat-raport [role="status"]').textContent.includes('Pagini: 4')`),'Numarul de pagini din PDF nu este afisat.');
     const cerereRaport=await evalueaza(`JSON.parse(localStorage.getItem('pontix-test')).ultimaCerereRaport`);
     assert(cerereRaport.an===2026&&cerereRaport.luna===10&&cerereRaport.sectie_id===demo.sectii[0].id&&cerereRaport.limba==='en','Filtrele raportului nu sunt trimise corect.');
     await apasa('Salvează PDF');await asteapta(() => evalueaza(`document.querySelector('.generare-rapoarte [role="status"]')?.textContent.includes('PDF salvat')`),'Salvarea PDF nu este semnalată.');

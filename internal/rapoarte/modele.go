@@ -19,9 +19,10 @@ import (
 )
 
 type Bloc struct {
-	Stanga  i18n.Text `json:"stanga"`
-	Centru  i18n.Text `json:"centru"`
-	Dreapta i18n.Text `json:"dreapta"`
+	Stanga  i18n.Text          `json:"stanga"`
+	Centru  i18n.Text          `json:"centru"`
+	Dreapta i18n.Text          `json:"dreapta"`
+	Imagini map[string]Imagine `json:"imagini,omitempty"`
 }
 type Continut struct {
 	Sursa   string    `json:"sursa"`
@@ -101,6 +102,16 @@ func contine(lista []string, valoare string) bool {
 }
 
 func Valideaza(d Definitie) error {
+	for _, bloc := range []Bloc{d.Antet, d.Subsol} {
+		for zona, imagine := range bloc.Imagini {
+			if !contine([]string{"stanga", "centru", "dreapta"}, zona) {
+				return eroare("rapoarte.imagine_invalida")
+			}
+			if err := valideazaImagine(imagine); err != nil {
+				return err
+			}
+		}
+	}
 	nume := false
 	for _, v := range d.Denumire {
 		if strings.TrimSpace(v) != "" {

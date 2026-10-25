@@ -104,7 +104,7 @@ func TestModeleInitialeReferinta(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	cale := filepath.Join("testdata", "modele-v1.json")
+	cale := filepath.Join("testdata", "modele-v2.json")
 	if *actualizeazaReferinte {
 		if err := os.MkdirAll("testdata", 0700); err != nil {
 			t.Fatal(err)
@@ -284,7 +284,7 @@ func TestReferinteRapoarteSiPDF(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			cale := filepath.Join("testdata", id+"-v1.json")
+			cale := filepath.Join("testdata", id+"-v2.json")
 			if *actualizeazaReferinte {
 				if err := os.MkdirAll("testdata", 0700); err != nil {
 					t.Fatal(err)

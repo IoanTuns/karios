@@ -12,7 +12,6 @@ import (
 	"github.com/ncruces/go-sqlite3"
 	"github.com/ncruces/go-sqlite3/driver"
 	_ "github.com/ncruces/go-sqlite3/vfs/xts" // criptarea AES-256-XTS (D008)
-	"github.com/pressly/goose/v3"
 
 	"pontix/internal/i18n"
 )
@@ -75,7 +74,7 @@ var Migrari = func() fs.FS {
 // StareMigrari întoarce versiunea bazei (0 pentru o bază nouă) și dacă există
 // migrări neaplicate.
 func StareMigrari(ctx context.Context, db *sql.DB, surse fs.FS) (versiune int64, inAsteptare bool, err error) {
-	p, err := goose.NewProvider(goose.DialectSQLite3, db, surse)
+	p, err := furnizorMigrari(ctx, db, surse)
 	if err != nil {
 		return 0, false, err
 	}
@@ -88,7 +87,7 @@ func StareMigrari(ctx context.Context, db *sql.DB, surse fs.FS) (versiune int64,
 
 // Migreaza aplică migrările care lipsesc și întoarce câte s-au aplicat.
 func Migreaza(ctx context.Context, db *sql.DB, surse fs.FS) (int, error) {
-	p, err := goose.NewProvider(goose.DialectSQLite3, db, surse)
+	p, err := furnizorMigrari(ctx, db, surse)
 	if err != nil {
 		return 0, err
 	}
