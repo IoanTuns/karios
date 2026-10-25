@@ -1,10 +1,10 @@
-# Funcționalitățile disponibile · Pontix 0.13.0
+# Funcționalitățile disponibile · Pontix 0.15.0
 
 ## Pornire
 
 Executabilul se construiește cu `./build.ps1` și se găsește în `build/bin/pontix.exe`. Pornește-l dintr-un folder în care poți scrie; datele sunt în folderul `karios/` de lângă executabil.
 
-Livrarea verificată în această sesiune este **`build/bin/pontix-0.13.0/pontix.exe`**, cu date demo deja regenerate într-un folder separat, la cererea utilizatorului. Baza veche a fost păstrată în `build/bin/karios/`; seiful ei a fost eliminat de vechiul build cu `-clean`, deci nu se reutilizează cu o cheie nouă. Incidentul și corecția sunt în [D017](decizii/D017-build-fara-stergerea-datelor.md).
+Livrarea actualizată este **`build/bin/pontix-0.13.0/pontix-0.15.0.exe`**, lângă aceleași date demo regenerate anterior la cererea utilizatorului. Închide versiunea veche înainte de pornire. Numele folderului a fost păstrat pentru a continua cu baza existentă; actualizarea copiază numai executabilul. La prima pornire, aplicația face backup înaintea migrărilor 0006/0007 și păstrează configurațiile existente. Baza veche separată a rămas în `build/bin/karios/`; seiful ei a fost eliminat de vechiul build cu `-clean`, deci nu se reutilizează cu o cheie nouă. Incidentul și corecția sunt în [D017](decizii/D017-build-fara-stergerea-datelor.md).
 
 Scriptul corectat nu mai curăță folderul de ieșire. Dacă executabilul este deschis, construiește cu alt nume: `./build.ps1 -NumeExecutabil pontix-verificare.exe`.
 
@@ -22,7 +22,7 @@ Importul nu rulează automat, nu suprascrie date și nu schimbă norma globală.
 ## Angajați
 
 - Caută după nume, prenume sau marcă; căutarea ignoră diferențele de diacritice și majuscule.
-- Filtrează după secție și activ/inactiv.
+- Filtrează după secție, departament și activ/inactiv.
 - **Adaugă angajat**: nume, prenume și marcă sunt obligatorii; marca este text și păstrează zerourile inițiale.
 - Contractul este implicit cu normă întreagă și preia norma globală. Pentru norma parțială completează orele individuale pe zi, inclusiv fracții care reprezintă minute întregi (de exemplu 4,5 ore = 4 h 30 min).
 - Concediul anual este cel din contract. Câmp gol înseamnă necompletat, nu zero. Nu se calculează încă soldul concediului.
@@ -35,6 +35,7 @@ Datele migrate cu prenume necompletat trebuie verificate manual înainte de salv
 
 - Modifică norma întreagă în ore/zi (implicit 7). Modificarea se vede imediat la angajații cu normă întreagă; normele parțiale rămân individuale.
 - Adaugă secții, apoi atribuie-le din formularul angajatului. Denumirea se păstrează ca text traductibil în limba interfeței.
+- Adaugă mai multe departamente sub fiecare secție. În formularul angajatului alegi numai dintre departamentele secției sale; schimbarea secției golește departamentul. Atribuirea este opțională, iar migrarea nu atribuie automat departamente angajaților existenți.
 
 ## Sărbători
 
@@ -44,11 +45,24 @@ Alege **Sărbători**, anul și **Arată anul**. Poți adăuga sau edita o dată
 
 ## Schimburi
 
-Din **Schimburi → Adaugă schimb**, introdu codul (de exemplu N12), denumirea, ora de început, durata și pauza în minute și tipul activității. Nu există intervale presupuse din cod. De exemplu, dacă alegi o tură de 12 ore, durata este 720 minute; ora de început rămâne cea stabilită în organizație. Codurile se normalizează la majuscule și nu pot fi duplicate, nici între schimburile inactive. Dezactivarea păstrează referințele din pontaj.
+Migrarea 0007 adaugă numai codurile lipsă, pe baza PDF-ului și a orelor precizate de utilizator:
+
+| Cod | Început | Sfârșit | Durată |
+| --- | --- | --- | --- |
+| 7 | 07:00 | 14:00 | 7 ore |
+| 12 | 14:00 | 02:00 a doua zi | 12 ore |
+| N12 | 19:00 | 07:00 a doua zi | 12 ore |
+| G24 | 07:00 | 07:00 a doua zi | 24 ore |
+| S1 | 06:00 | 14:00 | 8 ore |
+| S3 | 22:00 | 06:00 a doua zi | 8 ore |
+
+**Completează schimburile inițiale** adaugă explicit lipsurile, fără a suprascrie coduri existente, inclusiv inactive. Șabloanele folosesc pauza tehnică implicită de 0 minute, editabilă; aceasta nu stabilește o regulă de plată. Sursa și limitele sunt în [D019](decizii/D019-schimburi-initiale-pdf.md).
+
+Din **Schimburi → Adaugă schimb**, introdu codul, denumirea, ora de început, durata și pauza în minute și tipul activității. Intervalele rămân editabile. Coloana **Sfârșit nominal** arată și trecerea în ziua următoare. Codurile se normalizează la majuscule și nu pot fi duplicate, nici între schimburile inactive. Dezactivarea păstrează referințele din pontaj.
 
 ## Grila lunară · schiță
 
-1. Deschide **Pontaj**, alege anul și luna; opțional filtrează secția.
+1. Deschide **Pontaj**, alege anul și luna; opțional filtrează secția și departamentul.
 2. Introdu o valoare în celulă. Nomenclatorul sugerează schimburile active; alte coduri se păstrează ca text, fără interpretare automată.
 3. Folosește săgeți, Enter sau Tab pentru deplasare; Shift+săgeți ori Shift+clic pentru selectarea unui dreptunghi.
 4. **Completează selecția** aplică valoarea din câmpul alăturat; câmpul gol golește selecția. Ctrl+C/Ctrl+V copiază și lipește dreptunghiuri TSV compatibile cu Excel. O lipire care depășește luna sau rândurile disponibile este refuzată integral.
@@ -65,6 +79,6 @@ Istoricul contractual, conturile și rapoartele finale rămân în taskurile lor
 - `gofmt -l -w .`, `go vet ./...`, `go test ./...`: validări, tranzacții, persistență pe SQLite criptat, păstrarea pontajului, import demo atomic și refuzul suprascrierii datelor.
 - `./genereaza-date.ps1`: regenerează accesul SQL cu sqlc v1.31.1 fixat.
 - `./build.ps1`: construiește și verifică versiunea din proprietățile executabilului.
-- `node verificari/interfata.mjs`, după build-ul frontend: Edge headless deja instalat, profil temporar, fără biblioteci suplimentare. Verifică angajați/demo/setări, calendar 2026 și import repetat, nomenclator N12 și grilă 50×31, tastatură, TSV, luni/ani bisecți, salvare/conflict, lățime 1024px și EN. Puntea Wails este simulată numai în acest test; backendul real, inclusiv lotul 50×31 și conflictele, este testat separat prin Go pe SQLite criptat. Capturi în `build/bin/interfata-demo.png`, `calendar-2026.png` și `pontaj-schita.png`.
+- `node verificari/interfata.mjs`, după build-ul frontend: Edge headless deja instalat, profil temporar, fără biblioteci suplimentare. Verifică angajați/demo/setări, ierarhia secție/departament, atribuire și filtre, calendar 2026 și import repetat, cele șase schimburi inițiale și grilă 50×31, tastatură, TSV, luni/ani bisecți, salvare/conflict, lățime 1024px și EN. Puntea Wails este simulată numai în acest test; backendul real, inclusiv lotul 50×31 și conflictele, este testat separat prin Go pe SQLite criptat. Capturi în `build/bin/interfata-demo.png`, `calendar-2026.png` și `pontaj-schita.png`.
 
-Noul executabil a trecut o probă de pornire ascunsă de 8 secunde, cu baza demo și seiful prezente. Fereastra desktop nu a fost testată interactiv în această sesiune; verificările de interacțiune sunt cele din Edge cu puntea simulată.
+Versiunea anterioară 0.13.0 a trecut o probă de pornire ascunsă de 8 secunde, cu baza demo și seiful prezente. Pentru 0.15.0 verificările de interacțiune sunt cele din Edge cu puntea simulată; fereastra desktop nu a fost testată interactiv.

@@ -16,6 +16,8 @@ export function CitesteSchita(arg1:number,arg2:number):Promise<main.RaspunsSchit
 
 export function CompleteazaSarbatori2026():Promise<main.RaspunsCalendar>;
 
+export function CompleteazaSchimburiInitiale():Promise<main.RaspunsSchimburi>;
+
 export function DateInitiale():Promise<main.RaspunsDate>;
 
 export function IncarcaDemo():Promise<main.RaspunsDate>;

@@ -1,0 +1,80 @@
+[
+  {
+    "id": "10000000-0000-4000-8000-000000000001",
+    "cod": "7",
+    "denumire": {
+      "ro": "Program 7 ore",
+      "en": "7-hour schedule"
+    },
+    "ora_start": 420,
+    "durata_minute": 420,
+    "pauza_minute": 0,
+    "tip": "NORMAL",
+    "activ": true
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000002",
+    "cod": "12",
+    "denumire": {
+      "ro": "Tură 12 ore",
+      "en": "12-hour shift"
+    },
+    "ora_start": 840,
+    "durata_minute": 720,
+    "pauza_minute": 0,
+    "tip": "TURA",
+    "activ": true
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000003",
+    "cod": "N12",
+    "denumire": {
+      "ro": "Tură de noapte 12 ore",
+      "en": "12-hour night shift"
+    },
+    "ora_start": 1140,
+    "durata_minute": 720,
+    "pauza_minute": 0,
+    "tip": "NOAPTE",
+    "activ": true
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000004",
+    "cod": "G24",
+    "denumire": {
+      "ro": "Gardă 24 ore",
+      "en": "24-hour on-call shift"
+    },
+    "ora_start": 420,
+    "durata_minute": 1440,
+    "pauza_minute": 0,
+    "tip": "GARDA",
+    "activ": true
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000005",
+    "cod": "S1",
+    "denumire": {
+      "ro": "Schimb 1",
+      "en": "Shift 1"
+    },
+    "ora_start": 360,
+    "durata_minute": 480,
+    "pauza_minute": 0,
+    "tip": "TURA",
+    "activ": true
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000006",
+    "cod": "S3",
+    "denumire": {
+      "ro": "Schimb 3 de noapte",
+      "en": "Night shift 3"
+    },
+    "ora_start": 1320,
+    "durata_minute": 480,
+    "pauza_minute": 0,
+    "tip": "NOAPTE",
+    "activ": true
+  }
+]

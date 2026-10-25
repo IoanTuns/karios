@@ -3,6 +3,7 @@ package datebaza
 import (
 	"context"
 	"database/sql"
+	_ "embed"
 	"encoding/json"
 	"errors"
 	"strings"
@@ -20,6 +21,43 @@ type Schimb struct {
 	PauzaMinute  int64     `json:"pauza_minute"`
 	Tip          string    `json:"tip"`
 	Activ        bool      `json:"activ"`
+}
+
+//go:embed initiale/schimburi.json
+var schimburiInitiale []byte
+
+func (s *Serviciu) CompleteazaSchimburiInitiale(ctx context.Context) (int64, error) {
+	var initiale []Schimb
+	if err := json.Unmarshal(schimburiInitiale, &initiale); err != nil {
+		return 0, traduceEroare(err)
+	}
+	var adaugate int64
+	err := s.modifica(ctx, func(q *acces.Queries) error {
+		for _, schimb := range initiale {
+			// Codul poate lipsi după redenumirea unui șablon deja salvat.
+			schimb.ID = idNou()
+			text, err := json.Marshal(schimb.Denumire)
+			if err != nil {
+				return err
+			}
+			n, err := q.AdaugaSchimbInitial(ctx, acces.AdaugaSchimbInitialParams{ID: schimb.ID, Cod: schimb.Cod, Denumire: string(text), OraStart: schimb.OraStart, DurataMinute: schimb.DurataMinute, Tip: schimb.Tip, CreatLa: moment(), ModificatLa: moment()})
+			if err != nil {
+				return err
+			}
+			if n == 0 {
+				continue
+			}
+			adaugate += n
+			if err := jurnal(ctx, q, "tipuri_schimb", schimb.ID, nil, schimb); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return 0, err
+	}
+	return adaugate, nil
 }
 
 func (s *Serviciu) ListaSchimburi(ctx context.Context) ([]Schimb, error) {

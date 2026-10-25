@@ -8,11 +8,19 @@ import (
 )
 
 type RaspunsSchimburi struct {
+	Adaugate  int64             `json:"adaugate"`
 	Schimburi []datebaza.Schimb `json:"schimburi"`
 	Eroare    *MesajEroare      `json:"eroare"`
 }
 
 func (a *App) ListaSchimburi() RaspunsSchimburi { return a.raspunsSchimburi(nil) }
+
+func (a *App) CompleteazaSchimburiInitiale() RaspunsSchimburi {
+	n, err := datebaza.Nou(a.db).CompleteazaSchimburiInitiale(a.contextLucru())
+	r := a.raspunsSchimburi(err)
+	r.Adaugate = n
+	return r
+}
 
 func (a *App) SalveazaSchimb(schimb datebaza.Schimb) RaspunsSchimburi {
 	return a.raspunsSchimburi(datebaza.Nou(a.db).SalveazaSchimb(a.contextLucru(), schimb))

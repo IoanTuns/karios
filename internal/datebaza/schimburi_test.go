@@ -10,7 +10,7 @@ import (
 
 func schimbTest() Schimb {
 	// Valori exclusiv de test, nu intervale implicite ale aplicației.
-	return Schimb{Cod: " n12 ", Denumire: i18n.Text{i18n.Romana: " Noapte de test ", i18n.Engleza: "Test night"}, OraStart: 19 * 60, DurataMinute: 720, PauzaMinute: 30, Tip: "NOAPTE", Activ: true}
+	return Schimb{Cod: " test_n12 ", Denumire: i18n.Text{i18n.Romana: " Noapte de test ", i18n.Engleza: "Test night"}, OraStart: 19 * 60, DurataMinute: 720, PauzaMinute: 30, Tip: "NOAPTE", Activ: true}
 }
 
 func TestNomenclatorSchimburiSiLegaturaPontaj(t *testing.T) {
@@ -20,11 +20,16 @@ func TestNomenclatorSchimburiSiLegaturaPontaj(t *testing.T) {
 		t.Fatal(err)
 	}
 	lista, err := m.serviciu.ListaSchimburi(ctx)
-	if err != nil || len(lista) != 1 {
+	if err != nil || len(lista) != 7 {
 		t.Fatalf("lista: %+v, %v", lista, err)
 	}
-	s := lista[0]
-	if s.Cod != "N12" || s.OraStart != 1140 || s.DurataMinute != 720 || s.PauzaMinute != 30 || s.Denumire.In(i18n.Romana) != "Noapte de test" {
+	var s Schimb
+	for _, schimb := range lista {
+		if schimb.Cod == "TEST_N12" {
+			s = schimb
+		}
+	}
+	if s.Cod != "TEST_N12" || s.OraStart != 1140 || s.DurataMinute != 720 || s.PauzaMinute != 30 || s.Denumire.In(i18n.Romana) != "Noapte de test" {
 		t.Fatalf("schimb: %+v", s)
 	}
 	verificaCod(t, m.serviciu.SalveazaSchimb(ctx, schimbTest()), "schimburi.cod_duplicat")
@@ -44,7 +49,13 @@ func TestNomenclatorSchimburiSiLegaturaPontaj(t *testing.T) {
 		t.Fatal(err)
 	}
 	lista, err = m.serviciu.ListaSchimburi(ctx)
-	if err != nil || lista[0].Activ || lista[0].OraStart != 1200 {
+	var actual Schimb
+	for _, schimb := range lista {
+		if schimb.ID == s.ID {
+			actual = schimb
+		}
+	}
+	if err != nil || actual.Activ || actual.OraStart != 1200 {
 		t.Fatalf("dezactivare/editare: %+v, %v", lista, err)
 	}
 	var id string
@@ -83,7 +94,7 @@ func TestValidareSchimburi(t *testing.T) {
 		})
 	}
 	lista, err := m.serviciu.ListaSchimburi(context.Background())
-	if err != nil || len(lista) != 0 {
+	if err != nil || len(lista) != 6 {
 		t.Fatalf("salvare parțială: %+v, %v", lista, err)
 	}
 }

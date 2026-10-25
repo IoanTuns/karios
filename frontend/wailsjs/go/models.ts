@@ -330,6 +330,7 @@ export namespace main {
 		}
 	}
 	export class RaspunsSchimburi {
+	    adaugate: number;
 	    schimburi: datebaza.Schimb[];
 	    eroare?: MesajEroare;
 
@@ -339,6 +340,7 @@ export namespace main {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.adaugate = source["adaugate"];
 	        this.schimburi = this.convertValues(source["schimburi"], datebaza.Schimb);
 	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
 	    }

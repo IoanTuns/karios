@@ -17,6 +17,7 @@ assert(browser, 'Microsoft Edge nu este disponibil.');
 assert(existsSync(join(dist, 'index.html')), 'Rulează întâi npm run build în frontend.');
 const demo = JSON.parse(readFileSync(join(radacina, 'internal/datebaza/demo/angajati.json'), 'utf8'));
 const calendarSursa = JSON.parse(readFileSync(join(radacina, 'internal/datebaza/calendare/romania-2026.json'), 'utf8'));
+const schimburiSursa = JSON.parse(readFileSync(join(radacina, 'internal/datebaza/initiale/schimburi.json'), 'utf8'));
 const versiuneAplicatie = readFileSync(join(radacina, 'internal/versiune/versiune.go'), 'utf8').match(/const Aplicatie = "([^"]+)"/)[1];
 const cataloage = Object.fromEntries(['ro', 'en'].map(limba => [limba,
     JSON.parse(readFileSync(join(radacina, `internal/i18n/locales/${limba}.json`), 'utf8'))]));
@@ -78,10 +79,10 @@ async function completeaza(selector, valoare) {
 
 // Se injectează înaintea React; toate mutațiile sunt limitate la localStorage
 // din profilul temporar al testului, cu datele fictive incluse în repo.
-function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie) {
+function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schimburiSursa) {
     let stare = JSON.parse(localStorage.getItem('pontix-test') || 'null') || {angajati: [], sectii: [], norma_intreaga_minute: 420, demo_disponibil: true};
     stare.sarbatori ??= structuredClone(calendarSursa);
-    stare.schimburi ??= [];
+    stare.schimburi ??= structuredClone(schimburiSursa);
     stare.ciorne ??= [];
     stare.departamente ??= [];
     const raspuns = () => {
@@ -118,6 +119,10 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie) {
             stare.sarbatori.push(...structuredClone(lipsa)); raspuns(); return {...calendar(2026), adaugate: lipsa.length};
         },
         ListaSchimburi: async () => ({schimburi: structuredClone(stare.schimburi), eroare: null}),
+        CompleteazaSchimburiInitiale: async () => {
+            const lipsa = schimburiSursa.filter(s => !stare.schimburi.some(v => v.cod.toUpperCase() === s.cod));
+            stare.schimburi.push(...structuredClone(lipsa)); raspuns(); return {schimburi: structuredClone(stare.schimburi), adaugate: lipsa.length, eroare: null};
+        },
         SalveazaSchimb: async s => {
             s.cod = s.cod.trim().toUpperCase();
             if (stare.schimburi.some(v => v.id !== s.id && v.cod === s.cod)) return {schimburi: [], eroare: {cod: 'schimburi.cod_duplicat', param: {}}};
@@ -155,7 +160,7 @@ try {
     };
     await cdp('Page.enable'); await cdp('Runtime.enable');
     await cdp('Emulation.setDeviceMetricsOverride', {width: 1440, height: 960, deviceScaleFactor: 1, mobile: false});
-    const injectat = await cdp('Page.addScriptToEvaluateOnNewDocument', {source: `(${simulare})(${JSON.stringify(demo)},${JSON.stringify(cataloage)},'ro',${JSON.stringify(calendarSursa)},${JSON.stringify(versiuneAplicatie)})`});
+    const injectat = await cdp('Page.addScriptToEvaluateOnNewDocument', {source: `(${simulare})(${JSON.stringify(demo)},${JSON.stringify(cataloage)},'ro',${JSON.stringify(calendarSursa)},${JSON.stringify(versiuneAplicatie)},${JSON.stringify(schimburiSursa)})`});
     await cdp('Page.navigate', {url});
     await asteapta(() => evalueaza(`Boolean(document.body?.textContent.includes('Adaugă primii membri'))`), 'Starea goală nu apare.');
     await apasa('Încarcă date demo');
@@ -251,23 +256,28 @@ try {
     await asteapta(() => evalueaza(`document.querySelectorAll('.tabel-sarbatori tbody tr').length === 0 && Boolean(document.querySelector('.fara-rezultate'))`), 'Filtrarea anului nu funcționează.');
     await apasa('Schimburi');
     await asteapta(() => evalueaza(`Boolean(document.querySelector('.tabel-schimburi'))`), 'Nomenclator lipsă.');
+    assert.equal(await evalueaza(`document.querySelectorAll('.tabel-schimburi tbody tr').length`), 6, 'Setul inițial nu apare.');
+    const interval12 = await evalueaza(`[...document.querySelectorAll('.tabel-schimburi tbody tr')].find(r => r.cells[0].textContent === '12').textContent`);
+    assert(interval12.includes('14:00') && interval12.includes('02:00') && interval12.includes('+1'), 'Schimbul 12 nu este afișat 14–02 (+1 zi).');
+    await apasa('Completează schimburile inițiale');
+    await asteapta(() => evalueaza(`document.querySelector('.schimburi [role="status"]')?.textContent.includes('0 schimburi')`), 'Completarea repetată dublează schimburile.');
     await apasa('Adaugă schimb');
     await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog[open]'))`), 'Formular schimb lipsă.');
-    await completeaza('dialog .campuri label:nth-child(1) input', 'n12');
+    await completeaza('dialog .campuri label:nth-child(1) input', 'test_n12');
     await completeaza('dialog .campuri label:nth-child(2) select', 'NOAPTE');
     await completeaza('dialog .campuri label:nth-child(3) input', 'Tură de test');
     await completeaza('dialog input[type="time"]', '19:00');
     await completeaza('dialog .campuri label:nth-child(6) input', '720');
     await completeaza('dialog .campuri label:nth-child(7) input', '30'); await apasa('Salvează');
-    await asteapta(() => evalueaza(`!document.querySelector('dialog') && document.querySelector('.tabel-schimburi').textContent.includes('N12')`), 'Schimb nesalvat.');
+    await asteapta(() => evalueaza(`!document.querySelector('dialog') && document.querySelector('.tabel-schimburi').textContent.includes('TEST_N12')`), 'Schimb nesalvat.');
     assert(await evalueaza(`document.querySelector('.tabel-schimburi').textContent.includes('19:00') && document.querySelector('.tabel-schimburi').textContent.includes('12 h')`), 'Intervalul schimbului diferă.');
-    await apasa('Dezactivează');
-    await asteapta(() => evalueaza(`document.querySelector('.tabel-schimburi').textContent.includes('Inactiv')`), 'Schimbul nu se dezactivează.');
+    await evalueaza(`[...document.querySelectorAll('.tabel-schimburi tbody tr')].find(r => r.cells[0].textContent === 'TEST_N12').querySelectorAll('button')[1].click()`);
+    await asteapta(() => evalueaza(`[...document.querySelectorAll('.tabel-schimburi tbody tr')].find(r => r.cells[0].textContent === 'TEST_N12').textContent.includes('Inactiv')`), 'Schimbul nu se dezactivează.');
     await apasa('Reactivează');
     await asteapta(() => evalueaza(`document.querySelector('.tabel-schimburi').textContent.includes('Activ')`), 'Schimbul nu se reactivează.');
     await apasa('Adaugă schimb');
     await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog[open]'))`), 'Formular duplicat lipsă.');
-    await completeaza('dialog .campuri label:nth-child(1) input', 'N12');
+    await completeaza('dialog .campuri label:nth-child(1) input', 'TEST_N12');
     await completeaza('dialog .campuri label:nth-child(3) input', 'Duplicat');
     await completeaza('dialog input[type="time"]', '20:00');
     await completeaza('dialog .campuri label:nth-child(6) input', '720'); await apasa('Salvează');
@@ -327,7 +337,7 @@ try {
     await asteapta(() => evalueaza(`document.querySelector('input[data-rand="0"][data-zi="0"]')?.value === 'extern'`), 'Reîncărcarea nu arată revizia nouă.');
     assert(await evalueaza(`document.documentElement.scrollWidth <= 1024`), 'Grila depășește fereastra în afara containerului de derulare.');
     await cdp('Page.removeScriptToEvaluateOnNewDocument', {identifier: injectat.identifier});
-    await cdp('Page.addScriptToEvaluateOnNewDocument', {source: `(${simulare})(${JSON.stringify(demo)},${JSON.stringify(cataloage)},'en',${JSON.stringify(calendarSursa)},${JSON.stringify(versiuneAplicatie)})`});
+    await cdp('Page.addScriptToEvaluateOnNewDocument', {source: `(${simulare})(${JSON.stringify(demo)},${JSON.stringify(cataloage)},'en',${JSON.stringify(calendarSursa)},${JSON.stringify(versiuneAplicatie)},${JSON.stringify(schimburiSursa)})`});
     await cdp('Page.reload');
     await asteapta(() => evalueaza(`document.querySelector('h1')?.textContent === 'Employees'`), 'Traducerea EN nu apare.');
     assert.deepEqual(erori, [], 'Erori JavaScript în interfață.');

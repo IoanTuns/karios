@@ -43,6 +43,41 @@ func (q *Queries) AdaugaSchimb(ctx context.Context, arg AdaugaSchimbParams) erro
 	return err
 }
 
+const adaugaSchimbInitial = `-- name: AdaugaSchimbInitial :execrows
+INSERT INTO tipuri_schimb (id, cod, denumire, ora_start, durata_minute, pauza_minute, tip, activ, creat_la, modificat_la)
+SELECT ?1, ?2, ?3, ?4, ?5, 0, ?6, 1, ?7, ?8
+WHERE NOT EXISTS (SELECT 1 FROM tipuri_schimb WHERE upper(cod) = upper(?2))
+ON CONFLICT (id) DO NOTHING
+`
+
+type AdaugaSchimbInitialParams struct {
+	ID           string
+	Cod          string
+	Denumire     string
+	OraStart     int64
+	DurataMinute int64
+	Tip          string
+	CreatLa      string
+	ModificatLa  string
+}
+
+func (q *Queries) AdaugaSchimbInitial(ctx context.Context, arg AdaugaSchimbInitialParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, adaugaSchimbInitial,
+		arg.ID,
+		arg.Cod,
+		arg.Denumire,
+		arg.OraStart,
+		arg.DurataMinute,
+		arg.Tip,
+		arg.CreatLa,
+		arg.ModificatLa,
+	)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+}
+
 const citesteCodSchimb = `-- name: CitesteCodSchimb :one
 SELECT id FROM tipuri_schimb WHERE upper(cod) = upper(?) AND sters_la IS NULL
 `

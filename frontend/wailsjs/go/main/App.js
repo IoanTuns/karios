@@ -26,6 +26,10 @@ export function CompleteazaSarbatori2026() {
   return window['go']['main']['App']['CompleteazaSarbatori2026']();
 }
 
+export function CompleteazaSchimburiInitiale() {
+  return window['go']['main']['App']['CompleteazaSchimburiInitiale']();
+}
+
 export function DateInitiale() {
   return window['go']['main']['App']['DateInitiale']();
 }

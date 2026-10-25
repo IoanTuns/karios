@@ -4,6 +4,16 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.15.0 · 2026-10-25
+
+Schimburi inițiale din PDF și intervalele precizate de Ioan Tuns (F07-T09, D019).
+
+- 7: 07–14; 12: 14–02 a doua zi; N12: 19–07; G24: 07–07; S1: 06–14; S3: 22–06.
+- Migrarea adaugă numai codurile lipsă și păstrează configurațiile existente, inclusiv cele inactive ori șterse logic. Pauza păstrează implicitul tehnic existent de 0 minute, editabil; nu se introduc reguli de plată.
+- Ecranul Schimburi arată sfârșitul nominal și trecerea în ziua următoare, plus completare explicită a lipsurilor din setul inițial.
+
+Rapoarte: nicio schimbare. **Baza de date: migrarea `0007_schimburi_initiale`.**
+
 ## 0.14.0 · 2026-10-25
 
 Departamente în cadrul secțiilor (F07-T08, D018).

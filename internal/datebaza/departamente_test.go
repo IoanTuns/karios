@@ -4,7 +4,6 @@ import (
 	"context"
 	"io/fs"
 	"path/filepath"
-	"strings"
 	"testing"
 	"testing/fstest"
 
@@ -103,7 +102,7 @@ func TestMigrareDepartamentePastreazaOrganizareaSiSchimburile(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, intrare := range intrari {
-		if strings.HasPrefix(intrare.Name(), "0006_") {
+		if intrare.Name() >= "0006_" {
 			continue
 		}
 		continut, err := fs.ReadFile(bd.Migrari, intrare.Name())
@@ -133,7 +132,12 @@ func TestMigrareDepartamentePastreazaOrganizareaSiSchimburile(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	if n, err := bd.Migreaza(ctx, db, bd.Migrari); err != nil || n != 1 {
+	migrare, err := fs.ReadFile(bd.Migrari, "0006_departamente.sql")
+	if err != nil {
+		t.Fatal(err)
+	}
+	surse["0006_departamente.sql"] = &fstest.MapFile{Data: migrare}
+	if n, err := bd.Migreaza(ctx, db, surse); err != nil || n != 1 {
 		t.Fatalf("migrare: %d, %v", n, err)
 	}
 	d := citeste(t, Nou(db))

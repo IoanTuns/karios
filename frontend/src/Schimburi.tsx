@@ -1,6 +1,6 @@
 import {useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {ListaSchimburi, SalveazaSchimb, SchimbaActivSchimb} from '../wailsjs/go/main/App';
+import {CompleteazaSchimburiInitiale, ListaSchimburi, SalveazaSchimb, SchimbaActivSchimb} from '../wailsjs/go/main/App';
 import {datebaza, main} from '../wailsjs/go/models';
 import {Dialog, durata} from './Formulare';
 
@@ -26,22 +26,24 @@ export function Schimburi() {
         return () => { activ = false; };
     }, []);
 
-    async function executa(actiune: () => Promise<main.RaspunsSchimburi>) {
+    async function executa(actiune: () => Promise<main.RaspunsSchimburi>, completare = false) {
         if (blocat.current) return;
         blocat.current = true; setOcupat(true); setEroare(''); setMesaj('');
-        try { if (aplica(await actiune())) { setEditare(null); setMesaj(t('ui.salvat')); } }
+        try { const r = await actiune(); if (aplica(r)) { setEditare(null); setMesaj(t(completare ? 'schimburi.completate' : 'ui.salvat', {numar: r.adaugate})); } }
         catch { setEroare(t('date.eroare')); }
         finally { blocat.current = false; setOcupat(false); }
     }
 
     return <section className="schimburi">
         <div className="unelte-calendar"><p className="nota-calendar">{t('schimburi.indiciu')}</p>
-            <button className="buton primar" disabled={ocupat || incarcare} onClick={() => { setEroare(''); setEditare(new datebaza.Schimb({id: '', cod: '', denumire: {ro: '', en: ''}, ora_start: -1, durata_minute: 0, pauza_minute: 0, tip: 'NORMAL', activ: true})); }}>{t('schimburi.adauga')}</button></div>
+            <div className="actiuni-calendar"><button className="buton secundar" disabled={ocupat || incarcare} onClick={() => executa(CompleteazaSchimburiInitiale, true)}>{t('schimburi.completeaza_initiale')}</button>
+                <button className="buton primar" disabled={ocupat || incarcare} onClick={() => { setEroare(''); setEditare(new datebaza.Schimb({id: '', cod: '', denumire: {ro: '', en: ''}, ora_start: -1, durata_minute: 0, pauza_minute: 0, tip: 'NORMAL', activ: true})); }}>{t('schimburi.adauga')}</button></div></div>
+        <p className="nota-calendar">{t('schimburi.sursa_initiale')}</p>
         {!editare && eroare && <p className="mesaj eroare" role="alert">{eroare}</p>}{mesaj && <p className="mesaj succes" role="status">{mesaj}</p>}
         {incarcare ? <p role="status">{t('ui.incarcare')}</p> : <div className="panou tabel-derulant"><table className="tabel-schimburi"><thead><tr>
-            {['cod', 'denumire', 'inceput', 'durata', 'pauza', 'tip'].map(c => <th key={c}>{t(`schimburi.${c}`)}</th>)}<th>{t('ui.stare')}</th><th>{t('ui.actiuni')}</th></tr></thead><tbody>
+            {['cod', 'denumire', 'inceput', 'sfarsit', 'durata', 'pauza', 'tip'].map(c => <th key={c}>{t(`schimburi.${c}`)}</th>)}<th>{t('ui.stare')}</th><th>{t('ui.actiuni')}</th></tr></thead><tbody>
             {lista.map(s => <tr key={s.id}><td><strong>{s.cod}</strong></td><td>{s.denumire[i18n.language] || s.denumire.ro || Object.values(s.denumire).find(Boolean)}</td>
-                <td>{oraText(s.ora_start)}</td><td>{durata(s.durata_minute, t)}</td><td>{t('schimburi.minute', {numar: s.pauza_minute})}</td><td>{t(`schimburi.tip_${s.tip}`)}</td><td>{t(s.activ ? 'ui.activ' : 'ui.inactiv')}</td>
+                <td>{oraText(s.ora_start)}</td><td>{oraText((s.ora_start + s.durata_minute) % 1440)}{s.ora_start + s.durata_minute >= 1440 && <small className="zi-urmatoare">{t('schimburi.peste_zile', {numar: Math.floor((s.ora_start + s.durata_minute) / 1440)})}</small>}</td><td>{durata(s.durata_minute, t)}</td><td>{t('schimburi.minute', {numar: s.pauza_minute})}</td><td>{t(`schimburi.tip_${s.tip}`)}</td><td>{t(s.activ ? 'ui.activ' : 'ui.inactiv')}</td>
                 <td><div className="actiuni-rand"><button className="legatura" disabled={ocupat} onClick={() => { setEroare(''); setEditare(s); }}>{t('ui.editeaza')}</button>
                     <button className="legatura discreta" disabled={ocupat} onClick={() => executa(() => SchimbaActivSchimb(s.id, !s.activ))}>{t(s.activ ? 'ui.dezactiveaza' : 'ui.reactiveaza')}</button></div></td></tr>)}
         </tbody></table>{lista.length === 0 && <p className="fara-rezultate">{t('schimburi.gol')}</p>}</div>}
