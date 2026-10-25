@@ -6,6 +6,7 @@
 
   "bd.nu_se_deschide": "Baza de date nu poate fi deschisă:\n{{fisier}}\n\nCheia nu se potrivește sau fișierul e deteriorat. Poți restaura ultimul backup din folderul karios\\backup.",
   "bd.cheie_invalida": "Cheia bazei de date nu are lungimea corectă.",
+  "bd.norma_intreaga_invalida": "Norma întreagă trebuie să fie între 1 și 1440 de minute pe zi. Setarea nu poate fi eliminată sau redenumită.",
 
   "stocare.backup_esuat": "Copia de siguranță dinaintea actualizării bazei de date nu s-a putut face, așa că actualizarea nu a pornit. Datele au rămas neschimbate.\n\nDetalii: {{detalii}}",
 

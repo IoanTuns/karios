@@ -22,6 +22,7 @@ Aceste cerințe sunt confirmate; starea `propusă` privește reprezentarea tehni
 - Contractul parțial cere o normă individuală pozitivă; contractul întreg folosește valoarea globală și nu are normă parțială. Nu impunem o regulă juridică despre raportul dintre cele două norme.
 - Concediul anual este un număr întreg nenegativ; `NULL` înseamnă necompletat. Nu presupunem un minim legal și nu calculăm solduri sau reportări.
 - Numele vechi nu se desparte automat: rămâne în `nume`, iar `prenume` este inițial gol. Vechea coloană de normă este păstrată sub numele `norma_minute_anterioara`, exclusiv pentru verificarea și completarea datelor migrate; nu determină noul tip de contract și nu participă la norma efectivă. Contractele migrate au valoarea implicită `INTREAGA` și trebuie verificate manual.
+- Copiem norma veche înainte de eliminarea coloanei originale, în aceeași tranzacție de migrare; angajații noi au `norma_minute_anterioara = NULL`, fără vechiul default de 480 de minute. Nu eliminăm nicio valoare existentă și nu refacem manual legăturile cu pontajul.
 - Migrarea `0003_sarbatori_an.sql` adaugă anul derivat din dată și indexat. Data completă rămâne sursa unică: aceeași sărbătoare poate avea date distincte în ani diferiți. Nu precompletăm un calendar legal.
 - Nu schimbăm migrarea 0001 și nu adăugăm biblioteci. Ecranele și accesul la date generat cu sqlc rămân în taskurile existente.
 

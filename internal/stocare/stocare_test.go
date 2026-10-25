@@ -164,6 +164,67 @@ func TestBackupInainteDeMigrare(t *testing.T) {
 	}
 }
 
+// Verifică traseul de pornire cu migrările reale din F07-T06, nu doar cu
+// migrări sintetice: copia păstrează schema veche, baza curentă primește câmpurile noi.
+func TestBackupMigrarilorContractuale(t *testing.T) {
+	ctx := context.Background()
+	dir := t.TempDir()
+	db, err := deschide(ctx, dir, migrariPana(t, 1), ceas(0))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.Exec(`INSERT INTO angajati (id, nume, marca, norma_minute, creat_la, modificat_la)
+		VALUES ('test', 'Exemplu', '001', 480, 'x', 'x')`); err != nil {
+		db.Close()
+		t.Fatal(err)
+	}
+	db.Close()
+
+	db, err = deschide(ctx, dir, bd.Migrari, ceas(1))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	var tip string
+	var minute int
+	if err := db.QueryRow(`SELECT tip_contract, norma_efectiva_minute FROM angajati_norme WHERE id = 'test'`).Scan(&tip, &minute); err != nil || tip != "INTREAGA" || minute != 420 {
+		t.Fatalf("contract după migrare: %s, %d minute, %v", tip, minute, err)
+	}
+	copii := backupuri(t, dir)
+	if len(copii) != 1 {
+		t.Fatalf("backup-uri pentru cele două migrări noi: %v", copii)
+	}
+	s, err := seif.Deschide(filepath.Join(dir, NumeSeif))
+	if err != nil {
+		t.Fatal(err)
+	}
+	copie, err := bd.Deschide(filepath.Join(dir, "backup", copii[0]), s.CheieDate)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer copie.Close()
+	if err := copie.QueryRow(`SELECT norma_minute FROM angajati WHERE id = 'test'`).Scan(&minute); err != nil || minute != 480 {
+		t.Fatalf("norma originală din backup: %d, %v", minute, err)
+	}
+	if _, err := copie.Exec(`SELECT prenume FROM angajati`); err == nil {
+		t.Error("backup-ul conține deja schema nouă")
+	}
+	// Închiderea copiei elimină fișierele WAL/SHM create la verificarea ei.
+	if err := copie.Close(); err != nil {
+		t.Fatal(err)
+	}
+	// Redeschiderea aceleiași versiuni nu repetă migrările sau backup-ul.
+	db.Close()
+	db, err = deschide(ctx, dir, bd.Migrari, ceas(2))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	if copii := backupuri(t, dir); len(copii) != 1 {
+		t.Errorf("backup repetat la redeschidere: %v", copii)
+	}
+}
+
 // După 10 actualizări rămân doar cele mai noi 7 backup-uri; alte fișiere nu se ating.
 func TestCelMult7Backupuri(t *testing.T) {
 	ctx := context.Background()

@@ -15,4 +15,33 @@ Utilizatorul poate gestiona angajații și listele de care depinde pontajul.
 | F07-T03 | Administrarea sărbătorilor pentru fiecare an | de făcut | | Denumiri `Text`; schema și filtrarea pe an: F07-T06. Precompletarea nu înlocuiește editarea manuală |
 | F07-T04 | Coduri de absență | de făcut | | Lista finală din F01-T02 |
 | F07-T05 | Categorii de ore și coloanele centralizatorului | de făcut | | O singură sursă pentru legătura categorie → coloană |
-| F07-T06 | Schema angajaților, norma întreagă globală și sărbătorile pe ani | în lucru | Codex | Alocat de Ioan Tuns în conversația din 2026-10-25. Ramură `F07-T06-schema-angajati`; migrare nouă, teste de păstrare a datelor; [D012](../decizii/D012-date-angajati-norme-sarbatori.md) |
+| F07-T06 | Schema angajaților, norma întreagă globală și sărbătorile pe ani | gata | Codex | 2026-10-25, versiunea 0.9.0, migrările 0002 și 0003; păstrarea datelor vechi, constrângeri, normă efectivă și backup înainte de migrare verificate prin teste. Build Windows verificat. Pas următor: F06-T03, F07-T01 și F07-T03; [D012](../decizii/D012-date-angajati-norme-sarbatori.md) rămâne propusă pentru reprezentarea tehnică |
+
+## Schema F07-T06
+
+| Informație | Reprezentare |
+| --- | --- |
+| Nume și prenume | `angajati.nume`, `angajati.prenume`; numele vechi rămâne intact, prenumele se completează manual |
+| Număr de marcă | `angajati.marca`, text pentru păstrarea zerourilor inițiale, unic între angajații neșterși |
+| Tip contract | `angajati.tip_contract`: `INTREAGA` implicit / `PARTIALA` |
+| Norma întreagă | `setari.valoare` pentru cheia `norma_intreaga_minute`, implicit `420` minute = 7 ore/zi |
+| Norma parțială | `angajati.norma_partiala_minute`, obligatorie numai pentru `PARTIALA`; minute întregi pozitive, cel mult 1440/zi |
+| Norma efectivă curentă | `angajati_norme.norma_efectiva_minute`; schimbarea globală se vede imediat pentru contractele întregi |
+| Concediu anual contractual | `angajati.concediu_zile_an`, întreg nenegativ sau `NULL` dacă nu a fost completat; nu reprezintă soldul disponibil |
+| Sărbători pe an | `sarbatori.data` și `denumire` JSON; `an` derivat automat din dată, index `(an, data)` |
+
+Exemple pentru viitorul cod de acces la date (nu sunt încă expuse prin interfață):
+
+```sql
+SELECT id, nume, prenume, marca, tip_contract, norma_efectiva_minute, concediu_zile_an
+FROM angajati_norme WHERE sters_la IS NULL ORDER BY nume, prenume;
+
+UPDATE setari SET valoare = '420', modificat_la = '2026-10-25T10:00:00Z'
+WHERE cheie = 'norma_intreaga_minute';
+
+SELECT data, denumire FROM sarbatori WHERE an = 2027 ORDER BY data;
+```
+
+Compatibilitate: `norma_minute_anterioara` păstrează vechea valoare exclusiv pentru verificare; este `NULL` pentru angajații noi și nu se folosește în noile calcule. Tipul `INTREAGA` al înregistrărilor migrate este valoarea implicită, nu o clasificare contractuală dedusă. Înaintea folosirii operative se verifică manual tipul, prenumele, norma parțială și concediul.
+
+Pasul următor: F06-T03 pentru accesul la date și F07-T01/F07-T03 pentru formulare; istoricul contractual este înregistrat ca I010, înainte de F12. Nu se modifică motorul de calcul sau regulile de plată în acest task.

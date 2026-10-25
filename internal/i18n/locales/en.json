@@ -6,6 +6,7 @@
 
   "bd.nu_se_deschide": "The database cannot be opened:\n{{fisier}}\n\nThe key does not match or the file is damaged. You can restore the latest backup from the karios\\backup folder.",
   "bd.cheie_invalida": "The database key does not have the correct length.",
+  "bd.norma_intreaga_invalida": "Full-time working hours must be between 1 and 1440 minutes per day. This setting cannot be removed or renamed.",
 
   "stocare.backup_esuat": "The backup before the database update could not be made, so the update did not start. The data is unchanged.\n\nDetails: {{detalii}}",
 
