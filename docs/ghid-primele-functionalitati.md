@@ -1,10 +1,10 @@
-# Funcționalitățile disponibile · Pontix 0.18.0
+# Funcționalitățile disponibile · Pontix 0.19.0
 
 ## Pornire
 
 Executabilul se construiește cu `./build.ps1` și se găsește în `build/bin/pontix.exe`. Pornește-l dintr-un folder în care poți scrie; datele sunt în folderul `karios/` de lângă executabil.
 
-Livrarea actualizată este **`build/bin/pontix-0.13.0/pontix-0.18.0.exe`**, lângă aceleași date demo regenerate anterior la cererea utilizatorului. Închide versiunea veche înainte de pornire. Numele folderului a fost păstrat pentru a continua cu baza existentă; actualizarea copiază numai executabilul. La prima pornire, aplicația face backup înaintea migrărilor lipsă (inclusiv 0011 pentru categoriile de schimburi) și păstrează configurațiile existente. Baza veche separată a rămas în `build/bin/karios/`; seiful ei a fost eliminat de vechiul build cu `-clean`, deci nu se reutilizează cu o cheie nouă. Incidentul și corecția sunt în [D017](decizii/D017-build-fara-stergerea-datelor.md).
+Livrarea actualizată este **`build/bin/pontix-0.13.0/pontix-0.19.0.exe`**, lângă aceleași date demo regenerate anterior la cererea utilizatorului. Închide versiunea veche înainte de pornire. Numele folderului a fost păstrat pentru a continua cu baza existentă; actualizarea copiază numai executabilul. La prima pornire, aplicația face backup înaintea migrărilor lipsă (inclusiv 0011 pentru categoriile de schimburi și 0012 pentru cererile de concediu) și păstrează configurațiile existente. Baza veche separată a rămas în `build/bin/karios/`; seiful ei a fost eliminat de vechiul build cu `-clean`, deci nu se reutilizează cu o cheie nouă. Incidentul și corecția sunt în [D017](decizii/D017-build-fara-stergerea-datelor.md).
 
 Scriptul corectat nu mai curăță folderul de ieșire. Dacă executabilul este deschis, construiește cu alt nume: `./build.ps1 -NumeExecutabil pontix-verificare.exe`.
 
@@ -65,16 +65,16 @@ Din **Schimburi → Adaugă schimb**, introdu codul, denumirea, ora de început,
 
 ## Concedii și absențe
 
-1. Deschide **Concedii și absențe** și alege anul. Poți filtra lista după angajat și categorie.
+1. Deschide **Concedii și absențe** și alege anul. Poți filtra lista după angajat, categorie și starea aprobării (`În așteptare`, `Aprobată`, `Respinsă`).
 2. Pentru un tip special nou, apasă **Adaugă tip de absență**: introdu un cod unic (de exemplu `EV_FAMILIE`), denumirea RO/EN și categoria **Zile libere speciale**. Poți defini câte tipuri sunt necesare. CO și CM sunt inițiale pentru odihnă și medical, dacă aceste coduri nu erau deja ocupate.
-3. Apasă **Înregistrează zile**, alege angajatul, tipul și intervalul de cel mult 366 de zile. Inițial sunt bifate toate datele, inclusiv weekendurile și sărbătorile. Debifează zilele care nu trebuie înregistrate sau folosește explicit **Selectează luni–vineri, fără sărbători**, pe baza calendarului din aplicație. Pentru angajați cu ture, alege datele potrivite programului lor.
-4. Verifică numărul de zile selectate și apasă **Salvează**. Lotul se salvează integral sau deloc. O zi deja ocupată de o absență, o schiță nevidă ori un pontaj efectiv trebuie corectată înainte de înregistrare; turele efective care traversează ziua sunt și ele verificate.
-5. **Editează** schimbă tipul unei zile existente. **Anulează ziua** sau bifarea mai multor zile și **Anulează zilele selectate** retrag înregistrările cu păstrarea istoricului. În cazul unei modificări concurente, reîncarcă evidența înainte de reaplicare.
-6. Zilele salvate apar automat în **Pontaj**, cu fundal verde și codul tipului. Celulele sunt protejate; modificarea se face din modulul de concedii. Un cod scris manual într-o schiță de pontaj rămâne text și nu înregistrează automat o absență.
+3. Apasă **Înregistrează zile**, alege angajatul, tipul și intervalul de cel mult 366 de zile. Opțional, poți completa **numărul de înregistrare**, **persoana care înlocuiește angajatul absent**, **starea aprobării**, persoana care a aprobat și poți atașa **cererea de concediu semnată** (PDF, PNG sau JPG, cel mult 10 MB, stocată criptat în baza SQLite). Inițial sunt bifate toate datele, inclusiv weekendurile și sărbătorile. Debifează zilele care nu trebuie înregistrate sau folosește explicit **Selectează luni–vineri, fără sărbători**, pe baza calendarului din aplicație. Pentru angajați cu ture, alege datele potrivite programului lor.
+4. Verifică numărul de zile selectate și apasă **Salvează**. Lotul se salvează integral sau deloc, iar cererea atașată se partajează între zilele lotului fără duplicarea conținutului. O zi deja ocupată de o absență, o schiță nevidă ori un pontaj efectiv trebuie corectată înainte de înregistrare; turele efective care traversează ziua sunt și ele verificate.
+5. **Editează** modifică tipul, numărul de înregistrare, înlocuitorul, aprobarea sau cererea atașată a unei zile existente. Pentru mai multe zile bifate în tabel, **Completează cererea / aprobarea** aplică aceleași metadate și/sau cererea semnată întregului lot selectat. **Anulează ziua** sau **Anulează zilele selectate** retrag înregistrările cu păstrarea istoricului. În cazul unei modificări concurente, reîncarcă evidența înainte de reaplicare.
+6. Zilele salvate apar automat în **Pontaj**, cu fundal verde (diferențiat discret după starea aprobării), codul tipului și explicație la survol cu starea aprobării, numărul de înregistrare și înlocuitorul. Celulele sunt protejate; modificarea se face din modulul de concedii. Un cod scris manual într-o schiță de pontaj rămâne text și nu înregistrează automat o absență.
 
 Sumarul anual afișează separat numărul de zile de odihnă, medical și speciale înregistrate, plus dreptul contractual **curent** din fișa angajatului. Nu calculează soldul legal, reportările sau indemnizațiile. Înregistrările care traversează anul se văd în anii corespunzători.
 
-Un tip poate fi editat sau dezactivat din tabelul **Tipuri de absență**. Dezactivarea nu elimină zilele existente. Codul nu se redenumește; categoria unui tip folosit nu se schimbă, pentru a păstra sensul istoricului. Schema și limitele sunt în [D020](decizii/D020-concedii-absente.md).
+Un tip poate fi editat sau dezactivat din tabelul **Tipuri de absență**. Dezactivarea nu elimină zilele existente. Codul nu se redenumește; categoria unui tip folosit nu se schimbă, pentru a păstra sensul istoricului. Schema și limitele sunt în [D020](decizii/D020-concedii-absente.md) și [D024](decizii/D024-cereri-concediu-aprobare.md).
 
 ## Grila lunară · schiță
 

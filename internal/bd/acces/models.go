@@ -4,14 +4,27 @@
 
 package acces
 
+type AbsenteDocumente struct {
+	ID         string
+	NumeFisier string
+	TipMime    string
+	Continut   []byte
+	CreatLa    string
+}
+
 type AbsenteZile struct {
-	AngajatID   string
-	Data        string
-	Cod         string
-	Activ       int64
-	CreatLa     string
-	ModificatLa string
-	Revizie     int64
+	AngajatID      string
+	Data           string
+	Cod            string
+	Activ          int64
+	CreatLa        string
+	ModificatLa    string
+	Revizie        int64
+	NrInregistrare string
+	InlocuitorID   *string
+	StareAprobare  string
+	AprobatDe      string
+	DocumentID     *string
 }
 
 type CoduriAbsentum struct {

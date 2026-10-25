@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.20.1 · 2026-10-25
+
+F09-T08: integrarea cererilor de concediu F07-T12 din a132a27 în ramura rapoartelor; migrările 0012 și 0013 coexistă, iar documentele și stările de aprobare rămân în aplicație. Pregătire pentru imagini și paginare în 0.21.0; rapoartele sunt încă v1.
+
 ## 0.20.0 · 2026-10-25
 
 F09-T07: migrarea rapoartelor este renumerotată 0013, iar decizia tehnică devine D025, pentru a lăsa 0012/D024 taskului paralel F07-T12 (cereri de concediu). Versiunea 0.19.0 este folosită și de acel task, încă necomis; livrarea rapoartelor folosește 0.20.0. Nu include modificările nesalvate F07-T12. Integrarea lor este necesară înaintea folosirii ambelor funcționalități pe aceeași bază. Rapoartele rămân v1.
@@ -22,6 +26,15 @@ Definire rapoarte și PDF pentru tipărire (F09-T07, D025).
 - Datele sunt o fotografie consistentă a schițelor și absențelor; nu sunt deduse totaluri salariale sau reguli neconfirmate.
 
 Rapoarte: **Pontaj lunar v1, Fișă individuală v1, Evidența absențelor v1.** Baza de date: **0013_definitii_rapoarte**, după migrarea 0011 rezervată taskului paralel pentru categorii.
+## 0.19.0 · 2026-10-25
+
+Cereri de concediu semnate atașate, număr de înregistrare, persoană înlocuitoare și stare de aprobare pentru concedii și absențe (F07-T12, D024).
+
+- Zilele de concediu și absență includ opțional numărul de înregistrare al cererii, persoana care înlocuiește angajatul absent (validată ca fiind diferită de angajatul în concediu), starea aprobării (`IN_ASTEPTARE`, `APROBATA`, `RESPINSA`), numele celui care a aprobat și un document semnat atașat (PDF/PNG/JPG până la 10 MB), stocat în tabela `absente_documente` din baza SQLite criptată și partajat la salvarea unui interval.
+- Ecranul Concedii și absențe afișează și filtrează după starea aprobării, permite atașarea și descărcarea cererii semnate și oferă completarea ulterioară a cererii, înlocuitorului sau aprobării pentru o zi ori pentru un lot de zile selectate.
+- Grila de pontaj afișează în explicația celulei și prin stil vizual starea aprobării, numărul de înregistrare și persoana înlocuitoare pentru zilele de absență active.
+
+Rapoarte: nicio schimbare. **Baza de date: migrarea `0012_cereri_concediu`.**
 
 ## 0.18.0 · 2026-10-25
 

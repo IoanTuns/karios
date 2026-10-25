@@ -22,6 +22,10 @@ export function CitesteCalendar(arg1) {
   return window['go']['main']['App']['CitesteCalendar'](arg1);
 }
 
+export function CitesteDocumentAbsenta(arg1) {
+  return window['go']['main']['App']['CitesteDocumentAbsenta'](arg1);
+}
+
 export function CitesteSchita(arg1, arg2) {
   return window['go']['main']['App']['CitesteSchita'](arg1, arg2);
 }

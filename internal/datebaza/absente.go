@@ -1,18 +1,23 @@
 package datebaza
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"strconv"
 	"strings"
 	"time"
 	_ "time/tzdata" // Fusurile orare rămân disponibile în executabilul portabil.
+	"unicode/utf8"
 
 	"pontix/internal/bd/acces"
 	"pontix/internal/i18n"
 )
+
+const limitaDocumentAbsenta = 10 * 1024 * 1024
 
 type TipAbsenta struct {
 	Cod       string    `json:"cod"`
@@ -22,17 +27,46 @@ type TipAbsenta struct {
 }
 
 type ZiAbsenta struct {
-	AngajatID string `json:"angajat_id"`
-	Data      string `json:"data"`
-	Cod       string `json:"cod"`
-	Activ     bool   `json:"activ"`
-	Revizie   string `json:"revizie"`
+	AngajatID           string `json:"angajat_id"`
+	Data                string `json:"data"`
+	Cod                 string `json:"cod"`
+	Activ               bool   `json:"activ"`
+	Revizie             string `json:"revizie"`
+	NrInregistrare      string `json:"nr_inregistrare"`
+	InlocuitorID        string `json:"inlocuitor_id"`
+	StareAprobare       string `json:"stare_aprobare"`
+	AprobatDe           string `json:"aprobat_de"`
+	DocumentID          string `json:"document_id"`
+	DocumentNume        string `json:"document_nume"`
+	DocumentMime        string `json:"document_mime"`
+	DocumentContinutB64 string `json:"document_continut_b64,omitempty"`
+}
+
+type DocumentAbsenta struct {
+	ID          string `json:"id"`
+	NumeFisier  string `json:"nume_fisier"`
+	TipMime     string `json:"tip_mime"`
+	ContinutB64 string `json:"continut_b64"`
 }
 
 type AbsenteAn struct {
 	An     int          `json:"an"`
 	Tipuri []TipAbsenta `json:"tipuri"`
 	Zile   []ZiAbsenta  `json:"zile"`
+}
+
+func valPtr(p *string) string {
+	if p == nil {
+		return ""
+	}
+	return *p
+}
+
+func ptrSauNil(s string) *string {
+	if s == "" {
+		return nil
+	}
+	return &s
 }
 
 func (s *Serviciu) CitesteAbsente(ctx context.Context, an int) (AbsenteAn, error) {
@@ -76,9 +110,69 @@ func citesteAbsenteInterval(ctx context.Context, q *acces.Queries, deLa, panaLa 
 	}
 	rez := []ZiAbsenta{}
 	for _, r := range randuri {
-		rez = append(rez, ZiAbsenta{AngajatID: r.AngajatID, Data: r.Data, Cod: r.Cod, Activ: r.Activ == 1, Revizie: strconv.FormatInt(r.Revizie, 10)})
+		rez = append(rez, ZiAbsenta{
+			AngajatID:      r.AngajatID,
+			Data:           r.Data,
+			Cod:            r.Cod,
+			Activ:          r.Activ == 1,
+			Revizie:        strconv.FormatInt(r.Revizie, 10),
+			NrInregistrare: r.NrInregistrare,
+			InlocuitorID:   r.InlocuitorID,
+			StareAprobare:  r.StareAprobare,
+			AprobatDe:      r.AprobatDe,
+			DocumentID:     r.DocumentID,
+			DocumentNume:   r.DocumentNume,
+			DocumentMime:   r.DocumentMime,
+		})
 	}
 	return rez, nil
+}
+
+func (s *Serviciu) CitesteDocumentAbsenta(ctx context.Context, id string) (DocumentAbsenta, error) {
+	id = strings.TrimSpace(id)
+	if id == "" {
+		return DocumentAbsenta{}, eroare("absente.document_inexistent")
+	}
+	r, err := acces.New(s.db).CitesteDocumentAbsenta(ctx, id)
+	if errors.Is(err, sql.ErrNoRows) {
+		return DocumentAbsenta{}, eroare("absente.document_inexistent")
+	}
+	if err != nil {
+		return DocumentAbsenta{}, traduceEroare(err)
+	}
+	return DocumentAbsenta{
+		ID:          r.ID,
+		NumeFisier:  r.NumeFisier,
+		TipMime:     r.TipMime,
+		ContinutB64: base64.StdEncoding.EncodeToString(r.Continut),
+	}, nil
+}
+
+func valideazaDocumentNou(nume, mime, b64 string) ([]byte, error) {
+	if nume == "" || utf8.RuneCountInString(nume) > 255 || strings.ContainsAny(nume, "\x00\r\n") {
+		return nil, eroare("absente.document_invalid")
+	}
+	continut, err := base64.StdEncoding.DecodeString(strings.TrimSpace(b64))
+	if err != nil || len(continut) == 0 || len(continut) > limitaDocumentAbsenta {
+		return nil, eroare("absente.document_invalid")
+	}
+	switch mime {
+	case "application/pdf":
+		if !bytes.HasPrefix(continut, []byte("%PDF-")) {
+			return nil, eroare("absente.document_invalid")
+		}
+	case "image/png":
+		if !bytes.HasPrefix(continut, []byte{0x89, 'P', 'N', 'G', '\r', '\n', 0x1a, '\n'}) {
+			return nil, eroare("absente.document_invalid")
+		}
+	case "image/jpeg":
+		if !bytes.HasPrefix(continut, []byte{0xff, 0xd8, 0xff}) {
+			return nil, eroare("absente.document_invalid")
+		}
+	default:
+		return nil, eroare("absente.document_invalid")
+	}
+	return continut, nil
 }
 
 func (s *Serviciu) SalveazaTipAbsenta(ctx context.Context, initial string, tip TipAbsenta) error {
@@ -156,18 +250,43 @@ func (s *Serviciu) SalveazaAbsente(ctx context.Context, zile []ZiAbsenta) error 
 		return eroare("absente.lot_invalid")
 	}
 	vazute := map[string]bool{}
-	for _, z := range zile {
+	for i := range zile {
+		z := &zile[i]
 		k := z.AngajatID + "/" + z.Data
 		if z.AngajatID == "" || !dataValida(z.Data) || z.Cod == "" || vazute[k] {
 			return eroare("absente.lot_invalid")
 		}
 		vazute[k] = true
+		z.NrInregistrare = strings.TrimSpace(z.NrInregistrare)
+		if utf8.RuneCountInString(z.NrInregistrare) > 64 || strings.ContainsAny(z.NrInregistrare, "\x00\r\n\t") {
+			return eroare("absente.nr_inregistrare_invalid")
+		}
+		z.InlocuitorID = strings.TrimSpace(z.InlocuitorID)
+		if z.InlocuitorID != "" && z.InlocuitorID == z.AngajatID {
+			return eroare("absente.inlocuitor_invalid")
+		}
+		z.StareAprobare = strings.ToUpper(strings.TrimSpace(z.StareAprobare))
+		if z.StareAprobare != "" {
+			switch z.StareAprobare {
+			case "IN_ASTEPTARE", "APROBATA", "RESPINSA":
+			default:
+				return eroare("absente.aprobare_invalida")
+			}
+		}
+		z.AprobatDe = strings.TrimSpace(z.AprobatDe)
+		if utf8.RuneCountInString(z.AprobatDe) > 120 || strings.ContainsAny(z.AprobatDe, "\x00\r\n\t") {
+			return eroare("absente.aprobat_de_invalid")
+		}
+		z.DocumentID = strings.TrimSpace(z.DocumentID)
+		z.DocumentNume = strings.TrimSpace(z.DocumentNume)
+		z.DocumentMime = strings.ToLower(strings.TrimSpace(z.DocumentMime))
 	}
 	local, err := time.LoadLocation("Europe/Bucharest")
 	if err != nil {
 		return traduceEroare(err)
 	}
 	return s.modifica(ctx, func(q *acces.Queries) error {
+		documenteNoi := map[string]acces.ExistaDocumentAbsentaRow{}
 		for _, z := range zile {
 			if _, err := q.CitesteAngajat(ctx, z.AngajatID); err != nil {
 				return err
@@ -182,6 +301,64 @@ func (s *Serviciu) SalveazaAbsente(ctx context.Context, zile []ZiAbsenta) error 
 			}
 			if !z.Activ && (!exista || veche.Cod != z.Cod) {
 				return eroare("absente.lot_invalid")
+			}
+			if !z.Activ && z.NrInregistrare == "" && z.InlocuitorID == "" && z.StareAprobare == "" && z.AprobatDe == "" && z.DocumentID == "" && z.DocumentContinutB64 == "" {
+				z.NrInregistrare = veche.NrInregistrare
+				z.InlocuitorID = valPtr(veche.InlocuitorID)
+				z.StareAprobare = veche.StareAprobare
+				z.AprobatDe = veche.AprobatDe
+				z.DocumentID = valPtr(veche.DocumentID)
+			}
+			if z.StareAprobare == "" {
+				z.StareAprobare = "IN_ASTEPTARE"
+			}
+			if z.InlocuitorID != "" {
+				inlocuitor, err := q.CitesteAngajat(ctx, z.InlocuitorID)
+				if errors.Is(err, sql.ErrNoRows) {
+					return eroare("absente.inlocuitor_invalid")
+				}
+				if err != nil {
+					return err
+				}
+				if z.Activ && inlocuitor.Activ == 0 && !(exista && valPtr(veche.InlocuitorID) == z.InlocuitorID) {
+					return eroare("absente.inlocuitor_invalid")
+				}
+			}
+			if z.DocumentContinutB64 != "" {
+				cheieDoc := z.DocumentNume + "\x00" + z.DocumentMime + "\x00" + z.DocumentContinutB64
+				if doc, ok := documenteNoi[cheieDoc]; ok {
+					z.DocumentID, z.DocumentNume, z.DocumentMime = doc.ID, doc.NumeFisier, doc.TipMime
+				} else {
+					continut, err := valideazaDocumentNou(z.DocumentNume, z.DocumentMime, z.DocumentContinutB64)
+					if err != nil {
+						return err
+					}
+					idDoc := idNou()
+					if err := q.AdaugaDocumentAbsenta(ctx, acces.AdaugaDocumentAbsentaParams{
+						ID:         idDoc,
+						NumeFisier: z.DocumentNume,
+						TipMime:    z.DocumentMime,
+						Continut:   continut,
+						CreatLa:    moment(),
+					}); err != nil {
+						return err
+					}
+					doc = acces.ExistaDocumentAbsentaRow{ID: idDoc, NumeFisier: z.DocumentNume, TipMime: z.DocumentMime}
+					documenteNoi[cheieDoc] = doc
+					z.DocumentID = idDoc
+				}
+				z.DocumentContinutB64 = ""
+			} else if z.DocumentID != "" {
+				doc, err := q.ExistaDocumentAbsenta(ctx, z.DocumentID)
+				if errors.Is(err, sql.ErrNoRows) {
+					return eroare("absente.document_invalid")
+				}
+				if err != nil {
+					return err
+				}
+				z.DocumentNume, z.DocumentMime = doc.NumeFisier, doc.TipMime
+			} else {
+				z.DocumentNume, z.DocumentMime = "", ""
 			}
 			tip, err := q.CitesteTipAbsenta(ctx, z.Cod)
 			if errors.Is(err, sql.ErrNoRows) {
@@ -210,11 +387,26 @@ func (s *Serviciu) SalveazaAbsente(ctx context.Context, zile []ZiAbsenta) error 
 					return eroare("absente.pontaj_existent")
 				}
 			}
-			if exista && veche.Cod == z.Cod && veche.Activ == numarBool(z.Activ) {
+			if exista && veche.Cod == z.Cod && veche.Activ == numarBool(z.Activ) &&
+				veche.NrInregistrare == z.NrInregistrare && valPtr(veche.InlocuitorID) == z.InlocuitorID &&
+				veche.StareAprobare == z.StareAprobare && veche.AprobatDe == z.AprobatDe &&
+				valPtr(veche.DocumentID) == z.DocumentID {
 				continue
 			}
 			acum := moment()
-			revizie, err := q.SalveazaZiAbsenta(ctx, acces.SalveazaZiAbsentaParams{AngajatID: z.AngajatID, Data: z.Data, Cod: z.Cod, Activ: numarBool(z.Activ), CreatLa: acum, ModificatLa: acum})
+			revizie, err := q.SalveazaZiAbsenta(ctx, acces.SalveazaZiAbsentaParams{
+				AngajatID:      z.AngajatID,
+				Data:           z.Data,
+				Cod:            z.Cod,
+				Activ:          numarBool(z.Activ),
+				NrInregistrare: z.NrInregistrare,
+				InlocuitorID:   ptrSauNil(z.InlocuitorID),
+				StareAprobare:  z.StareAprobare,
+				AprobatDe:      z.AprobatDe,
+				DocumentID:     ptrSauNil(z.DocumentID),
+				CreatLa:        acum,
+				ModificatLa:    acum,
+			})
 			if err != nil {
 				return err
 			}

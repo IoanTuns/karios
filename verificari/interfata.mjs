@@ -89,6 +89,7 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
     stare.tipuriAbsenta ??= [{cod:'CO',denumire:{ro:'Concediu de odihnă',en:'Annual leave'},categorie:'ODIHNA',activ:true}, {cod:'CM',denumire:{ro:'Concediu medical',en:'Medical leave'},categorie:'MEDICAL',activ:true}];
     stare.absente ??= [];
     stare.modeleRapoarte ??= structuredClone(rapoarteSursa.configuratie.modele);
+    stare.documenteAbsenta ??= [];
     const raspuns = () => {
         stare.angajati = stare.angajati.map(a => ({...a, departament_id: a.departament_id || '', norma_minute: a.tip_contract === 'PARTIALA' ? a.norma_partiala_minute : stare.norma_intreaga_minute}));
         stare.demo_disponibil = stare.angajati.length === 0;
@@ -167,8 +168,38 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
         SalveazaAbsente: async (zile,an) => {
             if (zile.some(z => (stare.absente.find(v => v.angajat_id === z.angajat_id && v.data === z.data)?.revizie || '') !== z.revizie)) return {absente:null,eroare:{cod:'absente.conflict'}};
             if (zile.some(z => z.activ && stare.ciorne.some(c => c.angajat_id === z.angajat_id && c.data === z.data && c.valoare.trim()))) return {absente:null,eroare:{cod:'absente.pontaj_existent'}};
-            for (const z of zile) { const i = stare.absente.findIndex(v => v.angajat_id === z.angajat_id && v.data === z.data); const nou = {...z,revizie:String(i < 0 ? 1 : Number(stare.absente[i].revizie)+1)}; if (i < 0) stare.absente.push(nou); else stare.absente[i] = nou; }
+            if (zile.some(z => z.inlocuitor_id && z.inlocuitor_id === z.angajat_id)) return {absente:null,eroare:{cod:'absente.inlocuitor_propriu'}};
+            for (const z of zile) {
+                const i = stare.absente.findIndex(v => v.angajat_id === z.angajat_id && v.data === z.data);
+                const existent = i >= 0 ? stare.absente[i] : null;
+                let docId = z.document_id || existent?.document_id || '';
+                let docNume = z.document_nume || existent?.document_nume || '';
+                let docMime = z.document_mime || existent?.document_mime || '';
+                if (z.document_continut_b64) {
+                    docId = 'doc-' + Date.now() + '-' + Math.random().toString(16).slice(2,6);
+                    docNume = z.document_nume || 'cerere.pdf';
+                    docMime = z.document_mime || 'application/pdf';
+                    stare.documenteAbsenta.push({id: docId, nume_fisier: docNume, tip_mime: docMime, continut_b64: z.document_continut_b64});
+                }
+                const nou = {
+                    ...z,
+                    nr_inregistrare: z.nr_inregistrare ?? existent?.nr_inregistrare ?? '',
+                    inlocuitor_id: z.inlocuitor_id ?? existent?.inlocuitor_id ?? '',
+                    stare_aprobare: z.stare_aprobare || existent?.stare_aprobare || 'IN_ASTEPTARE',
+                    aprobat_de: z.aprobat_de ?? existent?.aprobat_de ?? '',
+                    document_id: docId,
+                    document_nume: docNume,
+                    document_mime: docMime,
+                    document_continut_b64: '',
+                    revizie: String(i < 0 ? 1 : Number(stare.absente[i].revizie)+1)
+                };
+                if (i < 0) stare.absente.push(nou); else stare.absente[i] = nou;
+            }
             raspuns(); return absente(an);
+        },
+        CitesteDocumentAbsenta: async id => {
+            const d = stare.documenteAbsenta.find(x => x.id === id);
+            return d ? {document: structuredClone(d), eroare: null} : {document: null, eroare: {cod: 'absente.document_inexistent'}};
         },
         CitesteSchita: async (an, luna) => ({schita: {an, luna, absente:structuredClone(stare.absente.filter(z => z.data.startsWith(`${String(an).padStart(4, '0')}-${String(luna).padStart(2, '0')}-`))), celule: structuredClone(stare.ciorne.filter(c => c.data.startsWith(`${String(an).padStart(4, '0')}-${String(luna).padStart(2, '0')}-`)))}, eroare: null}),
         SalveazaSchita: async (an, luna, celule) => {
@@ -384,10 +415,20 @@ try {
     await asteapta(() => evalueaza(`!document.querySelector('dialog') && document.querySelector('.tabel-tipuri-absenta').textContent.includes('Inactiv')`),'Tipul nu se dezactivează.');
     assert.equal(await evalueaza(`document.querySelectorAll('.tabel-absente tbody tr').length`),1,'Dezactivarea a pierdut istoricul.');
     await completeaza('.filtre-absente select[aria-label="Categorie"]','');
+    const persoanaInlocuitor = await evalueaza(`JSON.parse(localStorage.getItem('pontix-test')).angajati[1].id`);
     await evalueaza(`[...document.querySelectorAll('.tabel-absente tbody tr')].find(r => r.cells[2].textContent === '2026-11-28').querySelector('button').click()`);
     await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog select[name="tip"]'))`),'Editarea zilei lipsește.');
-    await completeaza('dialog select[name="tip"]','CO'); await apasa('Salvează');
+    await completeaza('dialog select[name="tip"]','CO');
+    await completeaza('dialog input[name="nr_inregistrare"]','REG-104/2026');
+    await completeaza('dialog select[name="inlocuitor"]',persoanaInlocuitor);
+    await completeaza('dialog select[name="stare_aprobare"]','APROBATA');
+    await completeaza('dialog input[name="aprobat_de"]','Dr. Ionescu');
+    await apasa('Salvează');
     await asteapta(() => evalueaza(`!document.querySelector('dialog') && document.querySelector('.sumar-absente tbody tr').cells[2].textContent === '3'`),'Editarea nu actualizează sumarul.');
+    assert(await evalueaza(`document.querySelector('.tabel-absente').textContent.includes('REG-104/2026') && document.querySelector('.tabel-absente').textContent.includes('Dr. Ionescu')`),'Nr. înregistrare sau aprobarea nu apar în tabelul de absențe.');
+    await completeaza('.filtre-absente select[aria-label="Aprobare"]','APROBATA');
+    assert.equal(await evalueaza(`document.querySelectorAll('.tabel-absente tbody tr').length`),1,'Filtrul stării de aprobare nu funcționează.');
+    await completeaza('.filtre-absente select[aria-label="Aprobare"]','');
     await completeaza('.filtre-absente select[aria-label="Categorie"]','MEDICAL');
     await evalueaza(`document.querySelector('.tabel-absente thead input').click()`); await apasa('Anulează zilele selectate (1)');
     await asteapta(() => evalueaza(`document.querySelectorAll('.tabel-absente tbody tr').length === 0`),'Anularea selecției nu funcționează.');
@@ -399,6 +440,7 @@ try {
     assert(await evalueaza(`[...document.querySelectorAll('#coduri-pontaj option')].some(o => o.value === 'IN9' && o.textContent.includes('Intrare specială'))`),'Sugestiile din pontaj nu disting IN9.');
     await completeaza('.unelte-perioada select','11');
     await asteapta(() => evalueaza(`document.querySelectorAll('.grila-pontaj input[readonly]').length === 3`),'Pontajul nu arată absențele din noiembrie.');
+    assert(await evalueaza(`[...document.querySelectorAll('.grila-pontaj input[readonly]')].some(i => i.title.includes('REG-104/2026') && i.title.includes('Dr. Ionescu'))`),'Tooltip-ul din pontaj nu afișează detaliile cererii de concediu.');
     const protejata = await evalueaza(`(() => { const e = document.querySelector('.grila-pontaj input[readonly]'); e.focus(); return {selector:'input[data-rand="'+e.dataset.rand+'"][data-zi="'+e.dataset.zi+'"]',valoare:e.value}; })()`);
     await completeaza('.unelte-grila input','7'); await apasa('Completează selecția');
     await asteapta(() => evalueaza(`document.querySelector('.pontaj-lunar [role="alert"]')?.textContent.includes('Concedii și absențe')`),'Grila suprascrie absența.');

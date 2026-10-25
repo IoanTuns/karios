@@ -15,6 +15,8 @@ export function CitesteAbsente(arg1:number):Promise<main.RaspunsAbsente>;
 
 export function CitesteCalendar(arg1:number):Promise<main.RaspunsCalendar>;
 
+export function CitesteDocumentAbsenta(arg1:string):Promise<main.RaspunsDocumentAbsenta>;
+
 export function CitesteSchita(arg1:number,arg2:number):Promise<main.RaspunsSchita>;
 
 export function CompleteazaSarbatori2026():Promise<main.RaspunsCalendar>;
