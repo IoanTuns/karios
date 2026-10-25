@@ -20,10 +20,16 @@ export function Informatii():Promise<main.Informatii>;
 
 export function Limbi():Promise<Array<string>>;
 
+export function ListaSchimburi():Promise<main.RaspunsSchimburi>;
+
 export function SalveazaAngajat(arg1:datebaza.Angajat):Promise<main.RaspunsDate>;
 
 export function SalveazaNormaIntreaga(arg1:number):Promise<main.RaspunsDate>;
 
 export function SalveazaSarbatoare(arg1:string,arg2:datebaza.Sarbatoare,arg3:number):Promise<main.RaspunsCalendar>;
 
+export function SalveazaSchimb(arg1:datebaza.Schimb):Promise<main.RaspunsSchimburi>;
+
 export function SchimbaActivAngajat(arg1:string,arg2:boolean):Promise<main.RaspunsDate>;
+
+export function SchimbaActivSchimb(arg1:string,arg2:boolean):Promise<main.RaspunsSchimburi>;

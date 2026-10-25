@@ -81,6 +81,7 @@ async function completeaza(selector, valoare) {
 function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie) {
     let stare = JSON.parse(localStorage.getItem('pontix-test') || 'null') || {angajati: [], sectii: [], norma_intreaga_minute: 420, demo_disponibil: true};
     stare.sarbatori ??= structuredClone(calendarSursa);
+    stare.schimburi ??= [];
     const raspuns = () => {
         stare.angajati = stare.angajati.map(a => ({...a, norma_minute: a.tip_contract === 'PARTIALA' ? a.norma_partiala_minute : stare.norma_intreaga_minute}));
         stare.demo_disponibil = stare.angajati.length === 0;
@@ -112,7 +113,16 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie) {
         CompleteazaSarbatori2026: async () => {
             const lipsa = calendarSursa.filter(s => !stare.sarbatori.some(v => v.data === s.data));
             stare.sarbatori.push(...structuredClone(lipsa)); raspuns(); return {...calendar(2026), adaugate: lipsa.length};
-        }
+        },
+        ListaSchimburi: async () => ({schimburi: structuredClone(stare.schimburi), eroare: null}),
+        SalveazaSchimb: async s => {
+            s.cod = s.cod.trim().toUpperCase();
+            if (stare.schimburi.some(v => v.id !== s.id && v.cod === s.cod)) return {schimburi: [], eroare: {cod: 'schimburi.cod_duplicat', param: {}}};
+            const i = stare.schimburi.findIndex(v => v.id === s.id);
+            if (i < 0) stare.schimburi.push({...s, id: 'schimb-' + Date.now()}); else stare.schimburi[i] = s;
+            raspuns(); return {schimburi: structuredClone(stare.schimburi), eroare: null};
+        },
+        SchimbaActivSchimb: async (id, activ) => { stare.schimburi.find(s => s.id === id).activ = activ; raspuns(); return {schimburi: structuredClone(stare.schimburi), eroare: null}; }
     }}};
 }
 
@@ -128,6 +138,7 @@ try {
             const cerere = asteptari.get(r.id); asteptari.delete(r.id);
             if (r.error) cerere.reject(new Error(r.error.message)); else cerere.resolve(r.result);
         } else if (r.method === 'Runtime.exceptionThrown') erori.push(r.params.exceptionDetails.text);
+        else if (r.method === 'Page.javascriptDialogOpening') cdp('Page.handleJavaScriptDialog', {accept: true}).catch(err => erori.push(err.message));
     };
     await cdp('Page.enable'); await cdp('Runtime.enable');
     await cdp('Emulation.setDeviceMetricsOverride', {width: 1440, height: 960, deviceScaleFactor: 1, mobile: false});
@@ -208,12 +219,36 @@ try {
     await asteapta(() => evalueaza(`!document.querySelector('dialog') && document.querySelectorAll('.tabel-sarbatori tbody tr').length === 17`), 'Sărbătoarea nouă nu apare.');
     await completeaza('.unelte-calendar input', '2027'); await apasa('Arată anul');
     await asteapta(() => evalueaza(`document.querySelectorAll('.tabel-sarbatori tbody tr').length === 0 && Boolean(document.querySelector('.fara-rezultate'))`), 'Filtrarea anului nu funcționează.');
+    await apasa('Schimburi');
+    await asteapta(() => evalueaza(`Boolean(document.querySelector('.tabel-schimburi'))`), 'Nomenclator lipsă.');
+    await apasa('Adaugă schimb');
+    await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog[open]'))`), 'Formular schimb lipsă.');
+    await completeaza('dialog .campuri label:nth-child(1) input', 'n12');
+    await completeaza('dialog .campuri label:nth-child(2) select', 'NOAPTE');
+    await completeaza('dialog .campuri label:nth-child(3) input', 'Tură de test');
+    await completeaza('dialog input[type="time"]', '19:00');
+    await completeaza('dialog .campuri label:nth-child(6) input', '720');
+    await completeaza('dialog .campuri label:nth-child(7) input', '30'); await apasa('Salvează');
+    await asteapta(() => evalueaza(`!document.querySelector('dialog') && document.querySelector('.tabel-schimburi').textContent.includes('N12')`), 'Schimb nesalvat.');
+    assert(await evalueaza(`document.querySelector('.tabel-schimburi').textContent.includes('19:00') && document.querySelector('.tabel-schimburi').textContent.includes('12 h')`), 'Intervalul schimbului diferă.');
+    await apasa('Dezactivează');
+    await asteapta(() => evalueaza(`document.querySelector('.tabel-schimburi').textContent.includes('Inactiv')`), 'Schimbul nu se dezactivează.');
+    await apasa('Reactivează');
+    await asteapta(() => evalueaza(`document.querySelector('.tabel-schimburi').textContent.includes('Activ')`), 'Schimbul nu se reactivează.');
+    await apasa('Adaugă schimb');
+    await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog[open]'))`), 'Formular duplicat lipsă.');
+    await completeaza('dialog .campuri label:nth-child(1) input', 'N12');
+    await completeaza('dialog .campuri label:nth-child(3) input', 'Duplicat');
+    await completeaza('dialog input[type="time"]', '20:00');
+    await completeaza('dialog .campuri label:nth-child(6) input', '720'); await apasa('Salvează');
+    await asteapta(() => evalueaza(`document.querySelector('dialog [role="alert"]')?.textContent.includes('acest cod')`), 'Codul duplicat nu este semnalat.');
+    await apasa('Anulează');
     await cdp('Page.removeScriptToEvaluateOnNewDocument', {identifier: injectat.identifier});
     await cdp('Page.addScriptToEvaluateOnNewDocument', {source: `(${simulare})(${JSON.stringify(demo)},${JSON.stringify(cataloage)},'en',${JSON.stringify(calendarSursa)},${JSON.stringify(versiuneAplicatie)})`});
     await cdp('Page.reload');
     await asteapta(() => evalueaza(`document.querySelector('h1')?.textContent === 'Employees'`), 'Traducerea EN nu apare.');
     assert.deepEqual(erori, [], 'Erori JavaScript în interfață.');
-    console.log('UI verificată: angajați/demo/setări, calendar 2026, editare/adăugare, date duplicate, import fără suprascriere, ani, 1024px și EN.');
+    console.log('UI verificată: angajați/demo/setări, calendar 2026, schimburi N12, duplicate, activare, import, ani, 1024px și EN.');
     console.log('Captură: build/bin/interfata-demo.png. Puntea Wails a fost simulată; baza reală este verificată de testele Go.');
 } finally {
     if (ws?.readyState === WebSocket.OPEN) {

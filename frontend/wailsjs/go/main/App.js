@@ -34,6 +34,10 @@ export function Limbi() {
   return window['go']['main']['App']['Limbi']();
 }
 
+export function ListaSchimburi() {
+  return window['go']['main']['App']['ListaSchimburi']();
+}
+
 export function SalveazaAngajat(arg1) {
   return window['go']['main']['App']['SalveazaAngajat'](arg1);
 }
@@ -46,6 +50,14 @@ export function SalveazaSarbatoare(arg1, arg2, arg3) {
   return window['go']['main']['App']['SalveazaSarbatoare'](arg1, arg2, arg3);
 }
 
+export function SalveazaSchimb(arg1) {
+  return window['go']['main']['App']['SalveazaSchimb'](arg1);
+}
+
 export function SchimbaActivAngajat(arg1, arg2) {
   return window['go']['main']['App']['SchimbaActivAngajat'](arg1, arg2);
+}
+
+export function SchimbaActivSchimb(arg1, arg2) {
+  return window['go']['main']['App']['SchimbaActivSchimb'](arg1, arg2);
 }

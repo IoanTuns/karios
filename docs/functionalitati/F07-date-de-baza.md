@@ -11,7 +11,7 @@ Utilizatorul poate gestiona angajații și listele de care depinde pontajul.
 | ID | Task | Stare | Responsabil | Note |
 | --- | --- | --- | --- | --- |
 | F07-T01 | Administrarea angajaților: nume, prenume, marcă, tip contract, normă parțială, concediu anual, funcție, secție, activ | gata | Codex | 2026-10-25, 0.10.0: interfață, metode Wails și serviciu Go peste sqlc; listare/căutare/filtre, creare/editare, dezactivare/reactivare, secții și norma globală. Teste Go pe baza criptată, UI în Edge cu punte simulată și build Windows trecute; [ghid](../ghid-primele-functionalitati.md). Urmează F07-T03 și prototipul F08-T01; [D013](../decizii/D013-primele-functionalitati-demo.md) rămâne propusă |
-| F07-T02 | Tipuri de schimb și codurile lor scurte (`7`, `12`, `N12`, `G24`) | de făcut | | De stabilit orele exacte pentru fiecare cod |
+| F07-T02 | Tipuri de schimb și codurile lor scurte (`7`, `12`, `N12`, `G24`) | gata | Codex | 2026-10-25, 0.12.0: ecran de listare/creare/editare/dezactivare, denumiri RO/EN și intervale explicite. Teste Go și UI Edge, fără coduri sau ore precompletate; [D015](../decizii/D015-nomenclator-schimburi.md). Urmează grila F08 |
 | F07-T03 | Administrarea sărbătorilor pentru fiecare an | gata | Codex | 2026-10-25, 0.11.0: set național 2026 (17 sărbători în 16 date), migrarea de date 0004, listare pe an, creare/editare RO/EN și completare fără suprascriere. Teste Go și UI Edge; [D014](../decizii/D014-sarbatori-2026.md). Pas următor: nomenclator schimburi și grila F08 |
 | F07-T04 | Coduri de absență | de făcut | | Lista finală din F01-T02 |
 | F07-T05 | Categorii de ore și coloanele centralizatorului | de făcut | | O singură sursă pentru legătura categorie → coloană |

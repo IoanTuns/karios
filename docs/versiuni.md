@@ -4,6 +4,16 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.12.0 · 2026-10-25
+
+Nomenclatorul configurabil de schimburi (F07-T02, D015).
+
+- Ecran Schimburi: cod, denumiri RO/EN, oră de început, durată și pauză în minute, tip și activ/inactiv.
+- Creare/editare și dezactivare/reactivare, validări și jurnal tranzacțional. Coduri normalizate la majuscule, fără duplicate, inclusiv între schimburile inactive.
+- Nu se introduc automat ore sau reguli de plată pentru N12 ori alte coduri.
+
+Rapoarte: niciunul încă. Baza de date: nicio migrare nouă.
+
 ## 0.11.0 · 2026-10-25
 
 Sărbători legale România 2026 și administrarea calendarului pe ani (F07-T03, D014).
