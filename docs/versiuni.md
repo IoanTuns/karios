@@ -4,6 +4,12 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.8.1 · 2026-10-25
+
+Actualizarea dependențelor pentru F07-T06 (D007): SQLite WASM `v6.3.35304` → `v6.3.35401` în aplicație și prototip; `react-i18next` `17.1.7` → `17.1.8`. Versiuni fixate exact în manifestele și fișierele de blocare existente.
+
+Rapoarte: niciunul încă. Baza de date: nicio migrare nouă.
+
 ## 0.8.0 · 2026-10-25
 
 Backup automat înaintea actualizărilor bazei de date (F05-T06, D002 punctul 3).

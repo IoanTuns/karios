@@ -6,6 +6,8 @@ Stări: `nouă`, `în analiză`, `transformată` (în task sau decizie), `amâna
 
 | ID | Data | Idee | Cine | Stare | Legături / motiv |
 | --- | --- | --- | --- | --- | --- |
+| I009 | 2026-10-25 | Date angajați separate, tip contract implicit întreg, normă globală 7 ore, normă parțială individuală, concediu anual contractual și sărbători pe ani | Ioan Tuns | transformată | F07-T06, [D012](decizii/D012-date-angajati-norme-sarbatori.md) |
+| I010 | 2026-10-25 | Istoricul normelor și al dreptului contractual la concediu, cu perioade de valabilitate | Codex | nouă | Înaintea calculelor istorice și a închiderii lunii (F12); setarea curentă nu trebuie folosită pentru recalculări istorice |
 | I008 | 2026-10-25 | Cheia aplicației în afara codului, injectată la build dintr-un fișier păstrat separat | Claude | amânată | Decizia D011: deocamdată în cod. Mutarea se poate face fără recriptarea bazei |
 | I007 | 2026-10-24 | Trecerea la Wails v3 când apare prima versiune stabilă | Claude | amânată | Pe 2026-10-24, v3 era la 3.0.0-beta.34; D007 cere versiuni stabile. v3 schimbă API-ul, deci va fi un task separat |
 | I006 | 2026-10-24 | Etapa 2 a criptării: cheia de date deschisă doar cu parola sau răspunsurile unui cont; fără cheia din `.exe` și fără auto-login | Claude | amânată | Copiile P și R există de la început, deci trecerea = ștergerea copiei A ([D008](decizii/D008-criptarea-datelor.md)) |
