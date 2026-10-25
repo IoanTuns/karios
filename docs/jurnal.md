@@ -4,6 +4,7 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 
 | Data | Acțiune | Cine | Legături |
 | --- | --- | --- | --- |
+| 2026-10-25 | Merge `F05-T05-drept-scriere` → `main`; tag `v0.4.0` | Ioan Tuns (aprobare), Claude | F05-T05 |
 | 2026-10-24 | F05-T05: verificarea dreptului de scriere și mesajul tradus (versiunea 0.4.0). `i18n.Eroare` devine tipul comun (`calcul.Eroare` = alias); `i18n.LimbaSistem`. Primele două probe pe `.exe` s-au închis imediat (cod 1); cauza cea mai probabilă: fereastra a fost închisă de o tastă apăsată în editor. Un build de diagnostic și repetarea probei au arătat fereastra corect în ambele cazuri (ACL fără scriere, fișier `karios`) | Claude | F05-T05, [D002](decizii/D002-portabilitate.md) |
 | 2026-10-24 | `build.ps1` verifică proprietățile `.exe` prin Windows Shell (ca Explorer), nu prin .NET, care nu citea câmpurile text; aplicația nu depinde de .NET. Merge `F05-T13-script-build` → `main`; tag `v0.3.3` | Ioan Tuns (aprobare), Claude | F05-T13 |
 | 2026-10-24 | F05-T13: scriptul `build.ps1` și `info` în `wails.json` (versiunea 0.3.3). Verificat: Explorer arată 0.3.3, Pontix, © 2026 Ioan Tuns. Observație: `wails build -v 2` afișează toate variabilele de mediu, inclusiv valori sensibile; regulă nouă în AGENTS.md secțiunea 4 | Claude | F05-T13 |
