@@ -139,7 +139,7 @@ func TestMigrareContractePastreazaDatele(t *testing.T) {
 			if normaGlobala != "" {
 				executa(t, db, `INSERT INTO setari (cheie, valoare, modificat_la) VALUES ('norma_intreaga_minute', ?, 'initial')`, normaGlobala)
 			}
-			if n, err := Migreaza(context.Background(), db, Migrari); err != nil || n != 2 {
+			if n, err := Migreaza(context.Background(), db, Migrari); err != nil || n != 3 {
 				t.Fatalf("actualizarea bazei vechi: %d migrări, %v", n, err)
 			}
 			var nume, prenume, marca, creat, modificat string
@@ -181,7 +181,7 @@ func TestMigrareContractePastreazaDatele(t *testing.T) {
 
 func TestSarbatoriPeAni(t *testing.T) {
 	db := bazaContracte(t)
-	for _, data := range []string{"2026-12-25", "2027-12-25", "2027-04-01"} {
+	for _, data := range []string{"2026-12-24", "2027-12-25", "2027-04-01"} {
 		executa(t, db, `INSERT INTO sarbatori (data, denumire, creat_la, modificat_la) VALUES (?, '{"ro":"Exemplu"}', 'x', 'x')`, data)
 	}
 	var n int
@@ -195,7 +195,7 @@ func TestSarbatoriPeAni(t *testing.T) {
 	if _, err := db.Exec(`UPDATE sarbatori SET an = 2029 WHERE data = '2028-04-01'`); err == nil {
 		t.Error("a fost acceptat un an care contrazice data")
 	}
-	if _, err := db.Exec(`INSERT INTO sarbatori (data, denumire, creat_la, modificat_la) VALUES ('2026-12-25', '{"ro":"Duplicat"}', 'x', 'x')`); err == nil {
+	if _, err := db.Exec(`INSERT INTO sarbatori (data, denumire, creat_la, modificat_la) VALUES ('2026-12-24', '{"ro":"Duplicat"}', 'x', 'x')`); err == nil {
 		t.Error("sărbătoare duplicată acceptată în același an")
 	}
 }

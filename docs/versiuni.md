@@ -4,6 +4,16 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.11.0 · 2026-10-25
+
+Sărbători legale România 2026 și administrarea calendarului pe ani (F07-T03, D014).
+
+- Migrarea de date include lista națională: 17 sărbători nominale în 16 date distincte; 1 iunie combină Ziua Copilului și a doua zi de Rusalii. Datele mobile sunt explicit ortodoxe. Înregistrările preexistente nu sunt suprascrise.
+- Ecran Sărbători: selectare an, listare, creare/editare cu denumiri RO/EN, validarea datei reale și completarea repetabilă a datelor lipsă din 2026.
+- Operațiile din interfață sunt tranzacționale și jurnalizate; nu se introduc reguli de plată.
+
+Rapoarte: niciunul încă. **Baza de date: migrarea `0004_sarbatori_romania_2026`.**
+
 ## 0.10.0 · 2026-10-25
 
 Primele fluxuri complete în interfața desktop (F07-T01, F07-T07).

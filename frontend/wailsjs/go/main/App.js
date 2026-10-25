@@ -10,6 +10,14 @@ export function Catalog(arg1) {
   return window['go']['main']['App']['Catalog'](arg1);
 }
 
+export function CitesteCalendar(arg1) {
+  return window['go']['main']['App']['CitesteCalendar'](arg1);
+}
+
+export function CompleteazaSarbatori2026() {
+  return window['go']['main']['App']['CompleteazaSarbatori2026']();
+}
+
 export function DateInitiale() {
   return window['go']['main']['App']['DateInitiale']();
 }
@@ -32,6 +40,10 @@ export function SalveazaAngajat(arg1) {
 
 export function SalveazaNormaIntreaga(arg1) {
   return window['go']['main']['App']['SalveazaNormaIntreaga'](arg1);
+}
+
+export function SalveazaSarbatoare(arg1, arg2, arg3) {
+  return window['go']['main']['App']['SalveazaSarbatoare'](arg1, arg2, arg3);
 }
 
 export function SchimbaActivAngajat(arg1, arg2) {

@@ -6,6 +6,8 @@ Stări: `nouă`, `în analiză`, `transformată` (în task sau decizie), `amâna
 
 | ID | Data | Idee | Cine | Stare | Legături / motiv |
 | --- | --- | --- | --- | --- | --- |
+| I013 | 2026-10-25 | Modelarea persoanei cu mai multe contracte/mărci și rânduri separate de gardă, plus grupări profesionale ca în raport | Codex | în analiză | F01: captura arată rânduri GARDĂ cu mărci proprii; relația contractuală nu este confirmată. Nu deducem legătura din nume |
+| I012 | 2026-10-25 | Sărbători legale România 2026 cu interfață și începutul grilei după modelul de raport primit | Ioan Tuns | transformată | F07-T03, F08-T01; numai structura anonimizată a raportului este descrisă în documentație |
 | I011 | 2026-10-25 | Primul flux complet pentru administrarea angajaților și un set de date demo fictive, încărcat la cerere | Ioan Tuns | transformată | F06-T03, F07-T01, F07-T07; [D013](decizii/D013-primele-functionalitati-demo.md) |
 | I009 | 2026-10-25 | Date angajați separate, tip contract implicit întreg, normă globală 7 ore, normă parțială individuală, concediu anual contractual și sărbători pe ani | Ioan Tuns | transformată | F07-T06, [D012](decizii/D012-date-angajati-norme-sarbatori.md) |
 | I010 | 2026-10-25 | Istoricul normelor și al dreptului contractual la concediu, cu perioade de valabilitate | Codex | nouă | Înaintea calculelor istorice și a închiderii lunii (F12); setarea curentă nu trebuie folosită pentru recalculări istorice |

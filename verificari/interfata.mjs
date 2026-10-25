@@ -16,6 +16,8 @@ const browser = ['C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
 assert(browser, 'Microsoft Edge nu este disponibil.');
 assert(existsSync(join(dist, 'index.html')), 'Rulează întâi npm run build în frontend.');
 const demo = JSON.parse(readFileSync(join(radacina, 'internal/datebaza/demo/angajati.json'), 'utf8'));
+const calendarSursa = JSON.parse(readFileSync(join(radacina, 'internal/datebaza/calendare/romania-2026.json'), 'utf8'));
+const versiuneAplicatie = readFileSync(join(radacina, 'internal/versiune/versiune.go'), 'utf8').match(/const Aplicatie = "([^"]+)"/)[1];
 const cataloage = Object.fromEntries(['ro', 'en'].map(limba => [limba,
     JSON.parse(readFileSync(join(radacina, `internal/i18n/locales/${limba}.json`), 'utf8'))]));
 const profil = mkdtempSync(join(tmpdir(), 'pontix-ui-'));
@@ -76,17 +78,19 @@ async function completeaza(selector, valoare) {
 
 // Se injectează înaintea React; toate mutațiile sunt limitate la localStorage
 // din profilul temporar al testului, cu datele fictive incluse în repo.
-function simulare(demo, cataloage, limba) {
+function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie) {
     let stare = JSON.parse(localStorage.getItem('pontix-test') || 'null') || {angajati: [], sectii: [], norma_intreaga_minute: 420, demo_disponibil: true};
+    stare.sarbatori ??= structuredClone(calendarSursa);
     const raspuns = () => {
         stare.angajati = stare.angajati.map(a => ({...a, norma_minute: a.tip_contract === 'PARTIALA' ? a.norma_partiala_minute : stare.norma_intreaga_minute}));
         stare.demo_disponibil = stare.angajati.length === 0;
         localStorage.setItem('pontix-test', JSON.stringify(stare));
         return {date: structuredClone(stare), eroare: null};
     };
+    const calendar = an => ({calendar: {an, sarbatori: structuredClone(stare.sarbatori.filter(s => Number(s.data.slice(0, 4)) === an).sort((a, b) => a.data.localeCompare(b.data))), import_disponibil: an === 2026}, adaugate: 0, eroare: null});
     window.go = {main: {App: {
         Limbi: async () => [limba, ...Object.keys(cataloage).filter(l => l !== limba)],
-        Catalog: async l => cataloage[l], Informatii: async () => ({versiune: '0.10.0', commit: 'verificare'}),
+        Catalog: async l => cataloage[l], Informatii: async () => ({versiune: versiuneAplicatie, commit: 'verificare'}),
         DateInitiale: async () => raspuns(),
         IncarcaDemo: async () => { stare.angajati = structuredClone(demo.angajati); stare.sectii = structuredClone(demo.sectii); return raspuns(); },
         SalveazaAngajat: async a => {
@@ -97,7 +101,18 @@ function simulare(demo, cataloage, limba) {
         },
         SchimbaActivAngajat: async (id, activ) => { stare.angajati.find(a => a.id === id).activ = activ; return raspuns(); },
         SalveazaNormaIntreaga: async minute => { stare.norma_intreaga_minute = minute; return raspuns(); },
-        AdaugaSectie: async denumire => { stare.sectii.push({id: 'sectie-' + Date.now(), denumire}); return raspuns(); }
+        AdaugaSectie: async denumire => { stare.sectii.push({id: 'sectie-' + Date.now(), denumire}); return raspuns(); },
+        CitesteCalendar: async an => calendar(an),
+        SalveazaSarbatoare: async (initiala, s, an) => {
+            if (stare.sarbatori.some(v => v.data === s.data && v.data !== initiala)) return {calendar: null, eroare: {cod: 'sarbatori.data_duplicata', param: {}}};
+            const i = stare.sarbatori.findIndex(v => v.data === initiala);
+            if (i < 0) stare.sarbatori.push(s); else stare.sarbatori[i] = s;
+            raspuns(); return calendar(an);
+        },
+        CompleteazaSarbatori2026: async () => {
+            const lipsa = calendarSursa.filter(s => !stare.sarbatori.some(v => v.data === s.data));
+            stare.sarbatori.push(...structuredClone(lipsa)); raspuns(); return {...calendar(2026), adaugate: lipsa.length};
+        }
     }}};
 }
 
@@ -116,7 +131,7 @@ try {
     };
     await cdp('Page.enable'); await cdp('Runtime.enable');
     await cdp('Emulation.setDeviceMetricsOverride', {width: 1440, height: 960, deviceScaleFactor: 1, mobile: false});
-    const injectat = await cdp('Page.addScriptToEvaluateOnNewDocument', {source: `(${simulare})(${JSON.stringify(demo)},${JSON.stringify(cataloage)},'ro')`});
+    const injectat = await cdp('Page.addScriptToEvaluateOnNewDocument', {source: `(${simulare})(${JSON.stringify(demo)},${JSON.stringify(cataloage)},'ro',${JSON.stringify(calendarSursa)},${JSON.stringify(versiuneAplicatie)})`});
     await cdp('Page.navigate', {url});
     await asteapta(() => evalueaza(`document.body.textContent.includes('Adaugă primii membri')`), 'Starea goală nu apare.');
     await apasa('Încarcă date demo');
@@ -171,12 +186,34 @@ try {
     // Verificare și la lățimea minimă a ferestrei desktop.
     await cdp('Emulation.setDeviceMetricsOverride', {width: 1024, height: 640, deviceScaleFactor: 1, mobile: false});
     assert(await evalueaza(`document.documentElement.scrollWidth <= 1024`), 'Fereastra are depășire orizontală în afara tabelului.');
+    await apasa('Sărbători');
+    await asteapta(() => evalueaza(`document.querySelectorAll('.tabel-sarbatori tbody tr').length === 16`), 'Calendarul 2026 nu apare.');
+    const capturaCalendar = await cdp('Page.captureScreenshot', {format: 'png'});
+    writeFileSync(join(radacina, 'build/bin/calendar-2026.png'), Buffer.from(capturaCalendar.data, 'base64'));
+    await evalueaza(`document.querySelector('.tabel-sarbatori button').click()`);
+    await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog[open]'))`), 'Editare sărbătoare lipsă.');
+    await completeaza('dialog .campuri label:nth-child(2) input', 'An nou personalizat'); await apasa('Salvează');
+    await asteapta(() => evalueaza(`!document.querySelector('dialog') && document.querySelector('.tabel-sarbatori').textContent.includes('An nou personalizat')`), 'Editarea sărbătorii nu se salvează.');
+    await apasa('Completează lista legală 2026');
+    await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog[open]'))`), 'Confirmare import lipsă.');
+    await apasa('Completează datele lipsă');
+    await asteapta(() => evalueaza(`!document.querySelector('dialog') && document.querySelector('.calendar-sarbatori [role="status"]').textContent.includes('0 date')`), 'Import repetat duplicat.');
+    assert(await evalueaza(`document.querySelector('.tabel-sarbatori').textContent.includes('An nou personalizat')`), 'Importul a suprascris denumirea editată.');
+    await apasa('Adaugă sărbătoare');
+    await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog[open]'))`), 'Formular sărbătoare lipsă.');
+    await completeaza('dialog input[type="date"]', '2026-01-01');
+    await completeaza('dialog .campuri label:nth-child(2) input', 'Duplicat'); await apasa('Salvează');
+    await asteapta(() => evalueaza(`document.querySelector('dialog [role="alert"]')?.textContent.includes('Există deja')`), 'Data duplicată nu este semnalată.');
+    await completeaza('dialog input[type="date"]', '2026-02-01'); await apasa('Salvează');
+    await asteapta(() => evalueaza(`!document.querySelector('dialog') && document.querySelectorAll('.tabel-sarbatori tbody tr').length === 17`), 'Sărbătoarea nouă nu apare.');
+    await completeaza('.unelte-calendar input', '2027'); await apasa('Arată anul');
+    await asteapta(() => evalueaza(`document.querySelectorAll('.tabel-sarbatori tbody tr').length === 0 && Boolean(document.querySelector('.fara-rezultate'))`), 'Filtrarea anului nu funcționează.');
     await cdp('Page.removeScriptToEvaluateOnNewDocument', {identifier: injectat.identifier});
-    await cdp('Page.addScriptToEvaluateOnNewDocument', {source: `(${simulare})(${JSON.stringify(demo)},${JSON.stringify(cataloage)},'en')`});
+    await cdp('Page.addScriptToEvaluateOnNewDocument', {source: `(${simulare})(${JSON.stringify(demo)},${JSON.stringify(cataloage)},'en',${JSON.stringify(calendarSursa)},${JSON.stringify(versiuneAplicatie)})`});
     await cdp('Page.reload');
     await asteapta(() => evalueaza(`document.querySelector('h1')?.textContent === 'Employees'`), 'Traducerea EN nu apare.');
     assert.deepEqual(erori, [], 'Erori JavaScript în interfață.');
-    console.log('UI verificată: demo, căutare, editare, activare, norme, marcă duplicată, adăugare, reîncărcare, 1024px și EN.');
+    console.log('UI verificată: angajați/demo/setări, calendar 2026, editare/adăugare, date duplicate, import fără suprascriere, ani, 1024px și EN.');
     console.log('Captură: build/bin/interfata-demo.png. Puntea Wails a fost simulată; baza reală este verificată de testele Go.');
 } finally {
     if (ws?.readyState === WebSocket.OPEN) {

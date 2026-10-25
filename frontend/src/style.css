@@ -130,3 +130,11 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
     .unelte select { flex: 1; max-width: none; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+.unelte-calendar { display: flex; justify-content: space-between; align-items: end; gap: 15px; margin-bottom: 22px; flex-wrap: wrap; }
+.unelte-calendar form { display: flex; gap: 10px; align-items: end; }
+.unelte-calendar label { display: grid; gap: 7px; color: var(--discret); font-size: 12px; }
+.unelte-calendar input { width: 110px; }
+.actiuni-calendar { display: flex; gap: 10px; }
+.nota-calendar { color: var(--discret); font-size: 12px; line-height: 1.7; max-width: 900px; margin: 0 0 22px; }
+.tabel-sarbatori { white-space: normal; }
+.tabel-sarbatori td:first-child, .tabel-sarbatori td:last-child { white-space: nowrap; }

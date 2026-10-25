@@ -17,7 +17,7 @@ function minuteDinOre(valoare: string): number | null {
     return valoare.trim() && Number.isFinite(minute) && Math.abs(minute - intreg) < 0.00001 && intreg >= 1 && intreg <= 1440 ? intreg : null;
 }
 
-function Dialog({titlu, ocupat, inchide, children}: {titlu: string; ocupat: boolean; inchide: () => void; children: ReactNode}) {
+export function Dialog({titlu, ocupat, inchide, children}: {titlu: string; ocupat: boolean; inchide: () => void; children: ReactNode}) {
     const ref = useRef<HTMLDialogElement>(null);
     const {t} = useTranslation();
     useEffect(() => {

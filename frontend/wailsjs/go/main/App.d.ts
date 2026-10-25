@@ -8,6 +8,10 @@ export function AdaugaSectie(arg1:i18n.Text):Promise<main.RaspunsDate>;
 
 export function Catalog(arg1:string):Promise<Record<string, string>>;
 
+export function CitesteCalendar(arg1:number):Promise<main.RaspunsCalendar>;
+
+export function CompleteazaSarbatori2026():Promise<main.RaspunsCalendar>;
+
 export function DateInitiale():Promise<main.RaspunsDate>;
 
 export function IncarcaDemo():Promise<main.RaspunsDate>;
@@ -19,5 +23,7 @@ export function Limbi():Promise<Array<string>>;
 export function SalveazaAngajat(arg1:datebaza.Angajat):Promise<main.RaspunsDate>;
 
 export function SalveazaNormaIntreaga(arg1:number):Promise<main.RaspunsDate>;
+
+export function SalveazaSarbatoare(arg1:string,arg2:datebaza.Sarbatoare,arg3:number):Promise<main.RaspunsCalendar>;
 
 export function SchimbaActivAngajat(arg1:string,arg2:boolean):Promise<main.RaspunsDate>;

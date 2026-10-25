@@ -3,8 +3,9 @@ import {useTranslation} from 'react-i18next';
 import {AdaugaSectie, DateInitiale, IncarcaDemo, Informatii, SalveazaAngajat, SalveazaNormaIntreaga, SchimbaActivAngajat} from '../wailsjs/go/main/App';
 import {datebaza, main} from '../wailsjs/go/models';
 import {DialogDemo, FormularAngajat, Setari, durata, denumireSectie} from './Formulare';
+import {Sarbatori} from './Sarbatori';
 
-type Ecran = 'angajati' | 'setari';
+type Ecran = 'angajati' | 'sarbatori' | 'setari';
 
 function normalizat(text: string): string {
     return text.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLocaleLowerCase();
@@ -14,6 +15,7 @@ function Simbol({tip}: {tip: Ecran}) {
     return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
         {tip === 'angajati'
             ? <><circle cx="9" cy="8" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M16 5a3 3 0 0 1 0 6M18 15a5 5 0 0 1 3 5"/></>
+            : tip === 'sarbatori' ? <><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M8 3v4M16 3v4M8 14h3M8 17h3M14 14h3"/></>
             : <><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3" fill="currentColor"/><circle cx="15" cy="17" r="3" fill="currentColor"/></>}
     </svg>;
 }
@@ -85,7 +87,7 @@ function App() {
             <div className="marca-aplicatie"><span className="sigla" aria-hidden="true">p<span>·</span></span><strong>{t('aplicatie.titlu')}</strong></div>
             <p className="eticheta-meniu">{t('ui.date_baza')}</p>
             <nav aria-label={t('ui.date_baza')}>
-                {(['angajati', 'setari'] as Ecran[]).map(item => <button key={item} className={`navigare ${ecran === item ? 'selectat' : ''}`}
+                {(['angajati', 'sarbatori', 'setari'] as Ecran[]).map(item => <button key={item} className={`navigare ${ecran === item ? 'selectat' : ''}`}
                     aria-current={ecran === item ? 'page' : undefined} disabled={ocupat}
                     onClick={() => { setEcran(item); setEroare(''); setMesaj(''); }}>
                     <Simbol tip={item}/>{t(`ui.${item}`)}</button>)}
@@ -105,6 +107,7 @@ function App() {
             {mesaj && <div className="mesaj succes" role="status">{mesaj}</div>}
             {incarcare ? <div className="asteptare" role="status">{t('ui.incarcare')}</div>
                 : !date ? <button className="buton secundar" disabled={ocupat} onClick={() => executa(DateInitiale, '')}>{t('ui.reincearca')}</button>
+                : ecran === 'sarbatori' ? <Sarbatori/>
                 : ecran === 'setari' ? <Setari date={date} ocupat={ocupat}
                     salveazaNorma={minute => executa(() => SalveazaNormaIntreaga(minute))}
                     adaugaSectie={denumire => executa(() => AdaugaSectie({[i18n.language]: denumire}))}/>

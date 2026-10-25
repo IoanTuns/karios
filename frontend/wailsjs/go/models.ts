@@ -32,6 +32,54 @@ export namespace datebaza {
 	        this.activ = source["activ"];
 	    }
 	}
+	export class Sarbatoare {
+	    data: string;
+	    denumire: Record<string, string>;
+
+	    static createFrom(source: any = {}) {
+	        return new Sarbatoare(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.data = source["data"];
+	        this.denumire = source["denumire"];
+	    }
+	}
+	export class CalendarAn {
+	    an: number;
+	    sarbatori: Sarbatoare[];
+	    import_disponibil: boolean;
+
+	    static createFrom(source: any = {}) {
+	        return new CalendarAn(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.an = source["an"];
+	        this.sarbatori = this.convertValues(source["sarbatori"], Sarbatoare);
+	        this.import_disponibil = source["import_disponibil"];
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 	export class Sectie {
 	    id: string;
 	    denumire: Record<string, string>;
@@ -83,6 +131,7 @@ export namespace datebaza {
 		}
 	}
 
+
 }
 
 export namespace main {
@@ -114,6 +163,40 @@ export namespace main {
 	        this.cod = source["cod"];
 	        this.param = source["param"];
 	    }
+	}
+	export class RaspunsCalendar {
+	    calendar?: datebaza.CalendarAn;
+	    adaugate: number;
+	    eroare?: MesajEroare;
+
+	    static createFrom(source: any = {}) {
+	        return new RaspunsCalendar(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.calendar = this.convertValues(source["calendar"], datebaza.CalendarAn);
+	        this.adaugate = source["adaugate"];
+	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
 	}
 	export class RaspunsDate {
 	    date?: datebaza.Date;
