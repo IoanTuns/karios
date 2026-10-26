@@ -6,6 +6,9 @@ Stări: `nouă`, `în analiză`, `transformată` (în task sau decizie), `amâna
 
 | ID | Data | Idee | Cine | Stare | Legături / motiv |
 | --- | --- | --- | --- | --- | --- |
+| I060 | 2026-10-26 | Verificare echitate și rotație de sărbători (Crăciun/Revelion/Paști) între ani și marcaj vizual pentru ture consecutive pe zile libere/gărzi | Ioan Tuns | transformată | F11-T06, [D039](decizii/D039-sumar-angajat-raport-acoperire-echitate-sarbatori.md) |
+| I059 | 2026-10-26 | Raport și panou de acoperire weekend și zile nelucrătoare (G24, Z12, N12, IN9) cu evidențierea posturilor neacoperite | Ioan Tuns | transformată | F11-T05, [D039](decizii/D039-sumar-angajat-raport-acoperire-echitate-sarbatori.md) |
+| I058 | 2026-10-26 | Sumar editabil pe angajat pentru gărzi și ture (modal și vedere dedicată) cu statistici, totaluri și editare rapidă | Ioan Tuns | transformată | F11-T04, [D039](decizii/D039-sumar-angajat-raport-acoperire-echitate-sarbatori.md) |
 | I057 | 2026-10-26 | Grilă lunară tabelară de planificare (pereche zi - tip program) pentru gărzi, intrare weekend și după-amiază, cu atribuire directă pe celule și publicare unificată | Ioan Tuns | transformată | F11-T03, [D038](decizii/D038-grila-lunara-planificare.md) |
 | I056 | 2026-10-26 | Secțiune separată pentru planificarea gărzilor și a schimburilor de după-amiază, cu publicarea explicită în pontaj | Ioan Tuns | transformată | F11-T01, [D037](decizii/D037-planificare-garzi-dupa-amiaza-publicare.md) |
 | I055 | 2026-10-26 | Atribuirea aceleiași categorii de program unui lot de angajați selectați, pentru configurarea inițială mai rapidă | Codex | nouă | Extensie posibilă după F07-T14; prima livrare permite atribuirea individuală, iar completarea lunii funcționează deja pe loturi |

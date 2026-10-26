@@ -4,6 +4,16 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.32.0 · 2026-10-26
+
+Sumar editabil pe angajat, raport complet de acoperire pentru weekenduri și sărbători legale, verificare echitate rotație și marcaje pentru ture consecutive (F11-T04, F11-T05, F11-T06, I058–I060, D039).
+
+- **Sumar editabil pe angajat:** Vizualizare dedicată și fereastră modală accesibilă din grilă printr-un clic pe rândul angajatului. Afișează totalul de ture și ore planificate în lună, lista zilelor cu evidențierea weekendurilor și a sărbătorilor, selector rapid pentru schimburi permise sau ștergere tură și avertismentele specifice angajatului.
+- **Raport complet de acoperire weekend și sărbători legale:** Vizualizare tabelară dedicată care verifică prezența personalului pe posturile obligatorii (`G24`, `Z12`, `N12`, `IN9`) pentru fiecare sâmbătă, duminică și sărbătoare legală. Afișează badge-uri cu angajații alocați sau semnalizare vizuală `Lipsă / Neacoperit`, carduri sintetice cu procentul de acoperire și filtru pentru afișarea exclusivă a zilelor cu deficit.
+- **Echitate sărbători și marcaj ture consecutive:** Verificarea automată a istoricului de sărbători majore (Crăciun `N-1` -> Revelion `N`, Crăciun `N` -> Paști `N+1` pe același schimb) și a turelor/gărzilor planificate în zile consecutive (fără repaus după `G24` sau ture succesive). Semnalizare vizuală neblocantă în grilă (`celula-atentie`), tooltip-uri explicative și detalii în panoul de inspecție poziție.
+
+Baza de date și rapoarte: nicio schimbare de schemă sau formule.
+
 ## 0.31.0 · 2026-10-26
 
 Grilă lunară tabelară de planificare cu atribuire directă pe celule (pereche zi – tip program) pentru gărzi, intrare weekend și după-amiază, cu publicare unificată în schița de pontaj (F11-T03, I057, D038).

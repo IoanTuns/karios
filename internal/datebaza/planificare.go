@@ -13,6 +13,7 @@ import (
 
 	"pontix/internal/bd/acces"
 	"pontix/internal/calcul"
+	"pontix/internal/i18n"
 )
 
 type PozitiePlanificare struct {
@@ -489,4 +490,87 @@ func (s *Serviciu) PublicaPlanificare(ctx context.Context, c CererePublicarePlan
 		return PublicarePlan{}, err
 	}
 	return rez, nil
+}
+
+func (s *Serviciu) CitesteAcoperirePlanificare(ctx context.Context, an, luna int, posturi []string) (calcul.RaportAcoperire, error) {
+	plan, err := s.CitestePlanificare(ctx, an, luna)
+	if err != nil {
+		return calcul.RaportAcoperire{}, err
+	}
+	sarbatori, err := s.CitesteCalendar(ctx, an)
+	if err != nil {
+		return calcul.RaportAcoperire{}, err
+	}
+	schimburi, err := s.ListaSchimburi(ctx)
+	if err != nil {
+		return calcul.RaportAcoperire{}, err
+	}
+	codSchimb := map[string]string{}
+	for _, sc := range schimburi {
+		codSchimb[sc.ID] = sc.Cod
+	}
+	hartaSarbatori := map[string]string{}
+	for _, z := range sarbatori.Sarbatori {
+		hartaSarbatori[z.Data] = z.Denumire.In(i18n.Romana)
+	}
+	var pozitiiSimple []calcul.PozitiePlanificareSimple
+	for _, p := range plan.Pozitii {
+		pozitiiSimple = append(pozitiiSimple, calcul.PozitiePlanificareSimple{
+			ID:        p.ID,
+			AngajatID: p.AngajatID,
+			Data:      p.Data,
+			SchimbID:  p.SchimbID,
+			CodSchimb: codSchimb[p.SchimbID],
+			Activ:     p.Activ,
+		})
+	}
+	return calcul.AnalizeazaAcoperire(an, luna, hartaSarbatori, pozitiiSimple, posturi), nil
+}
+
+func (s *Serviciu) CitesteEchitatePlanificare(ctx context.Context, an, luna int) ([]calcul.AvertismentEchitate, error) {
+	plan, err := s.CitestePlanificare(ctx, an, luna)
+	if err != nil {
+		return nil, err
+	}
+	planTrecut, _ := s.CitestePlanificare(ctx, an-1, 12)
+	planViitor, _ := s.CitestePlanificare(ctx, an+1, 4)
+	planViitorMai, _ := s.CitestePlanificare(ctx, an+1, 5)
+	schimburi, err := s.ListaSchimburi(ctx)
+	if err != nil {
+		return nil, err
+	}
+	codSchimb := map[string]string{}
+	for _, sc := range schimburi {
+		codSchimb[sc.ID] = sc.Cod
+	}
+	calAn, _ := s.CitesteCalendar(ctx, an)
+	calViitor, _ := s.CitesteCalendar(ctx, an+1)
+	hartaSarbatori := map[string]string{}
+	for _, z := range calAn.Sarbatori {
+		hartaSarbatori[z.Data] = z.Denumire.In(i18n.Romana)
+	}
+	for _, z := range calViitor.Sarbatori {
+		hartaSarbatori[z.Data] = z.Denumire.In(i18n.Romana)
+	}
+
+	convert := func(pl PlanificareLuna) []calcul.PozitiePlanificareSimple {
+		var rez []calcul.PozitiePlanificareSimple
+		for _, p := range pl.Pozitii {
+			rez = append(rez, calcul.PozitiePlanificareSimple{
+				ID:        p.ID,
+				AngajatID: p.AngajatID,
+				Data:      p.Data,
+				SchimbID:  p.SchimbID,
+				CodSchimb: codSchimb[p.SchimbID],
+				Activ:     p.Activ,
+			})
+		}
+		return rez
+	}
+
+	var viitorPoz []calcul.PozitiePlanificareSimple
+	viitorPoz = append(viitorPoz, convert(planViitor)...)
+	viitorPoz = append(viitorPoz, convert(planViitorMai)...)
+
+	return calcul.AnalizeazaEchitate(an, luna, convert(plan), convert(planTrecut), viitorPoz, hartaSarbatori), nil
 }

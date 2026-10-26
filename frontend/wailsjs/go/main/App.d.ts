@@ -14,11 +14,15 @@ export function Catalog(arg1:string):Promise<Record<string, string>>;
 
 export function CitesteAbsente(arg1:number):Promise<main.RaspunsAbsente>;
 
+export function CitesteAcoperirePlanificare(arg1:number,arg2:number,arg3:Array<string>):Promise<main.RaspunsAcoperirePlan>;
+
 export function CitesteCalendar(arg1:number):Promise<main.RaspunsCalendar>;
 
 export function CitesteConfiguratiePontaj():Promise<main.RaspunsConfiguratiePontaj>;
 
 export function CitesteDocumentAbsenta(arg1:string):Promise<main.RaspunsDocumentAbsenta>;
+
+export function CitesteEchitatePlanificare(arg1:number,arg2:number):Promise<main.RaspunsEchitatePlan>;
 
 export function CitestePlanificare(arg1:number,arg2:number):Promise<main.RaspunsPlanificare>;
 

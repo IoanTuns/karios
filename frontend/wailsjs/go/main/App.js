@@ -18,6 +18,10 @@ export function CitesteAbsente(arg1) {
   return window['go']['main']['App']['CitesteAbsente'](arg1);
 }
 
+export function CitesteAcoperirePlanificare(arg1, arg2, arg3) {
+  return window['go']['main']['App']['CitesteAcoperirePlanificare'](arg1, arg2, arg3);
+}
+
 export function CitesteCalendar(arg1) {
   return window['go']['main']['App']['CitesteCalendar'](arg1);
 }
@@ -28,6 +32,10 @@ export function CitesteConfiguratiePontaj() {
 
 export function CitesteDocumentAbsenta(arg1) {
   return window['go']['main']['App']['CitesteDocumentAbsenta'](arg1);
+}
+
+export function CitesteEchitatePlanificare(arg1, arg2) {
+  return window['go']['main']['App']['CitesteEchitatePlanificare'](arg1, arg2);
 }
 
 export function CitestePlanificare(arg1, arg2) {

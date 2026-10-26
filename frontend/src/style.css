@@ -388,3 +388,40 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .comutator-mod button { border: 0; padding: 6px 14px; font-size: 12px; background: #f4f7f5; cursor: pointer; }
 .comutator-mod button.activ { background: var(--verde); color: #fff; font-weight: 600; }
 
+/* Semnalizări echitate și acoperire planificare */
+.grila-planificare td.celula-atentie { position: relative; background-color: #fff9ea; }
+.grila-planificare td.celula-atentie input { color: #9c4b00; font-weight: 800; }
+.grila-planificare td.celula-atentie::after { content: "•"; position: absolute; top: 1px; right: 3px; color: #d46b08; font-size: 14px; line-height: 1; pointer-events: none; }
+.inspectie-avertisment { display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px; border-radius: 4px; background: #fff2d6; border: 1px solid #ffd591; color: #873800; font-size: 11px; font-weight: 600; }
+.buton-sumar-angajat { margin-left: 6px; padding: 1px 6px; font-size: 10px; border-radius: 3px; border: 1px solid #ccd8d1; background: #f0f4f1; cursor: pointer; color: var(--text); }
+.buton-sumar-angajat:hover { background: #e0ece4; border-color: var(--verde); }
+
+/* Raport acoperire */
+.panou-acoperire { display: flex; flex-direction: column; gap: 14px; }
+.sumar-carduri-acoperire { display: flex; flex-wrap: wrap; gap: 12px; }
+.card-acoperire { flex: 1; min-width: 140px; background: #fff; border: 1px solid var(--linie); border-radius: 6px; padding: 10px 14px; }
+.card-acoperire span { display: block; font-size: 11px; color: var(--discret); }
+.card-acoperire strong { display: block; font-size: 18px; margin-top: 4px; color: var(--text); }
+.card-acoperire.card-succes strong { color: #1e7040; }
+.card-acoperire.card-alerta strong { color: #b02a24; }
+.tabel-acoperire { width: 100%; border-collapse: collapse; }
+.tabel-acoperire th, .tabel-acoperire td { padding: 8px 10px; border-bottom: 1px solid var(--linie); font-size: 12px; text-align: left; vertical-align: middle; }
+.tabel-acoperire thead th { background: #f2f6f1; font-weight: 600; position: sticky; top: 0; z-index: 2; }
+.tabel-acoperire .rand-lipsa { background: #fffcfb; }
+.badge-post-acoperit { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 4px; background: #dcefe5; color: #155734; font-size: 11px; font-weight: 600; }
+.badge-post-lipsa { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 4px; background: #fae4e2; color: #9c2720; font-size: 11px; font-weight: 700; border: 1px solid #f0beba; }
+
+/* Sumar Angajat */
+.panou-sumar-angajat { display: flex; flex-direction: column; gap: 14px; }
+.antet-sumar-angajat { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; background: #fff; border: 1px solid var(--linie); border-radius: 6px; padding: 12px 16px; }
+.statistici-sumar-angajat { display: flex; flex-wrap: wrap; gap: 12px; }
+.statistica-sumar-item { background: #f4f7f5; border: 1px solid #dce5e0; border-radius: 5px; padding: 6px 12px; font-size: 12px; }
+.statistica-sumar-item strong { display: block; font-size: 15px; color: var(--text); margin-top: 2px; }
+.caseta-avertismente-sumar { display: flex; flex-direction: column; gap: 6px; background: #fff9ea; border: 1px solid #ffd591; border-radius: 6px; padding: 10px 14px; font-size: 12px; color: #873800; }
+.caseta-avertismente-sumar ul { margin: 4px 0 0 16px; padding: 0; }
+.tabel-sumar-angajat { width: 100%; border-collapse: collapse; }
+.tabel-sumar-angajat th, .tabel-sumar-angajat td { padding: 6px 10px; border-bottom: 1px solid var(--linie); font-size: 12px; vertical-align: middle; }
+.tabel-sumar-angajat thead th { background: #f2f6f1; font-weight: 600; position: sticky; top: 0; z-index: 2; }
+.tabel-sumar-angajat select { min-width: 140px; padding: 4px 8px; font-size: 12px; }
+
+
