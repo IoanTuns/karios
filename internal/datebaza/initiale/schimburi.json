@@ -1,0 +1,107 @@
+[
+  {
+    "id": "20000000-0000-4000-8000-000000000001",
+    "cod": "Z7",
+    "denumire": {
+      "ro": "Zi 07–14",
+      "en": "Day 07–14"
+    },
+    "ora_start": 420,
+    "durata_minute": 420,
+    "pauza_minute": 0,
+    "tip": "NORMAL",
+    "regim": "LUCRATOARE",
+    "categorie": "LAB",
+    "activ": true
+  },
+  {
+    "id": "20000000-0000-4000-8000-000000000002",
+    "cod": "S7",
+    "denumire": {
+      "ro": "Seară 15–22",
+      "en": "Evening 15–22"
+    },
+    "ora_start": 900,
+    "durata_minute": 420,
+    "pauza_minute": 0,
+    "tip": "TURA",
+    "regim": "LUCRATOARE",
+    "categorie": "LAB",
+    "activ": true
+  },
+  {
+    "id": "20000000-0000-4000-8000-000000000003",
+    "cod": "N9",
+    "denumire": {
+      "ro": "Noapte 22–07",
+      "en": "Night 22–07"
+    },
+    "ora_start": 1320,
+    "durata_minute": 540,
+    "pauza_minute": 0,
+    "tip": "NOAPTE",
+    "regim": "LUCRATOARE",
+    "categorie": "LAB",
+    "activ": true
+  },
+  {
+    "id": "20000000-0000-4000-8000-000000000004",
+    "cod": "IN9",
+    "denumire": {
+      "ro": "Intrare în weekend/sărbătoare 22–07",
+      "en": "Weekend/holiday entry 22–07"
+    },
+    "ora_start": 1320,
+    "durata_minute": 540,
+    "pauza_minute": 0,
+    "tip": "NOAPTE",
+    "regim": "INTRARE_ZI_LIBERA",
+    "categorie": "LAB",
+    "activ": true
+  },
+  {
+    "id": "20000000-0000-4000-8000-000000000005",
+    "cod": "Z12",
+    "denumire": {
+      "ro": "Zi liberă 07–19",
+      "en": "Non-working day 07–19"
+    },
+    "ora_start": 420,
+    "durata_minute": 720,
+    "pauza_minute": 0,
+    "tip": "TURA",
+    "regim": "NELUCRATOARE",
+    "categorie": "LAB",
+    "activ": true
+  },
+  {
+    "id": "20000000-0000-4000-8000-000000000006",
+    "cod": "N12",
+    "denumire": {
+      "ro": "Tură de noapte 12 ore",
+      "en": "12-hour night shift"
+    },
+    "ora_start": 1140,
+    "durata_minute": 720,
+    "pauza_minute": 0,
+    "tip": "NOAPTE",
+    "regim": "NELUCRATOARE",
+    "categorie": "LAB",
+    "activ": true
+  },
+  {
+    "id": "20000000-0000-4000-8000-000000000007",
+    "cod": "G24",
+    "denumire": {
+      "ro": "Gardă 24 ore",
+      "en": "24-hour on-call shift"
+    },
+    "ora_start": 420,
+    "durata_minute": 1440,
+    "pauza_minute": 0,
+    "tip": "GARDA",
+    "regim": "NELUCRATOARE",
+    "categorie": "LAB",
+    "activ": true
+  }
+]

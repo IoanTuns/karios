@@ -1,0 +1,172 @@
+{
+  "_descriere": "Date integral fictive pentru demonstrarea interfeței. Concediile și funcțiile sunt exemple, nu reguli legale sau de salarizare.",
+  "sectii": [
+    {
+      "id": "00000000-0000-4000-8000-000000000101",
+      "denumire": {
+        "ro": "Secția Nord · demo",
+        "en": "North department · demo"
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000102",
+      "denumire": {
+        "ro": "Secția Sud · demo",
+        "en": "South department · demo"
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000103",
+      "denumire": {
+        "ro": "Administrativ · demo",
+        "en": "Administration · demo"
+      }
+    }
+  ],
+  "angajati": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "nume": "Marin",
+      "prenume": "Daria",
+      "marca": "DEMO-001",
+      "functie": "Operator demo",
+      "sectie_id": "00000000-0000-4000-8000-000000000101",
+      "tip_contract": "INTREAGA",
+      "norma_partiala_minute": null,
+      "concediu_zile_an": 24,
+      "activ": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000002",
+      "nume": "Dumitru",
+      "prenume": "Andrei",
+      "marca": "DEMO-002",
+      "functie": "Operator demo",
+      "sectie_id": "00000000-0000-4000-8000-000000000102",
+      "tip_contract": "PARTIALA",
+      "norma_partiala_minute": 240,
+      "concediu_zile_an": 22,
+      "activ": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000003",
+      "nume": "Stan",
+      "prenume": "Elena",
+      "marca": "DEMO-003",
+      "functie": "Coordonator demo",
+      "sectie_id": "00000000-0000-4000-8000-000000000103",
+      "tip_contract": "INTREAGA",
+      "norma_partiala_minute": null,
+      "concediu_zile_an": 25,
+      "activ": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000004",
+      "nume": "Popa",
+      "prenume": "Mihai",
+      "marca": "DEMO-004",
+      "functie": "Operator demo",
+      "sectie_id": "00000000-0000-4000-8000-000000000101",
+      "tip_contract": "INTREAGA",
+      "norma_partiala_minute": null,
+      "concediu_zile_an": 21,
+      "activ": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000005",
+      "nume": "Radu",
+      "prenume": "Ioana",
+      "marca": "DEMO-005",
+      "functie": "Operator demo",
+      "sectie_id": "00000000-0000-4000-8000-000000000102",
+      "tip_contract": "PARTIALA",
+      "norma_partiala_minute": 180,
+      "concediu_zile_an": 24,
+      "activ": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000006",
+      "nume": "Toma",
+      "prenume": "Vlad",
+      "marca": "DEMO-006",
+      "functie": "Coordonator demo",
+      "sectie_id": "00000000-0000-4000-8000-000000000103",
+      "tip_contract": "INTREAGA",
+      "norma_partiala_minute": null,
+      "concediu_zile_an": null,
+      "activ": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000007",
+      "nume": "Matei",
+      "prenume": "Ana",
+      "marca": "DEMO-007",
+      "functie": "Operator demo",
+      "sectie_id": "00000000-0000-4000-8000-000000000101",
+      "tip_contract": "INTREAGA",
+      "norma_partiala_minute": null,
+      "concediu_zile_an": 23,
+      "activ": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000008",
+      "nume": "Dobre",
+      "prenume": "Rares",
+      "marca": "DEMO-008",
+      "functie": "Operator demo",
+      "sectie_id": "00000000-0000-4000-8000-000000000102",
+      "tip_contract": "PARTIALA",
+      "norma_partiala_minute": 300,
+      "concediu_zile_an": 22,
+      "activ": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000009",
+      "nume": "Ilie",
+      "prenume": "Sofia",
+      "marca": "DEMO-009",
+      "functie": "Coordonator demo",
+      "sectie_id": "00000000-0000-4000-8000-000000000103",
+      "tip_contract": "INTREAGA",
+      "norma_partiala_minute": null,
+      "concediu_zile_an": 26,
+      "activ": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000010",
+      "nume": "Neagu",
+      "prenume": "Luca",
+      "marca": "DEMO-010",
+      "functie": "Operator demo",
+      "sectie_id": "00000000-0000-4000-8000-000000000101",
+      "tip_contract": "INTREAGA",
+      "norma_partiala_minute": null,
+      "concediu_zile_an": 0,
+      "activ": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000011",
+      "nume": "Oprea",
+      "prenume": "Mara",
+      "marca": "DEMO-011",
+      "functie": "Operator demo",
+      "sectie_id": "00000000-0000-4000-8000-000000000102",
+      "tip_contract": "INTREAGA",
+      "norma_partiala_minute": null,
+      "concediu_zile_an": 24,
+      "activ": false
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000012",
+      "nume": "Voicu",
+      "prenume": "Tudor",
+      "marca": "DEMO-012",
+      "functie": "Coordonator demo",
+      "sectie_id": "00000000-0000-4000-8000-000000000103",
+      "tip_contract": "INTREAGA",
+      "norma_partiala_minute": null,
+      "concediu_zile_an": 21,
+      "activ": false
+    }
+  ]
+}

@@ -1,0 +1,139 @@
+package datebaza
+
+import (
+	"context"
+	"database/sql"
+	"errors"
+	"fmt"
+	"strconv"
+	"strings"
+	"time"
+	"unicode/utf8"
+
+	"pontix/internal/bd/acces"
+	"pontix/internal/calcul"
+)
+
+type CelulaSchita struct {
+	AngajatID string `json:"angajat_id"`
+	Data      string `json:"data"`
+	Valoare   string `json:"valoare"`
+	Revizie   string `json:"revizie"`
+}
+
+type SchitaLuna struct {
+	An           int                       `json:"an"`
+	Luna         int                       `json:"luna"`
+	Celule       []CelulaSchita            `json:"celule"`
+	Absente      []ZiAbsenta               `json:"absente"`
+	Calcul       calcul.RezultatPontaj     `json:"calcul"`
+	Configuratie calcul.ConfiguratiePontaj `json:"configuratie"`
+}
+
+func limiteLuna(an, luna int) (string, string, error) {
+	if an < 1 || an > 9999 || luna < 1 || luna > 12 {
+		return "", "", eroare("pontaj.perioada_invalida")
+	}
+	return fmt.Sprintf("%04d-%02d-01", an, luna), time.Date(an, time.Month(luna)+1, 0, 0, 0, 0, 0, time.UTC).Format(time.DateOnly), nil
+}
+
+func (s *Serviciu) CitesteSchita(ctx context.Context, an, luna int, previzualizare ...[]CelulaSchita) (SchitaLuna, error) {
+	deLa, panaLa, err := limiteLuna(an, luna)
+	if err != nil {
+		return SchitaLuna{}, err
+	}
+	tx, err := s.db.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
+	if err != nil {
+		return SchitaLuna{}, traduceEroare(err)
+	}
+	defer tx.Rollback()
+	q := acces.New(tx)
+	randuri, err := q.ListaCiorneLuna(ctx, acces.ListaCiorneLunaParams{DataDeLa: deLa, DataPanaLa: panaLa})
+	if err != nil {
+		return SchitaLuna{}, traduceEroare(err)
+	}
+	rez := SchitaLuna{An: an, Luna: luna, Celule: []CelulaSchita{}}
+	for _, r := range randuri {
+		rez.Celule = append(rez.Celule, CelulaSchita{AngajatID: r.AngajatID, Data: r.Data, Valoare: r.Valoare, Revizie: strconv.FormatInt(r.Revizie, 10)})
+	}
+	rez.Absente, err = citesteAbsenteInterval(ctx, q, deLa, panaLa)
+	if err != nil {
+		return SchitaLuna{}, traduceEroare(err)
+	}
+	var modificari []CelulaSchita
+	if len(previzualizare) > 0 {
+		modificari = previzualizare[0]
+	}
+	rez.Calcul, rez.Configuratie, err = CalculeazaPontaj(ctx, q, an, luna, modificari)
+	if err != nil {
+		return SchitaLuna{}, traduceEroare(err)
+	}
+	if err := tx.Commit(); err != nil {
+		return SchitaLuna{}, traduceEroare(err)
+	}
+	return rez, nil
+}
+
+func (s *Serviciu) SalveazaSchita(ctx context.Context, an, luna int, celule []CelulaSchita) error {
+	deLa, panaLa, err := limiteLuna(an, luna)
+	if err != nil {
+		return err
+	}
+	if len(celule) > 10000 {
+		return eroare("pontaj.lot_invalid")
+	}
+	vazute := map[string]bool{}
+	for _, c := range celule {
+		if !dataValida(c.Data) || c.Data < deLa || c.Data > panaLa || c.AngajatID == "" || utf8.RuneCountInString(c.Valoare) > 16 || strings.ContainsAny(c.Valoare, "\x00\t\r\n") {
+			return eroare("pontaj.celula_invalida")
+		}
+		cheie := c.AngajatID + "/" + c.Data
+		if vazute[cheie] {
+			return eroare("pontaj.lot_invalid")
+		}
+		vazute[cheie] = true
+	}
+	return s.modifica(ctx, func(q *acces.Queries) error {
+		angajati := map[string]bool{}
+		for _, c := range celule {
+			absenta, err := q.CitesteZiAbsenta(ctx, acces.CitesteZiAbsentaParams{AngajatID: c.AngajatID, Data: c.Data})
+			if err != nil && !errors.Is(err, sql.ErrNoRows) {
+				return err
+			}
+			if err == nil && absenta.Activ == 1 {
+				return eroare("absente.celula_protejata")
+			}
+			if !angajati[c.AngajatID] {
+				if _, err := q.CitesteAngajat(ctx, c.AngajatID); err != nil {
+					return err
+				}
+				angajati[c.AngajatID] = true
+			}
+			veche, err := q.CitesteCiorna(ctx, acces.CitesteCiornaParams{AngajatID: c.AngajatID, Data: c.Data})
+			exista := err == nil
+			if err != nil && !errors.Is(err, sql.ErrNoRows) {
+				return err
+			}
+			if (exista && c.Revizie != strconv.FormatInt(veche.Revizie, 10)) || (!exista && c.Revizie != "") {
+				return eroare("pontaj.conflict")
+			}
+			c.Valoare = strings.TrimSpace(c.Valoare)
+			if (exista && c.Valoare == veche.Valoare) || (!exista && c.Valoare == "") {
+				continue
+			}
+			revizie, err := q.SalveazaCiorna(ctx, acces.SalveazaCiornaParams{AngajatID: c.AngajatID, Data: c.Data, Valoare: c.Valoare, ModificatLa: moment()})
+			if err != nil {
+				return err
+			}
+			c.Revizie = strconv.FormatInt(revizie, 10)
+			var inainte any
+			if exista {
+				inainte = veche
+			}
+			if err := jurnal(ctx, q, "pontaj_ciorne", c.AngajatID+"/"+c.Data, inainte, c); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+}

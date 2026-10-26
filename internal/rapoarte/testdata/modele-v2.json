@@ -1,0 +1,219 @@
+{
+  "modele": [
+    {
+      "id": "raport-absente",
+      "denumire": {
+        "en": "Absence register",
+        "ro": "Evidența absențelor"
+      },
+      "antet": {
+        "stanga": {
+          "en": "",
+          "ro": ""
+        },
+        "centru": {
+          "en": "ABSENCE REGISTER · {{an}}",
+          "ro": "EVIDENȚA ABSENȚELOR · {{an}}"
+        },
+        "dreapta": {
+          "en": "",
+          "ro": ""
+        }
+      },
+      "continut": {
+        "sursa": "ABSENTE_ANUALE",
+        "coloane": [
+          "data",
+          "angajat",
+          "marca",
+          "cod",
+          "descriere",
+          "categorie"
+        ],
+        "text": {
+          "en": "",
+          "ro": ""
+        }
+      },
+      "subsol": {
+        "stanga": {
+          "en": "Prepared by: __________________",
+          "ro": "Întocmit: __________________"
+        },
+        "centru": {
+          "en": "",
+          "ro": ""
+        },
+        "dreapta": {
+          "en": "Checked by: __________________",
+          "ro": "Verificat: __________________"
+        }
+      },
+      "pagina": {
+        "format": "A4",
+        "orientare": "PEISAJ",
+        "margine_mm": 10,
+        "font_pt": 8
+      },
+      "activ": true,
+      "revizie": "1"
+    },
+    {
+      "id": "raport-fisa",
+      "denumire": {
+        "en": "Individual timesheet",
+        "ro": "Fișă individuală"
+      },
+      "antet": {
+        "stanga": {
+          "en": "",
+          "ro": ""
+        },
+        "centru": {
+          "en": "INDIVIDUAL TIMESHEET · {{angajat}}\n{{perioada}}",
+          "ro": "FIȘĂ INDIVIDUALĂ · {{angajat}}\n{{perioada}}"
+        },
+        "dreapta": {
+          "en": "",
+          "ro": ""
+        }
+      },
+      "continut": {
+        "sursa": "FISA_INDIVIDUALA",
+        "coloane": [
+          "data",
+          "zi",
+          "cod",
+          "descriere"
+        ],
+        "text": {
+          "en": "",
+          "ro": ""
+        }
+      },
+      "subsol": {
+        "stanga": {
+          "en": "Prepared by: __________________",
+          "ro": "Întocmit: __________________"
+        },
+        "centru": {
+          "en": "",
+          "ro": ""
+        },
+        "dreapta": {
+          "en": "Checked by: __________________",
+          "ro": "Verificat: __________________"
+        }
+      },
+      "pagina": {
+        "format": "A4",
+        "orientare": "PORTRET",
+        "margine_mm": 10,
+        "font_pt": 8
+      },
+      "activ": true,
+      "revizie": "1"
+    },
+    {
+      "id": "raport-pontaj",
+      "denumire": {
+        "en": "Monthly timesheet",
+        "ro": "Pontaj lunar"
+      },
+      "antet": {
+        "stanga": {
+          "en": "",
+          "ro": ""
+        },
+        "centru": {
+          "en": "TIMESHEET · {{perioada}}",
+          "ro": "PONTAJ · {{perioada}}"
+        },
+        "dreapta": {
+          "en": "",
+          "ro": ""
+        }
+      },
+      "continut": {
+        "sursa": "PONTAJ_LUNAR",
+        "coloane": [
+          "angajat",
+          "marca",
+          "zile"
+        ],
+        "text": {
+          "en": "",
+          "ro": ""
+        }
+      },
+      "subsol": {
+        "stanga": {
+          "en": "Prepared by: __________________",
+          "ro": "Întocmit: __________________"
+        },
+        "centru": {
+          "en": "",
+          "ro": ""
+        },
+        "dreapta": {
+          "en": "Checked by: __________________",
+          "ro": "Verificat: __________________"
+        }
+      },
+      "pagina": {
+        "format": "A3",
+        "orientare": "PEISAJ",
+        "margine_mm": 10,
+        "font_pt": 8
+      },
+      "activ": true,
+      "revizie": "1"
+    }
+  ],
+  "surse": [
+    {
+      "cod": "PONTAJ_LUNAR",
+      "coloane": [
+        "angajat",
+        "marca",
+        "sectie",
+        "departament",
+        "functie",
+        "zile"
+      ]
+    },
+    {
+      "cod": "FISA_INDIVIDUALA",
+      "coloane": [
+        "data",
+        "zi",
+        "cod",
+        "descriere",
+        "categorie"
+      ]
+    },
+    {
+      "cod": "ABSENTE_ANUALE",
+      "coloane": [
+        "data",
+        "angajat",
+        "marca",
+        "sectie",
+        "departament",
+        "cod",
+        "descriere",
+        "categorie"
+      ]
+    }
+  ],
+  "variabile": [
+    "titlu",
+    "an",
+    "luna",
+    "perioada",
+    "sectie",
+    "departament",
+    "angajat",
+    "generat_la"
+  ]
+}
