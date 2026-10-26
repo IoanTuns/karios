@@ -47,7 +47,7 @@ Subsolul tehnic D009 rămâne prezent pe lângă subsolul configurabil: numele/v
 
 ## Verificări și licențe
 
-Modelele se testează pe SQLite criptat; sunt verificate independența definițiilor, reviziile, refuzul salvărilor concurente și jurnalul atomic. Referințele curente sunt centralizator v3, fișă individuală v3, pontaj detaliat v1 și absențe v2; referințele anterioare sunt păstrate. PDF-urile sunt validate cu pdfcpu, iar imaginile PNG/JPEG sunt extrase și verificate pe fiecare pagină. Fonturile cu diacritice sunt incluse.
+Modelele se testează pe SQLite criptat; sunt verificate independența definițiilor, reviziile, refuzul salvărilor concurente și jurnalul atomic. Referințele curente sunt centralizator v3, fișă individuală v3, pontaj detaliat v2 și absențe v2; referințele anterioare sunt păstrate. PDF-urile sunt validate cu pdfcpu, iar imaginile PNG/JPEG sunt extrase și verificate pe fiecare pagină. Fonturile cu diacritice sunt incluse.
 
 Pentru PDF-uri fictive de probă și verificarea UI:
 
