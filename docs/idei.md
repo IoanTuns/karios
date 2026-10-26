@@ -6,6 +6,7 @@ Stări: `nouă`, `în analiză`, `transformată` (în task sau decizie), `amâna
 
 | ID | Data | Idee | Cine | Stare | Legături / motiv |
 | --- | --- | --- | --- | --- | --- |
+| I053 | 2026-10-26 | Categorii de program reutilizabile pe angajat (dimineață, după-amiază, gărzi, combinații), program implicit și completare care ține cont de absențe și zile libere | Ioan Tuns | transformată | F07-T14, [D036](decizii/D036-categorii-program-precompletare.md); clarificare separată pentru rotații și defaultul dispărut |
 | I045 | 2026-10-26 | Actualizarea mesajelor pontajului și separarea clară T / ore lucrate în zile normale / normă contractuală | Codex | transformată | F05-T19, [lista UI](lista-lucru-ui.md), D035; eliminat avertismentul T–Ore norm, fără schimbarea calculelor |
 | I046 | 2026-10-26 | Pontaj compact/confortabil, gruparea comenzilor, ajutor pliabil și contrast îmbunătățit pentru date și stări | Codex | transformată | F05-T19, D035; comenzi grupate, legendă; proba 1024×640: grilă la y=248, 342 px și 7 rânduri complete |
 | I047 | 2026-10-26 | Păstrarea perioadei, filtrelor și poziției de lucru la revenirea între ecrane | Codex | transformată | F05-T19, D035; context de sesiune cu selecție și derulare, fără restaurarea schițelor abandonate |
