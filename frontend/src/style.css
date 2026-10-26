@@ -295,6 +295,19 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .plan-precompletare { font-size: 12px; }
 .plan-precompletare > .bifa { display: flex; align-items: center; gap: 8px; }
 .plan-precompletare input[type=checkbox] { width: 17px; height: 17px; min-height: 17px; }
+.modul-planificare .taburi-sectiuni { margin-bottom: 14px; }
+.filtre-planificare .bifa, .previzualizare-publicare .bifa { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.modul-planificare input[type=checkbox], .previzualizare-publicare input[type=checkbox] { width: 17px; height: 17px; min-height: 17px; accent-color: var(--verde); }
+.modul-planificare .actiuni-planificare { position: sticky; top: 0; background: #f5f7f6; padding: 10px 0; z-index: 5; border-block: 1px solid var(--linie); }
+.tabel-planificare small, .previzualizare-publicare td small { display: block; color: var(--discret); white-space: normal; margin-top: 5px; }
+.tabel-planificare td, .previzualizare-publicare td { white-space: normal; }
+.plan-zi-libera { background: #fff6df; }
+.plan-weekend { background: #eef1ee; }
+.stare-plan { display: inline-block; padding: 5px 7px; border-radius: 4px; background: #edf0ee; font-size: 11px; }
+.stare-plan-PUBLICATA { color: #22543a; background: #dcefe5; }
+.stare-plan-MODIFICATA { color: #735014; background: #fff2cf; }
+.stare-plan-ANULATA { color: #6b5050; background: #f7e9e7; }
+.dialog:has(.previzualizare-publicare) { width: min(1000px,calc(100vw - 36px)); max-width: 1000px; }
 
 /* F05-T19: grila ocupă spațiul principal; comenzile detaliate se deschid la cerere. */
 .continut-pontaj .antet { margin-bottom: 12px; }

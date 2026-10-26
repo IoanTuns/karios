@@ -4,6 +4,16 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.30.0 · 2026-10-26
+
+Secțiune operațională **Planificare**, cu **Gărzi** și **După-amiază**, salvare independentă și publicare explicită în schița de pontaj (F11-T01, I056, D037).
+
+- Planificarea pe angajat, program și date se salvează fără a modifica pontajul. Listele au filtre, selecție și stări de publicare; retragerea din plan păstrează pontajul deja publicat.
+- Publicarea se previzualizează, completează implicit numai celulele goale și permite înlocuirea explicită a schițelor cu afișarea înainte/după. Sunt reverificate tranzacțional absențele, programele permise, intervalele, pontajele efective și reviziile. Republicarea valorilor identice nu dublează orele.
+- Precompletarea automată din Pontaj direcționează schimburile de după-amiază și gărzile către Planificare; corecțiile manuale în pontaj rămân disponibile.
+
+Baza de date: migrarea **0017**, tabel de planificare și metadate de publicare. Formulele și versiunile rapoartelor sunt păstrate.
+
 ## 0.29.0 · 2026-10-26
 
 Categorii de program pe angajat și precompletare explicită, conform confirmării utilizatorului (F07-T14, I053, D036).

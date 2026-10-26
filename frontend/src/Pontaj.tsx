@@ -3,6 +3,7 @@ import {useTranslation} from 'react-i18next';
 import {CitesteCalendar, CitesteSchita, ListaSchimburi, SalveazaSchita, PrevizualizeazaSchita, PrevizualizeazaPrecompletare} from '../wailsjs/go/main/App';
 import {calcul, datebaza} from '../wailsjs/go/models';
 import {Dialog, denumireSectie, denumireDepartament} from './Formulare';
+import {programPlanificat} from './Planificare';
 
 type Pozitie = {rand: number; zi: number};
 type Selectie = {inceput: Pozitie; sfarsit: Pozitie};
@@ -238,6 +239,8 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
 
     function precompleteazaIntervalRanduri(deLaRand: number, panaLaRand: number) {
         if (!programCompletare) return;
+        const ales=schimburi.find(s=>s.cod===programCompletare);
+        if(ales&&programPlanificat(ales)){setEroare(t('planificare.foloseste_modulul'));return;}
         const celule: {rand: number; zi: number; text: string}[] = [];
         for (let r = deLaRand; r <= panaLaRand; r++) {
             if (!randuri[r]) continue;

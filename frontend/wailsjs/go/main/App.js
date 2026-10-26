@@ -30,6 +30,10 @@ export function CitesteDocumentAbsenta(arg1) {
   return window['go']['main']['App']['CitesteDocumentAbsenta'](arg1);
 }
 
+export function CitestePlanificare(arg1, arg2) {
+  return window['go']['main']['App']['CitestePlanificare'](arg1, arg2);
+}
+
 export function CitesteSchita(arg1, arg2) {
   return window['go']['main']['App']['CitesteSchita'](arg1, arg2);
 }
@@ -82,8 +86,16 @@ export function PrevizualizeazaPrecompletare(arg1, arg2, arg3, arg4) {
   return window['go']['main']['App']['PrevizualizeazaPrecompletare'](arg1, arg2, arg3, arg4);
 }
 
+export function PrevizualizeazaPublicarePlan(arg1) {
+  return window['go']['main']['App']['PrevizualizeazaPublicarePlan'](arg1);
+}
+
 export function PrevizualizeazaSchita(arg1, arg2, arg3) {
   return window['go']['main']['App']['PrevizualizeazaSchita'](arg1, arg2, arg3);
+}
+
+export function PublicaPlanificare(arg1) {
+  return window['go']['main']['App']['PublicaPlanificare'](arg1);
 }
 
 export function SalveazaAbsente(arg1, arg2) {
@@ -112,6 +124,10 @@ export function SalveazaNormaIntreaga(arg1) {
 
 export function SalveazaPDFRaport(arg1) {
   return window['go']['main']['App']['SalveazaPDFRaport'](arg1);
+}
+
+export function SalveazaPlanificare(arg1, arg2, arg3) {
+  return window['go']['main']['App']['SalveazaPlanificare'](arg1, arg2, arg3);
 }
 
 export function SalveazaSarbatoare(arg1, arg2, arg3) {

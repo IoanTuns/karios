@@ -59,6 +59,22 @@ type DefinitiiRapoarte struct {
 	ModificatLa string
 }
 
+type Planificare struct {
+	ID                    string
+	AngajatID             string
+	Data                  string
+	SchimbID              string
+	Sectiune              string
+	Activ                 int64
+	Revizie               int64
+	PublicatPlanRevizie   int64
+	PublicatPontajRevizie int64
+	PublicatValoare       string
+	PublicatLa            string
+	CreatLa               string
+	ModificatLa           string
+}
+
 type PontajCiorne struct {
 	AngajatID   string
 	Data        string

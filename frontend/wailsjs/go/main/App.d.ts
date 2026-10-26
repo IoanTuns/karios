@@ -20,6 +20,8 @@ export function CitesteConfiguratiePontaj():Promise<main.RaspunsConfiguratiePont
 
 export function CitesteDocumentAbsenta(arg1:string):Promise<main.RaspunsDocumentAbsenta>;
 
+export function CitestePlanificare(arg1:number,arg2:number):Promise<main.RaspunsPlanificare>;
+
 export function CitesteSchita(arg1:number,arg2:number):Promise<main.RaspunsSchita>;
 
 export function CompleteazaSarbatori2026():Promise<main.RaspunsCalendar>;
@@ -46,7 +48,11 @@ export function PregatesteRaport(arg1:rapoarte.Cerere):Promise<main.RaspunsRapor
 
 export function PrevizualizeazaPrecompletare(arg1:number,arg2:number,arg3:Array<string>,arg4:Array<datebaza.CelulaSchita>):Promise<main.RaspunsPrecompletare>;
 
+export function PrevizualizeazaPublicarePlan(arg1:datebaza.CererePublicarePlan):Promise<main.RaspunsPublicarePlan>;
+
 export function PrevizualizeazaSchita(arg1:number,arg2:number,arg3:Array<datebaza.CelulaSchita>):Promise<main.RaspunsSchita>;
+
+export function PublicaPlanificare(arg1:datebaza.CererePublicarePlan):Promise<main.RaspunsPublicarePlan>;
 
 export function SalveazaAbsente(arg1:Array<datebaza.ZiAbsenta>,arg2:number):Promise<main.RaspunsAbsente>;
 
@@ -61,6 +67,8 @@ export function SalveazaModelRaport(arg1:rapoarte.Definitie):Promise<main.Raspun
 export function SalveazaNormaIntreaga(arg1:number):Promise<main.RaspunsDate>;
 
 export function SalveazaPDFRaport(arg1:string):Promise<main.RaspunsFisierRaport>;
+
+export function SalveazaPlanificare(arg1:number,arg2:number,arg3:Array<datebaza.PozitiePlanificare>):Promise<main.RaspunsPlanificare>;
 
 export function SalveazaSarbatoare(arg1:string,arg2:datebaza.Sarbatoare,arg3:number):Promise<main.RaspunsCalendar>;
 

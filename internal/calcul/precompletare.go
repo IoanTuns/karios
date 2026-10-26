@@ -104,6 +104,8 @@ func PlanificaPrecompletare(deLa, panaLa string, angajati []AngajatPrecompletare
 				motiv = "fara_implicit"
 			case !areProgram || !p.Activ:
 				motiv = "schimb_inactiv"
+			case ProgramDePlanificat(p):
+				motiv = "planificare_separata"
 			case p.OraStart < 0 || p.OraStart >= 1440 || p.DurataMinute <= 0 || p.DurataMinute > 2880 || p.PauzaMinute != 0:
 				motiv = "program_incomplet"
 			case p.Regim == "NELUCRATOARE" || p.Regim == "INTRARE_ZI_LIBERA" || p.Tip == "GARDA":

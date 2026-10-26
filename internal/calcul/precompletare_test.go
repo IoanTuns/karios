@@ -12,17 +12,14 @@ func TestPrecompletareCategoriiRespectaCalendarAbsenteNormeSiGarzi(t *testing.T)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(plan.Celule) != 36 || plan.Omise["absenta"] != 3 || plan.Omise["norma_diferita"] != 21 || plan.Omise["fara_implicit"] != 21 || plan.Omise["fara_categorie"] != 21 || plan.Omise["dupa_garda"] != 1 {
+	if len(plan.Celule) != 15 || plan.Omise["planificare_separata"] != 21 || plan.Omise["absenta"] != 3 || plan.Omise["norma_diferita"] != 21 || plan.Omise["fara_implicit"] != 21 || plan.Omise["fara_categorie"] != 21 || plan.Omise["dupa_garda"] != 1 {
 		t.Fatalf("plan: %+v", plan)
 	}
 	for _, c := range plan.Celule {
 		if c.AngajatID == "a" && (c.Valoare != "Z7" || absente[c.AngajatID+"/"+c.Data] || c.Data == "2026-10-09" || c.Data == "2026-10-12" || c.Data == "2026-10-13") {
 			t.Fatalf("dimineata incorecta: %+v", c)
 		}
-		if c.AngajatID == "b" && c.Valoare != "S7" {
-			t.Fatalf("dupa-amiaza incorecta: %+v", c)
-		}
-		if c.AngajatID != "a" && c.AngajatID != "b" {
+		if c.AngajatID != "a" {
 			t.Fatalf("program inventat: %+v", c)
 		}
 	}

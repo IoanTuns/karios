@@ -9,10 +9,11 @@ import {Pontaj, type ContextPontaj} from './Pontaj';
 import {Absente} from './Absente';
 import {ReguliPontaj} from './ReguliPontaj';
 import {CategoriiProgram} from './CategoriiProgram';
+import {Planificare} from './Planificare';
 import {DefinireRapoarte, GenerareRapoarte} from './Rapoarte';
 
-type Ecran = 'angajati' | 'pontaj' | 'sarbatori' | 'schimburi' | 'categorii_program' | 'absente' | 'definire_rapoarte' | 'rapoarte' | 'reguli_pontaj' | 'setari';
-const ecranePrincipale: Ecran[] = ['angajati', 'pontaj', 'absente', 'rapoarte', 'setari'];
+type Ecran = 'angajati' | 'pontaj' | 'planificare' | 'sarbatori' | 'schimburi' | 'categorii_program' | 'absente' | 'definire_rapoarte' | 'rapoarte' | 'reguli_pontaj' | 'setari';
+const ecranePrincipale: Ecran[] = ['angajati', 'pontaj', 'planificare', 'absente', 'rapoarte', 'setari'];
 const sectiuniSetari: Ecran[] = ['setari', 'sarbatori', 'schimburi', 'categorii_program', 'reguli_pontaj', 'definire_rapoarte'];
 
 function normalizat(text: string): string {
@@ -27,6 +28,7 @@ function Simbol({tip}: {tip: Ecran}) {
             : tip === 'sarbatori' ? <><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M8 3v4M16 3v4M8 14h3M8 17h3M14 14h3"/></>
             : tip === 'schimburi' ? <><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></>
             : tip === 'pontaj' ? <><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M9 9v12M15 9v12M3 15h18"/></>
+            : tip === 'planificare' ? <><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 15l3 3 5-5"/></>
             : tip === 'rapoarte' ? <><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></>
             : tip === 'definire_rapoarte' ? <><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 8h16M4 16h16M9 8v8"/></>
             : tip === 'setari' ? <><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1L7 17M17 7l2.1-2.1"/></>
@@ -53,6 +55,7 @@ function App() {
     const [pontajModificat, setPontajModificat] = useState(false);
     const [pontajOcupat, setPontajOcupat] = useState(false);
     const contextPontaj = useRef<ContextPontaj | null>(null);
+    const [contextPlanificare,setContextPlanificare]=useState<{an:number;luna:number}|undefined>();
     const [filtruAbsente, setFiltruAbsente] = useState<{an: number; angajatId: string} | null>(null);
 
     function aplica(raspuns: main.RaspunsDate): boolean {
@@ -157,6 +160,7 @@ function App() {
             {incarcare ? <div className="asteptare" role="status">{t('ui.incarcare')}</div>
                 : !date ? <button className="buton secundar" disabled={ocupat} onClick={() => executa(DateInitiale, '')}>{t('ui.reincearca')}</button>
                 : ecran === 'pontaj' ? <Pontaj date={date} context={contextPontaj} onModificari={setPontajModificat} onOcupat={setPontajOcupat} onDeschideAbsente={(an, angajatId) => { setFiltruAbsente({an, angajatId}); setPontajModificat(false); setEcran('absente'); setEroare(''); setMesaj(''); }}/>
+                : ecran === 'planificare' ? <Planificare date={date} initial={contextPlanificare} onOcupat={setPontajOcupat} onDeschidePontaj={(an,luna)=>{contextPontaj.current={an,luna,sectie:'',departament:'',categorieProgram:'',cautare:'',filtruRanduri:'',selectie:null,derulareX:0,derulareY:0};setEcran('pontaj');setEroare('');setMesaj('');}}/>
                 : ecran === 'sarbatori' ? <Sarbatori/>
                 : ecran === 'schimburi' ? <Schimburi/>
                 : ecran === 'categorii_program' ? <CategoriiProgram date={date} ocupat={ocupat} eroare={eroare} salveaza={c=>executa(()=>SalveazaCategorieProgram(c))} reincarca={()=>executa(DateInitiale,'')} curataEroare={()=>setEroare('')}/>
