@@ -1,4 +1,4 @@
-# Funcționalitățile disponibile · Pontix 0.27.0
+# Funcționalitățile disponibile · Pontix 0.29.0
 
 ## Pornire
 
@@ -81,6 +81,8 @@ Sumarul anual afișează separat numărul de zile de odihnă, medical și specia
 Un tip poate fi editat sau dezactivat din tabelul **Tipuri de absență**. Dezactivarea nu elimină zilele existente. Codul nu se redenumește; categoria unui tip folosit nu se schimbă, pentru a păstra sensul istoricului. Schema și limitele sunt în [D020](decizii/D020-concedii-absente.md), [D024](decizii/D024-cereri-concediu-aprobare.md) și [D030](decizii/D030-suprapuneri-inlocuitor-previzualizare-cereri.md).
 
 ## Grila lunară · schiță
+
+**Precompletează L–V** este din nou vizibil în bara pontajului. Pentru programe diferite pe persoană, configurează **Setări → Categorii de program**, atribuie categoria în fișa angajatului și apasă **După categorii**. Funcția arată o previzualizare, protejează CO/CM/absențele speciale, zilele libere și înregistrările existente; aplicarea intră în schiță și se salvează explicit. Gărzile rămân alese manual. Vezi [ghidul categoriilor](ghid-categorii-program.md).
 
 1. Deschide **Pontaj**, alege anul și luna (sau navighează cu butoanele `◀` / `▶` între luni); opțional caută după nume/marcă. În **Filtre** alegi secția, departamentul sau categoria de rânduri (`Toți angajații`, `Doar cu avertismente`, `Doar cu modificări`, `Doar înlocuitori`); **Resetează filtrele** le golește împreună cu căutarea.
 2. Selectează celulele și deschide **Completare**: alege programul după denumire/interval/regim și apasă **Aplică programul**, folosește butoanele din **Aplicare rapidă**, ori apasă **Precompletează L–V** (pentru toate rândurile afișate) sau **Precompletează selecția L–V** (doar pentru angajații din selecția curentă) pentru a completa celulele goale luni–vineri (fără sărbători legale și absențe active). Grila afișează ore, păstrând codul intern. Inspecția de deasupra grilei arată codul, orele, absența (cu **Deschide în Concedii și absențe**), înlocuirile și avertismentele celulei active. Alternativ introdu **Ore manuale pe zi**, apoi **Aplică orele manuale**. F2 sau dublu clic deschide Completare și focalizează câmpul manual.

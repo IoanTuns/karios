@@ -13,6 +13,19 @@ type RaspunsSchita struct {
 	Eroare *MesajEroare         `json:"eroare"`
 }
 
+type RaspunsPrecompletare struct {
+	Plan   *calcul.PlanPrecompletare `json:"plan"`
+	Eroare *MesajEroare              `json:"eroare"`
+}
+
+func (a *App) PrevizualizeazaPrecompletare(an, luna int, angajati []string, modificari []datebaza.CelulaSchita) RaspunsPrecompletare {
+	p, err := datebaza.Nou(a.db).PrevizualizeazaPrecompletare(a.contextLucru(), an, luna, angajati, modificari)
+	if err != nil {
+		return RaspunsPrecompletare{Eroare: mesajPontaj(err)}
+	}
+	return RaspunsPrecompletare{Plan: &p}
+}
+
 func (a *App) CitesteSchita(an, luna int) RaspunsSchita { return a.raspunsSchita(an, luna, nil) }
 
 func (a *App) PrevizualizeazaSchita(an, luna int, celule []datebaza.CelulaSchita) RaspunsSchita {

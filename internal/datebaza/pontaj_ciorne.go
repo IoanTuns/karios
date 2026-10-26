@@ -95,6 +95,15 @@ func (s *Serviciu) SalveazaSchita(ctx context.Context, an, luna int, celule []Ce
 	}
 	return s.modifica(ctx, func(q *acces.Queries) error {
 		angajati := map[string]bool{}
+		categorii := map[string]string{}
+		schimburi, err := q.ListaSchimburi(ctx)
+		if err != nil {
+			return err
+		}
+		programe := map[string]string{}
+		for _, p := range schimburi {
+			programe[strings.ToUpper(p.Cod)] = p.ID
+		}
 		for _, c := range celule {
 			absenta, err := q.CitesteZiAbsenta(ctx, acces.CitesteZiAbsentaParams{AngajatID: c.AngajatID, Data: c.Data})
 			if err != nil && !errors.Is(err, sql.ErrNoRows) {
@@ -104,9 +113,11 @@ func (s *Serviciu) SalveazaSchita(ctx context.Context, an, luna int, celule []Ce
 				return eroare("absente.celula_protejata")
 			}
 			if !angajati[c.AngajatID] {
-				if _, err := q.CitesteAngajat(ctx, c.AngajatID); err != nil {
+				a, err := q.CitesteAngajat(ctx, c.AngajatID)
+				if err != nil {
 					return err
 				}
+				categorii[c.AngajatID] = textSauGol(a.CategorieProgramID)
 				angajati[c.AngajatID] = true
 			}
 			veche, err := q.CitesteCiorna(ctx, acces.CitesteCiornaParams{AngajatID: c.AngajatID, Data: c.Data})
@@ -120,6 +131,25 @@ func (s *Serviciu) SalveazaSchita(ctx context.Context, an, luna int, celule []Ce
 			c.Valoare = strings.TrimSpace(c.Valoare)
 			if (exista && c.Valoare == veche.Valoare) || (!exista && c.Valoare == "") {
 				continue
+			}
+			if categorieID := categorii[c.AngajatID]; categorieID != "" {
+				categorie, err := q.CitesteCategorieProgram(ctx, categorieID)
+				if err != nil {
+					return err
+				}
+				if programID, programCunoscut := programe[strings.ToUpper(c.Valoare)]; programCunoscut && categorie.Activ == 1 {
+					permise, err := q.ListaSchimburiCategorieProgram(ctx, categorieID)
+					if err != nil {
+						return err
+					}
+					gasit := false
+					for _, id := range permise {
+						gasit = gasit || id == programID
+					}
+					if !gasit {
+						return eroare("program.program_nepermis")
+					}
+				}
 			}
 			revizie, err := q.SalveazaCiorna(ctx, acces.SalveazaCiornaParams{AngajatID: c.AngajatID, Data: c.Data, Valoare: c.Valoare, ModificatLa: moment()})
 			if err != nil {

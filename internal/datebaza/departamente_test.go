@@ -140,9 +140,17 @@ func TestMigrareDepartamentePastreazaOrganizareaSiSchimburile(t *testing.T) {
 	if n, err := bd.Migreaza(ctx, db, surse); err != nil || n != 1 {
 		t.Fatalf("migrare: %d, %v", n, err)
 	}
-	d := citeste(t, Nou(db))
-	if len(d.Angajati) != 1 || d.Angajati[0].SectieID != "s" || d.Angajati[0].DepartamentID != "" || len(d.Departamente) != 0 {
-		t.Fatalf("date vechi schimbate: %+v", d)
+	var sectie string
+	var departament *string
+	var angajati, departamente int
+	if err := db.QueryRow(`SELECT sectie_id,departament_id FROM angajati WHERE id='a'`).Scan(&sectie, &departament); err != nil || sectie != "s" || departament != nil {
+		t.Fatalf("organizare veche schimbata: %s %v %v", sectie, departament, err)
+	}
+	if err := db.QueryRow(`SELECT count(*) FROM angajati`).Scan(&angajati); err != nil || angajati != 1 {
+		t.Fatalf("angajati: %d %v", angajati, err)
+	}
+	if err := db.QueryRow(`SELECT count(*) FROM departamente`).Scan(&departamente); err != nil || departamente != 0 {
+		t.Fatalf("departamente: %d %v", departamente, err)
 	}
 	// Verificăm schema istorică 0006 fără serviciul care cere schema curentă.
 	var cod string

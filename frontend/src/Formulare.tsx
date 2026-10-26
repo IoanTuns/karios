@@ -49,15 +49,16 @@ export function FormularAngajat({angajat, date, ocupat, eroare, inchide, salveaz
     const [functie, setFunctie] = useState(angajat.functie);
     const [sectie, setSectie] = useState(angajat.sectie_id);
     const [departament, setDepartament] = useState(angajat.departament_id || '');
+    const [categorieProgram,setCategorieProgram]=useState(angajat.categorie_program_id||'');
     const [contract, setContract] = useState(angajat.tip_contract);
     const [ore, setOre] = useState(angajat.norma_partiala_minute == null ? '' : String(angajat.norma_partiala_minute / 60));
     const [concediu, setConcediu] = useState(angajat.concediu_zile_an == null ? '' : String(angajat.concediu_zile_an));
     const [activ, setActiv] = useState(angajat.activ);
     const [validare, setValidare] = useState('');
-    const initial = useRef(JSON.stringify([nume, prenume, marca, functie, sectie, departament, contract, ore, concediu, activ]));
+    const initial = useRef(JSON.stringify([nume, prenume, marca, functie, sectie, departament, categorieProgram, contract, ore, concediu, activ]));
 
     function inchideCuVerificare() {
-        const modificat = initial.current !== JSON.stringify([nume, prenume, marca, functie, sectie, departament, contract, ore, concediu, activ]);
+        const modificat = initial.current !== JSON.stringify([nume, prenume, marca, functie, sectie, departament, categorieProgram, contract, ore, concediu, activ]);
         if (!ocupat && (!modificat || window.confirm(t('ui.renunta')))) inchide();
     }
 
@@ -69,7 +70,7 @@ export function FormularAngajat({angajat, date, ocupat, eroare, inchide, salveaz
         const zile = concediu === '' ? null : Number(concediu);
         if (zile !== null && (!Number.isSafeInteger(zile) || zile < 0)) { setValidare(t('date.concediu_invalid')); return; }
         await salveaza(new datebaza.Angajat({...angajat, nume, prenume, marca, functie, sectie_id: sectie, departament_id: departament,
-            tip_contract: contract, norma_partiala_minute: minute, concediu_zile_an: zile, activ}));
+            categorie_program_id:categorieProgram, tip_contract: contract, norma_partiala_minute: minute, concediu_zile_an: zile, activ}));
     }
 
     return <Dialog titlu={t(angajat.id ? 'ui.editare_angajat' : 'ui.adauga_angajat')} ocupat={ocupat} inchide={inchideCuVerificare}>
@@ -91,6 +92,7 @@ export function FormularAngajat({angajat, date, ocupat, eroare, inchide, salveaz
                         <option value="INTREAGA">{t('ui.intreaga')}</option><option value="PARTIALA">{t('ui.partiala')}</option></select></label>
                     {contract === 'PARTIALA' ? <label>{t('ui.norma_partiala')}<input type="number" min="0" max="24" step="any" required value={ore} onChange={e => setOre(e.target.value)}/></label>
                         : <div className="norma-preluata"><span>{t('ui.norma')}</span><strong>{durata(date.norma_intreaga_minute, t)}</strong><small>{t('ui.norma_globala_indiciu')}</small></div>}
+                    <label className="latime-completa">{t('program.categorie')}<select name="angajat_categorie_program" value={categorieProgram} onChange={e=>setCategorieProgram(e.target.value)}><option value="">{t('program.fara_categorie')}</option>{(date.categorii_program??[]).filter(c=>c.activ||c.id===categorieProgram).map(c=><option key={c.id} value={c.id}>{c.denumire[i18n.language]||c.denumire.ro}{!c.activ?` · ${t('ui.inactiv')}`:''}</option>)}</select><small>{t('program.atribuire_indiciu')}</small></label>
                     <label className="latime-completa">{t('ui.concediu')}<input type="number" min="0" step="1" value={concediu} onChange={e => setConcediu(e.target.value)} aria-describedby="indiciu-concediu"/>
                         <small id="indiciu-concediu">{t('ui.concediu_indiciu')}</small></label>
                     <label className="bifa latime-completa"><input type="checkbox" checked={activ} onChange={e => setActiv(e.target.checked)}/>{t('ui.activ_indiciu')}</label>

@@ -287,6 +287,14 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .continut-setari .buton-tab { color: #2b456b; border-color: #cbd7e6; }
 .continut-setari .buton-tab.activ { background: #2b4c7e; color: #fff; border-color: #2b4c7e; }
 .taburi-setari { margin: -8px 0 22px; padding-bottom: 14px; border-bottom: 1px solid var(--linie); }
+.categorie-angajat { display: block; margin-top: 6px; color: var(--discret); font-size: 11px; }
+.selectie-programe { border: 1px solid var(--linie); border-radius: 6px; margin: 0; padding: 12px; display: grid; gap: 8px; }
+.selectie-programe legend { padding: 0 6px; }
+.selectie-programe .bifa { margin: 0; }
+.selectie-programe .bifa small { display: block; }
+.plan-precompletare { font-size: 12px; }
+.plan-precompletare > .bifa { display: flex; align-items: center; gap: 8px; }
+.plan-precompletare input[type=checkbox] { width: 17px; height: 17px; min-height: 17px; }
 
 /* F05-T19: grila ocupă spațiul principal; comenzile detaliate se deschid la cerere. */
 .continut-pontaj .antet { margin-bottom: 12px; }

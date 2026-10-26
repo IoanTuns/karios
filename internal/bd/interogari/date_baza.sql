@@ -1,22 +1,22 @@
 -- name: ListaAngajati :many
 SELECT id, nume, prenume, marca, functie, sectie_id, departament_id, tip_contract,
-    norma_partiala_minute, concediu_zile_an, activ
+    norma_partiala_minute, concediu_zile_an, activ, categorie_program_id
 FROM angajati WHERE sters_la IS NULL
 ORDER BY nume COLLATE NOCASE, prenume COLLATE NOCASE, marca;
 
 -- name: CitesteAngajat :one
 SELECT id, nume, prenume, marca, functie, sectie_id, departament_id, tip_contract,
-    norma_partiala_minute, concediu_zile_an, activ
+    norma_partiala_minute, concediu_zile_an, activ, categorie_program_id
 FROM angajati WHERE id = ? AND sters_la IS NULL;
 
 -- name: AdaugaAngajat :exec
 INSERT INTO angajati (id, nume, prenume, marca, functie, sectie_id, departament_id, tip_contract,
-    norma_partiala_minute, concediu_zile_an, activ, creat_la, modificat_la)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    norma_partiala_minute, concediu_zile_an, activ, creat_la, modificat_la, categorie_program_id)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 -- name: ModificaAngajat :execrows
 UPDATE angajati SET nume = ?, prenume = ?, marca = ?, functie = ?, sectie_id = ?, departament_id = ?,
-    tip_contract = ?, norma_partiala_minute = ?, concediu_zile_an = ?, activ = ?, modificat_la = ?
+    tip_contract = ?, norma_partiala_minute = ?, concediu_zile_an = ?, activ = ?, modificat_la = ?, categorie_program_id = ?
 WHERE id = ? AND sters_la IS NULL;
 
 -- name: SchimbaActivAngajat :execrows

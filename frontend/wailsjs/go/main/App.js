@@ -78,6 +78,10 @@ export function PregatesteRaport(arg1) {
   return window['go']['main']['App']['PregatesteRaport'](arg1);
 }
 
+export function PrevizualizeazaPrecompletare(arg1, arg2, arg3, arg4) {
+  return window['go']['main']['App']['PrevizualizeazaPrecompletare'](arg1, arg2, arg3, arg4);
+}
+
 export function PrevizualizeazaSchita(arg1, arg2, arg3) {
   return window['go']['main']['App']['PrevizualizeazaSchita'](arg1, arg2, arg3);
 }
@@ -88,6 +92,10 @@ export function SalveazaAbsente(arg1, arg2) {
 
 export function SalveazaAngajat(arg1) {
   return window['go']['main']['App']['SalveazaAngajat'](arg1);
+}
+
+export function SalveazaCategorieProgram(arg1) {
+  return window['go']['main']['App']['SalveazaCategorieProgram'](arg1);
 }
 
 export function SalveazaConfiguratiePontaj(arg1) {

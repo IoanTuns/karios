@@ -57,6 +57,10 @@ func (a *App) SalveazaAngajat(angajat datebaza.Angajat) RaspunsDate {
 	return a.raspunsDate(datebaza.Nou(a.db).SalveazaAngajat(a.contextLucru(), angajat))
 }
 
+func (a *App) SalveazaCategorieProgram(categorie datebaza.CategorieProgram) RaspunsDate {
+	return a.raspunsDate(datebaza.Nou(a.db).SalveazaCategorieProgram(a.contextLucru(), categorie))
+}
+
 func (a *App) SchimbaActivAngajat(id string, activ bool) RaspunsDate {
 	return a.raspunsDate(datebaza.Nou(a.db).SchimbaActiv(a.contextLucru(), id, activ))
 }

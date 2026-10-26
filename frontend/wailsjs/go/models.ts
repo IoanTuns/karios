@@ -1,5 +1,21 @@
 export namespace calcul {
 
+	export class CelulaPrecompletare {
+	    angajat_id: string;
+	    data: string;
+	    valoare: string;
+
+	    static createFrom(source: any = {}) {
+	        return new CelulaPrecompletare(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.angajat_id = source["angajat_id"];
+	        this.data = source["data"];
+	        this.valoare = source["valoare"];
+	    }
+	}
 	export class RegulaColoana {
 	    coloana: string;
 	    sursa: string;
@@ -73,6 +89,38 @@ export namespace calcul {
 	        this.calculabil = source["calculabil"];
 	        this.surse = source["surse"];
 	    }
+	}
+	export class PlanPrecompletare {
+	    celule: CelulaPrecompletare[];
+	    omise: Record<string, number>;
+
+	    static createFrom(source: any = {}) {
+	        return new PlanPrecompletare(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.celule = this.convertValues(source["celule"], CelulaPrecompletare);
+	        this.omise = source["omise"];
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
 	}
 
 	export class ValoarePontaj {
@@ -257,6 +305,7 @@ export namespace datebaza {
 	    functie: string;
 	    sectie_id: string;
 	    departament_id: string;
+	    categorie_program_id: string;
 	    tip_contract: string;
 	    norma_partiala_minute?: number;
 	    norma_minute: number;
@@ -276,6 +325,7 @@ export namespace datebaza {
 	        this.functie = source["functie"];
 	        this.sectie_id = source["sectie_id"];
 	        this.departament_id = source["departament_id"];
+	        this.categorie_program_id = source["categorie_program_id"];
 	        this.tip_contract = source["tip_contract"];
 	        this.norma_partiala_minute = source["norma_partiala_minute"];
 	        this.norma_minute = source["norma_minute"];
@@ -331,6 +381,28 @@ export namespace datebaza {
 		    return a;
 		}
 	}
+	export class CategorieProgram {
+	    id: string;
+	    denumire: Record<string, string>;
+	    schimburi_id: string[];
+	    schimb_implicit_id: string;
+	    activ: boolean;
+	    revizie: string;
+
+	    static createFrom(source: any = {}) {
+	        return new CategorieProgram(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.denumire = source["denumire"];
+	        this.schimburi_id = source["schimburi_id"];
+	        this.schimb_implicit_id = source["schimb_implicit_id"];
+	        this.activ = source["activ"];
+	        this.revizie = source["revizie"];
+	    }
+	}
 	export class CelulaSchita {
 	    angajat_id: string;
 	    data: string;
@@ -383,6 +455,7 @@ export namespace datebaza {
 	    angajati: Angajat[];
 	    sectii: Sectie[];
 	    departamente: Departament[];
+	    categorii_program: CategorieProgram[];
 	    norma_intreaga_minute: number;
 	    demo_disponibil: boolean;
 
@@ -395,6 +468,7 @@ export namespace datebaza {
 	        this.angajati = this.convertValues(source["angajati"], Angajat);
 	        this.sectii = this.convertValues(source["sectii"], Sectie);
 	        this.departamente = this.convertValues(source["departamente"], Departament);
+	        this.categorii_program = this.convertValues(source["categorii_program"], CategorieProgram);
 	        this.norma_intreaga_minute = source["norma_intreaga_minute"];
 	        this.demo_disponibil = source["demo_disponibil"];
 	    }
@@ -801,6 +875,38 @@ export namespace main {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.configuratie = this.convertValues(source["configuratie"], rapoarte.Configuratie);
 	        this.salvat_id = source["salvat_id"];
+	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class RaspunsPrecompletare {
+	    plan?: calcul.PlanPrecompletare;
+	    eroare?: MesajEroare;
+
+	    static createFrom(source: any = {}) {
+	        return new RaspunsPrecompletare(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.plan = this.convertValues(source["plan"], calcul.PlanPrecompletare);
 	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
 	    }
 

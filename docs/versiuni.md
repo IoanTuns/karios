@@ -4,6 +4,17 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.29.0 · 2026-10-26
+
+Categorii de program pe angajat și precompletare explicită, conform confirmării utilizatorului (F07-T14, I053, D036).
+
+- **Precompletează L–V** revine în bara vizibilă din Pontaj. Butonul **După categorii** propune programul implicit individual, cu previzualizare și aplicare în schiță, Undo/Redo și salvare ulterioară.
+- **Setări → Categorii de program** permite creare/editare, denumiri RO/EN, schimburi permise, implicit opțional și dezactivare. Șase categorii inițiale sunt editabile; niciun angajat existent nu este atribuit automat. Combinațiile nu generează rotații; gărzile se aleg explicit.
+- Fișa angajatului are categorie de program, vizibilă și în lista angajaților. Pontajul se filtrează după categorie, inclusiv angajații fără categorie.
+- Precompletarea pe categorii respectă calendarul, toate absențele active, datele existente, norma individuală, suprapunerile și trecerile dintre luni. Programele incomplete, inactive sau cele speciale fără alegere explicită sunt omise cu explicații. Programele cunoscute din afara categoriei active sunt refuzate la aplicare și salvare; orele manuale rămân introduse explicit fără deducerea unui schimb.
+
+Baza de date: migrarea **0016**, categorii, legături stabile la schimburi și atribuire opțională pe angajat. Rapoarte și reguli de plată: nicio schimbare. Corecția încărcării calendarului în adaptorul vechi de totaluri este urmărită separat în F04-T09.
+
 ## 0.28.0 · 2026-10-26
 
 Primul lot UI după audit (F05-T19, I045–I048, D035): comenzile detaliate din Pontaj sunt grupate în Filtre, Completare și Ajutor, lăsând grilei mai mult spațiu. Căutarea și salvarea rămân la vedere; legenda textuală și contrastul orelor/valorilor necalculate clarifică stările.

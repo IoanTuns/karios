@@ -1,13 +1,13 @@
 import {useEffect, useLayoutEffect, useMemo, useRef, useState, type ClipboardEvent, type KeyboardEvent, type RefObject} from 'react';
 import {useTranslation} from 'react-i18next';
-import {CitesteCalendar, CitesteSchita, ListaSchimburi, SalveazaSchita, PrevizualizeazaSchita} from '../wailsjs/go/main/App';
+import {CitesteCalendar, CitesteSchita, ListaSchimburi, SalveazaSchita, PrevizualizeazaSchita, PrevizualizeazaPrecompletare} from '../wailsjs/go/main/App';
 import {calcul, datebaza} from '../wailsjs/go/models';
-import {denumireSectie, denumireDepartament} from './Formulare';
+import {Dialog, denumireSectie, denumireDepartament} from './Formulare';
 
 type Pozitie = {rand: number; zi: number};
 type Selectie = {inceput: Pozitie; sfarsit: Pozitie};
 export type ContextPontaj = {
-    an: number; luna: number; sectie: string; departament: string; cautare: string; filtruRanduri: string;
+    an: number; luna: number; sectie: string; departament: string; categorieProgram: string; cautare: string; filtruRanduri: string;
     selectie: {inceput: {angajatId: string; data: string}; sfarsit: {angajatId: string; data: string}} | null;
     derulareX: number; derulareY: number;
 };
@@ -35,6 +35,9 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
     const [anText, setAnText] = useState(String(an));
     const [sectie, setSectie] = useState(initial.current?.sectie ?? '');
     const [departament, setDepartament] = useState(initial.current?.departament ?? '');
+    const [categorieProgram,setCategorieProgram]=useState(initial.current?.categorieProgram??'');
+    const [plan,setPlan]=useState<calcul.PlanPrecompletare|null>(null);
+    const [numaiSelectiaPlan,setNumaiSelectiaPlan]=useState(false);
     const [cautare, setCautare] = useState(initial.current?.cautare ?? '');
     const [filtruRanduri, setFiltruRanduri] = useState(initial.current?.filtruRanduri ?? '');
     const [panou, setPanou] = useState('');
@@ -131,6 +134,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
         const termen = normalizat(cautare.trim());
         return date.angajati.filter(a => {
             if (!(a.activ || cuSchite.has(a.id)) || (sectie && a.sectie_id !== sectie) || (departament && a.departament_id !== departament)) return false;
+            if(categorieProgram && (categorieProgram==='__fara__'?Boolean(a.categorie_program_id):a.categorie_program_id!==categorieProgram))return false;
             if (termen && !normalizat(`${a.nume} ${a.prenume} ${a.marca}`).includes(termen)) return false;
             if (filtruRanduri === 'modificate') return zile.some(data => modificari.has(cheie(a.id, data)));
             if (filtruRanduri === 'inlocuitori') return zile.some(data => (inlocuiri.get(cheie(a.id, data))?.length ?? 0) > 0);
@@ -144,7 +148,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
             }
             return true;
         });
-    }, [date.angajati, schita, calculat, sectie, departament, cautare, filtruRanduri, modificari, inlocuiri, totaluriCalculate, oreCalculate, absente, originale, zile]);
+    }, [date.angajati, schita, calculat, sectie, departament, categorieProgram, cautare, filtruRanduri, modificari, inlocuiri, totaluriCalculate, oreCalculate, absente, originale, zile]);
     const sarbatori = new Map((calendar?.sarbatori ?? []).map(s => [s.data, s.denumire[i18n.language] || s.denumire.ro || Object.values(s.denumire).find(Boolean) || '']));
     const numeSectie = (id: string) => { const s = date.sectii.find(s => s.id === id); return s ? denumireSectie(s, i18n.language) : t('ui.fara_sectie'); };
     const inceputRand = Math.min(selectie.inceput.rand, selectie.sfarsit.rand), sfarsitRand = Math.max(selectie.inceput.rand, selectie.sfarsit.rand);
@@ -165,7 +169,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
         if (primulFiltru.current) { primulFiltru.current = false; return; }
         restaurare.current = false;
         setSelectie({inceput: {rand: 0, zi: 0}, sfarsit: {rand: 0, zi: 0}});
-    }, [sectie, departament, cautare, filtruRanduri, an, luna]);
+    }, [sectie, departament, categorieProgram, cautare, filtruRanduri, an, luna]);
     useLayoutEffect(() => {
         if (!schita || !restaurare.current) return;
         restaurare.current = false;
@@ -185,6 +189,12 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
     function aplicaCelule(celule: {rand: number; zi: number; text: string}[]) {
         if (celule.some(c => !randuri[c.rand] || !zile[c.zi] || Array.from(c.text).length > 16 || /[\0\t\r\n]/.test(c.text))) { setEroare(t('pontaj.lipire_invalida')); return; }
         if (celule.some(c => absente.has(cheie(randuri[c.rand].id,zile[c.zi])))) { setEroare(t('absente.celula_protejata')); return; }
+        for(const c of celule){
+            if(c.text===(originale.get(cheie(randuri[c.rand].id,zile[c.zi]))?.valoare??''))continue;
+            const program=schimburi.find(s=>s.cod.toUpperCase()===c.text.trim().toUpperCase());
+            const categorie=date.categorii_program?.find(p=>p.id===randuri[c.rand].categorie_program_id);
+            if(program&&categorie?.activ&&!categorie.schimburi_id.includes(program.id)){setEroare(t('program.nepermis',{nume:`${randuri[c.rand].nume} ${randuri[c.rand].prenume}`,cod:program.cod}));return;}
+        }
         setIstoricInapoi(stiva => [...stiva.slice(-49), new Map(modificari)]);
         setIstoricInainte([]);
         setModificari(vechi => {
@@ -231,6 +241,10 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
         const celule: {rand: number; zi: number; text: string}[] = [];
         for (let r = deLaRand; r <= panaLaRand; r++) {
             if (!randuri[r]) continue;
+            if(!randuri[r].activ)continue;
+            const categorie=date.categorii_program?.find(p=>p.id===randuri[r].categorie_program_id);
+            const program=schimburi.find(s=>s.cod===programCompletare);
+            if(categorie&&(!categorie.activ||!program||!categorie.schimburi_id.includes(program.id)||program.durata_minute!==randuri[r].norma_minute))continue;
             for (let z = 0; z < zile.length; z++) {
                 const data = zile[z], ziSapt = new Date(`${data}T12:00:00Z`).getUTCDay();
                 if (ziSapt === 0 || ziSapt === 6 || sarbatori.has(data)) continue;
@@ -244,6 +258,26 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
 
     function precompleteazaLV() { precompleteazaIntervalRanduri(0, randuri.length - 1); }
     function precompleteazaSelectieLV() { precompleteazaIntervalRanduri(inceputRand, sfarsitRand); }
+
+    async function previzualizeazaCategorii(numaiSelectia:boolean) {
+        if(blocat.current||!randuri.length)return;
+        blocat.current=true;setOcupat(true);onOcupat(true);setEroare('');setMesaj('');
+        try {
+            const ids=(numaiSelectia?randuri.slice(inceputRand,sfarsitRand+1):randuri).map(a=>a.id);
+            const r=await PrevizualizeazaPrecompletare(an,luna,ids,[...modificari.values()]);
+            if(r.eroare)setEroare(t(r.eroare.cod,r.eroare.param??{}));
+            else if(r.plan){setPlan(r.plan);setNumaiSelectiaPlan(numaiSelectia);setPanou('');}
+            else setEroare(t('date.eroare'));
+        } catch {setEroare(t('date.eroare'));}
+        finally{blocat.current=false;setOcupat(false);onOcupat(false);}
+    }
+
+    function aplicaPlan() {
+        if(!plan)return;
+        const celule=plan.celule.map(c=>({rand:randuri.findIndex(a=>a.id===c.angajat_id),zi:zile.indexOf(c.data),text:c.valoare}));
+        if(celule.some(c=>c.rand<0||c.zi<0||valoareBruta(c.rand,c.zi).trim()!=='')){setPlan(null);setEroare(t('program.plan_schimbat'));return;}
+        aplicaCelule(celule);setPlan(null);
+    }
 
     function textSelectat() {
         if(calculare || !calculat)return '';
@@ -330,14 +364,14 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
     const avertismentActiv = [dupaG24Activa ? t('pontaj.avertisment_dupa_g24') : '', peste24hActiva ? t('pontaj.avertisment_peste_24h', {ore: oreText(calcActiva!.minute)}) : ''].filter(Boolean).join(' · ');
 
     stareCurenta.current = {
-        an, luna, sectie, departament, cautare, filtruRanduri,
+        an, luna, sectie, departament, categorieProgram, cautare, filtruRanduri,
         selectie: schita && !restaurare.current && randuri[selectie.inceput.rand] && randActiv
             ? {inceput: {angajatId: randuri[selectie.inceput.rand].id, data: zile[selectie.inceput.zi]}, sfarsit: {angajatId: randActiv.id, data: dataActiva}}
             : stareCurenta.current?.selectie ?? null,
         derulareX: grila.current?.scrollLeft ?? stareCurenta.current?.derulareX ?? 0,
         derulareY: grila.current?.scrollTop ?? stareCurenta.current?.derulareY ?? 0,
     };
-    const numarFiltre = [sectie, departament, cautare.trim(), filtruRanduri].filter(Boolean).length;
+    const numarFiltre = [sectie, departament, categorieProgram, cautare.trim(), filtruRanduri].filter(Boolean).length;
 
     return <section className="pontaj-lunar">
         <div className="unelte-calendar unelte-perioada"><form onSubmit={e => { e.preventDefault(); const nou = Number(anText); if (!Number.isInteger(nou) || nou < 1 || nou > 9999) { setEroare(t('sarbatori.an_invalid')); return; } if (nou !== an) { if (poateAbandona()) setAn(nou); else setAnText(String(an)); } }}>
@@ -356,6 +390,8 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
             }}>
                 <input name="cautare_pontaj" className="cautare-grila" aria-label={t('ui.cautare')} placeholder={t('ui.cautare_indiciu')} value={cautare} disabled={ocupat} onChange={e => setCautare(e.target.value)}/>
                 {['filtre', 'completare', 'ajutor'].map(p => <button key={p} ref={element => { butoanePanouri.current[p] = element; }} type="button" className={`buton secundar ${panou === p ? 'panou-activ' : ''}`} disabled={ocupat} aria-expanded={panou === p} aria-controls={`pontaj-panou-${p}`} onClick={() => setPanou(panou === p ? '' : p)}>{t(`pontaj.panou_${p}`)}{p === 'filtre' && numarFiltre > 0 ? ` (${numarFiltre})` : ''}</button>)}
+                <button type="button" className="buton secundar" title={t('program.completare_program_indiciu')} disabled={ocupat||!randuri.length||!programCompletare} onClick={precompleteazaLV}>{t('pontaj.precompleteaza_lv')}</button>
+                <button type="button" className="buton secundar" disabled={ocupat||!randuri.length} onClick={()=>void previzualizeazaCategorii(false)}>{t('program.precompleteaza')}</button>
                 <span className="stare-modificari" aria-live="polite">{t('pontaj.modificate', {numar: modificari.size})}</span>
                 <div id="pontaj-panou-filtre" className="panou-unelte" hidden={panou !== 'filtre'}>
                 <select aria-label={t('ui.sectie')} value={sectie} disabled={ocupat} onChange={e => { setSectie(e.target.value); setDepartament(''); }}><option value="">{t('ui.toate_sectiile')}</option>
@@ -368,12 +404,12 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                     <option value="modificate">{t('pontaj.doar_modificate')}</option>
                     <option value="inlocuitori">{t('pontaj.doar_inlocuitori')}</option>
                 </select>
-                <button type="button" className="legatura" disabled={ocupat || !numarFiltre} onClick={() => { setSectie(''); setDepartament(''); setCautare(''); setFiltruRanduri(''); }}>{t('pontaj.reseteaza_filtre')}</button>
+                <select name="filtru_categorie_program" aria-label={t('program.categorie')} value={categorieProgram} disabled={ocupat} onChange={e=>setCategorieProgram(e.target.value)}><option value="">{t('program.toate_categoriile')}</option><option value="__fara__">{t('program.fara_categorie')}</option>{(date.categorii_program??[]).map(c=><option key={c.id} value={c.id}>{c.denumire[i18n.language]||c.denumire.ro}</option>)}</select>
+                <button type="button" className="legatura" disabled={ocupat || !numarFiltre} onClick={() => { setSectie(''); setDepartament(''); setCategorieProgram(''); setCautare(''); setFiltruRanduri(''); }}>{t('pontaj.reseteaza_filtre')}</button>
                 </div>
                 <div id="pontaj-panou-completare" className="panou-unelte" hidden={panou !== 'completare'}>
                 <select aria-label={t('pontaj.program_completare')} value={programCompletare} disabled={ocupat} onChange={e=>setProgramCompletare(e.target.value)}><option value="">{t('pontaj.program_completare')}</option>{schimburi.filter(s=>s.activ).map(s=><option key={s.id} value={s.cod}>{s.denumire[i18n.language]||s.denumire.ro} {t(`schimburi.regim_${s.regim||'GENERAL'}`)} · {s.ora_start<0?t('pontaj.fara_ora'): `${String(Math.floor(s.ora_start/60)).padStart(2,'0')}:${String(s.ora_start%60).padStart(2,'0')}`} · {t('pontaj.durata_ore',{ore:oreText(s.durata_minute)})}</option>)}</select>
                 <button className="buton secundar" disabled={ocupat || !randuri.length || !programCompletare} onClick={()=>completeaza(programCompletare)}>{t('pontaj.aplica_program')}</button>
-                <button className="buton secundar" disabled={ocupat || !randuri.length || !programCompletare} onClick={precompleteazaLV}>{t('pontaj.precompleteaza_lv')}</button>
                 <button type="button" className="buton secundar" disabled={ocupat || !randuri.length || !programCompletare} onClick={precompleteazaSelectieLV}>{t('pontaj.precompleteaza_rand_lv')}</button>
                 <input name="ore_manuale" ref={manualInput} aria-label={t('pontaj.valoare_completare')} placeholder={t('pontaj.valoare_completare')} inputMode="decimal" maxLength={16} value={valoareCompletare} disabled={ocupat} onChange={e => setValoareCompletare(e.target.value)}/>
                 <button className="buton secundar" disabled={ocupat || !randuri.length} onClick={() => {const v=manual(valoareCompletare);if(v===null)setEroare(t('pontaj.ore_invalide'));else completeaza(v);}}>{t('pontaj.completeaza_selectia')}</button>
@@ -439,5 +475,12 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
             </div>
             <p className="indiciu-grila">{t('pontaj.dimensiuni', {randuri: randuri.length, zile: numarZile})} · {t('pontaj.inactivi_indiciu')}</p>
         </>}
+        {plan&&<Dialog titlu={t('program.previzualizare')} ocupat={ocupat} inchide={()=>setPlan(null)}><div className="corp-dialog plan-precompletare">
+            <p>{t('program.plan_indiciu')}</p>
+            <label className="bifa"><input type="checkbox" checked={numaiSelectiaPlan} disabled={ocupat} onChange={e=>void previzualizeazaCategorii(e.target.checked)}/>{t('program.numai_selectia')}</label>
+            <p><strong>{t('program.propuneri',{numar:plan.celule.length})}</strong></p>
+            <ul>{Object.entries(plan.omise).sort(([a],[b])=>a.localeCompare(b)).map(([motiv,numar])=><li key={motiv}>{t(`program.omise_${motiv}`,{numar})}</li>)}</ul>
+            {plan.celule.length>0&&<div className="tabel-derulant"><table><thead><tr><th>{t('ui.angajat')}</th><th>{t('program.data')}</th><th>{t('program.program')}</th></tr></thead><tbody>{plan.celule.slice(0,100).map(c=><tr key={`${c.angajat_id}/${c.data}`}><td>{date.angajati.find(a=>a.id===c.angajat_id)?.nume} {date.angajati.find(a=>a.id===c.angajat_id)?.prenume}</td><td>{c.data}</td><td>{schimburi.find(s=>s.cod===c.valoare)?.denumire[i18n.language]||c.valoare}</td></tr>)}</tbody></table>{plan.celule.length>100&&<p>{t('program.primele_propuneri')}</p>}</div>}
+        </div><footer className="subsol-dialog"><button className="buton secundar" disabled={ocupat} onClick={()=>setPlan(null)}>{t('ui.anuleaza')}</button><button className="buton primar" disabled={ocupat||!plan.celule.length} onClick={aplicaPlan}>{t('program.aplica_plan')}</button></footer></Dialog>}
     </section>;
 }

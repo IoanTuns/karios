@@ -44,11 +44,15 @@ export function ListaSchimburi():Promise<main.RaspunsSchimburi>;
 
 export function PregatesteRaport(arg1:rapoarte.Cerere):Promise<main.RaspunsRaport>;
 
+export function PrevizualizeazaPrecompletare(arg1:number,arg2:number,arg3:Array<string>,arg4:Array<datebaza.CelulaSchita>):Promise<main.RaspunsPrecompletare>;
+
 export function PrevizualizeazaSchita(arg1:number,arg2:number,arg3:Array<datebaza.CelulaSchita>):Promise<main.RaspunsSchita>;
 
 export function SalveazaAbsente(arg1:Array<datebaza.ZiAbsenta>,arg2:number):Promise<main.RaspunsAbsente>;
 
 export function SalveazaAngajat(arg1:datebaza.Angajat):Promise<main.RaspunsDate>;
+
+export function SalveazaCategorieProgram(arg1:datebaza.CategorieProgram):Promise<main.RaspunsDate>;
 
 export function SalveazaConfiguratiePontaj(arg1:calcul.ConfiguratiePontaj):Promise<main.RaspunsConfiguratiePontaj>;
 

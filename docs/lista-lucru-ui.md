@@ -15,3 +15,5 @@ Utilizatorul a cerut explicit lista și începerea îmbunătățirilor. Lucrăm 
 La finalul fiecărui lot se actualizează taskul, jurnalul și această listă. Verificările automate folosesc date fictive; o probă cu un operator și date anonimizate rămâne necesară pentru validarea fluxului zilnic. Persistența limbii este deja urmărită separat în F03-T05.
 
 Primul lot a trecut criteriile automate: 7 rânduri complete la 1024×640, context restaurat și schiță abandonată neînregistrată, salvare accesibilă și contraste măsurate. [Rezultate și limite](rezultate-ui-F05-T19.md). Următorul lot este F05-T20.
+
+Cererea ulterioară a utilizatorului a prioritizat **F07-T14**, categoriile de program pe angajat și readucerea butonului Precompletează L–V. Implementarea 0.29.0 include previzualizarea completării după categorii, cu protecția absențelor și calendarului; [ghid](ghid-categorii-program.md). Loturile F05-T20–T23 rămân în listă. Anomalia existentă de încărcare a sărbătorilor în adaptorul totalurilor este urmărită distinct prin F04-T09.

@@ -46,8 +46,8 @@ func TestDeschideSiMigreaza(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if n != 15 {
-		t.Errorf("migrări aplicate: %d, așteptat 15", n)
+	if n != 16 {
+		t.Errorf("migrări aplicate: %d, așteptat 16", n)
 	}
 
 	// Setările fiecărei conexiuni.

@@ -26,6 +26,7 @@ type Angajat struct {
 	Functie             string `json:"functie"`
 	SectieID            string `json:"sectie_id"`
 	DepartamentID       string `json:"departament_id"`
+	CategorieProgramID  string `json:"categorie_program_id"`
 	TipContract         string `json:"tip_contract"`
 	NormaPartialaMinute *int64 `json:"norma_partiala_minute"`
 	NormaMinute         int64  `json:"norma_minute"`
@@ -45,11 +46,12 @@ type Departament struct {
 }
 
 type Date struct {
-	Angajati            []Angajat     `json:"angajati"`
-	Sectii              []Sectie      `json:"sectii"`
-	Departamente        []Departament `json:"departamente"`
-	NormaIntreagaMinute int64         `json:"norma_intreaga_minute"`
-	DemoDisponibil      bool          `json:"demo_disponibil"`
+	Angajati            []Angajat          `json:"angajati"`
+	Sectii              []Sectie           `json:"sectii"`
+	Departamente        []Departament      `json:"departamente"`
+	CategoriiProgram    []CategorieProgram `json:"categorii_program"`
+	NormaIntreagaMinute int64              `json:"norma_intreaga_minute"`
+	DemoDisponibil      bool               `json:"demo_disponibil"`
 }
 
 type Serviciu struct{ db *sql.DB }
@@ -83,8 +85,9 @@ func (s *Serviciu) Citeste(ctx context.Context) (Date, error) {
 		}
 		rez.Angajati = append(rez.Angajati, Angajat{ID: a.ID, Nume: a.Nume, Prenume: a.Prenume,
 			Marca: a.Marca, Functie: textSauGol(a.Functie), SectieID: textSauGol(a.SectieID),
-			DepartamentID: textSauGol(a.DepartamentID),
-			TipContract:   a.TipContract, NormaPartialaMinute: a.NormaPartialaMinute,
+			DepartamentID:      textSauGol(a.DepartamentID),
+			CategorieProgramID: textSauGol(a.CategorieProgramID),
+			TipContract:        a.TipContract, NormaPartialaMinute: a.NormaPartialaMinute,
 			NormaMinute: norma, ConcediuZileAn: a.ConcediuZileAn, Activ: a.Activ == 1})
 	}
 	sectii, err := q.ListaSectii(ctx)
@@ -108,6 +111,10 @@ func (s *Serviciu) Citeste(ctx context.Context) (Date, error) {
 			return Date{}, traduceEroare(err)
 		}
 		rez.Departamente = append(rez.Departamente, Departament{ID: r.ID, SectieID: r.SectieID, Denumire: denumire})
+	}
+	rez.CategoriiProgram, err = citesteCategoriiProgram(ctx, q)
+	if err != nil {
+		return Date{}, traduceEroare(err)
 	}
 	n, err := q.NumaraAngajati(ctx)
 	if err != nil {
@@ -142,6 +149,18 @@ func (s *Serviciu) SalveazaAngajat(ctx context.Context, a Angajat) error {
 		return eroare("date.concediu_invalid")
 	}
 	return s.modifica(ctx, func(q *acces.Queries) error {
+		if a.CategorieProgramID != "" {
+			c, err := q.CitesteCategorieProgram(ctx, a.CategorieProgramID)
+			if err != nil {
+				return eroare("program.categorie_invalida")
+			}
+			if c.Activ != 1 {
+				vechi, err := q.CitesteAngajat(ctx, a.ID)
+				if err != nil || textSauGol(vechi.CategorieProgramID) != a.CategorieProgramID {
+					return eroare("program.categorie_inactiva")
+				}
+			}
+		}
 		if a.DepartamentID != "" {
 			d, err := q.CitesteDepartamentActiv(ctx, a.DepartamentID)
 			if errors.Is(err, sql.ErrNoRows) || (err == nil && d.SectieID != a.SectieID) {
@@ -157,8 +176,9 @@ func (s *Serviciu) SalveazaAngajat(ctx context.Context, a Angajat) error {
 			a.ID = idNou()
 			if err := q.AdaugaAngajat(ctx, acces.AdaugaAngajatParams{ID: a.ID, Nume: a.Nume, Prenume: a.Prenume,
 				Marca: a.Marca, Functie: textOptional(a.Functie), SectieID: textOptional(a.SectieID),
-				DepartamentID: textOptional(a.DepartamentID),
-				TipContract:   a.TipContract, NormaPartialaMinute: a.NormaPartialaMinute,
+				DepartamentID:      textOptional(a.DepartamentID),
+				CategorieProgramID: textOptional(a.CategorieProgramID),
+				TipContract:        a.TipContract, NormaPartialaMinute: a.NormaPartialaMinute,
 				ConcediuZileAn: a.ConcediuZileAn, Activ: numarBool(a.Activ), CreatLa: acum, ModificatLa: acum}); err != nil {
 				return err
 			}
@@ -170,8 +190,9 @@ func (s *Serviciu) SalveazaAngajat(ctx context.Context, a Angajat) error {
 			vechi = r
 			n, err := q.ModificaAngajat(ctx, acces.ModificaAngajatParams{ID: a.ID, Nume: a.Nume, Prenume: a.Prenume,
 				Marca: a.Marca, Functie: textOptional(a.Functie), SectieID: textOptional(a.SectieID),
-				DepartamentID: textOptional(a.DepartamentID),
-				TipContract:   a.TipContract, NormaPartialaMinute: a.NormaPartialaMinute,
+				DepartamentID:      textOptional(a.DepartamentID),
+				CategorieProgramID: textOptional(a.CategorieProgramID),
+				TipContract:        a.TipContract, NormaPartialaMinute: a.NormaPartialaMinute,
 				ConcediuZileAn: a.ConcediuZileAn, Activ: numarBool(a.Activ), ModificatLa: acum})
 			if err != nil {
 				return err

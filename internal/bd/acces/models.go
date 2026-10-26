@@ -27,6 +27,16 @@ type AbsenteZile struct {
 	DocumentID     *string
 }
 
+type CategoriiProgram struct {
+	ID               string
+	Denumire         string
+	SchimbImplicitID *string
+	Activ            int64
+	Revizie          int64
+	CreatLa          string
+	ModificatLa      string
+}
+
 type CoduriAbsentum struct {
 	Cod         string
 	Denumire    string

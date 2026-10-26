@@ -29,8 +29,8 @@ func (q *Queries) ActualizeazaSetare(ctx context.Context, arg ActualizeazaSetare
 
 const adaugaAngajat = `-- name: AdaugaAngajat :exec
 INSERT INTO angajati (id, nume, prenume, marca, functie, sectie_id, departament_id, tip_contract,
-    norma_partiala_minute, concediu_zile_an, activ, creat_la, modificat_la)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    norma_partiala_minute, concediu_zile_an, activ, creat_la, modificat_la, categorie_program_id)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `
 
 type AdaugaAngajatParams struct {
@@ -47,6 +47,7 @@ type AdaugaAngajatParams struct {
 	Activ               int64
 	CreatLa             string
 	ModificatLa         string
+	CategorieProgramID  *string
 }
 
 func (q *Queries) AdaugaAngajat(ctx context.Context, arg AdaugaAngajatParams) error {
@@ -64,6 +65,7 @@ func (q *Queries) AdaugaAngajat(ctx context.Context, arg AdaugaAngajatParams) er
 		arg.Activ,
 		arg.CreatLa,
 		arg.ModificatLa,
+		arg.CategorieProgramID,
 	)
 	return err
 }
@@ -140,7 +142,7 @@ func (q *Queries) AdaugaSectie(ctx context.Context, arg AdaugaSectieParams) erro
 
 const citesteAngajat = `-- name: CitesteAngajat :one
 SELECT id, nume, prenume, marca, functie, sectie_id, departament_id, tip_contract,
-    norma_partiala_minute, concediu_zile_an, activ
+    norma_partiala_minute, concediu_zile_an, activ, categorie_program_id
 FROM angajati WHERE id = ? AND sters_la IS NULL
 `
 
@@ -156,6 +158,7 @@ type CitesteAngajatRow struct {
 	NormaPartialaMinute *int64
 	ConcediuZileAn      *int64
 	Activ               int64
+	CategorieProgramID  *string
 }
 
 func (q *Queries) CitesteAngajat(ctx context.Context, id string) (CitesteAngajatRow, error) {
@@ -173,6 +176,7 @@ func (q *Queries) CitesteAngajat(ctx context.Context, id string) (CitesteAngajat
 		&i.NormaPartialaMinute,
 		&i.ConcediuZileAn,
 		&i.Activ,
+		&i.CategorieProgramID,
 	)
 	return i, err
 }
@@ -217,7 +221,7 @@ func (q *Queries) CitesteSetare(ctx context.Context, cheie string) (string, erro
 
 const listaAngajati = `-- name: ListaAngajati :many
 SELECT id, nume, prenume, marca, functie, sectie_id, departament_id, tip_contract,
-    norma_partiala_minute, concediu_zile_an, activ
+    norma_partiala_minute, concediu_zile_an, activ, categorie_program_id
 FROM angajati WHERE sters_la IS NULL
 ORDER BY nume COLLATE NOCASE, prenume COLLATE NOCASE, marca
 `
@@ -234,6 +238,7 @@ type ListaAngajatiRow struct {
 	NormaPartialaMinute *int64
 	ConcediuZileAn      *int64
 	Activ               int64
+	CategorieProgramID  *string
 }
 
 func (q *Queries) ListaAngajati(ctx context.Context) ([]ListaAngajatiRow, error) {
@@ -257,6 +262,7 @@ func (q *Queries) ListaAngajati(ctx context.Context) ([]ListaAngajatiRow, error)
 			&i.NormaPartialaMinute,
 			&i.ConcediuZileAn,
 			&i.Activ,
+			&i.CategorieProgramID,
 		); err != nil {
 			return nil, err
 		}
@@ -339,7 +345,7 @@ func (q *Queries) ListaSectii(ctx context.Context) ([]ListaSectiiRow, error) {
 
 const modificaAngajat = `-- name: ModificaAngajat :execrows
 UPDATE angajati SET nume = ?, prenume = ?, marca = ?, functie = ?, sectie_id = ?, departament_id = ?,
-    tip_contract = ?, norma_partiala_minute = ?, concediu_zile_an = ?, activ = ?, modificat_la = ?
+    tip_contract = ?, norma_partiala_minute = ?, concediu_zile_an = ?, activ = ?, modificat_la = ?, categorie_program_id = ?
 WHERE id = ? AND sters_la IS NULL
 `
 
@@ -355,6 +361,7 @@ type ModificaAngajatParams struct {
 	ConcediuZileAn      *int64
 	Activ               int64
 	ModificatLa         string
+	CategorieProgramID  *string
 	ID                  string
 }
 
@@ -371,6 +378,7 @@ func (q *Queries) ModificaAngajat(ctx context.Context, arg ModificaAngajatParams
 		arg.ConcediuZileAn,
 		arg.Activ,
 		arg.ModificatLa,
+		arg.CategorieProgramID,
 		arg.ID,
 	)
 	if err != nil {
