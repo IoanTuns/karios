@@ -82,6 +82,10 @@ export function DeschidePDFPentruTiparire(arg1) {
   return window['go']['main']['App']['DeschidePDFPentruTiparire'](arg1);
 }
 
+export function EsteAutoPornireAI() {
+  return window['go']['main']['App']['EsteAutoPornireAI']();
+}
+
 export function ExecutaImportAngajati(arg1) {
   return window['go']['main']['App']['ExecutaImportAngajati'](arg1);
 }
@@ -196,6 +200,10 @@ export function SchimbaActivAngajat(arg1, arg2) {
 
 export function SchimbaActivSchimb(arg1, arg2) {
   return window['go']['main']['App']['SchimbaActivSchimb'](arg1, arg2);
+}
+
+export function SeteazaAutoPornireAI(arg1) {
+  return window['go']['main']['App']['SeteazaAutoPornireAI'](arg1);
 }
 
 export function StareAI() {

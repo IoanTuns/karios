@@ -1,7 +1,9 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"os"
 	"path/filepath"
 
 	"pontix/internal/ai"
@@ -35,6 +37,42 @@ func (a *App) folderAI() string {
 		}
 	}
 	return filepath.Join(radacina, portabil.NumeFolderDate, "ai")
+}
+
+const fisierFaraAutoPornire = "fara-autostart"
+
+// EsteAutoPornireAI verifică dacă pornirea automată a AI este activă (implicit true dacă nu există fișierul de dezactivare).
+func (a *App) EsteAutoPornireAI() bool {
+	folder := a.folderAI()
+	caleFisier := filepath.Join(folder, fisierFaraAutoPornire)
+	_, err := os.Stat(caleFisier)
+	return os.IsNotExist(err)
+}
+
+// SeteazaAutoPornireAI activează sau dezactivează pornirea automată a motorului AI la pornirea aplicației.
+func (a *App) SeteazaAutoPornireAI(activa bool) bool {
+	folder := a.folderAI()
+	caleFisier := filepath.Join(folder, fisierFaraAutoPornire)
+	if activa {
+		_ = os.Remove(caleFisier)
+	} else {
+		_ = os.WriteFile(caleFisier, []byte("fara-autostart"), 0644)
+	}
+	return a.EsteAutoPornireAI()
+}
+
+// autoPornesteAIDacaEPosibil pornește motorul în fundal la lansarea aplicației dacă fișierele sunt prezente și opțiunea e activă.
+func (a *App) autoPornesteAIDacaEPosibil() {
+	if !a.EsteAutoPornireAI() {
+		return
+	}
+	folder := a.folderAI()
+	stare := ai.DetecteazaMediu(folder, ai.PortImplicit)
+	if !stare.Instalat || stare.Activ || len(stare.ModeleDisponibile) == 0 {
+		return
+	}
+	mgr := a.asiguratManagerAI()
+	_ = mgr.Porneste(context.Background(), "")
 }
 
 func (a *App) asiguratManagerAI() *ai.Manager {
@@ -129,4 +167,3 @@ func (a *App) InterogheazaAI(cerere CerereInterogareAI) RaspunsInterogareAI {
 
 	return RaspunsInterogareAI{Raspuns: &raspuns}
 }
-

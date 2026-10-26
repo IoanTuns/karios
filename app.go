@@ -27,6 +27,7 @@ func NewApp(db *sql.DB) *App {
 
 func (a *App) pornire(ctx context.Context) {
 	a.ctx = ctx
+	go a.autoPornesteAIDacaEPosibil()
 }
 
 func (a *App) oprire(ctx context.Context) {

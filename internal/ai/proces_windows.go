@@ -12,4 +12,3 @@ func ascundeConsola(cmd *exec.Cmd) {
 		HideWindow: true,
 	}
 }
-

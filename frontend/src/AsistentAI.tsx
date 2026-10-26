@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState, type FormEvent} from 'react';
 import {useTranslation} from 'react-i18next';
-import {InterogheazaAI, OpresteAI, PornesteAI, SalveazaPlanificare, StareAI} from '../wailsjs/go/main/App';
+import {EsteAutoPornireAI, InterogheazaAI, OpresteAI, PornesteAI, SalveazaPlanificare, SeteazaAutoPornireAI, StareAI} from '../wailsjs/go/main/App';
 import {ai, datebaza, main} from '../wailsjs/go/models';
 
 interface MesajUI {
@@ -20,6 +20,7 @@ export function AsistentAI({date}: {date: datebaza.Date}) {
     const [eroare, setEroare] = useState('');
     const [textIntrare, setTextIntrare] = useState('');
     const [conversatie, setConversatie] = useState<MesajUI[]>([]);
+    const [autoPornire, setAutoPornire] = useState(true);
 
     const anCurent = new Date().getFullYear();
     const lunaCurenta = new Date().getMonth() + 1;
@@ -43,6 +44,7 @@ export function AsistentAI({date}: {date: datebaza.Date}) {
 
     useEffect(() => {
         void actualizeazaStare();
+        void EsteAutoPornireAI().then(setAutoPornire).catch(() => {});
         // Mesaj inițial de întâmpinare
         setConversatie([
             {
@@ -56,6 +58,16 @@ export function AsistentAI({date}: {date: datebaza.Date}) {
     useEffect(() => {
         capatConversatieRef.current?.scrollIntoView({behavior: 'smooth'});
     }, [conversatie]);
+
+    async function toggleAutoPornire(activ: boolean) {
+        setAutoPornire(activ);
+        try {
+            await SeteazaAutoPornireAI(activ);
+        } catch {
+            // Revert dacă eșuează
+            void EsteAutoPornireAI().then(setAutoPornire).catch(() => {});
+        }
+    }
 
     async function pornesteMotor() {
         setOcupat(true);
@@ -222,6 +234,14 @@ export function AsistentAI({date}: {date: datebaza.Date}) {
                 </div>
 
                 <div className="actiuni-stare-motor">
+                    <label className="comutator-autopornire-ai" title={t('ai.autopornire_descriere')}>
+                        <input
+                            type="checkbox"
+                            checked={autoPornire}
+                            onChange={e => void toggleAutoPornire(e.target.checked)}
+                        />
+                        <span>{t('ai.autopornire')}</span>
+                    </label>
                     {stare?.instalat && !stare.activ && (
                         <button
                             type="button"

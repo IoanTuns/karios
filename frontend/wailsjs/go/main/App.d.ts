@@ -46,6 +46,8 @@ export function DescarcaSablon(arg1:string,arg2:string):Promise<main.RaspunsDesc
 
 export function DeschidePDFPentruTiparire(arg1:string):Promise<main.RaspunsFisierRaport>;
 
+export function EsteAutoPornireAI():Promise<boolean>;
+
 export function ExecutaImportAngajati(arg1:datebaza.CerereExecutaImportAngajati):Promise<main.RaspunsExecutaImportAngajati>;
 
 export function ExecutaImportSarbatori(arg1:datebaza.CerereExecutaImportSarbatori,arg2:number):Promise<main.RaspunsExecutaImportSarbatori>;
@@ -103,5 +105,7 @@ export function SalveazaTipAbsenta(arg1:string,arg2:datebaza.TipAbsenta,arg3:num
 export function SchimbaActivAngajat(arg1:string,arg2:boolean):Promise<main.RaspunsDate>;
 
 export function SchimbaActivSchimb(arg1:string,arg2:boolean):Promise<main.RaspunsSchimburi>;
+
+export function SeteazaAutoPornireAI(arg1:boolean):Promise<boolean>;
 
 export function StareAI():Promise<main.RaspunsStareAI>;

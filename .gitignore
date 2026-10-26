@@ -24,3 +24,8 @@ frontend/dist/*
 
 # Cache Wails
 frontend/package.json.md5
+
+# Cache AI local pentru pachete portabile
+.cache-ai/
+*.gguf
+llama-server.exe

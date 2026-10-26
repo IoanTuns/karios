@@ -4,6 +4,17 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.37.0 · 2026-10-26
+
+Pachet portabil Pontix AI Ready și pornire automată la lansare (F14-T05, D042).
+
+- **Script automatizat de împachetare AI Ready (`scripts/creaza-pachet-ai.ps1`):** Script dedicat care produce o distribuție portabilă completă (sau arhivă `.zip`) conținând executabilul `pontix.exe`, directorul `karios/ai/` pre-populat cu binarul motorului C++ `llama-server.exe` și modelul LLM cuantizat (`qwen2.5-3b-instruct-q4_k_m.gguf`), script de descărcare la cerere, ghid detaliat `README-AI-READY.txt` și fișierul de integritate `build.json` cu sume de control SHA256 calculate pentru fiecare componentă.
+- **Pornire automată supravegheată a motorului AI:** Funcționalitate nativă de pornire automată în fundal la lansarea aplicației dacă fișierele sunt prezente în `karios/ai/`, pentru a elimina timpul de încărcare atunci când utilizatorul deschide prima dată ecranul de asistență.
+- **Comutator în interfață:** Adăugată bifa „Pornire automată la lansare” în bara de stare a ecranului Asistent AI, cu persistență portabilă locală (fișier `fara-autostart` în `karios/ai/`).
+- **Suport extins teste unitare:** Adăugat `app_ai_test.go` pentru verificarea activării/dezactivării pornirii automate și detectării corecte a stării pe folder gol.
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
 ## 0.36.0 · 2026-10-26
 
 Integrare arhitectură și asistent AI local, offline și portabil (F14-T02, F14-T04, D042).
