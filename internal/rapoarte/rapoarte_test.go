@@ -118,6 +118,9 @@ func TestDetaliatFolosesteAceleasiOreSiReguliCaGrila(t *testing.T) {
 	}
 	valori := map[string]string{}
 	for i, col := range doc.Coloane {
+		if strings.ContainsAny(col.Titlu, "\r\n") {
+			t.Fatalf("separator de rand in titlul PDF: %q", col.Titlu)
+		}
 		valori[col.Cod] = doc.Randuri[0].Valori[i]
 	}
 	if valori["2026-10-23"] != "2" || valori["2026-10-24"] != "7" || valori["total_T"] != "9" || valori["total_ZNL"] != "7" || valori["total_ore_norma"] != "2" || valori["total_CO"] != "1" || valori["total_ore_garda"] != "—" {
@@ -341,7 +344,7 @@ func TestReferinteRapoarteSiPDF(t *testing.T) {
 				v = "2"
 			}
 			if id == "raport-pontaj-detaliat" {
-				v = "1"
+				v = "2"
 			}
 			cale := filepath.Join("testdata", id+"-v"+v+".json")
 			if *actualizeazaReferinte {

@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.22.1 · 2026-10-26
+
+F09-T09: corectează unitățile coloanelor finale din PDF-ul detaliat, folosind paranteze în locul separatorului de rând pe care motorul PDF îl afișa ca pătrat. Pontaj detaliat **v2**, cu referința v1 păstrată. Centralizator v3, fișă individuală v3, absențe v2 și migrarea 0015 rămân la aceleași versiuni.
+
 ## 0.22.0 · 2026-10-26
 
 F09-T09: pontajul afișează ore, păstrând codurile programelor pentru calcule. Alegere explicită a programului sau ore manuale; previzualizarea modificărilor folosește același motor ca PDF-urile. Configurare separată pentru atribuirea turelor peste miezul nopții și cele 12 coloane finale. T este totalul, ZNL include weekenduri și zile libere 00–24, Ore norm include luni–vineri fără zile libere. CO/CM numără absențele active. Celelalte reguli sunt inițial nedefinite; nu se inventează sporuri.

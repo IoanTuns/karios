@@ -1,0 +1,496 @@
+{
+  "document": {
+    "titlu": "Pontaj detaliat",
+    "sursa": "PONTAJ_DETALIAT",
+    "versiune_raport": 2,
+    "revizie_model": "1",
+    "pagina": {
+      "format": "A3",
+      "orientare": "PEISAJ",
+      "margine_mm": 10,
+      "font_pt": 6
+    },
+    "antet": [
+      "",
+      "PONTAJ DETALIAT · octombrie 2026",
+      ""
+    ],
+    "introducere": "",
+    "coloane": [
+      {
+        "cod": "angajat",
+        "titlu": "Angajat",
+        "pondere": 28,
+        "culoare": ""
+      },
+      {
+        "cod": "marca",
+        "titlu": "Marcă",
+        "pondere": 10,
+        "culoare": ""
+      },
+      {
+        "cod": "2026-10-01",
+        "titlu": "1",
+        "pondere": 3,
+        "culoare": ""
+      },
+      {
+        "cod": "2026-10-02",
+        "titlu": "2",
+        "pondere": 3,
+        "culoare": ""
+      },
+      {
+        "cod": "2026-10-03",
+        "titlu": "3",
+        "pondere": 3,
+        "culoare": "WEEKEND"
+      },
+      {
+        "cod": "2026-10-04",
+        "titlu": "4",
+        "pondere": 3,
+        "culoare": "WEEKEND"
+      },
+      {
+        "cod": "2026-10-05",
+        "titlu": "5",
+        "pondere": 3,
+        "culoare": ""
+      },
+      {
+        "cod": "2026-10-06",
+        "titlu": "6",
+        "pondere": 3,
+        "culoare": ""
+      },
+      {
+        "cod": "2026-10-07",
+        "titlu": "7",
+        "pondere": 3,
+        "culoare": ""
+      },
+      {
+        "cod": "2026-10-08",
+        "titlu": "8",
+        "pondere": 3,
+        "culoare": ""
+      },
+      {
+        "cod": "2026-10-09",
+        "titlu": "9",
+        "pondere": 3,
+        "culoare": ""
+      },
+      {
+        "cod": "2026-10-10",
+        "titlu": "10",
+        "pondere": 3,
+        "culoare": "WEEKEND"
+      },
+      {
+        "cod": "2026-10-11",
+        "titlu": "11",
+        "pondere": 3,
+        "culoare": "WEEKEND"
+      },
+      {
+        "cod": "2026-10-12",
+        "titlu": "12",
+        "pondere": 3,
+        "culoare": ""
+      },
+      {
+        "cod": "2026-10-13",
+        "titlu": "13",
+        "pondere": 3,
+        "culoare": ""
+      },
+      {
+        "cod": "2026-10-14",
+        "titlu": "14",
+        "pondere": 3,
+        "culoare": ""
+      },
+      {
+        "cod": "2026-10-15",
+        "titlu": "15",
+        "pondere": 3,
+        "culoare": ""
+      },
+      {
+        "cod": "2026-10-16",
+        "titlu": "16",
+        "pondere": 3,
+        "culoare": ""
+      },
+      {
+        "cod": "2026-10-17",
+        "titlu": "17",
+        "pondere": 3,
+        "culoare": "WEEKEND"
+      },
+      {
+        "cod": "2026-10-18",
+        "titlu": "18",
+        "pondere": 3,
+        "culoare": "WEEKEND"
+      },
+      {
+        "cod": "2026-10-19",
+        "titlu": "19",
+        "pondere": 3,
+        "culoare": ""
+      },
+      {
+        "cod": "2026-10-20",
+        "titlu": "20",
+        "pondere": 3,
+        "culoare": ""
+      },
+      {
+        "cod": "2026-10-21",
+        "titlu": "21",
+        "pondere": 3,
+        "culoare": ""
+      },
+      {
+        "cod": "2026-10-22",
+        "titlu": "22",
+        "pondere": 3,
+        "culoare": ""
+      },
+      {
+        "cod": "2026-10-23",
+        "titlu": "23",
+        "pondere": 3,
+        "culoare": ""
+      },
+      {
+        "cod": "2026-10-24",
+        "titlu": "24",
+        "pondere": 3,
+        "culoare": "WEEKEND"
+      },
+      {
+        "cod": "2026-10-25",
+        "titlu": "25",
+        "pondere": 3,
+        "culoare": "WEEKEND"
+      },
+      {
+        "cod": "2026-10-26",
+        "titlu": "26",
+        "pondere": 3,
+        "culoare": ""
+      },
+      {
+        "cod": "2026-10-27",
+        "titlu": "27",
+        "pondere": 3,
+        "culoare": ""
+      },
+      {
+        "cod": "2026-10-28",
+        "titlu": "28",
+        "pondere": 3,
+        "culoare": ""
+      },
+      {
+        "cod": "2026-10-29",
+        "titlu": "29",
+        "pondere": 3,
+        "culoare": ""
+      },
+      {
+        "cod": "2026-10-30",
+        "titlu": "30",
+        "pondere": 3,
+        "culoare": ""
+      },
+      {
+        "cod": "2026-10-31",
+        "titlu": "31",
+        "pondere": 3,
+        "culoare": "WEEKEND"
+      },
+      {
+        "cod": "total_ore_lucrate",
+        "titlu": "Ore lucrate (Ore)",
+        "pondere": 6,
+        "culoare": ""
+      },
+      {
+        "cod": "total_T",
+        "titlu": "T (Ore)",
+        "pondere": 6,
+        "culoare": ""
+      },
+      {
+        "cod": "total_ZNL",
+        "titlu": "ZNL (Ore)",
+        "pondere": 6,
+        "culoare": ""
+      },
+      {
+        "cod": "total_CO",
+        "titlu": "CO (Zile)",
+        "pondere": 6,
+        "culoare": ""
+      },
+      {
+        "cod": "total_CEV",
+        "titlu": "CEV (Zile)",
+        "pondere": 6,
+        "culoare": ""
+      },
+      {
+        "cod": "total_CFS",
+        "titlu": "CFS (Zile)",
+        "pondere": 6,
+        "culoare": ""
+      },
+      {
+        "cod": "total_ore_norma",
+        "titlu": "Ore normă (Ore)",
+        "pondere": 6,
+        "culoare": ""
+      },
+      {
+        "cod": "total_form_prof",
+        "titlu": "Form. prof.",
+        "pondere": 6,
+        "culoare": ""
+      },
+      {
+        "cod": "total_CM",
+        "titlu": "CM (Zile)",
+        "pondere": 6,
+        "culoare": ""
+      },
+      {
+        "cod": "total_L_FIN",
+        "titlu": "L / FIN",
+        "pondere": 6,
+        "culoare": ""
+      },
+      {
+        "cod": "total_deleg",
+        "titlu": "Deleg. (Zile)",
+        "pondere": 6,
+        "culoare": ""
+      },
+      {
+        "cod": "total_ore_garda",
+        "titlu": "Ore gardă 200% (Ore)",
+        "pondere": 6,
+        "culoare": ""
+      }
+    ],
+    "randuri": [
+      {
+        "valori": [
+          "Șerban Ana",
+          "DEMO-R01",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "9",
+          "0",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "9",
+          "9",
+          "7",
+          "1",
+          "—",
+          "—",
+          "2",
+          "—",
+          "0",
+          "—",
+          "—",
+          "—"
+        ],
+        "culori": [
+          "",
+          "",
+          "",
+          "",
+          "WEEKEND",
+          "WEEKEND",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "WEEKEND",
+          "WEEKEND",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "WEEKEND",
+          "WEEKEND",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "ABSENTA",
+          "WEEKEND",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "WEEKEND",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "valori": [
+          "Țincu Răzvan",
+          "DEMO-R02",
+          "7",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "7",
+          "7",
+          "0",
+          "0",
+          "—",
+          "—",
+          "7",
+          "—",
+          "0",
+          "—",
+          "—",
+          "—"
+        ],
+        "culori": [
+          "",
+          "",
+          "",
+          "",
+          "WEEKEND",
+          "WEEKEND",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "WEEKEND",
+          "WEEKEND",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "WEEKEND",
+          "WEEKEND",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "WEEKEND",
+          "WEEKEND",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "WEEKEND",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ]
+      }
+    ],
+    "subsol": [
+      "Întocmit: __________________",
+      "",
+      "Verificat: __________________"
+    ],
+    "metadate": "Pontaj detaliat · v2 · definiție r1 · Pontix \u003caplicatie\u003e · reguli: pontaj configurat; salarizare neaplicată · 25.10.2026 14:30 · utilizator local · Reguli pontaj: revizia 1",
+    "nota": "DOCUMENT DE LUCRU · valori din schița de pontaj și absențe; fără calcul de salarizare.",
+    "fara_date": "Nu există înregistrări pentru selecția curentă.",
+    "paginare": "Pagina {current} din {total}"
+  },
+  "structura": {}
+}

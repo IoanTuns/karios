@@ -272,7 +272,7 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 					if unitate == "ZILE" {
 						cheie = "unitate_zile"
 					}
-					titlu += "\n" + i18n.T(limba, "pontaj."+cheie, nil)
+					titlu += " (" + i18n.T(limba, "pontaj."+cheie, nil) + ")"
 				}
 				doc.Coloane = append(doc.Coloane, Coloana{Cod: "total_" + col, Titlu: titlu, Pondere: 6})
 			}
