@@ -3,6 +3,7 @@ import {useTranslation} from 'react-i18next';
 import {AdaugaDepartament, AdaugaSectie, DateInitiale, IncarcaDemo, Informatii, SalveazaAngajat, SalveazaCategorieProgram, SalveazaNormaIntreaga, SchimbaActivAngajat} from '../wailsjs/go/main/App';
 import {datebaza, main} from '../wailsjs/go/models';
 import {DialogDemo, FormularAngajat, Setari, durata, denumireSectie, denumireDepartament} from './Formulare';
+import {DialogImportAngajati} from './ImportDialogs';
 import {Sarbatori} from './Sarbatori';
 import {Schimburi} from './Schimburi';
 import {Pontaj, type ContextPontaj} from './Pontaj';
@@ -52,6 +53,7 @@ function App() {
     const [departament, setDepartament] = useState('');
     const [editare, setEditare] = useState<datebaza.Angajat | null>(null);
     const [demo, setDemo] = useState(false);
+    const [importAngajati, setImportAngajati] = useState(false);
     const [pontajModificat, setPontajModificat] = useState(false);
     const [pontajOcupat, setPontajOcupat] = useState(false);
     const contextPontaj = useRef<ContextPontaj | null>(null);
@@ -135,20 +137,30 @@ function App() {
                     </div>;
                 })}
             </nav>
-            <div className="subsol-meniu"><span className="punct-local"/>{t('ui.local')}
-                {versiune && <span className="versiune">{t('aplicatie.versiune', {versiune})}</span>}
-                <select name="limba_interfata" className="selector-limba" aria-label={t('ui.limba_interfata')} value={i18n.language === 'en' ? 'en' : 'ro'}
-                    onChange={e => { const l = e.target.value; void i18n.changeLanguage(l); document.documentElement.lang = l; document.title = i18n.t('aplicatie.titlu'); }}>
-                    <option value="ro">{t('rapoarte.ro')}</option><option value="en">{t('rapoarte.en')}</option>
-                </select>
+            <div className="subsol-meniu">
+                <div className="semnatura-dezvoltator" title={t('aplicatie.autor', {autor: 'Ioan Tuns'})}>
+                    <span className="autor-text">{t('aplicatie.dezvoltat_de', {autor: 'Ioan Tuns'})}</span>
+                </div>
+                <div className="rand-subsol-info">
+                    <span className="punct-local"/>{t('ui.local')}
+                    {versiune && <span className="versiune">{t('aplicatie.versiune', {versiune})}</span>}
+                    <select name="limba_interfata" className="selector-limba" aria-label={t('ui.limba_interfata')} value={i18n.language === 'en' ? 'en' : 'ro'}
+                        onChange={e => { const l = e.target.value; void i18n.changeLanguage(l); document.documentElement.lang = l; document.title = i18n.t('aplicatie.titlu'); }}>
+                        <option value="ro">{t('rapoarte.ro')}</option><option value="en">{t('rapoarte.en')}</option>
+                    </select>
+                </div>
             </div>
         </aside>
         <main className={`continut ${ecran === 'pontaj' ? 'continut-pontaj' : ''} ${esteInSetari ? 'continut-setari' : ''}`}>
             <header className="antet">
                 <div><p className="fir-navigare">{t('ui.date_baza')} <span aria-hidden="true">/</span> {esteInSetari && ecran !== 'setari' ? <>{t('ui.setari')} <span aria-hidden="true">/</span> </> : null}{t(`ui.${ecran}`)}</p>
                     <h1>{t(`ui.${ecran}`)}</h1><p className="descriere">{t(`ui.${ecran}_descriere`)}</p></div>
-                {ecran === 'angajati' && date && <button className="buton primar" disabled={ocupat} onClick={() => deschide()}>
-                    <span aria-hidden="true">＋</span>{t('ui.adauga_angajat')}</button>}
+                {ecran === 'angajati' && date && <div className="actiuni-antet">
+                    <button type="button" className="buton secundar" disabled={ocupat} onClick={() => { setEroare(''); setImportAngajati(true); }}>
+                        <span aria-hidden="true">📁</span>{t('ui.importa')}</button>
+                    <button type="button" className="buton primar" disabled={ocupat} onClick={() => deschide()}>
+                        <span aria-hidden="true">＋</span>{t('ui.adauga_angajat')}</button>
+                </div>}
             </header>
             {esteInSetari && <div className="taburi-sectiuni taburi-setari" role="group" aria-label={t('ui.setari')}>
                 {sectiuniSetari.map(sub => <button key={sub} type="button" className={`buton-tab ${ecran === sub ? 'activ' : ''}`}
@@ -220,6 +232,13 @@ function App() {
             salveaza={async a => { if (await executa(() => SalveazaAngajat(a))) setEditare(null); }}/>}
         {demo && <DialogDemo ocupat={ocupat} eroare={eroare} inchide={() => { setDemo(false); setEroare(''); }}
             confirma={async () => { if (await executa(IncarcaDemo, 'ui.demo_salvat')) setDemo(false); }}/>}
+        {importAngajati && <DialogImportAngajati
+            inchide={() => setImportAngajati(false)}
+            laSucces={(dateNoi, msg) => {
+                setDate(dateNoi);
+                setMesaj(msg);
+                setEroare('');
+            }}/>}
     </div>;
 }
 

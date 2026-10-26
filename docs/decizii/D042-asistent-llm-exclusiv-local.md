@@ -23,3 +23,4 @@ Aplicația gestionează date cu caracter personal (nume, prenume, mărci, conced
    - Modelul emite strict apeluri de funcții (Function Calling / JSON tipizat cu schemă impusă din Go).
    - Fără generare directă de cod SQL.
    - Orice modificare a planului sau pontajului propusă de modelul local necesită confirmarea explicită a utilizatorului înainte de salvare.
+

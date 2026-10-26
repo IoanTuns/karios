@@ -436,4 +436,39 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .panou-sumar-angajat .tabel-derulant::-webkit-scrollbar-thumb, .corp-dialog-sumar::-webkit-scrollbar-thumb { background: #a8beb0; border-radius: 4px; border: 2px solid #f0f4f1; }
 .panou-sumar-angajat .tabel-derulant::-webkit-scrollbar-thumb:hover, .corp-dialog-sumar::-webkit-scrollbar-thumb:hover { background: #6e8a78; }
 
+/* Semnătură dezvoltator și subsol */
+.semnatura-dezvoltator { margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px dashed var(--linie); font-size: 11px; font-weight: 550; color: #355348; }
+.semnatura-dezvoltator .autor-text { color: var(--verde); font-weight: 600; }
+.rand-subsol-info { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+.card-despre .despre-continut { margin-top: 10px; font-size: 13px; line-height: 1.6; color: var(--text); }
+.card-despre .semnatura-dezvoltator-card { font-weight: 600; color: var(--verde); font-size: 14px; margin: 6px 0; }
+.card-despre .drepturi-autor { color: var(--discret); font-size: 12px; }
+
+/* Dialoguri de import */
+.fereastra-import { width: min(920px, calc(100vw - 36px)); max-height: calc(100vh - 40px); background: white; border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+.antet-import { display: flex; justify-content: space-between; align-items: flex-start; padding: 20px 24px 14px; border-bottom: 1px solid var(--linie); background: #fafcfa; }
+.antet-import h2 { margin: 0 0 4px; font-size: 19px; font-weight: 650; }
+.antet-import .descriere { margin: 0; font-size: 12px; color: var(--discret); }
+.corp-import { padding: 18px 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; min-height: 0; }
+.sectiune-actiuni-sabloane { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 12px; background: #f3f7f4; padding: 10px 14px; border-radius: 6px; border: 1px solid #dbe6de; }
+.eticheta-sablon { font-weight: 600; color: #355348; }
+.sectiune-selectie-fisier { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.info-fisier-ales { font-size: 12px; font-weight: 550; color: #235242; background: #eaf3ee; padding: 6px 10px; border-radius: 5px; }
+.bara-statistici-import { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; background: #f9fbf9; border: 1px solid var(--linie); padding: 10px 14px; border-radius: 6px; font-size: 12px; }
+.optiune-conflict { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 550; color: #2c4239; }
+.tabel-derulant-import { max-height: 320px; overflow: auto; border: 1px solid var(--linie); border-radius: 6px; }
+.tabel-import { width: 100%; border-collapse: collapse; font-size: 12px; }
+.tabel-import th { position: sticky; top: 0; background: #f2f6f3; padding: 8px 10px; text-align: left; font-weight: 600; border-bottom: 1px solid var(--linie); z-index: 1; }
+.tabel-import td { padding: 7px 10px; border-bottom: 1px solid #eef2ef; vertical-align: middle; }
+.rand-import-valid { background: #fff; }
+.rand-import-existent { background: #fffdf5; }
+.rand-import-eroare { background: #fff5f5; }
+.stare-eticheta { display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+.stare-eticheta.succes { background: #dcefe5; color: #155734; }
+.stare-eticheta.avertisment { background: #fef3d6; color: #873800; }
+.stare-eticheta.eroare { background: #fae4e2; color: #9c2720; }
+.subsol-import { display: flex; justify-content: flex-end; gap: 10px; padding: 14px 24px; border-top: 1px solid var(--linie); background: #fafcfa; }
+.actiuni-antet { display: flex; align-items: center; gap: 10px; margin-top: 36px; }
+.actiuni-calendar { display: flex; align-items: center; gap: 8px; }
+
 

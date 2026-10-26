@@ -510,6 +510,126 @@ export namespace datebaza {
 	        this.revizie = source["revizie"];
 	    }
 	}
+	export class RandImportAngajat {
+	    nume: string;
+	    prenume: string;
+	    marca: string;
+	    functie: string;
+	    sectie: string;
+	    departament: string;
+	    tip_contract: string;
+	    norma_minute: number;
+	    concediu_zile_an?: number;
+	    valid: boolean;
+	    mesaj_eroare: string;
+	    exista_deja: boolean;
+
+	    static createFrom(source: any = {}) {
+	        return new RandImportAngajat(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.nume = source["nume"];
+	        this.prenume = source["prenume"];
+	        this.marca = source["marca"];
+	        this.functie = source["functie"];
+	        this.sectie = source["sectie"];
+	        this.departament = source["departament"];
+	        this.tip_contract = source["tip_contract"];
+	        this.norma_minute = source["norma_minute"];
+	        this.concediu_zile_an = source["concediu_zile_an"];
+	        this.valid = source["valid"];
+	        this.mesaj_eroare = source["mesaj_eroare"];
+	        this.exista_deja = source["exista_deja"];
+	    }
+	}
+	export class CerereExecutaImportAngajati {
+	    randuri: RandImportAngajat[];
+	    actualizeaza_existente: boolean;
+
+	    static createFrom(source: any = {}) {
+	        return new CerereExecutaImportAngajati(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.randuri = this.convertValues(source["randuri"], RandImportAngajat);
+	        this.actualizeaza_existente = source["actualizeaza_existente"];
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class RandImportSarbatoare {
+	    data: string;
+	    denumire_ro: string;
+	    denumire_en: string;
+	    valid: boolean;
+	    mesaj_eroare: string;
+	    exista_deja: boolean;
+
+	    static createFrom(source: any = {}) {
+	        return new RandImportSarbatoare(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.data = source["data"];
+	        this.denumire_ro = source["denumire_ro"];
+	        this.denumire_en = source["denumire_en"];
+	        this.valid = source["valid"];
+	        this.mesaj_eroare = source["mesaj_eroare"];
+	        this.exista_deja = source["exista_deja"];
+	    }
+	}
+	export class CerereExecutaImportSarbatori {
+	    randuri: RandImportSarbatoare[];
+	    inlocuieste_existente: boolean;
+
+	    static createFrom(source: any = {}) {
+	        return new CerereExecutaImportSarbatori(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.randuri = this.convertValues(source["randuri"], RandImportSarbatoare);
+	        this.inlocuieste_existente = source["inlocuieste_existente"];
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 	export class CererePublicarePlan {
 	    an: number;
 	    luna: number;
@@ -774,6 +894,92 @@ export namespace datebaza {
 	}
 
 
+
+	export class RezultatAnalizaImportAngajati {
+	    nume_fisier: string;
+	    format: string;
+	    randuri: RandImportAngajat[];
+	    total_randuri: number;
+	    total_valide: number;
+	    total_invalide: number;
+	    total_existente: number;
+
+	    static createFrom(source: any = {}) {
+	        return new RezultatAnalizaImportAngajati(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.nume_fisier = source["nume_fisier"];
+	        this.format = source["format"];
+	        this.randuri = this.convertValues(source["randuri"], RandImportAngajat);
+	        this.total_randuri = source["total_randuri"];
+	        this.total_valide = source["total_valide"];
+	        this.total_invalide = source["total_invalide"];
+	        this.total_existente = source["total_existente"];
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class RezultatAnalizaImportSarbatori {
+	    nume_fisier: string;
+	    format: string;
+	    randuri: RandImportSarbatoare[];
+	    total_randuri: number;
+	    total_valide: number;
+	    total_invalide: number;
+	    total_existente: number;
+
+	    static createFrom(source: any = {}) {
+	        return new RezultatAnalizaImportSarbatori(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.nume_fisier = source["nume_fisier"];
+	        this.format = source["format"];
+	        this.randuri = this.convertValues(source["randuri"], RandImportSarbatoare);
+	        this.total_randuri = source["total_randuri"];
+	        this.total_valide = source["total_valide"];
+	        this.total_invalide = source["total_invalide"];
+	        this.total_existente = source["total_existente"];
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+
 	export class Schimb {
 	    id: string;
 	    cod: string;
@@ -943,6 +1149,70 @@ export namespace main {
 		    return a;
 		}
 	}
+	export class RaspunsAnalizaImportAngajati {
+	    rezultat?: datebaza.RezultatAnalizaImportAngajati;
+	    eroare?: MesajEroare;
+
+	    static createFrom(source: any = {}) {
+	        return new RaspunsAnalizaImportAngajati(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.rezultat = this.convertValues(source["rezultat"], datebaza.RezultatAnalizaImportAngajati);
+	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class RaspunsAnalizaImportSarbatori {
+	    rezultat?: datebaza.RezultatAnalizaImportSarbatori;
+	    eroare?: MesajEroare;
+
+	    static createFrom(source: any = {}) {
+	        return new RaspunsAnalizaImportSarbatori(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.rezultat = this.convertValues(source["rezultat"], datebaza.RezultatAnalizaImportSarbatori);
+	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 	export class RaspunsBackup {
 	    cale: string;
 	    eroare?: MesajEroare;
@@ -1075,6 +1345,40 @@ export namespace main {
 		    return a;
 		}
 	}
+	export class RaspunsDescarcaSablon {
+	    continut_base64: string;
+	    nume_fisier: string;
+	    eroare?: MesajEroare;
+
+	    static createFrom(source: any = {}) {
+	        return new RaspunsDescarcaSablon(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.continut_base64 = source["continut_base64"];
+	        this.nume_fisier = source["nume_fisier"];
+	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 	export class RaspunsDocumentAbsenta {
 	    document?: datebaza.DocumentAbsenta;
 	    eroare?: MesajEroare;
@@ -1118,6 +1422,74 @@ export namespace main {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.avertismente = this.convertValues(source["avertismente"], calcul.AvertismentEchitate);
+	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class RaspunsExecutaImportAngajati {
+	    date?: datebaza.Date;
+	    importati: number;
+	    eroare?: MesajEroare;
+
+	    static createFrom(source: any = {}) {
+	        return new RaspunsExecutaImportAngajati(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.date = this.convertValues(source["date"], datebaza.Date);
+	        this.importati = source["importati"];
+	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class RaspunsExecutaImportSarbatori {
+	    calendar?: datebaza.CalendarAn;
+	    importate: number;
+	    eroare?: MesajEroare;
+
+	    static createFrom(source: any = {}) {
+	        return new RaspunsExecutaImportSarbatori(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.calendar = this.convertValues(source["calendar"], datebaza.CalendarAn);
+	        this.importate = source["importate"];
 	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
 	    }
 

@@ -3,6 +3,7 @@ import {useTranslation} from 'react-i18next';
 import {CitesteCalendar, CompleteazaSarbatori2026, CompleteazaSarbatoriAn, SalveazaSarbatoare} from '../wailsjs/go/main/App';
 import {datebaza, main} from '../wailsjs/go/models';
 import {Dialog} from './Formulare';
+import {DialogImportSarbatori} from './ImportDialogs';
 
 function denumire(s: datebaza.Sarbatoare, limba: string) {
     return s.denumire[limba] || s.denumire.ro || Object.values(s.denumire).find(Boolean) || '';
@@ -20,6 +21,7 @@ export function Sarbatori() {
     const [mesaj, setMesaj] = useState('');
     const [editare, setEditare] = useState<datebaza.Sarbatoare | null>(null);
     const [importa, setImporta] = useState(false);
+    const [importFisier, setImportFisier] = useState(false);
 
     function aplica(r: main.RaspunsCalendar) {
         if (r.eroare) { setEroare(t(r.eroare.cod, r.eroare.param ?? {})); return false; }
@@ -64,6 +66,9 @@ export function Sarbatori() {
             <form onSubmit={schimbaAn}><label>{t('sarbatori.an')}<input aria-label={t('sarbatori.an')} type="number" min="1" max="9999" required value={anText} disabled={ocupat} onChange={e => setAnText(e.target.value)}/></label>
                 <button className="buton secundar" disabled={ocupat}>{t('sarbatori.arata')}</button></form>
             <div className="actiuni-calendar">
+                <button type="button" className="buton secundar" disabled={ocupat || incarcare || !calendar} onClick={() => { setEroare(''); setImportFisier(true); }}>
+                    📁 {t('ui.importa')}
+                </button>
                 {calendar?.import_disponibil && <button className="buton secundar" disabled={ocupat || incarcare || !calendar} onClick={() => { setEroare(''); setImporta(true); }}>{t('sarbatori.completeaza')}</button>}
                 <button className="buton primar" disabled={ocupat || incarcare || !calendar} onClick={() => { setEroare(''); setEditare(new datebaza.Sarbatoare({data: `${String(an).padStart(4, '0')}-01-01`, denumire: {ro: '', en: ''}})); }}>{t('sarbatori.adauga')}</button>
             </div>
@@ -91,6 +96,7 @@ export function Sarbatori() {
             <footer className="subsol-dialog"><button className="buton secundar" disabled={ocupat} onClick={() => setImporta(false)}>{t('ui.anuleaza')}</button>
                 <button className="buton primar" disabled={ocupat} onClick={() => executa(() => CompleteazaSarbatoriAn(an), true)}>{t(ocupat ? 'ui.salvare' : 'sarbatori.confirma_import')}</button></footer>
         </Dialog>}
+        {importFisier && <DialogImportSarbatori an={an} inchide={() => setImportFisier(false)} laSucces={(cal, msg) => { setCalendar(cal); setMesaj(msg); }}/>}
     </section>;
 }
 

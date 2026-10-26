@@ -206,5 +206,12 @@ export function Setari({date, ocupat, salveazaNorma, adaugaSectie, adaugaDeparta
             {mesajBackup && <p className="mesaj succes" role="status">{mesajBackup}</p>}
             <button type="button" className="buton secundar" disabled={ocupat || ocupatBackup} onClick={creeazaBackup}>{t(ocupatBackup ? 'ui.salvare' : 'ui.creeaza_backup')}</button>
         </section>
+        <section className="panou card-setari card-despre"><h2>{t('ui.despre_titlu')}</h2><p>{t('ui.despre_descriere')}</p>
+            <div className="despre-continut">
+                <p><strong>{t('aplicatie.titlu')}</strong> — {t('aplicatie.subtitlu')}</p>
+                <p className="semnatura-dezvoltator-card">{t('aplicatie.dezvoltat_de', {autor: 'Ioan Tuns'})}</p>
+                <p className="drepturi-autor">© 2026 Ioan Tuns. {t('aplicatie.toate_drepturile_rezervate')}</p>
+            </div>
+        </section>
     </div>;
 }

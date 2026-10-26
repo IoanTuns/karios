@@ -4,6 +4,18 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.35.0 · 2026-10-26
+
+Import de date pentru angajați și sărbători legale din Excel (.xlsx) și CSV (.csv), șabloane demonstrative descărcabile, semnătura dezvoltatorului în interfață și definirea deciziei pentru asistent AI exclusiv local (F02-T13, F03-T08, F14, D042).
+
+- **Import angajați din Excel (.xlsx) și CSV (.csv):** Analiză și validare automată la încărcarea fișierului, recunoaștere inteligentă antete indiferent de diacritice sau majuscule, detecție automată delimitator (virgulă / punct și virgulă), creare automată pentru secțiile și departamentele noi, opțiune de actualizare angajați existenți (după marcă) și execuție tranzacțională atomică în SQLite.
+- **Import sărbători legale din Excel (.xlsx) și CSV (.csv):** Suport pentru formate multiple de dată (`AAAA-LL-ZZ`, `ZZ.LL.AAAA`, `ZZ/LL/AAAA`), identificare denumiri RO/EN, detectare duplicate și opțiune de actualizare/înlocuire sărbători existente.
+- **Șabloane demonstrative descărcabile:** Generare directă din interfață a șabloanelor structurate pentru angajați și sărbători în formate Excel (.xlsx via excelize) și CSV (cu UTF-8 BOM pentru afișarea corectă a diacriticelor românești în Excel).
+- **Semnătura dezvoltatorului:** Integrarea semnăturii oficiale a autorului („Dezvoltat de Ioan Tuns”) în subsolul bazei de navigație a aplicației și în ecranul Setări într-o secțiune dedicată Despre Pontix & Autor (cu copyright © 2026 Ioan Tuns).
+- **Asistent AI exclusiv local:** Stabilirea deciziei arhitecturale D042 care impune operarea exclusivă pe modele LLM locale (fără trimitere de date în cloud sau dependențe de API-uri externe), protejând datele salariale și confidențialitatea personalului.
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
 ## 0.34.0 · 2026-10-26
 
 Raport dedicat pentru graficul lunar de gărzi și schimburi, calendare sărbători legale 2025 și 2027, eliminare avertisment zile consecutive în mod standard și propunere arhitectură motor reguli configurabile (F11-T07, D040, D041, I061, I062).

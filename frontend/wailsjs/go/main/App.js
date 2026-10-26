@@ -10,6 +10,14 @@ export function AdaugaSectie(arg1) {
   return window['go']['main']['App']['AdaugaSectie'](arg1);
 }
 
+export function AnalizeazaImportAngajati(arg1, arg2) {
+  return window['go']['main']['App']['AnalizeazaImportAngajati'](arg1, arg2);
+}
+
+export function AnalizeazaImportSarbatori(arg1, arg2) {
+  return window['go']['main']['App']['AnalizeazaImportSarbatori'](arg1, arg2);
+}
+
 export function Catalog(arg1) {
   return window['go']['main']['App']['Catalog'](arg1);
 }
@@ -66,8 +74,20 @@ export function DateInitiale() {
   return window['go']['main']['App']['DateInitiale']();
 }
 
+export function DescarcaSablon(arg1, arg2) {
+  return window['go']['main']['App']['DescarcaSablon'](arg1, arg2);
+}
+
 export function DeschidePDFPentruTiparire(arg1) {
   return window['go']['main']['App']['DeschidePDFPentruTiparire'](arg1);
+}
+
+export function ExecutaImportAngajati(arg1) {
+  return window['go']['main']['App']['ExecutaImportAngajati'](arg1);
+}
+
+export function ExecutaImportSarbatori(arg1, arg2) {
+  return window['go']['main']['App']['ExecutaImportSarbatori'](arg1, arg2);
 }
 
 export function IncarcaDemo() {
