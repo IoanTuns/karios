@@ -4,6 +4,16 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.27.0 · 2026-10-26
+
+Gruparea ecranelor de configurare în meniul Setări, redenumirea „Sărbători” în „Zile libere legale” și temă vizuală distinctă (albastru-ardezie) pentru zona Setări (F05-T17, I044, D034).
+
+- Meniul principal din bara laterală păstrează cele 5 destinații principale: **Angajați**, **Pontaj**, **Concedii și absențe**, **Rapoarte** și **Setări**.
+- Ecranele de configurare (**General**, **Zile libere legale** — fostul **Sărbători** —, **Schimburi**, **Configurare pontaj** și **Definire rapoarte**) sunt grupate în interiorul **Setări**, accesibile atât prin taburile din partea de sus a ecranului Setări, cât și prin sub-meniul afișat sub **Setări** în bara laterală.
+- Meniul și zona **Setări** folosesc o paletă de culori proprie (albastru-ardezie instituțional `#2b4c7e` și fundal activ `#eef3f9`), distinctă de verdele operațional al aplicației.
+
+Rapoarte: nicio schimbare. Baza de date: nicio schimbare.
+
 ## 0.26.0 · 2026-10-26
 
 Fluxuri UX în grila de pontaj și în modulul de concedii și absențe: căutare după nume/marcă și navigare rapidă între luni, selecție dreptunghiulară cu mouse-ul (Click & Drag) și autoderulare la navigarea din tastatură, precompletare L–V doar pentru rândurile selectate, filtrare după angajați cu avertismente/modificări/înlocuitori, căutare și selectarea dintr-un clic a întregii cereri în Concedii și absențe, plus salt contextual din Pontaj către Concedii și absențe (F08-T09, I038–I043, D033).

@@ -362,7 +362,9 @@ try {
     // Verificare și la lățimea minimă a ferestrei desktop.
     await cdp('Emulation.setDeviceMetricsOverride', {width: 1024, height: 640, deviceScaleFactor: 1, mobile: false});
     assert(await evalueaza(`document.documentElement.scrollWidth <= 1024`), 'Fereastra are depășire orizontală în afara tabelului.');
-    await apasa('Sărbători');
+    await apasa('Setări');
+    await asteapta(() => evalueaza(`Boolean(document.querySelector('.submeniu-setari')) && Boolean(document.querySelector('.taburi-setari'))`), 'Sub-meniul sau taburile din Setări lipsesc.');
+    await apasa('Zile libere legale');
     await asteapta(() => evalueaza(`document.querySelectorAll('.tabel-sarbatori tbody tr').length === 16`), 'Calendarul 2026 nu apare.');
     const capturaCalendar = await cdp('Page.captureScreenshot', {format: 'png'});
     writeFileSync(join(radacina, 'build/bin/calendar-2026.png'), Buffer.from(capturaCalendar.data, 'base64'));
@@ -528,7 +530,7 @@ try {
     await asteapta(() => evalueaza(`document.querySelectorAll('.tabel-absente tbody tr').length === 0 && document.querySelectorAll('.tabel-tipuri-absenta tbody tr').length === 3`),'Filtrarea anuală a absențelor a eșuat.');
     assert(await evalueaza(`document.documentElement.scrollWidth <= 1024`),'Modulul de absențe depășește fereastra.');
 
-    await apasa('Configurare pontaj');
+    await apasa('Setări'); await apasa('Configurare pontaj');
     await asteapta(()=>evalueaza(`document.querySelectorAll('.reguli-pontaj tbody tr').length===12`),'Cele 12 reguli nu apar.');
     assert.equal(await evalueaza(`document.querySelector('select[name="sursa_ore_garda"]').value`),'NEDEFINITA','Garda are o regulă inventată.');
     await completeaza('select[name="atribuire"]','ZILE_CALENDARISTICE');
@@ -618,7 +620,7 @@ try {
     await completeaza('select[name="angajat_raport"]',persoanaAbsenta);await apasa('Generează și previzualizează');
     await asteapta(() => evalueaza(`Boolean(document.querySelector('iframe.previzualizare-pdf'))`),'Fișa individuală nu se previzualizează.');
     assert(await evalueaza(`document.documentElement.scrollWidth<=1024`),'Rapoartele depășesc fereastra.');
-    await apasa('Definire rapoarte');
+    await apasa('Setări'); await apasa('Definire rapoarte');
     await asteapta(()=>evalueaza(`Boolean(document.querySelector('.tabel-modele-rapoarte'))`),'Modelele nu reapar.');
     await evalueaza(`[...document.querySelectorAll('.tabel-modele-rapoarte tbody tr')].find(r=>r.cells[0].textContent==='Pontaj detaliat').querySelector('button').click()`);
     await asteapta(()=>evalueaza(`Boolean(document.querySelector('dialog input[name="coloana_totaluri"]'))`),'Grupul final nu apare în editor.');

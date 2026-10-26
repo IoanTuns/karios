@@ -11,6 +11,8 @@ import {ReguliPontaj} from './ReguliPontaj';
 import {DefinireRapoarte, GenerareRapoarte} from './Rapoarte';
 
 type Ecran = 'angajati' | 'pontaj' | 'sarbatori' | 'schimburi' | 'absente' | 'definire_rapoarte' | 'rapoarte' | 'reguli_pontaj' | 'setari';
+const ecranePrincipale: Ecran[] = ['angajati', 'pontaj', 'absente', 'rapoarte', 'setari'];
+const sectiuniSetari: Ecran[] = ['setari', 'sarbatori', 'schimburi', 'reguli_pontaj', 'definire_rapoarte'];
 
 function normalizat(text: string): string {
     return text.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLocaleLowerCase();
@@ -100,16 +102,33 @@ function App() {
         const gasit = (date?.departamente ?? []).find(d => d.id === id);
         return gasit ? denumireDepartament(gasit, i18n.language) : t('ui.fara_departament');
     };
+    const esteInSetari = sectiuniSetari.includes(ecran);
+    function schimbaEcran(item: Ecran) {
+        if (item !== ecran && pontajModificat && !window.confirm(t('ui.renunta'))) return;
+        if (item !== ecran) setPontajModificat(false);
+        setEcran(item); setEroare(''); setMesaj('');
+    }
 
     return <div className="aplicatie">
         <aside className="bara-laterala">
             <div className="marca-aplicatie"><span className="sigla" aria-hidden="true">p<span>·</span></span><strong>{t('aplicatie.titlu')}</strong></div>
             <p className="eticheta-meniu">{t('ui.date_baza')}</p>
             <nav aria-label={t('ui.date_baza')}>
-                {(['angajati', 'pontaj', 'absente', 'sarbatori', 'schimburi', 'rapoarte', 'definire_rapoarte', 'reguli_pontaj', 'setari'] as Ecran[]).map(item => <button key={item} className={`navigare ${ecran === item ? 'selectat' : ''}`}
-                    aria-current={ecran === item ? 'page' : undefined} disabled={ocupat || pontajOcupat}
-                    onClick={() => { if (item !== ecran && pontajModificat && !window.confirm(t('ui.renunta'))) return; if (item !== ecran) setPontajModificat(false); setEcran(item); setEroare(''); setMesaj(''); }}>
-                    <Simbol tip={item}/>{t(`ui.${item}`)}</button>)}
+                {ecranePrincipale.map(item => {
+                    const activ = item === 'setari' ? esteInSetari : ecran === item;
+                    return <div key={item} className="grup-navigare">
+                        <button className={`navigare ${item === 'setari' ? 'navigare-setari' : ''} ${activ ? 'selectat' : ''}`}
+                            aria-current={activ ? 'page' : undefined} disabled={ocupat || pontajOcupat}
+                            onClick={() => schimbaEcran(item)}>
+                            <Simbol tip={item}/>{t(`ui.${item}`)}</button>
+                        {item === 'setari' && esteInSetari && <div className="submeniu-setari" role="group" aria-label={t('ui.setari')}>
+                            {sectiuniSetari.map(sub => <button key={sub} type="button" className={`subnavigare ${ecran === sub ? 'selectat' : ''}`}
+                                aria-current={ecran === sub ? 'page' : undefined} disabled={ocupat || pontajOcupat}
+                                onClick={() => schimbaEcran(sub)}>
+                                <Simbol tip={sub}/>{t(sub === 'setari' ? 'ui.setari_general' : `ui.${sub}`)}</button>)}
+                        </div>}
+                    </div>;
+                })}
             </nav>
             <div className="subsol-meniu"><span className="punct-local"/>{t('ui.local')}
                 {versiune && <span className="versiune">{t('aplicatie.versiune', {versiune})}</span>}
@@ -119,13 +138,18 @@ function App() {
                 </select>
             </div>
         </aside>
-        <main className={`continut ${ecran === 'pontaj' ? 'continut-pontaj' : ''}`}>
+        <main className={`continut ${ecran === 'pontaj' ? 'continut-pontaj' : ''} ${esteInSetari ? 'continut-setari' : ''}`}>
             <header className="antet">
-                <div><p className="fir-navigare">{t('ui.date_baza')} <span aria-hidden="true">/</span> {t(`ui.${ecran}`)}</p>
+                <div><p className="fir-navigare">{t('ui.date_baza')} <span aria-hidden="true">/</span> {esteInSetari && ecran !== 'setari' ? <>{t('ui.setari')} <span aria-hidden="true">/</span> </> : null}{t(`ui.${ecran}`)}</p>
                     <h1>{t(`ui.${ecran}`)}</h1><p className="descriere">{t(`ui.${ecran}_descriere`)}</p></div>
                 {ecran === 'angajati' && date && <button className="buton primar" disabled={ocupat} onClick={() => deschide()}>
                     <span aria-hidden="true">＋</span>{t('ui.adauga_angajat')}</button>}
             </header>
+            {esteInSetari && <div className="taburi-sectiuni taburi-setari" role="group" aria-label={t('ui.setari')}>
+                {sectiuniSetari.map(sub => <button key={sub} type="button" className={`buton-tab ${ecran === sub ? 'activ' : ''}`}
+                    aria-pressed={ecran === sub} disabled={ocupat || pontajOcupat}
+                    onClick={() => schimbaEcran(sub)}>{t(sub === 'setari' ? 'ui.setari_general' : `ui.${sub}`)}</button>)}
+            </div>}
             {!editare && !demo && eroare && <div className="mesaj eroare" role="alert">{eroare}</div>}
             {mesaj && <div className="mesaj succes" role="status">{mesaj}</div>}
             {incarcare ? <div className="asteptare" role="status">{t('ui.incarcare')}</div>

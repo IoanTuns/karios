@@ -1,4 +1,4 @@
-# Funcționalitățile disponibile · Pontix 0.26.0
+# Funcționalitățile disponibile · Pontix 0.27.0
 
 ## Pornire
 
@@ -33,16 +33,19 @@ Datele migrate cu prenume necompletat trebuie verificate manual înainte de salv
 
 ## Setări
 
+Meniul **Setări** (evidențiat în albastru-ardezie pentru a separa administrarea de ecranele operaționale) reunește, prin sub-meniul lateral și prin taburile din partea de sus a ecranului, cele cinci secțiuni de configurare: **General**, **Zile libere legale**, **Schimburi**, **Configurare pontaj** și **Definire rapoarte**.
+
+În secțiunea **General**:
 - Modifică norma întreagă în ore/zi (implicit 7). Modificarea se vede imediat la angajații cu normă întreagă; normele parțiale rămân individuale.
 - Adaugă secții, apoi atribuie-le din formularul angajatului. Denumirea se păstrează ca text traductibil în limba interfeței.
 - Adaugă mai multe departamente sub fiecare secție. În formularul angajatului alegi numai dintre departamentele secției sale; schimbarea secției golește departamentul. Atribuirea este opțională, iar migrarea nu atribuie automat departamente angajaților existenți.
 - Creează pe loc o **copie de siguranță criptată** a bazei de date (`Creează copie de siguranță acum`), salvată în folderul `karios/backup/` cu prefixul `pontix-manual-`, fără oprirea aplicației și fără a afecta copiile automate făcute înaintea migrărilor.
 
-## Sărbători
+## Zile libere legale
 
 La actualizarea aplicației, migrarea 0004 adaugă lista națională pentru 2026, fără a suprascrie înregistrări existente: 17 sărbători nominale în 16 date distincte; la 1 iunie coincid Ziua Copilului și a doua zi de Rusalii. Setul folosește datele mobile ortodoxe, indicate în denumiri și în ecran. Sursele și limitele calendarului comun sunt în [D014](decizii/D014-sarbatori-2026.md).
 
-Alege **Sărbători**, anul și **Arată anul**. Poți adăuga sau edita o dată și denumirile RO/EN. **Completează lista legală 2026** adaugă numai date lipsă și păstrează denumirile editate. Nu se introduc automat zile-punte sau reguli de plată.
+Alege **Setări → Zile libere legale**, anul și **Arată anul**. Poți adăuga sau edita o dată și denumirile RO/EN. **Completează lista legală 2026** adaugă numai date lipsă și păstrează denumirile editate. Nu se introduc automat zile-punte sau reguli de plată.
 
 ## Schimburi
 

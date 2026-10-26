@@ -6,6 +6,7 @@ Stări: `nouă`, `în analiză`, `transformată` (în task sau decizie), `amâna
 
 | ID | Data | Idee | Cine | Stare | Legături / motiv |
 | --- | --- | --- | --- | --- | --- |
+| I044 | 2026-10-26 | Gruparea meniurilor Zile libere legale (fost Sărbători), Schimburi, Configurare pontaj și Definire rapoarte în Setări (cu taburi și sub-meniu lateral) și paletă de culori distinctă (albastru-ardezie) pentru Setări | Ioan Tuns | transformată | F05-T17, [D034](decizii/D034-grupare-meniu-setari-tema-vizuala.md) |
 | I043 | 2026-10-26 | Filtru rapid în grila de pontaj pentru afișarea doar a rândurilor cu avertismente, modificări nesalvate sau înlocuiri | Antigravity, Ioan Tuns | transformată | F08-T09, [D033](decizii/D033-imbunatatiri-ux-fluxuri-pontaj-absente.md) |
 | I042 | 2026-10-26 | Salt contextual din bara de inspecție a grilei de pontaj direct în Concedii și absențe pe anul și angajatul celulei active | Antigravity, Ioan Tuns | transformată | F08-T09, [D033](decizii/D033-imbunatatiri-ux-fluxuri-pontaj-absente.md) |
 | I041 | 2026-10-26 | Căutare rapidă după nr. înregistrare / înlocuitor / cod și selectarea dintr-un clic a tuturor zilelor aceleiași cereri în Concedii și absențe | Antigravity, Ioan Tuns | transformată | F08-T09, [D033](decizii/D033-imbunatatiri-ux-fluxuri-pontaj-absente.md) |

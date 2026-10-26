@@ -315,6 +315,7 @@
   "ui.date_baza": "Master data",
   "ui.angajati": "Employees",
   "ui.setari": "Settings",
+  "ui.setari_general": "General",
   "ui.local": "Data stored locally",
   "ui.angajati_descriere": "Your team and contract details, all in one place.",
   "ui.setari_descriere": "Configure daily working hours and team departments.",
