@@ -4,7 +4,7 @@ Etapă: Ulterior · Stare: amânat · Depinde de: F07, F08
 
 ## Scop
 
-Utilizatorul poate da comenzi în limbaj natural („pune-l pe Ion de noapte joi”). Modelul nu calculează ore sau tarife, iar fiecare modificare se confirmă.
+Utilizatorul poate da comenzi în limbaj natural („pune-l pe Ion de noapte joi”). Conform deciziei ferme [D042](../decizii/D042-asistent-llm-exclusiv-local.md), se folosește **exclusiv un model LLM local** (rulat pe `127.0.0.1`, fără servicii cloud sau transmitere de date în exterior). Modelul nu calculează ore sau tarife, nu generează SQL direct, iar fiecare modificare se confirmă explicit de către utilizator.
 
 ## Taskuri
 
