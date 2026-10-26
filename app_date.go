@@ -6,6 +6,8 @@ import (
 
 	"pontix/internal/datebaza"
 	"pontix/internal/i18n"
+	"pontix/internal/portabil"
+	"pontix/internal/stocare"
 )
 
 // MesajEroare păstrează codul și parametrii pentru traducerea în React.
@@ -17,6 +19,36 @@ type MesajEroare struct {
 type RaspunsDate struct {
 	Date   *datebaza.Date `json:"date"`
 	Eroare *MesajEroare   `json:"eroare"`
+}
+
+type RaspunsBackup struct {
+	Cale   string       `json:"cale"`
+	Eroare *MesajEroare `json:"eroare"`
+}
+
+func (a *App) CreeazaBackup() RaspunsBackup {
+	radacina := a.radacina
+	if radacina == "" {
+		foldere, err := portabil.Pregateste()
+		if err != nil {
+			return RaspunsBackup{Eroare: eroareInterfata(err)}
+		}
+		radacina = foldere.Radacina
+	}
+	cale, err := stocare.BackupManual(a.contextLucru(), a.db, radacina)
+	if err != nil {
+		return RaspunsBackup{Eroare: eroareInterfata(err)}
+	}
+	return RaspunsBackup{Cale: cale}
+}
+
+func eroareInterfata(err error) *MesajEroare {
+	mesaj := &MesajEroare{Cod: "date.eroare"}
+	var e *i18n.Eroare
+	if errors.As(err, &e) {
+		mesaj.Cod, mesaj.Param = e.Cod, e.Param
+	}
+	return mesaj
 }
 
 func (a *App) DateInitiale() RaspunsDate { return a.raspunsDate(nil) }
@@ -58,12 +90,7 @@ func (a *App) raspunsDate(err error) RaspunsDate {
 		date, err = datebaza.Nou(a.db).Citeste(a.contextLucru())
 	}
 	if err != nil {
-		mesaj := &MesajEroare{Cod: "date.eroare"}
-		var e *i18n.Eroare
-		if errors.As(err, &e) {
-			mesaj.Cod, mesaj.Param = e.Cod, e.Param
-		}
-		return RaspunsDate{Eroare: mesaj}
+		return RaspunsDate{Eroare: eroareInterfata(err)}
 	}
 	return RaspunsDate{Date: &date}
 }

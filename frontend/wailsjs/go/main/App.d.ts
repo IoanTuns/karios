@@ -26,6 +26,8 @@ export function CompleteazaSarbatori2026():Promise<main.RaspunsCalendar>;
 
 export function CompleteazaSchimburiInitiale(arg1:string):Promise<main.RaspunsSchimburi>;
 
+export function CreeazaBackup():Promise<main.RaspunsBackup>;
+
 export function DateInitiale():Promise<main.RaspunsDate>;
 
 export function DeschidePDFPentruTiparire(arg1:string):Promise<main.RaspunsFisierRaport>;

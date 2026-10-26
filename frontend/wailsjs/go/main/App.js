@@ -42,6 +42,10 @@ export function CompleteazaSchimburiInitiale(arg1) {
   return window['go']['main']['App']['CompleteazaSchimburiInitiale'](arg1);
 }
 
+export function CreeazaBackup() {
+  return window['go']['main']['App']['CreeazaBackup']();
+}
+
 export function DateInitiale() {
   return window['go']['main']['App']['DateInitiale']();
 }

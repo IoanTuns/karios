@@ -4,6 +4,16 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.24.0 · 2026-10-26
+
+Precompletarea lunii pentru zilele lucrătoare luni–vineri în grila de pontaj, avertismente vizuale neblocante în grilă și copie de siguranță criptată la cerere din Setări (F08-T07, F05-T16, I029–I031, D031).
+
+- Butonul **Precompletează L–V** din bara de unelte a grilei de pontaj completează cu programul ales toate celulele goale din zilele de luni până vineri care nu sunt sărbători legale și nu au absențe active, pentru rândurile vizibile.
+- Celulele din grilă sunt evidențiate vizual (`celula-avertisment`) și explică la survol când există program/ore lucrate în ziua imediat următoare unei gărzi de 24 h (`G24`) sau când totalul zilei depășește 24 h; coloana de total `T` este evidențiată (`total-diferenta`) când diferă de `ore_norma`.
+- În **Setări**, secțiunea **Copie de siguranță** permite salvarea imediată a unei copii criptate a bazei de date (`VACUUM INTO`) în `karios/backup/pontix-manual-<data-ora>-v<versiune>.db`, fără a afecta rotația celor 7 copii automate făcute înaintea migrărilor.
+
+Rapoarte: nicio schimbare. Baza de date: nicio schimbare.
+
 ## 0.23.0 · 2026-10-26
 
 Verificarea suprapunerilor pentru persoana înlocuitoare la concedii, evidențierea înlocuirii în pontaj, diferența aritmetică în sumarul anual și previzualizarea modală a cererii semnate (F07-T13, I025–I028, D030).

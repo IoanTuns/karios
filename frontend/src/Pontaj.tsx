@@ -104,6 +104,11 @@ export function Pontaj({date, onModificari, onOcupat}: {date: datebaza.Date; onM
     const numeSectie = (id: string) => { const s = date.sectii.find(s => s.id === id); return s ? denumireSectie(s, i18n.language) : t('ui.fara_sectie'); };
     const inceputRand = Math.min(selectie.inceput.rand, selectie.sfarsit.rand), sfarsitRand = Math.max(selectie.inceput.rand, selectie.sfarsit.rand);
     const inceputZi = Math.min(selectie.inceput.zi, selectie.sfarsit.zi), sfarsitZi = Math.max(selectie.inceput.zi, selectie.sfarsit.zi);
+    const valoareBruta = (rand: number, zi: number) => {
+        if (!randuri[rand] || !zile[zi]) return '';
+        const k = cheie(randuri[rand].id, zile[zi]);
+        return modificari.get(k)?.valoare ?? originale.get(k)?.valoare ?? '';
+    };
     const valoare = (rand: number, zi: number) => {
         if (!randuri[rand] || !zile[zi]) return '';
         const k = cheie(randuri[rand].id, zile[zi]);
@@ -133,6 +138,21 @@ export function Pontaj({date, onModificari, onOcupat}: {date: datebaza.Date; onM
         const celule = [];
         for (let r = inceputRand; r <= sfarsitRand; r++) for (let z = inceputZi; z <= sfarsitZi; z++) celule.push({rand: r, zi: z, text});
         aplicaCelule(celule);
+    }
+
+    function precompleteazaLV() {
+        if (!programCompletare) return;
+        const celule: {rand: number; zi: number; text: string}[] = [];
+        for (let r = 0; r < randuri.length; r++) {
+            for (let z = 0; z < zile.length; z++) {
+                const data = zile[z], ziSapt = new Date(`${data}T12:00:00Z`).getUTCDay();
+                if (ziSapt === 0 || ziSapt === 6 || sarbatori.has(data)) continue;
+                const k = cheie(randuri[r].id, data);
+                if (absente.has(k) || valoareBruta(r, z).trim() !== '') continue;
+                celule.push({rand: r, zi: z, text: programCompletare});
+            }
+        }
+        if (celule.length) aplicaCelule(celule);
     }
 
     function textSelectat() {
@@ -204,6 +224,7 @@ export function Pontaj({date, onModificari, onOcupat}: {date: datebaza.Date; onM
                     {(date.departamente ?? []).filter(d => !sectie || d.sectie_id === sectie).map(d => <option key={d.id} value={d.id}>{!sectie ? `${numeSectie(d.sectie_id)} / ` : ''}{denumireDepartament(d, i18n.language)}</option>)}</select>
                 <select aria-label={t('pontaj.program_completare')} value={programCompletare} disabled={ocupat} onChange={e=>setProgramCompletare(e.target.value)}><option value="">{t('pontaj.program_completare')}</option>{schimburi.filter(s=>s.activ).map(s=><option key={s.id} value={s.cod}>{s.denumire[i18n.language]||s.denumire.ro} {t(`schimburi.regim_${s.regim||'GENERAL'}`)} · {s.ora_start<0?t('pontaj.fara_ora'): `${String(Math.floor(s.ora_start/60)).padStart(2,'0')}:${String(s.ora_start%60).padStart(2,'0')}`} · {t('pontaj.durata_ore',{ore:oreText(s.durata_minute)})}</option>)}</select>
                 <button className="buton secundar" disabled={ocupat || !randuri.length || !programCompletare} onClick={()=>completeaza(programCompletare)}>{t('pontaj.aplica_program')}</button>
+                <button className="buton secundar" disabled={ocupat || !randuri.length || !programCompletare} onClick={precompleteazaLV}>{t('pontaj.precompleteaza_lv')}</button>
                 <input ref={manualInput} aria-label={t('pontaj.valoare_completare')} placeholder={t('pontaj.valoare_completare')} inputMode="decimal" maxLength={16} value={valoareCompletare} disabled={ocupat} onChange={e => setValoareCompletare(e.target.value)}/>
                 <button className="buton secundar" disabled={ocupat || !randuri.length} onClick={() => {const v=manual(valoareCompletare);if(v===null)setEroare(t('pontaj.ore_invalide'));else completeaza(v);}}>{t('pontaj.completeaza_selectia')}</button>
                 <button className="buton secundar" disabled={ocupat || calculare || !calculat || !randuri.length} onClick={async () => { try { await navigator.clipboard.writeText(textSelectat()); } catch { setEroare(t('pontaj.clipboard')); } }}>{t('pontaj.copiaza')}</button>
@@ -224,13 +245,18 @@ export function Pontaj({date, onModificari, onOcupat}: {date: datebaza.Date; onM
                             const titluAbsenta = absenta ? [t('absente.celula_protejata'), `${t(`absente.aprobare_${stareAbsenta}`)}${absenta.aprobat_de ? ` (${absenta.aprobat_de})` : ''}`, absenta.nr_inregistrare ? `${t('absente.nr_inregistrare')}: ${absenta.nr_inregistrare}` : '', inlocuitor ? `${t('absente.inlocuitor')}: ${inlocuitor.nume} ${inlocuitor.prenume}` : ''].filter(Boolean).join(' · ') : '';
                             const colegiInlocuiti = inlocuiri.get(k);
                             const titluInlocuire = colegiInlocuiti?.length ? t('pontaj.inlocuieste_pe', {persoane: colegiInlocuiti.map(z => { const coleg = date.angajati.find(x => x.id === z.angajat_id); return `${coleg ? `${coleg.nume} ${coleg.prenume}` : z.angajat_id} (${z.cod})`; }).join(', ')}) : '';
-                            return <td key={data} className={`${sarbatori.has(data) ? 'zi-sarbatoare' : weekend ? 'zi-weekend' : ''} ${selectata ? 'celula-selectata' : ''} ${modificari.has(k) ? 'celula-modificata' : ''} ${colegiInlocuiti?.length ? 'celula-inlocuitor' : ''}`}>
-                            <input data-rand={r} data-zi={z} aria-label={t('pontaj.celula', {nume: `${a.nume} ${a.prenume}`, data})} title={[titluAbsenta,titluInlocuire,sarbatori.get(data)||data,t('pontaj.editare_ore'),oreCalculate.get(k)?.surse.length?t('pontaj.surse_ore',{date:oreCalculate.get(k)!.surse.join(', ')}):''].filter(Boolean).join(' · ')} disabled={ocupat} readOnly className={absenta ? `celula-absenta celula-absenta-${stareAbsenta}` : ''} value={valoare(r, z)}
+                            const minuteZi = oreCalculate.get(k)?.minute ?? 0;
+                            const areLucruZi = !absenta && (valoareBruta(r, z).trim() !== '' || minuteZi > 0);
+                            const dupaG24 = z > 0 && valoareBruta(r, z - 1).trim().toUpperCase() === 'G24' && areLucruZi;
+                            const peste24h = minuteZi > 1440;
+                            const titluAvertisment = [dupaG24 ? t('pontaj.avertisment_dupa_g24') : '', peste24h ? t('pontaj.avertisment_peste_24h', {ore: oreText(minuteZi)}) : ''].filter(Boolean).join(' · ');
+                            return <td key={data} className={`${sarbatori.has(data) ? 'zi-sarbatoare' : weekend ? 'zi-weekend' : ''} ${selectata ? 'celula-selectata' : ''} ${modificari.has(k) ? 'celula-modificata' : ''} ${colegiInlocuiti?.length ? 'celula-inlocuitor' : ''} ${titluAvertisment ? 'celula-avertisment' : ''}`}>
+                            <input data-rand={r} data-zi={z} aria-label={t('pontaj.celula', {nume: `${a.nume} ${a.prenume}`, data})} title={[titluAbsenta,titluInlocuire,titluAvertisment,sarbatori.get(data)||data,t('pontaj.editare_ore'),oreCalculate.get(k)?.surse.length?t('pontaj.surse_ore',{date:oreCalculate.get(k)!.surse.join(', ')}):''].filter(Boolean).join(' · ')} disabled={ocupat} readOnly className={absenta ? `celula-absenta celula-absenta-${stareAbsenta}` : ''} value={valoare(r, z)}
                                 onFocus={() => { if (ignoraFocus.current) ignoraFocus.current = false; else setSelectie({inceput: {rand: r, zi: z}, sfarsit: {rand: r, zi: z}}); }}
                                 onMouseDown={e => { if (e.shiftKey) { e.preventDefault(); focalizeaza({rand: r, zi: z}, true); } }}
                                 onKeyDown={e => taste(e, r, z)} onDoubleClick={()=>manualInput.current?.focus()}/></td>;
                         })}
-                        {totaluri.map(c => {const v=totaluriCalculate.get(a.id)?.[c],regula=schita?.configuratie.reguli.find(r=>r.coloana===c);return <td key={c} className={!v?.definita?'total-necalculat':''} title={!v?.definita?t('pontaj.necalculat'):t(v.unitate==='ZILE'?'pontaj.unitate_zile':'pontaj.unitate_ore')}>{calculare?'…':v?valoareText(v):calculat&&regula?.sursa!=='NEDEFINITA'?'0':'—'}</td>;})}</tr>)}
+                        {totaluri.map(c => {const v=totaluriCalculate.get(a.id)?.[c],regula=schita?.configuratie.reguli.find(r=>r.coloana===c),vNorma=c==='T'?totaluriCalculate.get(a.id)?.['ore_norma']:undefined,diferentaNorma=Boolean(c==='T'&&v?.definita&&vNorma?.definita&&v.unitate==='ORE'&&vNorma.unitate==='ORE'&&v.sutimi!==vNorma.sutimi),titluTotal=!v?.definita?t('pontaj.necalculat'):[t(v.unitate==='ZILE'?'pontaj.unitate_zile':'pontaj.unitate_ore'),diferentaNorma?t('pontaj.diferenta_norma',{efectiv:valoareText(v),norma:valoareText(vNorma)}):''].filter(Boolean).join(' · ');return <td key={c} className={`${!v?.definita?'total-necalculat':''} ${diferentaNorma?'total-diferenta':''}`.trim()} title={titluTotal}>{calculare?'…':v?valoareText(v):calculat&&regula?.sursa!=='NEDEFINITA'?'0':'—'}</td>;})}</tr>)}
                 </tbody></table>{randuri.length === 0 && <p className="fara-rezultate">{t('pontaj.fara_angajati')}</p>}
             </div>
             <p className="indiciu-grila">{t('pontaj.dimensiuni', {randuri: randuri.length, zile: numarZile})} · {t('pontaj.inactivi_indiciu')}</p>

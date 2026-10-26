@@ -455,5 +455,13 @@
   "rapoarte.sursa_PONTAJ_DETALIAT": "Detailed timesheet with totals",
   "rapoarte.coloana_totaluri": "Final totals (12 columns)",
   "rapoarte.coloana_ore": "Worked hours",
-  "rapoarte.ore_manuale": "Manually entered hours"
+  "rapoarte.ore_manuale": "Manually entered hours",
+  "pontaj.precompleteaza_lv": "Prefill Mon–Fri",
+  "pontaj.avertisment_dupa_g24": "Warning: work scheduled on the day immediately following a 24h on-call shift (G24)",
+  "pontaj.avertisment_peste_24h": "Warning: daily total exceeds 24 hours ({{ore}} h)",
+  "pontaj.diferenta_norma": "Difference from standard hours: {{efectiv}} h vs {{norma}} h",
+  "ui.backup_titlu": "Database backup",
+  "ui.backup_descriere": "Save an encrypted copy of the database right now in the karios\\backup folder without stopping the application.",
+  "ui.creeaza_backup": "Create backup now",
+  "ui.backup_creat": "Backup saved: {{cale}}"
 }

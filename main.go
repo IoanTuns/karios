@@ -31,6 +31,7 @@ func main() {
 	}
 
 	app := NewApp(db)
+	app.radacina = foldere.Radacina
 
 	err = wails.Run(&options.App{
 		Title:     i18n.T(i18n.Implicita, "aplicatie.titlu", nil),

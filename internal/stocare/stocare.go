@@ -6,6 +6,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -26,8 +27,9 @@ const (
 	// MaxBackupuri: câte copii automate se păstrează (decizie Ioan Tuns, 2026-10-25).
 	MaxBackupuri = 7
 
-	prefixBackup = "pontix-"
-	sufixBackup  = ".db"
+	prefixBackup       = "pontix-"
+	prefixBackupManual = "pontix-manual-"
+	sufixBackup        = ".db"
 )
 
 // Deschide deschide seiful și baza din folderul de date și aplică migrările.
@@ -91,9 +93,38 @@ func migreaza(ctx context.Context, db *sql.DB, radacina string, cheie []byte, mi
 	return err
 }
 
+// BackupManual creează la cerere o copie criptată a bazei deschise în folderul
+// backup/ din radacina și întoarce calea completă a fișierului creat (F05-T16).
+func BackupManual(ctx context.Context, db *sql.DB, radacina string) (string, error) {
+	return backupManual(ctx, db, radacina, time.Now)
+}
+
+func backupManual(ctx context.Context, db *sql.DB, radacina string, acum func() time.Time) (string, error) {
+	s, err := seif.Deschide(filepath.Join(radacina, NumeSeif))
+	if err != nil {
+		return "", err
+	}
+	dir := filepath.Join(radacina, "backup")
+	if err := os.MkdirAll(dir, 0o700); err != nil {
+		return "", err
+	}
+	baza := prefixBackupManual + acum().UTC().Format("2006-01-02-150405")
+	cale := filepath.Join(dir, baza+"-v"+versiune.Aplicatie+sufixBackup)
+	for i := 2; ; i++ {
+		if _, err := os.Stat(cale); errors.Is(err, fs.ErrNotExist) {
+			break
+		}
+		cale = filepath.Join(dir, fmt.Sprintf("%s-%d-v%s%s", baza, i, versiune.Aplicatie, sufixBackup))
+	}
+	if err := bd.Backup(ctx, db, cale, s.CheieDate); err != nil {
+		return "", &i18n.Eroare{Cod: "stocare.backup_esuat", Param: map[string]string{"detalii": err.Error()}}
+	}
+	return cale, nil
+}
+
 // pastreazaUltimele șterge backup-urile automate mai vechi, astfel încât să rămână
 // cel mult n. Numele încep cu data, deci ordinea alfabetică e ordinea în timp.
-// Alte fișiere din folder nu se ating.
+// Alte fișiere din folder (inclusiv copiile manuale) nu se ating.
 func pastreazaUltimele(dir string, n int) error {
 	intrari, err := os.ReadDir(dir)
 	if err != nil {
@@ -101,7 +132,7 @@ func pastreazaUltimele(dir string, n int) error {
 	}
 	var backupuri []string
 	for _, i := range intrari {
-		if !i.IsDir() && strings.HasPrefix(i.Name(), prefixBackup) && strings.HasSuffix(i.Name(), sufixBackup) {
+		if !i.IsDir() && strings.HasPrefix(i.Name(), prefixBackup) && !strings.HasPrefix(i.Name(), prefixBackupManual) && strings.HasSuffix(i.Name(), sufixBackup) {
 			backupuri = append(backupuri, i.Name())
 		}
 	}

@@ -6,9 +6,9 @@ Stări: `nouă`, `în analiză`, `transformată` (în task sau decizie), `amâna
 
 | ID | Data | Idee | Cine | Stare | Legături / motiv |
 | --- | --- | --- | --- | --- | --- |
-| I031 | 2026-10-26 | Crearea unei copii de siguranță a bazei criptate la cerere din ecranul Setări | Antigravity, Ioan Tuns | nouă | În completarea backupului automat la migrare (F05-T06) |
-| I030 | 2026-10-26 | Avertismente vizuale neblocante în grila de pontaj pentru suprapuneri de ture sau diferență față de norma lunară | Antigravity, Ioan Tuns | nouă | În legătură cu I004 și F08 |
-| I029 | 2026-10-26 | Precompletarea lunii în grila de pontaj cu un schimb ales pentru zilele lucrătoare luni–vineri (fără sărbători legale și fără zilele cu absență activă) | Antigravity, Ioan Tuns | nouă | F08 |
+| I031 | 2026-10-26 | Crearea unei copii de siguranță a bazei criptate la cerere din ecranul Setări | Antigravity, Ioan Tuns | transformată | F05-T16, [D031](decizii/D031-precompletare-avertismente-pontaj-backup-manual.md) |
+| I030 | 2026-10-26 | Avertismente vizuale neblocante în grila de pontaj pentru suprapuneri de ture sau diferență față de norma lunară | Antigravity, Ioan Tuns | transformată | F08-T07, [D031](decizii/D031-precompletare-avertismente-pontaj-backup-manual.md); regulile de plată după G24 rămân în I004 / F01 |
+| I029 | 2026-10-26 | Precompletarea lunii în grila de pontaj cu un schimb ales pentru zilele lucrătoare luni–vineri (fără sărbători legale și fără zilele cu absență activă) | Antigravity, Ioan Tuns | transformată | F08-T07, [D031](decizii/D031-precompletare-avertismente-pontaj-backup-manual.md) |
 | I028 | 2026-10-26 | Previzualizarea rapidă în fereastră modală a cererii de concediu semnate atașate (PDF, PNG, JPEG) | Antigravity, Ioan Tuns | transformată | F07-T13, [D030](decizii/D030-suprapuneri-inlocuitor-previzualizare-cereri.md) |
 | I027 | 2026-10-26 | Afișarea diferenței aritmetice rămase din dreptul anual contractual curent și a zilelor în așteptare în sumarul anual de concedii | Antigravity, Ioan Tuns | transformată | F07-T13, [D030](decizii/D030-suprapuneri-inlocuitor-previzualizare-cereri.md); reportările rămân în I010 / F01 |
 | I026 | 2026-10-26 | Evidențierea în grila de pontaj pe rândul persoanei care înlocuiește un coleg aflat în concediu (marcaj vizual și detalii la survol) | Antigravity, Ioan Tuns | transformată | F07-T13, [D030](decizii/D030-suprapuneri-inlocuitor-previzualizare-cereri.md) |

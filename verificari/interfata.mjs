@@ -149,6 +149,7 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
         Limbi: async () => [limba, ...Object.keys(cataloage).filter(l => l !== limba)],
         Catalog: async l => cataloage[l], Informatii: async () => ({versiune: versiuneAplicatie, commit: 'verificare'}),
         DateInitiale: async () => raspuns(),
+        CreeazaBackup: async () => { stare.backupuriManuale = (stare.backupuriManuale || 0) + 1; raspuns(); return {cale: 'karios\\backup\\pontix-manual-2026-10-26-110000-v' + versiuneAplicatie + '.db', eroare: null}; },
         CitesteConfiguratiePontaj:async()=>configuratiePontaj(),
         SalveazaConfiguratiePontaj:async c=>{if(c.revizie!==stare.reguliPontaj.revizie)return {eroare:{cod:'pontaj.reguli_conflict'}};stare.reguliPontaj={...structuredClone(c),revizie:String(Number(c.revizie)+1)};raspuns();return configuratiePontaj();},
         PrevizualizeazaSchita:async(an,luna,celule)=>schita(an,luna,celule),
@@ -327,6 +328,9 @@ try {
     await completeaza('.card-departamente input', 'Laborator Sud'); await apasa('Adaugă departament');
     await asteapta(() => evalueaza(`document.querySelectorAll('.arbore-departamente ul li:not(.text-discret)').length === 3`), 'Departamentul celeilalte secții nu apare.');
     const departamentNord = await evalueaza(`JSON.parse(localStorage.getItem('pontix-test')).departamente.find(d => d.denumire.ro === 'Laborator').id`);
+    await apasa('Creează copie de siguranță acum');
+    await asteapta(() => evalueaza(`document.querySelector('.card-backup [role="status"]')?.textContent.includes('pontix-manual-')`), 'Backupul manual din Setări nu afișează calea.');
+    assert.equal(await evalueaza(`JSON.parse(localStorage.getItem('pontix-test')).backupuriManuale`), 1, 'Backupul manual nu a fost înregistrat.');
     await apasa('Angajați'); await completeaza('.cautare input', 'DEMO-001');
     await asteapta(() => evalueaza(`document.querySelector('tbody')?.textContent.includes('8 h')`), 'Norma întreagă nu se actualizează.');
     await apasa('Editează');
@@ -680,6 +684,17 @@ try {
     assert(await evalueaza(`document.querySelector('input[data-rand="0"][data-zi="0"]').value === '24'`), 'Conflictul a pierdut modificarea locală.');
     await apasa('Reîncarcă luna');
     await asteapta(() => evalueaza(`document.querySelector('input[data-rand="0"][data-zi="0"]')?.value === '—'`), 'Reîncărcarea nu arată revizia nouă.');
+    await completeaza('.unelte-grila select[aria-label="Departament"]', departamentNord);
+    await asteapta(() => evalueaza(`document.querySelectorAll('.grila-pontaj tbody input').length === 775`), 'Filtrul departamentului înainte de precompletare nu funcționează.');
+    await completeaza('select[aria-label="Alege programul de lucru"]', 'Z7'); await apasa('Precompletează L–V');
+    await asteapta(() => evalueaza(`document.querySelector('input[data-rand="0"][data-zi="4"]')?.value === '7' && document.querySelector('input[data-rand="0"][data-zi="2"]')?.value === ''`), 'Precompletarea L–V nu completează doar zilele lucrătoare.');
+    await evalueaza(`document.querySelector('input[data-rand="0"][data-zi="0"]').focus()`);
+    await completeaza('select[aria-label="Alege programul de lucru"]', 'Z7'); await apasa('Aplică programul');
+    await evalueaza(`document.querySelector('input[data-rand="0"][data-zi="2"]').focus()`);
+    await completeaza('select[aria-label="Alege programul de lucru"]', 'G24'); await apasa('Aplică programul');
+    await evalueaza(`document.querySelector('input[data-rand="0"][data-zi="3"]').focus()`);
+    await completeaza('select[aria-label="Alege programul de lucru"]', 'Z7'); await apasa('Aplică programul');
+    await asteapta(() => evalueaza(`document.querySelector('input[data-rand="0"][data-zi="3"]')?.closest('td')?.classList.contains('celula-avertisment') && Boolean(document.querySelector('.grila-pontaj td.total-diferenta'))`), 'Avertismentul după G24 sau diferența de total nu sunt evidențiate.');
     assert(await evalueaza(`document.documentElement.scrollWidth <= 1024`), 'Grila depășește fereastra în afara containerului de derulare.');
     await cdp('Page.removeScriptToEvaluateOnNewDocument', {identifier: injectat.identifier});
     await cdp('Page.addScriptToEvaluateOnNewDocument', {source: `(${simulare})(${JSON.stringify(demo)},${JSON.stringify(cataloage)},'en',${JSON.stringify(calendarSursa)},${JSON.stringify(versiuneAplicatie)},${JSON.stringify(schimburiSursa)},${JSON.stringify(rapoarteSursa)})`});

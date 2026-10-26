@@ -13,6 +13,7 @@ import (
 type App struct {
 	ctx          context.Context
 	db           *sql.DB
+	radacina     string
 	raportMu     sync.Mutex
 	raportCache  map[string]raportPregatit
 	raportOrdine []string

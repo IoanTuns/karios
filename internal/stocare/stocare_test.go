@@ -266,3 +266,71 @@ func TestCelMult7Backupuri(t *testing.T) {
 		t.Errorf("fișierul utilizatorului din backup/ a fost atins: %v", b)
 	}
 }
+
+func TestBackupManualPastreazaCopiileAutomateSiCriptarea(t *testing.T) {
+	ctx := context.Background()
+	dir := t.TempDir()
+	db, err := deschide(ctx, dir, migrariPana(t, 1), ceas(0))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.Exec(`INSERT INTO setari (cheie, valoare, modificat_la) VALUES ('manual', 'ok', 'x')`); err != nil {
+		db.Close()
+		t.Fatal(err)
+	}
+	cale1, err := backupManual(ctx, db, dir, ceas(5))
+	if err != nil {
+		db.Close()
+		t.Fatal(err)
+	}
+	cale2, err := backupManual(ctx, db, dir, ceas(5))
+	if err != nil {
+		db.Close()
+		t.Fatal(err)
+	}
+	db.Close()
+	if cale1 == cale2 {
+		t.Fatalf("două copii în aceeași secundă au primit aceeași cale: %s", cale1)
+	}
+	if !strings.HasPrefix(filepath.Base(cale1), "pontix-manual-2026-10-25-080500-v") {
+		t.Fatalf("nume neașteptat pentru primul backup manual: %s", filepath.Base(cale1))
+	}
+	if !strings.HasPrefix(filepath.Base(cale2), "pontix-manual-2026-10-25-080500-2-v") {
+		t.Fatalf("nume neașteptat pentru al doilea backup manual: %s", filepath.Base(cale2))
+	}
+
+	s, err := seif.Deschide(filepath.Join(dir, NumeSeif))
+	if err != nil {
+		t.Fatal(err)
+	}
+	copie, err := bd.Deschide(cale1, s.CheieDate)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var val string
+	if err := copie.QueryRow(`SELECT valoare FROM setari WHERE cheie = 'manual'`).Scan(&val); err != nil || val != "ok" {
+		copie.Close()
+		t.Fatalf("valoare din backup manual: %q, %v", val, err)
+	}
+	copie.Close()
+
+	for i := 2; i <= 10; i++ {
+		db, err := deschide(ctx, dir, migrariPana(t, i), ceas(10+i))
+		if err != nil {
+			t.Fatal(err)
+		}
+		db.Close()
+	}
+	b := backupuri(t, dir)
+	var automate, manuale int
+	for _, f := range b {
+		if strings.HasPrefix(f, "pontix-manual-") {
+			manuale++
+		} else if strings.HasPrefix(f, "pontix-") {
+			automate++
+		}
+	}
+	if manuale != 2 || automate != MaxBackupuri {
+		t.Fatalf("după migrări: manuale=%d (așteptat 2), automate=%d (așteptat %d), toate=%v", manuale, automate, MaxBackupuri, b)
+	}
+}

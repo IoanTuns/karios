@@ -1,6 +1,7 @@
 import {useEffect, useRef, useState, type FormEvent, type ReactNode} from 'react';
 import {useTranslation} from 'react-i18next';
 import type {TFunction} from 'i18next';
+import {CreeazaBackup} from '../wailsjs/go/main/App';
 import {datebaza} from '../wailsjs/go/models';
 
 export function durata(minute: number, t: TFunction): string {
@@ -121,6 +122,9 @@ export function Setari({date, ocupat, salveazaNorma, adaugaSectie, adaugaDeparta
     const [sectieDepartament, setSectieDepartament] = useState(date.sectii[0]?.id || '');
     const [numeDepartament, setNumeDepartament] = useState('');
     const [validare, setValidare] = useState('');
+    const [ocupatBackup, setOcupatBackup] = useState(false);
+    const [mesajBackup, setMesajBackup] = useState('');
+    const [eroareBackup, setEroareBackup] = useState('');
     useEffect(() => { setOre(String(date.norma_intreaga_minute / 60)); }, [date.norma_intreaga_minute]);
 
     async function trimiteNorma(e: FormEvent) {
@@ -129,6 +133,21 @@ export function Setari({date, ocupat, salveazaNorma, adaugaSectie, adaugaDeparta
         if (minute === null) { setValidare(t('date.norma_invalida')); return; }
         setValidare('');
         await salveazaNorma(minute);
+    }
+
+    async function creeazaBackup() {
+        if (ocupat || ocupatBackup) return;
+        setOcupatBackup(true); setMesajBackup(''); setEroareBackup('');
+        try {
+            const r = await CreeazaBackup();
+            if (r.eroare) setEroareBackup(t(r.eroare.cod, r.eroare.param ?? {}));
+            else if (r.cale) setMesajBackup(t('ui.backup_creat', {cale: r.cale}));
+            else setEroareBackup(t('date.eroare'));
+        } catch {
+            setEroareBackup(t('date.eroare'));
+        } finally {
+            setOcupatBackup(false);
+        }
     }
 
     return <div className="setari">
@@ -156,6 +175,11 @@ export function Setari({date, ocupat, salveazaNorma, adaugaSectie, adaugaDeparta
                 <label>{t('ui.departament_nou')}<input required aria-label={t('ui.departament_nou')} value={numeDepartament} disabled={ocupat} onChange={e => setNumeDepartament(e.target.value)}/></label>
                 <button className="buton secundar" disabled={ocupat || !sectieDepartament || !numeDepartament.trim()}>{t('ui.adauga_departament')}</button>
             </form></div>
+        </section>
+        <section className="panou card-setari card-backup"><h2>{t('ui.backup_titlu')}</h2><p>{t('ui.backup_descriere')}</p>
+            {eroareBackup && <p className="mesaj eroare" role="alert">{eroareBackup}</p>}
+            {mesajBackup && <p className="mesaj succes" role="status">{mesajBackup}</p>}
+            <button type="button" className="buton secundar" disabled={ocupat || ocupatBackup} onClick={creeazaBackup}>{t(ocupatBackup ? 'ui.salvare' : 'ui.creeaza_backup')}</button>
         </section>
     </div>;
 }

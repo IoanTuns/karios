@@ -1,4 +1,4 @@
-# Funcționalitățile disponibile · Pontix 0.23.0
+# Funcționalitățile disponibile · Pontix 0.24.0
 
 ## Pornire
 
@@ -36,6 +36,7 @@ Datele migrate cu prenume necompletat trebuie verificate manual înainte de salv
 - Modifică norma întreagă în ore/zi (implicit 7). Modificarea se vede imediat la angajații cu normă întreagă; normele parțiale rămân individuale.
 - Adaugă secții, apoi atribuie-le din formularul angajatului. Denumirea se păstrează ca text traductibil în limba interfeței.
 - Adaugă mai multe departamente sub fiecare secție. În formularul angajatului alegi numai dintre departamentele secției sale; schimbarea secției golește departamentul. Atribuirea este opțională, iar migrarea nu atribuie automat departamente angajaților existenți.
+- Creează pe loc o **copie de siguranță criptată** a bazei de date (`Creează copie de siguranță acum`), salvată în folderul `karios/backup/` cu prefixul `pontix-manual-`, fără oprirea aplicației și fără a afecta copiile automate făcute înaintea migrărilor.
 
 ## Sărbători
 
@@ -79,10 +80,11 @@ Un tip poate fi editat sau dezactivat din tabelul **Tipuri de absență**. Dezac
 ## Grila lunară · schiță
 
 1. Deschide **Pontaj**, alege anul și luna; opțional filtrează secția și departamentul.
-2. Selectează celulele, alege programul după denumire/interval/regim și apasă **Aplică programul**. Grila afișează ore, păstrând codul intern. Alternativ introdu ore în câmpul **Ore manuale pe zi**, apoi **Aplică orele manuale**. F2 sau dublu clic focalizează câmpul manual.
-3. Folosește săgeți, Enter sau Tab pentru deplasare; Shift+săgeți ori Shift+clic pentru selectarea unui dreptunghi.
-4. Câmpul manual gol golește înregistrările din selecție. Ctrl+C/Ctrl+V copiază și lipește ore în dreptunghiuri TSV compatibile cu Excel; codurile nu sunt acceptate la lipire. O lipire care depășește luna sau rândurile disponibile este refuzată integral.
-5. Apasă **Salvează schița**. Modificările sunt păstrate în baza criptată și rămân după repornire. La navigare sau schimbarea perioadei cu celule nesalvate apare confirmarea abandonării.
+2. Selectează celulele, alege programul după denumire/interval/regim și apasă **Aplică programul**, sau apasă **Precompletează L–V** pentru a completa toate celulele goale din zilele de luni până vineri (fără sărbători legale și fără absențe active) pe rândurile afișate. Grila afișează ore, păstrând codul intern. Alternativ introdu ore în câmpul **Ore manuale pe zi**, apoi **Aplică orele manuale**. F2 sau dublu clic focalizează câmpul manual.
+3. Celulele în care există program în ziua imediat următoare unei gărzi de 24 h (`G24`) sau în care totalul zilei depășește 24 de ore sunt evidențiate vizual (chenar galben-auriu și explicație la survol), iar coloana `T` este evidențiată discret când diferă de `Ore norm`. Avertismentele sunt exclusiv vizuale și nu blochează salvarea.
+4. Folosește săgeți, Enter sau Tab pentru deplasare; Shift+săgeți ori Shift+clic pentru selectarea unui dreptunghi.
+5. Câmpul manual gol golește înregistrările din selecție. Ctrl+C/Ctrl+V copiază și lipește ore în dreptunghiuri TSV compatibile cu Excel; codurile nu sunt acceptate la lipire. O lipire care depășește luna sau rândurile disponibile este refuzată integral.
+6. Apasă **Salvează schița**. Modificările sunt păstrate în baza criptată și rămân după repornire. La navigare sau schimbarea perioadei cu celule nesalvate apare confirmarea abandonării.
 
 Weekendurile sunt gri, sărbătorile sunt marcate distinct, iar antetul și identificarea angajaților rămân fixe la derulare. Angajații inactivi apar în lunile în care au deja schițe salvate. Dacă o altă instanță a modificat aceeași celulă, salvarea lotului este refuzată; copiază modificările locale și reîncarcă luna înainte de reaplicare.
 

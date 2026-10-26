@@ -455,5 +455,13 @@
   "rapoarte.sursa_PONTAJ_DETALIAT": "Pontaj detaliat cu totaluri",
   "rapoarte.coloana_totaluri": "Totaluri finale (12 coloane)",
   "rapoarte.coloana_ore": "Ore lucrate",
-  "rapoarte.ore_manuale": "Ore introduse manual"
+  "rapoarte.ore_manuale": "Ore introduse manual",
+  "pontaj.precompleteaza_lv": "Precompletează L–V",
+  "pontaj.avertisment_dupa_g24": "Atenție: program în ziua imediat următoare unei gărzi de 24 h (G24)",
+  "pontaj.avertisment_peste_24h": "Atenție: totalul zilei depășește 24 de ore ({{ore}} h)",
+  "pontaj.diferenta_norma": "Diferență față de normă: {{efectiv}} h față de {{norma}} h",
+  "ui.backup_titlu": "Copie de siguranță",
+  "ui.backup_descriere": "Salvează pe loc o copie criptată a bazei de date în folderul karios\\backup, fără a opri aplicația.",
+  "ui.creeaza_backup": "Creează copie de siguranță acum",
+  "ui.backup_creat": "Copia de siguranță a fost salvată: {{cale}}"
 }
