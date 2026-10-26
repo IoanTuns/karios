@@ -1,12 +1,12 @@
-# Funcționalitățile disponibile · Pontix 0.19.0
+# Funcționalitățile disponibile · Pontix 0.22.2
 
 ## Pornire
 
-Executabilul se construiește cu `./build.ps1` și se găsește în `build/bin/pontix.exe`. Pornește-l dintr-un folder în care poți scrie; datele sunt în folderul `karios/` de lângă executabil.
+Executabilul se construiește cu `./build.ps1`; fiecare invocare creează propriul director `build/bin/pontix-<versiune>-<data-ora>-<identificator>/`, cu `pontix.exe` și manifestul `build.json`. Scriptul afișează calea exactă. Pornește-l dintr-un folder în care poți scrie; datele sunt în folderul `karios/` de lângă executabil. Detalii în [ghidul de build](ghid-build.md).
 
-Livrarea actualizată este **`build/bin/pontix-0.13.0/pontix-0.19.0.exe`**, lângă aceleași date demo regenerate anterior la cererea utilizatorului. Închide versiunea veche înainte de pornire. Numele folderului a fost păstrat pentru a continua cu baza existentă; actualizarea copiază numai executabilul. La prima pornire, aplicația face backup înaintea migrărilor lipsă (inclusiv 0011 pentru categoriile de schimburi și 0012 pentru cererile de concediu) și păstrează configurațiile existente. Baza veche separată a rămas în `build/bin/karios/`; seiful ei a fost eliminat de vechiul build cu `-clean`, deci nu se reutilizează cu o cheie nouă. Incidentul și corecția sunt în [D017](decizii/D017-build-fara-stergerea-datelor.md).
+Copiile mai vechi cu baze demo rămân în directoarele lor, inclusiv `build/bin/pontix-0.13.0`, `pontix-0.20.0-rapoarte`, `pontix-0.21.0-rapoarte` și `pontix-0.22.1-rapoarte`. Nu se copiază automat executabile sau date peste ele. La prima pornire cu o bază existentă, aplicația face backup înaintea migrărilor lipsă. Baza veche separată din `build/bin/karios/`, al cărei seif a fost eliminat de vechiul build, rămâne păstrată; nu se recreează cheia ei. Incidentul este descris în [D017](decizii/D017-build-fara-stergerea-datelor.md).
 
-Scriptul corectat nu mai curăță folderul de ieșire. Dacă executabilul este deschis, construiește cu alt nume: `./build.ps1 -NumeExecutabil pontix-verificare.exe`.
+Un build nou poate folosi același nume `pontix.exe`, deoarece are propriul director. Pentru a continua cu datele existente, închide versiunea veche și copiază întregul folder `karios/` lângă executabilul nou, păstrând originalul pentru verificare.
 
 ## Încearcă datele demo
 
