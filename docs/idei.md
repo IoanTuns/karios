@@ -6,6 +6,7 @@ Stări: `nouă`, `în analiză`, `transformată` (în task sau decizie), `amâna
 
 | ID | Data | Idee | Cine | Stare | Legături / motiv |
 | --- | --- | --- | --- | --- | --- |
+| I056 | 2026-10-26 | Secțiune separată pentru planificarea gărzilor și a schimburilor de după-amiază, cu publicarea explicită în pontaj | Ioan Tuns | transformată | F11-T01, [D037](decizii/D037-planificare-garzi-dupa-amiaza-publicare.md) |
 | I055 | 2026-10-26 | Atribuirea aceleiași categorii de program unui lot de angajați selectați, pentru configurarea inițială mai rapidă | Codex | nouă | Extensie posibilă după F07-T14; prima livrare permite atribuirea individuală, iar completarea lunii funcționează deja pe loturi |
 | I054 | 2026-10-26 | Corectarea încărcării calendarului în adaptorul existent de calcul al pontajului: ListaSarbatori(ctx,nil) filtrează an=NULL și nu încarcă sărbătorile | Codex | transformată | F04-T09, observat în F07-T14; precompletarea nouă citește explicit anii necesari. Corecție separată a adaptorului cu teste pentru ZNL/Ore norm, fără schimbarea regulilor |
 | I053 | 2026-10-26 | Categorii de program reutilizabile pe angajat (dimineață, după-amiază, gărzi, combinații), program implicit și completare care ține cont de absențe și zile libere | Ioan Tuns | transformată | F07-T14, [D036](decizii/D036-categorii-program-precompletare.md); clarificare separată pentru rotații și defaultul dispărut |
