@@ -54,11 +54,17 @@ export function IncarcaDemo():Promise<main.RaspunsDate>;
 
 export function Informatii():Promise<main.Informatii>;
 
+export function InterogheazaAI(arg1:main.CerereInterogareAI):Promise<main.RaspunsInterogareAI>;
+
 export function Limbi():Promise<Array<string>>;
 
 export function ListaModeleRapoarte():Promise<main.RaspunsModeleRapoarte>;
 
 export function ListaSchimburi():Promise<main.RaspunsSchimburi>;
+
+export function OpresteAI():Promise<main.RaspunsStareAI>;
+
+export function PornesteAI(arg1:string):Promise<main.RaspunsStareAI>;
 
 export function PregatesteRaport(arg1:rapoarte.Cerere):Promise<main.RaspunsRaport>;
 
@@ -97,3 +103,5 @@ export function SalveazaTipAbsenta(arg1:string,arg2:datebaza.TipAbsenta,arg3:num
 export function SchimbaActivAngajat(arg1:string,arg2:boolean):Promise<main.RaspunsDate>;
 
 export function SchimbaActivSchimb(arg1:string,arg2:boolean):Promise<main.RaspunsSchimburi>;
+
+export function StareAI():Promise<main.RaspunsStareAI>;

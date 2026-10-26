@@ -12,9 +12,10 @@ import {ReguliPontaj} from './ReguliPontaj';
 import {CategoriiProgram} from './CategoriiProgram';
 import {Planificare} from './Planificare';
 import {DefinireRapoarte, GenerareRapoarte} from './Rapoarte';
+import {AsistentAI} from './AsistentAI';
 
-type Ecran = 'angajati' | 'pontaj' | 'planificare' | 'sarbatori' | 'schimburi' | 'categorii_program' | 'absente' | 'definire_rapoarte' | 'rapoarte' | 'reguli_pontaj' | 'setari';
-const ecranePrincipale: Ecran[] = ['angajati', 'pontaj', 'planificare', 'absente', 'rapoarte', 'setari'];
+type Ecran = 'angajati' | 'pontaj' | 'planificare' | 'sarbatori' | 'schimburi' | 'categorii_program' | 'absente' | 'definire_rapoarte' | 'rapoarte' | 'asistent_ai' | 'reguli_pontaj' | 'setari';
+const ecranePrincipale: Ecran[] = ['angajati', 'pontaj', 'planificare', 'absente', 'rapoarte', 'asistent_ai', 'setari'];
 const sectiuniSetari: Ecran[] = ['setari', 'sarbatori', 'schimburi', 'categorii_program', 'reguli_pontaj', 'definire_rapoarte'];
 
 function normalizat(text: string): string {
@@ -31,6 +32,7 @@ function Simbol({tip}: {tip: Ecran}) {
             : tip === 'pontaj' ? <><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M9 9v12M15 9v12M3 15h18"/></>
             : tip === 'planificare' ? <><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 15l3 3 5-5"/></>
             : tip === 'rapoarte' ? <><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></>
+            : tip === 'asistent_ai' ? <><path d="M12 2a4 4 0 0 1 4 4v1a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4zM6 10h12a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2zM9 15h.01M15 15h.01"/></>
             : tip === 'definire_rapoarte' ? <><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 8h16M4 16h16M9 8v8"/></>
             : tip === 'setari' ? <><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1L7 17M17 7l2.1-2.1"/></>
             : <><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3" fill="currentColor"/><circle cx="15" cy="17" r="3" fill="currentColor"/></>}
@@ -180,6 +182,7 @@ function App() {
                 : ecran === 'reguli_pontaj' ? <ReguliPontaj onModificari={setPontajModificat} onOcupat={setPontajOcupat}/>
                 : ecran === 'definire_rapoarte' ? <DefinireRapoarte/>
                 : ecran === 'rapoarte' ? <GenerareRapoarte date={date}/>
+                : ecran === 'asistent_ai' ? <AsistentAI date={date}/>
                 : ecran === 'setari' ? <Setari date={date} ocupat={ocupat}
                     salveazaNorma={minute => executa(() => SalveazaNormaIntreaga(minute))}
                     adaugaSectie={denumire => executa(() => AdaugaSectie({[i18n.language]: denumire}))}

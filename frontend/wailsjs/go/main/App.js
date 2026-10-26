@@ -98,6 +98,10 @@ export function Informatii() {
   return window['go']['main']['App']['Informatii']();
 }
 
+export function InterogheazaAI(arg1) {
+  return window['go']['main']['App']['InterogheazaAI'](arg1);
+}
+
 export function Limbi() {
   return window['go']['main']['App']['Limbi']();
 }
@@ -108,6 +112,14 @@ export function ListaModeleRapoarte() {
 
 export function ListaSchimburi() {
   return window['go']['main']['App']['ListaSchimburi']();
+}
+
+export function OpresteAI() {
+  return window['go']['main']['App']['OpresteAI']();
+}
+
+export function PornesteAI(arg1) {
+  return window['go']['main']['App']['PornesteAI'](arg1);
 }
 
 export function PregatesteRaport(arg1) {
@@ -184,4 +196,8 @@ export function SchimbaActivAngajat(arg1, arg2) {
 
 export function SchimbaActivSchimb(arg1, arg2) {
   return window['go']['main']['App']['SchimbaActivSchimb'](arg1, arg2);
+}
+
+export function StareAI() {
+  return window['go']['main']['App']['StareAI']();
 }

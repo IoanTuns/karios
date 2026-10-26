@@ -19,11 +19,12 @@ func TestPregatesteIn(t *testing.T) {
 		Radacina: filepath.Join(dir, "karios"),
 		WebView:  filepath.Join(dir, "karios", "webview"),
 		Backup:   filepath.Join(dir, "karios", "backup"),
+		AI:       filepath.Join(dir, "karios", "ai"),
 	}
 	if f != asteptat {
 		t.Errorf("obținut %+v, așteptat %+v", f, asteptat)
 	}
-	for _, d := range []string{f.Radacina, f.WebView, f.Backup} {
+	for _, d := range []string{f.Radacina, f.WebView, f.Backup, f.AI} {
 		if info, err := os.Stat(d); err != nil || !info.IsDir() {
 			t.Errorf("%s nu a fost creat: %v", d, err)
 		}

@@ -4,6 +4,18 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.36.0 · 2026-10-26
+
+Integrare arhitectură și asistent AI local, offline și portabil (F14-T02, F14-T04, D042).
+
+- **Arhitectură motor AI local portabil (`internal/ai`):** Modul nativ Go pentru supravegherea procesului `llama-server` în fundal fără consolă vizibilă (`HideWindow: true` pe Windows), cu verificare automată a integrității fișierelor și a stării de sănătate (`/health`) pe port local dinamic (`127.0.0.1:28491`).
+- **Director portabil dedicat:** Adăugat folderul `karios/ai/` în structura portabilă a aplicației pentru binarul `llama-server.exe` și modelele cuantizate `.gguf`.
+- **Client de inferență cu apelare structurată de unelte (Function Calling):** Client HTTP OpenAI-compatible local cu scheme JSON stricte pentru acțiunile de pontaj și planificare (`planifica_tura`, `sterge_tura`). Modelul nu rulează calcule matematice sau SQL direct, ci emite propuneri de acțiuni structurate.
+- **Ecran dedicat Asistent AI (`AsistentAI.tsx`):** Punct de control în meniul principal cu indicator de stare a motorului local (activ / gata / fișiere lipsă cu ghidare cale folder), flux interactiv de conversație, cipuri de comenzi rapide și carduri de confirmare a acțiunilor propuse cu buton `Confirmă și aplică` și verificare atomică a salvarii în planificare.
+- **Garantare GDPR și siguranță:** Oprire automată a procesului copil la părăsirea aplicației Pontix; nicio transmisie de date prin rețea externă sau cloud.
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
 ## 0.35.0 · 2026-10-26
 
 Import de date pentru angajați și sărbători legale din Excel (.xlsx) și CSV (.csv), șabloane demonstrative descărcabile, semnătura dezvoltatorului în interfață și definirea deciziei pentru asistent AI exclusiv local (F02-T13, F03-T08, F14, D042).

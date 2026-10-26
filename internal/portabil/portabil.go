@@ -17,6 +17,7 @@ type Foldere struct {
 	Radacina string // karios/
 	WebView  string // karios/webview/ — cache-ul WebView2
 	Backup   string // karios/backup/
+	AI       string // karios/ai/ — motorul și modelele LLM locale (F14, D042)
 }
 
 // Pregateste creează folderul de date lângă executabilul care rulează.
@@ -40,10 +41,11 @@ func PregatesteIn(dir string) (Foldere, error) {
 		Radacina: radacina,
 		WebView:  filepath.Join(radacina, "webview"),
 		Backup:   filepath.Join(radacina, "backup"),
+		AI:       filepath.Join(radacina, "ai"),
 	}
 	faraScriere := &i18n.Eroare{Cod: "portabil.fara_scriere", Param: map[string]string{"folder": radacina}}
 
-	for _, d := range []string{f.Radacina, f.WebView, f.Backup} {
+	for _, d := range []string{f.Radacina, f.WebView, f.Backup, f.AI} {
 		if err := os.MkdirAll(d, 0o700); err != nil {
 			return Foldere{}, faraScriere
 		}
