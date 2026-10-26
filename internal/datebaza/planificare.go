@@ -262,6 +262,15 @@ func (s *Serviciu) SalveazaPlanificare(ctx context.Context, an, luna int, poziti
 		}
 		schimbate := map[string]acces.Planificare{}
 		for _, p := range pozitii {
+			if p.Sectiune == "" && p.SchimbID != "" {
+				if s, ok := surse.schimburi[p.SchimbID]; ok {
+					if calcul.ProgramInSectiune(s, "DUPA_AMIAZA") {
+						p.Sectiune = "DUPA_AMIAZA"
+					} else {
+						p.Sectiune = "GARZI"
+					}
+				}
+			}
 			if !dataValida(p.Data) || p.Data < deLa || p.Data > panaLa || (p.Sectiune != "GARZI" && p.Sectiune != "DUPA_AMIAZA") {
 				return eroare("planificare.lot_invalid")
 			}
@@ -354,7 +363,11 @@ func pregatestePublicare(ctx context.Context, q *acces.Queries, c CererePublicar
 	if err != nil {
 		return rez, err
 	}
-	if len(c.PozitiiID) == 0 || len(c.PozitiiID) > 10000 || (c.Sectiune != "GARZI" && c.Sectiune != "DUPA_AMIAZA") {
+	sectiuneFiltru := strings.ToUpper(strings.TrimSpace(c.Sectiune))
+	if sectiuneFiltru == "TOATE" {
+		sectiuneFiltru = ""
+	}
+	if len(c.PozitiiID) == 0 || len(c.PozitiiID) > 10000 || (sectiuneFiltru != "" && sectiuneFiltru != "GARZI" && sectiuneFiltru != "DUPA_AMIAZA") {
 		return rez, eroare("planificare.lot_invalid")
 	}
 	ids := map[string]bool{}
@@ -372,7 +385,7 @@ func pregatestePublicare(ctx context.Context, q *acces.Queries, c CererePublicar
 		if !ids[p.ID] {
 			continue
 		}
-		if p.Data < deLa || p.Data > panaLa || p.Sectiune != c.Sectiune || p.Activ != 1 {
+		if p.Data < deLa || p.Data > panaLa || (sectiuneFiltru != "" && p.Sectiune != sectiuneFiltru) || p.Activ != 1 {
 			return rez, eroare("planificare.lot_invalid")
 		}
 		program := surse.schimburi[p.SchimbID]

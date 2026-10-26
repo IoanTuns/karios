@@ -187,3 +187,28 @@ func TestPublicareLotAtomicSiPontajEfectivProtejat(t *testing.T) {
 		t.Fatalf("efectiv: %+v", r)
 	}
 }
+func TestPublicareUnificataToateSectiunile(t *testing.T) {
+	m, id, schimburi := mediuPlanificare(t)
+	ctx := context.Background()
+	p := planTest(t, m, 2026, 10,
+		PozitiePlanificare{AngajatID: id, Data: "2026-10-01", SchimbID: schimburi["S7"], Sectiune: "DUPA_AMIAZA", Activ: true},
+		PozitiePlanificare{AngajatID: id, Data: "2026-10-03", SchimbID: schimburi["G24"], Sectiune: "GARZI", Activ: true},
+	)
+	c := CererePublicarePlan{
+		An:        2026,
+		Luna:      10,
+		Sectiune:  "TOATE",
+		PozitiiID: []string{p.Pozitii[0].ID, p.Pozitii[1].ID},
+	}
+	r := previzualizareTest(t, m, &c)
+	if r.Publicabile != 2 {
+		t.Fatalf("previzualizare unificata: %+v", r)
+	}
+	if _, err := m.serviciu.PublicaPlanificare(ctx, c); err != nil {
+		t.Fatal(err)
+	}
+	var n int
+	if err := m.db.QueryRow(`SELECT count(*) FROM pontaj_ciorne WHERE angajat_id=? AND valoare IN ('S7','G24')`, id).Scan(&n); err != nil || n != 2 {
+		t.Fatalf("publicare mixta: %d %v", n, err)
+	}
+}

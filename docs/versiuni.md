@@ -4,6 +4,18 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.31.0 · 2026-10-26
+
+Grilă lunară tabelară de planificare cu atribuire directă pe celule (pereche zi – tip program) pentru gărzi, intrare weekend și după-amiază, cu publicare unificată în schița de pontaj (F11-T03, I057, D038).
+
+- **Grilă lunară interactivă:** Angajații pe rânduri și zilele 1–31 pe coloane, cu evidențierea weekendurilor, a sărbătorilor legale și a absențelor active (concedii de odihnă, medicale, evenimente).
+- **Atribuire rapidă pereche zi – program:** Paletă rapidă cu cipurile schimburilor speciale (`S7`, `IN9`, `G24`, `Z12`, `N12`) și acțiune de ștergere, cu aplicare dintr-un clic pe celula activă sau pe o selecție multiplă (drag / Shift+Click).
+- **Verificare categorii și stivă Undo / Redo:** Validare împotriva atribuirii schimburilor nepermise de categoria activă a angajatului; butoane și scurtături `Ctrl+Z` / `Ctrl+Y` pentru anularea/refacerea pașilor locali.
+- **Publicare unificată:** Previzualizarea și publicarea în pontaj permit selectarea tuturor secțiunilor simultan (`TOATE`), cu verificarea tranzacțională a absențelor, schițelor existente și pontajelor efective.
+- **Comutator Grilă / Listă:** Păstrarea tabelului detaliat de audit pentru consultarea istoricului și a datelor de publicare.
+
+Baza de date și rapoarte: nicio schimbare de schemă sau formule.
+
 ## 0.30.0 · 2026-10-26
 
 Secțiune operațională **Planificare**, cu **Gărzi** și **După-amiază**, salvare independentă și publicare explicită în schița de pontaj (F11-T01, I056, D037).
