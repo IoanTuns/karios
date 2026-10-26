@@ -419,6 +419,36 @@ func (s *Serviciu) SalveazaAbsente(ctx context.Context, zile []ZiAbsenta) error 
 				return err
 			}
 		}
+		zilePeData := map[string][]acces.ListaAbsenteIntervalRow{}
+		for _, z := range zile {
+			stare := z.StareAprobare
+			if stare == "" {
+				stare = "IN_ASTEPTARE"
+			}
+			if !z.Activ || stare == "RESPINSA" {
+				continue
+			}
+			randuri, ok := zilePeData[z.Data]
+			if !ok {
+				var err error
+				randuri, err = q.ListaAbsenteInterval(ctx, acces.ListaAbsenteIntervalParams{DeLa: z.Data, PanaLa: z.Data})
+				if err != nil {
+					return err
+				}
+				zilePeData[z.Data] = randuri
+			}
+			for _, r := range randuri {
+				if r.Activ == 0 || r.StareAprobare == "RESPINSA" {
+					continue
+				}
+				if z.InlocuitorID != "" && r.AngajatID == z.InlocuitorID {
+					return eroare("absente.inlocuitor_absent")
+				}
+				if r.InlocuitorID == z.AngajatID {
+					return eroare("absente.titular_este_inlocuitor")
+				}
+			}
+		}
 		return nil
 	})
 }

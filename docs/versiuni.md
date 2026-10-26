@@ -4,6 +4,17 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.23.0 · 2026-10-26
+
+Verificarea suprapunerilor pentru persoana înlocuitoare la concedii, evidențierea înlocuirii în pontaj, diferența aritmetică în sumarul anual și previzualizarea modală a cererii semnate (F07-T13, I025–I028, D030).
+
+- Serviciul Go și formularul de concedii refuză desemnarea unui înlocuitor care are el însuși o absență activă nerespinsă în aceeași zi (`absente.inlocuitor_absent`), precum și înregistrarea unei absențe active nerespinse pentru un angajat care este deja desemnat înlocuitor în aceeași zi (`absente.titular_este_inlocuitor`); dubla înlocuire (când aceeași persoană înlocuiește mai mulți colegi în aceeași zi) este semnalată prin avertisment în formular și etichetă în tabel.
+- Grila lunară de pontaj evidențiază vizual (`celula-inlocuitor`) și în explicația celulei (`title`) zilele în care un angajat înlocuiește colegi aflați în concediu.
+- Tabelul de sumar din Concedii și absențe afișează, sub dreptul anual contractual, diferența aritmetică rămasă (`Rămas: X zile`, fără reportări istorice) și numărul de zile de odihnă aflate încă în așteptare.
+- Cererile de concediu atașate (PDF, PNG, JPEG) pot fi previzualizate direct într-o fereastră modală, pe lângă descărcarea explicită.
+
+Rapoarte: nicio schimbare. Baza de date: nicio schimbare.
+
 ## 0.22.2 · 2026-10-26
 
 F02-T12: fiecare invocare build.ps1 produce un director unic `build/bin/pontix-<versiune>-<data-ora>-<identificator>/`, cu executabil și manifest build.json (versiune, commit, SHA256). Temporarele Wails sunt izolate per invocare și curățate numai din directorul nou. Buildurile existente și datele portabile nu se suprascriu. Dependențele fixate nu sunt modificate de build. Fără schimbări în rapoarte, calcule sau baza de date.

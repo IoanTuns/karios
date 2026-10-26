@@ -6,6 +6,13 @@ Stări: `nouă`, `în analiză`, `transformată` (în task sau decizie), `amâna
 
 | ID | Data | Idee | Cine | Stare | Legături / motiv |
 | --- | --- | --- | --- | --- | --- |
+| I031 | 2026-10-26 | Crearea unei copii de siguranță a bazei criptate la cerere din ecranul Setări | Antigravity, Ioan Tuns | nouă | În completarea backupului automat la migrare (F05-T06) |
+| I030 | 2026-10-26 | Avertismente vizuale neblocante în grila de pontaj pentru suprapuneri de ture sau diferență față de norma lunară | Antigravity, Ioan Tuns | nouă | În legătură cu I004 și F08 |
+| I029 | 2026-10-26 | Precompletarea lunii în grila de pontaj cu un schimb ales pentru zilele lucrătoare luni–vineri (fără sărbători legale și fără zilele cu absență activă) | Antigravity, Ioan Tuns | nouă | F08 |
+| I028 | 2026-10-26 | Previzualizarea rapidă în fereastră modală a cererii de concediu semnate atașate (PDF, PNG, JPEG) | Antigravity, Ioan Tuns | transformată | F07-T13, [D030](decizii/D030-suprapuneri-inlocuitor-previzualizare-cereri.md) |
+| I027 | 2026-10-26 | Afișarea diferenței aritmetice rămase din dreptul anual contractual curent și a zilelor în așteptare în sumarul anual de concedii | Antigravity, Ioan Tuns | transformată | F07-T13, [D030](decizii/D030-suprapuneri-inlocuitor-previzualizare-cereri.md); reportările rămân în I010 / F01 |
+| I026 | 2026-10-26 | Evidențierea în grila de pontaj pe rândul persoanei care înlocuiește un coleg aflat în concediu (marcaj vizual și detalii la survol) | Antigravity, Ioan Tuns | transformată | F07-T13, [D030](decizii/D030-suprapuneri-inlocuitor-previzualizare-cereri.md) |
+| I025 | 2026-10-26 | Verificarea automată a suprapunerilor pentru persoana înlocuitoare la concedii (blocare când înlocuitorul este absent în aceeași zi și avertizare la dublă înlocuire) | Antigravity, Ioan Tuns | transformată | F07-T13, [D030](decizii/D030-suprapuneri-inlocuitor-previzualizare-cereri.md) |
 | I024 | 2026-10-26 | Curățarea fișierelor generate vechi și câte un director pentru fiecare build nou | Ioan Tuns | transformată | F02-T12, [D029](decizii/D029-builduri-in-directoare-separate.md); păstrarea bazelor și checkouturilor |
 | I023 | 2026-10-26 | Ore în celulele de pontaj, centralizator și raport detaliat cu totaluri, plus configurarea atribuirii și a regulilor | Ioan Tuns | transformată | F09-T09, F09-T10, [D028](decizii/D028-pontaj-ore-doua-rapoarte.md) |
 | I022 | 2026-10-26 | Reunirea tuturor ramurilor în main printr-un PR și construirea ultimei versiuni | Ioan Tuns | transformată | F02-T11, [D027](decizii/D027-reunire-main-pr.md) |

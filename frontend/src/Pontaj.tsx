@@ -82,6 +82,16 @@ export function Pontaj({date, onModificari, onOcupat}: {date: datebaza.Date; onM
 
     const originale = useMemo(() => new Map((schita?.celule ?? []).map(c => [cheie(c.angajat_id, c.data), c])), [schita]);
     const absente = useMemo(() => new Map((schita?.absente ?? []).filter(z => z.activ).map(z => [cheie(z.angajat_id,z.data),z])), [schita]);
+    const inlocuiri = useMemo(() => {
+        const harta = new Map<string, datebaza.ZiAbsenta[]>();
+        for (const z of schita?.absente ?? []) {
+            if (z.activ && z.inlocuitor_id && (z.stare_aprobare || 'IN_ASTEPTARE') !== 'RESPINSA') {
+                const k = cheie(z.inlocuitor_id, z.data);
+                harta.set(k, [...(harta.get(k) ?? []), z]);
+            }
+        }
+        return harta;
+    }, [schita]);
     const randuri = useMemo(() => {
         const cuSchite = new Set((schita?.celule ?? []).map(c => c.angajat_id));
         for (const z of schita?.absente ?? []) if (z.activ) cuSchite.add(z.angajat_id);
@@ -212,8 +222,10 @@ export function Pontaj({date, onModificari, onOcupat}: {date: datebaza.Date; onM
                             const stareAbsenta = absenta?.stare_aprobare || 'IN_ASTEPTARE';
                             const inlocuitor = absenta?.inlocuitor_id ? date.angajati.find(x => x.id === absenta.inlocuitor_id) : undefined;
                             const titluAbsenta = absenta ? [t('absente.celula_protejata'), `${t(`absente.aprobare_${stareAbsenta}`)}${absenta.aprobat_de ? ` (${absenta.aprobat_de})` : ''}`, absenta.nr_inregistrare ? `${t('absente.nr_inregistrare')}: ${absenta.nr_inregistrare}` : '', inlocuitor ? `${t('absente.inlocuitor')}: ${inlocuitor.nume} ${inlocuitor.prenume}` : ''].filter(Boolean).join(' · ') : '';
-                            return <td key={data} className={`${sarbatori.has(data) ? 'zi-sarbatoare' : weekend ? 'zi-weekend' : ''} ${selectata ? 'celula-selectata' : ''} ${modificari.has(k) ? 'celula-modificata' : ''}`}>
-                            <input data-rand={r} data-zi={z} aria-label={t('pontaj.celula', {nume: `${a.nume} ${a.prenume}`, data})} title={[titluAbsenta,sarbatori.get(data)||data,t('pontaj.editare_ore'),oreCalculate.get(k)?.surse.length?t('pontaj.surse_ore',{date:oreCalculate.get(k)!.surse.join(', ')}):''].filter(Boolean).join(' · ')} disabled={ocupat} readOnly className={absenta ? `celula-absenta celula-absenta-${stareAbsenta}` : ''} value={valoare(r, z)}
+                            const colegiInlocuiti = inlocuiri.get(k);
+                            const titluInlocuire = colegiInlocuiti?.length ? t('pontaj.inlocuieste_pe', {persoane: colegiInlocuiti.map(z => { const coleg = date.angajati.find(x => x.id === z.angajat_id); return `${coleg ? `${coleg.nume} ${coleg.prenume}` : z.angajat_id} (${z.cod})`; }).join(', ')}) : '';
+                            return <td key={data} className={`${sarbatori.has(data) ? 'zi-sarbatoare' : weekend ? 'zi-weekend' : ''} ${selectata ? 'celula-selectata' : ''} ${modificari.has(k) ? 'celula-modificata' : ''} ${colegiInlocuiti?.length ? 'celula-inlocuitor' : ''}`}>
+                            <input data-rand={r} data-zi={z} aria-label={t('pontaj.celula', {nume: `${a.nume} ${a.prenume}`, data})} title={[titluAbsenta,titluInlocuire,sarbatori.get(data)||data,t('pontaj.editare_ore'),oreCalculate.get(k)?.surse.length?t('pontaj.surse_ore',{date:oreCalculate.get(k)!.surse.join(', ')}):''].filter(Boolean).join(' · ')} disabled={ocupat} readOnly className={absenta ? `celula-absenta celula-absenta-${stareAbsenta}` : ''} value={valoare(r, z)}
                                 onFocus={() => { if (ignoraFocus.current) ignoraFocus.current = false; else setSelectie({inceput: {rand: r, zi: z}, sfarsit: {rand: r, zi: z}}); }}
                                 onMouseDown={e => { if (e.shiftKey) { e.preventDefault(); focalizeaza({rand: r, zi: z}, true); } }}
                                 onKeyDown={e => taste(e, r, z)} onDoubleClick={()=>manualInput.current?.focus()}/></td>;

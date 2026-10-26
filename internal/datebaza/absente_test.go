@@ -397,4 +397,33 @@ func TestCereriConcediuDocumentCriptatInlocuitorSiAprobare(t *testing.T) {
 	if _, err := m.db.Exec(`UPDATE absente_zile SET inlocuitor_id = angajat_id WHERE data = '2026-08-10'`); err == nil {
 		t.Fatal("trigger-ul nu a refuzat inlocuitor_id = angajat_id")
 	}
+
+	// Suprapuneri între absență activă nerespinsă și rolul de înlocuitor în aceeași zi.
+	if err := m.serviciu.SchimbaActiv(ctx, inlocuitor.ID, true); err != nil {
+		t.Fatal(err)
+	}
+	// Pe 2026-08-10, inlocuitor este deja desemnat înlocuitor pentru titular (APROBATA).
+	verificaCod(t, m.serviciu.SalveazaAbsente(ctx, []ZiAbsenta{
+		{AngajatID: inlocuitor.ID, Data: "2026-08-10", Cod: "CO", Activ: true},
+	}), "absente.titular_este_inlocuitor")
+
+	// Dacă înlocuitorul are o absență activă pe 2026-08-12, nu poate fi desemnat înlocuitor pe 2026-08-12.
+	if err := m.serviciu.SalveazaAbsente(ctx, []ZiAbsenta{
+		{AngajatID: inlocuitor.ID, Data: "2026-08-12", Cod: "CO", Activ: true},
+	}); err != nil {
+		t.Fatal(err)
+	}
+	verificaCod(t, m.serviciu.SalveazaAbsente(ctx, []ZiAbsenta{
+		{AngajatID: titular.ID, Data: "2026-08-12", Cod: "CO", Activ: true, InlocuitorID: inlocuitor.ID},
+	}), "absente.inlocuitor_absent")
+
+	// Dar dacă absența înlocuitorului este RESPINSA, el poate înlocui pe 2026-08-12.
+	ziInloc := absenteTest(t, m, 2026).Zile[2]
+	ziInloc.StareAprobare = "RESPINSA"
+	if err := m.serviciu.SalveazaAbsente(ctx, []ZiAbsenta{
+		ziInloc,
+		{AngajatID: titular.ID, Data: "2026-08-12", Cod: "CO", Activ: true, InlocuitorID: inlocuitor.ID},
+	}); err != nil {
+		t.Fatalf("absența respinsă nu ar trebui să blocheze înlocuirea: %v", err)
+	}
 }

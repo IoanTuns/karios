@@ -18,13 +18,19 @@ assert(existsSync(join(dist, 'index.html')), 'Rulează întâi npm run build în
 const demo = JSON.parse(readFileSync(join(radacina, 'internal/datebaza/demo/angajati.json'), 'utf8'));
 const calendarSursa = JSON.parse(readFileSync(join(radacina, 'internal/datebaza/calendare/romania-2026.json'), 'utf8'));
 const schimburiSursa = JSON.parse(readFileSync(join(radacina, 'internal/datebaza/initiale/schimburi.json'), 'utf8'));
-const rapoarteSursa = {reguli:JSON.parse(readFileSync(join(radacina,'internal/bd/migrari/0015_pontaj_ore_reguli.sql'),'utf8').match(/'(\{"atribuire"[^']+)\'/)[1]),configuratie:JSON.parse(readFileSync(join(radacina,'internal/rapoarte/testdata/modele-v3.json'),'utf8')),document:JSON.parse(readFileSync(join(radacina,'internal/rapoarte/testdata/raport-pontaj-v3.json'),'utf8')).document,pdf:readFileSync(join(radacina,'build/bin/rapoarte-demo/raport-pontaj.pdf')).toString('base64')};
-const imaginiDemo=join(radacina,'build/bin/rapoarte-demo');
-writeFileSync(join(imaginiDemo,'imagine-invalida.txt'),'exemplu de fisier care nu este imagine');
 const versiuneAplicatie = readFileSync(join(radacina, 'internal/versiune/versiune.go'), 'utf8').match(/const Aplicatie = "([^"]+)"/)[1];
 const cataloage = Object.fromEntries(['ro', 'en'].map(limba => [limba,
     JSON.parse(readFileSync(join(radacina, `internal/i18n/locales/${limba}.json`), 'utf8'))]));
 const profil = mkdtempSync(join(tmpdir(), 'pontix-ui-'));
+const imaginiDemo = join(profil, 'rapoarte-demo');
+mkdirSync(imaginiDemo, {recursive: true});
+const pdfDemoBuffer = Buffer.from('%PDF-1.4\n1 0 obj<</Type/Catalog>>endobj\n%%EOF\n');
+writeFileSync(join(imaginiDemo, 'raport-pontaj.pdf'), pdfDemoBuffer);
+writeFileSync(join(imaginiDemo, 'cerere-demo.pdf'), pdfDemoBuffer);
+writeFileSync(join(imaginiDemo, 'antet-demo.png'), Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4z8DwHwAFAAH/iZk9HQAAAABJRU5ErkJggg==', 'base64'));
+writeFileSync(join(imaginiDemo, 'subsol-demo.jpg'), Buffer.from('/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=', 'base64'));
+writeFileSync(join(imaginiDemo, 'imagine-invalida.txt'), 'exemplu de fisier care nu este imagine');
+const rapoarteSursa = {reguli:JSON.parse(readFileSync(join(radacina,'internal/bd/migrari/0015_pontaj_ore_reguli.sql'),'utf8').match(/'(\{"atribuire"[^']+)\'/)[1]),configuratie:JSON.parse(readFileSync(join(radacina,'internal/rapoarte/testdata/modele-v3.json'),'utf8')),document:JSON.parse(readFileSync(join(radacina,'internal/rapoarte/testdata/raport-pontaj-v3.json'),'utf8')).document,pdf:pdfDemoBuffer.toString('base64')};
 const server = createServer((cerere, raspuns) => {
     const cale = resolve(dist, '.' + new URL(cerere.url, 'http://localhost').pathname);
     if (!cale.startsWith(dist + sep) && cale !== dist) { raspuns.writeHead(403).end(); return; }
@@ -466,9 +472,15 @@ try {
     await completeaza('dialog select[name="inlocuitor"]',persoanaInlocuitor);
     await completeaza('dialog select[name="stare_aprobare"]','APROBATA');
     await completeaza('dialog input[name="aprobat_de"]','Dr. Ionescu');
+    await incarcaFisier('dialog input[name="cerere_fisier"]',join(imaginiDemo,'cerere-demo.pdf'));
+    await asteapta(() => evalueaza(`document.querySelector('.atasament-curent')?.textContent.includes('cerere-demo.pdf')`),'Cererea PDF nu este încărcată în formular.');
     await apasa('Salvează');
     await asteapta(() => evalueaza(`!document.querySelector('dialog') && document.querySelector('.sumar-absente tbody tr').cells[2].textContent === '3'`),'Editarea nu actualizează sumarul.');
     assert(await evalueaza(`document.querySelector('.tabel-absente').textContent.includes('REG-104/2026') && document.querySelector('.tabel-absente').textContent.includes('Dr. Ionescu')`),'Nr. înregistrare sau aprobarea nu apar în tabelul de absențe.');
+    await evalueaza(`document.querySelector('.tabel-absente a[href="#previzualizare"]').click()`);
+    await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog iframe.cadru-previzualizare-cerere')?.src.startsWith('blob:'))`),'Previzualizarea modală a cererii de concediu nu se deschide.');
+    await apasa('Închide');
+    await asteapta(() => evalueaza(`!document.querySelector('dialog')`),'Fereastra de previzualizare a cererii nu se închide.');
     await completeaza('.filtre-absente select[aria-label="Aprobare"]','APROBATA');
     assert.equal(await evalueaza(`document.querySelectorAll('.tabel-absente tbody tr').length`),1,'Filtrul stării de aprobare nu funcționează.');
     await completeaza('.filtre-absente select[aria-label="Aprobare"]','');
@@ -477,6 +489,15 @@ try {
     await asteapta(() => evalueaza(`document.querySelectorAll('.tabel-absente tbody tr').length === 0`),'Anularea selecției nu funcționează.');
     await completeaza('.filtre-absente select[aria-label="Categorie"]','');
     assert.deepEqual(await evalueaza(`[...document.querySelectorAll('.sumar-absente tbody tr:first-child td')].slice(2).map(c => c.textContent)`),['3','0','1'],'Anularea nu actualizează sumarul.');
+    assert(await evalueaza(`document.querySelector('.sumar-absente tbody tr:first-child td:nth-child(2)').textContent.includes('Rămas:') && document.querySelector('.sumar-absente tbody tr:first-child td:nth-child(2)').textContent.includes('în așteptare: 2')`),'Sumarul nu afișează diferența aritmetică rămasă și zilele în așteptare.');
+    await apasa('Înregistrează zile');
+    await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog select[name="angajat"]'))`),'Formular verificare înlocuitor lipsă.');
+    await completeaza('dialog select[name="angajat"]',persoanaInlocuitor);
+    await completeaza('dialog input[name="de_la"]','2026-11-28');
+    await completeaza('dialog input[name="pana_la"]','2026-11-28');
+    await apasa('Salvează');
+    await asteapta(() => evalueaza(`document.querySelector('dialog [role="alert"]')?.textContent.includes('deja desemnat ca înlocuitor')`),'Suprapunerea titular-înlocuitor nu este blocată în formular.');
+    await apasa('Anulează');
     const capturaAbsente = await cdp('Page.captureScreenshot',{format:'png'}); writeFileSync(join(radacina,'build/bin/concedii-absente.png'),Buffer.from(capturaAbsente.data,'base64'));
     await apasa('Pontaj');
     await asteapta(() => evalueaza(`Boolean(document.querySelector('.unelte-perioada select'))`),'Pontaj lipsă după concedii.');
@@ -484,6 +505,7 @@ try {
     await completeaza('.unelte-perioada select','11');
     await asteapta(() => evalueaza(`document.querySelectorAll('.grila-pontaj input.celula-absenta').length === 3`),'Pontajul nu arată absențele din noiembrie.');
     assert(await evalueaza(`[...document.querySelectorAll('.grila-pontaj input.celula-absenta')].some(i => i.title.includes('REG-104/2026') && i.title.includes('Dr. Ionescu'))`),'Tooltip-ul din pontaj nu afișează detaliile cererii de concediu.');
+    assert(await evalueaza(`Boolean(document.querySelector('.grila-pontaj td.celula-inlocuitor input')?.title.includes('Înlocuiește:'))`),'Grila de pontaj nu evidențiază ziua pe rândul persoanei care înlocuiește.');
     const protejata = await evalueaza(`(() => { const e = document.querySelector('.grila-pontaj input.celula-absenta'); e.focus(); return {selector:'input[data-rand="'+e.dataset.rand+'"][data-zi="'+e.dataset.zi+'"]',valoare:e.value}; })()`);
     await completeaza('.unelte-grila input','7'); await apasa('Aplică orele manuale');
     await asteapta(() => evalueaza(`document.querySelector('.pontaj-lunar [role="alert"]')?.textContent.includes('Concedii și absențe')`),'Grila suprascrie absența.');
