@@ -8,6 +8,7 @@ const categorii = ['ODIHNA', 'MEDICAL', 'SPECIAL'];
 const stariAprobare = ['IN_ASTEPTARE', 'APROBATA', 'RESPINSA'];
 const cheieZi = (z: datebaza.ZiAbsenta) => `${z.angajat_id}/${z.data}`;
 const numeTip = (tip: datebaza.TipAbsenta, limba: string) => tip.denumire[limba] || tip.denumire.ro || Object.values(tip.denumire).find(Boolean) || tip.cod;
+const normalizat = (text: string) => text.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLocaleLowerCase();
 
 function interval(deLa: string, panaLa: string): string[] {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(deLa) || !/^\d{4}-\d{2}-\d{2}$/.test(panaLa) || deLa < '0001-01-01' || panaLa > '9999-12-31') return [];
@@ -18,14 +19,15 @@ function interval(deLa: string, panaLa: string): string[] {
     return zile[0] === deLa && zile[zile.length - 1] === panaLa ? zile : [];
 }
 
-export function Absente({date}: {date: datebaza.Date}) {
+export function Absente({date, filtruInitial}: {date: datebaza.Date; filtruInitial?: {an: number; angajatId: string} | null}) {
     const {t, i18n} = useTranslation();
-    const [an, setAn] = useState(new Date().getFullYear());
+    const [an, setAn] = useState(filtruInitial?.an ?? new Date().getFullYear());
     const [anText, setAnText] = useState(String(an));
     const [dateAbsente, setDateAbsente] = useState<datebaza.AbsenteAn | null>(null);
-    const [angajat, setAngajat] = useState('');
+    const [angajat, setAngajat] = useState(filtruInitial?.angajatId ?? '');
     const [categorie, setCategorie] = useState('');
     const [filtruAprobare, setFiltruAprobare] = useState('');
+    const [cautareAbsente, setCautareAbsente] = useState('');
     const [sectiuneActiva, setSectiuneActiva] = useState<'toate' | 'zile' | 'sumar' | 'tipuri'>('toate');
     const [incarcare, setIncarcare] = useState(true);
     const [ocupat, setOcupat] = useState(false);
@@ -38,6 +40,13 @@ export function Absente({date}: {date: datebaza.Date}) {
     const [lotEditat, setLotEditat] = useState<datebaza.ZiAbsenta[] | null>(null);
     const [docPrevizualizat, setDocPrevizualizat] = useState<datebaza.DocumentAbsenta | null>(null);
     const [selectate, setSelectate] = useState<Set<string>>(new Set());
+
+    useEffect(() => {
+        if (!filtruInitial) return;
+        setAn(filtruInitial.an);
+        setAnText(String(filtruInitial.an));
+        setAngajat(filtruInitial.angajatId);
+    }, [filtruInitial]);
 
     function aplica(r: main.RaspunsAbsente) {
         if (r.eroare) { setEroare(t(r.eroare.cod, r.eroare.param ?? {})); return false; }
@@ -107,7 +116,20 @@ export function Absente({date}: {date: datebaza.Date}) {
     }
     const tipPentru = (cod: string) => tipuri.find(tip => tip.cod === cod);
     const persoane = date.angajati.filter(a => !angajat || a.id === angajat);
-    const vizibile = zile.filter(z => (!angajat || z.angajat_id === angajat) && (!categorie || tipPentru(z.cod)?.categorie === categorie) && (!filtruAprobare || (z.stare_aprobare || 'IN_ASTEPTARE') === filtruAprobare));
+    const textCautat = normalizat(cautareAbsente.trim());
+    const vizibile = zile.filter(z => {
+        if (angajat && z.angajat_id !== angajat) return false;
+        const tip = tipPentru(z.cod);
+        if (categorie && tip?.categorie !== categorie) return false;
+        if (filtruAprobare && (z.stare_aprobare || 'IN_ASTEPTARE') !== filtruAprobare) return false;
+        if (textCautat) {
+            const a = date.angajati.find(x => x.id === z.angajat_id);
+            const inl = z.inlocuitor_id ? date.angajati.find(x => x.id === z.inlocuitor_id) : undefined;
+            const textRand = normalizat(`${a?.nume ?? ''} ${a?.prenume ?? ''} ${a?.marca ?? ''} ${z.data} ${z.cod} ${tip ? numeTip(tip, i18n.language) : ''} ${z.nr_inregistrare ?? ''} ${inl?.nume ?? ''} ${inl?.prenume ?? ''} ${inl?.marca ?? ''} ${z.aprobat_de ?? ''} ${z.document_nume ?? ''}`);
+            if (!textRand.includes(textCautat)) return false;
+        }
+        return true;
+    });
     const alese = vizibile.filter(z => selectate.has(cheieZi(z)));
     function schimbaFiltru(actiune: () => void) { actiune(); setSelectate(new Set()); }
     function anuleaza(lista: datebaza.ZiAbsenta[]) {
@@ -125,6 +147,7 @@ export function Absente({date}: {date: datebaza.Date}) {
             <div className="unelte filtre-absente"><label>{t('ui.angajat')}<select aria-label={t('ui.angajat')} value={angajat} disabled={ocupat} onChange={e => schimbaFiltru(() => setAngajat(e.target.value))}><option value="">{t('absente.toti_angajatii')}</option>{date.angajati.map(a => <option key={a.id} value={a.id}>{a.nume} {a.prenume} · {a.marca}</option>)}</select></label>
                 <label>{t('absente.categorie')}<select aria-label={t('absente.categorie')} disabled={ocupat} value={categorie} onChange={e => schimbaFiltru(() => setCategorie(e.target.value))}><option value="">{t('absente.toate_categoriile')}</option>{categorii.map(c => <option key={c} value={c}>{t(`absente.${c}`)}</option>)}</select></label>
                 <label>{t('absente.aprobare')}<select aria-label={t('absente.aprobare')} disabled={ocupat} value={filtruAprobare} onChange={e => schimbaFiltru(() => setFiltruAprobare(e.target.value))}><option value="">{t('absente.toate_starile')}</option>{stariAprobare.map(s => <option key={s} value={s}>{t(`absente.aprobare_${s}`)}</option>)}</select></label>
+                <label>{t('absente.cauta')}<input name="cautare_absente" aria-label={t('absente.cauta')} placeholder={t('absente.cauta_indiciu')} disabled={ocupat} value={cautareAbsente} onChange={e => schimbaFiltru(() => setCautareAbsente(e.target.value))}/></label>
                 <button className="legatura" disabled={ocupat} onClick={() => setReincarcare(x => x + 1)}>{t('absente.reincarca')}</button></div>
             <div className="taburi-sectiuni" role="group" aria-label={t('ui.absente')}>
                 {(['toate', 'zile', 'sumar', 'tipuri'] as const).map(s => <button key={s} type="button" className={`buton-tab ${sectiuneActiva === s ? 'activ' : ''}`} aria-pressed={sectiuneActiva === s} onClick={() => setSectiuneActiva(s)}>{t(`absente.sectiune_${s}`)}</button>)}
@@ -157,6 +180,9 @@ export function Absente({date}: {date: datebaza.Date}) {
                     const k = cheieZi(z);
                     const stare = z.stare_aprobare || 'IN_ASTEPTARE';
                     const dublaInlocuire = Boolean(z.inlocuitor_id && stare !== 'RESPINSA' && (frecventaInlocuiri.get(`${z.inlocuitor_id}/${z.data}`) ?? 0) > 1);
+                    const zileCerere = (z.document_id || z.nr_inregistrare)
+                        ? vizibile.filter(v => z.document_id ? v.document_id === z.document_id : (v.nr_inregistrare === z.nr_inregistrare && v.angajat_id === z.angajat_id))
+                        : [];
                     return <tr key={k}>
                         <td><input type="checkbox" aria-label={t('absente.selecteaza_zi', {data:z.data, nume:`${a?.nume ?? ''} ${a?.prenume ?? ''}`})} disabled={ocupat} checked={selectate.has(k)} onChange={e => setSelectate(vechi => { const noi = new Set(vechi); if (e.target.checked) noi.add(k); else noi.delete(k); return noi; })}/></td>
                         <td>{a?.nume} {a?.prenume}<small className="text-discret"> · {a?.marca}</small></td>
@@ -167,7 +193,7 @@ export function Absente({date}: {date: datebaza.Date}) {
                         <td>{inlocuitor ? <>{inlocuitor.nume} {inlocuitor.prenume}<small className="text-discret"> · {inlocuitor.marca}</small>{dublaInlocuire && <small className="zi-urmatoare avertisment-text">{t('absente.dubla_inlocuire_eticheta')}</small>}</> : '—'}</td>
                         <td><span className={`eticheta-aprobare aprobare-${stare}`}>{t(`absente.aprobare_${stare}`)}</span>{z.aprobat_de && <small className="zi-urmatoare">{z.aprobat_de}</small>}</td>
                         <td>{z.document_id ? <div className="actiuni-rand"><a href="#previzualizare" className="legatura" aria-label={t('absente.previzualizeaza_cerere', {nume: z.document_nume || z.data})} onClick={e => { e.preventDefault(); previzualizeazaDocument(z.document_id); }}>{z.document_nume}</a><a href="#cerere" className="legatura discreta" aria-label={t('absente.descarca_cerere', {nume: z.document_nume || z.data})} onClick={e => { e.preventDefault(); descarcaDocument(z.document_id); }}>{t('absente.descarca_scurt')}</a></div> : <span className="text-discret">{t('absente.fara_atasament')}</span>}</td>
-                        <td><div className="actiuni-rand"><button className="legatura" disabled={ocupat} onClick={() => { setEroare(''); setLotEditat(null); setZiEditata(z); }}>{t('ui.editeaza')}</button><button className="legatura discreta" disabled={ocupat} onClick={() => anuleaza([z])}>{t('absente.anuleaza')}</button></div></td>
+                        <td><div className="actiuni-rand"><button className="legatura" disabled={ocupat} onClick={() => { setEroare(''); setLotEditat(null); setZiEditata(z); }}>{t('ui.editeaza')}</button><button className="legatura discreta" disabled={ocupat} onClick={() => anuleaza([z])}>{t('absente.anuleaza')}</button>{zileCerere.length > 1 && <button type="button" className="legatura discreta buton-selecteaza-cererea" disabled={ocupat} onClick={() => setSelectate(new Set(zileCerere.map(cheieZi)))}>{t('absente.selecteaza_cererea')}</button>}</div></td>
                     </tr>;
                 })}
             </tbody></table>{!vizibile.length && <p className="fara-rezultate">{t('absente.gol')}</p>}</div>

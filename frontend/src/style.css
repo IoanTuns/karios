@@ -271,3 +271,5 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .taburi-sectiuni { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
 .buton-tab { border: 1px solid #d3ded7; background: #fff; color: #36514a; border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 600; }
 .buton-tab.activ { background: var(--verde); color: #fff; border-color: var(--verde); }
+.buton-luna-nav { padding: 8px 10px; min-width: 34px; justify-content: center; }
+.cautare-grila input { min-width: 155px; }

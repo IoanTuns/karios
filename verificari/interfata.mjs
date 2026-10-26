@@ -699,6 +699,12 @@ try {
     await asteapta(() => evalueaza(`document.querySelector('input[data-rand="0"][data-zi="3"]')?.value === ''`), 'Anularea pasului (Undo) nu funcționează.');
     await apasa('Refă pasul');
     await asteapta(() => evalueaza(`document.querySelector('input[data-rand="0"][data-zi="3"]')?.value === '7'`), 'Refacerea pasului (Redo) nu funcționează.');
+    await completeaza('select[name="filtru_randuri"]', 'avertismente');
+    await asteapta(() => evalueaza(`document.querySelectorAll('.grila-pontaj tbody tr').length === 1`), 'Filtrul pentru angajați cu avertismente nu izolează rândul.');
+    await completeaza('select[name="filtru_randuri"]', 'toti');
+    await completeaza('input[name="cautare_pontaj"]', 'TEST-001');
+    await asteapta(() => evalueaza(`document.querySelectorAll('.grila-pontaj tbody tr').length === 1`), 'Căutarea după marcă în pontaj nu filtrează rândul.');
+    await completeaza('input[name="cautare_pontaj"]', '');
     assert(await evalueaza(`document.documentElement.scrollWidth <= 1024`), 'Grila depășește fereastra în afara containerului de derulare.');
     await cdp('Page.removeScriptToEvaluateOnNewDocument', {identifier: injectat.identifier});
     await cdp('Page.addScriptToEvaluateOnNewDocument', {source: `(${simulare})(${JSON.stringify(demo)},${JSON.stringify(cataloage)},'en',${JSON.stringify(calendarSursa)},${JSON.stringify(versiuneAplicatie)},${JSON.stringify(schimburiSursa)},${JSON.stringify(rapoarteSursa)})`});
@@ -709,6 +715,9 @@ try {
     await apasa('Employee summary');
     assert(await evalueaza(`Boolean(document.querySelector('.sumar-absente')) && !document.querySelector('.tabel-absente')`), 'Comutatorul de secțiuni din absențe nu izolează sumarul.');
     await apasa('All sections');
+    await completeaza('input[name="cautare_absente"]', 'REG-104/2026');
+    await asteapta(() => evalueaza(`document.querySelectorAll('.tabel-absente tbody tr').length === 1`), 'Căutarea în absențe nu filtrează după nr. de înregistrare.');
+    await completeaza('input[name="cautare_absente"]', '');
     await completeaza('select[name="limba_interfata"]', 'ro');
     await asteapta(() => evalueaza(`document.querySelector('h1')?.textContent === 'Concedii și absențe'`), 'Selectorul de limbă din bara laterală nu schimbă limba interfeței.');
     assert.deepEqual(erori, [], 'Erori JavaScript în interfață.');

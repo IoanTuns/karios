@@ -477,5 +477,17 @@
   "absente.sectiune_toate": "Toate secțiunile",
   "absente.sectiune_zile": "Zile înregistrate",
   "absente.sectiune_sumar": "Sumar pe angajat",
-  "absente.sectiune_tipuri": "Tipuri de absență"
+  "absente.sectiune_tipuri": "Tipuri de absență",
+  "pontaj.luna_precedenta": "Luna precedentă",
+  "pontaj.luna_urmatoare": "Luna următoare",
+  "pontaj.precompleteaza_rand_lv": "Precompletează selecția L–V",
+  "pontaj.deschide_absente": "Deschide în Concedii și absențe",
+  "pontaj.filtru_randuri": "Filtru rânduri",
+  "pontaj.toti_angajatii": "Toți angajații",
+  "pontaj.doar_avertismente": "Doar cu avertismente",
+  "pontaj.doar_modificate": "Doar cu modificări",
+  "pontaj.doar_inlocuitori": "Doar înlocuitori",
+  "absente.cauta": "Caută în evidență",
+  "absente.cauta_indiciu": "Nume, nr. înregistrare, înlocuitor…",
+  "absente.selecteaza_cererea": "Selectează cererea"
 }

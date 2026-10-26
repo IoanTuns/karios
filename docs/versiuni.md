@@ -4,6 +4,18 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.26.0 · 2026-10-26
+
+Fluxuri UX în grila de pontaj și în modulul de concedii și absențe: căutare după nume/marcă și navigare rapidă între luni, selecție dreptunghiulară cu mouse-ul (Click & Drag) și autoderulare la navigarea din tastatură, precompletare L–V doar pentru rândurile selectate, filtrare după angajați cu avertismente/modificări/înlocuitori, căutare și selectarea dintr-un clic a întregii cereri în Concedii și absențe, plus salt contextual din Pontaj către Concedii și absențe (F08-T09, I038–I043, D033).
+
+- În **Pontaj**, s-au adăugat butoanele `◀` / `▶` pentru trecerea la luna anterioară/următoare (inclusiv trecerea automată între decembrie și ianuarie), câmpul de căutare după nume, prenume sau marcă și filtrul rapid de rânduri (`Toți angajații`, `Doar cu avertismente`, `Doar cu modificări`, `Doar înlocuitori`).
+- Selecția dreptunghiulară în grilă poate fi extinsă și prin apăsarea și tragerea cu mouse-ul peste celule (`Click & Drag`), iar navigarea din săgeți derulează automat tabelul (`scrollIntoView`) pentru a menține celula activă vizibilă.
+- Butonul **Precompletează selecția L–V** completează cu programul ales doar celulele goale din zilele lucrătoare (luni–vineri, fără sărbători legale și fără absențe active) pentru angajații care au cel puțin o celulă în selecția curentă.
+- Când celula activă din **Pontaj** este o zi de absență, bara de inspecție oferă butonul **Deschide în Concedii și absențe**, care comută ecranul direct filtrat pe anul și angajatul respectiv.
+- În **Concedii și absențe**, s-au adăugat câmpul de căutare liberă (după nume, marcă, număr de înregistrare, înlocuitor, cod, aprobator sau document) și butonul **Selectează cererea**, care bifează dintr-un clic toate zilele aparținând aceleiași cereri multizi (după documentul partajat sau numărul de înregistrare).
+
+Rapoarte: nicio schimbare. Baza de date: nicio schimbare.
+
 ## 0.25.0 · 2026-10-26
 
 Îmbunătățiri de ergonomie în interfață: bară de inspecție a celulei active și paletă rapidă de schimburi în grila de pontaj, stivă Undo/Redo, coloană `T` fixă la derulare, comutator de secțiuni în Concedii și absențe, cipuri de selecție rapidă în Configurare pontaj, selector de limbă RO/EN și pictograme distincte în meniu (F08-T08, I032–I037, D032).

@@ -477,5 +477,17 @@
   "absente.sectiune_toate": "All sections",
   "absente.sectiune_zile": "Recorded days",
   "absente.sectiune_sumar": "Employee summary",
-  "absente.sectiune_tipuri": "Absence types"
+  "absente.sectiune_tipuri": "Absence types",
+  "pontaj.luna_precedenta": "Previous month",
+  "pontaj.luna_urmatoare": "Next month",
+  "pontaj.precompleteaza_rand_lv": "Prefill selection Mon–Fri",
+  "pontaj.deschide_absente": "Open in Leave and absences",
+  "pontaj.filtru_randuri": "Row filter",
+  "pontaj.toti_angajatii": "All employees",
+  "pontaj.doar_avertismente": "With warnings only",
+  "pontaj.doar_modificate": "Unsaved changes only",
+  "pontaj.doar_inlocuitori": "Replacements only",
+  "absente.cauta": "Search records",
+  "absente.cauta_indiciu": "Name, reg. no., replacement…",
+  "absente.selecteaza_cererea": "Select request"
 }

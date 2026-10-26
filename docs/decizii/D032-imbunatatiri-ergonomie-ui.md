@@ -33,3 +33,4 @@ Se alege **varianta 2** (taskul `F08-T08`):
 4. **Coloană `T` fixă la derulare (`I035`):** celulele `<th>` și `<td>` ale coloanei `T` din `.grila-pontaj` primesc clasa `fix-total-t` (`position: sticky; right: 0`), rămânând vizibile în dreapta pe tot parcursul derulării orizontale.
 5. **Filtre de secțiune în `Absente.tsx` și comutatoare rapide în `ReguliPontaj.tsx` (`I036`):** `Absente.tsx` permite comutarea între vizualizarea completă (implicită) și fiecare dintre cele trei secțiuni (`zile`, `sumar`, `tipuri`), iar `ReguliPontaj.tsx` adaugă butoane-cip pentru bifarea/debifarea cu un singur clic a codurilor din regulă, păstrând și `<select multiple>`.
 6. **Pictograme SVG distincte (`I037`):** `Simbol` din `App.tsx` oferă câte o pictogramă proprie pentru fiecare dintre cele 9 ecrane.
+

@@ -6,6 +6,12 @@ Stări: `nouă`, `în analiză`, `transformată` (în task sau decizie), `amâna
 
 | ID | Data | Idee | Cine | Stare | Legături / motiv |
 | --- | --- | --- | --- | --- | --- |
+| I043 | 2026-10-26 | Filtru rapid în grila de pontaj pentru afișarea doar a rândurilor cu avertismente, modificări nesalvate sau înlocuiri | Antigravity, Ioan Tuns | transformată | F08-T09, [D033](decizii/D033-imbunatatiri-ux-fluxuri-pontaj-absente.md) |
+| I042 | 2026-10-26 | Salt contextual din bara de inspecție a grilei de pontaj direct în Concedii și absențe pe anul și angajatul celulei active | Antigravity, Ioan Tuns | transformată | F08-T09, [D033](decizii/D033-imbunatatiri-ux-fluxuri-pontaj-absente.md) |
+| I041 | 2026-10-26 | Căutare rapidă după nr. înregistrare / înlocuitor / cod și selectarea dintr-un clic a tuturor zilelor aceleiași cereri în Concedii și absențe | Antigravity, Ioan Tuns | transformată | F08-T09, [D033](decizii/D033-imbunatatiri-ux-fluxuri-pontaj-absente.md) |
+| I040 | 2026-10-26 | Precompletarea zilelor lucrătoare luni–vineri doar pentru rândurile din selecția curentă în grila de pontaj | Antigravity, Ioan Tuns | transformată | F08-T09, [D033](decizii/D033-imbunatatiri-ux-fluxuri-pontaj-absente.md) |
+| I039 | 2026-10-26 | Selecție dreptunghiulară prin tragere cu mouse-ul (Click & Drag) și încadrare automată (scrollIntoView) la navigarea din tastatură în pontaj | Antigravity, Ioan Tuns | transformată | F08-T09, [D033](decizii/D033-imbunatatiri-ux-fluxuri-pontaj-absente.md) |
+| I038 | 2026-10-26 | Căutare rapidă după nume/marcă și butoane Luna precedentă / Luna următoare în grila de pontaj | Antigravity, Ioan Tuns | transformată | F08-T09, [D033](decizii/D033-imbunatatiri-ux-fluxuri-pontaj-absente.md) |
 | I037 | 2026-10-26 | Pictograme SVG distincte pentru toate cele 9 ecrane din meniul lateral | Antigravity, Ioan Tuns | transformată | F08-T08, [D032](decizii/D032-imbunatatiri-ergonomie-ui.md) |
 | I036 | 2026-10-26 | Comutator de secțiuni în Concedii și absențe (Zile / Sumar / Tipuri) și butoane rapide de selecție multiplă în Configurare pontaj | Antigravity, Ioan Tuns | transformată | F08-T08, [D032](decizii/D032-imbunatatiri-ergonomie-ui.md) |
 | I035 | 2026-10-26 | Înghețarea coloanei de total T în dreapta grilei de pontaj (sticky right) la derularea orizontală | Antigravity, Ioan Tuns | transformată | F08-T08, [D032](decizii/D032-imbunatatiri-ergonomie-ui.md) |
