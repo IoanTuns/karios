@@ -15,7 +15,7 @@ Proiectul are structura, uneltele și regulile de lucru pe care se construiește
 
 | ID | Task | Stare | Responsabil | Note |
 | --- | --- | --- | --- | --- |
-| F02-T11 | Reunirea tuturor ramurilor în main prin PR și buildul versiunii finale | în lucru | Codex | Cerut explicit de Ioan Tuns la 2026-10-26, inclusiv push/PR/merge în main. Ramură F02-T11-reunire-main în worktree-ul rapoartelor. Verifică toate vârfurile locale și remote, păstrează istoricul, rulează verificările și construiește din main după merge, fără deschiderea datelor operaționale. [D027](../decizii/D027-reunire-main-pr.md) |
+| F02-T11 | Reunirea tuturor ramurilor în main prin PR și buildul versiunii finale | blocat | Codex | Toate cele 32 de vârfuri locale și ramurile origin sunt reunite în F02-T11-reunire-main. Go/vet, TypeScript/Vite și Edge trecute; build candidat 0.21.0 verificat din ce6b156, livrat în build/bin/pontix-0.21.0-integrare. Origin este public, contrar AGENTS.md §4; cerută confirmarea trecerii la privat. Nu s-au făcut push, PR sau merge main. Pas următor: răspunsul utilizatorului privind vizibilitatea, apoi push/PR/merge și build din main; datele operaționale rămân neatinse. [D027](../decizii/D027-reunire-main-pr.md), [descriere PR](../pr-F02-T11-reunire-main.md) |
 | F02-T01 | Modulul Go `pontix`, cod în `internal/` | gata | Claude | `go.mod`, 2026-10-24 |
 | F02-T02 | Instalează Go permanent pe calculatorul de dezvoltare | gata | Claude | 2026-10-24: Go 1.27.3 în `D:\Apps\Go` (era deja instalat; winget a confirmat că nu există versiune mai nouă) |
 | F02-T03 | `CLAUDE.md` cu regulile proiectului | gata | Claude | 2026-10-24 |
