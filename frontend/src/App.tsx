@@ -7,9 +7,10 @@ import {Sarbatori} from './Sarbatori';
 import {Schimburi} from './Schimburi';
 import {Pontaj} from './Pontaj';
 import {Absente} from './Absente';
+import {ReguliPontaj} from './ReguliPontaj';
 import {DefinireRapoarte, GenerareRapoarte} from './Rapoarte';
 
-type Ecran = 'angajati' | 'pontaj' | 'sarbatori' | 'schimburi' | 'absente' | 'definire_rapoarte' | 'rapoarte' | 'setari';
+type Ecran = 'angajati' | 'pontaj' | 'sarbatori' | 'schimburi' | 'absente' | 'definire_rapoarte' | 'rapoarte' | 'reguli_pontaj' | 'setari';
 
 function normalizat(text: string): string {
     return text.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLocaleLowerCase();
@@ -100,7 +101,7 @@ function App() {
             <div className="marca-aplicatie"><span className="sigla" aria-hidden="true">p<span>·</span></span><strong>{t('aplicatie.titlu')}</strong></div>
             <p className="eticheta-meniu">{t('ui.date_baza')}</p>
             <nav aria-label={t('ui.date_baza')}>
-                {(['angajati', 'pontaj', 'absente', 'sarbatori', 'schimburi', 'rapoarte', 'definire_rapoarte', 'setari'] as Ecran[]).map(item => <button key={item} className={`navigare ${ecran === item ? 'selectat' : ''}`}
+                {(['angajati', 'pontaj', 'absente', 'sarbatori', 'schimburi', 'rapoarte', 'definire_rapoarte', 'reguli_pontaj', 'setari'] as Ecran[]).map(item => <button key={item} className={`navigare ${ecran === item ? 'selectat' : ''}`}
                     aria-current={ecran === item ? 'page' : undefined} disabled={ocupat || pontajOcupat}
                     onClick={() => { if (item !== ecran && pontajModificat && !window.confirm(t('ui.renunta'))) return; if (item !== ecran) setPontajModificat(false); setEcran(item); setEroare(''); setMesaj(''); }}>
                     <Simbol tip={item}/>{t(`ui.${item}`)}</button>)}
@@ -124,6 +125,7 @@ function App() {
                 : ecran === 'sarbatori' ? <Sarbatori/>
                 : ecran === 'schimburi' ? <Schimburi/>
                 : ecran === 'absente' ? <Absente date={date}/>
+                : ecran === 'reguli_pontaj' ? <ReguliPontaj onModificari={setPontajModificat} onOcupat={setPontajOcupat}/>
                 : ecran === 'definire_rapoarte' ? <DefinireRapoarte/>
                 : ecran === 'rapoarte' ? <GenerareRapoarte date={date}/>
                 : ecran === 'setari' ? <Setari date={date} ocupat={ocupat}

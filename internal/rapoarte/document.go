@@ -11,8 +11,11 @@ import (
 	_ "time/tzdata"
 
 	"pontix/internal/bd/acces"
+	"pontix/internal/calcul"
+	"pontix/internal/datebaza"
 	"pontix/internal/i18n"
 	raportAbsente "pontix/internal/rapoarte/absente"
+	"pontix/internal/rapoarte/detaliat"
 	"pontix/internal/rapoarte/individual"
 	"pontix/internal/rapoarte/pontaj"
 	"pontix/internal/versiune"
@@ -212,6 +215,23 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 			cuDate[v.AngajatID] = true
 		}
 	}
+	ore := map[string]string{}
+	totaluri := map[string]map[string]calcul.ValoarePontaj{}
+	var configuratie calcul.ConfiguratiePontaj
+	if d.Continut.Sursa != "ABSENTE_ANUALE" {
+		rezultat, cfg, err := datebaza.CalculeazaPontaj(ctx, q, c.An, c.Luna, nil)
+		if err != nil {
+			return Document{}, traduce(err)
+		}
+		configuratie = cfg
+		for _, z := range rezultat.Celule {
+			ore[z.AngajatID+"/"+z.Data] = calcul.TextValoarePontaj(calcul.ValoarePontaj{Sutimi: z.Minute * 100, Unitate: "ORE", Definita: z.Calculabil})
+			cuDate[z.AngajatID] = true
+		}
+		for _, r := range rezultat.Totaluri {
+			totaluri[r.AngajatID] = r.Valori
+		}
+	}
 	local, _ := time.LoadLocation("Europe/Bucharest")
 	valori := map[string]string{"titlu": d.Denumire.In(limba), "an": strconv.Itoa(c.An), "luna": t(fmt.Sprintf("luna_%02d", c.Luna)), "perioada": perioada, "sectie": numeSectii[c.SectieID], "departament": numeDepartamente[c.DepartamentID], "angajat": persoana, "generat_la": acum.In(local).Format("02.01.2006 15:04")}
 	inlocuieste := func(v string) string {
@@ -225,14 +245,38 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 	switch d.Continut.Sursa {
 	case "PONTAJ_LUNAR":
 		doc.VersiuneRaport = pontaj.Versiune
+	case "PONTAJ_DETALIAT":
+		doc.VersiuneRaport = detaliat.Versiune
 	case "FISA_INDIVIDUALA":
 		doc.VersiuneRaport = individual.Versiune
 	case "ABSENTE_ANUALE":
 		doc.VersiuneRaport = raportAbsente.Versiune
 	}
-	ponderi := map[string]int{"angajat": 28, "marca": 10, "sectie": 18, "departament": 18, "functie": 22, "data": 14, "zi": 10, "cod": 10, "descriere": 40, "categorie": 22}
+	ponderi := map[string]int{"angajat": 28, "marca": 10, "sectie": 18, "departament": 18, "functie": 22, "data": 14, "zi": 10, "cod": 10, "ore": 10, "descriere": 40, "categorie": 22}
 	for _, cod := range d.Continut.Coloane {
-		if cod == "zile" {
+		if cod == "totaluri" {
+			for _, col := range calcul.ColoanePontaj() {
+				titlu := i18n.T(limba, "pontaj.total_"+col, nil)
+				unitate := calcul.UnitateColoana(col)
+				for _, r := range configuratie.Reguli {
+					if r.Coloana == col && r.Sursa != "NEDEFINITA" {
+						if r.Sursa == "ZILE_ABSENTA" {
+							unitate = "ZILE"
+						} else {
+							unitate = "ORE"
+						}
+					}
+				}
+				if unitate != "" {
+					cheie := "unitate_ore"
+					if unitate == "ZILE" {
+						cheie = "unitate_zile"
+					}
+					titlu += "\n" + i18n.T(limba, "pontaj."+cheie, nil)
+				}
+				doc.Coloane = append(doc.Coloane, Coloana{Cod: "total_" + col, Titlu: titlu, Pondere: 6})
+			}
+		} else if cod == "zile" {
 			for zi := 1; zi <= 31; zi++ {
 				data := fmt.Sprintf("%04d-%02d-%02d", c.An, c.Luna, zi)
 				if data > panaLa {
@@ -248,10 +292,17 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 		if (c.SectieID != "" && optional(a.SectieID) != c.SectieID) || (c.DepartamentID != "" && optional(a.DepartamentID) != c.DepartamentID) || (c.AngajatID != "" && a.ID != c.AngajatID) {
 			continue
 		}
-		if d.Continut.Sursa == "PONTAJ_LUNAR" && a.Activ == 0 && !cuDate[a.ID] {
+		if (d.Continut.Sursa == "PONTAJ_LUNAR" || d.Continut.Sursa == "PONTAJ_DETALIAT") && a.Activ == 0 && !cuDate[a.ID] {
 			continue
 		}
 		identitate := map[string]string{"angajat": a.Nume + " " + a.Prenume, "marca": a.Marca, "sectie": numeSectii[optional(a.SectieID)], "departament": numeDepartamente[optional(a.DepartamentID)], "functie": optional(a.Functie)}
+		if totaluri[a.ID] == nil && d.Continut.Sursa == "PONTAJ_DETALIAT" {
+			gol, err := calcul.CalculeazaPontaj(deLa, panaLa, configuratie, nil, []calcul.IntrarePontaj{{AngajatID: a.ID, Data: deLa, Valoare: "@M0"}}, nil)
+			if err != nil {
+				return Document{}, traduce(err)
+			}
+			totaluri[a.ID] = gol.Totaluri[0].Valori
+		}
 		adauga := func(data, cod string) {
 			rand := Rand{Valori: []string{}, Culori: []string{}}
 			for _, col := range doc.Coloane {
@@ -264,8 +315,13 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 					v = t(fmt.Sprintf("zi_%d", zi.Weekday()))
 				case "cod":
 					v = cod
+				case "ore":
+					v = ore[a.ID+"/"+data]
 				case "descriere":
 					v = descrieri[cod]
+					if _, manual := calcul.OreManuale(cod); manual && v == "" {
+						v = t("ore_manuale")
+					}
 					if cod != "" && v == "" {
 						v = t("cod_neinterpretat")
 					}
@@ -276,10 +332,13 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 					culoare = col.Culoare
 				}
 				if len(col.Cod) == 10 && col.Cod[4] == '-' {
-					v = celule[a.ID+"/"+col.Cod]
-					if categorii[v] != "" {
+					v = ore[a.ID+"/"+col.Cod]
+					if categorii[celule[a.ID+"/"+col.Cod]] != "" {
 						culoare = "ABSENTA"
 					}
+				}
+				if strings.HasPrefix(col.Cod, "total_") {
+					v = calcul.TextValoarePontaj(totaluri[a.ID][strings.TrimPrefix(col.Cod, "total_")])
 				}
 				rand.Valori = append(rand.Valori, v)
 				rand.Culori = append(rand.Culori, culoare)
@@ -287,7 +346,7 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 			doc.Randuri = append(doc.Randuri, rand)
 		}
 		switch d.Continut.Sursa {
-		case "PONTAJ_LUNAR":
+		case "PONTAJ_LUNAR", "PONTAJ_DETALIAT":
 			adauga("", "")
 		case "FISA_INDIVIDUALA":
 			for zi := 1; zi <= 31; zi++ {
@@ -308,7 +367,14 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 			return Document{}, eroare("rapoarte.prea_mare")
 		}
 	}
-	doc.Metadate = i18n.T(limba, "rapoarte.metadate", map[string]string{"nume": doc.Titlu, "raport": strconv.Itoa(doc.VersiuneRaport), "model": d.Revizie, "aplicatie": versiune.Aplicatie, "reguli": t("reguli_neaplicate"), "generat": valori["generat_la"], "utilizator": t("actor_local")})
+	stareReguli := t("reguli_neaplicate")
+	if configuratie.Revizie != "" {
+		stareReguli = t("salarizare_neaplicata")
+	}
+	doc.Metadate = i18n.T(limba, "rapoarte.metadate", map[string]string{"nume": doc.Titlu, "raport": strconv.Itoa(doc.VersiuneRaport), "model": d.Revizie, "aplicatie": versiune.Aplicatie, "reguli": stareReguli, "generat": valori["generat_la"], "utilizator": t("actor_local")})
+	if configuratie.Revizie != "" {
+		doc.Metadate += " · " + i18n.T(limba, "pontaj.revizie_reguli", map[string]string{"revizie": configuratie.Revizie})
+	}
 	if err := tx.Commit(); err != nil {
 		return Document{}, traduce(err)
 	}

@@ -1,3 +1,164 @@
+export namespace calcul {
+
+	export class RegulaColoana {
+	    coloana: string;
+	    sursa: string;
+	    coduri: string[];
+	    factor_sutimi: number;
+	    numai_aprobate: boolean;
+
+	    static createFrom(source: any = {}) {
+	        return new RegulaColoana(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.coloana = source["coloana"];
+	        this.sursa = source["sursa"];
+	        this.coduri = source["coduri"];
+	        this.factor_sutimi = source["factor_sutimi"];
+	        this.numai_aprobate = source["numai_aprobate"];
+	    }
+	}
+	export class ConfiguratiePontaj {
+	    atribuire: string;
+	    reguli: RegulaColoana[];
+	    revizie: string;
+
+	    static createFrom(source: any = {}) {
+	        return new ConfiguratiePontaj(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.atribuire = source["atribuire"];
+	        this.reguli = this.convertValues(source["reguli"], RegulaColoana);
+	        this.revizie = source["revizie"];
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class OreZi {
+	    angajat_id: string;
+	    data: string;
+	    minute: number;
+	    calculabil: boolean;
+	    surse: string[];
+
+	    static createFrom(source: any = {}) {
+	        return new OreZi(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.angajat_id = source["angajat_id"];
+	        this.data = source["data"];
+	        this.minute = source["minute"];
+	        this.calculabil = source["calculabil"];
+	        this.surse = source["surse"];
+	    }
+	}
+
+	export class ValoarePontaj {
+	    sutimi: number;
+	    unitate: string;
+	    definita: boolean;
+
+	    static createFrom(source: any = {}) {
+	        return new ValoarePontaj(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.sutimi = source["sutimi"];
+	        this.unitate = source["unitate"];
+	        this.definita = source["definita"];
+	    }
+	}
+	export class TotalPontaj {
+	    angajat_id: string;
+	    valori: Record<string, ValoarePontaj>;
+
+	    static createFrom(source: any = {}) {
+	        return new TotalPontaj(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.angajat_id = source["angajat_id"];
+	        this.valori = this.convertValues(source["valori"], ValoarePontaj, true);
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class RezultatPontaj {
+	    celule: OreZi[];
+	    totaluri: TotalPontaj[];
+
+	    static createFrom(source: any = {}) {
+	        return new RezultatPontaj(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.celule = this.convertValues(source["celule"], OreZi);
+	        this.totaluri = this.convertValues(source["totaluri"], TotalPontaj);
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+
+
+}
+
 export namespace datebaza {
 
 	export class ZiAbsenta {
@@ -275,6 +436,22 @@ export namespace datebaza {
 	        this.continut_b64 = source["continut_b64"];
 	    }
 	}
+	export class OptiuneRegula {
+	    cod: string;
+	    denumire: Record<string, string>;
+	    tip: string;
+
+	    static createFrom(source: any = {}) {
+	        return new OptiuneRegula(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.cod = source["cod"];
+	        this.denumire = source["denumire"];
+	        this.tip = source["tip"];
+	    }
+	}
 
 	export class Schimb {
 	    id: string;
@@ -311,6 +488,8 @@ export namespace datebaza {
 	    luna: number;
 	    celule: CelulaSchita[];
 	    absente: ZiAbsenta[];
+	    calcul: calcul.RezultatPontaj;
+	    configuratie: calcul.ConfiguratiePontaj;
 
 	    static createFrom(source: any = {}) {
 	        return new SchitaLuna(source);
@@ -322,6 +501,8 @@ export namespace datebaza {
 	        this.luna = source["luna"];
 	        this.celule = this.convertValues(source["celule"], CelulaSchita);
 	        this.absente = this.convertValues(source["absente"], ZiAbsenta);
+	        this.calcul = this.convertValues(source["calcul"], calcul.RezultatPontaj);
+	        this.configuratie = this.convertValues(source["configuratie"], calcul.ConfiguratiePontaj);
 	    }
 
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -422,6 +603,40 @@ export namespace main {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.calendar = this.convertValues(source["calendar"], datebaza.CalendarAn);
 	        this.adaugate = source["adaugate"];
+	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class RaspunsConfiguratiePontaj {
+	    configuratie?: calcul.ConfiguratiePontaj;
+	    optiuni: datebaza.OptiuneRegula[];
+	    eroare?: MesajEroare;
+
+	    static createFrom(source: any = {}) {
+	        return new RaspunsConfiguratiePontaj(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.configuratie = this.convertValues(source["configuratie"], calcul.ConfiguratiePontaj);
+	        this.optiuni = this.convertValues(source["optiuni"], datebaza.OptiuneRegula);
 	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
 	    }
 

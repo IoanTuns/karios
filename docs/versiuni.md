@@ -4,6 +4,12 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.22.0 · 2026-10-26
+
+F09-T09: pontajul afișează ore, păstrând codurile programelor pentru calcule. Alegere explicită a programului sau ore manuale; previzualizarea modificărilor folosește același motor ca PDF-urile. Configurare separată pentru atribuirea turelor peste miezul nopții și cele 12 coloane finale. T este totalul, ZNL include weekenduri și zile libere 00–24, Ore norm include luni–vineri fără zile libere. CO/CM numără absențele active. Celelalte reguli sunt inițial nedefinite; nu se inventează sporuri.
+
+Două rapoarte lunare distincte: centralizatorul existent și pontajul detaliat cu totaluri la final. Antetele, subsolurile și imaginile existente se păstrează. Rapoarte: centralizator **v3**, fișă individuală **v3**, detaliat **v1**, absențe **v2**. Baza: **0015_pontaj_ore_reguli**, configurare cu revizii și jurnal, conversia coloanei cod în ore numai la fișele individuale.
+
 ## 0.21.0 · 2026-10-25
 
 F09-T08: imagini PNG/JPEG în antetul și subsolul fiecărui raport, în cele trei zone, alături de texte. Import local, înlocuire/eliminare, înălțime configurabilă cu proporții păstrate și validare a conținutului, dimensiunilor și volumului. Imaginile sunt păstrate în baza criptată și se repetă pe paginile documentului.

@@ -22,6 +22,10 @@ export function CitesteCalendar(arg1) {
   return window['go']['main']['App']['CitesteCalendar'](arg1);
 }
 
+export function CitesteConfiguratiePontaj() {
+  return window['go']['main']['App']['CitesteConfiguratiePontaj']();
+}
+
 export function CitesteDocumentAbsenta(arg1) {
   return window['go']['main']['App']['CitesteDocumentAbsenta'](arg1);
 }
@@ -70,12 +74,20 @@ export function PregatesteRaport(arg1) {
   return window['go']['main']['App']['PregatesteRaport'](arg1);
 }
 
+export function PrevizualizeazaSchita(arg1, arg2, arg3) {
+  return window['go']['main']['App']['PrevizualizeazaSchita'](arg1, arg2, arg3);
+}
+
 export function SalveazaAbsente(arg1, arg2) {
   return window['go']['main']['App']['SalveazaAbsente'](arg1, arg2);
 }
 
 export function SalveazaAngajat(arg1) {
   return window['go']['main']['App']['SalveazaAngajat'](arg1);
+}
+
+export function SalveazaConfiguratiePontaj(arg1) {
+  return window['go']['main']['App']['SalveazaConfiguratiePontaj'](arg1);
 }
 
 export function SalveazaModelRaport(arg1) {

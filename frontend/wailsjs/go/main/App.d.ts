@@ -4,6 +4,7 @@ import {i18n} from '../models';
 import {main} from '../models';
 import {rapoarte} from '../models';
 import {datebaza} from '../models';
+import {calcul} from '../models';
 
 export function AdaugaDepartament(arg1:string,arg2:i18n.Text):Promise<main.RaspunsDate>;
 
@@ -14,6 +15,8 @@ export function Catalog(arg1:string):Promise<Record<string, string>>;
 export function CitesteAbsente(arg1:number):Promise<main.RaspunsAbsente>;
 
 export function CitesteCalendar(arg1:number):Promise<main.RaspunsCalendar>;
+
+export function CitesteConfiguratiePontaj():Promise<main.RaspunsConfiguratiePontaj>;
 
 export function CitesteDocumentAbsenta(arg1:string):Promise<main.RaspunsDocumentAbsenta>;
 
@@ -39,9 +42,13 @@ export function ListaSchimburi():Promise<main.RaspunsSchimburi>;
 
 export function PregatesteRaport(arg1:rapoarte.Cerere):Promise<main.RaspunsRaport>;
 
+export function PrevizualizeazaSchita(arg1:number,arg2:number,arg3:Array<datebaza.CelulaSchita>):Promise<main.RaspunsSchita>;
+
 export function SalveazaAbsente(arg1:Array<datebaza.ZiAbsenta>,arg2:number):Promise<main.RaspunsAbsente>;
 
 export function SalveazaAngajat(arg1:datebaza.Angajat):Promise<main.RaspunsDate>;
+
+export function SalveazaConfiguratiePontaj(arg1:calcul.ConfiguratiePontaj):Promise<main.RaspunsConfiguratiePontaj>;
 
 export function SalveazaModelRaport(arg1:rapoarte.Definitie):Promise<main.RaspunsModeleRapoarte>;
 

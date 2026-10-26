@@ -240,3 +240,10 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .zone-previzualizare > div:nth-child(3) { text-align: right; }
 .zone-previzualizare > div:nth-child(2) .imagine-structura { margin-inline: auto; }
 .zone-previzualizare > div:nth-child(3) .imagine-structura { margin-left: auto; }
+.reguli-pontaj { min-width: 0; }
+.reguli-pontaj .camp-atribuire { display: grid; gap: 8px; margin: 18px 0; max-width: 620px; }
+.reguli-pontaj table { min-width: 820px; }
+.reguli-pontaj select { max-width: 265px; }
+.reguli-pontaj select[multiple] { min-width: 190px; min-height: 95px; }
+.reguli-pontaj input[type=number] { width: 95px; }
+.reguli-pontaj th { white-space: normal; }

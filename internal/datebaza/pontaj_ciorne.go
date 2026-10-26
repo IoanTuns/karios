@@ -11,6 +11,7 @@ import (
 	"unicode/utf8"
 
 	"pontix/internal/bd/acces"
+	"pontix/internal/calcul"
 )
 
 type CelulaSchita struct {
@@ -21,10 +22,12 @@ type CelulaSchita struct {
 }
 
 type SchitaLuna struct {
-	An      int            `json:"an"`
-	Luna    int            `json:"luna"`
-	Celule  []CelulaSchita `json:"celule"`
-	Absente []ZiAbsenta    `json:"absente"`
+	An           int                       `json:"an"`
+	Luna         int                       `json:"luna"`
+	Celule       []CelulaSchita            `json:"celule"`
+	Absente      []ZiAbsenta               `json:"absente"`
+	Calcul       calcul.RezultatPontaj     `json:"calcul"`
+	Configuratie calcul.ConfiguratiePontaj `json:"configuratie"`
 }
 
 func limiteLuna(an, luna int) (string, string, error) {
@@ -34,12 +37,18 @@ func limiteLuna(an, luna int) (string, string, error) {
 	return fmt.Sprintf("%04d-%02d-01", an, luna), time.Date(an, time.Month(luna)+1, 0, 0, 0, 0, 0, time.UTC).Format(time.DateOnly), nil
 }
 
-func (s *Serviciu) CitesteSchita(ctx context.Context, an, luna int) (SchitaLuna, error) {
+func (s *Serviciu) CitesteSchita(ctx context.Context, an, luna int, previzualizare ...[]CelulaSchita) (SchitaLuna, error) {
 	deLa, panaLa, err := limiteLuna(an, luna)
 	if err != nil {
 		return SchitaLuna{}, err
 	}
-	randuri, err := acces.New(s.db).ListaCiorneLuna(ctx, acces.ListaCiorneLunaParams{DataDeLa: deLa, DataPanaLa: panaLa})
+	tx, err := s.db.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
+	if err != nil {
+		return SchitaLuna{}, traduceEroare(err)
+	}
+	defer tx.Rollback()
+	q := acces.New(tx)
+	randuri, err := q.ListaCiorneLuna(ctx, acces.ListaCiorneLunaParams{DataDeLa: deLa, DataPanaLa: panaLa})
 	if err != nil {
 		return SchitaLuna{}, traduceEroare(err)
 	}
@@ -47,8 +56,19 @@ func (s *Serviciu) CitesteSchita(ctx context.Context, an, luna int) (SchitaLuna,
 	for _, r := range randuri {
 		rez.Celule = append(rez.Celule, CelulaSchita{AngajatID: r.AngajatID, Data: r.Data, Valoare: r.Valoare, Revizie: strconv.FormatInt(r.Revizie, 10)})
 	}
-	rez.Absente, err = citesteAbsenteInterval(ctx, acces.New(s.db), deLa, panaLa)
+	rez.Absente, err = citesteAbsenteInterval(ctx, q, deLa, panaLa)
 	if err != nil {
+		return SchitaLuna{}, traduceEroare(err)
+	}
+	var modificari []CelulaSchita
+	if len(previzualizare) > 0 {
+		modificari = previzualizare[0]
+	}
+	rez.Calcul, rez.Configuratie, err = CalculeazaPontaj(ctx, q, an, luna, modificari)
+	if err != nil {
+		return SchitaLuna{}, traduceEroare(err)
+	}
+	if err := tx.Commit(); err != nil {
 		return SchitaLuna{}, traduceEroare(err)
 	}
 	return rez, nil

@@ -12,4 +12,8 @@ Regulile celor 12 coloane pot alege surse limitate: nedefinită, total ore, ore 
 
 Migrarea 0015 adaugă configurarea și un model separat PONTAJ_DETALIAT; nu schimbă antetul, subsolul sau imaginile centralizatorului existent. Fișa individuală înlocuiește coloana de cod cu ore. Rapoarte: centralizator v3, fișă individuală v3, pontaj detaliat v1; evidența absențelor rămâne v2. Referințele vechi se păstrează.
 
+Orele manuale se salvează explicit în minute, în formatul intern `@M450` pentru 7,5 ore. Codurile programelor au prioritate față de valorile numerice istorice; `@` nu este permis în codurile schimburilor. Orele fără program se atribuie zilei selectate. Copierea folosește până la zece zecimale, suficient pentru relipire cu precizie de minut; afișarea folosește cel mult patru.
+
+Calculul folosește minute nominale, fără ajustări pentru ora de vară sau poziționarea pauzelor. Programele cu pauză nenulă rămân necalculabile; lipsa orei de început permite numai totalul nominal în modul zilei de început. O absență activă elimină programul propriei zile; continuarea unei ture începute anterior rămâne vizibilă, fără a inventa reguli de compatibilitate concediu/muncă. Clasificarea ia toate zilele libere din calendar, inclusiv din anul următor. Configurația are revizie și audit atomic, iar PDF-ul include revizia. Coloanele finale rămân împreună la sfârșitul raportului detaliat; toate zilele au aceeași lățime.
+
 Lucrul pornește din reunirea F02-T11, iar publicarea/PR-ul rămân în așteptarea răspunsului privind vizibilitatea GitHub. După finalizare, integrarea va fi avansată la noua funcționalitate, fără publicare pe repo-ul public și fără modificarea datelor operaționale.

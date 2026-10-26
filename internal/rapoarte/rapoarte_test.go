@@ -17,6 +17,9 @@ import (
 	"github.com/pdfcpu/pdfcpu/pkg/api"
 
 	"pontix/internal/bd"
+	"pontix/internal/bd/acces"
+	"pontix/internal/calcul"
+	"pontix/internal/datebaza"
 	"pontix/internal/i18n"
 	"pontix/internal/versiune"
 )
@@ -89,6 +92,55 @@ func fixture(t *testing.T, m *mediu) {
 
 var momentFix = time.Date(2026, 10, 25, 12, 30, 0, 0, time.UTC)
 
+func TestDetaliatFolosesteAceleasiOreSiReguliCaGrila(t *testing.T) {
+	m := pregateste(t)
+	fixture(t, m)
+	ctx := context.Background()
+	s := datebaza.Nou(m.db)
+	c, _, err := s.ConfiguratiePontaj(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	c.Atribuire = calcul.AtribuireCalendar
+	if err = s.SalveazaConfiguratiePontaj(ctx, c); err != nil {
+		t.Fatal(err)
+	}
+	doc, err := m.s.Pregateste(ctx, Cerere{ModelID: "raport-pontaj-detaliat", An: 2026, Luna: 10, Limba: "ro"}, momentFix)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(doc.Coloane) != 45 {
+		t.Fatal(len(doc.Coloane))
+	}
+	rez, _, err := datebaza.CalculeazaPontaj(ctx, acces.New(m.db), 2026, 10, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	valori := map[string]string{}
+	for i, col := range doc.Coloane {
+		valori[col.Cod] = doc.Randuri[0].Valori[i]
+	}
+	if valori["2026-10-23"] != "2" || valori["2026-10-24"] != "7" || valori["total_T"] != "9" || valori["total_ZNL"] != "7" || valori["total_ore_norma"] != "2" || valori["total_CO"] != "1" || valori["total_ore_garda"] != "—" {
+		t.Fatal(valori)
+	}
+	for _, r := range rez.Totaluri {
+		if r.AngajatID == "a" {
+			for cod, v := range r.Valori {
+				if valori["total_"+cod] != calcul.TextValoarePontaj(v) {
+					t.Fatal(cod, v, valori)
+				}
+			}
+		}
+	}
+	model := initiala(t, m, "raport-pontaj-detaliat")
+	model.Continut.Coloane = []string{"angajat", "totaluri", "zile"}
+	codEroare(t, Valideaza(model), "rapoarte.continut_invalid")
+	var raw string
+	if err = m.db.QueryRow(`SELECT valoare FROM pontaj_ciorne WHERE angajat_id='a' AND data='2026-10-23'`).Scan(&raw); err != nil || raw != "IN9" {
+		t.Fatal(raw, err)
+	}
+}
+
 func TestModeleInitialeReferinta(t *testing.T) {
 	m := pregateste(t)
 	c, err := m.s.Lista(context.Background())
@@ -104,7 +156,7 @@ func TestModeleInitialeReferinta(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	cale := filepath.Join("testdata", "modele-v2.json")
+	cale := filepath.Join("testdata", "modele-v3.json")
 	if *actualizeazaReferinte {
 		if err := os.MkdirAll("testdata", 0700); err != nil {
 			t.Fatal(err)
@@ -216,7 +268,7 @@ func TestDateRaportFiltreCalendarSiAbsente(t *testing.T) {
 	if len(doc.Randuri) != 2 || len(doc.Coloane) != 33 {
 		t.Fatalf("dimensiuni: %d %d", len(doc.Randuri), len(doc.Coloane))
 	}
-	if doc.Randuri[0].Valori[24] != "IN9" || doc.Randuri[0].Valori[25] != "CO" || doc.Randuri[0].Culori[25] != "ABSENTA" {
+	if doc.Randuri[0].Valori[24] != "9" || doc.Randuri[0].Valori[25] != "0" || doc.Randuri[0].Culori[25] != "ABSENTA" {
 		t.Fatalf("coduri/absențe: %+v", doc.Randuri[0])
 	}
 	if !strings.Contains(doc.Metadate, versiune.Aplicatie) || !strings.Contains(doc.Nota, "fără calcul") {
@@ -225,7 +277,7 @@ func TestDateRaportFiltreCalendarSiAbsente(t *testing.T) {
 	c.An, c.Luna = 2028, 2
 	c.AngajatID = "a"
 	doc, err = m.s.Pregateste(ctx, c, momentFix)
-	if err != nil || len(doc.Coloane) != 31 || doc.Randuri[0].Valori[30] != "N9" {
+	if err != nil || len(doc.Coloane) != 31 || doc.Randuri[0].Valori[30] != "9" {
 		t.Fatalf("an bisect: %+v %v", doc, err)
 	}
 	c.ModelID, c.An, c.Luna = "raport-absente", 2026, 10
@@ -244,7 +296,7 @@ func TestDateRaportFiltreCalendarSiAbsente(t *testing.T) {
 func TestReferinteRapoarteSiPDF(t *testing.T) {
 	m := pregateste(t)
 	fixture(t, m)
-	for _, id := range []string{"raport-pontaj", "raport-fisa", "raport-absente"} {
+	for _, id := range []string{"raport-pontaj", "raport-fisa", "raport-absente", "raport-pontaj-detaliat"} {
 		t.Run(id, func(t *testing.T) {
 			c := Cerere{ModelID: id, An: 2026, Luna: 10, Limba: "ro"}
 			if id == "raport-fisa" {
@@ -284,7 +336,14 @@ func TestReferinteRapoarteSiPDF(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			cale := filepath.Join("testdata", id+"-v2.json")
+			v := "3"
+			if id == "raport-absente" {
+				v = "2"
+			}
+			if id == "raport-pontaj-detaliat" {
+				v = "1"
+			}
+			cale := filepath.Join("testdata", id+"-v"+v+".json")
 			if *actualizeazaReferinte {
 				if err := os.MkdirAll("testdata", 0700); err != nil {
 					t.Fatal(err)

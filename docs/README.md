@@ -12,6 +12,7 @@ Orice idee, decizie și acțiune a proiectului se documentează aici, în acela�
 | Versiuni | [versiuni.md](versiuni.md) | se schimbă codul, un raport sau baza de date (D009) |
 | Ghid de utilizare | [primele funcționalități și demo](ghid-primele-functionalitati.md) | se schimbă fluxurile disponibile în aplicație |
 | Ghid rapoarte | [definire, PDF și tipărire](ghid-rapoarte.md) | se schimbă modelele, generarea sau tipărirea rapoartelor |
+| Configurare pontaj | [ore, ture peste miezul nopții și totaluri](ghid-configurare-pontaj.md) | se schimbă regulile orelor sau completarea grilei |
 | Design inițial | [Aplicația de pontaj — tehnologii și decizii.pdf](Aplicația%20de%20pontaj%20—%20tehnologii%20și%20decizii.pdf) | nu se mai modifică; schimbările față de el devin decizii noi |
 
 ## Reguli

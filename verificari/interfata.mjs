@@ -18,7 +18,7 @@ assert(existsSync(join(dist, 'index.html')), 'Rulează întâi npm run build în
 const demo = JSON.parse(readFileSync(join(radacina, 'internal/datebaza/demo/angajati.json'), 'utf8'));
 const calendarSursa = JSON.parse(readFileSync(join(radacina, 'internal/datebaza/calendare/romania-2026.json'), 'utf8'));
 const schimburiSursa = JSON.parse(readFileSync(join(radacina, 'internal/datebaza/initiale/schimburi.json'), 'utf8'));
-const rapoarteSursa = {configuratie:JSON.parse(readFileSync(join(radacina,'internal/rapoarte/testdata/modele-v2.json'),'utf8')),document:JSON.parse(readFileSync(join(radacina,'internal/rapoarte/testdata/raport-pontaj-v2.json'),'utf8')).document,pdf:readFileSync(join(radacina,'build/bin/rapoarte-demo/raport-pontaj.pdf')).toString('base64')};
+const rapoarteSursa = {reguli:JSON.parse(readFileSync(join(radacina,'internal/bd/migrari/0015_pontaj_ore_reguli.sql'),'utf8').match(/'(\{"atribuire"[^']+)\'/)[1]),configuratie:JSON.parse(readFileSync(join(radacina,'internal/rapoarte/testdata/modele-v3.json'),'utf8')),document:JSON.parse(readFileSync(join(radacina,'internal/rapoarte/testdata/raport-pontaj-v3.json'),'utf8')).document,pdf:readFileSync(join(radacina,'build/bin/rapoarte-demo/raport-pontaj.pdf')).toString('base64')};
 const imaginiDemo=join(radacina,'build/bin/rapoarte-demo');
 writeFileSync(join(imaginiDemo,'imagine-invalida.txt'),'exemplu de fisier care nu este imagine');
 const versiuneAplicatie = readFileSync(join(radacina, 'internal/versiune/versiune.go'), 'utf8').match(/const Aplicatie = "([^"]+)"/)[1];
@@ -98,6 +98,38 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
     stare.absente ??= [];
     stare.modeleRapoarte ??= structuredClone(rapoarteSursa.configuratie.modele);
     stare.documenteAbsenta ??= [];
+    stare.reguliPontaj ??= {...structuredClone(rapoarteSursa.reguli),revizie:'1'};
+    // Date simulate pentru fluxul UI; regulile reale sunt verificate separat în Go.
+    function schita(an,luna,modificari=[]) {
+        const prefix=`${String(an).padStart(4,'0')}-${String(luna).padStart(2,'0')}-`;
+        const raw=new Map(stare.ciorne.map(c=>[c.angajat_id+'/'+c.data,c]));
+        for(const c of modificari)raw.set(c.angajat_id+'/'+c.data,c);
+        const celule=new Map(),totaluri=new Map();
+        for(const c of raw.values()) {
+            if(!c.valoare.trim())continue;
+            const p=stare.schimburi.find(s=>s.cod===c.valoare),manual=c.valoare.startsWith('@M')?Number(c.valoare.slice(2)):Number(c.valoare)*60;
+            let reste=p?p.durata_minute:manual,curent=new Date(c.data+'T00:00:00Z');
+            curent.setUTCMinutes(p?.ora_start>=0?p.ora_start:0);
+            const cunoscut=Number.isFinite(reste)&&reste>=0&&!(p?.pauza_minute);
+            if(!cunoscut)reste=0;
+            do {
+                const data=curent.toISOString().slice(0,10),credit=stare.reguliPontaj.atribuire==='ZI_INCEPUT'?c.data:data;
+                const n=Math.min(reste,1440-curent.getUTCHours()*60-curent.getUTCMinutes());
+                if(credit.startsWith(prefix)){
+                    const k=c.angajat_id+'/'+credit,z=celule.get(k)||{angajat_id:c.angajat_id,data:credit,minute:0,calculabil:true,surse:[]};
+                    z.minute+=n;z.calculabil&&=cunoscut;z.surse.push(c.data);celule.set(k,z);
+                    const a=totaluri.get(c.angajat_id)||{total:0,norma:0,znl:0,complet:true};a.total+=n;a.complet&&=cunoscut;
+                    if([0,6].includes(curent.getUTCDay())||stare.sarbatori.some(s=>s.data===data))a.znl+=n;else a.norma+=n;
+                    totaluri.set(c.angajat_id,a);
+                }
+                reste-=n;curent=new Date(curent.getTime()+Math.max(n,1)*60000);
+            }while(reste>0);
+        }
+        const absente=stare.absente.filter(z=>z.data.startsWith(prefix));
+        for(const a of absente)if(a.activ)celule.set(a.angajat_id+'/'+a.data,{angajat_id:a.angajat_id,data:a.data,minute:0,calculabil:true,surse:[]});
+        return {schita:{an,luna,configuratie:structuredClone(stare.reguliPontaj),celule:structuredClone(stare.ciorne.filter(c=>c.data.startsWith(prefix))),absente:structuredClone(absente),calcul:{celule:[...celule.values()],totaluri:[...totaluri].map(([angajat_id,a])=>({angajat_id,valori:Object.fromEntries(stare.reguliPontaj.reguli.map(r=>[r.coloana,{sutimi:({TOTAL_ORE:a.total,ORE_ZNL:a.znl,ORE_NORMA:a.norma}[r.sursa]||0)*r.factor_sutimi,unitate:r.sursa==='ZILE_ABSENTA'?'ZILE':'ORE',definita:r.sursa!=='NEDEFINITA'&&a.complet}]))}))}},eroare:null};
+    }
+    const configuratiePontaj=()=>({configuratie:structuredClone(stare.reguliPontaj),optiuni:[...stare.schimburi.map(s=>({...s,tip:'SCHIMB'})),...stare.tipuriAbsenta.map(s=>({...s,tip:'ABSENTA'}))],eroare:null});
     const raspuns = () => {
         stare.angajati = stare.angajati.map(a => ({...a, departament_id: a.departament_id || '', norma_minute: a.tip_contract === 'PARTIALA' ? a.norma_partiala_minute : stare.norma_intreaga_minute}));
         stare.demo_disponibil = stare.angajati.length === 0;
@@ -111,6 +143,9 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
         Limbi: async () => [limba, ...Object.keys(cataloage).filter(l => l !== limba)],
         Catalog: async l => cataloage[l], Informatii: async () => ({versiune: versiuneAplicatie, commit: 'verificare'}),
         DateInitiale: async () => raspuns(),
+        CitesteConfiguratiePontaj:async()=>configuratiePontaj(),
+        SalveazaConfiguratiePontaj:async c=>{if(c.revizie!==stare.reguliPontaj.revizie)return {eroare:{cod:'pontaj.reguli_conflict'}};stare.reguliPontaj={...structuredClone(c),revizie:String(Number(c.revizie)+1)};raspuns();return configuratiePontaj();},
+        PrevizualizeazaSchita:async(an,luna,celule)=>schita(an,luna,celule),
         ListaModeleRapoarte: async () => modele(),
         SalveazaModelRaport: async d => {
             const texte=[d.antet.stanga,d.antet.centru,d.antet.dreapta,d.subsol.stanga,d.subsol.centru,d.subsol.dreapta,d.continut.text].flatMap(v => Object.values(v));
@@ -209,7 +244,7 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
             const d = stare.documenteAbsenta.find(x => x.id === id);
             return d ? {document: structuredClone(d), eroare: null} : {document: null, eroare: {cod: 'absente.document_inexistent'}};
         },
-        CitesteSchita: async (an, luna) => ({schita: {an, luna, absente:structuredClone(stare.absente.filter(z => z.data.startsWith(`${String(an).padStart(4, '0')}-${String(luna).padStart(2, '0')}-`))), celule: structuredClone(stare.ciorne.filter(c => c.data.startsWith(`${String(an).padStart(4, '0')}-${String(luna).padStart(2, '0')}-`)))}, eroare: null}),
+        CitesteSchita: async (an,luna)=>schita(an,luna),
         SalveazaSchita: async (an, luna, celule) => {
             if (celule.some(c => stare.absente.some(z => z.activ && z.angajat_id === c.angajat_id && z.data === c.data))) return {schita:null,eroare:{cod:'absente.celula_protejata'}};
             if (celule.some(c => (stare.ciorne.find(v => v.angajat_id === c.angajat_id && v.data === c.data)?.revizie || '') !== c.revizie)) return {schita: null, eroare: {cod: 'pontaj.conflict', param: {}}};
@@ -218,7 +253,7 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
                 const nou = {...c, valoare: c.valoare.trim(), revizie: String(i < 0 ? 1 : Number(stare.ciorne[i].revizie)+1)};
                 if (i < 0) stare.ciorne.push(nou); else stare.ciorne[i] = nou;
             }
-            raspuns(); return {schita: {an, luna, celule: structuredClone(stare.ciorne.filter(c => c.data.startsWith(`${String(an).padStart(4, '0')}-${String(luna).padStart(2, '0')}-`)))}, eroare: null};
+            raspuns(); return schita(an,luna);
         }
     }}};
 }
@@ -445,12 +480,12 @@ try {
     const capturaAbsente = await cdp('Page.captureScreenshot',{format:'png'}); writeFileSync(join(radacina,'build/bin/concedii-absente.png'),Buffer.from(capturaAbsente.data,'base64'));
     await apasa('Pontaj');
     await asteapta(() => evalueaza(`Boolean(document.querySelector('.unelte-perioada select'))`),'Pontaj lipsă după concedii.');
-    assert(await evalueaza(`[...document.querySelectorAll('#coduri-pontaj option')].some(o => o.value === 'IN9' && o.textContent.includes('Intrare specială'))`),'Sugestiile din pontaj nu disting IN9.');
+    assert(await evalueaza(`[...document.querySelectorAll('select[aria-label="Alege programul de lucru"] option')].some(o => o.value === 'IN9' && o.textContent.includes('Intrare specială'))`),'Sugestiile din pontaj nu disting IN9.');
     await completeaza('.unelte-perioada select','11');
-    await asteapta(() => evalueaza(`document.querySelectorAll('.grila-pontaj input[readonly]').length === 3`),'Pontajul nu arată absențele din noiembrie.');
-    assert(await evalueaza(`[...document.querySelectorAll('.grila-pontaj input[readonly]')].some(i => i.title.includes('REG-104/2026') && i.title.includes('Dr. Ionescu'))`),'Tooltip-ul din pontaj nu afișează detaliile cererii de concediu.');
-    const protejata = await evalueaza(`(() => { const e = document.querySelector('.grila-pontaj input[readonly]'); e.focus(); return {selector:'input[data-rand="'+e.dataset.rand+'"][data-zi="'+e.dataset.zi+'"]',valoare:e.value}; })()`);
-    await completeaza('.unelte-grila input','7'); await apasa('Completează selecția');
+    await asteapta(() => evalueaza(`document.querySelectorAll('.grila-pontaj input.celula-absenta').length === 3`),'Pontajul nu arată absențele din noiembrie.');
+    assert(await evalueaza(`[...document.querySelectorAll('.grila-pontaj input.celula-absenta')].some(i => i.title.includes('REG-104/2026') && i.title.includes('Dr. Ionescu'))`),'Tooltip-ul din pontaj nu afișează detaliile cererii de concediu.');
+    const protejata = await evalueaza(`(() => { const e = document.querySelector('.grila-pontaj input.celula-absenta'); e.focus(); return {selector:'input[data-rand="'+e.dataset.rand+'"][data-zi="'+e.dataset.zi+'"]',valoare:e.value}; })()`);
+    await completeaza('.unelte-grila input','7'); await apasa('Aplică orele manuale');
     await asteapta(() => evalueaza(`document.querySelector('.pontaj-lunar [role="alert"]')?.textContent.includes('Concedii și absențe')`),'Grila suprascrie absența.');
     assert.equal(await evalueaza(`document.querySelector(${JSON.stringify(protejata.selector)}).value`),protejata.valoare,'Absență suprascrisă.');
     await apasa('Concedii și absențe');
@@ -466,8 +501,27 @@ try {
     await completeaza('.modul-absente .unelte-perioada input','2027'); await apasa('Arată anul');
     await asteapta(() => evalueaza(`document.querySelectorAll('.tabel-absente tbody tr').length === 0 && document.querySelectorAll('.tabel-tipuri-absenta tbody tr').length === 3`),'Filtrarea anuală a absențelor a eșuat.');
     assert(await evalueaza(`document.documentElement.scrollWidth <= 1024`),'Modulul de absențe depășește fereastra.');
+
+    await apasa('Configurare pontaj');
+    await asteapta(()=>evalueaza(`document.querySelectorAll('.reguli-pontaj tbody tr').length===12`),'Cele 12 reguli nu apar.');
+    assert.equal(await evalueaza(`document.querySelector('select[name="sursa_ore_garda"]').value`),'NEDEFINITA','Garda are o regulă inventată.');
+    await completeaza('select[name="atribuire"]','ZILE_CALENDARISTICE');
+    await completeaza('select[name="sursa_ore_garda"]','ORE_SCHIMBURI');
+    await evalueaza(`(()=>{const s=document.querySelector('select[name="coduri_ore_garda"]');[...s.options].forEach(o=>o.selected=o.value==='G24');s.dispatchEvent(new Event('change',{bubbles:true}));})()`);
+    await completeaza('input[name="factor_ore_garda"]','2');await apasa('Salvează');
+    await asteapta(()=>evalueaza(`JSON.parse(localStorage.getItem('pontix-test')).reguliPontaj.revizie==='2'`),'Regulile nu s-au salvat.');
+    await completeaza('select[name="atribuire"]','ZI_INCEPUT');
+    await evalueaza(`window.confirm=()=>false`);await apasa('Angajați');
+    assert.equal(await evalueaza(`document.querySelector('h1').textContent`),'Configurare pontaj','Configurația nesalvată a fost pierdută.');
+    await evalueaza(`(async()=>{const r=await window.go.main.App.CitesteConfiguratiePontaj();await window.go.main.App.SalveazaConfiguratiePontaj(r.configuratie);})()`);
+    await apasa('Salvează');await asteapta(()=>evalueaza(`document.querySelector('.reguli-pontaj [role="alert"]')?.textContent.includes('între timp')`),'Conflictul regulilor nu este afișat.');
+    await evalueaza(`window.confirm=()=>true`);await apasa('Reîncarcă regulile');
+    await asteapta(()=>evalueaza(`document.querySelector('select[name="atribuire"]').value==='ZILE_CALENDARISTICE'`),'Reîncărcarea regulilor nu funcționează.');
+    await completeaza('select[name="atribuire"]','ZI_INCEPUT');await apasa('Salvează');
+    await asteapta(()=>evalueaza(`!document.querySelector('.reguli-pontaj .buton.primar:not(:disabled)')`),'Salvarea configurației nu s-a încheiat.');
+    const capturaReguli=await cdp('Page.captureScreenshot',{format:'png'});writeFileSync(join(radacina,'build/bin/configurare-pontaj.png'),Buffer.from(capturaReguli.data,'base64'));
     await apasa('Definire rapoarte');
-    await asteapta(() => evalueaza(`document.querySelectorAll('.tabel-modele-rapoarte tbody tr').length===3`),'Modelele inițiale nu apar.');
+    await asteapta(() => evalueaza(`document.querySelectorAll('.tabel-modele-rapoarte tbody tr').length===4`),'Modelele inițiale nu apar.');
     await evalueaza(`[...document.querySelectorAll('.tabel-modele-rapoarte tbody tr')].find(r => r.cells[0].textContent==='Pontaj lunar').querySelector('button').click()`);
     await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog textarea[name="antet_stanga"]'))`),'Editorul de raport nu apare.');
     assert.deepEqual(await evalueaza(`[...document.querySelectorAll('dialog legend')].slice(0,3).map(e=>e.textContent)`),['1 · Antet','2 · Conținut','3 · Subsol'],'Cele trei componente nu sunt separate.');
@@ -509,7 +563,7 @@ try {
     await evalueaza(`document.querySelector('input[name="antet_imagine_stanga"]').closest('.zona-model-raport').querySelector('button').click()`);
     assert(await evalueaza(`!document.querySelector('input[name="antet_imagine_stanga"]').closest('.zona-model-raport').querySelector('img')`),'Imaginea nu poate fi eliminata din copia modelului.');
     await evalueaza(`document.querySelector('dialog input[name="activ_model"]').click()`);await apasa('Salvează');
-    await asteapta(() => evalueaza(`!document.querySelector('dialog')&&document.querySelectorAll('.tabel-modele-rapoarte tbody tr').length===4`),'Copia independentă nu a fost creată.');
+    await asteapta(() => evalueaza(`!document.querySelector('dialog')&&document.querySelectorAll('.tabel-modele-rapoarte tbody tr').length===5`),'Copia independentă nu a fost creată.');
     await evalueaza(`[...document.querySelectorAll('.tabel-modele-rapoarte tbody tr')].find(r=>r.cells[0].textContent==='Pontaj lunar').querySelector('button').click()`);
     await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog textarea[name="antet_stanga"]'))`),'Formular conflict model lipsă.');
     assert.equal(await evalueaza(`document.querySelector('input[name="antet_imagine_stanga"]').closest('.zona-model-raport').querySelector('img').alt`),'antet-demo.png','Imaginea modelului original s-a pierdut la duplicare sau la redeschidere.');
@@ -520,7 +574,7 @@ try {
     assert.equal(await evalueaza(`document.querySelector('dialog textarea[name="antet_stanga"]').value`),'Modificare locală nesalvată','Conflictul a pierdut editarea locală.');
     await apasa('Anulează');await apasa('Rapoarte');
     await asteapta(() => evalueaza(`Boolean(document.querySelector('select[name="model_raport"]'))`),'Meniul Rapoarte lipsește.');
-    assert.equal(await evalueaza(`document.querySelectorAll('select[name="model_raport"] option').length`),3,'Copia inactivă apare la generare.');
+    assert.equal(await evalueaza(`document.querySelectorAll('select[name="model_raport"] option').length`),4,'Copia inactivă apare la generare.');
     await completeaza('select[name="model_raport"]','raport-pontaj');await completeaza('input[name="an_raport"]','2026');await completeaza('select[name="luna_raport"]','10');
     await completeaza('select[name="sectie_raport"]',demo.sectii[0].id);await completeaza('select[name="limba_raport"]','en');await apasa('Generează și previzualizează');
     await asteapta(() => evalueaza(`document.querySelector('iframe.previzualizare-pdf')?.src.startsWith('blob:')`),'PDF-ul nu apare în previzualizare.');
@@ -538,6 +592,15 @@ try {
     await completeaza('select[name="angajat_raport"]',persoanaAbsenta);await apasa('Generează și previzualizează');
     await asteapta(() => evalueaza(`Boolean(document.querySelector('iframe.previzualizare-pdf'))`),'Fișa individuală nu se previzualizează.');
     assert(await evalueaza(`document.documentElement.scrollWidth<=1024`),'Rapoartele depășesc fereastra.');
+    await apasa('Definire rapoarte');
+    await asteapta(()=>evalueaza(`Boolean(document.querySelector('.tabel-modele-rapoarte'))`),'Modelele nu reapar.');
+    await evalueaza(`[...document.querySelectorAll('.tabel-modele-rapoarte tbody tr')].find(r=>r.cells[0].textContent==='Pontaj detaliat').querySelector('button').click()`);
+    await asteapta(()=>evalueaza(`Boolean(document.querySelector('dialog input[name="coloana_totaluri"]'))`),'Grupul final nu apare în editor.');
+    assert(await evalueaza(`document.querySelector('dialog input[name="coloana_totaluri"]').disabled && document.querySelector('dialog input[name="coloana_zile"]').disabled`),'Coloanele obligatorii pot fi eliminate.');
+    await apasa('Anulează');await apasa('Rapoarte');
+    await asteapta(()=>evalueaza(`Boolean(document.querySelector('select[name="model_raport"]'))`),'Generatorul lipsește.');
+    await completeaza('select[name="model_raport"]','raport-pontaj-detaliat');await apasa('Generează și previzualizează');
+    await asteapta(()=>evalueaza(`document.querySelector('iframe.previzualizare-pdf') && JSON.parse(localStorage.getItem('pontix-test')).ultimaCerereRaport.model_id==='raport-pontaj-detaliat'`),'Raportul detaliat nu este separat.');
     // Încărcăm 50 de persoane strict în profilul simulat, fără date reale.
     await evalueaza(`(() => { const s = JSON.parse(localStorage.getItem('pontix-test')); const bio = s.departamente.find(d => d.denumire.ro === 'Biochimie').id; s.angajati = Array.from({length:50}, (_, i) => ({...s.angajati[0], id:'grila-'+i, nume:'Exemplu '+String(i+1).padStart(2,'0'), prenume:'Test', marca:'TEST-'+String(i+1).padStart(3,'0'), activ:true, departament_id: i % 2 ? bio : s.angajati[0].departament_id})); s.ciorne = []; localStorage.setItem('pontix-test', JSON.stringify(s)); })()`);
     await cdp('Page.reload');
@@ -552,23 +615,26 @@ try {
     await completeaza('.unelte-grila select[aria-label="Departament"]', '');
     await asteapta(() => evalueaza(`document.querySelectorAll('.grila-pontaj tbody input').length === 1550`), 'Eliminarea filtrului nu reface grila.');
     await evalueaza(`document.querySelector('input[data-rand="0"][data-zi="0"]').focus()`);
-    await completeaza('input[data-rand="0"][data-zi="0"]', 'N12');
+    await completeaza('select[aria-label="Alege programul de lucru"]', 'N12');await apasa('Aplică programul');
+    await asteapta(()=>evalueaza(`document.querySelector('input[data-rand="0"][data-zi="0"]').value==='12'`),'Programul nu este afișat în ore.');
+    await apasa('Salvează schița');await asteapta(()=>evalueaza(`JSON.parse(localStorage.getItem('pontix-test')).ciorne.some(c=>c.valoare==='N12')`),'Codul programului nu a fost păstrat.');
+    await evalueaza(`document.querySelector('input[data-rand="0"][data-zi="0"]').focus()`);
     await evalueaza(`document.querySelector('input[data-rand="0"][data-zi="0"]').dispatchEvent(new KeyboardEvent('keydown', {key:'ArrowRight',shiftKey:true,bubbles:true}))`);
-    await completeaza('.unelte-grila input', '7'); await apasa('Completează selecția');
+    await completeaza('.unelte-grila input', '7'); await apasa('Aplică orele manuale');
     await asteapta(() => evalueaza(`document.querySelector('input[data-rand="0"][data-zi="1"]').value === '7'`), 'Completarea intervalului nu funcționează.');
     const copiat = await evalueaza(`(() => { const dt = new DataTransfer(); document.querySelector('input[data-rand="0"][data-zi="1"]').dispatchEvent(new ClipboardEvent('copy', {bubbles:true, clipboardData:dt})); return dt.getData('text/plain'); })()`);
     assert.equal(copiat, '7\t7', 'Copiere TSV greșită.');
-    const textLipire = '7\tN12\r\nC\tFP\r\n';
+    const textLipire = '7\t12\r\n5\t7.5\r\n';
     await evalueaza(`document.querySelector('input[data-rand="1"][data-zi="0"]').focus()`);
     await evalueaza(`new Promise(resolve => requestAnimationFrame(() => resolve(true)))`);
     await evalueaza(`(() => { const input = document.querySelector('input[data-rand="1"][data-zi="0"]'); const dt = new DataTransfer(); dt.setData('text/plain',${JSON.stringify(textLipire)}); input.dispatchEvent(new ClipboardEvent('paste',{bubbles:true,clipboardData:dt})); })()`);
-    await asteapta(() => evalueaza(`document.querySelector('input[data-rand="2"][data-zi="1"]').value === 'FP'`), 'Lipirea TSV nu funcționează.');
+    await asteapta(() => evalueaza(`document.querySelector('input[data-rand="2"][data-zi="1"]').value === '7.5'`), 'Lipirea TSV nu funcționează.');
     await apasa('Salvează schița');
     await asteapta(() => evalueaza(`document.querySelector('.pontaj-lunar [role="status"]')?.textContent.includes('salvată')`), 'Schița nu se salvează.');
     const capturaGrila = await cdp('Page.captureScreenshot', {format: 'png'});
     writeFileSync(join(radacina, 'build/bin/pontaj-schita.png'), Buffer.from(capturaGrila.data, 'base64'));
     await apasa('Angajați'); await apasa('Pontaj');
-    await asteapta(() => evalueaza(`document.querySelector('input[data-rand="2"][data-zi="1"]')?.value === 'FP'`), 'Schița nu se păstrează la revenire.');
+    await asteapta(() => evalueaza(`document.querySelector('input[data-rand="2"][data-zi="1"]')?.value === '7.5'`), 'Schița nu se păstrează la revenire.');
     await completeaza('.unelte-perioada select', '2');
     await asteapta(() => evalueaza(`document.querySelectorAll('.grila-pontaj tbody input').length === 1400`), 'Februarie 2026 nu are 28 de zile.');
     await completeaza('.unelte-perioada input', '2028'); await apasa('Arată anul');
@@ -578,7 +644,9 @@ try {
     await asteapta(() => evalueaza(`document.querySelector('.grila-pontaj thead th:nth-child(3)')?.classList.contains('zi-sarbatoare')`), 'Sărbătoarea nu este marcată în grilă.');
     await completeaza('.unelte-perioada select', '10');
     await asteapta(() => evalueaza(`document.querySelector('input[data-rand="0"][data-zi="0"]')?.value === '7'`), 'Revenirea în octombrie a pierdut datele.');
-    await completeaza('input[data-rand="0"][data-zi="0"]', '24');
+    await evalueaza(`document.querySelector('input[data-rand="0"][data-zi="0"]').focus()`);
+    await completeaza('.unelte-grila input','24');await apasa('Aplică orele manuale');
+    await asteapta(()=>evalueaza(`document.querySelector('input[data-rand="0"][data-zi="0"]').value==='24'`),'Ore manuale lipsă.');
     await evalueaza(`window.confirm = () => false`); await apasa('Angajați');
     assert(await evalueaza(`document.querySelector('h1').textContent === 'Pontaj'`), 'Navigarea a abandonat schița fără acord.');
     await completeaza('.unelte-perioada input', '2027'); await apasa('Arată anul');
@@ -589,7 +657,7 @@ try {
     await asteapta(() => evalueaza(`document.querySelector('.pontaj-lunar [role="alert"]')?.textContent.includes('altă instanță')`), 'Conflictul nu este semnalat în UI.');
     assert(await evalueaza(`document.querySelector('input[data-rand="0"][data-zi="0"]').value === '24'`), 'Conflictul a pierdut modificarea locală.');
     await apasa('Reîncarcă luna');
-    await asteapta(() => evalueaza(`document.querySelector('input[data-rand="0"][data-zi="0"]')?.value === 'extern'`), 'Reîncărcarea nu arată revizia nouă.');
+    await asteapta(() => evalueaza(`document.querySelector('input[data-rand="0"][data-zi="0"]')?.value === '—'`), 'Reîncărcarea nu arată revizia nouă.');
     assert(await evalueaza(`document.documentElement.scrollWidth <= 1024`), 'Grila depășește fereastra în afara containerului de derulare.');
     await cdp('Page.removeScriptToEvaluateOnNewDocument', {identifier: injectat.identifier});
     await cdp('Page.addScriptToEvaluateOnNewDocument', {source: `(${simulare})(${JSON.stringify(demo)},${JSON.stringify(cataloage)},'en',${JSON.stringify(calendarSursa)},${JSON.stringify(versiuneAplicatie)},${JSON.stringify(schimburiSursa)},${JSON.stringify(rapoarteSursa)})`});

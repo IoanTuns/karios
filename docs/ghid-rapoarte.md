@@ -36,8 +36,9 @@ Copiile deschise pentru tipărire se păstrează în `karios/rapoarte/` de lâng
 
 ## Ce conțin primele rapoarte
 
-- **Pontaj lunar:** valorile din schița lunară, suprapuse cu absențele active. Angajații inactivi apar dacă au înregistrări în perioada cerută. Weekendurile și sărbătorile sunt marcate.
-- **Fișă individuală:** zilele lunii, codurile și descrierile din nomenclator; codurile necunoscute rămân valori din schiță.
+- **Pontaj lunar:** centralizatorul existent afișează orele, cu weekendurile și sărbătorile marcate. Codurile programelor se păstrează în date pentru calcule. Angajații inactivi apar dacă au înregistrări sau ore continuate în perioada cerută.
+- **Pontaj detaliat:** raport lunar separat, implicit A3 peisaj, cu zilele lunii și cele 12 coloane finale: Ore lucrate, T, ZNL, CO, CEV, CFS, Ore norm, Form prof, CM, L/FIN, Deleg și Ore gardă 200%. Grupul totalurilor este obligatoriu la sfârșit; antetul, subsolul și imaginile se configurează independent.
+- **Fișă individuală:** zilele lunii, orele și descrierile programelor. Un cod istoric neinterpretat produce „—”, fără a inventa ore. Absențele au zero ore din propria înregistrare; pot exista ore continuate dintr-o tură începută anterior.
 - **Evidența absențelor:** zilele active înregistrate explicit în anul ales, cu tipul și categoria lor. Zilele anulate nu sunt incluse.
 
 Documentele sunt marcate ca **documente de lucru**, deoarece grila curentă păstrează schițe. Nu deduc salarii, sporuri, solduri de concediu sau totaluri de plată. Aceste reguli și centralizatorul salarial final așteaptă F01.
@@ -46,7 +47,7 @@ Subsolul tehnic D009 rămâne prezent pe lângă subsolul configurabil: numele/v
 
 ## Verificări și licențe
 
-Modelele se testează pe SQLite criptat; sunt verificate independența definițiilor, reviziile, refuzul salvărilor concurente și jurnalul atomic. Fiecare dintre cele trei rapoarte v2 are un fișier de referință pentru date și structură; referințele v1 sunt păstrate. PDF-urile sunt validate cu pdfcpu, iar imaginile PNG/JPEG sunt extrase și verificate pe fiecare pagină. Fonturile cu diacritice sunt incluse.
+Modelele se testează pe SQLite criptat; sunt verificate independența definițiilor, reviziile, refuzul salvărilor concurente și jurnalul atomic. Referințele curente sunt centralizator v3, fișă individuală v3, pontaj detaliat v1 și absențe v2; referințele anterioare sunt păstrate. PDF-urile sunt validate cu pdfcpu, iar imaginile PNG/JPEG sunt extrase și verificate pe fiecare pagină. Fonturile cu diacritice sunt incluse.
 
 Pentru PDF-uri fictive de probă și verificarea UI:
 

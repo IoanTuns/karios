@@ -112,9 +112,43 @@ func ConstruiestePDF(d Document) (core.Maroto, error) {
 		suma += c.Pondere
 	}
 	latimi := make([]int, len(d.Coloane))
+	// Pontajul detaliat rezervă aceeași lățime fiecărei zile, inclusiv 30 și 31.
+	if d.Sursa == "PONTAJ_DETALIAT" {
+		zile, pondereRest := 0, 0
+		for _, c := range d.Coloane {
+			if len(c.Cod) == 10 && c.Cod[4] == '-' {
+				zile++
+			} else {
+				pondereRest += c.Pondere
+			}
+		}
+		rest := 120 - 2*zile
+		for i, c := range d.Coloane {
+			if len(c.Cod) == 10 && c.Cod[4] == '-' {
+				latimi[i] = 2
+			} else {
+				latimi[i] = c.Pondere * rest / pondereRest
+				if latimi[i] < 1 {
+					latimi[i] = 1
+				}
+			}
+		}
+		folosit := 0
+		for _, n := range latimi {
+			folosit += n
+		}
+		for i := 0; folosit < 120; i = (i + 1) % len(latimi) {
+			if len(d.Coloane[i].Cod) != 10 || d.Coloane[i].Cod[4] != '-' {
+				latimi[i]++
+				folosit++
+			}
+		}
+	}
 	ramas := 120
 	for i, c := range d.Coloane {
-		latimi[i] = c.Pondere * 120 / suma
+		if d.Sursa != "PONTAJ_DETALIAT" {
+			latimi[i] = c.Pondere * 120 / suma
+		}
 		if latimi[i] < 1 {
 			latimi[i] = 1
 		}
