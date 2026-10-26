@@ -22,6 +22,14 @@ Regulile de plată și formatul rapoartelor sunt confirmate de contabilitate și
 
 ## Modelul de raport primit la 2026-10-25
 
+### Precizări 2026-10-26
+
+Ioan Tuns cere ore în celulele de pontaj, păstrând codurile numai în date/calcul. Pontajul are două rapoarte: centralizatorul existent și unul detaliat cu Ore lucrate, T, ZNL, CO, CEV, CFS, Ore norm, Form prof, CM, L/FIN, Deleg, Ore gardă 200% la final.
+
+Confirmări: **T = total**, **ZNL = weekend sau sărbători/zile libere, interval 00–24**, **Ore norm = toate orele de luni până vineri 00–24 când nu sunt sărbători/zile libere**. T este implementat ca total ore lucrate. CO/CM se pot număra din zilele active înregistrate. Pentru restul utilizatorul nu are încă regulile și cere o zonă de configurare folosită ulterior în calcule; nu aplicăm implicit 200% sau asocieri după abrevieri.
+
+Pentru turele peste miezul nopții cere o configurare suplimentară. Se oferă atribuirea integrală zilei începerii sau distribuirea pe zile calendaristice, cu aceeași opțiune în grilă și rapoarte. Încadrarea ZNL/Ore norm respectă zilele calendaristice chiar când afișarea creditează tura zilei de început. Durata folosită este cea nominală configurată, în lipsa orelor de intrare/ieșire. Distribuția pauzelor, orele efective la schimbarea ceasului și formulele rămase necesită specificații; nu se inventează reguli de plată.
+
 Ioan Tuns a confirmat funcționarea versiunii 0.10.0 și a trimis în conversație capturi de centralizator pentru octombrie 2026. Preluăm numai structura, fără numele, mărcile sau valorile reale ale angajaților: zilele 1–31, weekenduri gri, legendă T = TURA / N = NOPȚI și coloane de total Ore lucrat, T, ZNL, CO, CEV, CFS, Ore norm, Form prof, CM, L/FIN, Deleg, Ore gardă 200%. Captura mai largă arată rânduri distincte „GARDĂ”, cu mărci proprii, și grupări pe categorii profesionale; ipoteza inițială de două rânduri pentru fiecare angajat nu este confirmată.
 
 Întrebări trimise în conversație: semnificația celor două rânduri și a codurilor C, FP, cev; confirmarea coloanelor T, ZNL, CO, CEV, CFS, Form prof, L/FIN. Nu deducem reguli de calcul sau procente din antetul raportului. Captura cu date potențial reale nu este copiată în repo.

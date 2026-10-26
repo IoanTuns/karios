@@ -6,6 +6,7 @@ Stări: `nouă`, `în analiză`, `transformată` (în task sau decizie), `amâna
 
 | ID | Data | Idee | Cine | Stare | Legături / motiv |
 | --- | --- | --- | --- | --- | --- |
+| I023 | 2026-10-26 | Ore în celulele de pontaj, centralizator și raport detaliat cu totaluri, plus configurarea atribuirii și a regulilor | Ioan Tuns | transformată | F09-T09, F09-T10, [D028](decizii/D028-pontaj-ore-doua-rapoarte.md) |
 | I022 | 2026-10-26 | Reunirea tuturor ramurilor în main printr-un PR și construirea ultimei versiuni | Ioan Tuns | transformată | F02-T11, [D027](decizii/D027-reunire-main-pr.md) |
 | I021 | 2026-10-25 | Rapoarte cu una sau mai multe pagini și imagini configurabile în antet/subsol | Ioan Tuns | transformată | F09-T08, [D026](decizii/D026-imagini-rapoarte.md) |
 | I020 | 2026-10-25 | Separarea inițializării bazei de date de generarea legăturilor Wails și izolarea temporarelor de build per checkout | Codex | nouă | F09-T07: generatorul Wails rulează main dintr-un executabil temporar; main deschide baza înaintea wails.Run. Două ramuri pot ajunge la același folder temporar karios și la istorice de migrare diferite. Soluție temporară în această sesiune: TEMP/TMP proprii doar pentru procesul de build; corecția pornirii necesită task separat |
