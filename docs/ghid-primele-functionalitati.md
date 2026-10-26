@@ -1,4 +1,4 @@
-# Funcționalitățile disponibile · Pontix 0.24.0
+# Funcționalitățile disponibile · Pontix 0.25.0
 
 ## Pornire
 
@@ -66,7 +66,7 @@ Din **Schimburi → Adaugă schimb**, introdu codul, denumirea, ora de început,
 
 ## Concedii și absențe
 
-1. Deschide **Concedii și absențe** și alege anul. Poți filtra lista după angajat, categorie și starea aprobării (`În așteptare`, `Aprobată`, `Respinsă`).
+1. Deschide **Concedii și absențe** și alege anul. Poți filtra lista după angajat, categorie și starea aprobării (`În așteptare`, `Aprobată`, `Respinsă`), și poți comuta între **Toate secțiunile**, **Zile înregistrate**, **Sumar pe angajat** și **Tipuri de absență**.
 2. Pentru un tip special nou, apasă **Adaugă tip de absență**: introdu un cod unic (de exemplu `EV_FAMILIE`), denumirea RO/EN și categoria **Zile libere speciale**. Poți defini câte tipuri sunt necesare. CO și CM sunt inițiale pentru odihnă și medical, dacă aceste coduri nu erau deja ocupate.
 3. Apasă **Înregistrează zile**, alege angajatul, tipul și intervalul de cel mult 366 de zile. Opțional, poți completa **numărul de înregistrare**, **persoana care înlocuiește angajatul absent**, **starea aprobării**, persoana care a aprobat și poți atașa **cererea de concediu semnată** (PDF, PNG sau JPG, cel mult 10 MB, stocată criptat în baza SQLite). Inițial sunt bifate toate datele, inclusiv weekendurile și sărbătorile. Debifează zilele care nu trebuie înregistrate sau folosește explicit **Selectează luni–vineri, fără sărbători**, pe baza calendarului din aplicație. Pentru angajați cu ture, alege datele potrivite programului lor.
 4. Verifică numărul de zile selectate și apasă **Salvează**. Lotul se salvează integral sau deloc, iar cererea atașată se partajează între zilele lotului fără duplicarea conținutului. O zi deja ocupată de o absență, o schiță nevidă ori un pontaj efectiv trebuie corectată înainte de înregistrare; turele efective care traversează ziua sunt și ele verificate. Aplicația refuză desemnarea unui înlocuitor care are el însuși o absență activă nerespinsă în aceeași zi (sau înregistrarea unei absențe pentru o persoană deja desemnată ca înlocuitor în acea zi) și avertizează când aceeași persoană înlocuiește mai mulți colegi în aceeași zi.
@@ -80,9 +80,9 @@ Un tip poate fi editat sau dezactivat din tabelul **Tipuri de absență**. Dezac
 ## Grila lunară · schiță
 
 1. Deschide **Pontaj**, alege anul și luna; opțional filtrează secția și departamentul.
-2. Selectează celulele, alege programul după denumire/interval/regim și apasă **Aplică programul**, sau apasă **Precompletează L–V** pentru a completa toate celulele goale din zilele de luni până vineri (fără sărbători legale și fără absențe active) pe rândurile afișate. Grila afișează ore, păstrând codul intern. Alternativ introdu ore în câmpul **Ore manuale pe zi**, apoi **Aplică orele manuale**. F2 sau dublu clic focalizează câmpul manual.
-3. Celulele în care există program în ziua imediat următoare unei gărzi de 24 h (`G24`) sau în care totalul zilei depășește 24 de ore sunt evidențiate vizual (chenar galben-auriu și explicație la survol), iar coloana `T` este evidențiată discret când diferă de `Ore norm`. Avertismentele sunt exclusiv vizuale și nu blochează salvarea.
-4. Folosește săgeți, Enter sau Tab pentru deplasare; Shift+săgeți ori Shift+clic pentru selectarea unui dreptunghi.
+2. Selectează celulele, alege programul după denumire/interval/regim și apasă **Aplică programul**, folosește butoanele din **Aplicare rapidă** pentru completarea dintr-un singur clic, sau apasă **Precompletează L–V** pentru a completa toate celulele goale din zilele de luni până vineri (fără sărbători legale și fără absențe active) pe rândurile afișate. Grila afișează ore, păstrând codul intern, iar bara de inspecție de deasupra grilei arată permanent codul înregistrat, orele calculate, detaliile absenței, înlocuirile și avertismentele pentru celula activă. Alternativ introdu ore în câmpul **Ore manuale pe zi**, apoi **Aplică orele manuale**. F2 sau dublu clic focalizează câmpul manual.
+3. Celulele în care există program în ziua imediat următoare unei gărzi de 24 h (`G24`) sau în care totalul zilei depășește 24 de ore sunt evidențiate vizual (chenar galben-auriu și explicație la survol), iar coloana `T` (înghețată în dreapta tabelului la derulare) este evidențiată discret când diferă de `Ore norm`. Avertismentele sunt exclusiv vizuale și nu blochează salvarea.
+4. Folosește săgeți, Enter sau Tab pentru deplasare; Shift+săgeți ori Shift+clic pentru selectarea unui dreptunghi; `Ctrl+Z` / `Ctrl+Y` (sau **Anulează pasul** / **Refă pasul**) pentru anularea și refacerea modificărilor din sesiunea curentă.
 5. Câmpul manual gol golește înregistrările din selecție. Ctrl+C/Ctrl+V copiază și lipește ore în dreptunghiuri TSV compatibile cu Excel; codurile nu sunt acceptate la lipire. O lipire care depășește luna sau rândurile disponibile este refuzată integral.
 6. Apasă **Salvează schița**. Modificările sunt păstrate în baza criptată și rămân după repornire. La navigare sau schimbarea perioadei cu celule nesalvate apare confirmarea abandonării.
 

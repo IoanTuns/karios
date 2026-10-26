@@ -6,6 +6,12 @@ Stări: `nouă`, `în analiză`, `transformată` (în task sau decizie), `amâna
 
 | ID | Data | Idee | Cine | Stare | Legături / motiv |
 | --- | --- | --- | --- | --- | --- |
+| I037 | 2026-10-26 | Pictograme SVG distincte pentru toate cele 9 ecrane din meniul lateral | Antigravity, Ioan Tuns | transformată | F08-T08, [D032](decizii/D032-imbunatatiri-ergonomie-ui.md) |
+| I036 | 2026-10-26 | Comutator de secțiuni în Concedii și absențe (Zile / Sumar / Tipuri) și butoane rapide de selecție multiplă în Configurare pontaj | Antigravity, Ioan Tuns | transformată | F08-T08, [D032](decizii/D032-imbunatatiri-ergonomie-ui.md) |
+| I035 | 2026-10-26 | Înghețarea coloanei de total T în dreapta grilei de pontaj (sticky right) la derularea orizontală | Antigravity, Ioan Tuns | transformată | F08-T08, [D032](decizii/D032-imbunatatiri-ergonomie-ui.md) |
+| I034 | 2026-10-26 | Selector vizibil de limbă (RO / EN) în bara laterală a aplicației | Antigravity, Ioan Tuns | transformată | F08-T08, [D032](decizii/D032-imbunatatiri-ergonomie-ui.md); persistența în setări rămâne în F03-T05 |
+| I033 | 2026-10-26 | Stivă Undo / Redo (Ctrl+Z / Ctrl+Y și butoane în bara de unelte) pentru modificările din schița grilei de pontaj | Antigravity, Ioan Tuns | transformată | F08-T08, [D032](decizii/D032-imbunatatiri-ergonomie-ui.md) |
+| I032 | 2026-10-26 | Bară de inspecție a celulei active (accesibilă din tastatură) și paletă de aplicare rapidă a schimburilor dintr-un clic în grila de pontaj | Antigravity, Ioan Tuns | transformată | F08-T08, [D032](decizii/D032-imbunatatiri-ergonomie-ui.md) |
 | I031 | 2026-10-26 | Crearea unei copii de siguranță a bazei criptate la cerere din ecranul Setări | Antigravity, Ioan Tuns | transformată | F05-T16, [D031](decizii/D031-precompletare-avertismente-pontaj-backup-manual.md) |
 | I030 | 2026-10-26 | Avertismente vizuale neblocante în grila de pontaj pentru suprapuneri de ture sau diferență față de norma lunară | Antigravity, Ioan Tuns | transformată | F08-T07, [D031](decizii/D031-precompletare-avertismente-pontaj-backup-manual.md); regulile de plată după G24 rămân în I004 / F01 |
 | I029 | 2026-10-26 | Precompletarea lunii în grila de pontaj cu un schimb ales pentru zilele lucrătoare luni–vineri (fără sărbători legale și fără zilele cu absență activă) | Antigravity, Ioan Tuns | transformată | F08-T07, [D031](decizii/D031-precompletare-avertismente-pontaj-backup-manual.md) |

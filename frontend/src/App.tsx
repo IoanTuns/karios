@@ -20,9 +20,13 @@ function Simbol({tip}: {tip: Ecran}) {
     return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
         {tip === 'angajati'
             ? <><circle cx="9" cy="8" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M16 5a3 3 0 0 1 0 6M18 15a5 5 0 0 1 3 5"/></>
-            : tip === 'sarbatori' || tip === 'absente' ? <><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M8 3v4M16 3v4M8 14h3M8 17h3M14 14h3"/></>
+            : tip === 'absente' ? <><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M8 3v4M16 3v4M9 15l2 2 4-4"/></>
+            : tip === 'sarbatori' ? <><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M8 3v4M16 3v4M8 14h3M8 17h3M14 14h3"/></>
             : tip === 'schimburi' ? <><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></>
             : tip === 'pontaj' ? <><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M9 9v12M15 9v12M3 15h18"/></>
+            : tip === 'rapoarte' ? <><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></>
+            : tip === 'definire_rapoarte' ? <><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 8h16M4 16h16M9 8v8"/></>
+            : tip === 'setari' ? <><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1L7 17M17 7l2.1-2.1"/></>
             : <><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3" fill="currentColor"/><circle cx="15" cy="17" r="3" fill="currentColor"/></>}
     </svg>;
 }
@@ -108,6 +112,10 @@ function App() {
             </nav>
             <div className="subsol-meniu"><span className="punct-local"/>{t('ui.local')}
                 {versiune && <span className="versiune">{t('aplicatie.versiune', {versiune})}</span>}
+                <select name="limba_interfata" className="selector-limba" aria-label={t('ui.limba_interfata')} value={i18n.language === 'en' ? 'en' : 'ro'}
+                    onChange={e => { const l = e.target.value; void i18n.changeLanguage(l); document.documentElement.lang = l; document.title = i18n.t('aplicatie.titlu'); }}>
+                    <option value="ro">{t('rapoarte.ro')}</option><option value="en">{t('rapoarte.en')}</option>
+                </select>
             </div>
         </aside>
         <main className={`continut ${ecran === 'pontaj' ? 'continut-pontaj' : ''}`}>

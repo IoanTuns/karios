@@ -4,6 +4,17 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.25.0 · 2026-10-26
+
+Îmbunătățiri de ergonomie în interfață: bară de inspecție a celulei active și paletă rapidă de schimburi în grila de pontaj, stivă Undo/Redo, coloană `T` fixă la derulare, comutator de secțiuni în Concedii și absențe, cipuri de selecție rapidă în Configurare pontaj, selector de limbă RO/EN și pictograme distincte în meniu (F08-T08, I032–I037, D032).
+
+- În **Pontaj**, panoul de inspecție de deasupra grilei afișează instantaneu (inclusiv la navigarea din tastatură) detaliile celulei active: angajatul, data și sărbătoarea legală, codul programului / orele manuale / absența, orele calculate, persoanele înlocuite și avertismentele; paleta rapidă permite aplicarea oricărui schimb activ sau golirea selecției dintr-un clic.
+- Modificările din schița grilei de pontaj dispun de stivă **Undo / Redo** (`Ctrl+Z` / `Ctrl+Y` și butoanele **Anulează pasul** / **Refă pasul**).
+- Coloana de total **`T`** este înghețată în dreapta tabelului (`sticky right`), rămânând vizibilă la derularea orizontală.
+- În **Concedii și absențe**, butoanele de secțiune permit izolarea rapidă a sumarului anual, a zilelor înregistrate sau a tipurilor de absență; în **Configurare pontaj**, cipurile de sub selector permit bifarea/debifarea codurilor dintr-un clic; în bara laterală există selectorul de limbă **RO / EN** și pictograme SVG distincte pentru toate cele 9 ecrane.
+
+Rapoarte: nicio schimbare. Baza de date: nicio schimbare.
+
 ## 0.24.0 · 2026-10-26
 
 Precompletarea lunii pentru zilele lucrătoare luni–vineri în grila de pontaj, avertismente vizuale neblocante în grilă și copie de siguranță criptată la cerere din Setări (F08-T07, F05-T16, I029–I031, D031).

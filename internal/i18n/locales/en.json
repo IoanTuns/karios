@@ -463,5 +463,19 @@
   "ui.backup_titlu": "Database backup",
   "ui.backup_descriere": "Save an encrypted copy of the database right now in the karios\\backup folder without stopping the application.",
   "ui.creeaza_backup": "Create backup now",
-  "ui.backup_creat": "Backup saved: {{cale}}"
+  "ui.backup_creat": "Backup saved: {{cale}}",
+  "ui.limba_interfata": "Interface language",
+  "pontaj.anuleaza_pas": "Undo",
+  "pontaj.refa_pas": "Redo",
+  "pontaj.inspectie_titlu": "Selected cell details",
+  "pontaj.inspectie_cod": "Recorded: {{valoare}}",
+  "pontaj.inspectie_gol": "No entry",
+  "pontaj.inspectie_ore_manuale": "Manual hours ({{ore}} h)",
+  "pontaj.inspectie_calculat": "Calculated: {{ore}} h",
+  "pontaj.paleta_rapida": "Quick apply:",
+  "pontaj.sterge_selectia": "Clear",
+  "absente.sectiune_toate": "All sections",
+  "absente.sectiune_zile": "Recorded days",
+  "absente.sectiune_sumar": "Employee summary",
+  "absente.sectiune_tipuri": "Absence types"
 }

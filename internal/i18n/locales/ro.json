@@ -463,5 +463,19 @@
   "ui.backup_titlu": "Copie de siguranță",
   "ui.backup_descriere": "Salvează pe loc o copie criptată a bazei de date în folderul karios\\backup, fără a opri aplicația.",
   "ui.creeaza_backup": "Creează copie de siguranță acum",
-  "ui.backup_creat": "Copia de siguranță a fost salvată: {{cale}}"
+  "ui.backup_creat": "Copia de siguranță a fost salvată: {{cale}}",
+  "ui.limba_interfata": "Limba interfeței",
+  "pontaj.anuleaza_pas": "Anulează pasul",
+  "pontaj.refa_pas": "Refă pasul",
+  "pontaj.inspectie_titlu": "Detalii celulă selectată",
+  "pontaj.inspectie_cod": "Înregistrat: {{valoare}}",
+  "pontaj.inspectie_gol": "Nicio înregistrare",
+  "pontaj.inspectie_ore_manuale": "Ore manuale ({{ore}} h)",
+  "pontaj.inspectie_calculat": "Calculat: {{ore}} h",
+  "pontaj.paleta_rapida": "Aplicare rapidă:",
+  "pontaj.sterge_selectia": "Golește",
+  "absente.sectiune_toate": "Toate secțiunile",
+  "absente.sectiune_zile": "Zile înregistrate",
+  "absente.sectiune_sumar": "Sumar pe angajat",
+  "absente.sectiune_tipuri": "Tipuri de absență"
 }

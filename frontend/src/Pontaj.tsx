@@ -29,6 +29,8 @@ export function Pontaj({date, onModificari, onOcupat}: {date: datebaza.Date; onM
     const [calendar, setCalendar] = useState<datebaza.CalendarAn | null>(null);
     const [schimburi, setSchimburi] = useState<datebaza.Schimb[]>([]);
     const [modificari, setModificari] = useState<Map<string, datebaza.CelulaSchita>>(new Map());
+    const [istoricInapoi, setIstoricInapoi] = useState<Map<string, datebaza.CelulaSchita>[]>([]);
+    const [istoricInainte, setIstoricInainte] = useState<Map<string, datebaza.CelulaSchita>[]>([]);
     const [selectie, setSelectie] = useState<Selectie>({inceput: {rand: 0, zi: 0}, sfarsit: {rand: 0, zi: 0}});
     const [valoareCompletare, setValoareCompletare] = useState('');
     const [programCompletare,setProgramCompletare] = useState('');
@@ -54,7 +56,7 @@ export function Pontaj({date, onModificari, onOcupat}: {date: datebaza.Date; onM
 
     useEffect(() => {
         let activ = true;
-        setIncarcare(true); setSchita(null); setEroare(''); setMesaj(''); setModificari(new Map());
+        setIncarcare(true); setSchita(null); setEroare(''); setMesaj(''); setModificari(new Map()); setIstoricInapoi([]); setIstoricInainte([]);
         Promise.all([CitesteSchita(an, luna), CitesteCalendar(an), ListaSchimburi()]).then(([s, c, n]) => {
             if (!activ) return;
             const err = s.eroare || c.eroare || n.eroare;
@@ -121,6 +123,8 @@ export function Pontaj({date, onModificari, onOcupat}: {date: datebaza.Date; onM
     function aplicaCelule(celule: {rand: number; zi: number; text: string}[]) {
         if (celule.some(c => !randuri[c.rand] || !zile[c.zi] || Array.from(c.text).length > 16 || /[\0\t\r\n]/.test(c.text))) { setEroare(t('pontaj.lipire_invalida')); return; }
         if (celule.some(c => absente.has(cheie(randuri[c.rand].id,zile[c.zi])))) { setEroare(t('absente.celula_protejata')); return; }
+        setIstoricInapoi(stiva => [...stiva.slice(-49), new Map(modificari)]);
+        setIstoricInainte([]);
         setModificari(vechi => {
             const noi = new Map(vechi);
             for (const c of celule) {
@@ -131,6 +135,26 @@ export function Pontaj({date, onModificari, onOcupat}: {date: datebaza.Date; onM
             return noi;
         });
         setCalculare(true);
+        setEroare(''); setMesaj('');
+    }
+
+    function anuleazaPas() {
+        if (!istoricInapoi.length || ocupat) return;
+        const anterioara = istoricInapoi[istoricInapoi.length - 1];
+        setIstoricInapoi(stiva => stiva.slice(0, -1));
+        setIstoricInainte(stiva => [...stiva.slice(-49), new Map(modificari)]);
+        setModificari(new Map(anterioara));
+        setCalculare(anterioara.size > 0);
+        setEroare(''); setMesaj('');
+    }
+
+    function refaPas() {
+        if (!istoricInainte.length || ocupat) return;
+        const urmatoare = istoricInainte[istoricInainte.length - 1];
+        setIstoricInainte(stiva => stiva.slice(0, -1));
+        setIstoricInapoi(stiva => [...stiva.slice(-49), new Map(modificari)]);
+        setModificari(new Map(urmatoare));
+        setCalculare(urmatoare.size > 0);
         setEroare(''); setMesaj('');
     }
 
@@ -183,6 +207,8 @@ export function Pontaj({date, onModificari, onOcupat}: {date: datebaza.Date; onM
     }
 
     function taste(e: KeyboardEvent<HTMLInputElement>, r: number, z: number) {
+        if ((e.ctrlKey || e.metaKey) && !e.altKey && e.key.toLowerCase() === 'z') { e.preventDefault(); if (e.shiftKey) refaPas(); else anuleazaPas(); return; }
+        if ((e.ctrlKey || e.metaKey) && !e.altKey && e.key.toLowerCase() === 'y') { e.preventDefault(); refaPas(); return; }
         const directii: Record<string, [number, number]> = {ArrowLeft: [0, -1], ArrowRight: [0, 1], ArrowUp: [-1, 0], ArrowDown: [1, 0], Enter: [e.shiftKey ? -1 : 1, 0]};
         if (directii[e.key]) { e.preventDefault(); const [dr, dz] = directii[e.key]; focalizeaza({rand: r + dr, zi: z + dz}, e.shiftKey && e.key !== 'Enter'); }
         else if (e.key === 'Tab') {
@@ -201,11 +227,31 @@ export function Pontaj({date, onModificari, onOcupat}: {date: datebaza.Date; onM
         try {
             const r = await SalveazaSchita(an, luna, [...modificari.values()]);
             if (r.eroare) setEroare(t(r.eroare.cod, r.eroare.param ?? {}));
-            else if (r.schita) { setSchita(r.schita); setCalculat(r.schita.calcul); setModificari(new Map()); setMesaj(t('pontaj.salvat')); }
+            else if (r.schita) { setSchita(r.schita); setCalculat(r.schita.calcul); setModificari(new Map()); setIstoricInapoi([]); setIstoricInainte([]); setMesaj(t('pontaj.salvat')); }
             else setEroare(t('date.eroare'));
         } catch { setEroare(t('date.eroare')); }
         finally { blocat.current = false; setOcupat(false); onOcupat(false); }
     }
+
+    const randActiv = randuri[selectie.sfarsit.rand], dataActiva = zile[selectie.sfarsit.zi];
+    const cheieActiva = randActiv && dataActiva ? cheie(randActiv.id, dataActiva) : '';
+    const brutaActiva = randActiv && dataActiva ? valoareBruta(selectie.sfarsit.rand, selectie.sfarsit.zi).trim() : '';
+    const absentaActiva = cheieActiva ? absente.get(cheieActiva) : undefined;
+    const inlocuiriActive = cheieActiva ? inlocuiri.get(cheieActiva) : undefined;
+    const calcActiva = cheieActiva ? oreCalculate.get(cheieActiva) : undefined;
+    const schimbActiv = brutaActiva && !brutaActiva.startsWith('@M') ? schimburi.find(s => s.cod === brutaActiva) : undefined;
+    const textCodActiv = absentaActiva
+        ? `${absentaActiva.cod} (${t(`absente.aprobare_${absentaActiva.stare_aprobare || 'IN_ASTEPTARE'}`)}${absentaActiva.nr_inregistrare ? ` · ${absentaActiva.nr_inregistrare}` : ''})`
+        : brutaActiva.startsWith('@M')
+            ? t('pontaj.inspectie_ore_manuale', {ore: oreText(Number(brutaActiva.slice(2)))})
+            : schimbActiv
+                ? `${schimbActiv.cod} (${schimbActiv.denumire[i18n.language] || schimbActiv.denumire.ro})`
+                : brutaActiva
+                    ? t('pontaj.inspectie_cod', {valoare: brutaActiva})
+                    : t('pontaj.inspectie_gol');
+    const dupaG24Activa = Boolean(randActiv && selectie.sfarsit.zi > 0 && valoareBruta(selectie.sfarsit.rand, selectie.sfarsit.zi - 1).trim().toUpperCase() === 'G24' && !absentaActiva && (brutaActiva !== '' || (calcActiva?.minute ?? 0) > 0));
+    const peste24hActiva = (calcActiva?.minute ?? 0) > 1440;
+    const avertismentActiv = [dupaG24Activa ? t('pontaj.avertisment_dupa_g24') : '', peste24hActiva ? t('pontaj.avertisment_peste_24h', {ore: oreText(calcActiva!.minute)}) : ''].filter(Boolean).join(' · ');
 
     return <section className="pontaj-lunar">
         <div className="unelte-calendar unelte-perioada"><form onSubmit={e => { e.preventDefault(); const nou = Number(anText); if (!Number.isInteger(nou) || nou < 1 || nou > 9999) { setEroare(t('sarbatori.an_invalid')); return; } if (nou !== an) { if (poateAbandona()) setAn(nou); else setAnText(String(an)); } }}>
@@ -227,13 +273,30 @@ export function Pontaj({date, onModificari, onOcupat}: {date: datebaza.Date; onM
                 <button className="buton secundar" disabled={ocupat || !randuri.length || !programCompletare} onClick={precompleteazaLV}>{t('pontaj.precompleteaza_lv')}</button>
                 <input ref={manualInput} aria-label={t('pontaj.valoare_completare')} placeholder={t('pontaj.valoare_completare')} inputMode="decimal" maxLength={16} value={valoareCompletare} disabled={ocupat} onChange={e => setValoareCompletare(e.target.value)}/>
                 <button className="buton secundar" disabled={ocupat || !randuri.length} onClick={() => {const v=manual(valoareCompletare);if(v===null)setEroare(t('pontaj.ore_invalide'));else completeaza(v);}}>{t('pontaj.completeaza_selectia')}</button>
+                <button type="button" className="buton secundar" disabled={ocupat || !istoricInapoi.length} onClick={anuleazaPas}>{t('pontaj.anuleaza_pas')}</button>
+                <button type="button" className="buton secundar" disabled={ocupat || !istoricInainte.length} onClick={refaPas}>{t('pontaj.refa_pas')}</button>
                 <button className="buton secundar" disabled={ocupat || calculare || !calculat || !randuri.length} onClick={async () => { try { await navigator.clipboard.writeText(textSelectat()); } catch { setEroare(t('pontaj.clipboard')); } }}>{t('pontaj.copiaza')}</button>
                 <button className="legatura" disabled={ocupat} onClick={() => { if (poateAbandona()) setReincarcare(x => x + 1); }}>{t('pontaj.reincarca')}</button></div>
+            {randActiv && dataActiva && <div className="inspectie-celula" role="region" aria-label={t('pontaj.inspectie_titlu')}>
+                <div className="detalii-celula-activa">
+                    <strong>{randActiv.nume} {randActiv.prenume}</strong>
+                    <span>{dataActiva}{sarbatori.get(dataActiva) ? ` · ${sarbatori.get(dataActiva)}` : ''}</span>
+                    <span className="eticheta-contract">{textCodActiv}</span>
+                    {calcActiva?.calculabil && <span>{t('pontaj.inspectie_calculat', {ore: oreText(calcActiva.minute)})}</span>}
+                    {inlocuiriActive?.length ? <span className="insigna-inlocuitor">{t('pontaj.inlocuieste_pe', {persoane: inlocuiriActive.map(z => { const coleg = date.angajati.find(x => x.id === z.angajat_id); return `${coleg ? `${coleg.nume} ${coleg.prenume}` : z.angajat_id} (${z.cod})`; }).join(', ')})}</span> : null}
+                    {avertismentActiv && <span className="avertisment-text">{avertismentActiv}</span>}
+                </div>
+                <div className="paleta-schimburi">
+                    <span className="text-discret">{t('pontaj.paleta_rapida')}</span>
+                    {schimburi.filter(s => s.activ).map(s => <button key={s.id} type="button" className="cip-schimb" disabled={ocupat} onClick={() => completeaza(s.cod)}>{s.cod}</button>)}
+                    <button type="button" className="cip-schimb cip-sterge" disabled={ocupat} onClick={() => completeaza('')}>{t('pontaj.sterge_selectia')}</button>
+                </div>
+            </div>}
             <p className="indiciu-grila">{t('pontaj.tastatura')} <span>{t('pontaj.modificate', {numar: modificari.size})}</span></p>
             <div className="panou grila-container" ref={grila} onPaste={lipeste} onCopy={e => { e.preventDefault(); e.clipboardData.setData('text/plain', textSelectat()); }}>
                 <table className="grila-pontaj" aria-label={t('pontaj.grila', {an, luna})}><thead><tr><th className="fix-nume">{t('ui.angajat')}</th><th className="fix-marca">{t('ui.marca')}</th>
                     {zile.map((data, z) => { const d = new Date(`${data}T12:00:00Z`), weekend = [0, 6].includes(d.getUTCDay()); return <th key={data} className={sarbatori.has(data) ? 'zi-sarbatoare' : weekend ? 'zi-weekend' : ''} title={sarbatori.get(data) || ''} scope="col"><strong>{z + 1}</strong><small>{new Intl.DateTimeFormat(i18n.language, {weekday: 'short', timeZone: 'UTC'}).format(d)}</small></th>; })}
-                    {totaluri.map(c => <th key={c}>{t(`pontaj.total_${c}`)}</th>)}</tr></thead><tbody>
+                    {totaluri.map(c => <th key={c} className={c === 'T' ? 'fix-total-t' : ''}>{t(`pontaj.total_${c}`)}</th>)}</tr></thead><tbody>
                     {randuri.map((a, r) => <tr key={a.id}><th scope="row" className="fix-nume"><strong>{a.nume} {a.prenume}</strong>{!a.activ && <small>{t('ui.inactiv')}</small>}</th><td className="fix-marca">{a.marca}</td>
                         {zile.map((data, z) => {
                             const weekend = [0, 6].includes(new Date(`${data}T12:00:00Z`).getUTCDay());
@@ -256,7 +319,7 @@ export function Pontaj({date, onModificari, onOcupat}: {date: datebaza.Date; onM
                                 onMouseDown={e => { if (e.shiftKey) { e.preventDefault(); focalizeaza({rand: r, zi: z}, true); } }}
                                 onKeyDown={e => taste(e, r, z)} onDoubleClick={()=>manualInput.current?.focus()}/></td>;
                         })}
-                        {totaluri.map(c => {const v=totaluriCalculate.get(a.id)?.[c],regula=schita?.configuratie.reguli.find(r=>r.coloana===c),vNorma=c==='T'?totaluriCalculate.get(a.id)?.['ore_norma']:undefined,diferentaNorma=Boolean(c==='T'&&v?.definita&&vNorma?.definita&&v.unitate==='ORE'&&vNorma.unitate==='ORE'&&v.sutimi!==vNorma.sutimi),titluTotal=!v?.definita?t('pontaj.necalculat'):[t(v.unitate==='ZILE'?'pontaj.unitate_zile':'pontaj.unitate_ore'),diferentaNorma?t('pontaj.diferenta_norma',{efectiv:valoareText(v),norma:valoareText(vNorma)}):''].filter(Boolean).join(' · ');return <td key={c} className={`${!v?.definita?'total-necalculat':''} ${diferentaNorma?'total-diferenta':''}`.trim()} title={titluTotal}>{calculare?'…':v?valoareText(v):calculat&&regula?.sursa!=='NEDEFINITA'?'0':'—'}</td>;})}</tr>)}
+                        {totaluri.map(c => {const v=totaluriCalculate.get(a.id)?.[c],regula=schita?.configuratie.reguli.find(r=>r.coloana===c),vNorma=c==='T'?totaluriCalculate.get(a.id)?.['ore_norma']:undefined,diferentaNorma=Boolean(c==='T'&&v?.definita&&vNorma?.definita&&v.unitate==='ORE'&&vNorma.unitate==='ORE'&&v.sutimi!==vNorma.sutimi),titluTotal=!v?.definita?t('pontaj.necalculat'):[t(v.unitate==='ZILE'?'pontaj.unitate_zile':'pontaj.unitate_ore'),diferentaNorma?t('pontaj.diferenta_norma',{efectiv:valoareText(v),norma:valoareText(vNorma)}):''].filter(Boolean).join(' · ');return <td key={c} className={`${!v?.definita?'total-necalculat':''} ${diferentaNorma?'total-diferenta':''} ${c==='T'?'fix-total-t':''}`.trim()} title={titluTotal}>{calculare?'…':v?valoareText(v):calculat&&regula?.sursa!=='NEDEFINITA'?'0':'—'}</td>;})}</tr>)}
                 </tbody></table>{randuri.length === 0 && <p className="fara-rezultate">{t('pontaj.fara_angajati')}</p>}
             </div>
             <p className="indiciu-grila">{t('pontaj.dimensiuni', {randuri: randuri.length, zile: numarZile})} · {t('pontaj.inactivi_indiciu')}</p>

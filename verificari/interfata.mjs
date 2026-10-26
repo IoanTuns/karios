@@ -693,8 +693,12 @@ try {
     await evalueaza(`document.querySelector('input[data-rand="0"][data-zi="2"]').focus()`);
     await completeaza('select[aria-label="Alege programul de lucru"]', 'G24'); await apasa('Aplică programul');
     await evalueaza(`document.querySelector('input[data-rand="0"][data-zi="3"]').focus()`);
-    await completeaza('select[aria-label="Alege programul de lucru"]', 'Z7'); await apasa('Aplică programul');
-    await asteapta(() => evalueaza(`document.querySelector('input[data-rand="0"][data-zi="3"]')?.closest('td')?.classList.contains('celula-avertisment') && Boolean(document.querySelector('.grila-pontaj td.total-diferenta'))`), 'Avertismentul după G24 sau diferența de total nu sunt evidențiate.');
+    await evalueaza(`[...document.querySelectorAll('.paleta-schimburi button')].find(b => b.textContent.trim() === 'Z7').click()`);
+    await asteapta(() => evalueaza(`document.querySelector('input[data-rand="0"][data-zi="3"]')?.closest('td')?.classList.contains('celula-avertisment') && Boolean(document.querySelector('.grila-pontaj td.total-diferenta.fix-total-t')) && document.querySelector('.inspectie-celula')?.textContent.includes('G24')`), 'Avertismentul după G24, bara de inspecție sau diferența de total nu sunt evidențiate.');
+    await apasa('Anulează pasul');
+    await asteapta(() => evalueaza(`document.querySelector('input[data-rand="0"][data-zi="3"]')?.value === ''`), 'Anularea pasului (Undo) nu funcționează.');
+    await apasa('Refă pasul');
+    await asteapta(() => evalueaza(`document.querySelector('input[data-rand="0"][data-zi="3"]')?.value === '7'`), 'Refacerea pasului (Redo) nu funcționează.');
     assert(await evalueaza(`document.documentElement.scrollWidth <= 1024`), 'Grila depășește fereastra în afara containerului de derulare.');
     await cdp('Page.removeScriptToEvaluateOnNewDocument', {identifier: injectat.identifier});
     await cdp('Page.addScriptToEvaluateOnNewDocument', {source: `(${simulare})(${JSON.stringify(demo)},${JSON.stringify(cataloage)},'en',${JSON.stringify(calendarSursa)},${JSON.stringify(versiuneAplicatie)},${JSON.stringify(schimburiSursa)},${JSON.stringify(rapoarteSursa)})`});
@@ -702,6 +706,11 @@ try {
     await asteapta(() => evalueaza(`document.querySelector('h1')?.textContent === 'Employees'`), 'Traducerea EN nu apare.');
     await apasa('Leave and absences');
     await asteapta(() => evalueaza(`document.querySelector('h1')?.textContent === 'Leave and absences' && document.querySelector('.tabel-tipuri-absenta')?.textContent.includes('Family event')`),'Modulul de absențe nu este tradus în EN.');
+    await apasa('Employee summary');
+    assert(await evalueaza(`Boolean(document.querySelector('.sumar-absente')) && !document.querySelector('.tabel-absente')`), 'Comutatorul de secțiuni din absențe nu izolează sumarul.');
+    await apasa('All sections');
+    await completeaza('select[name="limba_interfata"]', 'ro');
+    await asteapta(() => evalueaza(`document.querySelector('h1')?.textContent === 'Concedii și absențe'`), 'Selectorul de limbă din bara laterală nu schimbă limba interfeței.');
     assert.deepEqual(erori, [], 'Erori JavaScript în interfață.');
     console.log('UI verificată: angajați/departamente, calendar 2026, schimburi și categorii LAB/CUSTOM, concedii/medical/speciale, intervale și sumar, anulare și conflicte, protecție în pontaj, grilă 50×31/TSV; definiții rapoarte, antet/conținut/subsol, RO/EN, duplicare și conflicte, previzualizare PDF, export și tipărire simulate; 1024px și EN.');
     console.log('Captură: build/bin/interfata-demo.png. Puntea Wails a fost simulată; baza reală este verificată de testele Go.');
