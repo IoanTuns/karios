@@ -34,6 +34,10 @@
   "rapoarte.sursa_PONTAJ_LUNAR": "Pontaj lunar",
   "rapoarte.sursa_FISA_INDIVIDUALA": "Fișă individuală lunară",
   "rapoarte.sursa_ABSENTE_ANUALE": "Evidența anuală a absențelor",
+  "rapoarte.sursa_GRAFIC_GARZI": "Grafic lunar de gărzi și schimburi",
+  "rapoarte.coloana_total_garzi": "Total gărzi",
+  "rapoarte.coloana_total_ore": "Total ore gărzi",
+  "rapoarte.total_prezente_zi": "TOTAL / ZI",
   "rapoarte.introducere": "Text introductiv (repetat pe pagini)",
   "rapoarte.coloane": "Coloane și ordine",
   "rapoarte.muta_sus": "Mută {{coloana}} mai sus",
@@ -657,5 +661,8 @@
   "planificare.avertismente_echitate": "Avertismente echitate și succesiune",
   "planificare.avertisment_consecutiv": "Ture sau gărzi consecutive ({{zile}} zile la rând: {{coduri}})",
   "planificare.avertisment_craciun_revelion": "A fost de serviciu de Crăciun anul trecut ({{an}}) și este planificat de Revelion anul acesta",
-  "planificare.avertisment_craciun_pasti": "A fost planificat de Crăciun anul acesta și este pe același schimb de Paști anul viitor"
+  "planificare.avertisment_craciun_pasti": "A fost planificat de Crăciun anul acesta și este pe același schimb de Paști anul viitor",
+  "planificare.raport_garzi": "Grafic gărzi (PDF)",
+  "planificare.previzualizare_garzi": "Grafic lunar de gărzi și schimburi",
+  "planificare.inchide_raport": "Închide raport"
 }

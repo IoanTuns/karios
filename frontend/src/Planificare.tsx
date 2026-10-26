@@ -6,12 +6,15 @@ import {
     CitesteEchitatePlanificare,
     CitestePlanificare,
     CitesteSchita,
+    DeschidePDFPentruTiparire,
     ListaSchimburi,
+    PregatesteRaport,
     PrevizualizeazaPublicarePlan,
     PublicaPlanificare,
+    SalveazaPDFRaport,
     SalveazaPlanificare
 } from '../wailsjs/go/main/App';
-import {datebaza, calcul} from '../wailsjs/go/models';
+import {datebaza, calcul, main, rapoarte} from '../wailsjs/go/models';
 import {Dialog, denumireSectie, denumireDepartament, durata} from './Formulare';
 import {oraText} from './Schimburi';
 
@@ -50,6 +53,8 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
     const [selectateLista,setSelectateLista]=useState<Set<string>>(new Set());
     const [editare,setEditare]=useState<datebaza.PozitiePlanificare|null>(null);
     const [publicare,setPublicare]=useState<PublicareCurenta|null>(null);
+    const [raportGarzi,setRaportGarzi]=useState<main.RaspunsRaport|null>(null);
+    const [urlPDF,setUrlPDF]=useState('');
     const [eroare,setEroare]=useState('');
     const [mesaj,setMesaj]=useState('');
     const [ocupat,setOcupat]=useState(false);
@@ -313,6 +318,59 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
         }catch{setEroare(t('date.eroare'));}finally{blocat.current=false;setOcupat(false);onOcupat(false);}
     }
 
+    useEffect(()=>{
+        if(!raportGarzi?.pdf){
+            setUrlPDF('');
+            return;
+        }
+        const octeti=Uint8Array.from(atob(raportGarzi.pdf),c=>c.charCodeAt(0));
+        const nou=URL.createObjectURL(new Blob([octeti],{type:'application/pdf'}));
+        setUrlPDF(nou);
+        return ()=>URL.revokeObjectURL(nou);
+    },[raportGarzi]);
+
+    async function deschideRaportGarzi() {
+        setEroare('');
+        setMesaj('');
+        setOcupat(true);
+        try {
+            const r=await PregatesteRaport(new rapoarte.Cerere({
+                model_id:'raport-garzi',
+                an,
+                luna,
+                sectie_id:sectie,
+                departament_id:departament,
+                limba:i18n.language==='en'?'en':'ro'
+            }));
+            if(r.eroare){
+                setEroare(t(r.eroare.cod,r.eroare.param||{}));
+            }else{
+                setRaportGarzi(r);
+            }
+        }catch{
+            setEroare(t('rapoarte.eroare'));
+        }finally{
+            setOcupat(false);
+        }
+    }
+
+    async function gestioneazaPDFGarzi(tipareste:boolean){
+        if(!raportGarzi?.token)return;
+        setOcupat(true);
+        try{
+            const r=await(tipareste?DeschidePDFPentruTiparire:SalveazaPDFRaport)(raportGarzi.token);
+            if(r.eroare){
+                setEroare(t(r.eroare.cod,r.eroare.param||{}));
+            }else if(!r.anulat){
+                setMesaj(t(tipareste?'rapoarte.deschis':'rapoarte.fisier_salvat',{cale:r.cale}));
+            }
+        }catch{
+            setEroare(t('rapoarte.eroare'));
+        }finally{
+            setOcupat(false);
+        }
+    }
+
     const cipuriSpeciale=['S7','IN9','G24','Z12','N12'];
     const randActiv=randuri[selectie.sfarsit.rand],dataActiva=zile[selectie.sfarsit.zi];
     const cheieActiva=randActiv&&dataActiva?`${randActiv.id}/${dataActiva}`:'';
@@ -340,6 +398,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
             </div>
             {mod==='grila'&&<button className="buton primar" disabled={ocupat||!modificari.size} onClick={salveazaPlanGrila}>{t('planificare.salveaza_grila')}</button>}
             <button className="buton secundar" disabled={ocupat||!dePublicatTotal.length} onClick={()=>void previzualizeazaPublicare()}>{t('planificare.previzualizeaza')}</button>
+            <button type="button" className="buton secundar" disabled={ocupat} onClick={deschideRaportGarzi}>{t('planificare.raport_garzi')}</button>
             <button className="legatura" disabled={ocupat} onClick={()=>onDeschidePontaj(an,luna)}>{t('planificare.deschide_pontaj')}</button>
             <button className="buton secundar" disabled={ocupat||incarcare} onClick={()=>setReincarcare(x=>x+1)}>{t('planificare.reincarca')}</button>
         </div>
@@ -605,6 +664,24 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
             <footer className="subsol-dialog">
                 <button className="buton secundar" disabled={ocupat} onClick={()=>{setPublicare(null);setEroare('');}}>{t('ui.anuleaza')}</button>
                 <button className="buton primar" disabled={ocupat||!(publicare.rezultat.publicabile+publicare.rezultat.identice)} onClick={()=>void publica()}>{t('planificare.publica_eligibile',{numar:publicare.rezultat.publicabile+publicare.rezultat.identice})}</button>
+            </footer>
+        </Dialog>}
+
+        {raportGarzi&&<Dialog titlu={t('planificare.previzualizare_garzi')} permiteMaximizare={true} ocupat={ocupat} inchide={()=>setRaportGarzi(null)}>
+            <div className="corp-dialog">
+                <div className="unelte-calendar" style={{marginBottom:'0.75rem'}}>
+                    <p role="status">
+                        {t('rapoarte.generat',{randuri:raportGarzi.document?.randuri.length??0,versiune:raportGarzi.document?.versiune_raport??1,revizie:raportGarzi.document?.revizie_model??''})} · {t('rapoarte.numar_pagini',{numar:raportGarzi.pagini})}
+                    </p>
+                    <div className="actiuni-calendar">
+                        <button type="button" className="buton secundar" disabled={ocupat} onClick={()=>void gestioneazaPDFGarzi(false)}>{t('rapoarte.salveaza_pdf')}</button>
+                        <button type="button" className="buton primar" disabled={ocupat} onClick={()=>void gestioneazaPDFGarzi(true)}>{t('rapoarte.tipareste')}</button>
+                    </div>
+                </div>
+                {urlPDF&&<iframe className="previzualizare-pdf" style={{width:'100%',height:'70vh',minHeight:'500px',border:'1px solid var(--culoare-chenar,#ccc)',borderRadius:'4px'}} src={`${urlPDF}#view=FitH`} title={t('planificare.previzualizare_garzi')}/>}
+            </div>
+            <footer className="subsol-dialog">
+                <button type="button" className="buton secundar" disabled={ocupat} onClick={()=>setRaportGarzi(null)}>{t('planificare.inchide_raport')}</button>
             </footer>
         </Dialog>}
     </section>;

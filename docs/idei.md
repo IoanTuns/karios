@@ -6,6 +6,8 @@ Stări: `nouă`, `în analiză`, `transformată` (în task sau decizie), `amâna
 
 | ID | Data | Idee | Cine | Stare | Legături / motiv |
 | --- | --- | --- | --- | --- | --- |
+| I062 | 2026-10-26 | Raport oficial dedicat pentru graficul lunar de gărzi și schimburi (format A3 Peisaj, totaluri de ore/gărzi, linie de sinteză acoperire TOTAL/ZI și semnături oficiale), accesibil direct din ecranul de Planificare | Ioan Tuns | transformată | F11-T07, [D040](decizii/D040-raport-grafic-garzi-si-schimburi.md) |
+| I061 | 2026-10-26 | Motor de reguli configurabile (Rule Engine) pentru validare, succesiune, repaus minim, plafoane lunare și restricții definite liber de utilizator | Ioan Tuns | în analiză | [D041](decizii/D041-motor-reguli-configurabile.md) |
 | I060 | 2026-10-26 | Verificare echitate și rotație de sărbători (Crăciun/Revelion/Paști) între ani și marcaj vizual pentru ture consecutive pe zile libere/gărzi | Ioan Tuns | transformată | F11-T06, [D039](decizii/D039-sumar-angajat-raport-acoperire-echitate-sarbatori.md) |
 | I059 | 2026-10-26 | Raport și panou de acoperire weekend și zile nelucrătoare (G24, Z12, N12, IN9) cu evidențierea posturilor neacoperite | Ioan Tuns | transformată | F11-T05, [D039](decizii/D039-sumar-angajat-raport-acoperire-echitate-sarbatori.md) |
 | I058 | 2026-10-26 | Sumar editabil pe angajat pentru gărzi și ture (modal și vedere dedicată) cu statistici, totaluri și editare rapidă | Ioan Tuns | transformată | F11-T04, [D039](decizii/D039-sumar-angajat-raport-acoperire-echitate-sarbatori.md) |

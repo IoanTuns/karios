@@ -160,7 +160,7 @@ func EstePasti(data string, sarbatori map[string]string) bool {
 	return strings.Contains(den, "pașt") || strings.Contains(den, "past") || strings.Contains(den, "vinerea mare")
 }
 
-// AnalizeazaEchitate verifică rotația sărbătorilor majore și marcajele pentru ture consecutive.
+// AnalizeazaEchitate verifică rotația sărbătorilor majore (Crăciun N-1 -> Revelion N, Crăciun N -> Paști N+1).
 func AnalizeazaEchitate(an, luna int, pozitii []PozitiePlanificareSimple, istoricAnTrecut, istoricAnViitor []PozitiePlanificareSimple, sarbatori map[string]string) []AvertismentEchitate {
 	var avertismente []AvertismentEchitate
 
@@ -186,38 +186,7 @@ func AnalizeazaEchitate(an, luna int, pozitii []PozitiePlanificareSimple, istori
 	}
 
 	for angajatID, lista := range pozitiiPeAngajat {
-		zilePeData := map[string]PozitiePlanificareSimple{}
 		for _, p := range lista {
-			zilePeData[p.Data] = p
-		}
-
-		// Verificare ture consecutive
-		for _, p := range lista {
-			d, err := time.Parse(time.DateOnly, p.Data)
-			if err != nil {
-				continue
-			}
-			ziUrmatoare := d.AddDate(0, 0, 1).Format(time.DateOnly)
-			if urm, exista := zilePeData[ziUrmatoare]; exista {
-				if p.CodSchimb == "G24" {
-					avertismente = append(avertismente, AvertismentEchitate{
-						AngajatID: angajatID,
-						Data:      p.Data,
-						CodSchimb: p.CodSchimb,
-						Tip:       "CONSECUTIV",
-						Mesaj:     "Garda de 24h este urmată imediat de o altă tură planificată a doua zi fără repaus.",
-					})
-				} else {
-					avertismente = append(avertismente, AvertismentEchitate{
-						AngajatID: angajatID,
-						Data:      p.Data,
-						CodSchimb: p.CodSchimb,
-						Tip:       "CONSECUTIV",
-						Mesaj:     "Ture planificate în zile consecutive (" + p.CodSchimb + " și " + urm.CodSchimb + ").",
-					})
-				}
-			}
-
 			// Rotație Crăciun / Revelion
 			if EsteRevelion(p.Data) && craciunAnTrecut[angajatID] {
 				avertismente = append(avertismente, AvertismentEchitate{

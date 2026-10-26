@@ -1,0 +1,121 @@
+[
+  {
+    "data": "2025-01-01",
+    "denumire": {
+      "ro": "Anul Nou",
+      "en": "New Year's Day"
+    }
+  },
+  {
+    "data": "2025-01-02",
+    "denumire": {
+      "ro": "A doua zi de Anul Nou",
+      "en": "Second day of New Year"
+    }
+  },
+  {
+    "data": "2025-01-06",
+    "denumire": {
+      "ro": "Botezul Domnului – Boboteaza",
+      "en": "Epiphany"
+    }
+  },
+  {
+    "data": "2025-01-07",
+    "denumire": {
+      "ro": "Soborul Sfântului Proroc Ioan Botezătorul",
+      "en": "Saint John the Baptist"
+    }
+  },
+  {
+    "data": "2025-01-24",
+    "denumire": {
+      "ro": "Ziua Unirii Principatelor Române",
+      "en": "Unification of the Romanian Principalities"
+    }
+  },
+  {
+    "data": "2025-04-18",
+    "denumire": {
+      "ro": "Vinerea Mare (calendar ortodox)",
+      "en": "Good Friday (Orthodox calendar)"
+    }
+  },
+  {
+    "data": "2025-04-20",
+    "denumire": {
+      "ro": "Prima zi de Paști (calendar ortodox)",
+      "en": "Easter Sunday (Orthodox calendar)"
+    }
+  },
+  {
+    "data": "2025-04-21",
+    "denumire": {
+      "ro": "A doua zi de Paști (calendar ortodox)",
+      "en": "Easter Monday (Orthodox calendar)"
+    }
+  },
+  {
+    "data": "2025-05-01",
+    "denumire": {
+      "ro": "Ziua Muncii",
+      "en": "Labour Day"
+    }
+  },
+  {
+    "data": "2025-06-01",
+    "denumire": {
+      "ro": "Ziua Copilului",
+      "en": "Children's Day"
+    }
+  },
+  {
+    "data": "2025-06-08",
+    "denumire": {
+      "ro": "Prima zi de Rusalii (calendar ortodox)",
+      "en": "Pentecost Sunday (Orthodox calendar)"
+    }
+  },
+  {
+    "data": "2025-06-09",
+    "denumire": {
+      "ro": "A doua zi de Rusalii (calendar ortodox)",
+      "en": "Pentecost Monday (Orthodox calendar)"
+    }
+  },
+  {
+    "data": "2025-08-15",
+    "denumire": {
+      "ro": "Adormirea Maicii Domnului",
+      "en": "Dormition of the Mother of God"
+    }
+  },
+  {
+    "data": "2025-11-30",
+    "denumire": {
+      "ro": "Sfântul Apostol Andrei",
+      "en": "Saint Andrew"
+    }
+  },
+  {
+    "data": "2025-12-01",
+    "denumire": {
+      "ro": "Ziua Națională a României",
+      "en": "Romanian National Day"
+    }
+  },
+  {
+    "data": "2025-12-25",
+    "denumire": {
+      "ro": "Prima zi de Crăciun",
+      "en": "Christmas Day"
+    }
+  },
+  {
+    "data": "2025-12-26",
+    "denumire": {
+      "ro": "A doua zi de Crăciun",
+      "en": "Second day of Christmas"
+    }
+  }
+]

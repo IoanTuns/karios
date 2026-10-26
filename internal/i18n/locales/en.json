@@ -34,6 +34,10 @@
   "rapoarte.sursa_PONTAJ_LUNAR": "Monthly timesheet",
   "rapoarte.sursa_FISA_INDIVIDUALA": "Monthly individual timesheet",
   "rapoarte.sursa_ABSENTE_ANUALE": "Annual absence register",
+  "rapoarte.sursa_GRAFIC_GARZI": "Monthly on-call and shift schedule",
+  "rapoarte.coloana_total_garzi": "Total on-calls",
+  "rapoarte.coloana_total_ore": "Total on-call hours",
+  "rapoarte.total_prezente_zi": "TOTAL / DAY",
   "rapoarte.introducere": "Introductory text (repeated on pages)",
   "rapoarte.coloane": "Columns and order",
   "rapoarte.muta_sus": "Move {{coloana}} up",
@@ -657,5 +661,8 @@
   "planificare.avertismente_echitate": "Fairness and consecutive shift warnings",
   "planificare.avertisment_consecutiv": "Consecutive shifts or on-calls ({{zile}} days in a row: {{coduri}})",
   "planificare.avertisment_craciun_revelion": "Was on duty on Christmas last year ({{an}}) and is scheduled on New Year this year",
-  "planificare.avertisment_craciun_pasti": "Was scheduled on Christmas this year and has the exact same shift on Easter next year"
+  "planificare.avertisment_craciun_pasti": "Was scheduled on Christmas this year and has the exact same shift on Easter next year",
+  "planificare.raport_garzi": "On-call chart (PDF)",
+  "planificare.previzualizare_garzi": "Monthly on-call and shift schedule",
+  "planificare.inchide_raport": "Close report"
 }

@@ -1,6 +1,6 @@
 import {useEffect, useRef, useState, type FormEvent} from 'react';
 import {useTranslation} from 'react-i18next';
-import {CitesteCalendar, CompleteazaSarbatori2026, SalveazaSarbatoare} from '../wailsjs/go/main/App';
+import {CitesteCalendar, CompleteazaSarbatori2026, CompleteazaSarbatoriAn, SalveazaSarbatoare} from '../wailsjs/go/main/App';
 import {datebaza, main} from '../wailsjs/go/models';
 import {Dialog} from './Formulare';
 
@@ -64,7 +64,7 @@ export function Sarbatori() {
             <form onSubmit={schimbaAn}><label>{t('sarbatori.an')}<input aria-label={t('sarbatori.an')} type="number" min="1" max="9999" required value={anText} disabled={ocupat} onChange={e => setAnText(e.target.value)}/></label>
                 <button className="buton secundar" disabled={ocupat}>{t('sarbatori.arata')}</button></form>
             <div className="actiuni-calendar">
-                {an === 2026 && <button className="buton secundar" disabled={ocupat || incarcare || !calendar} onClick={() => { setEroare(''); setImporta(true); }}>{t('sarbatori.completeaza')}</button>}
+                {calendar?.import_disponibil && <button className="buton secundar" disabled={ocupat || incarcare || !calendar} onClick={() => { setEroare(''); setImporta(true); }}>{t('sarbatori.completeaza')}</button>}
                 <button className="buton primar" disabled={ocupat || incarcare || !calendar} onClick={() => { setEroare(''); setEditare(new datebaza.Sarbatoare({data: `${String(an).padStart(4, '0')}-01-01`, denumire: {ro: '', en: ''}})); }}>{t('sarbatori.adauga')}</button>
             </div>
         </div>
@@ -76,7 +76,7 @@ export function Sarbatori() {
                 <div className="indicator"><span>{t('sarbatori.luni_vineri')}</span><strong>{zile.length - nelucratoare}</strong></div>
                 <div className="indicator"><span>{t('sarbatori.weekend')}</span><strong>{nelucratoare}</strong></div>
             </div>
-            {an === 2026 && <p className="nota-calendar">{t('sarbatori.precizare')}</p>}
+            {calendar?.import_disponibil && <p className="nota-calendar">{t('sarbatori.precizare')}</p>}
             <div className="panou tabel-derulant"><table className="tabel-sarbatori"><thead><tr><th>{t('sarbatori.data')}</th><th>{t('sarbatori.zi')}</th><th>{t('sarbatori.denumire')}</th><th>{t('ui.actiuni')}</th></tr></thead>
                 <tbody>{zile.map(s => <tr key={s.data}><td>{new Intl.DateTimeFormat(i18n.language).format(new Date(`${s.data}T12:00:00Z`))}</td>
                     <td>{new Intl.DateTimeFormat(i18n.language, {weekday: 'long', timeZone: 'UTC'}).format(new Date(`${s.data}T12:00:00Z`))}</td>
@@ -89,7 +89,7 @@ export function Sarbatori() {
         {importa && <Dialog titlu={t('sarbatori.completeaza')} ocupat={ocupat} inchide={() => { setImporta(false); setEroare(''); }}>
             <div className="corp-dialog"><p>{t('sarbatori.import_indiciu')}</p><p className="text-discret">{t('sarbatori.precizare')}</p>{eroare && <p role="alert" className="mesaj eroare">{eroare}</p>}</div>
             <footer className="subsol-dialog"><button className="buton secundar" disabled={ocupat} onClick={() => setImporta(false)}>{t('ui.anuleaza')}</button>
-                <button className="buton primar" disabled={ocupat} onClick={() => executa(CompleteazaSarbatori2026, true)}>{t(ocupat ? 'ui.salvare' : 'sarbatori.confirma_import')}</button></footer>
+                <button className="buton primar" disabled={ocupat} onClick={() => executa(() => CompleteazaSarbatoriAn(an), true)}>{t(ocupat ? 'ui.salvare' : 'sarbatori.confirma_import')}</button></footer>
         </Dialog>}
     </section>;
 }

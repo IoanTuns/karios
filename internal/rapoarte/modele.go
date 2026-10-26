@@ -63,6 +63,7 @@ var surse = []Sursa{
 	{Cod: "PONTAJ_DETALIAT", Coloane: []string{"angajat", "marca", "sectie", "departament", "functie", "zile", "totaluri"}},
 	{Cod: "FISA_INDIVIDUALA", Coloane: []string{"data", "zi", "ore", "descriere", "categorie"}},
 	{Cod: "ABSENTE_ANUALE", Coloane: []string{"data", "angajat", "marca", "sectie", "departament", "cod", "descriere", "categorie"}},
+	{Cod: "GRAFIC_GARZI", Coloane: []string{"angajat", "marca", "sectie", "departament", "functie", "zile", "total_garzi", "total_ore"}},
 }
 var variabile = []string{"titlu", "an", "luna", "perioada", "sectie", "departament", "angajat", "generat_la"}
 var variabila = regexp.MustCompile(`\{\{([^{}]+)\}\}`)
@@ -140,6 +141,9 @@ func Valideaza(d Definitie) error {
 		return eroare("rapoarte.continut_invalid")
 	}
 	if d.Continut.Sursa == "PONTAJ_DETALIAT" && (!vazute["angajat"] || !vazute["zile"] || d.Continut.Coloane[len(d.Continut.Coloane)-1] != "totaluri") {
+		return eroare("rapoarte.continut_invalid")
+	}
+	if d.Continut.Sursa == "GRAFIC_GARZI" && (!vazute["angajat"] || !vazute["zile"]) {
 		return eroare("rapoarte.continut_invalid")
 	}
 	if (d.Pagina.Format != "A4" && d.Pagina.Format != "A3") || (d.Pagina.Orientare != "PORTRET" && d.Pagina.Orientare != "PEISAJ") || d.Pagina.MargineMM < 5 || d.Pagina.MargineMM > 25 || d.Pagina.FontPT < 6 || d.Pagina.FontPT > 14 {

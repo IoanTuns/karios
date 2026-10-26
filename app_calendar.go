@@ -20,8 +20,12 @@ func (a *App) SalveazaSarbatoare(initiala string, sarbatoare datebaza.Sarbatoare
 }
 
 func (a *App) CompleteazaSarbatori2026() RaspunsCalendar {
-	n, err := datebaza.Nou(a.db).CompleteazaSarbatori2026(a.contextLucru())
-	return a.raspunsCalendar(2026, n, err)
+	return a.CompleteazaSarbatoriAn(2026)
+}
+
+func (a *App) CompleteazaSarbatoriAn(an int) RaspunsCalendar {
+	n, err := datebaza.Nou(a.db).CompleteazaSarbatoriAn(a.contextLucru(), an)
+	return a.raspunsCalendar(an, n, err)
 }
 
 func (a *App) raspunsCalendar(an int, adaugate int64, err error) RaspunsCalendar {

@@ -65,10 +65,8 @@ func TestAnalizeazaAcoperireZileNelucratoare(t *testing.T) {
 	}
 }
 
-func TestAnalizeazaEchitateSiTureConsecutive(t *testing.T) {
+func TestAnalizeazaEchitateSarbatori(t *testing.T) {
 	pozitii := []PozitiePlanificareSimple{
-		{AngajatID: "a1", Data: "2026-10-03", CodSchimb: "G24", Activ: true},
-		{AngajatID: "a1", Data: "2026-10-04", CodSchimb: "Z12", Activ: true}, // consecutiv
 		{AngajatID: "a2", Data: "2026-12-31", CodSchimb: "G24", Activ: true}, // revelion
 		{AngajatID: "a3", Data: "2026-12-25", CodSchimb: "G24", Activ: true}, // craciun
 	}
@@ -82,16 +80,16 @@ func TestAnalizeazaEchitateSiTureConsecutive(t *testing.T) {
 		"2027-05-02": "Paștele",
 	}
 
-	avertismente := AnalizeazaEchitate(2026, 10, pozitii, istoricAnTrecut, istoricAnViitor, sarbatori)
-	if len(avertismente) != 3 {
-		t.Fatalf("asteptam 3 avertismente, am primit %d: %+v", len(avertismente), avertismente)
+	avertismente := AnalizeazaEchitate(2026, 12, pozitii, istoricAnTrecut, istoricAnViitor, sarbatori)
+	if len(avertismente) != 2 {
+		t.Fatalf("asteptam 2 avertismente, am primit %d: %+v", len(avertismente), avertismente)
 	}
 
 	tipuri := map[string]bool{}
 	for _, a := range avertismente {
 		tipuri[a.Tip] = true
 	}
-	if !tipuri["CONSECUTIV"] || !tipuri["ROTATIE_CRACIUN_REVELION"] || !tipuri["CONFLICT_CRACIUN_PASTI"] {
+	if !tipuri["ROTATIE_CRACIUN_REVELION"] || !tipuri["CONFLICT_CRACIUN_PASTI"] {
 		t.Fatalf("lipsesc tipuri de avertisment: %+v", tipuri)
 	}
 }

@@ -16,6 +16,7 @@ import (
 	"pontix/internal/i18n"
 	raportAbsente "pontix/internal/rapoarte/absente"
 	"pontix/internal/rapoarte/detaliat"
+	raportGarzi "pontix/internal/rapoarte/garzi"
 	"pontix/internal/rapoarte/individual"
 	"pontix/internal/rapoarte/pontaj"
 	"pontix/internal/versiune"
@@ -218,7 +219,7 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 	ore := map[string]string{}
 	totaluri := map[string]map[string]calcul.ValoarePontaj{}
 	var configuratie calcul.ConfiguratiePontaj
-	if d.Continut.Sursa != "ABSENTE_ANUALE" {
+	if d.Continut.Sursa != "ABSENTE_ANUALE" && d.Continut.Sursa != "GRAFIC_GARZI" {
 		rezultat, cfg, err := datebaza.CalculeazaPontaj(ctx, q, c.An, c.Luna, nil)
 		if err != nil {
 			return Document{}, traduce(err)
@@ -230,6 +231,33 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 		}
 		for _, r := range rezultat.Totaluri {
 			totaluri[r.AngajatID] = r.Valori
+		}
+	}
+	planificari, err := q.ListaPlanificare(ctx, acces.ListaPlanificareParams{DataDeLa: deLa, DataPanaLa: panaLa})
+	if err != nil {
+		return Document{}, traduce(err)
+	}
+	codSchimb := map[string]string{}
+	durataSchimb := map[string]int64{}
+	for _, sc := range schimburi {
+		codSchimb[sc.ID] = sc.Cod
+		durataSchimb[sc.ID] = sc.DurataMinute
+	}
+	planificariAngajat := map[string]map[string]acces.Planificare{}
+	cuPlanificare := map[string]bool{}
+	totaluriAngajatGarzi := map[string]int{}
+	totaluriAngajatMinute := map[string]int64{}
+	prezenteZi := map[string]int{}
+	for _, p := range planificari {
+		if p.Activ == 1 {
+			if planificariAngajat[p.AngajatID] == nil {
+				planificariAngajat[p.AngajatID] = map[string]acces.Planificare{}
+			}
+			planificariAngajat[p.AngajatID][p.Data] = p
+			cuPlanificare[p.AngajatID] = true
+			totaluriAngajatGarzi[p.AngajatID]++
+			totaluriAngajatMinute[p.AngajatID] += durataSchimb[p.SchimbID]
+			prezenteZi[p.Data]++
 		}
 	}
 	local, _ := time.LoadLocation("Europe/Bucharest")
@@ -251,8 +279,10 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 		doc.VersiuneRaport = individual.Versiune
 	case "ABSENTE_ANUALE":
 		doc.VersiuneRaport = raportAbsente.Versiune
+	case "GRAFIC_GARZI":
+		doc.VersiuneRaport = raportGarzi.Versiune
 	}
-	ponderi := map[string]int{"angajat": 28, "marca": 10, "sectie": 18, "departament": 18, "functie": 22, "data": 14, "zi": 10, "cod": 10, "ore": 10, "descriere": 40, "categorie": 22}
+	ponderi := map[string]int{"angajat": 28, "marca": 10, "sectie": 18, "departament": 18, "functie": 22, "data": 14, "zi": 10, "cod": 10, "ore": 10, "descriere": 40, "categorie": 22, "total_garzi": 10, "total_ore": 10}
 	for _, cod := range d.Continut.Coloane {
 		if cod == "totaluri" {
 			for _, col := range calcul.ColoanePontaj() {
@@ -295,6 +325,9 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 		if (d.Continut.Sursa == "PONTAJ_LUNAR" || d.Continut.Sursa == "PONTAJ_DETALIAT") && a.Activ == 0 && !cuDate[a.ID] {
 			continue
 		}
+		if d.Continut.Sursa == "GRAFIC_GARZI" && a.Activ == 0 && !cuPlanificare[a.ID] {
+			continue
+		}
 		identitate := map[string]string{"angajat": a.Nume + " " + a.Prenume, "marca": a.Marca, "sectie": numeSectii[optional(a.SectieID)], "departament": numeDepartamente[optional(a.DepartamentID)], "functie": optional(a.Functie)}
 		if totaluri[a.ID] == nil && d.Continut.Sursa == "PONTAJ_DETALIAT" {
 			gol, err := calcul.CalculeazaPontaj(deLa, panaLa, configuratie, nil, []calcul.IntrarePontaj{{AngajatID: a.ID, Data: deLa, Valoare: "@M0"}}, nil)
@@ -308,6 +341,22 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 			for _, col := range doc.Coloane {
 				v, culoare := identitate[col.Cod], ""
 				switch col.Cod {
+				case "total_garzi":
+					if g := totaluriAngajatGarzi[a.ID]; g > 0 {
+						v = strconv.Itoa(g)
+					} else {
+						v = "—"
+					}
+				case "total_ore":
+					if m := totaluriAngajatMinute[a.ID]; m > 0 {
+						if m%60 == 0 {
+							v = strconv.FormatInt(m/60, 10)
+						} else {
+							v = fmt.Sprintf("%.2f", float64(m)/60.0)
+						}
+					} else {
+						v = "—"
+					}
 				case "data":
 					v = dataAfisata(data, limba)
 				case "zi":
@@ -332,12 +381,20 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 					culoare = col.Culoare
 				}
 				if len(col.Cod) == 10 && col.Cod[4] == '-' {
-					v = ore[a.ID+"/"+col.Cod]
-					if categorii[celule[a.ID+"/"+col.Cod]] != "" {
-						culoare = "ABSENTA"
+					if d.Continut.Sursa == "GRAFIC_GARZI" {
+						if poz, exista := planificariAngajat[a.ID][col.Cod]; exista {
+							v = codSchimb[poz.SchimbID]
+						} else {
+							v = "—"
+						}
+					} else {
+						v = ore[a.ID+"/"+col.Cod]
+						if categorii[celule[a.ID+"/"+col.Cod]] != "" {
+							culoare = "ABSENTA"
+						}
 					}
 				}
-				if strings.HasPrefix(col.Cod, "total_") {
+				if strings.HasPrefix(col.Cod, "total_") && d.Continut.Sursa != "GRAFIC_GARZI" {
 					v = calcul.TextValoarePontaj(totaluri[a.ID][strings.TrimPrefix(col.Cod, "total_")])
 				}
 				rand.Valori = append(rand.Valori, v)
@@ -346,7 +403,7 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 			doc.Randuri = append(doc.Randuri, rand)
 		}
 		switch d.Continut.Sursa {
-		case "PONTAJ_LUNAR", "PONTAJ_DETALIAT":
+		case "PONTAJ_LUNAR", "PONTAJ_DETALIAT", "GRAFIC_GARZI":
 			adauga("", "")
 		case "FISA_INDIVIDUALA":
 			for zi := 1; zi <= 31; zi++ {
@@ -366,6 +423,50 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 		if len(doc.Randuri) > 10000 {
 			return Document{}, eroare("rapoarte.prea_mare")
 		}
+	}
+	if d.Continut.Sursa == "GRAFIC_GARZI" && len(doc.Randuri) > 0 {
+		randTotal := Rand{Valori: []string{}, Culori: []string{}}
+		totalToateGarzi := 0
+		totalToateMinute := int64(0)
+		for _, g := range totaluriAngajatGarzi {
+			totalToateGarzi += g
+		}
+		for _, m := range totaluriAngajatMinute {
+			totalToateMinute += m
+		}
+		for _, col := range doc.Coloane {
+			v, culoare := "", col.Culoare
+			switch col.Cod {
+			case "angajat":
+				v = t("total_prezente_zi")
+			case "marca", "functie", "sectie", "departament":
+				v = ""
+			case "total_garzi":
+				if totalToateGarzi > 0 {
+					v = strconv.Itoa(totalToateGarzi)
+				} else {
+					v = "0"
+				}
+			case "total_ore":
+				if totalToateMinute > 0 {
+					if totalToateMinute%60 == 0 {
+						v = strconv.FormatInt(totalToateMinute/60, 10)
+					} else {
+						v = fmt.Sprintf("%.2f", float64(totalToateMinute)/60.0)
+					}
+				} else {
+					v = "0"
+				}
+			default:
+				if len(col.Cod) == 10 && col.Cod[4] == '-' {
+					nr := prezenteZi[col.Cod]
+					v = strconv.Itoa(nr)
+				}
+			}
+			randTotal.Valori = append(randTotal.Valori, v)
+			randTotal.Culori = append(randTotal.Culori, culoare)
+		}
+		doc.Randuri = append(doc.Randuri, randTotal)
 	}
 	stareReguli := t("reguli_neaplicate")
 	if configuratie.Revizie != "" {

@@ -4,6 +4,18 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.34.0 · 2026-10-26
+
+Raport dedicat pentru graficul lunar de gărzi și schimburi, calendare sărbători legale 2025 și 2027, eliminare avertisment zile consecutive în mod standard și propunere arhitectură motor reguli configurabile (F11-T07, D040, D041, I061, I062).
+
+- **Raport oficial Grafic lunar de gărzi și schimburi (`raport-garzi`):** Sursă nouă de raportare `GRAFIC_GARZI`, generată direct din tabela de planificare, afișând matricea lunară cu personalul pe rânduri, zilele 1–31 cu evidențierea weekendurilor și a sărbătorilor, totalurile lunare de gărzi și ore, rândul de sinteză `TOTAL / ZI` pentru verificarea acoperirii zilnice și blocul oficial de semnături (Întocmit, Avizat, Aprobat).
+- **Acces direct din Planificare:** Buton dedicat `Grafic gărzi (PDF)` în bara de acțiuni a ecranului Planificare, cu previzualizare instantanee în dialog modal maximizabil, opțiuni de descărcare și tipărire directă.
+- **Sărbători legale 2025 și 2027:** Adăugarea calendarelor oficiale de sărbători legale pentru România pentru anii 2025 (Paști 20 aprilie, Rusalii 8–9 iunie) și 2027 (Paști 2 mai, Rusalii 20–21 iunie), cu import complet automat în interfață.
+- **Ajustare avertismente grilă:** Eliminarea avertismentului neadecvat pentru ture în zile consecutive normale (`CONSECUTIV`), păstrând exclusiv rotația de sărbători (Crăciun/Revelion/Paști).
+
+Baza de date: migrarea **0018** (`definitii_rapoarte` pentru `raport-garzi`).
+Rapoarte: raport nou `raport-garzi` (sursa `GRAFIC_GARZI`, versiune **1**).
+
 ## 0.33.0 · 2026-10-26
 
 Îmbunătățire ergonomie modal sumar planificare angajat: opțiune de mărire/maximizare dialog și bară de derulare completă pe verticală și orizontală (F11-T04).

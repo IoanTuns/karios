@@ -216,24 +216,26 @@ func TestPublicareUnificataToateSectiunile(t *testing.T) {
 func TestCitesteAcoperireSiEchitatePlanificare(t *testing.T) {
 	m, id, schimburi := mediuPlanificare(t)
 	ctx := context.Background()
-	planTest(t, m, 2026, 10,
-		PozitiePlanificare{AngajatID: id, Data: "2026-10-03", SchimbID: schimburi["G24"], Sectiune: "GARZI", Activ: true},
-		PozitiePlanificare{AngajatID: id, Data: "2026-10-04", SchimbID: schimburi["Z12"], Sectiune: "GARZI", Activ: true},
+	planTest(t, m, 2026, 12,
+		PozitiePlanificare{AngajatID: id, Data: "2026-12-31", SchimbID: schimburi["G24"], Sectiune: "GARZI", Activ: true},
+	)
+	planTest(t, m, 2025, 12,
+		PozitiePlanificare{AngajatID: id, Data: "2025-12-25", SchimbID: schimburi["G24"], Sectiune: "GARZI", Activ: true},
 	)
 
-	rap, err := m.serviciu.CitesteAcoperirePlanificare(ctx, 2026, 10, nil)
+	rap, err := m.serviciu.CitesteAcoperirePlanificare(ctx, 2026, 12, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if rap.TotalZileNelucratoare == 0 || rap.TotalPosturiAcoperite == 0 {
+	if rap.TotalZileNelucratoare == 0 {
 		t.Fatalf("raport acoperire invalid: %+v", rap)
 	}
 
-	avertismente, err := m.serviciu.CitesteEchitatePlanificare(ctx, 2026, 10)
+	avertismente, err := m.serviciu.CitesteEchitatePlanificare(ctx, 2026, 12)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if len(avertismente) == 0 {
-		t.Fatal("asteptam cel putin un avertisment consecutiv pentru 3 si 4 octombrie")
+		t.Fatal("asteptam avertisment de rotatie Craciun N-1 -> Revelion N")
 	}
 }

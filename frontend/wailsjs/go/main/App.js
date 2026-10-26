@@ -50,6 +50,10 @@ export function CompleteazaSarbatori2026() {
   return window['go']['main']['App']['CompleteazaSarbatori2026']();
 }
 
+export function CompleteazaSarbatoriAn(arg1) {
+  return window['go']['main']['App']['CompleteazaSarbatoriAn'](arg1);
+}
+
 export function CompleteazaSchimburiInitiale(arg1) {
   return window['go']['main']['App']['CompleteazaSchimburiInitiale'](arg1);
 }
