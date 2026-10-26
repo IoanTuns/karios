@@ -22,18 +22,41 @@ function minuteDinOre(valoare: string): number | null {
     return valoare.trim() && Number.isFinite(minute) && Math.abs(minute - intreg) < 0.00001 && intreg >= 1 && intreg <= 1440 ? intreg : null;
 }
 
-export function Dialog({titlu, ocupat, inchide, children}: {titlu: string; ocupat: boolean; inchide: () => void; children: ReactNode}) {
+export function Dialog({titlu, ocupat, inchide, children, permiteMaximizare, clasa}: {
+    titlu: string;
+    ocupat: boolean;
+    inchide: () => void;
+    children: ReactNode;
+    permiteMaximizare?: boolean;
+    clasa?: string;
+}) {
     const ref = useRef<HTMLDialogElement>(null);
+    const [maximizat, setMaximizat] = useState(false);
     const {t} = useTranslation();
     useEffect(() => {
         const dialog = ref.current;
         dialog?.showModal();
         return () => { dialog?.close(); };
     }, []);
-    return <dialog ref={ref} className="dialog" aria-labelledby="titlu-dialog"
+    return <dialog ref={ref} className={`dialog ${clasa||''} ${maximizat?'dialog-maximizat':''}`} aria-labelledby="titlu-dialog"
         onCancel={e => { e.preventDefault(); if (!ocupat) inchide(); }}>
-        <div className="antet-dialog"><h2 id="titlu-dialog">{titlu}</h2>
-            <button type="button" className="buton-inchidere" aria-label={t('ui.inchide')} disabled={ocupat} onClick={inchide}>×</button></div>
+        <div className="antet-dialog">
+            <h2 id="titlu-dialog">{titlu}</h2>
+            <div className="actiuni-antet-dialog">
+                {permiteMaximizare && (
+                    <button
+                        type="button"
+                        className="buton-marire"
+                        aria-label={t(maximizat ? 'ui.restaureaza' : 'ui.mareste')}
+                        title={t(maximizat ? 'ui.restaureaza' : 'ui.mareste')}
+                        disabled={ocupat}
+                        onClick={() => setMaximizat(!maximizat)}>
+                        {maximizat ? '🗗' : '🗖'}
+                    </button>
+                )}
+                <button type="button" className="buton-inchidere" aria-label={t('ui.inchide')} disabled={ocupat} onClick={inchide}>×</button>
+            </div>
+        </div>
         {children}
     </dialog>;
 }

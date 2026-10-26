@@ -35,3 +35,4 @@ Stare: acceptată · Data: 2026-10-26 · Propusă de: Antigravity · Decisă de:
    - Verificările sunt **avertismente vizuale neblocante** (marcate cu indicator de avertisment / atenție și text explicativ în inspecție și sumar), permițând salvarea dacă planificatorul decide derogări.
    - Sistemul corelează automat istoricul anilor anteriori și viitori pentru sărbătorile de Crăciun (25–26 decembrie), Revelion (31 decembrie – 1–2 ianuarie) și Paști (Vinerea Mare, Duminica și Lunea Paștelui).
    - Pentru ture consecutive (gărzi de 24h consecutive sau gărzi urmate imediat de alte ture ori două zile de weekend consecutive fără repaus), celulele primesc un marcaj de alertă.
+

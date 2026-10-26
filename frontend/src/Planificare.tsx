@@ -560,24 +560,26 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
             </div>
         </>:null}
 
-        {dialogSumar&&<Dialog titlu={t('planificare.sumar_angajat_titlu',{nume:`${dialogSumar.nume} ${dialogSumar.prenume}`})} ocupat={ocupat} inchide={()=>setDialogSumar(null)}>
-            <PanouSumarAngajat
-                angajat={dialogSumar}
-                an={an}
-                luna={luna}
-                date={date}
-                plan={plan}
-                schimburi={schimburi}
-                sarbatori={sarbatori}
-                absente={absente}
-                avertismenteEchitate={avertismenteEchitate}
-                ocupat={ocupat}
-                salveazaPozitii={salveazaPozitiiLista}/>
+        {dialogSumar&&<Dialog titlu={t('planificare.sumar_angajat_titlu',{nume:`${dialogSumar.nume} ${dialogSumar.prenume}`})} ocupat={ocupat} permiteMaximizare={true} inchide={()=>setDialogSumar(null)}>
+            <div className="corp-dialog corp-dialog-sumar">
+                <PanouSumarAngajat
+                    angajat={dialogSumar}
+                    an={an}
+                    luna={luna}
+                    date={date}
+                    plan={plan}
+                    schimburi={schimburi}
+                    sarbatori={sarbatori}
+                    absente={absente}
+                    avertismenteEchitate={avertismenteEchitate}
+                    ocupat={ocupat}
+                    salveazaPozitii={salveazaPozitiiLista}/>
+            </div>
         </Dialog>}
 
         {editare&&<FormularPlanificare key={editare.id||'nou'} pozitie={editare} an={an} luna={luna} date={date} schimburi={schimburi} sarbatori={sarbatori} ocupat={ocupat} eroare={eroare} inchide={()=>{setEditare(null);setEroare('');}} salveaza={salveazaPozitiiLista}/>}
 
-        {publicare&&<Dialog titlu={t('planificare.titlu_publicare',{sectiune:sectiune==='TOATE'?t('planificare.publicare_toate'):t(`planificare.sectiune_${sectiune}`)})} ocupat={ocupat} inchide={()=>{setPublicare(null);setEroare('');}}>
+        {publicare&&<Dialog titlu={t('planificare.titlu_publicare',{sectiune:sectiune==='TOATE'?t('planificare.publicare_toate'):t(`planificare.sectiune_${sectiune}`)})} ocupat={ocupat} permiteMaximizare={true} inchide={()=>{setPublicare(null);setEroare('');}}>
             <div className="corp-dialog previzualizare-publicare">
                 <p>{t('planificare.publicare_indiciu')}</p>
                 {eroare&&<p role="alert" className="mesaj eroare">{eroare}</p>}

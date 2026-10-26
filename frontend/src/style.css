@@ -412,16 +412,28 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .badge-post-lipsa { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 4px; background: #fae4e2; color: #9c2720; font-size: 11px; font-weight: 700; border: 1px solid #f0beba; }
 
 /* Sumar Angajat */
-.panou-sumar-angajat { display: flex; flex-direction: column; gap: 14px; }
-.antet-sumar-angajat { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; background: #fff; border: 1px solid var(--linie); border-radius: 6px; padding: 12px 16px; }
+.dialog:has(.panou-sumar-angajat) { width: min(880px, calc(100vw - 36px)); max-width: 880px; }
+.dialog.dialog-maximizat { width: calc(100vw - 32px) !important; max-width: calc(100vw - 32px) !important; height: calc(100vh - 32px) !important; max-height: calc(100vh - 32px) !important; border-radius: 8px; }
+.actiuni-antet-dialog { display: flex; align-items: center; gap: 8px; }
+.buton-marire { background: none; border: none; color: var(--discret); font-size: 15px; line-height: 1; padding: 4px 6px; cursor: pointer; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; }
+.buton-marire:hover:not(:disabled) { background: #eef2ef; color: var(--text); }
+.corp-dialog-sumar { display: flex; flex-direction: column; min-height: 0; flex: 1; overflow: hidden; padding: 16px 22px 20px; }
+.panou-sumar-angajat { display: flex; flex-direction: column; gap: 12px; min-height: 0; flex: 1; overflow: hidden; }
+.antet-sumar-angajat { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; background: #fff; border: 1px solid var(--linie); border-radius: 6px; padding: 12px 16px; flex-shrink: 0; }
 .statistici-sumar-angajat { display: flex; flex-wrap: wrap; gap: 12px; }
 .statistica-sumar-item { background: #f4f7f5; border: 1px solid #dce5e0; border-radius: 5px; padding: 6px 12px; font-size: 12px; }
 .statistica-sumar-item strong { display: block; font-size: 15px; color: var(--text); margin-top: 2px; }
-.caseta-avertismente-sumar { display: flex; flex-direction: column; gap: 6px; background: #fff9ea; border: 1px solid #ffd591; border-radius: 6px; padding: 10px 14px; font-size: 12px; color: #873800; }
+.caseta-avertismente-sumar { display: flex; flex-direction: column; gap: 6px; background: #fff9ea; border: 1px solid #ffd591; border-radius: 6px; padding: 10px 14px; font-size: 12px; color: #873800; flex-shrink: 0; }
 .caseta-avertismente-sumar ul { margin: 4px 0 0 16px; padding: 0; }
-.tabel-sumar-angajat { width: 100%; border-collapse: collapse; }
-.tabel-sumar-angajat th, .tabel-sumar-angajat td { padding: 6px 10px; border-bottom: 1px solid var(--linie); font-size: 12px; vertical-align: middle; }
-.tabel-sumar-angajat thead th { background: #f2f6f1; font-weight: 600; position: sticky; top: 0; z-index: 2; }
-.tabel-sumar-angajat select { min-width: 140px; padding: 4px 8px; font-size: 12px; }
+.panou-sumar-angajat .tabel-derulant { max-height: min(480px, calc(100vh - 280px)); overflow-y: scroll; overflow-x: auto; border: 1px solid var(--linie); border-radius: 6px; scrollbar-gutter: stable; scrollbar-width: thin; scrollbar-color: #a8beb0 #f0f4f1; }
+.dialog-maximizat .panou-sumar-angajat .tabel-derulant { max-height: none; flex: 1; }
+.tabel-sumar-angajat { width: 100%; min-width: 680px; border-collapse: collapse; }
+.tabel-sumar-angajat th, .tabel-sumar-angajat td { padding: 7px 10px; border-bottom: 1px solid var(--linie); font-size: 12px; vertical-align: middle; }
+.tabel-sumar-angajat thead th { background: #f2f6f1; font-weight: 600; position: sticky; top: 0; z-index: 2; box-shadow: 0 1px 0 var(--linie); }
+.tabel-sumar-angajat select { min-width: 150px; padding: 4px 8px; font-size: 12px; }
+.panou-sumar-angajat .tabel-derulant::-webkit-scrollbar, .corp-dialog-sumar::-webkit-scrollbar { width: 10px; height: 10px; }
+.panou-sumar-angajat .tabel-derulant::-webkit-scrollbar-track, .corp-dialog-sumar::-webkit-scrollbar-track { background: #f0f4f1; border-radius: 4px; }
+.panou-sumar-angajat .tabel-derulant::-webkit-scrollbar-thumb, .corp-dialog-sumar::-webkit-scrollbar-thumb { background: #a8beb0; border-radius: 4px; border: 2px solid #f0f4f1; }
+.panou-sumar-angajat .tabel-derulant::-webkit-scrollbar-thumb:hover, .corp-dialog-sumar::-webkit-scrollbar-thumb:hover { background: #6e8a78; }
 
 

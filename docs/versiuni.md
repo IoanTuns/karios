@@ -4,6 +4,15 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.33.0 · 2026-10-26
+
+Îmbunătățire ergonomie modal sumar planificare angajat: opțiune de mărire/maximizare dialog și bară de derulare completă pe verticală și orizontală (F11-T04).
+
+- **Opțiune de mărire fereastră (maximizare):** Buton dedicat `🗖` / `🗗` în antetul dialogului pentru comutarea între dimensiunea standard mărită (`min(880px, calc(100vw - 36px))`) și modul pe tot ecranul (`calc(100vw - 32px)` / `calc(100vh - 32px)`).
+- **Bară de derulare și lățime optimizată:** Zona tabelară a sumarului lunar include acum bară de derulare verticală dedicată cu `scrollbar-gutter: stable` și stil Pontix, permițând parcurgerea facilă a tuturor celor 31 de zile, iar lățimea generoasă elimină tăierea coloanei de acțiuni.
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.32.0 · 2026-10-26
 
 Sumar editabil pe angajat, raport complet de acoperire pentru weekenduri și sărbători legale, verificare echitate rotație și marcaje pentru ture consecutive (F11-T04, F11-T05, F11-T06, I058–I060, D039).

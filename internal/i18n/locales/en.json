@@ -375,6 +375,8 @@
   "ui.salveaza": "Save",
   "ui.anuleaza": "Cancel",
   "ui.inchide": "Close",
+  "ui.mareste": "Maximize window",
+  "ui.restaureaza": "Restore size",
   "ui.reincearca": "Try again",
   "ui.salvat": "Changes saved.",
   "ui.demo_salvat": "Demo data loaded. You can edit each employee.",

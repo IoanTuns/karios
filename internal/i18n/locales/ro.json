@@ -375,6 +375,8 @@
   "ui.salveaza": "Salvează",
   "ui.anuleaza": "Anulează",
   "ui.inchide": "Închide",
+  "ui.mareste": "Mărește fereastra",
+  "ui.restaureaza": "Restabilește dimensiunea",
   "ui.reincearca": "Încearcă din nou",
   "ui.salvat": "Modificările au fost salvate.",
   "ui.demo_salvat": "Datele demo au fost încărcate. Poți edita fiecare angajat.",
