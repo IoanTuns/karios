@@ -55,7 +55,7 @@ h2 { font-size: 18px; font-weight: 600; margin: 0 0 11px; letter-spacing: -.3px;
 .lista-angajati { overflow: hidden; }
 .unelte { padding: 18px; display: flex; align-items: center; gap: 10px; }
 input, select { min-height: 39px; border: 1px solid #d6dfd9; border-radius: 6px; padding: 9px 11px; background: #fff; color: #2c4540; font-size: 13px; }
-input::placeholder { color: #87948c; }
+input::placeholder { color: #65756c; }
 input:hover, select:hover { border-color: #9db5a9; }
 .unelte select { max-width: 180px; }
 .cautare { position: relative; flex: 1; min-width: 150px; }
@@ -155,13 +155,13 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .grila-pontaj .fix-nume small { display: block; color: var(--discret); font-size: 10px; }
 .grila-pontaj .fix-marca { position: sticky; left: 180px; width: 80px; min-width: 80px; max-width: 80px; font-size: 10px; background: #fff; z-index: 2; border-right: 2px solid #a8beb0; }
 .grila-pontaj thead .fix-nume, .grila-pontaj thead .fix-marca { z-index: 4; background: #f2f6f1; }
-.grila-pontaj input { width: 51px; min-width: 0; min-height: 37px; padding: 6px 3px; background: transparent; border: 0; border-radius: 0; text-align: center; color: #167d9d; font-size: 12px; font-weight: 550; }
+.grila-pontaj input { width: 51px; min-width: 0; min-height: 37px; padding: 6px 3px; background: transparent; border: 0; border-radius: 0; text-align: center; color: #145a70; font-size: 12px; font-weight: 550; }
 .grila-pontaj input:focus-visible { position: relative; outline: 2px solid var(--verde); outline-offset: -2px; z-index: 1; }
 .grila-pontaj .zi-weekend { background: #e5e8e5; }
 .grila-pontaj .zi-sarbatoare { background: #fff2cf; }
 .grila-pontaj .celula-selectata { background: #dcefe5; box-shadow: inset 0 0 0 1px #acd0b8; }
 .grila-pontaj .celula-modificata { background-image: linear-gradient(135deg, #c5983a 5px, transparent 5px); }
-.grila-pontaj .total-necalculat { min-width: 65px; width: 65px; max-width: 65px; padding: 5px; white-space: normal; background: #f8f9f6; color: #859087; font-size: 10px; }
+.grila-pontaj .total-necalculat { min-width: 65px; width: 65px; max-width: 65px; padding: 5px; white-space: normal; background: #f8f9f6; color: #59675e; font-size: 10px; }
 .continut-pontaj { height: 100vh; display: flex; flex-direction: column; padding-bottom: 16px; }
 .continut-pontaj .antet { flex-shrink: 0; margin-bottom: 16px; }
 .continut-pontaj .fir-navigare { margin-bottom: 12px; }
@@ -256,7 +256,6 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .cadru-previzualizare-cerere { width: 100%; height: 620px; border: 1px solid var(--linie); border-radius: 5px; background: #fff; }
 .imagine-previzualizare-cerere { max-width: 100%; max-height: 620px; object-fit: contain; border-radius: 5px; background: #fff; }
 .grila-pontaj td.celula-avertisment { background-color: #fff6db; box-shadow: inset 0 0 0 1px #d99b26; }
-.grila-pontaj td.total-diferenta { background-color: #fff8e6; color: #7b520f; font-weight: 650; }
 .selector-limba { display: block; width: 100%; margin-top: 10px; min-height: 31px; padding: 4px 8px; font-size: 11px; }
 .inspectie-celula { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; background: #fff; border: 1px solid var(--linie); border-radius: 7px; padding: 8px 12px; font-size: 12px; margin-bottom: 6px; }
 .detalii-celula-activa { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
@@ -288,3 +287,51 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .continut-setari .buton-tab { color: #2b456b; border-color: #cbd7e6; }
 .continut-setari .buton-tab.activ { background: #2b4c7e; color: #fff; border-color: #2b4c7e; }
 .taburi-setari { margin: -8px 0 22px; padding-bottom: 14px; border-bottom: 1px solid var(--linie); }
+
+/* F05-T19: grila ocupă spațiul principal; comenzile detaliate se deschid la cerere. */
+.continut-pontaj .antet { margin-bottom: 12px; }
+.continut-pontaj .fir-navigare { margin-bottom: 6px; }
+.continut-pontaj .descriere { margin-bottom: 0; }
+.pontaj-lunar .unelte-perioada { gap: 8px; }
+.pontaj-lunar .unelte-perioada form { gap: 6px; }
+.pontaj-lunar .unelte-perioada input { width: 88px; }
+.pontaj-lunar .unelte-perioada label { gap: 3px; }
+.pontaj-lunar .unelte-grila { position: relative; gap: 7px; margin-bottom: 8px; }
+.pontaj-lunar .unelte-grila > input { width: 205px; }
+.panou-activ { box-shadow: inset 0 -2px var(--verde); }
+.stare-modificari { margin-left: auto; color: var(--verde); font-size: 11px; font-weight: 600; }
+.panou-unelte { position: absolute; top: calc(100% + 5px); left: 0; width: min(620px, 100%); max-height: min(420px, 65vh); overflow: auto; z-index: 10; padding: 14px; display: flex; align-items: center; flex-wrap: wrap; gap: 10px; background: #fff; border: 1px solid #b9cdc2; border-radius: 7px; box-shadow: 0 10px 30px #163f2526; }
+.panou-unelte[hidden] { display: none; }
+.panou-unelte select { max-width: 100%; }
+.panou-unelte input { width: 170px; }
+.panou-unelte .paleta-schimburi { flex-basis: 100%; padding-block: 6px; border-block: 1px solid var(--linie); }
+.panou-unelte.ajutor-pontaj { display: block; font-size: 12px; line-height: 1.6; }
+.panou-unelte.ajutor-pontaj[hidden] { display: none; }
+.ajutor-pontaj p { margin: 0 0 10px; }
+.ajutor-pontaj p:last-child { margin-bottom: 0; }
+.pontaj-lunar .inspectie-celula { gap: 6px; padding: 6px 10px; margin-bottom: 5px; }
+.pontaj-lunar .detalii-celula-activa { gap: 5px 10px; }
+.legenda-grila { display: flex; flex-wrap: wrap; gap: 5px 12px; font-size: 10px; color: #52655c; margin-bottom: 7px; }
+.legenda-grila span { display: inline-flex; align-items: center; gap: 4px; }
+.legenda-grila i { display: inline-block; width: 12px; height: 12px; border: 1px solid #9eafa4; border-radius: 2px; }
+.legenda-grila .mostra-weekend { background: #e5e8e5; }
+.legenda-grila .mostra-sarbatoare { background: #fff2cf; }
+.legenda-grila .mostra-selectie { background: #dcefe5; border-color: #17655a; }
+.legenda-grila .mostra-modificat { background: linear-gradient(135deg, #8c661d 6px, #fff 6px); }
+.legenda-grila .mostra-avertisment { background: #fff6db; border-color: #a36a00; }
+.legenda-grila .mostra-inlocuire { border-bottom: 3px solid #2d6699; }
+.dialog[open] { display: flex; flex-direction: column; overflow: hidden; }
+.dialog > .antet-dialog, .dialog .subsol-dialog { flex-shrink: 0; }
+.dialog > form { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+.dialog .corp-dialog { min-height: 0; overflow: auto; overscroll-behavior: contain; }
+.dialog .previzualizare-cerere-corp { min-height: 0; }
+.dialog .imagine-previzualizare-cerere { max-height: calc(100vh - 240px); }
+.dialog .cadru-previzualizare-cerere { height: min(620px, calc(100vh - 240px)); }
+.reguli-pontaj .unelte-calendar { position: sticky; top: 0; z-index: 5; padding: 10px; background: #f5f7f6; border: 1px solid var(--linie); border-radius: 7px; box-shadow: 0 3px 8px #163f2510; }
+@media (max-width: 1150px) {
+    .continut-pontaj { padding-top: 16px; }
+    .continut-pontaj .antet { margin-bottom: 9px; }
+    .continut-pontaj .descriere, .continut-pontaj .fir-navigare { display: none; }
+    .continut-pontaj h1 { font-size: 24px; }
+    .pontaj-lunar .unelte-perioada .buton { padding-inline: 9px; }
+}

@@ -5,7 +5,7 @@ import {datebaza, main} from '../wailsjs/go/models';
 import {DialogDemo, FormularAngajat, Setari, durata, denumireSectie, denumireDepartament} from './Formulare';
 import {Sarbatori} from './Sarbatori';
 import {Schimburi} from './Schimburi';
-import {Pontaj} from './Pontaj';
+import {Pontaj, type ContextPontaj} from './Pontaj';
 import {Absente} from './Absente';
 import {ReguliPontaj} from './ReguliPontaj';
 import {DefinireRapoarte, GenerareRapoarte} from './Rapoarte';
@@ -51,6 +51,7 @@ function App() {
     const [demo, setDemo] = useState(false);
     const [pontajModificat, setPontajModificat] = useState(false);
     const [pontajOcupat, setPontajOcupat] = useState(false);
+    const contextPontaj = useRef<ContextPontaj | null>(null);
     const [filtruAbsente, setFiltruAbsente] = useState<{an: number; angajatId: string} | null>(null);
 
     function aplica(raspuns: main.RaspunsDate): boolean {
@@ -154,7 +155,7 @@ function App() {
             {mesaj && <div className="mesaj succes" role="status">{mesaj}</div>}
             {incarcare ? <div className="asteptare" role="status">{t('ui.incarcare')}</div>
                 : !date ? <button className="buton secundar" disabled={ocupat} onClick={() => executa(DateInitiale, '')}>{t('ui.reincearca')}</button>
-                : ecran === 'pontaj' ? <Pontaj date={date} onModificari={setPontajModificat} onOcupat={setPontajOcupat} onDeschideAbsente={(an, angajatId) => { setFiltruAbsente({an, angajatId}); setPontajModificat(false); setEcran('absente'); setEroare(''); setMesaj(''); }}/>
+                : ecran === 'pontaj' ? <Pontaj date={date} context={contextPontaj} onModificari={setPontajModificat} onOcupat={setPontajOcupat} onDeschideAbsente={(an, angajatId) => { setFiltruAbsente({an, angajatId}); setPontajModificat(false); setEcran('absente'); setEroare(''); setMesaj(''); }}/>
                 : ecran === 'sarbatori' ? <Sarbatori/>
                 : ecran === 'schimburi' ? <Schimburi/>
                 : ecran === 'absente' ? <Absente date={date} filtruInitial={filtruAbsente}/>

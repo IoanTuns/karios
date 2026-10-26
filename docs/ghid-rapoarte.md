@@ -24,6 +24,8 @@ Fiecare raport poate avea **una sau mai multe pagini**. Conținutul continuă au
 
 Salvează modelul înainte de generare. Un model inactiv rămâne în listă și poate fi reactivat prin editare, dar nu apare la generare. La modificări concurente, salvarea refuză versiunea veche și păstrează formularul pentru a putea copia textele înainte de reîncărcare.
 
+Din 0.28.0, antetul editorului și butoanele **Anulează / Salvează** rămân vizibile când derulezi formularul, inclusiv la modele cu imagini în antet și subsol. Derularea se face în corpul dialogului.
+
 ## Rapoarte
 
 1. Deschide **Rapoarte**, alege un model activ, anul/luna și limba documentului.

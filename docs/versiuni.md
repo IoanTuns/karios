@@ -4,6 +4,16 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.28.0 · 2026-10-26
+
+Primul lot UI după audit (F05-T19, I045–I048, D035): comenzile detaliate din Pontaj sunt grupate în Filtre, Completare și Ajutor, lăsând grilei mai mult spațiu. Căutarea și salvarea rămân la vedere; legenda textuală și contrastul orelor/valorilor necalculate clarifică stările.
+
+- T diferit de Ore norm nu mai produce un avertisment de normă contractuală. Ore norm păstrează sensul de ore lucrate în zile normale; explicația este disponibilă în Ajutor și la total. Avertismentele existente după G24 și peste 24 h se păstrează.
+- Navigarea din și în Pontaj păstrează în sesiune perioada, filtrele, selecția și derularea. Modificările nesalvate cer în continuare confirmare; la revenire datele se recitesc din bază.
+- Dialogurile lungi au antet și acțiuni permanente, cu derulare în corp. Bara de salvare din Configurare pontaj rămâne accesibilă la derularea paginii.
+
+Rapoarte, formule, biblioteci și baza de date: nicio schimbare. Lista următoarelor loturi este în [lista UI](lista-lucru-ui.md).
+
 ## 0.27.0 · 2026-10-26
 
 Gruparea ecranelor de configurare în meniul Setări, redenumirea „Sărbători” în „Zile libere legale” și temă vizuală distinctă (albastru-ardezie) pentru zona Setări (F05-T17, I044, D034).
