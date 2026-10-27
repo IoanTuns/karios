@@ -1,6 +1,6 @@
 import {useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {ListaModeleRapoarte, SalveazaModelRaport, PregatesteRaport, SalveazaPDFRaport, DeschidePDFPentruTiparire} from '../wailsjs/go/main/App';
+import {ListaModeleRapoarte, SalveazaModelRaport, PregatesteRaport, SalveazaPDFRaport, DeschidePDFPentruTiparire, ExportaPontajExcel} from '../wailsjs/go/main/App';
 import {datebaza, main, rapoarte} from '../wailsjs/go/models';
 import {Dialog, denumireDepartament, denumireSectie} from './Formulare';
 
@@ -134,6 +134,29 @@ export function GenerareRapoarte({date}: {date: datebaza.Date}) {
         try { const r=await (tipareste?DeschidePDFPentruTiparire:SalveazaPDFRaport)(rezultat.token);if(r.eroare)setEroare(t(r.eroare.cod,r.eroare.param||{}));else if(!r.anulat)setMesaj(t(tipareste?'rapoarte.deschis':'rapoarte.fisier_salvat',{cale:r.cale})); }
         catch { setEroare(t('rapoarte.eroare')); } finally { blocat.current=false;setOcupat(false); }
     }
+    async function exportaExcelPontaj() {
+        if (blocat.current) return;
+        blocat.current=true;setOcupat(true);setEroare('');setMesaj('');
+        try {
+            const r = await ExportaPontajExcel(selectie.an, selectie.luna);
+            if (r.eroare) setEroare(t(r.eroare.cod, r.eroare.param||{}));
+            else if (r.cale) setMesaj(t('rapoarte.fisier_salvat', {cale: r.cale}));
+            else if (!r.anulat && r.continut) {
+                const octeti = Uint8Array.from(atob(r.continut), c => c.charCodeAt(0));
+                const blob = new Blob([octeti], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+                const urlFisier = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = urlFisier;
+                a.download = r.nume_fisier || `Pontix_Pontaj_${selectie.an}_${String(selectie.luna).padStart(2, '0')}.xlsx`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(urlFisier);
+                setMesaj(t('pontaj.export_excel_succes'));
+            }
+        } catch { setEroare(t('rapoarte.eroare')); }
+        finally { blocat.current=false;setOcupat(false); }
+    }
     return <section className="generare-rapoarte">{eroare && <p className="mesaj eroare" role="alert">{eroare}</p>}{mesaj && <p className="mesaj succes" role="status">{mesaj}</p>}
         <p className="nota-calendar">{t('rapoarte.paginare_indiciu')}</p>
         {incarcare ? <p role="status">{t('ui.incarcare')}</p> : <><form className="panou filtre-raport" onSubmit={e => { e.preventDefault();genereaza(); }}><fieldset disabled={ocupat}><label className="alegere-model">{t('rapoarte.model')}<select name="model_raport" required value={model?.id || ''} onChange={e => seteaza('model',e.target.value)}>{!modele.length && <option value="">{t('rapoarte.selecteaza_model')}</option>}{modele.map(d => <option key={d.id} value={d.id}>{textIn(d.denumire,i18n.language)}</option>)}</select></label>
@@ -143,7 +166,8 @@ export function GenerareRapoarte({date}: {date: datebaza.Date}) {
             <label>{t('ui.sectie')}<select name="sectie_raport" value={selectie.sectie} onChange={e => seteaza('sectie',e.target.value)}><option value="">{t('ui.toate_sectiile')}</option>{date.sectii.map(s => <option key={s.id} value={s.id}>{denumireSectie(s,i18n.language)}</option>)}</select></label>
             <label>{t('ui.departament')}<select name="departament_raport" value={selectie.departament} onChange={e => seteaza('departament',e.target.value)}><option value="">{t('ui.toate_departamentele')}</option>{(date.departamente||[]).filter(d => !selectie.sectie || d.sectie_id===selectie.sectie).map(d => <option key={d.id} value={d.id}>{denumireDepartament(d,i18n.language)}</option>)}</select></label>
             <label>{t('ui.angajat')}<select name="angajat_raport" required={model?.continut.sursa==='FISA_INDIVIDUALA'} value={selectie.angajat} onChange={e => seteaza('angajat',e.target.value)}><option value="">{t(model?.continut.sursa==='FISA_INDIVIDUALA'?'absente.alege_angajat':'absente.toti_angajatii')}</option>{date.angajati.filter(a => (!selectie.sectie||a.sectie_id===selectie.sectie)&&(!selectie.departament||a.departament_id===selectie.departament)).map(a => <option key={a.id} value={a.id}>{a.nume} {a.prenume} · {a.marca}</option>)}</select></label>
-            <button className="buton primar" disabled={!model}>{t('rapoarte.genereaza')}</button></fieldset></form>
+            <button className="buton primar" disabled={!model}>{t('rapoarte.genereaza')}</button>
+            <button type="button" className="buton secundar" title="Export Excel (.xlsx)" disabled={ocupat} onClick={exportaExcelPontaj}>📊 {t('pontaj.export_excel')}</button></fieldset></form>
             {!modele.length && <p className="fara-rezultate">{t('rapoarte.lista_goala')}</p>}<button className="legatura" disabled={ocupat} onClick={() => { setRezultat(null);reincarca(); }}>{t('rapoarte.reincarca')}</button>
             {rezultat?.document && <div className="rezultat-raport"><div className="unelte-calendar"><p role="status">{t('rapoarte.generat',{randuri:rezultat.document.randuri.length,versiune:rezultat.document.versiune_raport,revizie:rezultat.document.revizie_model})} · {t('rapoarte.numar_pagini',{numar:rezultat.pagini})}</p><div className="actiuni-calendar"><button className="buton secundar" disabled={ocupat} onClick={() => fisier(false)}>{t('rapoarte.salveaza_pdf')}</button><button className="buton primar" disabled={ocupat} onClick={() => fisier(true)}>{t('rapoarte.tipareste')}</button></div></div><p className="nota-calendar">{t('rapoarte.tiparire_indiciu')}</p>{url && <iframe className="previzualizare-pdf" title={t('rapoarte.previzualizare')} src={`${url}#view=FitH`}/>}</div>}
         </>}

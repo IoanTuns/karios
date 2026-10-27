@@ -4,6 +4,19 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.50.0 · 2026-10-27
+
+Export Excel nativ (.xlsx via excelize) al foii colective de pontaj și centralizatorului pentru salarizare (F10-T02).
+
+- **Generare registru Excel profesional (`internal/exportexcel/export.go`):** Generator nativ bazat pe biblioteca `excelize/v2`, structurat pe două foi de calcul:
+  * **Foaia 1 („Pontaj Lunar”):** Foaia colectivă de prezență completă (Nr. crt., Nume, Marcă, Funcție, zilele 1..31 cu distincție vizuală weekend/lucrătoare, total ore, ore gardă/noapte, ore ZNL, normă, zile CO, zile CM).
+  * **Foaia 2 („Centralizator Salarii”):** Centralizatorul sintetizat pentru departamentul de contabilitate și salarizare (Ore normă, Ore efectiv lucrate, Ore gărzi, Ore ZNL, Zile CO, Zile CM) incluzând rândul de **TOTAL GENERAL** calculat cu formule native Excel `=SUM(...)`.
+- **Salvare nativă și descărcare web (`app_export.go`, `frontend/wailsjs`):** Metoda `ExportaPontajExcel` integrează dialogul de salvare nativ pe disc (`SaveFileDialog`) sau descarcă automat fișierul generat prin blob Base64.
+- **Butoane de export dedicate:** Adăugat butonul „📊 Export Excel (.xlsx)” în bara de acțiuni a ecranului de Pontaj (`Pontaj.tsx`) și în generatorul de rapoarte (`Rapoarte.tsx`).
+- **Teste unitare și de integrare:** Adăugate `TestGenereazaRegistruExcel` în `internal/exportexcel/export_test.go` și `TestAppExportaPontajExcel` în `app_export_test.go`.
+
+Baza de date și rapoarte: nicio schimbare de schemă. Format export Excel v1.0.0.
+
 ## 0.49.0 · 2026-10-27
 
 Raport comparativ „Planificat vs. Realizat” în ecranul de Planificare și Rapoarte (F11-T02).

@@ -290,6 +290,8 @@
   "ui.pontaj_descriere": "The monthly draft, with quick entry and your team's calendar.",
   "pontaj.luna": "Month",
   "pontaj.salveaza": "Save draft",
+  "pontaj.export_excel": "Export Excel (.xlsx)",
+  "pontaj.export_excel_succes": "Excel spreadsheet downloaded successfully.",
   "pontaj.salvat": "The monthly draft has been saved.",
   "pontaj.schita_indiciu": "The grid displays hours worked. Choose a work schedule or enter hours manually; schedule codes are retained for calculation. Totals follow the Timesheet configuration rules. Save the draft to keep your changes.",
   "pontaj.panou_filtre": "Filters",

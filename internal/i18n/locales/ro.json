@@ -290,6 +290,8 @@
   "ui.pontaj_descriere": "Schița lunară, cu introducere rapidă și calendarul echipei.",
   "pontaj.luna": "Luna",
   "pontaj.salveaza": "Salvează schița",
+  "pontaj.export_excel": "Export Excel (.xlsx)",
+  "pontaj.export_excel_succes": "Registrul Excel a fost descărcat cu succes.",
   "pontaj.salvat": "Schița lunii a fost salvată.",
   "pontaj.schita_indiciu": "Grila afișează orele lucrate. Alege un program sau introdu ore manuale; codurile programelor se păstrează pentru calcul. Totalurile urmează regulile din Configurare pontaj. Salvează schița pentru a păstra modificările.",
   "pontaj.panou_filtre": "Filtre",

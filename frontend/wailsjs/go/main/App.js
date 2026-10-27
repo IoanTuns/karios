@@ -98,6 +98,10 @@ export function EsteAutoPornireAI() {
   return window['go']['main']['App']['EsteAutoPornireAI']();
 }
 
+export function ExportaPontajExcel(arg1, arg2) {
+  return window['go']['main']['App']['ExportaPontajExcel'](arg1, arg2);
+}
+
 export function ExecutaImportAngajati(arg1) {
   return window['go']['main']['App']['ExecutaImportAngajati'](arg1);
 }

@@ -54,6 +54,8 @@ export function DeschidePDFPentruTiparire(arg1:string):Promise<main.RaspunsFisie
 
 export function EsteAutoPornireAI():Promise<boolean>;
 
+export function ExportaPontajExcel(arg1:number,arg2:number):Promise<main.RaspunsExportExcel>;
+
 export function ExecutaImportAngajati(arg1:datebaza.CerereExecutaImportAngajati):Promise<main.RaspunsExecutaImportAngajati>;
 
 export function ExecutaImportSarbatori(arg1:datebaza.CerereExecutaImportSarbatori,arg2:number):Promise<main.RaspunsExecutaImportSarbatori>;

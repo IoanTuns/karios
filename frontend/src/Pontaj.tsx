@@ -1,6 +1,6 @@
 import {useEffect, useLayoutEffect, useMemo, useRef, useState, type ClipboardEvent, type KeyboardEvent, type RefObject} from 'react';
 import {useTranslation} from 'react-i18next';
-import {CitesteCalendar, CitesteSchita, ListaSchimburi, SalveazaSchita, PrevizualizeazaSchita, PrevizualizeazaPrecompletare} from '../wailsjs/go/main/App';
+import {CitesteCalendar, CitesteSchita, ListaSchimburi, SalveazaSchita, PrevizualizeazaSchita, PrevizualizeazaPrecompletare, ExportaPontajExcel} from '../wailsjs/go/main/App';
 import {calcul, datebaza} from '../wailsjs/go/models';
 import {Dialog, denumireSectie, denumireDepartament} from './Formulare';
 import {programPlanificat} from './Planificare';
@@ -346,6 +346,40 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
         finally { blocat.current = false; setOcupat(false); onOcupat(false); }
     }
 
+    async function exportaExcel() {
+        setOcupat(true); onOcupat(true); setEroare(''); setMesaj('');
+        try {
+            const resp = await ExportaPontajExcel(an, luna);
+            if (resp.eroare) {
+                setEroare(t(resp.eroare.cod, resp.eroare.param ?? {}));
+            } else if (resp.cale) {
+                setMesaj(t('rapoarte.fisier_salvat', {cale: resp.cale}));
+            } else if (!resp.anulat && resp.continut) {
+                const byteCharacters = atob(resp.continut);
+                const byteNumbers = new Array(byteCharacters.length);
+                for (let i = 0; i < byteCharacters.length; i++) {
+                    byteNumbers[i] = byteCharacters.charCodeAt(i);
+                }
+                const byteArray = new Uint8Array(byteNumbers);
+                const blob = new Blob([byteArray], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = resp.nume_fisier || `Pontix_Pontaj_${an}_${String(luna).padStart(2, '0')}.xlsx`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                setMesaj(t('pontaj.export_excel_succes'));
+            }
+        } catch {
+            setEroare(t('date.eroare'));
+        } finally {
+            setOcupat(false);
+            onOcupat(false);
+        }
+    }
+
     const randActiv = randuri[selectie.sfarsit.rand], dataActiva = zile[selectie.sfarsit.zi];
     const cheieActiva = randActiv && dataActiva ? cheie(randActiv.id, dataActiva) : '';
     const brutaActiva = randActiv && dataActiva ? valoareBruta(selectie.sfarsit.rand, selectie.sfarsit.zi).trim() : '';
@@ -395,6 +429,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                 {['filtre', 'completare', 'ajutor'].map(p => <button key={p} ref={element => { butoanePanouri.current[p] = element; }} type="button" className={`buton secundar ${panou === p ? 'panou-activ' : ''}`} disabled={ocupat} aria-expanded={panou === p} aria-controls={`pontaj-panou-${p}`} onClick={() => setPanou(panou === p ? '' : p)}>{t(`pontaj.panou_${p}`)}{p === 'filtre' && numarFiltre > 0 ? ` (${numarFiltre})` : ''}</button>)}
                 <button type="button" className="buton secundar" title={t('program.completare_program_indiciu')} disabled={ocupat||!randuri.length||!programCompletare} onClick={precompleteazaLV}>{t('pontaj.precompleteaza_lv')}</button>
                 <button type="button" className="buton secundar" disabled={ocupat||!randuri.length} onClick={()=>void previzualizeazaCategorii(false)}>{t('program.precompleteaza')}</button>
+                <button type="button" className="buton secundar" title="Export Excel (.xlsx)" disabled={ocupat||!randuri.length} onClick={exportaExcel}>📊 {t('pontaj.export_excel')}</button>
                 <span className="stare-modificari" aria-live="polite">{t('pontaj.modificate', {numar: modificari.size})}</span>
                 <div id="pontaj-panou-filtre" className="panou-unelte" hidden={panou !== 'filtre'}>
                 <select aria-label={t('ui.sectie')} value={sectie} disabled={ocupat} onChange={e => { setSectie(e.target.value); setDepartament(''); }}><option value="">{t('ui.toate_sectiile')}</option>
