@@ -4,6 +4,18 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.45.0 · 2026-10-27
+
+Persistența conversației pe durata sesiunii, context îmbogățit pentru comenzi consecutive și buton de salt direct în pontaj (F14-T04, D042).
+
+- **Persistență în sesiune (`AsistentAI.tsx`):** Conversația nu se mai pierde la navigarea între ecrane (de ex. la comutarea între Asistent AI, Pontaj și Planificare). Mesajele sunt salvate în `sessionStorage` și restaurate automat la revenire.
+- **Buton „Conversație nouă” (`ai.conversatie_noua`):** Adăugat buton în bara de stare a asistentului pentru resetarea rapidă a fluxului conversațional când utilizatorul dorește să înceapă un dialog curat.
+- **Memorie contextuală multi-turn (`istoricAPI`):** Răspunsurile asistentului trimise în istoricul către LLM includ acum explicit detaliile acțiunilor propuse anterior și starea acestora (`[confirmată și aplicată în pontaj]` vs `[în așteptare]`). Comenzi ulterioare precum „și Popescu la fel”, „de fapt pune-l pe noapte” sau „pe 15 e liber” păstrează contextul exact al persoanei, lunii și programului discutat.
+- **Buton direct „Deschide în Pontaj” (`ai.deschide_in_pontaj`):** Pe cardurile de acțiune aplicate cu succes apare opțiunea de salt direct în ecranul de Pontaj, prefiltrat exact pe anul și luna vizată de comandă.
+- **Traduceri:** Actualizate cataloagele de limbă `ro.json` și `en.json` pentru noile acțiuni și etichete.
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
 ## 0.44.0 · 2026-10-27
 
 Aplicare directă în pontaj și interpretare automată a cererilor pentru întreaga lună (F14-T04, D042).

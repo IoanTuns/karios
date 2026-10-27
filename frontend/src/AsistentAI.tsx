@@ -68,7 +68,15 @@ function gasesteAngajat(marcaSauNume: string, angajati: datebaza.Angajat[]): dat
     return undefined;
 }
 
-export function AsistentAI({date}: {date: datebaza.Date}) {
+const CHEIE_STORAGE_CONVERSATIE = 'pontix_asistent_conversatie';
+
+export function AsistentAI({
+    date,
+    onDeschidePontaj,
+}: {
+    date: datebaza.Date;
+    onDeschidePontaj?: (an: number, luna: number) => void;
+}) {
     const {t} = useTranslation();
     const [stare, setStare] = useState<ai.StareMediu | null>(null);
     const [incarcare, setIncarcare] = useState(true);
@@ -76,7 +84,26 @@ export function AsistentAI({date}: {date: datebaza.Date}) {
     const [mesaj, setMesaj] = useState('');
     const [eroare, setEroare] = useState('');
     const [textIntrare, setTextIntrare] = useState('');
-    const [conversatie, setConversatie] = useState<MesajUI[]>([]);
+    const [conversatie, setConversatie] = useState<MesajUI[]>(() => {
+        try {
+            const salvat = sessionStorage.getItem(CHEIE_STORAGE_CONVERSATIE);
+            if (salvat) {
+                const parsed = JSON.parse(salvat);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    return parsed;
+                }
+            }
+        } catch {
+            // ignoră erori storage
+        }
+        return [
+            {
+                id: 'bun_venit',
+                rol: 'assistant',
+                text: t('ai.mesaj_bun_venit'),
+            },
+        ];
+    });
     const [autoPornire, setAutoPornire] = useState(true);
 
     const anCurent = new Date().getFullYear();
@@ -102,19 +129,34 @@ export function AsistentAI({date}: {date: datebaza.Date}) {
     useEffect(() => {
         void actualizeazaStare();
         void EsteAutoPornireAI().then(setAutoPornire).catch(() => {});
-        // Mesaj inițial de întâmpinare
-        setConversatie([
+    }, []);
+
+    useEffect(() => {
+        try {
+            sessionStorage.setItem(CHEIE_STORAGE_CONVERSATIE, JSON.stringify(conversatie));
+        } catch {
+            // ignoră
+        }
+        capatConversatieRef.current?.scrollIntoView({behavior: 'smooth'});
+    }, [conversatie]);
+
+    function reseteazaConversatie() {
+        const init: MesajUI[] = [
             {
                 id: 'bun_venit',
                 rol: 'assistant',
                 text: t('ai.mesaj_bun_venit'),
             },
-        ]);
-    }, []);
-
-    useEffect(() => {
-        capatConversatieRef.current?.scrollIntoView({behavior: 'smooth'});
-    }, [conversatie]);
+        ];
+        setConversatie(init);
+        try {
+            sessionStorage.removeItem(CHEIE_STORAGE_CONVERSATIE);
+        } catch {
+            // ignoră
+        }
+        setMesaj('');
+        setEroare('');
+    }
 
     async function toggleAutoPornire(activ: boolean) {
         setAutoPornire(activ);
@@ -173,14 +215,24 @@ export function AsistentAI({date}: {date: datebaza.Date}) {
         setOcupat(true);
 
         try {
-            // Trimite ultimele 6 mesaje pentru context
+            // Trimite ultimele 10 mesaje pentru context conversațional bogat
             const istoricAPI: ai.MesajConversatie[] = istoricNou
                 .filter(m => m.id !== 'bun_venit')
-                .slice(-6)
-                .map(m => new ai.MesajConversatie({
-                    role: m.rol,
-                    content: m.text,
-                }));
+                .slice(-10)
+                .map(m => {
+                    let continut = m.text;
+                    if (m.rol === 'assistant' && m.propuneri && m.propuneri.length > 0) {
+                        const detalii = m.propuneri.map(p => {
+                            const aplicat = m.propuneriAplicata?.[p.id] ? ' [confirmată și aplicată în pontaj]' : ' [propusă, în așteptare confirmare]';
+                            return `- ${p.descriere}${aplicat}`;
+                        }).join('\n');
+                        continut = continut ? `${continut}\n${detalii}` : `Am propus următoarele acțiuni:\n${detalii}`;
+                    }
+                    return new ai.MesajConversatie({
+                        role: m.rol,
+                        content: continut,
+                    });
+                });
 
             const resp = await InterogheazaAI(new main.CerereInterogareAI({
                 istoric: istoricAPI,
@@ -297,6 +349,15 @@ export function AsistentAI({date}: {date: datebaza.Date}) {
                             ⏹ {t('ai.opreste')}
                         </button>
                     )}
+                    <button
+                        type="button"
+                        className="buton secundar mic buton-conversatie-noua"
+                        disabled={ocupat || conversatie.length <= 1}
+                        onClick={reseteazaConversatie}
+                        title={t('ai.conversatie_noua_descriere')}
+                    >
+                        🔄 {t('ai.conversatie_noua')}
+                    </button>
                 </div>
             </div>
 
@@ -373,7 +434,30 @@ export function AsistentAI({date}: {date: datebaza.Date}) {
                                             </div>
                                             <div className="actiuni-propunere">
                                                 {esteAplicata ? (
-                                                    <span className="eticheta-aplicat">✓ {t('ai.actiune_aplicata')}</span>
+                                                    <div className="grup-actiune-aplicata">
+                                                        <span className="eticheta-aplicat">✓ {t('ai.actiune_aplicata')}</span>
+                                                        {onDeschidePontaj && (
+                                                            <button
+                                                                type="button"
+                                                                className="buton secundar mic buton-deschide-pontaj"
+                                                                onClick={() => {
+                                                                    const d = String(p.parametri?.data || p.parametri?.data_inceput || '');
+                                                                    let a = anCurent;
+                                                                    let l = lunaCurenta;
+                                                                    if (d) {
+                                                                        const parti = d.split('-');
+                                                                        if (parti.length >= 2) {
+                                                                            a = parseInt(parti[0], 10) || anCurent;
+                                                                            l = parseInt(parti[1], 10) || lunaCurenta;
+                                                                        }
+                                                                    }
+                                                                    onDeschidePontaj(a, l);
+                                                                }}
+                                                            >
+                                                                👁 {t('ai.deschide_in_pontaj')}
+                                                            </button>
+                                                        )}
+                                                    </div>
                                                 ) : (
                                                     <button
                                                         type="button"

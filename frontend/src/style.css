@@ -502,6 +502,10 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .insigna-detaliu strong { font-weight: 600; color: #17382c; }
 .simbol-actiune { color: #d29922; font-size: 14px; }
 .actiuni-propunere { display: flex; justify-content: flex-end; }
+.grup-actiune-aplicata { display: flex; align-items: center; gap: 10px; }
+.buton-deschide-pontaj { padding: 4px 10px; font-size: 11.5px; background: #f0f7f3; border: 1px solid #c2ded0; color: #155734; border-radius: 4px; cursor: pointer; }
+.buton-deschide-pontaj:hover { background: #d7ede1; }
+.buton-conversatie-noua { padding: 5px 10px; font-size: 11.5px; cursor: pointer; }
 .eticheta-aplicat { font-size: 12px; font-weight: 600; color: #155734; }
 .sugestii-comenzi-ai { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 12px; }
 .eticheta-sugestii { font-weight: 600; color: var(--discret); }
