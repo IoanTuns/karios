@@ -15,3 +15,4 @@ Utilizatorul poate da comenzi în limbaj natural („pune-l pe Ion de noapte joi
 | F14-T03 | Compararea modelelor disponibile la acel moment | amânat | | Qwen 2.5 3B/7B GGUF Q4_K_M recomandat |
 | F14-T04 | Interfața Go `Asistent`: client local, JSON impus prin schemă, confirmare explicită | finalizat | Antigravity | Fără SQL direct; fiecare acțiune cere confirmare în UI (v0.36.0) |
 | F14-T05 | Pachet portabil AI Ready și pornire automată supravegheată | finalizat | Antigravity | Script creaza-pachet-ai.ps1, karios/ai/ pre-populat, opțiune de pornire automată la lansare (v0.37.0) |
+| F14-T06 | Compilare nativă llama.cpp pe Windows cu toolchain portabil și integrare deploy | finalizat | Antigravity | GCC 16 + CMake portabil în tools/, scripts/compileaza-llama.ps1, build.ps1 -CuCompilareAI (v0.38.0) |

@@ -4,6 +4,16 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.38.0 · 2026-10-27
+
+Compilare nativă llama.cpp pe Windows cu toolchain portabil și integrare în procesul de Deploy (F14-T06, D042).
+
+- **Toolchain portabil C/C++ și CMake (`scripts/pregateste-toolchain.ps1`):** Configurare complet autonomă a unui mediu de compilare în `tools/toolchain/` (CMake 3.31.5 și MinGW-w64 GCC 16.2.0 via `w64devkit`) fără modificări în sistemul de operare Windows, fără drepturi de administrator și ignorat complet de Git.
+- **Compilare nativă a motorului AI (`scripts/compileaza-llama.ps1`):** Clonare și compilare a executabilului C++ `llama-server.exe` optimizat cu AVX2 direct pe Windows folosind toate nucleele procesorului (cu suport incremental de ~7 secunde la recompilare), generând binarul verificat independent și plasat în `karios/ai/` și `.cache-ai/`.
+- **Integrare în procesul de Deploy (`build.ps1 -CuCompilareAI`):** Extinderea scriptului oficial de build cu parametrul `-CuCompilareAI` pentru a asigura compilarea proaspătă a binarului `llama-server.exe` și includerea automată a acestuia în structura livrată la fiecare lansare de versiune.
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
 ## 0.37.0 · 2026-10-26
 
 Pachet portabil Pontix AI Ready și pornire automată la lansare (F14-T05, D042).

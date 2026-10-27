@@ -45,4 +45,3 @@ func TestAppAutoPornireAI(t *testing.T) {
 		t.Fatalf("folderul gol nu trebuia să fie marcat ca instalat")
 	}
 }
-

@@ -29,3 +29,4 @@ frontend/package.json.md5
 .cache-ai/
 *.gguf
 llama-server.exe
+tools/

@@ -10,6 +10,7 @@ param(
     [string]$UrlModel = 'https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF/resolve/main/qwen2.5-3b-instruct-q4_k_m.gguf',
     [string]$UrlLlamaServer = 'https://github.com/ggerganov/llama.cpp/releases/download/b4810/llama-b4810-bin-win-avx2-x64.zip',
     [switch]$DescarcaDacaLipseste,
+    [switch]$CuCompilareAI,
     [switch]$ArhiveazaZip
 )
 
@@ -84,7 +85,16 @@ foreach ($loc in $posibileLocatiiModel) {
     }
 }
 
-# 5. Descărcare dacă lipsește și a fost cerut explicit
+# 5. Compilare sau descărcare dacă lipsește și a fost cerut explicit
+if ($CuCompilareAI -or (-not $llamaGasit -and -not $DescarcaDacaLipseste)) {
+    Write-Host "Compilare nativa llama-server via scripts/compileaza-llama.ps1..." -ForegroundColor Cyan
+    $compScript = Join-Path $PSScriptRoot 'compileaza-llama.ps1'
+    if (Test-Path -LiteralPath $compScript) {
+        $rezComp = & $compScript
+        $llamaGasit = $rezComp.Executabil
+    }
+}
+
 if ($DescarcaDacaLipseste) {
     if (-not (Test-Path -LiteralPath $folderCache)) {
         New-Item -ItemType Directory -Path $folderCache | Out-Null
