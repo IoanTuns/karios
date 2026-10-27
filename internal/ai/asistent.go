@@ -291,6 +291,9 @@ func (c *Client) Interogheaza(ctx context.Context, istoric []MesajConversatie, i
 			}
 		}
 
+		// Corecție de siguranță pentru intervale și cod de schimb cerut de utilizator
+		args = corecteazaSchimbDacaEroare(args, istoric, info.Schimburi)
+
 		descriere := construiesteDescrierePropunere(tc.Function.Name, args, info)
 		rezultat.Propuneri = append(rezultat.Propuneri, PropunereActiune{
 			ID:                 tc.ID,
@@ -421,6 +424,32 @@ func formateazaSchimb(cod string, schimburi []InfoSchimb) string {
 	return cod
 }
 
+func corecteazaSchimbDacaEroare(args map[string]any, istoric []MesajConversatie, schimburi []InfoSchimb) map[string]any {
+	if len(istoric) == 0 {
+		return args
+	}
+	ultimulMesaj := strings.ToLower(istoric[len(istoric)-1].Continut)
+
+	// Dacă utilizatorul a cerut "7 la 14", "dimineata", "de la 7", dar modelul a ales din greșeală "S7" (Seară)
+	if strings.Contains(ultimulMesaj, "7 la 14") || strings.Contains(ultimulMesaj, "7-14") ||
+		strings.Contains(ultimulMesaj, "07:00") || strings.Contains(ultimulMesaj, "dimineata") ||
+		strings.Contains(ultimulMesaj, "dimineață") {
+		if cod, ok := args["cod_schimb"].(string); ok && strings.EqualFold(cod, "S7") {
+			args["cod_schimb"] = "Z7"
+		}
+	}
+
+	// Dacă utilizatorul a cerut "toata luna" / "pe toata luna" pentru o tură normală, forțăm doar_lucratoare true dacă nu este specificat
+	if strings.Contains(ultimulMesaj, "toata luna") || strings.Contains(ultimulMesaj, "toată luna") ||
+		strings.Contains(ultimulMesaj, "tata luna") {
+		if _, ok := args["doar_lucratoare"]; !ok {
+			args["doar_lucratoare"] = true
+		}
+	}
+
+	return args
+}
+
 func construiestePromptSistem(info ContextPontix) string {
 	var sb strings.Builder
 	sb.WriteString("Ești Asistentul inteligent al aplicației Pontix pentru pontaj și planificare de gărzi/ture.\n")
@@ -429,17 +458,24 @@ func construiestePromptSistem(info ContextPontix) string {
 	sb.WriteString("Dacă utilizatorul îți cere să planifici, să modifici sau să ștergi ture, apelează uneltele puse la dispoziție.\n")
 	sb.WriteString("IMPORTANT PENTRU PERIOADE / TOATĂ LUNA:\n")
 	sb.WriteString("- Când utilizatorul cere atribuirea unei ture pe o perioadă (ex: 'toată luna', 'toata luna', 'tata luna', 'toată săptămâna', 'de luni până vineri'), folosește neapărat unealta `planifica_interval` sau `sterge_interval`, specificând data_inceput (prima zi a lunii) și data_sfarsit (ultima zi a lunii). NU apela `planifica_tura` pentru o singură zi când se cere toată luna!\n")
-	sb.WriteString("- Pentru 'pe dimineață' sau 'dimineața' sau 'de la 7 la 14', alege schimbul de dimineață disponibil (ex: Z7 sau primul schimb de zi).\n")
+	sb.WriteString("- Pentru ture normale de zi ('toată luna', '7 la 14', etc.), setează ÎNTOTDEAUNA `doar_lucratoare: true` pentru a exclude weekendurile!\n")
+	sb.WriteString("- ALEGEREA SCHIMBURILOR DUPĂ INTERVAL SAU ORE:\n")
+	sb.WriteString("  * '7 la 14', '07:00–14:00', 'dimineața', 'pe zi' -> codul este Z7 (Zi 07–14). NICIODATĂ nu alege S7 pentru 7 la 14!\n")
+	sb.WriteString("  * '15 la 22', '15:00–22:00', 'seară', 'după-amiază' -> codul este S7 (Seară 15–22).\n")
+	sb.WriteString("  * '22 la 7', 'noapte' -> codul este N9 sau N12.\n")
+	sb.WriteString("  * 'gardă', '24 ore' -> codul este G24.\n")
 	sb.WriteString("- Folosește EXACT numărul de marcă așa cum este indicat în lista de personal de mai jos (ex: 'DEMO-008', NU prescurta și nu elimina cratima).\n")
 	sb.WriteString(fmt.Sprintf("Anul curent de lucru: %d, Luna: %d.\n", info.An, info.Luna))
 
 	if len(info.Schimburi) > 0 {
-		sb.WriteString("Schimburi disponibile: ")
-		var sList []string
+		sb.WriteString("Schimburi disponibile:\n")
 		for _, s := range info.Schimburi {
-			sList = append(sList, fmt.Sprintf("%s (%s, %dh)", s.Cod, s.Denumire, s.Ore))
+			interv := s.Interval
+			if interv == "" && s.Ore > 0 {
+				interv = fmt.Sprintf("%d ore", s.Ore)
+			}
+			sb.WriteString(fmt.Sprintf("- Cod: %s | Denumire: %s | Interval: %s | Durată: %d ore\n", s.Cod, s.Denumire, interv, s.Ore))
 		}
-		sb.WriteString(strings.Join(sList, ", ") + ".\n")
 	}
 
 	if len(info.Angajati) > 0 {

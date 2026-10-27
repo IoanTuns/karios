@@ -202,3 +202,29 @@ func TestGasesteAngajatInfoSiDescriere(t *testing.T) {
 		t.Fatalf("descriere generată incorect:\nobținut:  %s\nașteptat: %s", desc, asteptat)
 	}
 }
+
+func TestCorecteazaSchimbDacaEroare(t *testing.T) {
+	schimburi := []InfoSchimb{
+		{Cod: "Z7", Denumire: "Zi 07–14", Ore: 7, Interval: "07:00–14:00"},
+		{Cod: "S7", Denumire: "Seară 15–22", Ore: 7, Interval: "15:00–22:00"},
+	}
+
+	// Cazul utilizatorului: utilizatorul cere "7 la 14", dar modelul returnase greșit "S7"
+	istoric := []MesajConversatie{
+		{Rol: "user", Continut: "Dobre rares e toata luna 7 la 14"},
+	}
+	argsGresite := map[string]any{
+		"marca":        "DEMO-008",
+		"cod_schimb":   "S7",
+		"data_inceput": "2026-10-01",
+		"data_sfarsit": "2026-10-31",
+	}
+
+	corectat := corecteazaSchimbDacaEroare(argsGresite, istoric, schimburi)
+	if corectat["cod_schimb"] != "Z7" {
+		t.Fatalf("așteptat cod Z7 pentru 7 la 14, obținut: %v", corectat["cod_schimb"])
+	}
+	if corectat["doar_lucratoare"] != true {
+		t.Fatalf("așteptat doar_lucratoare true pentru toata luna, obținut: %v", corectat["doar_lucratoare"])
+	}
+}

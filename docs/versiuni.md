@@ -4,6 +4,16 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.43.0 · 2026-10-27
+
+Reguli stricte de mapare intervale orare și corecție automată schimb cerut (F14-T04, D042).
+
+- **Mapare strictă intervale orare în promptul de sistem (`internal/ai/asistent.go`):** Instruit modelul cu reguli fără echivoc: „7 la 14” / „07:00–14:00” corespunde exclusiv schimbului `Z7` (Zi 07–14), iar `S7` este rezervat pentru „15 la 22” (Seară). Inclus intervalul orar explicit în lista fiecărui schimb din prompt.
+- **Protecție defensivă de corecție automată (`corecteazaSchimbDacaEroare`):** Dacă utilizatorul a cerut „7 la 14” sau „dimineață”, dar modelul propusese eronat `S7`, backend-ul corectează automat codul de schimb la `Z7`. De asemenea, pentru cererile „toată luna” pe programe de zi, setează implicit `doar_lucratoare: true` pentru a proteja weekendurile.
+- **Test unitar de regresie:** Adăugat `TestCorecteazaSchimbDacaEroare` în `internal/ai/asistent_test.go`.
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
 ## 0.42.0 · 2026-10-27
 
 Afișare completă nume angajat și detalii program în propuneri AI și rezoluție robustă marcă (F14-T04, D042).
