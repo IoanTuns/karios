@@ -366,6 +366,26 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 /* Grilă Planificare */
 .modul-planificare { display: flex; flex-direction: column; min-height: 0; flex: 1; }
 .modul-planificare .grila-container { flex: 1; min-height: 180px; max-height: none; }
+.panou-comparativ { display: flex; flex-direction: column; gap: 14px; }
+.carduri-comparativ { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 8px; }
+.card-comp { background: #fdfdfd; border: 1px solid var(--linie); border-radius: 8px; padding: 12px 16px; display: flex; flex-direction: column; gap: 4px; }
+.card-comp span { font-size: 11px; color: var(--discret); font-weight: 500; }
+.card-comp strong { font-size: 18px; color: #1e3a2f; }
+.card-comp.pozitiv strong { color: #2e7d32; }
+.card-comp.negativ strong { color: #c62828; }
+.legenda-comparativ { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; font-size: 11px; color: #496356; padding: 8px 12px; background: #f7faf8; border-radius: 6px; }
+.item-legenda { display: inline-flex; align-items: center; gap: 5px; }
+.insigna-comp { display: inline-block; padding: 2px 5px; border-radius: 4px; font-size: 10px; font-weight: 700; line-height: 1.2; text-align: center; }
+.insigna-comp.identic { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+.insigna-comp.modificat { background: #fff3e0; color: #e65100; border: 1px solid #ffe0b2; }
+.insigna-comp.neplanificat { background: #e3f2fd; color: #1565c0; border: 1px solid #bbdefb; }
+.insigna-comp.neefectuat { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
+.insigna-comp.absenta { background: #f3e5f5; color: #7b1fa2; border: 1px solid #e1bee7; }
+.tabel-comparativ td { padding: 4px; text-align: center; font-size: 11px; }
+.tabel-comparativ th.fix-angajat-comp { position: sticky; left: 0; background: #fff; z-index: 2; min-width: 160px; text-align: left; }
+.tabel-comparativ td.fix-ore-comp { font-weight: 600; min-width: 55px; }
+.tabel-comparativ td.dif-pozitiv { color: #2e7d32; }
+.tabel-comparativ td.dif-negativ { color: #c62828; }
 .grila-planificare { width: 100%; border-collapse: separate; border-spacing: 0; }
 .grila-planificare thead th { position: sticky; top: 0; height: 48px; z-index: 3; background: #f2f6f1; font-size: 11px; font-weight: 600; text-align: center; }
 .grila-planificare th strong { display: block; }

@@ -574,3 +574,115 @@ func (s *Serviciu) CitesteEchitatePlanificare(ctx context.Context, an, luna int)
 
 	return calcul.AnalizeazaEchitate(an, luna, convert(plan), convert(planTrecut), viitorPoz, hartaSarbatori), nil
 }
+
+func (s *Serviciu) CitestePlanificatVsRealizat(ctx context.Context, an, luna int) (calcul.RaportPlanificatVsRealizat, error) {
+	deLa, panaLa, err := limiteLuna(an, luna)
+	if err != nil {
+		return calcul.RaportPlanificatVsRealizat{}, err
+	}
+	tx, err := s.db.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
+	if err != nil {
+		return calcul.RaportPlanificatVsRealizat{}, traduceEroare(err)
+	}
+	defer tx.Rollback()
+	q := acces.New(tx)
+
+	oameni, err := q.ListaAngajati(ctx)
+	if err != nil {
+		return calcul.RaportPlanificatVsRealizat{}, traduceEroare(err)
+	}
+
+	schimburi, err := q.ListaSchimburi(ctx)
+	if err != nil {
+		return calcul.RaportPlanificatVsRealizat{}, traduceEroare(err)
+	}
+	oreSchimb := make(map[string]int)
+	idSchimbCod := make(map[string]string)
+	for _, sc := range schimburi {
+		ore := int(sc.DurataMinute / 60)
+		oreSchimb[strings.ToUpper(sc.Cod)] = ore
+		oreSchimb[sc.ID] = ore
+		idSchimbCod[sc.ID] = sc.Cod
+	}
+
+	var angajatiComp []calcul.AngajatComparativ
+	for _, o := range oameni {
+		angajatiComp = append(angajatiComp, calcul.AngajatComparativ{
+			ID:      o.ID,
+			Nume:    o.Nume,
+			Prenume: o.Prenume,
+			Marca:   o.Marca,
+			Functie: textSauGol(o.Functie),
+			Activ:   o.Activ == 1,
+		})
+	}
+
+	pozitii, err := q.ListaPlanificare(ctx, acces.ListaPlanificareParams{DataDeLa: deLa, DataPanaLa: panaLa})
+	if err != nil {
+		return calcul.RaportPlanificatVsRealizat{}, traduceEroare(err)
+	}
+	var pozitiiComp []calcul.PozitieComparativ
+	for _, p := range pozitii {
+		cod := idSchimbCod[p.SchimbID]
+		if cod == "" {
+			cod = p.SchimbID
+		}
+		ore := oreSchimb[p.SchimbID]
+		if ore == 0 {
+			ore = oreSchimb[strings.ToUpper(cod)]
+		}
+		pozitiiComp = append(pozitiiComp, calcul.PozitieComparativ{
+			AngajatID: p.AngajatID,
+			Data:      p.Data,
+			CodSchimb: cod,
+			Ore:       ore,
+			Activ:     p.Activ == 1,
+		})
+	}
+
+	ciorne, err := q.ListaCiorneLuna(ctx, acces.ListaCiorneLunaParams{DataDeLa: deLa, DataPanaLa: panaLa})
+	if err != nil {
+		return calcul.RaportPlanificatVsRealizat{}, traduceEroare(err)
+	}
+	var celuleComp []calcul.CelulaComparativ
+	for _, c := range ciorne {
+		val := strings.TrimSpace(c.Valoare)
+		if val == "" {
+			continue
+		}
+		ore := oreSchimb[strings.ToUpper(val)]
+		if ore == 0 {
+			if h, manual := calcul.OreManuale(val); manual {
+				ore = int(h / 60)
+			}
+		}
+		celuleComp = append(celuleComp, calcul.CelulaComparativ{
+			AngajatID: c.AngajatID,
+			Data:      c.Data,
+			Valoare:   val,
+			Ore:       ore,
+		})
+	}
+
+	absente, err := q.ListaAbsenteInterval(ctx, acces.ListaAbsenteIntervalParams{DeLa: deLa, PanaLa: panaLa})
+	if err != nil {
+		return calcul.RaportPlanificatVsRealizat{}, traduceEroare(err)
+	}
+	var absenteComp []calcul.AbsentaComparativ
+	for _, ab := range absente {
+		if ab.Activ == 1 {
+			absenteComp = append(absenteComp, calcul.AbsentaComparativ{
+				AngajatID: ab.AngajatID,
+				Data:      ab.Data,
+				Cod:       ab.Cod,
+			})
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		return calcul.RaportPlanificatVsRealizat{}, traduceEroare(err)
+	}
+
+	rap := calcul.CalculeazaPlanificatVsRealizat(an, luna, angajatiComp, pozitiiComp, celuleComp, absenteComp)
+	return rap, nil
+}

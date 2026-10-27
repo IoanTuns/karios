@@ -22,6 +22,11 @@ type RaspunsEchitatePlan struct {
 	Eroare       *MesajEroare                 `json:"eroare"`
 }
 
+type RaspunsPlanificatVsRealizat struct {
+	Raport *calcul.RaportPlanificatVsRealizat `json:"raport"`
+	Eroare *MesajEroare                       `json:"eroare"`
+}
+
 func (a *App) CitestePlanificare(an, luna int) RaspunsPlanificare {
 	p, err := datebaza.Nou(a.db).CitestePlanificare(a.contextLucru(), an, luna)
 	if err != nil {
@@ -62,4 +67,12 @@ func (a *App) CitesteEchitatePlanificare(an, luna int) RaspunsEchitatePlan {
 		return RaspunsEchitatePlan{Eroare: mesajPontaj(err)}
 	}
 	return RaspunsEchitatePlan{Avertismente: av}
+}
+
+func (a *App) CitestePlanificatVsRealizat(an, luna int) RaspunsPlanificatVsRealizat {
+	rap, err := datebaza.Nou(a.db).CitestePlanificatVsRealizat(a.contextLucru(), an, luna)
+	if err != nil {
+		return RaspunsPlanificatVsRealizat{Eroare: mesajPontaj(err)}
+	}
+	return RaspunsPlanificatVsRealizat{Raport: &rap}
 }

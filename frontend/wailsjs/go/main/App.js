@@ -58,6 +58,10 @@ export function CitestePlanificare(arg1, arg2) {
   return window['go']['main']['App']['CitestePlanificare'](arg1, arg2);
 }
 
+export function CitestePlanificatVsRealizat(arg1, arg2) {
+  return window['go']['main']['App']['CitestePlanificatVsRealizat'](arg1, arg2);
+}
+
 export function CitesteSchita(arg1, arg2) {
   return window['go']['main']['App']['CitesteSchita'](arg1, arg2);
 }

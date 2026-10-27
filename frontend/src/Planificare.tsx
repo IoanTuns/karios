@@ -35,7 +35,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
     const [an,setAn]=useState(initial?.an??new Date().getFullYear());
     const [luna,setLuna]=useState(initial?.luna??new Date().getMonth()+1);
     const [anText,setAnText]=useState(String(an));
-    const [mod,setMod]=useState<'grila'|'sumar'|'acoperire'|'lista'>('grila');
+    const [mod,setMod]=useState<'grila'|'comparativ'|'sumar'|'acoperire'|'lista'>('grila');
     const [sectiune,setSectiune]=useState('TOATE');
     const [sectie,setSectie]=useState('');
     const [departament,setDepartament]=useState('');
@@ -392,6 +392,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
             </form>
             <div className="comutator-mod" role="group" aria-label={t('planificare.mod_grila')}>
                 <button type="button" className={mod==='grila'?'activ':''} onClick={()=>setMod('grila')}>{t('planificare.mod_grila')}</button>
+                <button type="button" className={mod==='comparativ'?'activ':''} onClick={()=>setMod('comparativ')}>{t('planificare.mod_comparativ')}</button>
                 <button type="button" className={mod==='sumar'?'activ':''} onClick={()=>setMod('sumar')}>{t('planificare.mod_sumar_angajat')}</button>
                 <button type="button" className={mod==='acoperire'?'activ':''} onClick={()=>setMod('acoperire')}>{t('planificare.mod_acoperire')}</button>
                 <button type="button" className={mod==='lista'?'activ':''} onClick={()=>setMod('lista')}>{t('planificare.mod_lista')}</button>
@@ -514,7 +515,18 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
                 {!randuri.length&&<p className="fara-rezultate">{t('pontaj.fara_angajati')}</p>}
             </div>
             <p className="indiciu-grila">{t('planificare.indiciu')}</p>
-        </>:plan&&mod==='acoperire'&&acoperire?<>
+        </>:plan&&mod==='comparativ'?<PanouComparativPlanificatVsRealizat
+            an={an}
+            luna={luna}
+            angajati={randuri}
+            plan={plan}
+            schita={schita}
+            schimburi={schimburi}
+            sarbatori={sarbatori}
+            absente={absente}
+            zile={zile}
+            onDeschidePontaj={onDeschidePontaj}
+        />:plan&&mod==='acoperire'&&acoperire?<>
             <div className="panou panou-acoperire">
                 <div className="antet-sectiune">
                     <h3>{t('planificare.acoperire_titlu')}</h3>
@@ -897,4 +909,279 @@ function FormularPlanificare({pozitie,an,luna,date,schimburi,sarbatori,ocupat,er
             </footer>
         </form>
     </Dialog>;
+}
+
+function PanouComparativPlanificatVsRealizat({
+    an,
+    luna,
+    angajati,
+    plan,
+    schita,
+    schimburi,
+    sarbatori,
+    absente,
+    zile,
+    onDeschidePontaj
+}:{
+    an: number;
+    luna: number;
+    angajati: datebaza.Angajat[];
+    plan: datebaza.PlanificareLuna | null;
+    schita: datebaza.SchitaLuna | null;
+    schimburi: datebaza.Schimb[];
+    sarbatori: Map<string, string>;
+    absente: Map<string, datebaza.ZiAbsenta>;
+    zile: string[];
+    onDeschidePontaj: (an: number, luna: number) => void;
+}) {
+    const {t, i18n} = useTranslation();
+    const [doarDiscrepante, setDoarDiscrepante] = useState(false);
+    const [filtruNume, setFiltruNume] = useState('');
+
+    const oreSchimb = useMemo(() => {
+        const m = new Map<string, number>();
+        for (const s of schimburi) {
+            const h = Math.round(s.durata_minute / 60);
+            m.set(s.cod.toUpperCase(), h);
+            m.set(s.id, h);
+        }
+        return m;
+    }, [schimburi]);
+
+    const codSchimbID = useMemo(() => {
+        const m = new Map<string, string>();
+        for (const s of schimburi) {
+            m.set(s.id, s.cod);
+        }
+        return m;
+    }, [schimburi]);
+
+    const planHarta = useMemo(() => {
+        const m = new Map<string, string>();
+        for (const p of plan?.pozitii ?? []) {
+            if (p.activ) {
+                m.set(`${p.angajat_id}/${p.data}`, codSchimbID.get(p.schimb_id) || p.schimb_id);
+            }
+        }
+        return m;
+    }, [plan, codSchimbID]);
+
+    const realHarta = useMemo(() => {
+        const m = new Map<string, string>();
+        for (const c of schita?.celule ?? []) {
+            if (c.valoare && c.valoare.trim()) {
+                m.set(`${c.angajat_id}/${c.data}`, c.valoare.trim());
+            }
+        }
+        return m;
+    }, [schita]);
+
+    const dateComparate = useMemo(() => {
+        let totalPlan = 0;
+        let totalReal = 0;
+        let totalDisc = 0;
+        let angajatiCuDisc = 0;
+
+        const randuri = angajati.filter(a => a.activ).map(a => {
+            let orePlanAng = 0;
+            let oreRealAng = 0;
+            let discAng = 0;
+
+            const celuleZile = zile.map(data => {
+                const k = `${a.id}/${data}`;
+                const pVal = planHarta.get(k) || '';
+                const rVal = realHarta.get(k) || '';
+                const ab = absente.get(k);
+
+                const pOre = pVal ? (oreSchimb.get(pVal.toUpperCase()) || 8) : 0;
+                let rOre = 0;
+                if (rVal) {
+                    rOre = oreSchimb.get(rVal.toUpperCase()) || (parseInt(rVal, 10) || 8);
+                }
+
+                let stare = 'liber';
+                if (ab) {
+                    stare = 'absenta';
+                    if (pVal) discAng++;
+                } else if (!pVal && !rVal) {
+                    stare = 'liber';
+                } else if (pVal && rVal) {
+                    if (pVal.toUpperCase() === rVal.toUpperCase()) {
+                        stare = 'identic';
+                    } else {
+                        stare = 'modificat';
+                        discAng++;
+                    }
+                } else if (pVal && !rVal) {
+                    stare = 'neefectuat';
+                    discAng++;
+                } else {
+                    stare = 'neplanificat';
+                    discAng++;
+                }
+
+                orePlanAng += pOre;
+                oreRealAng += rOre;
+
+                return {
+                    data,
+                    pVal,
+                    pOre,
+                    rVal: ab ? ab.cod : rVal,
+                    rOre,
+                    stare,
+                };
+            });
+
+            const difOre = oreRealAng - orePlanAng;
+            totalPlan += orePlanAng;
+            totalReal += oreRealAng;
+            totalDisc += discAng;
+            if (discAng > 0 || difOre !== 0) {
+                angajatiCuDisc++;
+            }
+
+            return {
+                angajat: a,
+                orePlanAng,
+                oreRealAng,
+                difOre,
+                discAng,
+                celuleZile,
+            };
+        });
+
+        return {
+            randuri,
+            totalPlan,
+            totalReal,
+            difTotal: totalReal - totalPlan,
+            totalDisc,
+            angajatiCuDisc,
+        };
+    }, [angajati, zile, planHarta, realHarta, absente, oreSchimb]);
+
+    const randuriFiltrate = useMemo(() => {
+        return dateComparate.randuri.filter(r => {
+            if (doarDiscrepante && r.discAng === 0 && r.difOre === 0) return false;
+            if (filtruNume.trim()) {
+                const q = filtruNume.toLowerCase();
+                const text = `${r.angajat.nume} ${r.angajat.prenume} ${r.angajat.marca}`.toLowerCase();
+                if (!text.includes(q)) return false;
+            }
+            return true;
+        });
+    }, [dateComparate.randuri, doarDiscrepante, filtruNume]);
+
+    return (
+        <div className="panou panou-comparativ" role="region" aria-label={t('planificare.mod_comparativ')}>
+            <div className="carduri-comparativ">
+                <div className="card-comp">
+                    <span>{t('planificare.total_ore_planificate')}</span>
+                    <strong>{dateComparate.totalPlan}h</strong>
+                </div>
+                <div className="card-comp">
+                    <span>{t('planificare.total_ore_realizate')}</span>
+                    <strong>{dateComparate.totalReal}h</strong>
+                </div>
+                <div className={`card-comp ${dateComparate.difTotal > 0 ? 'pozitiv' : dateComparate.difTotal < 0 ? 'negativ' : ''}`}>
+                    <span>{t('planificare.variatie_globala')}</span>
+                    <strong>{dateComparate.difTotal > 0 ? `+${dateComparate.difTotal}h` : `${dateComparate.difTotal}h`}</strong>
+                </div>
+                <div className={`card-comp ${dateComparate.angajatiCuDisc > 0 ? 'negativ' : 'pozitiv'}`}>
+                    <span>{t('planificare.angajati_cu_discrepante')}</span>
+                    <strong>{dateComparate.angajatiCuDisc} / {dateComparate.randuri.length}</strong>
+                </div>
+            </div>
+
+            <div className="unelte-grila" style={{justifyContent: 'space-between', marginBottom: 0}}>
+                <div style={{display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap'}}>
+                    <input
+                        type="text"
+                        placeholder={t('ui.cautare_indiciu')}
+                        value={filtruNume}
+                        onChange={e => setFiltruNume(e.target.value)}
+                        style={{width: '220px'}}
+                    />
+                    <label className="bifa">
+                        <input
+                            type="checkbox"
+                            checked={doarDiscrepante}
+                            onChange={e => setDoarDiscrepante(e.target.checked)}
+                        />
+                        {t('planificare.doar_discrepante')}
+                    </label>
+                </div>
+                <div style={{display: 'flex', gap: '8px'}}>
+                    <button type="button" className="buton secundar" onClick={() => onDeschidePontaj(an, luna)}>
+                        👁 {t('planificare.deschide_pontaj')}
+                    </button>
+                    <button type="button" className="buton secundar" onClick={() => window.print()}>
+                        🖨️ {t('rapoarte.tipareste')}
+                    </button>
+                </div>
+            </div>
+
+            <div className="legenda-comparativ">
+                <span className="item-legenda"><span className="insigna-comp identic">Z7</span> {t('planificare.legenda_identic')}</span>
+                <span className="item-legenda"><span className="insigna-comp modificat">Z7➔G24</span> {t('planificare.legenda_modificat')}</span>
+                <span className="item-legenda"><span className="insigna-comp neplanificat">+Z12</span> {t('planificare.legenda_neplanificat')}</span>
+                <span className="item-legenda"><span className="insigna-comp neefectuat">Z12➔—</span> {t('planificare.legenda_neefectuat')}</span>
+                <span className="item-legenda"><span className="insigna-comp absenta">CO</span> {t('planificare.legenda_absenta')}</span>
+            </div>
+
+            <div className="tabel-derulant grila-container">
+                <table className="tabel-comparativ grila-pontaj">
+                    <thead>
+                        <tr>
+                            <th className="fix-angajat-comp">{t('ui.angajat')}</th>
+                            <th className="fix-ore-comp">{t('planificare.ore_plan')}</th>
+                            <th className="fix-ore-comp">{t('planificare.ore_real')}</th>
+                            <th className="fix-ore-comp">{t('planificare.diferenta')}</th>
+                            {zile.map(d => {
+                                const zi = parseInt(d.slice(-2), 10);
+                                const weekend = [0, 6].includes(new Date(`${d}T12:00:00Z`).getUTCDay());
+                                return (
+                                    <th key={d} className={sarbatori.has(d) ? 'zi-sarbatoare' : weekend ? 'zi-weekend' : ''}>
+                                        {zi}
+                                    </th>
+                                );
+                            })}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {randuriFiltrate.map(r => (
+                            <tr key={r.angajat.id}>
+                                <th scope="row" className="fix-angajat-comp">
+                                    <div className="identitate">
+                                        <span className="avatar" aria-hidden="true">{r.angajat.prenume.charAt(0)}{r.angajat.nume.charAt(0)}</span>
+                                        <span><strong>{r.angajat.nume} {r.angajat.prenume}</strong><small>{r.angajat.marca}</small></span>
+                                    </div>
+                                </th>
+                                <td className="fix-ore-comp">{r.orePlanAng}h</td>
+                                <td className="fix-ore-comp">{r.oreRealAng}h</td>
+                                <td className={`fix-ore-comp ${r.difOre > 0 ? 'dif-pozitiv' : r.difOre < 0 ? 'dif-negativ' : ''}`}>
+                                    {r.difOre > 0 ? `+${r.difOre}h` : `${r.difOre}h`}
+                                </td>
+                                {r.celuleZile.map(c => {
+                                    const weekend = [0, 6].includes(new Date(`${c.data}T12:00:00Z`).getUTCDay());
+                                    return (
+                                        <td key={c.data} className={sarbatori.has(c.data) ? 'zi-sarbatoare' : weekend ? 'zi-weekend' : ''}>
+                                            {c.stare === 'liber' && <span className="text-discret">—</span>}
+                                            {c.stare === 'identic' && <span className="insigna-comp identic" title={`${t('planificare.legenda_identic')}: ${c.rVal}`}>{c.rVal}</span>}
+                                            {c.stare === 'modificat' && <span className="insigna-comp modificat" title={`Plan: ${c.pVal} ➔ Real: ${c.rVal}`}>{c.pVal}➔{c.rVal}</span>}
+                                            {c.stare === 'neplanificat' && <span className="insigna-comp neplanificat" title={`Neplanificat ➔ Real: ${c.rVal}`}>+{c.rVal}</span>}
+                                            {c.stare === 'neefectuat' && <span className="insigna-comp neefectuat" title={`Planificat: ${c.pVal} ➔ Nerealizat`}>{c.pVal}➔—</span>}
+                                            {c.stare === 'absenta' && <span className="insigna-comp absenta" title={`Absență: ${c.rVal}`}>{c.rVal}</span>}
+                                        </td>
+                                    );
+                                })}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+                {!randuriFiltrate.length && <p className="fara-rezultate">{t('pontaj.fara_angajati')}</p>}
+            </div>
+        </div>
+    );
 }

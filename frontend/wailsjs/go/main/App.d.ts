@@ -34,6 +34,8 @@ export function CitesteEchitatePlanificare(arg1:number,arg2:number):Promise<main
 
 export function CitestePlanificare(arg1:number,arg2:number):Promise<main.RaspunsPlanificare>;
 
+export function CitestePlanificatVsRealizat(arg1:number,arg2:number):Promise<main.RaspunsPlanificatVsRealizat>;
+
 export function CitesteSchita(arg1:number,arg2:number):Promise<main.RaspunsSchita>;
 
 export function CompleteazaSarbatori2026():Promise<main.RaspunsCalendar>;

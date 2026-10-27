@@ -4,6 +4,23 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.49.0 · 2026-10-27
+
+Raport comparativ „Planificat vs. Realizat” în ecranul de Planificare și Rapoarte (F11-T02).
+
+- **Vizualizare comparativă interactivă (`PanouComparativPlanificatVsRealizat` în `Planificare.tsx`):** Adăugat modulul comparativ accesibil direct din selectorul de vizualizare al ecranului de Planificare („Planificat vs. Realizat”). Afișează grila lunară completă punând în paralel tura planificată cu pontajul efectiv/ciornă.
+- **Identificare automată a discrepanțelor și variațiilor:** Evidențiază stările celulelor prin coduri de culori și insigne dedicate:
+  * 🟢 *Identic:* planul a fost respectat exact (`Plan == Realizat`).
+  * 🟠 *Modificat:* schimb efectuat diferit de cel planificat inițial (ex: `Z7 ➔ G24`).
+  * 🔵 *Neplanificat:* prezență la serviciu fără alocare prealabilă în plan (acoperire ad-hoc).
+  * 🔴 *Neefectuat:* tură planificată, dar neînregistrată în pontaj.
+  * 🟣 *Concediu / Absență:* zi acoperită de concediu (CO, CM, etc.).
+- **Carduri sintetice și filtrare rapidă:** Carduri cu total ore planificate, total ore realizate, variație globală (+/- ore) și număr de angajați cu discrepanțe; filtru binar `[ ] Doar angajați cu discrepanțe` și buton de salt direct în Pontaj.
+- **Modul pur de calcul backend (`internal/calcul/comparativ.go`, `internal/datebaza/planificare.go`, `app_planificare.go`):** `CalculeazaPlanificatVsRealizat` și `CitestePlanificatVsRealizat` rulează fără dependențe externe și generează structura de date completă pentru UI și export.
+- **Teste unitare și de integrare:** Adăugate `TestCalculeazaPlanificatVsRealizat` în `internal/calcul/comparativ_test.go` și `TestAppCitestePlanificatVsRealizat` în `app_planificare_test.go`.
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
 ## 0.48.0 · 2026-10-27
 
 Atribuire în masă (bulk) a categoriilor de program pe selecție multiplă de angajați (F07-T15 / I055).
