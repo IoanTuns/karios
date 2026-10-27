@@ -18,6 +18,10 @@ export function AnalizeazaImportSarbatori(arg1, arg2) {
   return window['go']['main']['App']['AnalizeazaImportSarbatori'](arg1, arg2);
 }
 
+export function AplicaPropunereAI(arg1) {
+  return window['go']['main']['App']['AplicaPropunereAI'](arg1);
+}
+
 export function Catalog(arg1) {
   return window['go']['main']['App']['Catalog'](arg1);
 }

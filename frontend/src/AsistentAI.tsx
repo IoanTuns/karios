@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState, type FormEvent} from 'react';
 import {useTranslation} from 'react-i18next';
-import {EsteAutoPornireAI, InterogheazaAI, OpresteAI, PornesteAI, SalveazaPlanificare, SeteazaAutoPornireAI, StareAI} from '../wailsjs/go/main/App';
+import {AplicaPropunereAI, EsteAutoPornireAI, InterogheazaAI, OpresteAI, PornesteAI, SeteazaAutoPornireAI, StareAI} from '../wailsjs/go/main/App';
 import {ai, datebaza, main} from '../wailsjs/go/models';
 
 interface MesajUI {
@@ -215,113 +215,32 @@ export function AsistentAI({date}: {date: datebaza.Date}) {
         setMesaj('');
 
         try {
-            if (propunere.tip === 'planifica_interval' || propunere.tip === 'sterge_interval') {
-                const marca = String(propunere.parametri['marca'] ?? '').trim();
-                const dInceput = String(propunere.parametri['data_inceput'] ?? '').trim();
-                const dSfarsit = String(propunere.parametri['data_sfarsit'] ?? '').trim();
-                const codSchimb = propunere.tip === 'sterge_interval' ? '' : String(propunere.parametri['cod_schimb'] ?? '').trim();
-                const doarLucratoare = Boolean(propunere.parametri['doar_lucratoare']);
+            const resp = await AplicaPropunereAI(new main.CerereAplicaPropunereAI({
+                an: anCurent,
+                luna: lunaCurenta,
+                propunere,
+            }));
 
-                const angajat = gasesteAngajat(marca, date.angajati);
-
-                if (!angajat) {
-                    setEroare(`Nu a fost găsit angajatul "${marca}".`);
-                    setOcupat(false);
-                    return;
-                }
-
-                const start = new Date(dInceput);
-                const end = new Date(dSfarsit);
-                const pozitii: datebaza.PozitiePlanificare[] = [];
-
-                const cur = new Date(start);
-                while (cur <= end) {
-                    const ziSapt = cur.getDay(); // 0 = duminica, 6 = sambata
-                    if (!doarLucratoare || (ziSapt !== 0 && ziSapt !== 6)) {
-                        const anStr = cur.getFullYear();
-                        const lunaStr = String(cur.getMonth() + 1).padStart(2, '0');
-                        const ziStr = String(cur.getDate()).padStart(2, '0');
-                        pozitii.push(new datebaza.PozitiePlanificare({
-                            angajat_id: angajat.id,
-                            data: `${anStr}-${lunaStr}-${ziStr}`,
-                            cod_schimb: codSchimb,
-                        }));
+            if (resp.eroare) {
+                const textEroare = t(resp.eroare.cod, resp.eroare.param ?? {});
+                setEroare(textEroare !== resp.eroare.cod ? textEroare : (resp.eroare.param?.detalii ?? resp.eroare.cod));
+            } else {
+                setMesaj(t('ai.actiune_aplicata'));
+                setConversatie(prev => prev.map(m => {
+                    if (m.id === mesajId) {
+                        return {
+                            ...m,
+                            propuneriAplicata: {
+                                ...(m.propuneriAplicata ?? {}),
+                                [propunere.id]: true,
+                            },
+                        };
                     }
-                    cur.setDate(cur.getDate() + 1);
-                }
-
-                if (pozitii.length === 0) {
-                    setEroare("Nu au fost identificate zile eligibile în intervalul solicitat.");
-                    setOcupat(false);
-                    return;
-                }
-
-                const an = start.getFullYear() || anCurent;
-                const luna = start.getMonth() + 1 || lunaCurenta;
-                const r = await SalveazaPlanificare(an, luna, pozitii);
-                if (r.eroare) {
-                    setEroare(t(r.eroare.cod, r.eroare.param ?? {}));
-                } else {
-                    setMesaj(t('ai.actiune_aplicata'));
-                    setConversatie(prev => prev.map(m => {
-                        if (m.id === mesajId) {
-                            return {
-                                ...m,
-                                propuneriAplicata: {
-                                    ...(m.propuneriAplicata ?? {}),
-                                    [propunere.id]: true,
-                                },
-                            };
-                        }
-                        return m;
-                    }));
-                }
-            } else if (propunere.tip === 'planifica_tura' || propunere.tip === 'sterge_tura') {
-                const marca = String(propunere.parametri['marca'] ?? '').trim();
-                const dataStr = String(propunere.parametri['data'] ?? '').trim();
-                const codSchimb = propunere.tip === 'sterge_tura' ? '' : String(propunere.parametri['cod_schimb'] ?? '').trim();
-
-                // Găsește ID-ul angajatului după marcă sau nume (tolerant la formatare)
-                const angajat = gasesteAngajat(marca, date.angajati);
-
-                if (!angajat) {
-                    setEroare(`Nu a fost găsit angajatul cu marca sau numele "${marca}".`);
-                    setOcupat(false);
-                    return;
-                }
-
-                const d = new Date(dataStr);
-                const an = d.getFullYear() || anCurent;
-                const luna = d.getMonth() + 1 || lunaCurenta;
-
-                const pozitie = new datebaza.PozitiePlanificare({
-                    angajat_id: angajat.id,
-                    data: dataStr,
-                    cod_schimb: codSchimb,
-                });
-
-                const r = await SalveazaPlanificare(an, luna, [pozitie]);
-                if (r.eroare) {
-                    setEroare(t(r.eroare.cod, r.eroare.param ?? {}));
-                } else {
-                    setMesaj(t('ai.actiune_aplicata'));
-                    // Marchează propunerea ca aplicată
-                    setConversatie(prev => prev.map(m => {
-                        if (m.id === mesajId) {
-                            return {
-                                ...m,
-                                propuneriAplicata: {
-                                    ...(m.propuneriAplicata ?? {}),
-                                    [propunere.id]: true,
-                                },
-                            };
-                        }
-                        return m;
-                    }));
-                }
+                    return m;
+                }));
             }
-        } catch {
-            setEroare(t('date.eroare'));
+        } catch (err: any) {
+            setEroare(err?.message || t('date.eroare'));
         } finally {
             setOcupat(false);
         }

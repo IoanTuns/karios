@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -294,10 +295,28 @@ func (c *Client) Interogheaza(ctx context.Context, istoric []MesajConversatie, i
 		// Corecție de siguranță pentru intervale și cod de schimb cerut de utilizator
 		args = corecteazaSchimbDacaEroare(args, istoric, info.Schimburi)
 
-		descriere := construiesteDescrierePropunere(tc.Function.Name, args, info)
+		// Dacă utilizatorul a cerut o lună întreagă ("in octombrie", "toata luna" etc.), dar modelul a apelat planifica_tura
+		tipFunctie := tc.Function.Name
+		if tipFunctie == "planifica_tura" && len(istoric) > 0 {
+			ultimul := istoric[len(istoric)-1].Continut
+			if toataLuna, nrLuna := esteCerereToataLuna(ultimul); toataLuna {
+				an := info.An
+				luna := info.Luna
+				if nrLuna > 0 {
+					luna = nrLuna
+				}
+				tipFunctie = "planifica_interval"
+				args["data_inceput"] = fmt.Sprintf("%04d-%02d-01", an, luna)
+				args["data_sfarsit"] = ultimaZiLuna(an, luna)
+				args["doar_lucratoare"] = true
+				delete(args, "data")
+			}
+		}
+
+		descriere := construiesteDescrierePropunere(tipFunctie, args, info)
 		rezultat.Propuneri = append(rezultat.Propuneri, PropunereActiune{
 			ID:                 tc.ID,
-			Tip:                tc.Function.Name,
+			Tip:                tipFunctie,
 			Descriere:          descriere,
 			Parametri:          args,
 			NecesitaConfirmare: true,
@@ -305,6 +324,62 @@ func (c *Client) Interogheaza(ctx context.Context, istoric []MesajConversatie, i
 	}
 
 	return rezultat, nil
+}
+
+func esteCerereToataLuna(mesaj string) (bool, int) {
+	m := strings.ToLower(mesaj)
+	luni := map[string]int{
+		"ianuarie": 1, "februarie": 2, "martie": 3, "aprilie": 4,
+		"mai": 5, "iunie": 6, "iulie": 7, "august": 8,
+		"septembrie": 9, "octombrie": 10, "noiembrie": 11, "decembrie": 12,
+	}
+
+	for _, term := range []string{"toata luna", "toată luna", "tata luna", "pe toata luna", "pe toată luna"} {
+		if strings.Contains(m, term) {
+			return true, 0
+		}
+	}
+
+	for numeLuna, nrLuna := range luni {
+		if strings.Contains(m, numeLuna) {
+			if contineZiSpecifica(m, numeLuna) {
+				return false, nrLuna
+			}
+			return true, nrLuna
+		}
+	}
+	return false, 0
+}
+
+func contineZiSpecifica(mesaj, numeLuna string) bool {
+	cuvinte := strings.Fields(mesaj)
+	for i, c := range cuvinte {
+		cCurat := strings.Trim(c, ",.;:!?")
+		if cCurat == "pe" && i+1 < len(cuvinte) {
+			urm := strings.Trim(cuvinte[i+1], ",.;:!?")
+			if nr, err := strconv.Atoi(urm); err == nil && nr >= 1 && nr <= 31 {
+				return true
+			}
+		}
+		if cCurat == "data" && i+2 < len(cuvinte) && strings.Trim(cuvinte[i+1], ",.;:!?") == "de" {
+			urm := strings.Trim(cuvinte[i+2], ",.;:!?")
+			if nr, err := strconv.Atoi(urm); err == nil && nr >= 1 && nr <= 31 {
+				return true
+			}
+		}
+		if cCurat == numeLuna && i > 0 {
+			prec := strings.Trim(cuvinte[i-1], ",.;:!?")
+			if nr, err := strconv.Atoi(prec); err == nil && nr >= 1 && nr <= 31 {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func ultimaZiLuna(an, luna int) string {
+	t := time.Date(an, time.Month(luna)+1, 0, 0, 0, 0, 0, time.UTC)
+	return t.Format(time.DateOnly)
 }
 
 func curataAlfanumeric(s string) string {
@@ -456,8 +531,8 @@ func construiestePromptSistem(info ContextPontix) string {
 	sb.WriteString("Răspunde întotdeauna concis, politicos și în limba română (sau engleză dacă ți se cere).\n")
 	sb.WriteString("NU inventa date și NU calcula formule salariale pe cont propriu.\n")
 	sb.WriteString("Dacă utilizatorul îți cere să planifici, să modifici sau să ștergi ture, apelează uneltele puse la dispoziție.\n")
-	sb.WriteString("IMPORTANT PENTRU PERIOADE / TOATĂ LUNA:\n")
-	sb.WriteString("- Când utilizatorul cere atribuirea unei ture pe o perioadă (ex: 'toată luna', 'toata luna', 'tata luna', 'toată săptămâna', 'de luni până vineri'), folosește neapărat unealta `planifica_interval` sau `sterge_interval`, specificând data_inceput (prima zi a lunii) și data_sfarsit (ultima zi a lunii). NU apela `planifica_tura` pentru o singură zi când se cere toată luna!\n")
+	sb.WriteString("IMPORTANT PENTRU PERIOADE / LUNI / INTERVALE:\n")
+	sb.WriteString("- Când utilizatorul menționează o lună ('în octombrie', 'in octombrie', 'pe octombrie', 'luna octombrie') sau o perioadă ('toată luna', 'toata luna', 'tata luna', 'toată săptămâna') FĂRĂ o zi anume (fără 'pe 15' etc.), înseamnă ÎNTREAGA LUNĂ! Folosește neapărat unealta `planifica_interval` cu data_inceput (ex: 2026-10-01) și data_sfarsit (ex: 2026-10-31), și doar_lucratoare: true. NU apela `planifica_tura` pentru o singură zi când se cere toată luna!\n")
 	sb.WriteString("- Pentru ture normale de zi ('toată luna', '7 la 14', etc.), setează ÎNTOTDEAUNA `doar_lucratoare: true` pentru a exclude weekendurile!\n")
 	sb.WriteString("- ALEGEREA SCHIMBURILOR DUPĂ INTERVAL SAU ORE:\n")
 	sb.WriteString("  * '7 la 14', '07:00–14:00', 'dimineața', 'pe zi' -> codul este Z7 (Zi 07–14). NICIODATĂ nu alege S7 pentru 7 la 14!\n")

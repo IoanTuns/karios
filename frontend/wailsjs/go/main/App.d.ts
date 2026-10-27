@@ -14,6 +14,8 @@ export function AnalizeazaImportAngajati(arg1:string,arg2:string):Promise<main.R
 
 export function AnalizeazaImportSarbatori(arg1:string,arg2:string):Promise<main.RaspunsAnalizaImportSarbatori>;
 
+export function AplicaPropunereAI(arg1:main.CerereAplicaPropunereAI):Promise<main.RaspunsAplicaPropunereAI>;
+
 export function Catalog(arg1:string):Promise<Record<string, string>>;
 
 export function CitesteAbsente(arg1:number):Promise<main.RaspunsAbsente>;

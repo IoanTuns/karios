@@ -228,3 +228,25 @@ func TestCorecteazaSchimbDacaEroare(t *testing.T) {
 		t.Fatalf("așteptat doar_lucratoare true pentru toata luna, obținut: %v", corectat["doar_lucratoare"])
 	}
 }
+
+func TestEsteCerereToataLuna(t *testing.T) {
+	teste := []struct {
+		mesaj     string
+		toataLuna bool
+		nrLuna    int
+	}{
+		{"Dobre in octombrie e pe zi de la 7 la 14", true, 10},
+		{"Dobre rares e toata luna 7 la 14", true, 0},
+		{"Dobre rares e tata luna 7 la 14", true, 0},
+		{"Pune-l pe Popescu in garda pe 15 octombrie", false, 10},
+		{"Pune-l pe Popescu in garda pe data de 20 noiembrie", false, 11},
+		{"Cine e liber in acest weekend?", false, 0},
+	}
+
+	for _, tt := range teste {
+		tl, luna := esteCerereToataLuna(tt.mesaj)
+		if tl != tt.toataLuna || luna != tt.nrLuna {
+			t.Errorf("pentru %q: asteptat (%v, %d), obtinut (%v, %d)", tt.mesaj, tt.toataLuna, tt.nrLuna, tl, luna)
+		}
+	}
+}

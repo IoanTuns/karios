@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
+	"time"
 
 	"pontix/internal/ai"
+	"pontix/internal/calcul"
 	"pontix/internal/datebaza"
 	"pontix/internal/i18n"
 	"pontix/internal/portabil"
@@ -26,6 +29,17 @@ type CerereInterogareAI struct {
 type RaspunsInterogareAI struct {
 	Raspuns *ai.RaspunsAsistent `json:"raspuns"`
 	Eroare  *MesajEroare        `json:"eroare"`
+}
+
+type CerereAplicaPropunereAI struct {
+	An        int                 `json:"an"`
+	Luna      int                 `json:"luna"`
+	Propunere ai.PropunereActiune `json:"propunere"`
+}
+
+type RaspunsAplicaPropunereAI struct {
+	Succes bool         `json:"succes"`
+	Eroare *MesajEroare `json:"eroare,omitempty"`
 }
 
 func (a *App) folderAI() string {
@@ -184,4 +198,176 @@ func (a *App) InterogheazaAI(cerere CerereInterogareAI) RaspunsInterogareAI {
 	}
 
 	return RaspunsInterogareAI{Raspuns: &raspuns}
+}
+
+// AplicaPropunereAI execută acțiunea aprobată de utilizator (salvează în pontaj și, dacă este cazul, în planificare).
+func (a *App) AplicaPropunereAI(cerere CerereAplicaPropunereAI) RaspunsAplicaPropunereAI {
+	p := cerere.Propunere
+	marca, _ := p.Parametri["marca"].(string)
+	codSchimb, _ := p.Parametri["cod_schimb"].(string)
+	if p.Tip == "sterge_tura" || p.Tip == "sterge_interval" {
+		codSchimb = ""
+	}
+
+	date, err := datebaza.Nou(a.db).Citeste(a.contextLucru())
+	if err != nil {
+		return RaspunsAplicaPropunereAI{Eroare: eroareInterfata(err)}
+	}
+
+	// Găsim angajatul după marcă sau nume (tolerant la formatare)
+	var angajatID string
+	marcaNorm := strings.ToLower(strings.TrimSpace(marca))
+	marcaFaraCratima := strings.ReplaceAll(marcaNorm, "-", "")
+	for _, ang := range date.Angajati {
+		aNorm := strings.ToLower(strings.TrimSpace(ang.Marca))
+		aFaraCratima := strings.ReplaceAll(aNorm, "-", "")
+		numeComplet := strings.ToLower(strings.TrimSpace(ang.Nume + " " + ang.Prenume))
+		prenumeComplet := strings.ToLower(strings.TrimSpace(ang.Prenume + " " + ang.Nume))
+		if aNorm == marcaNorm || aFaraCratima == marcaFaraCratima ||
+			numeComplet == marcaNorm || prenumeComplet == marcaNorm ||
+			strings.Contains(numeComplet, marcaNorm) || strings.Contains(prenumeComplet, marcaNorm) ||
+			(len(ang.Nume) >= 3 && strings.Contains(marcaNorm, strings.ToLower(ang.Nume))) {
+			angajatID = ang.ID
+			break
+		}
+	}
+	if angajatID == "" {
+		return RaspunsAplicaPropunereAI{
+			Eroare: &MesajEroare{
+				Cod:   "ai.eroare_generare",
+				Param: map[string]string{"detalii": fmt.Sprintf("Nu a fost găsit angajatul cu marca sau numele \"%s\".", marca)},
+			},
+		}
+	}
+
+	// Determinăm lista de date calendaristice vizate
+	var zile []string
+	switch p.Tip {
+	case "planifica_interval", "sterge_interval":
+		d1Str, _ := p.Parametri["data_inceput"].(string)
+		d2Str, _ := p.Parametri["data_sfarsit"].(string)
+		doarLucratoare, _ := p.Parametri["doar_lucratoare"].(bool)
+
+		t1, err1 := time.Parse(time.DateOnly, d1Str)
+		t2, err2 := time.Parse(time.DateOnly, d2Str)
+		if err1 != nil || err2 != nil || t2.Before(t1) {
+			return RaspunsAplicaPropunereAI{
+				Eroare: &MesajEroare{
+					Cod:   "ai.eroare_generare",
+					Param: map[string]string{"detalii": "Interval de date invalid."},
+				},
+			}
+		}
+		for cur := t1; !cur.After(t2); cur = cur.AddDate(0, 0, 1) {
+			ziSapt := cur.Weekday()
+			if !doarLucratoare || (ziSapt != time.Saturday && ziSapt != time.Sunday) {
+				zile = append(zile, cur.Format(time.DateOnly))
+			}
+		}
+	case "planifica_tura", "sterge_tura":
+		dStr, _ := p.Parametri["data"].(string)
+		if _, err := time.Parse(time.DateOnly, dStr); err != nil {
+			return RaspunsAplicaPropunereAI{
+				Eroare: &MesajEroare{
+					Cod:   "ai.eroare_generare",
+					Param: map[string]string{"detalii": fmt.Sprintf("Data invalidă: %s", dStr)},
+				},
+			}
+		}
+		zile = append(zile, dStr)
+	default:
+		return RaspunsAplicaPropunereAI{
+			Eroare: &MesajEroare{
+				Cod:   "ai.eroare_generare",
+				Param: map[string]string{"detalii": fmt.Sprintf("Tip acțiune necunoscut: %s", p.Tip)},
+			},
+		}
+	}
+
+	if len(zile) == 0 {
+		return RaspunsAplicaPropunereAI{
+			Eroare: &MesajEroare{
+				Cod:   "ai.eroare_generare",
+				Param: map[string]string{"detalii": "Nu au fost identificate zile eligibile în interval."},
+			},
+		}
+	}
+
+	tPrima, _ := time.Parse(time.DateOnly, zile[0])
+	an := cerere.An
+	luna := cerere.Luna
+	if an <= 0 {
+		an = tPrima.Year()
+	}
+	if luna <= 0 {
+		luna = int(tPrima.Month())
+	}
+
+	// Citim schița existentă pentru a obține reviziile celulelor curente
+	schita, err := datebaza.Nou(a.db).CitesteSchita(a.contextLucru(), an, luna)
+	if err != nil {
+		return RaspunsAplicaPropunereAI{Eroare: eroareInterfata(err)}
+	}
+	revizii := make(map[string]string)
+	for _, c := range schita.Celule {
+		if c.AngajatID == angajatID {
+			revizii[c.Data] = c.Revizie
+		}
+	}
+
+	// Construim celulele pentru pontaj
+	var celule []datebaza.CelulaSchita
+	for _, zi := range zile {
+		celule = append(celule, datebaza.CelulaSchita{
+			AngajatID: angajatID,
+			Data:      zi,
+			Valoare:   codSchimb,
+			Revizie:   revizii[zi],
+		})
+	}
+
+	// Salvăm în pontaj
+	if err := datebaza.Nou(a.db).SalveazaSchita(a.contextLucru(), an, luna, celule); err != nil {
+		return RaspunsAplicaPropunereAI{Eroare: eroareInterfata(err)}
+	}
+
+	// Dacă schimbul este și de tip planificare (gardă sau după-amiază), îl actualizăm și în tabelul de planificare
+	schimburi, _ := datebaza.Nou(a.db).ListaSchimburi(a.contextLucru())
+	var schimbGasit *datebaza.Schimb
+	for i := range schimburi {
+		if strings.EqualFold(schimburi[i].Cod, codSchimb) {
+			schimbGasit = &schimburi[i]
+			break
+		}
+	}
+
+	if schimbGasit != nil {
+		pProg := calcul.ProgramPrecompletare{
+			ID:           schimbGasit.ID,
+			Cod:          schimbGasit.Cod,
+			OraStart:     schimbGasit.OraStart,
+			DurataMinute: schimbGasit.DurataMinute,
+			Tip:          schimbGasit.Tip,
+			Regim:        schimbGasit.Regim,
+		}
+		if calcul.ProgramDePlanificat(pProg) {
+			sectiune := "GARZI"
+			if calcul.ProgramInSectiune(pProg, "DUPA_AMIAZA") {
+				sectiune = "DUPA_AMIAZA"
+			}
+			var pozitii []datebaza.PozitiePlanificare
+			for _, zi := range zile {
+				pozitii = append(pozitii, datebaza.PozitiePlanificare{
+					AngajatID: angajatID,
+					Data:      zi,
+					SchimbID:  schimbGasit.ID,
+					Sectiune:  sectiune,
+					Activ:     codSchimb != "",
+				})
+			}
+			_ = datebaza.Nou(a.db).SalveazaPlanificare(a.contextLucru(), an, luna, pozitii)
+		}
+	}
+
+	return RaspunsAplicaPropunereAI{Succes: true}
 }

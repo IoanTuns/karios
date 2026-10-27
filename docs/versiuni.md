@@ -4,6 +4,16 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.44.0 · 2026-10-27
+
+Aplicare directă în pontaj și interpretare automată a cererilor pentru întreaga lună (F14-T04, D042).
+
+- **Interpretare comenzi lună întreagă (`internal/ai/asistent.go`):** Când utilizatorul menționează o lună (ex: „în octombrie”, „in octombrie”) sau o perioadă („toată luna”, „tata luna”) fără a specifica o anumită zi, asistentul generează automat `planifica_interval` pentru prima și ultima zi a lunii cu `doar_lucratoare: true`. Adăugată funcția `esteCerereToataLuna` pentru corecție defensivă pe server și test de regresie `TestEsteCerereToataLuna`.
+- **Metodă unificată de aplicare acțiuni AI (`AplicaPropunereAI` în `app_ai.go`):** Eliminat eroarea `Selecția pentru planificare nu este validă` cauzată de apelarea `SalveazaPlanificare` pentru schimburi normale de zi (cum ar fi `Z7`). Noul endpoint salvează direct în pontaj (`SalveazaSchita` cu revizii la zi) și sincronizează automat tabelul de planificare exclusiv pentru turele din categoriile gărzi (`GARZI`) sau după-amiază (`DUPA_AMIAZA`).
+- **Actualizare client frontend (`AsistentAI.tsx`):** Simplificat handlerul `aplicaPropunere` pentru a delega execuția completă către backend-ul Go prin `AplicaPropunereAI`.
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
 ## 0.43.0 · 2026-10-27
 
 Reguli stricte de mapare intervale orare și corecție automată schimb cerut (F14-T04, D042).
