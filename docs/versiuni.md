@@ -4,6 +4,16 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.55.0 · 2026-10-27
+
+Extindere fereastră context AI la 8192 tokeni (F14-T04 / D042).
+
+- **Rezolvare eroare depășire context (`exceed_context_size_error`):**
+  * Corectat parametrul `-c` al procesului `llama-server.exe` din `internal/ai/proces.go` la **8192 tokeni** (anterior limitat la 2048).
+  * Permite încărcarea simultană fără erori 400 a tuturor datelor lunare agregate (personal medical complet, lista tuturor schimburilor, absențele și concediile lunare, turele deja planificate și istoricul conversațional extins, care cumulează peste 2800 tokeni).
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
 ## 0.54.0 · 2026-10-27
 
 Pachet complet de optimizări de performanță, viteză de lansare, productivitate și consum de memorie (Optimizarile 1–5).
