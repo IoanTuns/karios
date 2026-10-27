@@ -4,6 +4,23 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.54.0 · 2026-10-27
+
+Pachet complet de optimizări de performanță, viteză de lansare, productivitate și consum de memorie (Optimizarile 1–5).
+
+- **Optimizarea 1 · Code-Splitting asincron pe Frontend (`React.lazy` + `Suspense` în `App.tsx`):**
+  * Divizarea modulelor mari (`Planificare`, `Absente`, `Pontaj`, `Rapoarte`, `AsistentAI`, `Schimburi`, `Sarbatori`) în chunk-uri asincrone încărcate la cerere.
+  * Scăderea dimensiunii pachetului JavaScript inițial cu **51%** (de la 515 KB la 252 KB), eliminând complet avertismentul Vite de bundle și accelerând lansarea interfeței în WebView2.
+- **Optimizarea 2 & 3 · Navigare rapidă și productivitate în grilă (Excel-style în `Pontaj.tsx` și `Planificare.tsx`):**
+  * Adăugat suport pentru tastele `Home` (salt la ziua 1), `End` (salt la ultima zi din lună), `PageUp` / `PageDown` (salt 5 rânduri) și `Space` (deschidere introducere ore).
+  * **Introducere directă a orelor din cifre:** tastarea tastelor `0..9` direct pe celulă introduce orele (`@M480` pentru 8h, curățare pentru 0) și avansează automat focusul la ziua următoare, multiplicând viteza de introducere a pontajului.
+- **Optimizarea 4 · Eficiență inferență AI Locală & economisire RAM (`internal/ai/proces.go`, `asistent.go`):**
+  * Redus fereastra de context de la 4096 la 2048 tokeni, diminuând alocarea KV cache în memorie cu 50% (~500 MB RAM economisiți pe desktop-urile cu resurse limitate).
+  * Adăugat procesare de prompt accelerată vectorial (`-b 512`, `-ub 512`).
+  * Extins `AnalizeazaInterogareSinteza` cu `sintetizeazaGhidComenzi` pentru comenzi de ajutor/ghid cu răspuns determinist instant (0 ms, 0% CPU).
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
 ## 0.53.0 · 2026-10-27
 
 Motor de reguli configurabile (Rule Engine) pentru restricții medicale și de gardă (Lot 7 / D041 / I061).

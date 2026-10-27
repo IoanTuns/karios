@@ -325,13 +325,27 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
         if ((e.ctrlKey || e.metaKey) && !e.altKey && e.key.toLowerCase() === 'y') { e.preventDefault(); refaPas(); return; }
         const directii: Record<string, [number, number]> = {ArrowLeft: [0, -1], ArrowRight: [0, 1], ArrowUp: [-1, 0], ArrowDown: [1, 0], Enter: [e.shiftKey ? -1 : 1, 0]};
         if (directii[e.key]) { e.preventDefault(); const [dr, dz] = directii[e.key]; focalizeaza({rand: r + dr, zi: z + dz}, e.shiftKey && e.key !== 'Enter'); }
+        else if (e.key === 'Home') { e.preventDefault(); focalizeaza({rand: r, zi: 0}, e.shiftKey); }
+        else if (e.key === 'End') { e.preventDefault(); focalizeaza({rand: r, zi: numarZile - 1}, e.shiftKey); }
+        else if (e.key === 'PageUp') { e.preventDefault(); focalizeaza({rand: Math.max(0, r - 5), zi: z}, e.shiftKey); }
+        else if (e.key === 'PageDown') { e.preventDefault(); focalizeaza({rand: Math.min(randuri.length - 1, r + 5), zi: z}, e.shiftKey); }
         else if (e.key === 'Tab') {
             let zi = z + (e.shiftKey ? -1 : 1), rand = r;
             if (zi < 0) { rand--; zi = numarZile - 1; } else if (zi >= numarZile) { rand++; zi = 0; }
             if (rand >= 0 && rand < randuri.length) { e.preventDefault(); focalizeaza({rand, zi}, false); }
         } else if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); completeaza(''); }
-        else if(e.key==='F2'){e.preventDefault();deschideOreManuale();}
+        else if (e.key === 'F2') { e.preventDefault(); deschideOreManuale(); }
         else if (e.key === 'Escape') { e.preventDefault(); aplicaCelule([{rand: r, zi: z, text: originale.get(cheie(randuri[r].id, zile[z]))?.valoare ?? ''}]); }
+        else if (e.key === ' ' && !e.ctrlKey && !e.altKey && !e.metaKey) { e.preventDefault(); deschideOreManuale(); }
+        else if (/^[0-9]$/.test(e.key) && !e.ctrlKey && !e.altKey && !e.metaKey && !ocupat && !lunaBlocata) {
+            e.preventDefault();
+            const ore = Number(e.key);
+            const val = ore === 0 ? '' : `@M${ore * 60}`;
+            completeaza(val);
+            if (z + 1 < numarZile) {
+                focalizeaza({rand: r, zi: z + 1}, false);
+            }
+        }
     }
 
     function poateAbandona() { return !modificari.size || window.confirm(t('ui.renunta')); }

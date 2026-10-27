@@ -923,7 +923,30 @@ func AnalizeazaInterogareSinteza(mesaj string, info ContextPontix) (string, bool
 		return sintetizeazaStatisticiGarzi(info, numeLuna), true
 	}
 
+	// 5. Ghid de comenzi rapide și ajutor ("ajutor", "help", "ce comenzi", "ce poti face")
+	if m == "ajutor" || m == "help" || strings.Contains(m, "ce poti face") || strings.Contains(m, "ce poți face") ||
+		strings.Contains(m, "ce comenzi") || strings.Contains(m, "ce stii sa faci") || strings.Contains(m, "ce știi să faci") {
+		return sintetizeazaGhidComenzi(numeLuna, info.An), true
+	}
+
 	return "", false
+}
+
+func sintetizeazaGhidComenzi(numeLuna string, an int) string {
+	var sb strings.Builder
+	sb.WriteString(fmt.Sprintf("💡 **Ghid Asistent Pontix (100%% Local & Offline)**\n\n"))
+	sb.WriteString("Iată câteva exemple de comenzi pe care le poți folosi:\n\n")
+	sb.WriteString("📋 **Planificare și atribuire:**\n")
+	sb.WriteString("- *„Pune-l pe Popescu în gardă pe 15 a lunii”*\n")
+	sb.WriteString(fmt.Sprintf("- *„Dobre în %s e pe zi de la 7 la 14”*\n", numeLuna))
+	sb.WriteString("- *„Dumitru Andrei lucrează tot al doilea weekend pe zi, schimb de 12 ore, începând cu data de 3”*\n")
+	sb.WriteString("- *„Șterge garda lui Popescu din 15”*\n\n")
+	sb.WriteString("🔍 **Interogări analitice instantanee (fără timp de așteptare):**\n")
+	sb.WriteString("- *„Cine este în concediu luna asta?”*\n")
+	sb.WriteString("- *„Cine este liber în acest weekend?”*\n")
+	sb.WriteString("- *„Verifică dacă lipsesc posturi obligatorii / gărzi weekend”*\n")
+	sb.WriteString("- *„Statistici gărzi și ore planificate”*\n")
+	return sb.String()
 }
 
 func sintetizeazaConcedii(info ContextPontix, numeLuna string) string {
