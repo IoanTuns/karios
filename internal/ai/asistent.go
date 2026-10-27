@@ -55,6 +55,7 @@ type InfoSchimb struct {
 	Cod      string `json:"cod"`
 	Denumire string `json:"denumire"`
 	Ore      int    `json:"ore"`
+	Interval string `json:"interval,omitempty"`
 }
 
 // Client gestionează comunicarea HTTP cu endpoint-ul local al modelului.
@@ -283,7 +284,14 @@ func (c *Client) Interogheaza(ctx context.Context, istoric []MesajConversatie, i
 		var args map[string]any
 		_ = json.Unmarshal([]byte(tc.Function.Arguments), &args)
 
-		descriere := construiesteDescrierePropunere(tc.Function.Name, args)
+		// Canonicizăm marca cu marca exactă din baza de date pentru a preveni diferențele de formatare
+		if marcaVal, ok := args["marca"].(string); ok {
+			if a, gasit := gasesteAngajatInfo(marcaVal, info.Angajati); gasit {
+				args["marca"] = a.Marca
+			}
+		}
+
+		descriere := construiesteDescrierePropunere(tc.Function.Name, args, info)
 		rezultat.Propuneri = append(rezultat.Propuneri, PropunereActiune{
 			ID:                 tc.ID,
 			Tip:                tc.Function.Name,
@@ -296,6 +304,123 @@ func (c *Client) Interogheaza(ctx context.Context, istoric []MesajConversatie, i
 	return rezultat, nil
 }
 
+func curataAlfanumeric(s string) string {
+	var b strings.Builder
+	for _, r := range strings.ToLower(s) {
+		if (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') {
+			b.WriteRune(r)
+		}
+	}
+	return b.String()
+}
+
+func extrageCifre(s string) string {
+	var b strings.Builder
+	for _, r := range s {
+		if r >= '0' && r <= '9' {
+			b.WriteRune(r)
+		}
+	}
+	return b.String()
+}
+
+func extrageLitere(s string) string {
+	var b strings.Builder
+	for _, r := range strings.ToLower(s) {
+		if r >= 'a' && r <= 'z' {
+			b.WriteRune(r)
+		}
+	}
+	return b.String()
+}
+
+func gasesteAngajatInfo(marcaSauNume string, angajati []InfoAngajat) (InfoAngajat, bool) {
+	raw := strings.TrimSpace(marcaSauNume)
+	if raw == "" || len(angajati) == 0 {
+		return InfoAngajat{}, false
+	}
+	norm := strings.ToLower(raw)
+	alfa := curataAlfanumeric(raw)
+
+	// 1. Potrivire directă pe marcă
+	for _, a := range angajati {
+		if strings.ToLower(a.Marca) == norm {
+			return a, true
+		}
+	}
+
+	// 2. Potrivire alfanumerică pe marcă (ex: "DEM008" vs "DEMO-008")
+	for _, a := range angajati {
+		aAlfa := curataAlfanumeric(a.Marca)
+		if aAlfa == alfa {
+			return a, true
+		}
+		cifreRaw := extrageCifre(alfa)
+		cifreA := extrageCifre(aAlfa)
+		if cifreRaw != "" && cifreRaw == cifreA {
+			litRaw := extrageLitere(alfa)
+			litA := extrageLitere(aAlfa)
+			if strings.HasPrefix(litA, litRaw) || strings.HasPrefix(litRaw, litA) {
+				return a, true
+			}
+		}
+	}
+
+	// 3. Potrivire pe nume/prenume
+	for _, a := range angajati {
+		numeComplet := strings.ToLower(strings.TrimSpace(a.Nume + " " + a.Prenume))
+		prenumeComplet := strings.ToLower(strings.TrimSpace(a.Prenume + " " + a.Nume))
+		if numeComplet == norm || prenumeComplet == norm ||
+			strings.Contains(numeComplet, norm) || strings.Contains(prenumeComplet, norm) ||
+			(len(a.Nume) >= 3 && strings.Contains(norm, strings.ToLower(a.Nume))) {
+			return a, true
+		}
+	}
+
+	return InfoAngajat{}, false
+}
+
+func formateazaAngajat(marca string, angajati []InfoAngajat) string {
+	if a, gasit := gasesteAngajatInfo(marca, angajati); gasit {
+		numeComplet := strings.TrimSpace(a.Nume + " " + a.Prenume)
+		if a.Marca != "" {
+			return fmt.Sprintf("%s (marca %s)", numeComplet, a.Marca)
+		}
+		return numeComplet
+	}
+	if marca == "" {
+		return "angajat nespecificat"
+	}
+	return marca
+}
+
+func formateazaSchimb(cod string, schimburi []InfoSchimb) string {
+	codNorm := strings.TrimSpace(strings.ToUpper(cod))
+	for _, s := range schimburi {
+		if strings.ToUpper(s.Cod) == codNorm {
+			parti := []string{s.Cod}
+			if s.Denumire != "" && !strings.EqualFold(s.Denumire, s.Cod) {
+				parti = append(parti, s.Denumire)
+			}
+			var detalii []string
+			if s.Interval != "" && !strings.Contains(s.Denumire, s.Interval) {
+				detalii = append(detalii, s.Interval)
+			}
+			if s.Ore > 0 && !strings.Contains(s.Denumire, fmt.Sprintf("%dh", s.Ore)) && !strings.Contains(s.Denumire, fmt.Sprintf("%d ore", s.Ore)) {
+				detalii = append(detalii, fmt.Sprintf("%d ore", s.Ore))
+			}
+			if len(detalii) > 0 {
+				return fmt.Sprintf("%s (%s)", strings.Join(parti, " – "), strings.Join(detalii, ", "))
+			}
+			return strings.Join(parti, " – ")
+		}
+	}
+	if cod == "" {
+		return "schimb nespecificat"
+	}
+	return cod
+}
+
 func construiestePromptSistem(info ContextPontix) string {
 	var sb strings.Builder
 	sb.WriteString("Ești Asistentul inteligent al aplicației Pontix pentru pontaj și planificare de gărzi/ture.\n")
@@ -303,8 +428,9 @@ func construiestePromptSistem(info ContextPontix) string {
 	sb.WriteString("NU inventa date și NU calcula formule salariale pe cont propriu.\n")
 	sb.WriteString("Dacă utilizatorul îți cere să planifici, să modifici sau să ștergi ture, apelează uneltele puse la dispoziție.\n")
 	sb.WriteString("IMPORTANT PENTRU PERIOADE / TOATĂ LUNA:\n")
-	sb.WriteString("- Când utilizatorul cere atribuirea unei ture pe o perioadă (ex: 'toată luna', 'toată săptămâna', 'de luni până vineri'), folosește neapărat unealta `planifica_interval` sau `sterge_interval`, specificând data_inceput și data_sfarsit. NU apela `planifica_tura` de 30 de ori!\n")
-	sb.WriteString("- Pentru 'pe dimineață' sau 'dimineața', alege schimbul de dimineață disponibil (ex: Z7 sau primul schimb de zi).\n")
+	sb.WriteString("- Când utilizatorul cere atribuirea unei ture pe o perioadă (ex: 'toată luna', 'toata luna', 'tata luna', 'toată săptămâna', 'de luni până vineri'), folosește neapărat unealta `planifica_interval` sau `sterge_interval`, specificând data_inceput (prima zi a lunii) și data_sfarsit (ultima zi a lunii). NU apela `planifica_tura` pentru o singură zi când se cere toată luna!\n")
+	sb.WriteString("- Pentru 'pe dimineață' sau 'dimineața' sau 'de la 7 la 14', alege schimbul de dimineață disponibil (ex: Z7 sau primul schimb de zi).\n")
+	sb.WriteString("- Folosește EXACT numărul de marcă așa cum este indicat în lista de personal de mai jos (ex: 'DEMO-008', NU prescurta și nu elimina cratima).\n")
 	sb.WriteString(fmt.Sprintf("Anul curent de lucru: %d, Luna: %d.\n", info.An, info.Luna))
 
 	if len(info.Schimburi) > 0 {
@@ -326,33 +452,39 @@ func construiestePromptSistem(info ContextPontix) string {
 	return sb.String()
 }
 
-func construiesteDescrierePropunere(numeFunctie string, args map[string]any) string {
+func construiesteDescrierePropunere(numeFunctie string, args map[string]any, info ContextPontix) string {
 	switch numeFunctie {
 	case "planifica_tura":
 		marca, _ := args["marca"].(string)
 		data, _ := args["data"].(string)
 		schimb, _ := args["cod_schimb"].(string)
-		return fmt.Sprintf("Planificare schimb %s pentru %s pe %s", schimb, marca, data)
+		schimbText := formateazaSchimb(schimb, info.Schimburi)
+		angajatText := formateazaAngajat(marca, info.Angajati)
+		return fmt.Sprintf("Planificare schimb %s pentru %s pe %s", schimbText, angajatText, data)
 	case "planifica_interval":
 		marca, _ := args["marca"].(string)
 		d1, _ := args["data_inceput"].(string)
 		d2, _ := args["data_sfarsit"].(string)
 		schimb, _ := args["cod_schimb"].(string)
 		lucratoare, _ := args["doar_lucratoare"].(bool)
+		schimbText := formateazaSchimb(schimb, info.Schimburi)
+		angajatText := formateazaAngajat(marca, info.Angajati)
 		supliment := ""
 		if lucratoare {
-			supliment = " (doar zile lucrătoare L-V)"
+			supliment = " (doar zile lucrătoare L–V)"
 		}
-		return fmt.Sprintf("Planificare schimb %s pentru %s în intervalul %s – %s%s", schimb, marca, d1, d2, supliment)
+		return fmt.Sprintf("Planificare schimb %s pentru %s în intervalul %s – %s%s", schimbText, angajatText, d1, d2, supliment)
 	case "sterge_tura":
 		marca, _ := args["marca"].(string)
 		data, _ := args["data"].(string)
-		return fmt.Sprintf("Ștergere tură pentru %s pe %s", marca, data)
+		angajatText := formateazaAngajat(marca, info.Angajati)
+		return fmt.Sprintf("Ștergere tură pentru %s pe %s", angajatText, data)
 	case "sterge_interval":
 		marca, _ := args["marca"].(string)
 		d1, _ := args["data_inceput"].(string)
 		d2, _ := args["data_sfarsit"].(string)
-		return fmt.Sprintf("Ștergere ture pentru %s în intervalul %s – %s", marca, d1, d2)
+		angajatText := formateazaAngajat(marca, info.Angajati)
+		return fmt.Sprintf("Ștergere ture pentru %s în intervalul %s – %s", angajatText, d1, d2)
 	default:
 		return fmt.Sprintf("Acțiune %s cu parametrii %v", numeFunctie, args)
 	}

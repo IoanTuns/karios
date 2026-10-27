@@ -11,6 +11,63 @@ interface MesajUI {
     propuneriAplicata?: Record<string, boolean>;
 }
 
+function curataText(str: string): string {
+    return (str || '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .trim();
+}
+
+function curataAlfanumeric(str: string): string {
+    return curataText(str).replace(/[^a-z0-9]/g, '');
+}
+
+function gasesteAngajat(marcaSauNume: string, angajati: datebaza.Angajat[]): datebaza.Angajat | undefined {
+    const raw = (marcaSauNume || '').trim();
+    if (!raw || !angajati || angajati.length === 0) return undefined;
+
+    const norm = curataText(raw);
+    const alfa = curataAlfanumeric(raw);
+
+    // 1. Potrivire exactă marcă
+    const potrExact = angajati.find(a => curataText(a.marca) === norm);
+    if (potrExact) return potrExact;
+
+    // 2. Potrivire alfanumerică marcă (ex: "DEM008" vs "DEMO-008" sau "DEMO008")
+    const potrAlfa = angajati.find(a => {
+        const aAlfa = curataAlfanumeric(a.marca);
+        if (aAlfa === alfa) return true;
+        const cifreRaw = alfa.replace(/\D/g, '');
+        const cifreA = aAlfa.replace(/\D/g, '');
+        if (cifreRaw && cifreA && cifreRaw === cifreA) {
+            const litRaw = alfa.replace(/\d/g, '');
+            const litA = aAlfa.replace(/\d/g, '');
+            if (litA.startsWith(litRaw) || litRaw.startsWith(litA)) {
+                return true;
+            }
+        }
+        return false;
+    });
+    if (potrAlfa) return potrAlfa;
+
+    // 3. Potrivire după nume / prenume complet sau inversat
+    const potrNume = angajati.find(a => {
+        const np = curataText(`${a.nume} ${a.prenume}`);
+        const pn = curataText(`${a.prenume} ${a.nume}`);
+        const n = curataText(a.nume);
+        const p = curataText(a.prenume);
+        return np === norm || pn === norm ||
+            np.includes(norm) || pn.includes(norm) ||
+            norm.includes(np) || norm.includes(pn) ||
+            (n.length >= 3 && norm.includes(n)) ||
+            (p.length >= 3 && norm.includes(p));
+    });
+    if (potrNume) return potrNume;
+
+    return undefined;
+}
+
 export function AsistentAI({date}: {date: datebaza.Date}) {
     const {t} = useTranslation();
     const [stare, setStare] = useState<ai.StareMediu | null>(null);
@@ -165,12 +222,7 @@ export function AsistentAI({date}: {date: datebaza.Date}) {
                 const codSchimb = propunere.tip === 'sterge_interval' ? '' : String(propunere.parametri['cod_schimb'] ?? '').trim();
                 const doarLucratoare = Boolean(propunere.parametri['doar_lucratoare']);
 
-                const angajat = date.angajati.find(a => 
-                    a.marca.toLowerCase() === marca.toLowerCase() ||
-                    `${a.nume} ${a.prenume}`.toLowerCase().includes(marca.toLowerCase()) ||
-                    `${a.prenume} ${a.nume}`.toLowerCase().includes(marca.toLowerCase()) ||
-                    marca.toLowerCase().includes(a.nume.toLowerCase())
-                );
+                const angajat = gasesteAngajat(marca, date.angajati);
 
                 if (!angajat) {
                     setEroare(`Nu a fost găsit angajatul "${marca}".`);
@@ -229,13 +281,8 @@ export function AsistentAI({date}: {date: datebaza.Date}) {
                 const dataStr = String(propunere.parametri['data'] ?? '').trim();
                 const codSchimb = propunere.tip === 'sterge_tura' ? '' : String(propunere.parametri['cod_schimb'] ?? '').trim();
 
-                // Găsește ID-ul angajatului după marcă sau nume
-                const angajat = date.angajati.find(a => 
-                    a.marca.toLowerCase() === marca.toLowerCase() ||
-                    `${a.nume} ${a.prenume}`.toLowerCase().includes(marca.toLowerCase()) ||
-                    `${a.prenume} ${a.nume}`.toLowerCase().includes(marca.toLowerCase()) ||
-                    marca.toLowerCase().includes(a.nume.toLowerCase())
-                );
+                // Găsește ID-ul angajatului după marcă sau nume (tolerant la formatare)
+                const angajat = gasesteAngajat(marca, date.angajati);
 
                 if (!angajat) {
                     setEroare(`Nu a fost găsit angajatul cu marca sau numele "${marca}".`);
@@ -375,6 +422,35 @@ export function AsistentAI({date}: {date: datebaza.Date}) {
                                             <div className="antet-propunere">
                                                 <span className="simbol-actiune">⚡</span>
                                                 <strong>{p.descriere}</strong>
+                                            </div>
+                                            <div className="detalii-propunere">
+                                                {p.parametri?.cod_schimb && (
+                                                    <span className="insigna-detaliu schimb">
+                                                        📋 Program: <strong>{String(p.parametri.cod_schimb)}</strong>
+                                                    </span>
+                                                )}
+                                                {p.parametri?.marca && (
+                                                    <span className="insigna-detaliu angajat">
+                                                        👤 {(() => {
+                                                            const ang = gasesteAngajat(String(p.parametri.marca), date.angajati);
+                                                            if (ang) {
+                                                                return `${ang.nume} ${ang.prenume} (${ang.marca})`;
+                                                            }
+                                                            return `Marca: ${String(p.parametri.marca)}`;
+                                                        })()}
+                                                    </span>
+                                                )}
+                                                {p.parametri?.data && (
+                                                    <span className="insigna-detaliu data">
+                                                        📅 Data: <strong>{String(p.parametri.data)}</strong>
+                                                    </span>
+                                                )}
+                                                {p.parametri?.data_inceput && p.parametri?.data_sfarsit && (
+                                                    <span className="insigna-detaliu data">
+                                                        📅 Interval: <strong>{String(p.parametri.data_inceput)} → {String(p.parametri.data_sfarsit)}</strong>
+                                                        {p.parametri?.doar_lucratoare ? ' (L–V)' : ''}
+                                                    </span>
+                                                )}
                                             </div>
                                             <div className="actiuni-propunere">
                                                 {esteAplicata ? (

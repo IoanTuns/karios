@@ -154,10 +154,20 @@ func (a *App) InterogheazaAI(cerere CerereInterogareAI) RaspunsInterogareAI {
 
 	for _, s := range schimburi {
 		if s.Activ {
+			interval := ""
+			if s.DurataMinute > 0 {
+				startH := s.OraStart / 60
+				startM := s.OraStart % 60
+				endMin := (s.OraStart + s.DurataMinute) % 1440
+				endH := endMin / 60
+				endM := endMin % 60
+				interval = fmt.Sprintf("%02d:%02d–%02d:%02d", startH, startM, endH, endM)
+			}
 			contextPontix.Schimburi = append(contextPontix.Schimburi, ai.InfoSchimb{
 				Cod:      s.Cod,
 				Denumire: s.Denumire.In(i18n.Romana),
 				Ore:      int(s.DurataMinute / 60),
+				Interval: interval,
 			})
 		}
 	}

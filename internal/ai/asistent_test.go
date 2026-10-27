@@ -159,4 +159,46 @@ func TestInterogheazaAsistentFunctionCalling(t *testing.T) {
 	if p.Parametri["marca"] != "DEMO-001" || p.Parametri["data"] != "2026-10-15" || p.Parametri["cod_schimb"] != "G24" {
 		t.Fatalf("parametri neașteptați: %+v", p.Parametri)
 	}
+	if p.Descriere != "Planificare schimb G24 – Gardă 24h pentru Popescu Ion (marca DEMO-001) pe 2026-10-15" {
+		t.Fatalf("descriere neașteptată: %s", p.Descriere)
+	}
+}
+
+func TestGasesteAngajatInfoSiDescriere(t *testing.T) {
+	angajati := []InfoAngajat{
+		{ID: "1", Nume: "Dobre", Prenume: "Rares", Marca: "DEMO-008", Functie: "Operator"},
+	}
+	schimburi := []InfoSchimb{
+		{Cod: "Z7", Denumire: "Zi 07–14", Ore: 7, Interval: "07:00–14:00"},
+	}
+	info := ContextPontix{
+		Angajati:  angajati,
+		Schimburi: schimburi,
+	}
+
+	// 1. Verificare căutare cu variantă fără cratimă ("DEM008")
+	a, gasit := gasesteAngajatInfo("DEM008", angajati)
+	if !gasit || a.Marca != "DEMO-008" {
+		t.Fatalf("eșec identificare marcă DEM008: %+v", a)
+	}
+
+	// 2. Verificare căutare după nume parțial ("Dobre Rares")
+	a, gasit = gasesteAngajatInfo("Dobre Rares", angajati)
+	if !gasit || a.Marca != "DEMO-008" {
+		t.Fatalf("eșec identificare nume: %+v", a)
+	}
+
+	// 3. Verificare descriere completă planifica_interval
+	args := map[string]any{
+		"marca":           "DEM008",
+		"cod_schimb":      "Z7",
+		"data_inceput":    "2026-10-01",
+		"data_sfarsit":    "2026-10-31",
+		"doar_lucratoare": true,
+	}
+	desc := construiesteDescrierePropunere("planifica_interval", args, info)
+	asteptat := "Planificare schimb Z7 – Zi 07–14 (07:00–14:00, 7 ore) pentru Dobre Rares (marca DEMO-008) în intervalul 2026-10-01 – 2026-10-31 (doar zile lucrătoare L–V)"
+	if desc != asteptat {
+		t.Fatalf("descriere generată incorect:\nobținut:  %s\nașteptat: %s", desc, asteptat)
+	}
 }

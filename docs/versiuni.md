@@ -4,6 +4,17 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.42.0 · 2026-10-27
+
+Afișare completă nume angajat și detalii program în propuneri AI și rezoluție robustă marcă (F14-T04, D042).
+
+- **Descriere extinsă a propunerilor (`internal/ai/asistent.go`):** Lângă codul schimbului este afișată denumirea completă, intervalul orar și durata (ex: `Z7 – Zi 07–14 (07:00–14:00, 7 ore)`), iar lângă marcă este inclus numele complet al angajatului (ex: `Dobre Rareș (marca DEMO-008)`).
+- **Canonicizare și rezoluție tolerantă a mărcii:** Adăugată normalizare alfanumerică împotriva diferențelor de formatare (ex: `DEM008` vs `DEMO-008`), diacriticelor sau căutărilor după nume; backend-ul canonicizează automat parametrul mărcii la valoarea oficială din baza de date, iar frontend-ul (`gasesteAngajat`) găsește angajatul garantat la aplicare.
+- **Insigne vizuale structurate în UI (`AsistentAI.tsx`):** Cardul de propunere afișează etichete dedicate pentru Program, Angajat și Dată/Interval.
+- **Formatare interval orar schimburi (`app_ai.go`):** Calculat intervalul orar (start–sfârșit) din minute pentru contextul asistentului.
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
 ## 0.41.0 · 2026-10-27
 
 Optimizare parametri server AI local (`-np 1`, fire CPU dinamice) și extindere timeout HTTP (F14-T04, D042).

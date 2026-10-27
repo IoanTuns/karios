@@ -496,7 +496,10 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .lista-propuneri-ai { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
 .card-propunere { background: white; border: 1px solid #b7dfca; border-radius: 6px; padding: 10px 14px; display: flex; flex-direction: column; gap: 8px; }
 .card-propunere.aplicata { border-color: #d0d7de; background: #f8faf9; opacity: 0.85; }
-.antet-propunere { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.antet-propunere { display: flex; align-items: center; gap: 8px; font-size: 12.5px; }
+.detalii-propunere { display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0; }
+.insigna-detaliu { font-size: 11px; padding: 2.5px 8px; border-radius: 4px; background: #f0f4f2; color: #2c4a3e; border: 1px solid #d3e4da; }
+.insigna-detaliu strong { font-weight: 600; color: #17382c; }
 .simbol-actiune { color: #d29922; font-size: 14px; }
 .actiuni-propunere { display: flex; justify-content: flex-end; }
 .eticheta-aplicat { font-size: 12px; font-weight: 600; color: #155734; }
