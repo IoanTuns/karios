@@ -143,3 +143,69 @@ func TestAplicaPropunereAITotAlDoileaWeekend(t *testing.T) {
 		t.Fatalf("așteptat 5 poziții în planificare pentru Z12 (GARZI), obținut: %d", len(plan.Pozitii))
 	}
 }
+
+func TestAppInterogheazaAIComenziAnalitice(t *testing.T) {
+	cheie := make([]byte, bd.LungimeCheie)
+	if _, err := rand.Read(cheie); err != nil {
+		t.Fatal(err)
+	}
+	db, err := bd.Deschide(filepath.Join(t.TempDir(), "ai_analitic.db"), cheie)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	if _, err := bd.Migreaza(context.Background(), db, bd.Migrari); err != nil {
+		t.Fatal(err)
+	}
+
+	a := NewApp(db)
+	rDemo := a.IncarcaDemo()
+	if rDemo.Eroare != nil {
+		t.Fatalf("eroare încărcare demo: %+v", rDemo.Eroare)
+	}
+
+	// 1. Interogare weekend
+	resp := a.InterogheazaAI(CerereInterogareAI{
+		An:   2026,
+		Luna: 10,
+		Istoric: []ai.MesajConversatie{
+			{Rol: "user", Continut: "Cine este liber in acest weekend?"},
+		},
+	})
+	if resp.Eroare != nil {
+		t.Fatalf("eroare la interogare weekend: %+v", resp.Eroare)
+	}
+	if resp.Raspuns == nil || resp.Raspuns.Mesaj == "" {
+		t.Fatalf("răspuns gol la interogare weekend")
+	}
+
+	// 2. Interogare acoperire
+	resp = a.InterogheazaAI(CerereInterogareAI{
+		An:   2026,
+		Luna: 10,
+		Istoric: []ai.MesajConversatie{
+			{Rol: "user", Continut: "Verifica daca lipsesc posturi obligatorii"},
+		},
+	})
+	if resp.Eroare != nil {
+		t.Fatalf("eroare la interogare acoperire: %+v", resp.Eroare)
+	}
+	if resp.Raspuns == nil || resp.Raspuns.Mesaj == "" {
+		t.Fatalf("răspuns gol la interogare acoperire")
+	}
+
+	// 3. Interogare concedii
+	resp = a.InterogheazaAI(CerereInterogareAI{
+		An:   2026,
+		Luna: 10,
+		Istoric: []ai.MesajConversatie{
+			{Rol: "user", Continut: "Cine e in concediu luna asta?"},
+		},
+	})
+	if resp.Eroare != nil {
+		t.Fatalf("eroare la interogare concedii: %+v", resp.Eroare)
+	}
+	if resp.Raspuns == nil || resp.Raspuns.Mesaj == "" {
+		t.Fatalf("răspuns gol la interogare concedii")
+	}
+}

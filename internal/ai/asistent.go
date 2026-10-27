@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -37,11 +38,13 @@ type RaspunsAsistent struct {
 
 // ContextPontix oferă asistentului informații despre personal și schimburile definite.
 type ContextPontix struct {
-	Limba     string        `json:"limba"`
-	An        int           `json:"an"`
-	Luna      int           `json:"luna"`
-	Angajati  []InfoAngajat `json:"angajati"`
-	Schimburi []InfoSchimb  `json:"schimburi"`
+	Limba           string                   `json:"limba"`
+	An              int                      `json:"an"`
+	Luna            int                      `json:"luna"`
+	Angajati        []InfoAngajat            `json:"angajati"`
+	Schimburi       []InfoSchimb             `json:"schimburi"`
+	Absente         []InfoAbsenta            `json:"absente,omitempty"`
+	TurePlanificate []InfoPozitiePlanificare `json:"ture_planificate,omitempty"`
 }
 
 type InfoAngajat struct {
@@ -57,6 +60,23 @@ type InfoSchimb struct {
 	Denumire string `json:"denumire"`
 	Ore      int    `json:"ore"`
 	Interval string `json:"interval,omitempty"`
+}
+
+type InfoAbsenta struct {
+	AngajatID string `json:"angajat_id"`
+	Marca     string `json:"marca"`
+	Nume      string `json:"nume"`
+	Data      string `json:"data"`
+	Cod       string `json:"cod"`
+}
+
+type InfoPozitiePlanificare struct {
+	AngajatID string `json:"angajat_id"`
+	Marca     string `json:"marca"`
+	Nume      string `json:"nume"`
+	Data      string `json:"data"`
+	CodSchimb string `json:"cod_schimb"`
+	Ore       int    `json:"ore,omitempty"`
 }
 
 // Client gestionează comunicarea HTTP cu endpoint-ul local al modelului.
@@ -239,6 +259,17 @@ var definitiiUnelte = []map[string]any{
 
 // Interogheaza trimite mesajul utilizatorului către modelul local și parsează rezultatul.
 func (c *Client) Interogheaza(ctx context.Context, istoric []MesajConversatie, info ContextPontix) (RaspunsAsistent, error) {
+	// Dacă utilizatorul a adresat o interogare analitică/de sinteză (concedii, weekend, acoperire, statistici),
+	// răspundem direct, determinist și instant folosind datele din context.
+	if len(istoric) > 0 {
+		ultimulMesaj := istoric[len(istoric)-1].Continut
+		if sinteza, ok := AnalizeazaInterogareSinteza(ultimulMesaj, info); ok {
+			return RaspunsAsistent{
+				Mesaj: sinteza,
+			}, nil
+		}
+	}
+
 	// Construiește promptul de sistem cu instrucțiuni și contextul disponibil
 	promptSistem := construiestePromptSistem(info)
 
@@ -778,6 +809,20 @@ func construiestePromptSistem(info ContextPontix) string {
 		}
 	}
 
+	if len(info.Absente) > 0 {
+		sb.WriteString("Concedii și absențe programate în această lună:\n")
+		for _, a := range info.Absente {
+			sb.WriteString(fmt.Sprintf("- %s (%s): %s pe %s\n", a.Nume, a.Marca, a.Cod, a.Data))
+		}
+	}
+
+	if len(info.TurePlanificate) > 0 {
+		sb.WriteString("Ture și gărzi deja programate în această lună:\n")
+		for _, t := range info.TurePlanificate {
+			sb.WriteString(fmt.Sprintf("- %s (%s): Schimb %s pe %s\n", t.Nume, t.Marca, t.CodSchimb, t.Data))
+		}
+	}
+
 	return sb.String()
 }
 
@@ -838,4 +883,418 @@ func construiesteDescrierePropunere(numeFunctie string, args map[string]any, inf
 	default:
 		return fmt.Sprintf("Acțiune %s cu parametrii %v", numeFunctie, args)
 	}
+}
+
+// AnalizeazaInterogareSinteza verifică dacă mesajul utilizatorului este o interogare analitică
+// despre concedii, disponibilitate în weekend, acoperirea posturilor sau statistici gărzi,
+// și generează un răspuns factual direct pe baza contextului furnizat.
+func AnalizeazaInterogareSinteza(mesaj string, info ContextPontix) (string, bool) {
+	m := strings.ToLower(strings.TrimSpace(mesaj))
+	if m == "" {
+		return "", false
+	}
+
+	numeLuni := []string{"ianuarie", "februarie", "martie", "aprilie", "mai", "iunie", "iulie", "august", "septembrie", "octombrie", "noiembrie", "decembrie"}
+	numeLuna := "luna curentă"
+	if info.Luna >= 1 && info.Luna <= 12 {
+		numeLuna = numeLuni[info.Luna-1]
+	}
+
+	// 1. Interogare concedii / absențe ("cine este în concediu", "cine e în concediu", "concedii luna", "absențe")
+	if strings.Contains(m, "in concediu") || strings.Contains(m, "în concediu") ||
+		strings.Contains(m, "concedii") || strings.Contains(m, "absente") || strings.Contains(m, "absențe") {
+		return sintetizeazaConcedii(info, numeLuna), true
+	}
+
+	// 2. Interogare disponibilitate weekend ("cine este liber", "cine e liber în acest weekend", "disponibilitate")
+	if strings.Contains(m, "liber") || strings.Contains(m, "disponibil") {
+		return sintetizeazaDisponibilitateWeekend(m, info, numeLuna), true
+	}
+
+	// 3. Verificare acoperire posturi obligatorii / gărzi weekend ("lipsesc posturi", "verifică acoperire", "neacoperit")
+	if strings.Contains(m, "lipsesc posturi") || strings.Contains(m, "posturi obligatorii") ||
+		strings.Contains(m, "acoperire") || strings.Contains(m, "neacoperit") {
+		return sintetizeazaAcoperire(info, numeLuna), true
+	}
+
+	// 4. Statistici gărzi / ore ("statistici gărzi", "câte gărzi", "total ore planificate", "sumar gărzi")
+	if strings.Contains(m, "statistici") || strings.Contains(m, "cate garzi") || strings.Contains(m, "câte gărzi") ||
+		strings.Contains(m, "total ore") || strings.Contains(m, "sumar garzi") {
+		return sintetizeazaStatisticiGarzi(info, numeLuna), true
+	}
+
+	return "", false
+}
+
+func sintetizeazaConcedii(info ContextPontix, numeLuna string) string {
+	if len(info.Absente) == 0 {
+		return fmt.Sprintf("🏖️ **Concedii și absențe (%s %d)**\n\nNu este înregistrat niciun concediu sau absență pentru luna %s %d. Tot personalul este activ și la dispoziție.", numeLuna, info.An, numeLuna, info.An)
+	}
+
+	tipuri := map[string]string{
+		"CO": "Concediu de odihnă",
+		"CM": "Concediu medical",
+		"CF": "Concediu fără plată",
+		"CS": "Concediu de studii",
+		"M":  "Misiune / Delegație",
+		"FP": "Formare profesională",
+		"D":  "Donare sânge",
+	}
+
+	grupuri := make(map[string][]InfoAbsenta)
+	for _, a := range info.Absente {
+		grupuri[a.AngajatID] = append(grupuri[a.AngajatID], a)
+	}
+
+	var sb strings.Builder
+	sb.WriteString(fmt.Sprintf("🏖️ **Concedii și absențe programate în %s %d**\n\n", numeLuna, info.An))
+
+	totalZile := 0
+	for _, a := range info.Angajati {
+		lista, ok := grupuri[a.ID]
+		if !ok || len(lista) == 0 {
+			continue
+		}
+		sort.Slice(lista, func(i, j int) bool { return lista[i].Data < lista[j].Data })
+
+		zileStr := make([]string, 0, len(lista))
+		coduriUnice := make(map[string]bool)
+		for _, abs := range lista {
+			parti := strings.Split(abs.Data, "-")
+			if len(parti) == 3 {
+				zileStr = append(zileStr, parti[2])
+			} else {
+				zileStr = append(zileStr, abs.Data)
+			}
+			coduriUnice[abs.Cod] = true
+			totalZile++
+		}
+
+		descTipuri := make([]string, 0, len(coduriUnice))
+		for cod := range coduriUnice {
+			if den, ex := tipuri[strings.ToUpper(cod)]; ex {
+				descTipuri = append(descTipuri, fmt.Sprintf("%s (%s)", den, cod))
+			} else {
+				descTipuri = append(descTipuri, cod)
+			}
+		}
+
+		intervalText := fmt.Sprintf("%s → %s", lista[0].Data, lista[len(lista)-1].Data)
+		if len(lista) == 1 {
+			intervalText = lista[0].Data
+		}
+
+		sb.WriteString(fmt.Sprintf("- 👤 **%s %s** (marca `%s`):\n  * Tip: %s\n  * Perioadă: %s (%d zile: %s)\n",
+			a.Nume, a.Prenume, a.Marca, strings.Join(descTipuri, ", "), intervalText, len(lista), strings.Join(zileStr, ", ")))
+	}
+
+	sb.WriteString(fmt.Sprintf("\n📊 **Total secție:** %d zile de absență înregistrate în această lună.", totalZile))
+	return sb.String()
+}
+
+func sintetizeazaDisponibilitateWeekend(mesaj string, info ContextPontix, numeLuna string) string {
+	an := info.An
+	luna := info.Luna
+	if an <= 0 {
+		an = time.Now().Year()
+	}
+	if luna <= 0 {
+		luna = int(time.Now().Month())
+	}
+
+	ultZi := time.Date(an, time.Month(luna)+1, 0, 0, 0, 0, 0, time.UTC).Day()
+
+	type Weekend struct {
+		Sambata  int
+		Duminica int
+	}
+	var weekenduri []Weekend
+	for zi := 1; zi <= ultZi; zi++ {
+		t := time.Date(an, time.Month(luna), zi, 0, 0, 0, 0, time.UTC)
+		if t.Weekday() == time.Saturday {
+			dum := zi + 1
+			if dum > ultZi {
+				dum = 0
+			}
+			weekenduri = append(weekenduri, Weekend{Sambata: zi, Duminica: dum})
+		}
+	}
+
+	if len(weekenduri) == 0 {
+		return fmt.Sprintf("Nu există zile de weekend identificate pentru %s %d.", numeLuna, an)
+	}
+
+	weekendSelectat := weekenduri[0]
+	ziCeruta := extrageZiInceput(strings.ToLower(mesaj))
+	if ziCeruta > 0 {
+		for _, w := range weekenduri {
+			if w.Sambata == ziCeruta || w.Duminica == ziCeruta || (ziCeruta >= w.Sambata && (w.Duminica == 0 || ziCeruta <= w.Duminica)) {
+				weekendSelectat = w
+				break
+			}
+		}
+	} else {
+		acum := time.Now()
+		if acum.Year() == an && int(acum.Month()) == luna {
+			ziAzi := acum.Day()
+			for _, w := range weekenduri {
+				if w.Duminica >= ziAzi || w.Sambata >= ziAzi {
+					weekendSelectat = w
+					break
+				}
+			}
+		}
+	}
+
+	dataSam := fmt.Sprintf("%04d-%02d-%02d", an, luna, weekendSelectat.Sambata)
+	dataDum := ""
+	if weekendSelectat.Duminica > 0 {
+		dataDum = fmt.Sprintf("%04d-%02d-%02d", an, luna, weekendSelectat.Duminica)
+	}
+
+	ocupatSam := make(map[string]string)
+	ocupatDum := make(map[string]string)
+
+	for _, abs := range info.Absente {
+		if abs.Data == dataSam {
+			ocupatSam[abs.AngajatID] = fmt.Sprintf("Concediu (%s)", abs.Cod)
+		}
+		if dataDum != "" && abs.Data == dataDum {
+			ocupatDum[abs.AngajatID] = fmt.Sprintf("Concediu (%s)", abs.Cod)
+		}
+	}
+
+	for _, t := range info.TurePlanificate {
+		if t.Data == dataSam {
+			ocupatSam[t.AngajatID] = fmt.Sprintf("Schimb %s", t.CodSchimb)
+		}
+		if dataDum != "" && t.Data == dataDum {
+			ocupatDum[t.AngajatID] = fmt.Sprintf("Schimb %s", t.CodSchimb)
+		}
+	}
+
+	var liberiTotal []InfoAngajat
+	var ocupati []string
+
+	for _, a := range info.Angajati {
+		mSam, areSam := ocupatSam[a.ID]
+		mDum, areDum := ocupatDum[a.ID]
+
+		if !areSam && !areDum {
+			liberiTotal = append(liberiTotal, a)
+		} else {
+			var detalii []string
+			if areSam {
+				detalii = append(detalii, fmt.Sprintf("sâm. %s", mSam))
+			}
+			if areDum {
+				detalii = append(detalii, fmt.Sprintf("dum. %s", mDum))
+			}
+			ocupati = append(ocupati, fmt.Sprintf("- 🔴 **%s %s** (`%s`): %s", a.Nume, a.Prenume, a.Marca, strings.Join(detalii, "; ")))
+		}
+	}
+
+	var sb strings.Builder
+	intervalWeekend := dataSam
+	if dataDum != "" {
+		intervalWeekend = fmt.Sprintf("%s – %s", dataSam, dataDum)
+	}
+	sb.WriteString(fmt.Sprintf("🗓️ **Disponibilitate weekend: %s**\n\n", intervalWeekend))
+
+	sb.WriteString(fmt.Sprintf("🟢 **Angajați complet liberi (%d):**\n", len(liberiTotal)))
+	if len(liberiTotal) == 0 {
+		sb.WriteString("*(Niciun angajat complet liber în ambele zile)*\n")
+	} else {
+		for _, a := range liberiTotal {
+			funcText := ""
+			if a.Functie != "" {
+				funcText = fmt.Sprintf(" — %s", a.Functie)
+			}
+			sb.WriteString(fmt.Sprintf("- 👤 **%s %s** (marca `%s`%s)\n", a.Nume, a.Prenume, a.Marca, funcText))
+		}
+	}
+
+	sb.WriteString(fmt.Sprintf("\n🔴 **Angajați la serviciu sau absenți (%d):**\n", len(ocupati)))
+	if len(ocupati) == 0 {
+		sb.WriteString("*(Nimeni nu este planificat sau în concediu în acest weekend)*\n")
+	} else {
+		for _, o := range ocupati {
+			sb.WriteString(o + "\n")
+		}
+	}
+
+	return sb.String()
+}
+
+func sintetizeazaAcoperire(info ContextPontix, numeLuna string) string {
+	an := info.An
+	luna := info.Luna
+	if an <= 0 {
+		an = time.Now().Year()
+	}
+	if luna <= 0 {
+		luna = int(time.Now().Month())
+	}
+
+	ultZi := time.Date(an, time.Month(luna)+1, 0, 0, 0, 0, 0, time.UTC).Day()
+
+	type ZiAcoperire struct {
+		Data   string
+		Zi     int
+		NumeZi string
+	}
+
+	var zileWeekend []ZiAcoperire
+	for zi := 1; zi <= ultZi; zi++ {
+		t := time.Date(an, time.Month(luna), zi, 0, 0, 0, 0, time.UTC)
+		if t.Weekday() == time.Saturday || t.Weekday() == time.Sunday {
+			numeZi := "Sâmbătă"
+			if t.Weekday() == time.Sunday {
+				numeZi = "Duminică"
+			}
+			data := fmt.Sprintf("%04d-%02d-%02d", an, luna, zi)
+			zileWeekend = append(zileWeekend, ZiAcoperire{
+				Data:   data,
+				Zi:     zi,
+				NumeZi: numeZi,
+			})
+		}
+	}
+
+	hartaTure := make(map[string][]string)
+	for _, t := range info.TurePlanificate {
+		if t.CodSchimb != "" {
+			hartaTure[t.Data] = append(hartaTure[t.Data], fmt.Sprintf("%s (%s)", t.Nume, t.CodSchimb))
+		}
+	}
+
+	var sb strings.Builder
+	sb.WriteString(fmt.Sprintf("🛡️ **Raport verificare acoperire weekend și gărzi (%s %d)**\n\n", numeLuna, an))
+
+	zileAcoperite := 0
+	zileNeacoperite := 0
+
+	for _, zw := range zileWeekend {
+		echipa := hartaTure[zw.Data]
+		if len(echipa) == 0 {
+			zileNeacoperite++
+			sb.WriteString(fmt.Sprintf("- ⚠️ **%s (%s)**: ❌ **NEACOPERIT!** Nicio gardă sau tură planificată.\n", zw.Data, zw.NumeZi))
+		} else {
+			zileAcoperite++
+			sb.WriteString(fmt.Sprintf("- ✅ **%s (%s)**: Asigurat de %s\n", zw.Data, zw.NumeZi, strings.Join(echipa, ", ")))
+		}
+	}
+
+	sb.WriteString("\n📊 **Sinteză acoperire secție:**\n")
+	sb.WriteString(fmt.Sprintf("- Zile weekend asigurate: **%d / %d**\n", zileAcoperite, len(zileWeekend)))
+	if zileNeacoperite > 0 {
+		sb.WriteString(fmt.Sprintf("- ⚠️ Zile cu deficit de personal: **%d** (necesită planificare)\n", zileNeacoperite))
+	} else {
+		sb.WriteString("- 🎉 Toate weekendurile lunii au asigurată prezența personalului!\n")
+	}
+
+	return sb.String()
+}
+
+func sintetizeazaStatisticiGarzi(info ContextPontix, numeLuna string) string {
+	type StatAngajat struct {
+		Angajat   InfoAngajat
+		NrGarzi   int
+		NrTure    int
+		TotalOre  int
+		Schimburi map[string]int
+	}
+
+	harta := make(map[string]*StatAngajat)
+	for _, a := range info.Angajati {
+		harta[a.ID] = &StatAngajat{
+			Angajat:   a,
+			Schimburi: make(map[string]int),
+		}
+	}
+
+	oreSchimb := make(map[string]int)
+	for _, s := range info.Schimburi {
+		oreSchimb[strings.ToUpper(s.Cod)] = s.Ore
+	}
+
+	totalOreSectie := 0
+	totalGarziSectie := 0
+
+	for _, t := range info.TurePlanificate {
+		codNorm := strings.ToUpper(strings.TrimSpace(t.CodSchimb))
+		if codNorm == "" {
+			continue
+		}
+		stat, ok := harta[t.AngajatID]
+		if !ok {
+			continue
+		}
+		stat.NrTure++
+		stat.Schimburi[codNorm]++
+
+		ore := t.Ore
+		if ore <= 0 {
+			ore = oreSchimb[codNorm]
+		}
+		if ore <= 0 {
+			switch codNorm {
+			case "G24":
+				ore = 24
+			case "Z12", "N12":
+				ore = 12
+			case "Z7", "S7":
+				ore = 7
+			case "IN9", "N9":
+				ore = 9
+			case "8":
+				ore = 8
+			}
+		}
+		stat.TotalOre += ore
+		totalOreSectie += ore
+
+		if strings.HasPrefix(codNorm, "G") {
+			stat.NrGarzi++
+			totalGarziSectie++
+		}
+	}
+
+	var lista []*StatAngajat
+	for _, s := range harta {
+		lista = append(lista, s)
+	}
+	sort.Slice(lista, func(i, j int) bool {
+		if lista[i].TotalOre != lista[j].TotalOre {
+			return lista[i].TotalOre > lista[j].TotalOre
+		}
+		return lista[i].Angajat.Nume < lista[j].Angajat.Nume
+	})
+
+	var sb strings.Builder
+	sb.WriteString(fmt.Sprintf("📊 **Statistici gărzi și ore planificate (%s %d)**\n\n", numeLuna, info.An))
+
+	if totalOreSectie == 0 {
+		sb.WriteString("Nu există nicio tură sau gardă planificată în această lună.\n")
+		return sb.String()
+	}
+
+	sb.WriteString("| Angajat | Funcție | Gărzi | Total Ture | Ore Planificate | Detalii Schimburi |\n")
+	sb.WriteString("| :--- | :--- | :---: | :---: | :---: | :--- |\n")
+
+	for _, s := range lista {
+		if s.NrTure == 0 {
+			continue
+		}
+		var det []string
+		for cod, cnt := range s.Schimburi {
+			det = append(det, fmt.Sprintf("%dx %s", cnt, cod))
+		}
+		sort.Strings(det)
+		sb.WriteString(fmt.Sprintf("| **%s %s** | %s | %d | %d | **%dh** | %s |\n",
+			s.Angajat.Nume, s.Angajat.Prenume, s.Angajat.Functie, s.NrGarzi, s.NrTure, s.TotalOre, strings.Join(det, ", ")))
+	}
+
+	sb.WriteString(fmt.Sprintf("\n📌 **Total secție:** %d gărzi, %d ore planificate în total.\n", totalGarziSectie, totalOreSectie))
+	return sb.String()
 }

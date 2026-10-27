@@ -4,6 +4,20 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.47.0 · 2026-10-27
+
+Comenzi analitice și interogări de sinteză în Asistentul AI (F14-T07, D042).
+
+- **Sinteză analitică factuală instantanee (`internal/ai/asistent.go`):** Implementat modulul `AnalizeazaInterogareSinteza` care răspunde determinist, precis și fără latență la interogările frecvente despre personal:
+  * *Disponibilitate weekend:* „Cine este liber în acest weekend?” — analizează toate schimburile și concediile din sâmbătă și duminică, raportând lista completă a angajaților liberi și a celor la serviciu sau absenți.
+  * *Concedii și absențe:* „Cine este în concediu luna asta?” — sintetizează intervalele de absențe pe tipuri (CO, CM, CF etc.) și totalul de zile pe secție.
+  * *Verificare acoperire posturi:* „Verifică dacă lipsesc posturi obligatorii” — analizează fiecare zi de weekend și semnalează zilele neacoperite sau cu deficit de personal.
+  * *Statistici gărzi și ore:* „Statistici gărzi și ore” — calculează tabelul centralizat pe angajați cu numărul de gărzi, total ture și ore planificate.
+- **Context extins cu absențe și planificare (`app_ai.go`):** `ContextPontix` colectează acum automat absențele active și turele planificate/completate în ciornă pentru luna curentă, oferindu-le modelului AI în promptul de sistem.
+- **Teste unitare de integrare:** Adăugate `TestAnalizeazaInterogareSinteza` în `internal/ai/asistent_test.go` și `TestAppInterogheazaAIComenziAnalitice` în `app_ai_test.go`.
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
 ## 0.46.0 · 2026-10-27
 
 Execuție automată la confirmări în chat („da” / „confirm”), suport pentru weekenduri alternate și unelte de planificare recurente (F14-T04, D042).

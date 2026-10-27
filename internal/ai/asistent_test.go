@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -277,4 +278,66 @@ func TestEsteCerereToataLuna(t *testing.T) {
 			t.Errorf("pentru %q: asteptat (%v, %d), obtinut (%v, %d)", tt.mesaj, tt.toataLuna, tt.nrLuna, tl, luna)
 		}
 	}
+}
+
+func TestAnalizeazaInterogareSinteza(t *testing.T) {
+	info := ContextPontix{
+		An:   2026,
+		Luna: 10,
+		Angajati: []InfoAngajat{
+			{ID: "ang1", Nume: "Popescu", Prenume: "Ion", Marca: "DEMO-001", Functie: "Medic primar"},
+			{ID: "ang2", Nume: "Dumitru", Prenume: "Andrei", Marca: "DEMO-002", Functie: "Medic specialist"},
+		},
+		Schimburi: []InfoSchimb{
+			{Cod: "G24", Denumire: "Gardă 24h", Ore: 24},
+			{Cod: "Z12", Denumire: "Zi 12h", Ore: 12},
+		},
+		Absente: []InfoAbsenta{
+			{AngajatID: "ang1", Marca: "DEMO-001", Nume: "Popescu Ion", Data: "2026-10-03", Cod: "CO"},
+		},
+		TurePlanificate: []InfoPozitiePlanificare{
+			{AngajatID: "ang2", Marca: "DEMO-002", Nume: "Dumitru Andrei", Data: "2026-10-03", CodSchimb: "Z12", Ore: 12},
+			{AngajatID: "ang2", Marca: "DEMO-002", Nume: "Dumitru Andrei", Data: "2026-10-04", CodSchimb: "Z12", Ore: 12},
+		},
+	}
+
+	// 1. Interogare concedii
+	txt, ok := AnalizeazaInterogareSinteza("Cine este in concediu luna asta?", info)
+	if !ok || txt == "" {
+		t.Fatalf("așteptat recunoaștere interogare concedii")
+	}
+	if !contains(txt, "Popescu Ion") || !contains(txt, "CO") {
+		t.Fatalf("răspunsul pentru concedii nu conține Popescu Ion / CO: %s", txt)
+	}
+
+	// 2. Interogare weekend
+	txt, ok = AnalizeazaInterogareSinteza("Cine este liber in acest weekend?", info)
+	if !ok || txt == "" {
+		t.Fatalf("așteptat recunoaștere interogare weekend")
+	}
+	if !contains(txt, "Dumitru Andrei") || !contains(txt, "Popescu Ion") {
+		t.Fatalf("răspunsul pentru weekend nu conține angajații: %s", txt)
+	}
+
+	// 3. Verificare acoperire
+	txt, ok = AnalizeazaInterogareSinteza("Verifica daca lipsesc posturi obligatorii", info)
+	if !ok || txt == "" {
+		t.Fatalf("așteptat recunoaștere interogare acoperire")
+	}
+	if !contains(txt, "Acoperit") && !contains(txt, "NEACOPERIT") {
+		t.Fatalf("răspunsul pentru acoperire nu conține starea posturilor: %s", txt)
+	}
+
+	// 4. Statistici gărzi
+	txt, ok = AnalizeazaInterogareSinteza("Statistici garzi si ore", info)
+	if !ok || txt == "" {
+		t.Fatalf("așteptat recunoaștere interogare statistici")
+	}
+	if !contains(txt, "Dumitru Andrei") || !contains(txt, "24h") {
+		t.Fatalf("răspunsul pentru statistici nu conține orele corecte: %s", txt)
+	}
+}
+
+func contains(s, substr string) bool {
+	return strings.Contains(s, substr)
 }

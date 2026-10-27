@@ -130,16 +130,6 @@ func (a *App) OpresteAI() RaspunsStareAI {
 
 // InterogheazaAI trimite mesajul utilizatorului către asistentul local.
 func (a *App) InterogheazaAI(cerere CerereInterogareAI) RaspunsInterogareAI {
-	mgr := a.asiguratManagerAI()
-	if !mgr.EsteActiv() {
-		// Încearcă pornirea automată dacă este instalat
-		if err := mgr.Porneste(a.contextLucru(), ""); err != nil {
-			return RaspunsInterogareAI{
-				Eroare: eroareInterfata(fmt.Errorf("ai_inactiv: %w", err)),
-			}
-		}
-	}
-
 	// Colectează contextul de lucru (angajați și schimburi)
 	date, err := datebaza.Nou(a.db).Citeste(a.contextLucru())
 	if err != nil {
@@ -154,15 +144,18 @@ func (a *App) InterogheazaAI(cerere CerereInterogareAI) RaspunsInterogareAI {
 		Luna:  cerere.Luna,
 	}
 
+	hartaAngajati := make(map[string]ai.InfoAngajat)
 	for _, ang := range date.Angajati {
 		if ang.Activ {
-			contextPontix.Angajati = append(contextPontix.Angajati, ai.InfoAngajat{
+			infoAng := ai.InfoAngajat{
 				ID:      ang.ID,
 				Nume:    ang.Nume,
 				Prenume: ang.Prenume,
 				Marca:   ang.Marca,
 				Functie: ang.Functie,
-			})
+			}
+			contextPontix.Angajati = append(contextPontix.Angajati, infoAng)
+			hartaAngajati[ang.ID] = infoAng
 		}
 	}
 
@@ -183,6 +176,107 @@ func (a *App) InterogheazaAI(cerere CerereInterogareAI) RaspunsInterogareAI {
 				Ore:      int(s.DurataMinute / 60),
 				Interval: interval,
 			})
+		}
+	}
+
+	// Colectăm concediile și absențele din luna selectată
+	absenteAn, errAbs := datebaza.Nou(a.db).CitesteAbsente(a.contextLucru(), cerere.An)
+	prefixLuna := fmt.Sprintf("%04d-%02d-", cerere.An, cerere.Luna)
+	if errAbs == nil {
+		for _, za := range absenteAn.Zile {
+			if za.Activ && strings.HasPrefix(za.Data, prefixLuna) {
+				ang := hartaAngajati[za.AngajatID]
+				nume := strings.TrimSpace(ang.Nume + " " + ang.Prenume)
+				contextPontix.Absente = append(contextPontix.Absente, ai.InfoAbsenta{
+					AngajatID: za.AngajatID,
+					Marca:     ang.Marca,
+					Nume:      nume,
+					Data:      za.Data,
+					Cod:       za.Cod,
+				})
+			}
+		}
+	}
+
+	// Colectăm turele și gărțile planificate în luna selectată
+	planLuna, errPlan := datebaza.Nou(a.db).CitestePlanificare(a.contextLucru(), cerere.An, cerere.Luna)
+	hartaPlan := make(map[string]bool)
+	if errPlan == nil {
+		for _, p := range planLuna.Pozitii {
+			if p.Activ {
+				ang := hartaAngajati[p.AngajatID]
+				nume := strings.TrimSpace(ang.Nume + " " + ang.Prenume)
+				codSchimb := p.SchimbID
+				oreSchimb := 0
+				for _, s := range schimburi {
+					if s.ID == p.SchimbID {
+						codSchimb = s.Cod
+						oreSchimb = int(s.DurataMinute / 60)
+						break
+					}
+				}
+				contextPontix.TurePlanificate = append(contextPontix.TurePlanificate, ai.InfoPozitiePlanificare{
+					AngajatID: p.AngajatID,
+					Marca:     ang.Marca,
+					Nume:      nume,
+					Data:      p.Data,
+					CodSchimb: codSchimb,
+					Ore:       oreSchimb,
+				})
+				hartaPlan[p.AngajatID+"/"+p.Data] = true
+			}
+		}
+	}
+
+	// Adăugăm și valorile completate direct în ciorna de pontaj
+	schita, errSchita := datebaza.Nou(a.db).CitesteSchita(a.contextLucru(), cerere.An, cerere.Luna)
+	if errSchita == nil {
+		for _, c := range schita.Celule {
+			val := strings.TrimSpace(c.Valoare)
+			if val == "" || hartaPlan[c.AngajatID+"/"+c.Data] {
+				continue
+			}
+			ang := hartaAngajati[c.AngajatID]
+			nume := strings.TrimSpace(ang.Nume + " " + ang.Prenume)
+			ore := 0
+			for _, s := range schimburi {
+				if strings.EqualFold(s.Cod, val) {
+					ore = int(s.DurataMinute / 60)
+					break
+				}
+			}
+			contextPontix.TurePlanificate = append(contextPontix.TurePlanificate, ai.InfoPozitiePlanificare{
+				AngajatID: c.AngajatID,
+				Marca:     ang.Marca,
+				Nume:      nume,
+				Data:      c.Data,
+				CodSchimb: val,
+				Ore:       ore,
+			})
+			hartaPlan[c.AngajatID+"/"+c.Data] = true
+		}
+	}
+
+	// Interogările analitice deterministe (concedii, disponibilitate weekend, acoperire, statistici)
+	// se execută instant, fără a bloca sau porni procesul AI dacă acesta este oprit.
+	if len(cerere.Istoric) > 0 {
+		ultimulMesaj := cerere.Istoric[len(cerere.Istoric)-1].Continut
+		if sinteza, ok := ai.AnalizeazaInterogareSinteza(ultimulMesaj, contextPontix); ok {
+			return RaspunsInterogareAI{
+				Raspuns: &ai.RaspunsAsistent{
+					Mesaj: sinteza,
+				},
+			}
+		}
+	}
+
+	mgr := a.asiguratManagerAI()
+	if !mgr.EsteActiv() {
+		// Încearcă pornirea automată dacă este instalat
+		if err := mgr.Porneste(a.contextLucru(), ""); err != nil {
+			return RaspunsInterogareAI{
+				Eroare: eroareInterfata(fmt.Errorf("ai_inactiv: %w", err)),
+			}
 		}
 	}
 
