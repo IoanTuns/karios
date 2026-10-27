@@ -4,6 +4,26 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.53.0 · 2026-10-27
+
+Motor de reguli configurabile (Rule Engine) pentru restricții medicale și de gardă (Lot 7 / D041 / I061).
+
+- **Motor de evaluare a regulilor medicale (`internal/calcul/motor_reguli.go`):**
+  * Evaluare automată a regulilor specifice unităților medicale:
+    - `REPAUS_G24`: repaus minim obligatoriu de 24 de ore după o gardă completă de 24h.
+    - `PLAFON_GARZI`: limită maximă configurabilă de gărzi/ture per angajat într-o lună (implicit 6).
+    - `SUCCESIUNE_G24_Z7`: interdicție succesiune imediată (gardă 24h urmată direct de tură de dimineață a doua zi).
+  * Raportare structurată a încălcărilor (`IncalcareRegula`) cu severitate (`AVERTISMENT` / `BLOCANT`), dată, angajat, mesaj explicativ și referință legală/medicală.
+- **Persistență și configurare în baza de date (Migrarea 0020 `reguli_configurabile`):**
+  * Tabelul `reguli_configurabile` cu cod, denumire, descriere, tip regulă, severitate, coduri schimb vizate, valoare numerică limită și stare de activare.
+  * Funcții de citire și salvare (`ListaReguliConfigurabile`, `SalveazaRegulaConfigurabila`, `VerificaReguliPlanificare` în `internal/datebaza/reguli.go` și `app_reguli.go`).
+- **Interfață de configurare și alertare în timp real (`Planificare.tsx`, `style.css`):**
+  * Alertă vizuală în antetul planificării cu numărul de atenționări medicale și detalii per angajat.
+  * Dialog dedicat `DialogConfigurareReguli` pentru ajustarea plafoanelor, schimbarea severității și activarea/dezactivarea regulilor.
+  * Teste unitare și de integrare complete în `internal/calcul/reguli_test.go` și `app_reguli_test.go`.
+
+Baza de date: migrarea 0020 adaugă tabelul `reguli_configurabile`. Rapoarte: nicio schimbare.
+
 ## 0.52.0 · 2026-10-27
 
 Grafic Gantt anual de concedii și vizualizare panoramică a absențelor (F08-T05 / Lot 6).

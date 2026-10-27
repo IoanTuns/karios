@@ -12,7 +12,10 @@ import {
     PrevizualizeazaPublicarePlan,
     PublicaPlanificare,
     SalveazaPDFRaport,
-    SalveazaPlanificare
+    SalveazaPlanificare,
+    ListaReguliConfigurabile,
+    SalveazaRegulaConfigurabila,
+    VerificaReguliPlanificare
 } from '../wailsjs/go/main/App';
 import {datebaza, calcul, main, rapoarte} from '../wailsjs/go/models';
 import {Dialog, denumireSectie, denumireDepartament, durata} from './Formulare';
@@ -65,6 +68,8 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
     const [istoricInainte,setIstoricInainte]=useState<Map<string,datebaza.PozitiePlanificare>[]>([]);
     const [selectie,setSelectie]=useState<Selectie>({inceput:{rand:0,zi:0},sfarsit:{rand:0,zi:0}});
     const [programAles,setProgramAles]=useState('');
+    const [incalcariReguli, setIncalcariReguli] = useState<calcul.IncalcareRegula[]>([]);
+    const [dialogReguli, setDialogReguli] = useState<boolean>(false);
     const grilaRef=useRef<HTMLDivElement>(null);
     const blocat=useRef(false);
 
@@ -80,10 +85,11 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
             CitesteCalendar(an),
             CitesteSchita(an,luna),
             CitesteAcoperirePlanificare(an,luna,['G24','Z12','N12','IN9']),
-            CitesteEchitatePlanificare(an,luna)
-        ]).then(([p,s,c,k,ac,ec])=>{
+            CitesteEchitatePlanificare(an,luna),
+            VerificaReguliPlanificare(an,luna)
+        ]).then(([p,s,c,k,ac,ec,reg])=>{
             if(!activ)return;
-            const err=p.eroare||s.eroare||c.eroare||k.eroare||ac.eroare||ec.eroare;
+            const err=p.eroare||s.eroare||c.eroare||k.eroare||ac.eroare||ec.eroare||reg.eroare;
             if(err){setEroare(t(err.cod,err.param??{}));return;}
             if(!p.planificare||!c.calendar){setEroare(t('date.eroare'));return;}
             setPlan(p.planificare);
@@ -92,6 +98,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
             setSchita(k.schita??null);
             setAcoperire(ac.acoperire??null);
             setAvertismenteEchitate(ec.avertismente??[]);
+            setIncalcariReguli(reg.incalcari??[]);
         }).catch(()=>{if(activ)setEroare(t('date.eroare'));}).finally(()=>{if(activ)setIncarcare(false);});
         return()=>{activ=false;};
     },[an,luna,reincarcare]);
@@ -400,6 +407,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
             {mod==='grila'&&<button className="buton primar" disabled={ocupat||!modificari.size} onClick={salveazaPlanGrila}>{t('planificare.salveaza_grila')}</button>}
             <button className="buton secundar" disabled={ocupat||!dePublicatTotal.length} onClick={()=>void previzualizeazaPublicare()}>{t('planificare.previzualizeaza')}</button>
             <button type="button" className="buton secundar" disabled={ocupat} onClick={deschideRaportGarzi}>{t('planificare.raport_garzi')}</button>
+            <button type="button" className="buton secundar" title="Configurare reguli medicale de repaus, plafoane și succesiune" onClick={()=>setDialogReguli(true)}>⚙️ Reguli {incalcariReguli.length > 0 ? `(⚠️ ${incalcariReguli.length})` : ''}</button>
             <button className="legatura" disabled={ocupat} onClick={()=>onDeschidePontaj(an,luna)}>{t('planificare.deschide_pontaj')}</button>
             <button className="buton secundar" disabled={ocupat||incarcare} onClick={()=>setReincarcare(x=>x+1)}>{t('planificare.reincarca')}</button>
         </div>
@@ -437,6 +445,29 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
             <button type="button" className="buton secundar" disabled={ocupat||!istoricInapoi.length} onClick={anuleazaPas}>{t('planificare.anuleaza_pas')}</button>
             <button type="button" className="buton secundar" disabled={ocupat||!istoricInainte.length} onClick={refaPas}>{t('planificare.refa_pas')}</button>
         </div>}
+
+        {incalcariReguli.length > 0 && (
+            <div className="alerta-reguli-planificare" role="alert">
+                <div className="antet-alerta-reguli">
+                    <span>⚠️</span>
+                    <strong>Restricții și reguli medicale încălcate ({incalcariReguli.length}):</strong>
+                    <button type="button" className="legatura" onClick={()=>setDialogReguli(true)}>
+                        ⚙️ Configurează reguli
+                    </button>
+                </div>
+                <ul className="lista-incalcari-reguli">
+                    {incalcariReguli.slice(0, 5).map((inc, idx) => (
+                        <li key={idx}>
+                            <span className={`insigna-severitate ${inc.severitate.toLowerCase()}`}>{inc.severitate}</span>
+                            <strong>{inc.nume}</strong>: {inc.mesaj}
+                        </li>
+                    ))}
+                    {incalcariReguli.length > 5 && (
+                        <li className="text-discret">...și încă {incalcariReguli.length - 5} atenționări medicale.</li>
+                    )}
+                </ul>
+            </div>
+        )}
 
         {randActiv&&dataActiva&&<div className="inspectie-celula" role="region" aria-label={t('planificare.inspectie_titlu')}>
             <div className="detalii-celula-activa">
@@ -696,6 +727,8 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
                 <button type="button" className="buton secundar" disabled={ocupat} onClick={()=>setRaportGarzi(null)}>{t('planificare.inchide_raport')}</button>
             </footer>
         </Dialog>}
+
+        {dialogReguli && <DialogConfigurareReguli inchide={()=>setDialogReguli(false)} onSalvat={()=>setReincarcare(x=>x+1)} />}
     </section>;
 }
 
@@ -1183,5 +1216,122 @@ function PanouComparativPlanificatVsRealizat({
                 {!randuriFiltrate.length && <p className="fara-rezultate">{t('pontaj.fara_angajati')}</p>}
             </div>
         </div>
+    );
+}
+
+function DialogConfigurareReguli({
+    inchide,
+    onSalvat,
+}: {
+    inchide: () => void;
+    onSalvat: () => void;
+}) {
+    const [reguli, setReguli] = useState<calcul.RegulaConfigurabila[]>([]);
+    const [incarcare, setIncarcare] = useState(true);
+    const [salvand, setSalvand] = useState(false);
+    const [mesaj, setMesaj] = useState('');
+    const [eroare, setEroare] = useState('');
+
+    useEffect(() => {
+        let activ = true;
+        ListaReguliConfigurabile().then(r => {
+            if (!activ) return;
+            if (r.eroare) {
+                setEroare(r.eroare.cod);
+            } else {
+                setReguli(r.reguli ?? []);
+            }
+        }).catch(() => {
+            if (activ) setEroare('Eroare la citirea regulilor.');
+        }).finally(() => {
+            if (activ) setIncarcare(false);
+        });
+        return () => { activ = false; };
+    }, []);
+
+    const actualizeazaRegula = (id: string, camp: keyof calcul.RegulaConfigurabila, val: any) => {
+        setReguli(prev => prev.map(reg => reg.id === id ? { ...reg, [camp]: val } : reg));
+    };
+
+    const salveazaTot = async () => {
+        setSalvand(true);
+        setMesaj('');
+        setEroare('');
+        try {
+            for (const r of reguli) {
+                const resp = await SalveazaRegulaConfigurabila(r);
+                if (resp.eroare) {
+                    setEroare(resp.eroare.cod);
+                    setSalvand(false);
+                    return;
+                }
+            }
+            setMesaj('Regulile au fost actualizate cu succes.');
+            onSalvat();
+        } catch {
+            setEroare('Eroare la salvarea regulilor.');
+        } finally {
+            setSalvand(false);
+        }
+    };
+
+    return (
+        <Dialog titlu="⚙️ Configurare Reguli Medicale și Restricții" permiteMaximizare={true} ocupat={salvand} inchide={inchide}>
+            <div className="corp-dialog" style={{ maxHeight: '75vh', overflowY: 'auto' }}>
+                <p className="descriere-ajutor">
+                    Configurați restricțiile medicale specifice secției și spitalului. Regulile active sunt verificate automat în timp real la planificare și semnalate în interfață.
+                </p>
+                {mesaj && <p className="mesaj-succes" role="status">{mesaj}</p>}
+                {eroare && <p className="eroare-formular" role="alert">{eroare}</p>}
+                {incarcare ? <p className="incarcare">Se încarcă regulile...</p> : (
+                    <div className="grila-reguli-configurabile">
+                        {reguli.map(reg => (
+                            <div key={reg.id} className={`card-regula-config ${reg.activ ? 'activa' : 'inactiva'}`}>
+                                <div className="antet-regula">
+                                    <label className="eticheta-comutator">
+                                        <input
+                                            type="checkbox"
+                                            checked={reg.activ}
+                                            onChange={e => actualizeazaRegula(reg.id, 'activ', e.target.checked)}
+                                        />
+                                        <strong>{reg.denumire}</strong>
+                                    </label>
+                                    <span className="cod-regula">[{reg.cod}]</span>
+                                </div>
+                                <p className="descriere-regula">{reg.descriere}</p>
+                                <div className="parametri-regula">
+                                    <label>
+                                        <span>Severitate:</span>
+                                        <select
+                                            value={reg.severitate}
+                                            onChange={e => actualizeazaRegula(reg.id, 'severitate', e.target.value)}
+                                        >
+                                            <option value="AVERTISMENT">Avertisment</option>
+                                            <option value="BLOCANT">Blocant</option>
+                                        </select>
+                                    </label>
+                                    {reg.valoare_numerica > 0 && (
+                                        <label>
+                                            <span>Valoare limită:</span>
+                                            <input
+                                                type="number"
+                                                min={1}
+                                                max={100}
+                                                value={reg.valoare_numerica}
+                                                onChange={e => actualizeazaRegula(reg.id, 'valoare_numerica', parseInt(e.target.value, 10) || 0)}
+                                            />
+                                        </label>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+            <footer className="subsol-dialog">
+                <button type="button" className="buton secundar" disabled={salvand} onClick={inchide}>Închide</button>
+                <button type="button" className="buton primar" disabled={salvand || incarcare} onClick={salveazaTot}>Salvează modificările</button>
+            </footer>
+        </Dialog>
     );
 }

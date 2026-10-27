@@ -56,11 +56,11 @@ export function DeschidePDFPentruTiparire(arg1:string):Promise<main.RaspunsFisie
 
 export function EsteAutoPornireAI():Promise<boolean>;
 
-export function ExportaPontajExcel(arg1:number,arg2:number):Promise<main.RaspunsExportExcel>;
-
 export function ExecutaImportAngajati(arg1:datebaza.CerereExecutaImportAngajati):Promise<main.RaspunsExecutaImportAngajati>;
 
 export function ExecutaImportSarbatori(arg1:datebaza.CerereExecutaImportSarbatori,arg2:number):Promise<main.RaspunsExecutaImportSarbatori>;
+
+export function ExportaPontajExcel(arg1:number,arg2:number):Promise<main.RaspunsExportExcel>;
 
 export function IncarcaDemo():Promise<main.RaspunsDate>;
 
@@ -71,6 +71,8 @@ export function InterogheazaAI(arg1:main.CerereInterogareAI):Promise<main.Raspun
 export function Limbi():Promise<Array<string>>;
 
 export function ListaModeleRapoarte():Promise<main.RaspunsModeleRapoarte>;
+
+export function ListaReguliConfigurabile():Promise<main.RaspunsListaReguli>;
 
 export function ListaSchimburi():Promise<main.RaspunsSchimburi>;
 
@@ -104,6 +106,8 @@ export function SalveazaPDFRaport(arg1:string):Promise<main.RaspunsFisierRaport>
 
 export function SalveazaPlanificare(arg1:number,arg2:number,arg3:Array<datebaza.PozitiePlanificare>):Promise<main.RaspunsPlanificare>;
 
+export function SalveazaRegulaConfigurabila(arg1:calcul.RegulaConfigurabila):Promise<main.RaspunsSalvareRegula>;
+
 export function SalveazaSarbatoare(arg1:string,arg2:datebaza.Sarbatoare,arg3:number):Promise<main.RaspunsCalendar>;
 
 export function SalveazaSchimb(arg1:datebaza.Schimb):Promise<main.RaspunsSchimburi>;
@@ -123,3 +127,5 @@ export function SeteazaAutoPornireAI(arg1:boolean):Promise<boolean>;
 export function SeteazaStareLuna(arg1:number,arg2:number,arg3:string,arg4:string):Promise<main.RaspunsStareLuna>;
 
 export function StareAI():Promise<main.RaspunsStareAI>;
+
+export function VerificaReguliPlanificare(arg1:number,arg2:number):Promise<main.RaspunsVerificaReguli>;

@@ -102,16 +102,16 @@ export function EsteAutoPornireAI() {
   return window['go']['main']['App']['EsteAutoPornireAI']();
 }
 
-export function ExportaPontajExcel(arg1, arg2) {
-  return window['go']['main']['App']['ExportaPontajExcel'](arg1, arg2);
-}
-
 export function ExecutaImportAngajati(arg1) {
   return window['go']['main']['App']['ExecutaImportAngajati'](arg1);
 }
 
 export function ExecutaImportSarbatori(arg1, arg2) {
   return window['go']['main']['App']['ExecutaImportSarbatori'](arg1, arg2);
+}
+
+export function ExportaPontajExcel(arg1, arg2) {
+  return window['go']['main']['App']['ExportaPontajExcel'](arg1, arg2);
 }
 
 export function IncarcaDemo() {
@@ -132,6 +132,10 @@ export function Limbi() {
 
 export function ListaModeleRapoarte() {
   return window['go']['main']['App']['ListaModeleRapoarte']();
+}
+
+export function ListaReguliConfigurabile() {
+  return window['go']['main']['App']['ListaReguliConfigurabile']();
 }
 
 export function ListaSchimburi() {
@@ -198,6 +202,10 @@ export function SalveazaPlanificare(arg1, arg2, arg3) {
   return window['go']['main']['App']['SalveazaPlanificare'](arg1, arg2, arg3);
 }
 
+export function SalveazaRegulaConfigurabila(arg1) {
+  return window['go']['main']['App']['SalveazaRegulaConfigurabila'](arg1);
+}
+
 export function SalveazaSarbatoare(arg1, arg2, arg3) {
   return window['go']['main']['App']['SalveazaSarbatoare'](arg1, arg2, arg3);
 }
@@ -236,4 +244,8 @@ export function SeteazaStareLuna(arg1, arg2, arg3, arg4) {
 
 export function StareAI() {
   return window['go']['main']['App']['StareAI']();
+}
+
+export function VerificaReguliPlanificare(arg1, arg2) {
+  return window['go']['main']['App']['VerificaReguliPlanificare'](arg1, arg2);
 }

@@ -569,6 +569,28 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .td-zi-detaliu.celula-suprapunere-activa { background: #ffe7ba !important; box-shadow: inset 0 0 0 1px #fa8c16; }
 .insigna-absenta-zi { display: inline-block; color: white; font-size: 10px; font-weight: 700; border-radius: 3px; padding: 2px 4px; }
 
+/* Motor de reguli configurabile (D041 / Lot 7) */
+.alerta-reguli-planificare { background: #fffcf0; border: 1px solid #ffd591; border-radius: 8px; padding: 12px 18px; margin: 10px 0; color: #873800; font-size: 13px; }
+.antet-alerta-reguli { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-weight: 650; margin-bottom: 8px; color: #ad4e00; }
+.lista-incalcari-reguli { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+.insigna-severitate { font-size: 10px; font-weight: 700; padding: 2px 5px; border-radius: 3px; margin-right: 6px; text-transform: uppercase; }
+.insigna-severitate.avertisment { background: #ffe7ba; color: #d46b08; border: 1px solid #ffd591; }
+.insigna-severitate.blocant { background: #ffccc7; color: #cf1322; border: 1px solid #ffa39e; }
+.insigna-severitate.info { background: #e6f7ff; color: #096dd9; border: 1px solid #91d5ff; }
+.corp-dialog-reguli { display: flex; flex-direction: column; gap: 14px; max-height: 520px; overflow-y: auto; }
+.descriere-dialog-reguli { margin: 0; font-size: 13px; color: var(--discret); line-height: 1.5; }
+.lista-carduri-reguli { display: flex; flex-direction: column; gap: 12px; }
+.card-regula-config { background: white; border: 1px solid var(--linie); border-radius: 8px; padding: 14px 18px; display: flex; flex-direction: column; gap: 8px; }
+.card-regula-config.activa { border-left: 4px solid var(--verde); }
+.card-regula-config.inactiva { border-left: 4px solid #d0d7de; opacity: 0.75; }
+.antet-card-regula { display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+.cod-regula { font-size: 11px; font-family: monospace; color: var(--discret); margin-left: 6px; }
+.descriere-regula { margin: 0; font-size: 12px; color: #4e6559; line-height: 1.4; }
+.parametri-regula { display: flex; align-items: center; flex-wrap: wrap; gap: 14px; font-size: 12px; background: #f9fbf9; padding: 8px 12px; border-radius: 6px; }
+.parametri-regula input[type="number"] { width: 60px; padding: 4px 6px; font-size: 12px; margin: 0 4px; }
+.parametri-regula select { padding: 4px 8px; font-size: 12px; }
+
+
 
 
 
