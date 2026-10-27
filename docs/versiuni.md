@@ -4,6 +4,18 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.46.0 · 2026-10-27
+
+Execuție automată la confirmări în chat („da” / „confirm”), suport pentru weekenduri alternate și unelte de planificare recurente (F14-T04, D042).
+
+- **Execuție directă la răspuns afirmativ în chat (`AsistentAI.tsx`):** Când utilizatorul confirmă o propunere tastând „da”, „confirm”, „aplică”, „ok” etc. în caseta de mesaj, aplicația detectează automat intenția și execută direct salvarea (`AplicaPropunereAI`), eliminând confuzia în care modelul confirma doar verbal fără a opera modificarea în baza de date.
+- **Suport complet pentru weekenduri alternate și recurență (`app_ai.go`, `internal/ai/asistent.go`):** Adăugat filtrul `tot_al_doilea_weekend` și `weekend` în `planifica_interval` și unealta dedicată `planifica_zile`. Comanda utilizatorului (ex: „Dumitru Andrei pe octombrie lucrează tot al doilea weekend pe zi, schimb de 12 ore, începând cu data de 3”) este mapată exact pe schimbul `Z12` și pe datele corecte ale weekendurilor (3–4 oct, 17–18 oct, 31 oct), fără a mai forța eronat zile lucrătoare L–V.
+- **Rezolvare revizii existente în Planificare (`app_ai.go`):** La sincronizarea în planificare pentru turele de gărzi/weekend (Z12), sunt prelucrate reviziile și identificatorii pozițiilor existente pentru a preveni erorile de concurență.
+- **Parser defensiv de propuneri (`internal/ai/asistent.go`):** În cazurile în care modelul generează accidental descrierea acțiunii sub formă de text în loc de apel nativ de unelte, backend-ul sintetizează automat propunerea și afișează cardul interactiv cu butoane de confirmare.
+- **Teste unitare de regresie:** Adăugate `TestAplicaPropunereAITotAlDoileaWeekend` în `app_ai_test.go` și actualizate testele în `asistent_test.go`.
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
 ## 0.45.0 · 2026-10-27
 
 Persistența conversației pe durata sesiunii, context îmbogățit pentru comenzi consecutive și buton de salt direct în pontaj (F14-T04, D042).

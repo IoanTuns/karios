@@ -202,6 +202,32 @@ export function AsistentAI({
         if (!text || ocupat) return;
 
         setEroare('');
+
+        // 1. Verificare răspuns afirmativ de confirmare a unei propuneri existente
+        const textNorm = text.toLowerCase().replace(/[.!?,]/g, '').trim();
+        const esteConfirmare = ['da', 'confirm', 'confirma', 'aplica', 'aplic', 'ok', 'de acord', 'executa', 'fa asa', 'este bine', 'e bine', 'da aplica', 'da te rog', 'sigur', 'salveaza'].includes(textNorm);
+
+        if (esteConfirmare) {
+            const mesajCuPropunere = [...conversatie].reverse().find(m =>
+                m.rol === 'assistant' &&
+                m.propuneri &&
+                m.propuneri.some(p => !m.propuneriAplicata?.[p.id])
+            );
+
+            if (mesajCuPropunere && mesajCuPropunere.propuneri) {
+                const propuneriDeAplicat = mesajCuPropunere.propuneri.filter(p => !mesajCuPropunere.propuneriAplicata?.[p.id]);
+                if (propuneriDeAplicat.length > 0) {
+                    setTextIntrare('');
+                    const mesajUtilizator: MesajUI = { id: `u_${Date.now()}`, rol: 'user', text };
+                    setConversatie(prev => [...prev, mesajUtilizator]);
+                    for (const p of propuneriDeAplicat) {
+                        await aplicaPropunere(mesajCuPropunere.id, p);
+                    }
+                    return;
+                }
+            }
+        }
+
         setTextIntrare('');
 
         const mesajUtilizator: MesajUI = {
@@ -223,10 +249,10 @@ export function AsistentAI({
                     let continut = m.text;
                     if (m.rol === 'assistant' && m.propuneri && m.propuneri.length > 0) {
                         const detalii = m.propuneri.map(p => {
-                            const aplicat = m.propuneriAplicata?.[p.id] ? ' [confirmată și aplicată în pontaj]' : ' [propusă, în așteptare confirmare]';
-                            return `- ${p.descriere}${aplicat}`;
-                        }).join('\n');
-                        continut = continut ? `${continut}\n${detalii}` : `Am propus următoarele acțiuni:\n${detalii}`;
+                            const stareTxt = m.propuneriAplicata?.[p.id] ? '(salvată)' : '(propusă)';
+                            return `${p.descriere} ${stareTxt}`;
+                        }).join('; ');
+                        continut = continut && !continut.includes('Acțiuni propuse') ? `${continut}. ${detalii}` : detalii;
                     }
                     return new ai.MesajConversatie({
                         role: m.rol,

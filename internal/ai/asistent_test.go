@@ -220,12 +220,40 @@ func TestCorecteazaSchimbDacaEroare(t *testing.T) {
 		"data_sfarsit": "2026-10-31",
 	}
 
-	corectat := corecteazaSchimbDacaEroare(argsGresite, istoric, schimburi)
+	info := ContextPontix{
+		An:        2026,
+		Luna:      10,
+		Schimburi: schimburi,
+	}
+
+	corectat := corecteazaSchimbDacaEroare(argsGresite, istoric, schimburi, info)
 	if corectat["cod_schimb"] != "Z7" {
 		t.Fatalf("așteptat cod Z7 pentru 7 la 14, obținut: %v", corectat["cod_schimb"])
 	}
 	if corectat["doar_lucratoare"] != true {
 		t.Fatalf("așteptat doar_lucratoare true pentru toata luna, obținut: %v", corectat["doar_lucratoare"])
+	}
+
+	// Cazul weekend alternat: "Dumitru andrei pe octombrie lucreaza tot al doilea weekend pe zi, schimb de 12 ore, incepand cu data de 3"
+	istoricWeekend := []MesajConversatie{
+		{Rol: "user", Continut: "Dumitru andrei pe octombrie lucreaza tot al doilea weekend pe zi, schimb de 12 ore, incepand cu data de 3"},
+	}
+	argsWeekend := map[string]any{
+		"marca":      "DEMO-002",
+		"cod_schimb": "Z7",
+	}
+	corectatWeekend := corecteazaSchimbDacaEroare(argsWeekend, istoricWeekend, schimburi, info)
+	if corectatWeekend["cod_schimb"] != "Z12" {
+		t.Fatalf("așteptat cod Z12 pentru 12 ore pe zi, obținut: %v", corectatWeekend["cod_schimb"])
+	}
+	if corectatWeekend["filtru_zile"] != "tot_al_doilea_weekend" {
+		t.Fatalf("așteptat filtru_zile tot_al_doilea_weekend, obținut: %v", corectatWeekend["filtru_zile"])
+	}
+	if corectatWeekend["doar_lucratoare"] != false {
+		t.Fatalf("așteptat doar_lucratoare false pentru weekend, obținut: %v", corectatWeekend["doar_lucratoare"])
+	}
+	if corectatWeekend["data_inceput"] != "2026-10-03" {
+		t.Fatalf("așteptat data_inceput 2026-10-03, obținut: %v", corectatWeekend["data_inceput"])
 	}
 }
 

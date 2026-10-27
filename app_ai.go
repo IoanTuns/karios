@@ -247,6 +247,7 @@ func (a *App) AplicaPropunereAI(cerere CerereAplicaPropunereAI) RaspunsAplicaPro
 		d1Str, _ := p.Parametri["data_inceput"].(string)
 		d2Str, _ := p.Parametri["data_sfarsit"].(string)
 		doarLucratoare, _ := p.Parametri["doar_lucratoare"].(bool)
+		filtruZile, _ := p.Parametri["filtru_zile"].(string)
 
 		t1, err1 := time.Parse(time.DateOnly, d1Str)
 		t2, err2 := time.Parse(time.DateOnly, d2Str)
@@ -258,11 +259,49 @@ func (a *App) AplicaPropunereAI(cerere CerereAplicaPropunereAI) RaspunsAplicaPro
 				},
 			}
 		}
+
+		// Referința pentru calculul weekendurilor alternate este prima sâmbătă din sau după t1
+		refSambata := t1
+		for refSambata.Weekday() != time.Saturday && !refSambata.After(t2) {
+			refSambata = refSambata.AddDate(0, 0, 1)
+		}
+
 		for cur := t1; !cur.After(t2); cur = cur.AddDate(0, 0, 1) {
 			ziSapt := cur.Weekday()
-			if !doarLucratoare || (ziSapt != time.Saturday && ziSapt != time.Sunday) {
+			esteWeekend := (ziSapt == time.Saturday || ziSapt == time.Sunday)
+
+			if filtruZile == "tot_al_doilea_weekend" {
+				if esteWeekend {
+					sambataCurenta := cur
+					if ziSapt == time.Sunday {
+						sambataCurenta = cur.AddDate(0, 0, -1)
+					}
+					diferentaZile := int(sambataCurenta.Sub(refSambata).Hours() / 24)
+					if diferentaZile >= 0 && (diferentaZile/7)%2 == 0 {
+						zile = append(zile, cur.Format(time.DateOnly))
+					}
+				}
+			} else if filtruZile == "weekend" {
+				if esteWeekend {
+					zile = append(zile, cur.Format(time.DateOnly))
+				}
+			} else if doarLucratoare || filtruZile == "lucratoare" {
+				if !esteWeekend {
+					zile = append(zile, cur.Format(time.DateOnly))
+				}
+			} else {
 				zile = append(zile, cur.Format(time.DateOnly))
 			}
+		}
+	case "planifica_zile", "sterge_zile":
+		if rawZile, ok := p.Parametri["zile"].([]any); ok {
+			for _, rz := range rawZile {
+				if s, ok := rz.(string); ok && s != "" {
+					zile = append(zile, s)
+				}
+			}
+		} else if strZile, ok := p.Parametri["zile"].([]string); ok {
+			zile = append(zile, strZile...)
 		}
 	case "planifica_tura", "sterge_tura":
 		dStr, _ := p.Parametri["data"].(string)
@@ -355,14 +394,32 @@ func (a *App) AplicaPropunereAI(cerere CerereAplicaPropunereAI) RaspunsAplicaPro
 			if calcul.ProgramInSectiune(pProg, "DUPA_AMIAZA") {
 				sectiune = "DUPA_AMIAZA"
 			}
+
+			pozExistente := make(map[string]datebaza.PozitiePlanificare)
+			if plan, err := datebaza.Nou(a.db).CitestePlanificare(a.contextLucru(), an, luna); err == nil {
+				for _, poz := range plan.Pozitii {
+					cheie := fmt.Sprintf("%s|%s|%s", poz.AngajatID, poz.Data, poz.Sectiune)
+					pozExistente[cheie] = poz
+				}
+			}
+
 			var pozitii []datebaza.PozitiePlanificare
 			for _, zi := range zile {
+				cheie := fmt.Sprintf("%s|%s|%s", angajatID, zi, sectiune)
+				id := ""
+				revizie := ""
+				if ex, ok := pozExistente[cheie]; ok {
+					id = ex.ID
+					revizie = ex.Revizie
+				}
 				pozitii = append(pozitii, datebaza.PozitiePlanificare{
+					ID:        id,
 					AngajatID: angajatID,
 					Data:      zi,
 					SchimbID:  schimbGasit.ID,
 					Sectiune:  sectiune,
 					Activ:     codSchimb != "",
+					Revizie:   revizie,
 				})
 			}
 			_ = datebaza.Nou(a.db).SalveazaPlanificare(a.contextLucru(), an, luna, pozitii)

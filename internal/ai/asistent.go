@@ -153,8 +153,39 @@ var definitiiUnelte = []map[string]any{
 						"type":        "boolean",
 						"description": "Dacă este true, tura se atribuie doar în zilele lucrătoare (luni-vineri), excluzând weekendul.",
 					},
+					"filtru_zile": map[string]any{
+						"type":        "string",
+						"enum":        []string{"toate", "lucratoare", "weekend", "tot_al_doilea_weekend"},
+						"description": "Filtru aplicat zilelor: 'lucratoare' (L–V), 'weekend' (doar S–D), 'tot_al_doilea_weekend' (la fiecare două săptămâni începând cu primul weekend din interval), 'toate' (zilnic).",
+					},
 				},
 				"required": []string{"marca", "data_inceput", "data_sfarsit", "cod_schimb"},
+			},
+		},
+	},
+	{
+		"type": "function",
+		"function": map[string]any{
+			"name":        "planifica_zile",
+			"description": "Planifică o tură pentru un angajat într-o listă explicită de date calendaristice.",
+			"parameters": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"marca": map[string]any{
+						"type":        "string",
+						"description": "Numărul de marcă al angajatului sau numele identificat.",
+					},
+					"cod_schimb": map[string]any{
+						"type":        "string",
+						"description": "Codul schimbului (ex: Z12, G24, Z7, S7).",
+					},
+					"zile": map[string]any{
+						"type":        "array",
+						"items":       map[string]any{"type": "string"},
+						"description": "Lista datelor calendaristice în format AAAA-LL-ZZ (ex: ['2026-10-03', '2026-10-04']).",
+					},
+				},
+				"required": []string{"marca", "cod_schimb", "zile"},
 			},
 		},
 	},
@@ -293,22 +324,39 @@ func (c *Client) Interogheaza(ctx context.Context, istoric []MesajConversatie, i
 		}
 
 		// Corecție de siguranță pentru intervale și cod de schimb cerut de utilizator
-		args = corecteazaSchimbDacaEroare(args, istoric, info.Schimburi)
+		args = corecteazaSchimbDacaEroare(args, istoric, info.Schimburi, info)
 
-		// Dacă utilizatorul a cerut o lună întreagă ("in octombrie", "toata luna" etc.), dar modelul a apelat planifica_tura
+		// Dacă utilizatorul a cerut o perioadă pe lună sau weekenduri, dar modelul a apelat planifica_tura
 		tipFunctie := tc.Function.Name
 		if tipFunctie == "planifica_tura" && len(istoric) > 0 {
 			ultimul := istoric[len(istoric)-1].Continut
-			if toataLuna, nrLuna := esteCerereToataLuna(ultimul); toataLuna {
+			ultimulNorm := strings.ToLower(ultimul)
+			cereWeekend := strings.Contains(ultimulNorm, "weekend") || strings.Contains(ultimulNorm, "sambata") || strings.Contains(ultimulNorm, "duminica")
+			toataLuna, nrLuna := esteCerereToataLuna(ultimul)
+
+			if toataLuna || cereWeekend {
 				an := info.An
 				luna := info.Luna
 				if nrLuna > 0 {
 					luna = nrLuna
 				}
 				tipFunctie = "planifica_interval"
-				args["data_inceput"] = fmt.Sprintf("%04d-%02d-01", an, luna)
+				ziStart := extrageZiInceput(ultimulNorm)
+				if ziStart <= 0 {
+					ziStart = 1
+				}
+				args["data_inceput"] = fmt.Sprintf("%04d-%02d-%02d", an, luna, ziStart)
 				args["data_sfarsit"] = ultimaZiLuna(an, luna)
-				args["doar_lucratoare"] = true
+				if cereWeekend {
+					args["doar_lucratoare"] = false
+					if strings.Contains(ultimulNorm, "tot al doilea") || strings.Contains(ultimulNorm, "al doilea weekend") {
+						args["filtru_zile"] = "tot_al_doilea_weekend"
+					} else {
+						args["filtru_zile"] = "weekend"
+					}
+				} else {
+					args["doar_lucratoare"] = true
+				}
 				delete(args, "data")
 			}
 		}
@@ -321,6 +369,15 @@ func (c *Client) Interogheaza(ctx context.Context, istoric []MesajConversatie, i
 			Parametri:          args,
 			NecesitaConfirmare: true,
 		})
+	}
+
+	// Fallback defensiv dacă modelul a formulat text în loc să apeleze direct unelte
+	if len(rezultat.Propuneri) == 0 && len(istoric) > 0 {
+		ultimul := istoric[len(istoric)-1].Continut
+		if prop, ok := incearcaConstruirePropunereDinText(ultimul, alegere.Content, info); ok {
+			rezultat.Propuneri = append(rezultat.Propuneri, prop)
+			rezultat.Mesaj = ""
+		}
 	}
 
 	return rezultat, nil
@@ -342,6 +399,9 @@ func esteCerereToataLuna(mesaj string) (bool, int) {
 
 	for numeLuna, nrLuna := range luni {
 		if strings.Contains(m, numeLuna) {
+			if strings.Contains(m, "weekend") || strings.Contains(m, "sambata") || strings.Contains(m, "duminica") {
+				return false, nrLuna
+			}
 			if contineZiSpecifica(m, numeLuna) {
 				return false, nrLuna
 			}
@@ -349,6 +409,132 @@ func esteCerereToataLuna(mesaj string) (bool, int) {
 		}
 	}
 	return false, 0
+}
+
+func extrageZiInceput(mesaj string) int {
+	m := strings.ToLower(mesaj)
+	patterns := []string{
+		"incepand cu data de ",
+		"începând cu data de ",
+		"cu data de ",
+		"data de ",
+		"din data de ",
+		"incepand cu ",
+		"începând cu ",
+		"din ",
+		"pe data de ",
+	}
+	for _, p := range patterns {
+		if idx := strings.Index(m, p); idx != -1 {
+			rest := strings.TrimSpace(m[idx+len(p):])
+			cuvinte := strings.Fields(rest)
+			if len(cuvinte) > 0 {
+				curat := strings.Trim(cuvinte[0], ",.;:!?")
+				if nr, err := strconv.Atoi(curat); err == nil && nr >= 1 && nr <= 31 {
+					return nr
+				}
+			}
+		}
+	}
+	return 0
+}
+
+func incearcaConstruirePropunereDinText(mesajUtilizator, raspunsModel string, info ContextPontix) (PropunereActiune, bool) {
+	mUtilizator := strings.ToLower(mesajUtilizator)
+	mRaspuns := strings.ToLower(raspunsModel)
+	textCombinat := mUtilizator + "\n" + mRaspuns
+
+	// 1. Identificăm angajatul
+	var angajatGasit *InfoAngajat
+	for _, a := range info.Angajati {
+		nume := strings.ToLower(a.Nume)
+		prenume := strings.ToLower(a.Prenume)
+		marca := strings.ToLower(a.Marca)
+		marcaFaraCratima := strings.ReplaceAll(marca, "-", "")
+		if strings.Contains(textCombinat, marca) || strings.Contains(textCombinat, marcaFaraCratima) ||
+			(len(nume) >= 3 && strings.Contains(textCombinat, nume)) ||
+			(len(prenume) >= 3 && strings.Contains(textCombinat, prenume)) {
+			ang := a
+			angajatGasit = &ang
+			break
+		}
+	}
+	if angajatGasit == nil {
+		return PropunereActiune{}, false
+	}
+
+	// 2. Identificăm schimbul
+	codSchimb := "Z7"
+	if strings.Contains(textCombinat, "z12") || (strings.Contains(textCombinat, "12 ore") && (strings.Contains(textCombinat, "zi") || strings.Contains(textCombinat, "weekend"))) {
+		codSchimb = "Z12"
+	} else if strings.Contains(textCombinat, "n12") || (strings.Contains(textCombinat, "12 ore") && strings.Contains(textCombinat, "noapte")) {
+		codSchimb = "N12"
+	} else if strings.Contains(textCombinat, "g24") || strings.Contains(textCombinat, "garda") || strings.Contains(textCombinat, "gardă") || strings.Contains(textCombinat, "24 ore") {
+		codSchimb = "G24"
+	} else if strings.Contains(textCombinat, "s7") || strings.Contains(textCombinat, "seara") || strings.Contains(textCombinat, "seară") || strings.Contains(textCombinat, "15 la 22") {
+		codSchimb = "S7"
+	} else if strings.Contains(textCombinat, "z7") || strings.Contains(textCombinat, "7 la 14") || strings.Contains(textCombinat, "dimineata") {
+		codSchimb = "Z7"
+	}
+
+	// 3. Identificăm luna și anul
+	an := info.An
+	luna := info.Luna
+	luni := map[string]int{
+		"ianuarie": 1, "februarie": 2, "martie": 3, "aprilie": 4,
+		"mai": 5, "iunie": 6, "iulie": 7, "august": 8,
+		"septembrie": 9, "octombrie": 10, "noiembrie": 11, "decembrie": 12,
+	}
+	for numeLuna, nrLuna := range luni {
+		if strings.Contains(textCombinat, numeLuna) {
+			luna = nrLuna
+			break
+		}
+	}
+
+	// 4. Identificăm dacă este interval / weekend / tură unică
+	cereWeekend := strings.Contains(textCombinat, "weekend") || strings.Contains(textCombinat, "sambata") || strings.Contains(textCombinat, "duminica")
+	cereAlternat := strings.Contains(textCombinat, "tot al doilea") || strings.Contains(textCombinat, "al doilea weekend")
+
+	args := map[string]any{
+		"marca":      angajatGasit.Marca,
+		"cod_schimb": codSchimb,
+	}
+
+	var tipFunctie string
+	if cereWeekend || strings.Contains(textCombinat, "octombrie") || strings.Contains(textCombinat, "luna") || strings.Contains(textCombinat, "interval") {
+		tipFunctie = "planifica_interval"
+		ziStart := extrageZiInceput(textCombinat)
+		if ziStart <= 0 {
+			ziStart = 1
+		}
+		args["data_inceput"] = fmt.Sprintf("%04d-%02d-%02d", an, luna, ziStart)
+		args["data_sfarsit"] = ultimaZiLuna(an, luna)
+		if cereWeekend {
+			args["doar_lucratoare"] = false
+			if cereAlternat {
+				args["filtru_zile"] = "tot_al_doilea_weekend"
+			} else {
+				args["filtru_zile"] = "weekend"
+			}
+		} else {
+			args["doar_lucratoare"] = true
+		}
+	} else if zi := extrageZiInceput(textCombinat); zi > 0 {
+		tipFunctie = "planifica_tura"
+		args["data"] = fmt.Sprintf("%04d-%02d-%02d", an, luna, zi)
+	} else {
+		return PropunereActiune{}, false
+	}
+
+	desc := construiesteDescrierePropunere(tipFunctie, args, info)
+	return PropunereActiune{
+		ID:                 fmt.Sprintf("prop-%d", time.Now().UnixNano()),
+		Tip:                tipFunctie,
+		Descriere:          desc,
+		Parametri:          args,
+		NecesitaConfirmare: true,
+	}, true
 }
 
 func contineZiSpecifica(mesaj, numeLuna string) bool {
@@ -499,7 +685,7 @@ func formateazaSchimb(cod string, schimburi []InfoSchimb) string {
 	return cod
 }
 
-func corecteazaSchimbDacaEroare(args map[string]any, istoric []MesajConversatie, schimburi []InfoSchimb) map[string]any {
+func corecteazaSchimbDacaEroare(args map[string]any, istoric []MesajConversatie, schimburi []InfoSchimb, info ContextPontix) map[string]any {
 	if len(istoric) == 0 {
 		return args
 	}
@@ -514,12 +700,40 @@ func corecteazaSchimbDacaEroare(args map[string]any, istoric []MesajConversatie,
 		}
 	}
 
-	// Dacă utilizatorul a cerut "toata luna" / "pe toata luna" pentru o tură normală, forțăm doar_lucratoare true dacă nu este specificat
-	if strings.Contains(ultimulMesaj, "toata luna") || strings.Contains(ultimulMesaj, "toată luna") ||
-		strings.Contains(ultimulMesaj, "tata luna") {
+	// Dacă utilizatorul a cerut 12 ore pe zi / weekend
+	if strings.Contains(ultimulMesaj, "12 ore") || strings.Contains(ultimulMesaj, "schimb de 12") {
+		if strings.Contains(ultimulMesaj, "zi") || strings.Contains(ultimulMesaj, "ziua") || strings.Contains(ultimulMesaj, "pe zi") {
+			args["cod_schimb"] = "Z12"
+		} else if strings.Contains(ultimulMesaj, "noapte") {
+			args["cod_schimb"] = "N12"
+		}
+	}
+
+	// Detectare weekend și tot al doilea weekend
+	esteWeekend := strings.Contains(ultimulMesaj, "weekend") || strings.Contains(ultimulMesaj, "sambata") || strings.Contains(ultimulMesaj, "sâmbătă") || strings.Contains(ultimulMesaj, "duminica") || strings.Contains(ultimulMesaj, "duminică")
+	esteAlternat := strings.Contains(ultimulMesaj, "tot al doilea") || strings.Contains(ultimulMesaj, "al doilea weekend") || strings.Contains(ultimulMesaj, "la doua saptamani") || strings.Contains(ultimulMesaj, "la 2 saptamani")
+
+	if esteWeekend {
+		args["doar_lucratoare"] = false
+		if esteAlternat {
+			args["filtru_zile"] = "tot_al_doilea_weekend"
+		} else {
+			args["filtru_zile"] = "weekend"
+		}
+	} else if strings.Contains(ultimulMesaj, "toata luna") || strings.Contains(ultimulMesaj, "toată luna") || strings.Contains(ultimulMesaj, "tata luna") {
 		if _, ok := args["doar_lucratoare"]; !ok {
 			args["doar_lucratoare"] = true
 		}
+	}
+
+	// Extragere dată de început dacă utilizatorul menționează "începând cu data de X"
+	if ziStart := extrageZiInceput(ultimulMesaj); ziStart > 0 {
+		an := info.An
+		luna := info.Luna
+		if _, nrLuna := esteCerereToataLuna(ultimulMesaj); nrLuna > 0 {
+			luna = nrLuna
+		}
+		args["data_inceput"] = fmt.Sprintf("%04d-%02d-%02d", an, luna, ziStart)
 	}
 
 	return args
@@ -534,11 +748,15 @@ func construiestePromptSistem(info ContextPontix) string {
 	sb.WriteString("IMPORTANT PENTRU PERIOADE / LUNI / INTERVALE:\n")
 	sb.WriteString("- Când utilizatorul menționează o lună ('în octombrie', 'in octombrie', 'pe octombrie', 'luna octombrie') sau o perioadă ('toată luna', 'toata luna', 'tata luna', 'toată săptămâna') FĂRĂ o zi anume (fără 'pe 15' etc.), înseamnă ÎNTREAGA LUNĂ! Folosește neapărat unealta `planifica_interval` cu data_inceput (ex: 2026-10-01) și data_sfarsit (ex: 2026-10-31), și doar_lucratoare: true. NU apela `planifica_tura` pentru o singură zi când se cere toată luna!\n")
 	sb.WriteString("- Pentru ture normale de zi ('toată luna', '7 la 14', etc.), setează ÎNTOTDEAUNA `doar_lucratoare: true` pentru a exclude weekendurile!\n")
+	sb.WriteString("- Pentru comenzi pe weekend ('în weekend', 'tot al doilea weekend'), setează `filtru_zile: 'tot_al_doilea_weekend'` sau `'weekend'` și setează `doar_lucratoare: false`!\n")
 	sb.WriteString("- ALEGEREA SCHIMBURILOR DUPĂ INTERVAL SAU ORE:\n")
 	sb.WriteString("  * '7 la 14', '07:00–14:00', 'dimineața', 'pe zi' -> codul este Z7 (Zi 07–14). NICIODATĂ nu alege S7 pentru 7 la 14!\n")
+	sb.WriteString("  * '12 ore pe zi', 'schimb de 12 ore', '12 ore ziua' -> codul este Z12 (Zi liberă 07–19, 12 ore).\n")
+	sb.WriteString("  * '12 ore noaptea', '12 ore noapte' -> codul este N12 (Noapte 19–07, 12 ore).\n")
 	sb.WriteString("  * '15 la 22', '15:00–22:00', 'seară', 'după-amiază' -> codul este S7 (Seară 15–22).\n")
 	sb.WriteString("  * '22 la 7', 'noapte' -> codul este N9 sau N12.\n")
 	sb.WriteString("  * 'gardă', '24 ore' -> codul este G24.\n")
+	sb.WriteString("- REGULĂ STRICTĂ: Orice planificare cerută de utilizator se execută EXCLUSIV prin apel de unelte (tool calls). NU genera niciodată în text confirmări simulate sau 'Acțiuni propuse' fără tool call!\n")
 	sb.WriteString("- Folosește EXACT numărul de marcă așa cum este indicat în lista de personal de mai jos (ex: 'DEMO-008', NU prescurta și nu elimina cratima).\n")
 	sb.WriteString(fmt.Sprintf("Anul curent de lucru: %d, Luna: %d.\n", info.An, info.Luna))
 
@@ -578,13 +796,34 @@ func construiesteDescrierePropunere(numeFunctie string, args map[string]any, inf
 		d2, _ := args["data_sfarsit"].(string)
 		schimb, _ := args["cod_schimb"].(string)
 		lucratoare, _ := args["doar_lucratoare"].(bool)
+		filtruZile, _ := args["filtru_zile"].(string)
 		schimbText := formateazaSchimb(schimb, info.Schimburi)
 		angajatText := formateazaAngajat(marca, info.Angajati)
 		supliment := ""
-		if lucratoare {
+		if filtruZile == "tot_al_doilea_weekend" {
+			supliment = " (tot al doilea weekend)"
+		} else if filtruZile == "weekend" {
+			supliment = " (doar în weekend S–D)"
+		} else if lucratoare || filtruZile == "lucratoare" {
 			supliment = " (doar zile lucrătoare L–V)"
 		}
 		return fmt.Sprintf("Planificare schimb %s pentru %s în intervalul %s – %s%s", schimbText, angajatText, d1, d2, supliment)
+	case "planifica_zile":
+		marca, _ := args["marca"].(string)
+		schimb, _ := args["cod_schimb"].(string)
+		var zile []string
+		if rz, ok := args["zile"].([]any); ok {
+			for _, z := range rz {
+				if s, ok := z.(string); ok {
+					zile = append(zile, s)
+				}
+			}
+		} else if sz, ok := args["zile"].([]string); ok {
+			zile = sz
+		}
+		schimbText := formateazaSchimb(schimb, info.Schimburi)
+		angajatText := formateazaAngajat(marca, info.Angajati)
+		return fmt.Sprintf("Planificare schimb %s pentru %s în zilele: %s", schimbText, angajatText, strings.Join(zile, ", "))
 	case "sterge_tura":
 		marca, _ := args["marca"].(string)
 		data, _ := args["data"].(string)
