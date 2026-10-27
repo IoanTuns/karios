@@ -66,6 +66,10 @@ export function CitesteSchita(arg1, arg2) {
   return window['go']['main']['App']['CitesteSchita'](arg1, arg2);
 }
 
+export function CitesteStareLuna(arg1, arg2) {
+  return window['go']['main']['App']['CitesteStareLuna'](arg1, arg2);
+}
+
 export function CompleteazaSarbatori2026() {
   return window['go']['main']['App']['CompleteazaSarbatori2026']();
 }
@@ -224,6 +228,10 @@ export function SchimbaActivSchimb(arg1, arg2) {
 
 export function SeteazaAutoPornireAI(arg1) {
   return window['go']['main']['App']['SeteazaAutoPornireAI'](arg1);
+}
+
+export function SeteazaStareLuna(arg1, arg2, arg3, arg4) {
+  return window['go']['main']['App']['SeteazaStareLuna'](arg1, arg2, arg3, arg4);
 }
 
 export function StareAI() {

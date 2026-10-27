@@ -24,6 +24,7 @@ type CelulaSchita struct {
 type SchitaLuna struct {
 	An           int                       `json:"an"`
 	Luna         int                       `json:"luna"`
+	Stare        string                    `json:"stare"`
 	Celule       []CelulaSchita            `json:"celule"`
 	Absente      []ZiAbsenta               `json:"absente"`
 	Calcul       calcul.RezultatPontaj     `json:"calcul"`
@@ -53,6 +54,8 @@ func (s *Serviciu) CitesteSchita(ctx context.Context, an, luna int, previzualiza
 		return SchitaLuna{}, traduceEroare(err)
 	}
 	rez := SchitaLuna{An: an, Luna: luna, Celule: []CelulaSchita{}}
+	st, _ := s.CitesteStareLuna(ctx, an, luna)
+	rez.Stare = st.Stare
 	for _, r := range randuri {
 		rez.Celule = append(rez.Celule, CelulaSchita{AngajatID: r.AngajatID, Data: r.Data, Valoare: r.Valoare, Revizie: strconv.FormatInt(r.Revizie, 10)})
 	}
@@ -75,6 +78,14 @@ func (s *Serviciu) CitesteSchita(ctx context.Context, an, luna int, previzualiza
 }
 
 func (s *Serviciu) SalveazaSchita(ctx context.Context, an, luna int, celule []CelulaSchita) error {
+	inchisa, err := s.EsteLunaInchisa(ctx, an, luna)
+	if err != nil {
+		return err
+	}
+	if inchisa {
+		return eroare("pontaj.luna_inchisa")
+	}
+
 	deLa, panaLa, err := limiteLuna(an, luna)
 	if err != nil {
 		return err

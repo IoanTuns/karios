@@ -30,6 +30,7 @@ type PozitiePlanificare struct {
 type PlanificareLuna struct {
 	An      int                  `json:"an"`
 	Luna    int                  `json:"luna"`
+	Stare   string               `json:"stare"`
 	Pozitii []PozitiePlanificare `json:"pozitii"`
 }
 type CererePublicarePlan struct {
@@ -209,6 +210,8 @@ func (s sursePlanificare) verifica(p acces.Planificare, cuPontaj bool, ignoraCel
 }
 func (s *Serviciu) CitestePlanificare(ctx context.Context, an, luna int) (PlanificareLuna, error) {
 	rez := PlanificareLuna{An: an, Luna: luna, Pozitii: []PozitiePlanificare{}}
+	st, _ := s.CitesteStareLuna(ctx, an, luna)
+	rez.Stare = st.Stare
 	deLa, panaLa, err := limiteLuna(an, luna)
 	if err != nil {
 		return rez, err
@@ -245,6 +248,14 @@ func (s *Serviciu) CitestePlanificare(ctx context.Context, an, luna int) (Planif
 	return rez, nil
 }
 func (s *Serviciu) SalveazaPlanificare(ctx context.Context, an, luna int, pozitii []PozitiePlanificare) error {
+	inchisa, err := s.EsteLunaInchisa(ctx, an, luna)
+	if err != nil {
+		return err
+	}
+	if inchisa {
+		return eroare("pontaj.luna_inchisa")
+	}
+
 	deLa, panaLa, err := limiteLuna(an, luna)
 	if err != nil {
 		return err

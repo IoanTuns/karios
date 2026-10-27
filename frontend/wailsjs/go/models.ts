@@ -887,6 +887,7 @@ export namespace datebaza {
 	export class PlanificareLuna {
 	    an: number;
 	    luna: number;
+	    stare?: string;
 	    pozitii: PozitiePlanificare[];
 
 	    static createFrom(source: any = {}) {
@@ -897,6 +898,7 @@ export namespace datebaza {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.an = source["an"];
 	        this.luna = source["luna"];
+	        this.stare = source["stare"];
 	        this.pozitii = this.convertValues(source["pozitii"], PozitiePlanificare);
 	    }
 
@@ -1112,6 +1114,7 @@ export namespace datebaza {
 	export class SchitaLuna {
 	    an: number;
 	    luna: number;
+	    stare?: string;
 	    celule: CelulaSchita[];
 	    absente: ZiAbsenta[];
 	    calcul: calcul.RezultatPontaj;
@@ -1125,6 +1128,7 @@ export namespace datebaza {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.an = source["an"];
 	        this.luna = source["luna"];
+	        this.stare = source["stare"];
 	        this.celule = this.convertValues(source["celule"], CelulaSchita);
 	        this.absente = this.convertValues(source["absente"], ZiAbsenta);
 	        this.calcul = this.convertValues(source["calcul"], calcul.RezultatPontaj);
@@ -1761,6 +1765,60 @@ export namespace main {
 	        this.continut = source["continut"];
 	        this.cale = source["cale"];
 	        this.anulat = source["anulat"];
+	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class StareLuna {
+	    an: number;
+	    luna: number;
+	    stare: string;
+	    modificat_la: string;
+	    modificat_de: string;
+	    motiv: string;
+
+	    static createFrom(source: any = {}) {
+	        return new StareLuna(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.an = source["an"];
+	        this.luna = source["luna"];
+	        this.stare = source["stare"];
+	        this.modificat_la = source["modificat_la"];
+	        this.modificat_de = source["modificat_de"];
+	        this.motiv = source["motiv"];
+	    }
+	}
+	export class RaspunsStareLuna {
+	    stare: StareLuna;
+	    eroare?: MesajEroare;
+
+	    static createFrom(source: any = {}) {
+	        return new RaspunsStareLuna(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.stare = this.convertValues(source["stare"], StareLuna);
 	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
 	    }
 

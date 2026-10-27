@@ -82,3 +82,24 @@ func (a *App) raspunsSchita(an, luna int, err error) RaspunsSchita {
 	}
 	return RaspunsSchita{Schita: &schita}
 }
+
+type RaspunsStareLuna struct {
+	Stare  datebaza.StareLuna `json:"stare"`
+	Eroare *MesajEroare       `json:"eroare,omitempty"`
+}
+
+func (a *App) CitesteStareLuna(an, luna int) RaspunsStareLuna {
+	st, err := datebaza.Nou(a.db).CitesteStareLuna(a.contextLucru(), an, luna)
+	if err != nil {
+		return RaspunsStareLuna{Eroare: mesajPontaj(err)}
+	}
+	return RaspunsStareLuna{Stare: st}
+}
+
+func (a *App) SeteazaStareLuna(an, luna int, stare, motiv string) RaspunsStareLuna {
+	st, err := datebaza.Nou(a.db).SeteazaStareLuna(a.contextLucru(), an, luna, stare, motiv, "Utilizator")
+	if err != nil {
+		return RaspunsStareLuna{Eroare: mesajPontaj(err)}
+	}
+	return RaspunsStareLuna{Stare: st}
+}

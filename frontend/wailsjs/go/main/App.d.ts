@@ -38,6 +38,8 @@ export function CitestePlanificatVsRealizat(arg1:number,arg2:number):Promise<mai
 
 export function CitesteSchita(arg1:number,arg2:number):Promise<main.RaspunsSchita>;
 
+export function CitesteStareLuna(arg1:number,arg2:number):Promise<main.RaspunsStareLuna>;
+
 export function CompleteazaSarbatori2026():Promise<main.RaspunsCalendar>;
 
 export function CompleteazaSarbatoriAn(arg1:number):Promise<main.RaspunsCalendar>;
@@ -117,5 +119,7 @@ export function SchimbaActivAngajatiLot(arg1:Array<string>,arg2:boolean):Promise
 export function SchimbaActivSchimb(arg1:string,arg2:boolean):Promise<main.RaspunsSchimburi>;
 
 export function SeteazaAutoPornireAI(arg1:boolean):Promise<boolean>;
+
+export function SeteazaStareLuna(arg1:number,arg2:number,arg3:string,arg4:string):Promise<main.RaspunsStareLuna>;
 
 export function StareAI():Promise<main.RaspunsStareAI>;

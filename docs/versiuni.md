@@ -4,6 +4,20 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.51.0 · 2026-10-27
+
+Închiderea și blocarea lunii la editare (F12-T01).
+
+- **Persistență stare luni calendaristice (Migrarea 0019 `stare_luni`):** Adăugat tabelul `stare_luni` cu câmpurile `an`, `luna`, `stare` (`DESCHISA`, `BLOCATA`, `INCHISA`), `modificat_la`, `modificat_de`, `motiv`.
+- **Protecție strictă împotriva modificărilor (`SalveazaSchita`, `SalveazaPlanificare`):** Backend-ul verifică starea lunii înainte de salvare (`EsteLunaInchisa`). Dacă luna este `INCHISA` sau `BLOCATA`, orice încercare de editare este respinsă tranzacțional cu eroarea explicită `pontaj.luna_inchisa`.
+- **Semnalizare vizuală și comenzi administrative (`Pontaj.tsx`, `style.css`):**
+  * Banner de avertizare stilizat `banner-luna-blocata` cu pictograma 🔒, afișând mesajul „Lună blocată la editare (Transmis la salarii)” și buton rapid de redeschidere.
+  * Buton de comutare a stării în antet („🔒 Închide luna (salarii)” / „🔓 Redeschide luna”) protejat prin dialog nativ de confirmare.
+  * Dezactivare automată a aplicării celulelor și a butonului de salvare când luna este închisă.
+- **Teste unitare și de integrare:** Adăugate `TestStareLunaSiBlocareEditare` în `internal/datebaza/inchidere_test.go` și `TestAppStareLuna` în `app_pontaj_test.go`.
+
+Baza de date: migrarea 0019 adaugă tabelul `stare_luni`. Rapoarte: nicio schimbare.
+
 ## 0.50.0 · 2026-10-27
 
 Export Excel nativ (.xlsx via excelize) al foii colective de pontaj și centralizatorului pentru salarizare (F10-T02).

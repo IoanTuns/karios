@@ -1,6 +1,6 @@
 import {useEffect, useLayoutEffect, useMemo, useRef, useState, type ClipboardEvent, type KeyboardEvent, type RefObject} from 'react';
 import {useTranslation} from 'react-i18next';
-import {CitesteCalendar, CitesteSchita, ListaSchimburi, SalveazaSchita, PrevizualizeazaSchita, PrevizualizeazaPrecompletare, ExportaPontajExcel} from '../wailsjs/go/main/App';
+import {CitesteCalendar, CitesteSchita, ListaSchimburi, SalveazaSchita, PrevizualizeazaSchita, PrevizualizeazaPrecompletare, ExportaPontajExcel, CitesteStareLuna, SeteazaStareLuna} from '../wailsjs/go/main/App';
 import {calcul, datebaza} from '../wailsjs/go/models';
 import {Dialog, denumireSectie, denumireDepartament} from './Formulare';
 import {programPlanificat} from './Planificare';
@@ -188,6 +188,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
     }
 
     function aplicaCelule(celule: {rand: number; zi: number; text: string}[]) {
+        if (lunaBlocata) { setEroare(t('pontaj.luna_inchisa')); return; }
         if (celule.some(c => !randuri[c.rand] || !zile[c.zi] || Array.from(c.text).length > 16 || /[\0\t\r\n]/.test(c.text))) { setEroare(t('pontaj.lipire_invalida')); return; }
         if (celule.some(c => absente.has(cheie(randuri[c.rand].id,zile[c.zi])))) { setEroare(t('absente.celula_protejata')); return; }
         for(const c of celule){
@@ -334,7 +335,35 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
     }
 
     function poateAbandona() { return !modificari.size || window.confirm(t('ui.renunta')); }
+    const lunaBlocata = schita?.stare === 'INCHISA' || schita?.stare === 'BLOCATA';
+
+    async function comutaStareLuna() {
+        if (!schita || ocupat) return;
+        const esteInchisa = schita.stare === 'INCHISA' || schita.stare === 'BLOCATA';
+        const mesajConfirmare = esteInchisa
+            ? t('pontaj.confirmare_redeschidere')
+            : t('pontaj.confirmare_inchidere');
+        if (!window.confirm(mesajConfirmare)) return;
+
+        setOcupat(true); onOcupat(true); setEroare(''); setMesaj('');
+        const nouaStare = esteInchisa ? 'DESCHISA' : 'INCHISA';
+        try {
+            const resp = await SeteazaStareLuna(an, luna, nouaStare, esteInchisa ? 'Redeschidere utilizator' : 'Închidere lună salarizare');
+            if (resp.eroare) {
+                setEroare(t(resp.eroare.cod, resp.eroare.param ?? {}));
+            } else {
+                setSchita(prev => prev ? new datebaza.SchitaLuna({...prev, stare: resp.stare.stare}) : null);
+                setMesaj(esteInchisa ? 'Luna a fost redeschisă pentru editare.' : 'Luna a fost închisă cu succes.');
+            }
+        } catch {
+            setEroare(t('date.eroare'));
+        } finally {
+            setOcupat(false); onOcupat(false);
+        }
+    }
+
     async function salveaza() {
+        if (lunaBlocata) { setEroare(t('pontaj.luna_inchisa')); return; }
         if (blocat.current) return;
         blocat.current = true; setOcupat(true); onOcupat(true); setEroare(''); setMesaj('');
         try {
@@ -419,7 +448,20 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                 {Array.from({length: 12}, (_, i) => <option key={i} value={i + 1}>{new Intl.DateTimeFormat(i18n.language, {month: 'long', timeZone: 'UTC'}).format(new Date(`2026-${String(i + 1).padStart(2, '0')}-01T12:00:00Z`))}</option>)}
             </select></label>
             <button type="button" className="buton secundar buton-luna-nav" aria-label={t('pontaj.luna_urmatoare')} disabled={ocupat} onClick={() => schimbaLunaRelativ(1)}>▶</button></form>
-            <button className="buton primar" disabled={ocupat || incarcare || !modificari.size} onClick={salveaza}>{t(ocupat ? 'ui.salvare' : 'pontaj.salveaza')}</button></div>
+            <button className="buton primar" disabled={ocupat || incarcare || !modificari.size || lunaBlocata} onClick={salveaza}>{t(ocupat ? 'ui.salvare' : 'pontaj.salveaza')}</button>
+            <button type="button" className="buton secundar" title={lunaBlocata ? t('pontaj.redeschide_luna') : t('pontaj.inchide_luna')} disabled={ocupat || incarcare} onClick={comutaStareLuna}>{lunaBlocata ? `🔓 ${t('pontaj.redeschide_luna')}` : `🔒 ${t('pontaj.inchide_luna')}`}</button></div>
+        {lunaBlocata && (
+            <div className="banner-luna-blocata" role="alert">
+                <span className="simbol-lacat">🔒</span>
+                <div>
+                    <strong>{t('pontaj.stare_luna_inchisa_titlu')}</strong>
+                    <p>{t('pontaj.stare_luna_inchisa_descriere')}</p>
+                </div>
+                <button type="button" className="buton secundar mic" disabled={ocupat} onClick={comutaStareLuna}>
+                    🔓 {t('pontaj.redeschide_luna')}
+                </button>
+            </div>
+        )}
         {eroare && <div className="mesaj eroare" role="alert">{eroare}</div>}{mesaj && <div className="mesaj succes" role="status">{mesaj}</div>}
         {incarcare ? <p role="status">{t('ui.incarcare')}</p> : !schita ? <button className="buton secundar" onClick={() => setReincarcare(x => x + 1)}>{t('ui.reincearca')}</button> : <>
             <div className="unelte-grila" ref={unelte} onKeyDown={e => {
