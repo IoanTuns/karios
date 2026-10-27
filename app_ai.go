@@ -36,6 +36,9 @@ func (a *App) folderAI() string {
 			return foldere.AI
 		}
 	}
+	if filepath.Base(radacina) == portabil.NumeFolderDate {
+		return filepath.Join(radacina, "ai")
+	}
 	return filepath.Join(radacina, portabil.NumeFolderDate, "ai")
 }
 

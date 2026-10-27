@@ -44,4 +44,11 @@ func TestAppAutoPornireAI(t *testing.T) {
 	if stare.Stare.Instalat {
 		t.Fatalf("folderul gol nu trebuia să fie marcat ca instalat")
 	}
+
+	// Verificare că nu dublează folderul karios (karios/karios/ai)
+	a2 := &App{radacina: filepath.Join(tempDir, "karios")}
+	asteptat := filepath.Join(tempDir, "karios", "ai")
+	if a2.folderAI() != asteptat {
+		t.Fatalf("folderAI incorect: primit %s, așteptat %s", a2.folderAI(), asteptat)
+	}
 }

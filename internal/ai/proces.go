@@ -88,8 +88,8 @@ func (m *Manager) Porneste(ctx context.Context, numeModel string) error {
 	m.cmd = cmd
 	m.model = caleModel
 
-	// Așteaptă până când serverul răspunde la /health (până la 15 secunde)
-	timeout := time.After(15 * time.Second)
+	// Așteaptă până când serverul răspunde la /health (până la 45 secunde)
+	timeout := time.After(45 * time.Second)
 	ticker := time.NewTicker(250 * time.Millisecond)
 	defer ticker.Stop()
 

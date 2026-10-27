@@ -4,6 +4,16 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.39.0 · 2026-10-27
+
+Corectare cale rezoluție folder local AI portabil și extindere timeout inițializare (F14-T02, F14-T05, D042).
+
+- **Corectare rezoluție cale `karios/ai/` (`app_ai.go`):** Eliminat dublarea numelui de folder `karios` (`karios/karios/ai`) care apărea când `app.radacina` conținea deja calea folderului de date portabil; asistentul scanează acum corect folderul `karios/ai/` de lângă executabil.
+- **Extindere timeout inițializare motor AI:** Crescut timeout-ul de pornire la 45 secunde în `internal/ai/proces.go` pentru a permite încărcarea fluentă în memoria RAM a modelelor LLM mari (GGUF ~2 GB+).
+- **Test de regresie:** Adăugată verificare automată în `app_ai_test.go` împotriva dublării segmentului de cale portabilă.
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
 ## 0.38.0 · 2026-10-27
 
 Compilare nativă llama.cpp pe Windows cu toolchain portabil și integrare în procesul de Deploy (F14-T06, D042).
