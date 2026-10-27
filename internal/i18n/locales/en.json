@@ -569,6 +569,7 @@
   "pontaj.paleta_rapida": "Quick apply:",
   "pontaj.sterge_selectia": "Clear",
   "absente.sectiune_toate": "All sections",
+  "absente.sectiune_gantt": "Timeline (Gantt)",
   "absente.sectiune_zile": "Recorded days",
   "absente.sectiune_sumar": "Employee summary",
   "absente.sectiune_tipuri": "Absence types",

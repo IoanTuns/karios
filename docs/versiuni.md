@@ -4,6 +4,22 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.52.0 · 2026-10-27
+
+Grafic Gantt anual de concedii și vizualizare panoramică a absențelor (F08-T05 / Lot 6).
+
+- **Vizualizare panoramică și zoom lunar (`PanouGanttAbsente` în `GanttAbsente.tsx`, `Absente.tsx`):**
+  * Modul Gantt integrat direct în ecranul de Concedii și absențe, accesibil prin fila dedicată „Cronologie (Gantt)”.
+  * Oferă două moduri de afișare: **Panoramă anuală (12 luni)** pentru o perspectivă macro asupra distribuției concediilor și **Lună detaliată (zilele 1..31)** pentru inspecția detaliată a fiecărei zile lucrătoare și de weekend.
+  * Grupează automat zilele consecutive în intervale continue per angajat, colorate conform categoriei legale (Odihnă = verde, Medical = portocaliu/roșu, Special = albastru).
+- **Detector automat de suprapuneri critice pe departament (Overlap Engine):**
+  * Algoritmul identifică în timp real situațiile în care doi sau mai mulți colegi din același departament sunt în concediu în aceleași zile.
+  * Afișează caseta de avertisment cu posturile afectate, intervalele critice și numele colegilor implicați.
+  * Evidențiază vizual zilele cu deficit de personal prin etichete galbene/portocalii în antetul coloanei și în celule.
+- **Carduri sintetice și filtrare pe departament:** Total intervale înregistrate, număr de suprapuneri identificate și filtru rapid `[ ] Doar angajați cu suprapuneri`.
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
 ## 0.51.0 · 2026-10-27
 
 Închiderea și blocarea lunii la editare (F12-T01).
