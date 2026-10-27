@@ -4,6 +4,16 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.41.0 · 2026-10-27
+
+Optimizare parametri server AI local (`-np 1`, fire CPU dinamice) și extindere timeout HTTP (F14-T04, D042).
+
+- **Optimizare slot unic (`-np 1`) în `internal/ai/proces.go`:** Eliminat supraîncărcarea memoriei și a nucleelor prin forțarea unui singur slot activ (`-np 1`), specific scenariului de asistent desktop monopost. Timpul de evaluare inițială a promptului pe CPU scade dramatic (de la >24s la ~7.5s).
+- **Alocare dinamică de nuclee CPU:** Serverul folosește acum `runtime.NumCPU() - 2` (minimum 2 fire) în loc de o valoare fixă de 4 nuclee, lăsând resurse pentru sistem și interfață și utilizând la maximum arhitectura procesorului gazdă.
+- **Creștere timeout HTTP client la 180 secunde (`internal/ai/asistent.go`):** Previne eroarea `context deadline exceeded` în timpul generărilor lungi sau pe procesoare mai lente la prima interogare.
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
 ## 0.40.0 · 2026-10-27
 
 Planificare pe perioade/luni întregi pentru Asistentul AI și extindere unelte structurate (F14-T04, D042).

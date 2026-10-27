@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"sync"
 	"time"
 )
@@ -65,17 +66,29 @@ func (m *Manager) Porneste(ctx context.Context, numeModel string) error {
 		caleModel = filepath.Join(m.folder, numeModel)
 	}
 
-	// Argumente pentru llama-server:
+	// Calculăm numărul optim de fire CPU pentru inferență
+	nrFire := runtime.NumCPU()
+	if nrFire > 2 {
+		nrFire -= 2
+	}
+	if nrFire < 2 {
+		nrFire = 2
+	}
+
+	// Argumente optime pentru llama-server pe mașină desktop (D042):
 	// -m: calea către fișierul GGUF
 	// --port: portul de ascultare
 	// --host: strict 127.0.0.1 (fără ascultare în rețea)
 	// -c 4096: lungime context tokens
+	// -np 1: un singur slot pentru a maximiza viteza de inferență și a evita fragmentarea memoriei
+	// --threads: numărul optim de nuclee alocate
 	args := []string{
 		"-m", caleModel,
 		"--host", "127.0.0.1",
 		"--port", fmt.Sprintf("%d", m.port),
 		"-c", "4096",
-		"--threads", "4",
+		"-np", "1",
+		"--threads", fmt.Sprintf("%d", nrFire),
 	}
 
 	cmd := exec.Command(stare.CaleBinar, args...)

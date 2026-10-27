@@ -71,7 +71,7 @@ func NouClient(port int) *Client {
 	return &Client{
 		baseURL: fmt.Sprintf("http://127.0.0.1:%d", port),
 		httpClient: &http.Client{
-			Timeout: 120 * time.Second,
+			Timeout: 180 * time.Second,
 		},
 	}
 }
