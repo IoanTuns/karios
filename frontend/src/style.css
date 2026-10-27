@@ -53,6 +53,12 @@ h2 { font-size: 18px; font-weight: 600; margin: 0 0 11px; letter-spacing: -.3px;
 .indicator:nth-child(3) .accent-indicator { background: #cdb98d; }
 .panou { background: #fff; border: 1px solid var(--linie); border-radius: 10px; }
 .lista-angajati { overflow: hidden; }
+.bara-actiuni-lot { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 18px; background: #e8f5e9; border-bottom: 1px solid #c8e6c9; flex-wrap: wrap; }
+.numar-selectati { font-size: 13px; color: #1b5e20; font-weight: 600; }
+.grup-comenzi-lot { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.eticheta-lot { font-size: 12px; color: #2e7d32; font-weight: 500; }
+.coloana-selectie { width: 38px; text-align: center !important; padding: 0 8px !important; }
+.coloana-selectie input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: var(--verde); margin: 0; }
 .unelte { padding: 18px; display: flex; align-items: center; gap: 10px; }
 input, select { min-height: 39px; border: 1px solid #d6dfd9; border-radius: 6px; padding: 9px 11px; background: #fff; color: #2c4540; font-size: 13px; }
 input::placeholder { color: #65756c; }

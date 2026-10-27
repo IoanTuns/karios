@@ -258,3 +258,63 @@ func TestSectiiTraductibile(t *testing.T) {
 		t.Fatal("secție neatribuită")
 	}
 }
+
+func TestAtribuieCategorieProgramLot(t *testing.T) {
+	m := pregateste(t)
+	ctx := context.Background()
+
+	// Salvăm o categorie
+	cat := CategorieProgram{
+		Denumire:    i18n.Text{i18n.Romana: "Ture normale"},
+		SchimburiID: []string{"10000000-0000-4000-8000-000000000001"},
+		Activ:       true,
+	}
+	if err := m.serviciu.SalveazaCategorieProgram(ctx, cat); err != nil {
+		t.Fatal(err)
+	}
+	dInit := citeste(t, m.serviciu)
+	if len(dInit.CategoriiProgram) == 0 {
+		t.Fatalf("nu s-au găsit categorii după salvare")
+	}
+	catID := dInit.CategoriiProgram[0].ID
+
+	// Salvăm doi angajați
+	a1 := angajatTest("01")
+	a2 := angajatTest("02")
+	if err := m.serviciu.SalveazaAngajat(ctx, a1); err != nil {
+		t.Fatal(err)
+	}
+	if err := m.serviciu.SalveazaAngajat(ctx, a2); err != nil {
+		t.Fatal(err)
+	}
+
+	d := citeste(t, m.serviciu)
+	id1, id2 := d.Angajati[0].ID, d.Angajati[1].ID
+
+	// Atribuire în masă
+	if err := m.serviciu.AtribuieCategorieProgramLot(ctx, []string{id1, id2}, catID); err != nil {
+		t.Fatalf("eroare la atribuire lot: %v", err)
+	}
+
+	d2 := citeste(t, m.serviciu)
+	for _, a := range d2.Angajati {
+		if a.ID == id1 || a.ID == id2 {
+			if a.CategorieProgramID != catID {
+				t.Errorf("angajatul %s nu are categoria atribuită: %s", a.Marca, a.CategorieProgramID)
+			}
+		}
+	}
+
+	// Schimbare activ în masă
+	if err := m.serviciu.SchimbaActivLot(ctx, []string{id1, id2}, false); err != nil {
+		t.Fatalf("eroare la schimba activ lot: %v", err)
+	}
+	d3 := citeste(t, m.serviciu)
+	for _, a := range d3.Angajati {
+		if a.ID == id1 || a.ID == id2 {
+			if a.Activ {
+				t.Errorf("angajatul %s trebuia să fie inactiv", a.Marca)
+			}
+		}
+	}
+}

@@ -22,6 +22,10 @@ export function AplicaPropunereAI(arg1) {
   return window['go']['main']['App']['AplicaPropunereAI'](arg1);
 }
 
+export function AtribuieCategorieProgramLot(arg1, arg2) {
+  return window['go']['main']['App']['AtribuieCategorieProgramLot'](arg1, arg2);
+}
+
 export function Catalog(arg1) {
   return window['go']['main']['App']['Catalog'](arg1);
 }
@@ -200,6 +204,10 @@ export function SalveazaTipAbsenta(arg1, arg2, arg3) {
 
 export function SchimbaActivAngajat(arg1, arg2) {
   return window['go']['main']['App']['SchimbaActivAngajat'](arg1, arg2);
+}
+
+export function SchimbaActivAngajatiLot(arg1, arg2) {
+  return window['go']['main']['App']['SchimbaActivAngajatiLot'](arg1, arg2);
 }
 
 export function SchimbaActivSchimb(arg1, arg2) {

@@ -65,6 +65,14 @@ func (a *App) SchimbaActivAngajat(id string, activ bool) RaspunsDate {
 	return a.raspunsDate(datebaza.Nou(a.db).SchimbaActiv(a.contextLucru(), id, activ))
 }
 
+func (a *App) AtribuieCategorieProgramLot(angajatIDs []string, categorieID string) RaspunsDate {
+	return a.raspunsDate(datebaza.Nou(a.db).AtribuieCategorieProgramLot(a.contextLucru(), angajatIDs, categorieID))
+}
+
+func (a *App) SchimbaActivAngajatiLot(ids []string, activ bool) RaspunsDate {
+	return a.raspunsDate(datebaza.Nou(a.db).SchimbaActivLot(a.contextLucru(), ids, activ))
+}
+
 func (a *App) SalveazaNormaIntreaga(minute int64) RaspunsDate {
 	return a.raspunsDate(datebaza.Nou(a.db).SalveazaNorma(a.contextLucru(), minute))
 }

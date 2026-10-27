@@ -1,6 +1,6 @@
 import {useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {AdaugaDepartament, AdaugaSectie, DateInitiale, IncarcaDemo, Informatii, SalveazaAngajat, SalveazaCategorieProgram, SalveazaNormaIntreaga, SchimbaActivAngajat} from '../wailsjs/go/main/App';
+import {AdaugaDepartament, AdaugaSectie, AtribuieCategorieProgramLot, DateInitiale, IncarcaDemo, Informatii, SalveazaAngajat, SalveazaCategorieProgram, SalveazaNormaIntreaga, SchimbaActivAngajat} from '../wailsjs/go/main/App';
 import {datebaza, main} from '../wailsjs/go/models';
 import {DialogDemo, FormularAngajat, Setari, durata, denumireSectie, denumireDepartament} from './Formulare';
 import {DialogImportAngajati} from './ImportDialogs';
@@ -56,6 +56,8 @@ function App() {
     const [editare, setEditare] = useState<datebaza.Angajat | null>(null);
     const [demo, setDemo] = useState(false);
     const [importAngajati, setImportAngajati] = useState(false);
+    const [selectati, setSelectati] = useState<string[]>([]);
+    const [categorieLot, setCategorieLot] = useState<string>('');
     const [pontajModificat, setPontajModificat] = useState(false);
     const [pontajOcupat, setPontajOcupat] = useState(false);
     const contextPontaj = useRef<ContextPontaj | null>(null);
@@ -208,13 +210,82 @@ function App() {
                             <select aria-label={t('ui.departament')} value={departament} onChange={e => setDepartament(e.target.value)}><option value="">{t('ui.toate_departamentele')}</option>
                                 {(date.departamente ?? []).filter(d => !sectie || d.sectie_id === sectie).map(d => <option key={d.id} value={d.id}>{!sectie ? `${sectiePentru(d.sectie_id)} / ` : ''}{denumireDepartament(d, i18n.language)}</option>)}</select>
                         </div>
+                        {selectati.length > 0 && (
+                            <div className="bara-actiuni-lot" role="region" aria-label={t('ui.actiuni_lot')}>
+                                <span className="numar-selectati"><strong>{t('ui.selectati_numar', {numar: selectati.length})}</strong></span>
+                                <div className="grup-comenzi-lot">
+                                    <span className="eticheta-lot">{t('ui.atribuie_categorie_lot')}:</span>
+                                    <select
+                                        aria-label={t('ui.atribuie_categorie_lot')}
+                                        value={categorieLot}
+                                        onChange={e => setCategorieLot(e.target.value)}
+                                    >
+                                        <option value="">{t('ui.fara_categorie_program')}</option>
+                                        {(date.categorii_program ?? []).filter(c => c.activ).map(c => (
+                                            <option key={c.id} value={c.id}>
+                                                {c.denumire[i18n.language] || c.denumire.ro}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <button
+                                        type="button"
+                                        className="buton primar mic"
+                                        disabled={ocupat}
+                                        onClick={async () => {
+                                            const ok = await executa(() => AtribuieCategorieProgramLot(selectati, categorieLot), 'ui.categorie_lot_aplicata');
+                                            if (ok) setSelectati([]);
+                                        }}
+                                    >
+                                        {t('ui.aplica_categorie_lot')}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="buton secundar mic"
+                                        disabled={ocupat}
+                                        onClick={() => setSelectati([])}
+                                    >
+                                        {t('ui.deselecteaza_tot')}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                         {lista.length === 0 ? <div className="stare-goala">
                             <span className="simbol-gol" aria-hidden="true"><Simbol tip="angajati"/></span>
                             <h2>{t('ui.gol_titlu')}</h2><p>{t('ui.gol_descriere')}</p>
                             {date.demo_disponibil && <button className="buton secundar" disabled={ocupat} onClick={() => { setEroare(''); setDemo(true); }}>{t('ui.demo')}</button>}
                         </div> : <div className="tabel-derulant"><table>
-                            <thead><tr>{['angajat', 'marca', 'sectie', 'departament', 'contract', 'norma', 'concediu', 'stare', 'actiuni'].map(c => <th key={c} scope="col">{t(`ui.${c}`)}</th>)}</tr></thead>
-                            <tbody>{vizibili.map(a => <tr key={a.id} className={a.activ ? '' : 'rand-inactiv'}>
+                            <thead><tr>
+                                <th scope="col" className="coloana-selectie">
+                                    <input
+                                        type="checkbox"
+                                        aria-label={t('ui.selecteaza_toti')}
+                                        checked={vizibili.length > 0 && vizibili.every(a => selectati.includes(a.id))}
+                                        onChange={e => {
+                                            if (e.target.checked) {
+                                                setSelectati(Array.from(new Set([...selectati, ...vizibili.map(a => a.id)])));
+                                            } else {
+                                                setSelectati(selectati.filter(id => !vizibili.some(a => a.id === id)));
+                                            }
+                                        }}
+                                    />
+                                </th>
+                                {['angajat', 'marca', 'sectie', 'departament', 'contract', 'norma', 'concediu', 'stare', 'actiuni'].map(c => <th key={c} scope="col">{t(`ui.${c}`)}</th>)}
+                            </tr></thead>
+                            <tbody>{vizibili.map(a => <tr key={a.id} className={`${a.activ ? '' : 'rand-inactiv'} ${selectati.includes(a.id) ? 'rand-selectat' : ''}`}>
+                                <td className="coloana-selectie">
+                                    <input
+                                        type="checkbox"
+                                        aria-label={t('ui.selecteaza_angajat', {nume: `${a.nume} ${a.prenume}`})}
+                                        checked={selectati.includes(a.id)}
+                                        onChange={e => {
+                                            if (e.target.checked) {
+                                                setSelectati([...selectati, a.id]);
+                                            } else {
+                                                setSelectati(selectati.filter(id => id !== a.id));
+                                            }
+                                        }}
+                                    />
+                                </td>
                                 <td><div className="identitate"><span className="avatar" aria-hidden="true">{a.prenume.charAt(0)}{a.nume.charAt(0)}</span>
                                     <span><strong>{a.nume} {a.prenume}</strong>{a.functie && <small>{a.functie}</small>}</span></div></td>
                                 <td className="marca-angajat">{a.marca}</td><td>{sectiePentru(a.sectie_id)}</td><td>{departamentPentru(a.departament_id)}</td>

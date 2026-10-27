@@ -4,6 +4,18 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.48.0 · 2026-10-27
+
+Atribuire în masă (bulk) a categoriilor de program pe selecție multiplă de angajați (F07-T15 / I055).
+
+- **Selecție multiplă în tabelul de angajați (`App.tsx`):** Adăugată coloană dedicată cu casete de bifare (checkboxes) per angajat și selector global „Selectează toți angajații vizibili” în antetul tabelului.
+- **Bară de comenzi rapide pentru loturi (`bara-actiuni-lot` în `App.tsx`, `style.css`):** La selectarea unuia sau mai multor angajați, apare automat bara contextuală care afișează numărul de angajați selectați, selectorul categoriilor de program definite (cu opțiune de eliminare a categoriei), butonul de aplicare în masă și butonul de deselectare.
+- **Operații backend optimizate (`internal/datebaza/date.go`, `app_date.go`):** Implementate metodele `AtribuieCategorieProgramLot` și `SchimbaActivLot` care actualizează atomic în baza de date categoria de program sau starea activ/inactiv pentru o listă de ID-uri, cu înregistrarea completă a modificărilor în jurnalul de audit (`jurnal_modificari`).
+- **Traduceri complete:** Adăugate cheile `ui.actiuni_lot`, `ui.selectati_numar`, `ui.atribuie_categorie_lot`, `ui.fara_categorie_program`, `ui.aplica_categorie_lot`, `ui.deselecteaza_tot`, `ui.selecteaza_toti`, `ui.categorie_lot_aplicata` în română și engleză.
+- **Teste unitare și de integrare:** Adăugat `TestAtribuieCategorieProgramLot` în `internal/datebaza/date_test.go` și `TestAppAtribuieCategorieProgramLot` în `app_date_test.go`.
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
 ## 0.47.0 · 2026-10-27
 
 Comenzi analitice și interogări de sinteză în Asistentul AI (F14-T07, D042).

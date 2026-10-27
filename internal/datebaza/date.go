@@ -226,6 +226,83 @@ func (s *Serviciu) SchimbaActiv(ctx context.Context, id string, activ bool) erro
 	})
 }
 
+func (s *Serviciu) AtribuieCategorieProgramLot(ctx context.Context, angajatIDs []string, categorieID string) error {
+	categorieID = strings.TrimSpace(categorieID)
+	return s.modifica(ctx, func(q *acces.Queries) error {
+		if categorieID != "" {
+			if _, err := q.CitesteCategorieProgram(ctx, categorieID); err != nil {
+				return eroare("program.categorie_invalida")
+			}
+		}
+		for _, id := range angajatIDs {
+			id = strings.TrimSpace(id)
+			if id == "" {
+				continue
+			}
+			vechi, err := q.CitesteAngajat(ctx, id)
+			if err != nil {
+				return err
+			}
+			catVal := textOptional(categorieID)
+			n, err := q.ModificaAngajat(ctx, acces.ModificaAngajatParams{
+				ID:                  vechi.ID,
+				Nume:                vechi.Nume,
+				Prenume:             vechi.Prenume,
+				Marca:               vechi.Marca,
+				Functie:             vechi.Functie,
+				SectieID:            vechi.SectieID,
+				DepartamentID:       vechi.DepartamentID,
+				CategorieProgramID:  catVal,
+				TipContract:         vechi.TipContract,
+				NormaPartialaMinute: vechi.NormaPartialaMinute,
+				ConcediuZileAn:      vechi.ConcediuZileAn,
+				Activ:               vechi.Activ,
+				ModificatLa:         moment(),
+			})
+			if err != nil {
+				return err
+			}
+			if n != 1 {
+				return sql.ErrNoRows
+			}
+			nou, err := q.CitesteAngajat(ctx, id)
+			if err != nil {
+				return err
+			}
+			if err := jurnal(ctx, q, "angajati", id, vechi, nou); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+}
+
+func (s *Serviciu) SchimbaActivLot(ctx context.Context, ids []string, activ bool) error {
+	return s.modifica(ctx, func(q *acces.Queries) error {
+		for _, id := range ids {
+			id = strings.TrimSpace(id)
+			if id == "" {
+				continue
+			}
+			vechi, err := q.CitesteAngajat(ctx, id)
+			if err != nil {
+				return err
+			}
+			if _, err := q.SchimbaActivAngajat(ctx, acces.SchimbaActivAngajatParams{ID: id, Activ: numarBool(activ), ModificatLa: moment()}); err != nil {
+				return err
+			}
+			nou, err := q.CitesteAngajat(ctx, id)
+			if err != nil {
+				return err
+			}
+			if err := jurnal(ctx, q, "angajati", id, vechi, nou); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+}
+
 func (s *Serviciu) SalveazaNorma(ctx context.Context, minute int64) error {
 	if minute < 1 || minute > 1440 {
 		return eroare("date.norma_invalida")

@@ -16,6 +16,8 @@ export function AnalizeazaImportSarbatori(arg1:string,arg2:string):Promise<main.
 
 export function AplicaPropunereAI(arg1:main.CerereAplicaPropunereAI):Promise<main.RaspunsAplicaPropunereAI>;
 
+export function AtribuieCategorieProgramLot(arg1:Array<string>,arg2:string):Promise<main.RaspunsDate>;
+
 export function Catalog(arg1:string):Promise<Record<string, string>>;
 
 export function CitesteAbsente(arg1:number):Promise<main.RaspunsAbsente>;
@@ -105,6 +107,8 @@ export function SalveazaSchita(arg1:number,arg2:number,arg3:Array<datebaza.Celul
 export function SalveazaTipAbsenta(arg1:string,arg2:datebaza.TipAbsenta,arg3:number):Promise<main.RaspunsAbsente>;
 
 export function SchimbaActivAngajat(arg1:string,arg2:boolean):Promise<main.RaspunsDate>;
+
+export function SchimbaActivAngajatiLot(arg1:Array<string>,arg2:boolean):Promise<main.RaspunsDate>;
 
 export function SchimbaActivSchimb(arg1:string,arg2:boolean):Promise<main.RaspunsSchimburi>;
 
