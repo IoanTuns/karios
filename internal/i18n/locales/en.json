@@ -383,6 +383,7 @@
   "ai.mesaj_bun_venit": "Hello! I am your local Pontix assistant. I can help with shift scheduling, assigning on-call duties, and coverage verification. How can I help you today?",
   "ai.autopornire": "Autostart on launch",
   "ai.autopornire_descriere": "Automatically start local AI engine in the background when Pontix launches if files are present.",
+  "ai.eroare_generare": "Error processing AI command: {{detalii}}",
   "ui.angajati": "Employees",
   "ui.setari": "Settings",
   "ui.setari_general": "General",

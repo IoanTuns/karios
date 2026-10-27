@@ -383,6 +383,7 @@
   "ai.mesaj_bun_venit": "Bună! Sunt asistentul tău local Pontix. Te pot ajuta cu planificarea gărzilor, atribuirea schimburilor și verificarea acoperirii. Cum te pot ajuta astăzi?",
   "ai.autopornire": "Pornire automată la lansare",
   "ai.autopornire_descriere": "Pornește motorul AI automat în fundal la deschiderea aplicației Pontix dacă fișierele sunt prezente.",
+  "ai.eroare_generare": "Eroare la procesarea comenzii AI: {{detalii}}",
   "ui.angajati": "Angajați",
   "ui.setari": "Setări",
   "ui.setari_general": "General",

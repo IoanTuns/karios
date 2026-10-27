@@ -71,7 +71,7 @@ func NouClient(port int) *Client {
 	return &Client{
 		baseURL: fmt.Sprintf("http://127.0.0.1:%d", port),
 		httpClient: &http.Client{
-			Timeout: 45 * time.Second,
+			Timeout: 120 * time.Second,
 		},
 	}
 }
@@ -126,6 +126,39 @@ var definitiiUnelte = []map[string]any{
 	{
 		"type": "function",
 		"function": map[string]any{
+			"name":        "planifica_interval",
+			"description": "Planifică o tură/schimb pentru un angajat pe un interval de date, o săptămână sau toată luna dintr-o singură instrucțiune.",
+			"parameters": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"marca": map[string]any{
+						"type":        "string",
+						"description": "Numărul de marcă al angajatului sau numele identificat.",
+					},
+					"data_inceput": map[string]any{
+						"type":        "string",
+						"description": "Data de început în format AAAA-LL-ZZ (ex: 2026-10-01).",
+					},
+					"data_sfarsit": map[string]any{
+						"type":        "string",
+						"description": "Data de sfârșit în format AAAA-LL-ZZ (ex: 2026-10-31).",
+					},
+					"cod_schimb": map[string]any{
+						"type":        "string",
+						"description": "Codul schimbului (ex: Z7 pentru dimineață/zi, S7 pentru după-amiază, G24 etc.).",
+					},
+					"doar_lucratoare": map[string]any{
+						"type":        "boolean",
+						"description": "Dacă este true, tura se atribuie doar în zilele lucrătoare (luni-vineri), excluzând weekendul.",
+					},
+				},
+				"required": []string{"marca", "data_inceput", "data_sfarsit", "cod_schimb"},
+			},
+		},
+	},
+	{
+		"type": "function",
+		"function": map[string]any{
 			"name":        "sterge_tura",
 			"description": "Elimină o tură planificată a unui angajat dintr-o anumită zi.",
 			"parameters": map[string]any{
@@ -141,6 +174,31 @@ var definitiiUnelte = []map[string]any{
 					},
 				},
 				"required": []string{"marca", "data"},
+			},
+		},
+	},
+	{
+		"type": "function",
+		"function": map[string]any{
+			"name":        "sterge_interval",
+			"description": "Elimină turele planificate ale unui angajat pe o perioadă sau toată luna.",
+			"parameters": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"marca": map[string]any{
+						"type":        "string",
+						"description": "Numărul de marcă al angajatului sau numele identificat.",
+					},
+					"data_inceput": map[string]any{
+						"type":        "string",
+						"description": "Data de început în format AAAA-LL-ZZ.",
+					},
+					"data_sfarsit": map[string]any{
+						"type":        "string",
+						"description": "Data de sfârșit în format AAAA-LL-ZZ.",
+					},
+				},
+				"required": []string{"marca", "data_inceput", "data_sfarsit"},
 			},
 		},
 	},
@@ -244,6 +302,9 @@ func construiestePromptSistem(info ContextPontix) string {
 	sb.WriteString("Răspunde întotdeauna concis, politicos și în limba română (sau engleză dacă ți se cere).\n")
 	sb.WriteString("NU inventa date și NU calcula formule salariale pe cont propriu.\n")
 	sb.WriteString("Dacă utilizatorul îți cere să planifici, să modifici sau să ștergi ture, apelează uneltele puse la dispoziție.\n")
+	sb.WriteString("IMPORTANT PENTRU PERIOADE / TOATĂ LUNA:\n")
+	sb.WriteString("- Când utilizatorul cere atribuirea unei ture pe o perioadă (ex: 'toată luna', 'toată săptămâna', 'de luni până vineri'), folosește neapărat unealta `planifica_interval` sau `sterge_interval`, specificând data_inceput și data_sfarsit. NU apela `planifica_tura` de 30 de ori!\n")
+	sb.WriteString("- Pentru 'pe dimineață' sau 'dimineața', alege schimbul de dimineață disponibil (ex: Z7 sau primul schimb de zi).\n")
 	sb.WriteString(fmt.Sprintf("Anul curent de lucru: %d, Luna: %d.\n", info.An, info.Luna))
 
 	if len(info.Schimburi) > 0 {
@@ -271,11 +332,27 @@ func construiesteDescrierePropunere(numeFunctie string, args map[string]any) str
 		marca, _ := args["marca"].(string)
 		data, _ := args["data"].(string)
 		schimb, _ := args["cod_schimb"].(string)
-		return fmt.Sprintf("Planificare schimb %s pentru marca %s pe data de %s", schimb, marca, data)
+		return fmt.Sprintf("Planificare schimb %s pentru %s pe %s", schimb, marca, data)
+	case "planifica_interval":
+		marca, _ := args["marca"].(string)
+		d1, _ := args["data_inceput"].(string)
+		d2, _ := args["data_sfarsit"].(string)
+		schimb, _ := args["cod_schimb"].(string)
+		lucratoare, _ := args["doar_lucratoare"].(bool)
+		supliment := ""
+		if lucratoare {
+			supliment = " (doar zile lucrătoare L-V)"
+		}
+		return fmt.Sprintf("Planificare schimb %s pentru %s în intervalul %s – %s%s", schimb, marca, d1, d2, supliment)
 	case "sterge_tura":
 		marca, _ := args["marca"].(string)
 		data, _ := args["data"].(string)
-		return fmt.Sprintf("Ștergere tură pentru marca %s pe data de %s", marca, data)
+		return fmt.Sprintf("Ștergere tură pentru %s pe %s", marca, data)
+	case "sterge_interval":
+		marca, _ := args["marca"].(string)
+		d1, _ := args["data_inceput"].(string)
+		d2, _ := args["data_sfarsit"].(string)
+		return fmt.Sprintf("Ștergere ture pentru %s în intervalul %s – %s", marca, d1, d2)
 	default:
 		return fmt.Sprintf("Acțiune %s cu parametrii %v", numeFunctie, args)
 	}

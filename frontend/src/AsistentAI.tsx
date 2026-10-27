@@ -132,7 +132,8 @@ export function AsistentAI({date}: {date: datebaza.Date}) {
             }));
 
             if (resp.eroare) {
-                setEroare(t(resp.eroare.cod, resp.eroare.param ?? {}));
+                const textEroare = t(resp.eroare.cod, resp.eroare.param ?? {});
+                setEroare(textEroare !== resp.eroare.cod ? textEroare : (resp.eroare.param?.detalii ?? resp.eroare.cod));
             } else if (resp.raspuns) {
                 const mesajAsistent: MesajUI = {
                     id: `a_${Date.now()}`,
@@ -157,7 +158,73 @@ export function AsistentAI({date}: {date: datebaza.Date}) {
         setMesaj('');
 
         try {
-            if (propunere.tip === 'planifica_tura' || propunere.tip === 'sterge_tura') {
+            if (propunere.tip === 'planifica_interval' || propunere.tip === 'sterge_interval') {
+                const marca = String(propunere.parametri['marca'] ?? '').trim();
+                const dInceput = String(propunere.parametri['data_inceput'] ?? '').trim();
+                const dSfarsit = String(propunere.parametri['data_sfarsit'] ?? '').trim();
+                const codSchimb = propunere.tip === 'sterge_interval' ? '' : String(propunere.parametri['cod_schimb'] ?? '').trim();
+                const doarLucratoare = Boolean(propunere.parametri['doar_lucratoare']);
+
+                const angajat = date.angajati.find(a => 
+                    a.marca.toLowerCase() === marca.toLowerCase() ||
+                    `${a.nume} ${a.prenume}`.toLowerCase().includes(marca.toLowerCase()) ||
+                    `${a.prenume} ${a.nume}`.toLowerCase().includes(marca.toLowerCase()) ||
+                    marca.toLowerCase().includes(a.nume.toLowerCase())
+                );
+
+                if (!angajat) {
+                    setEroare(`Nu a fost găsit angajatul "${marca}".`);
+                    setOcupat(false);
+                    return;
+                }
+
+                const start = new Date(dInceput);
+                const end = new Date(dSfarsit);
+                const pozitii: datebaza.PozitiePlanificare[] = [];
+
+                const cur = new Date(start);
+                while (cur <= end) {
+                    const ziSapt = cur.getDay(); // 0 = duminica, 6 = sambata
+                    if (!doarLucratoare || (ziSapt !== 0 && ziSapt !== 6)) {
+                        const anStr = cur.getFullYear();
+                        const lunaStr = String(cur.getMonth() + 1).padStart(2, '0');
+                        const ziStr = String(cur.getDate()).padStart(2, '0');
+                        pozitii.push(new datebaza.PozitiePlanificare({
+                            angajat_id: angajat.id,
+                            data: `${anStr}-${lunaStr}-${ziStr}`,
+                            cod_schimb: codSchimb,
+                        }));
+                    }
+                    cur.setDate(cur.getDate() + 1);
+                }
+
+                if (pozitii.length === 0) {
+                    setEroare("Nu au fost identificate zile eligibile în intervalul solicitat.");
+                    setOcupat(false);
+                    return;
+                }
+
+                const an = start.getFullYear() || anCurent;
+                const luna = start.getMonth() + 1 || lunaCurenta;
+                const r = await SalveazaPlanificare(an, luna, pozitii);
+                if (r.eroare) {
+                    setEroare(t(r.eroare.cod, r.eroare.param ?? {}));
+                } else {
+                    setMesaj(t('ai.actiune_aplicata'));
+                    setConversatie(prev => prev.map(m => {
+                        if (m.id === mesajId) {
+                            return {
+                                ...m,
+                                propuneriAplicata: {
+                                    ...(m.propuneriAplicata ?? {}),
+                                    [propunere.id]: true,
+                                },
+                            };
+                        }
+                        return m;
+                    }));
+                }
+            } else if (propunere.tip === 'planifica_tura' || propunere.tip === 'sterge_tura') {
                 const marca = String(propunere.parametri['marca'] ?? '').trim();
                 const dataStr = String(propunere.parametri['data'] ?? '').trim();
                 const codSchimb = propunere.tip === 'sterge_tura' ? '' : String(propunere.parametri['cod_schimb'] ?? '').trim();
@@ -165,7 +232,9 @@ export function AsistentAI({date}: {date: datebaza.Date}) {
                 // Găsește ID-ul angajatului după marcă sau nume
                 const angajat = date.angajati.find(a => 
                     a.marca.toLowerCase() === marca.toLowerCase() ||
-                    `${a.nume} ${a.prenume}`.toLowerCase().includes(marca.toLowerCase())
+                    `${a.nume} ${a.prenume}`.toLowerCase().includes(marca.toLowerCase()) ||
+                    `${a.prenume} ${a.nume}`.toLowerCase().includes(marca.toLowerCase()) ||
+                    marca.toLowerCase().includes(a.nume.toLowerCase())
                 );
 
                 if (!angajat) {

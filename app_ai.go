@@ -165,7 +165,12 @@ func (a *App) InterogheazaAI(cerere CerereInterogareAI) RaspunsInterogareAI {
 	client := ai.NouClient(mgr.Port())
 	raspuns, err := client.Interogheaza(a.contextLucru(), cerere.Istoric, contextPontix)
 	if err != nil {
-		return RaspunsInterogareAI{Eroare: eroareInterfata(err)}
+		return RaspunsInterogareAI{
+			Eroare: &MesajEroare{
+				Cod:   "ai.eroare_generare",
+				Param: map[string]string{"detalii": err.Error()},
+			},
+		}
 	}
 
 	return RaspunsInterogareAI{Raspuns: &raspuns}

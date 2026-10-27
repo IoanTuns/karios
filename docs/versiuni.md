@@ -4,6 +4,18 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.40.0 · 2026-10-27
+
+Planificare pe perioade/luni întregi pentru Asistentul AI și extindere unelte structurate (F14-T04, D042).
+
+- **Unelte noi `planifica_interval` și `sterge_interval` (`internal/ai/asistent.go`):** Suport pentru atribuirea sau ștergerea turelor pe un interval de date, o săptămână sau toată luna dintr-o singură instrucțiune rapidă (1–2 secunde), eliminând generarea a 30 de apeluri repetitive și riscul de expirare timeout.
+- **Suport opțional zile lucrătoare:** Parametrul `doar_lucratoare` (Luni–Vineri) pentru programările pe intervale fără weekend.
+- **Creștere timeout comunicare HTTP:** Mărit timeout-ul clientului la 120 secunde pentru a permite generări ample pe procesor.
+- **Potrivire flexibilă angajat:** Recunoaștere în interfață după marcă, `Nume Prenume`, `Prenume Nume` sau nume de familie.
+- **Mesaje tehnice explicite:** Înlocuit mesajul generic de eroare cu detalii clare de diagnostic (`ai.eroare_generare`).
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
 ## 0.39.0 · 2026-10-27
 
 Corectare cale rezoluție folder local AI portabil și extindere timeout inițializare (F14-T02, F14-T05, D042).
