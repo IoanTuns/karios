@@ -23,4 +23,7 @@ func TestAppDetaliiDezvoltare(t *testing.T) {
 	if detalii.DetaliiLLM.FereastraContext != 8192 {
 		t.Errorf("așteptat context 8192, obținut: %d", detalii.DetaliiLLM.FereastraContext)
 	}
+	if detalii.Licenta != "Apache License 2.0 (Apache-2.0)" {
+		t.Errorf("așteptat Apache License 2.0 (Apache-2.0), obținut: %s", detalii.Licenta)
+	}
 }

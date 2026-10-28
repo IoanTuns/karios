@@ -202,6 +202,7 @@
   "aplicatie.dezvoltat_de": "Dezvoltat de {{autor}}",
   "aplicatie.autor": "Autor: {{autor}}",
   "aplicatie.toate_drepturile_rezervate": "Toate drepturile rezervate.",
+  "aplicatie.licenta_descriere": "Distribuit conform termenilor Apache License 2.0.",
   "ui.despre_titlu": "Despre Pontix & Autor",
   "ui.despre_descriere": "Informații despre versiune, autor și securitatea datelor.",
   "ui.importa": "Importă din Excel / CSV",

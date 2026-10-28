@@ -202,6 +202,7 @@
   "aplicatie.dezvoltat_de": "Developed by {{autor}}",
   "aplicatie.autor": "Author: {{autor}}",
   "aplicatie.toate_drepturile_rezervate": "All rights reserved.",
+  "aplicatie.licenta_descriere": "Distributed under the terms of the Apache License 2.0.",
   "ui.despre_titlu": "About Pontix & Author",
   "ui.despre_descriere": "Information about version, author, and data security.",
   "ui.importa": "Import from Excel / CSV",

@@ -140,7 +140,7 @@ func (a *App) DetaliiDezvoltare() DetaliiDezvoltare {
 		CaleExecutabil:    caleExe,
 		ChecksumExe:       shaExe,
 		Autor:             "Ioan Tuns",
-		Licenta:           "Proprietară / Drepturi rezervate © 2026 Ioan Tuns",
+		Licenta:           "Apache License 2.0 (Apache-2.0)",
 		Confidentialitate: "100% Offline (Date medicale și personale păstrate exclusiv local, fără cloud/telemetrie)",
 		CerinteMinime: CerinteSistem{
 			SistemOperare: "Windows 10 (versiunea 1809 sau mai nouă) / Windows 11 (64-biți)",

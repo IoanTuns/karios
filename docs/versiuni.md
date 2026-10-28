@@ -4,6 +4,21 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.57.0 · 2026-10-28
+
+Aliniere licență aplicație și UI cu licența repository-ului (Apache-2.0).
+
+- **Aliniere termen licență cu `LICENSE` din repo (`app_dezvoltare.go`, `app_dezvoltare_test.go`):**
+  * Corectat câmpul `Licenta` din raportul backend `DetaliiDezvoltare()` la `Apache License 2.0 (Apache-2.0)` conform fișierului `LICENSE` aflat la rădăcina repoului karios (anterior marcat eronat ca proprietar).
+  * Adăugat test specific de validare a licenței în `app_dezvoltare_test.go`.
+- **Actualizare UI și internaționalizare (`Formulare.tsx`, `ro.json`, `en.json`):**
+  * Afișare insignă de licență `Licență: Apache-2.0` în cardul *Despre Pontix & Autor*.
+  * Preluare dinamică a versiunii curente prin `Informatii()` pentru a preveni desincronizările.
+  * Actualizare text drepturi autor: `© 2026 Ioan Tuns · Distribuit conform termenilor Apache License 2.0.`
+  * Adăugat rând dedicat pentru `Licență Repository: Apache License 2.0 (Apache-2.0)` în fereastra modală tehnică `DialogDetaliiDezvoltare`.
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
 ## 0.56.0 · 2026-10-28
 
 Fereastră dedicată și raport complet de dezvoltare, integritate și cerințe sistem în Setări (D009, D042).

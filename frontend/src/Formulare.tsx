@@ -1,7 +1,7 @@
 import {useEffect, useRef, useState, type FormEvent, type ReactNode} from 'react';
 import {useTranslation} from 'react-i18next';
 import type {TFunction} from 'i18next';
-import {CreeazaBackup, DetaliiDezvoltare} from '../wailsjs/go/main/App';
+import {CreeazaBackup, DetaliiDezvoltare, Informatii} from '../wailsjs/go/main/App';
 import {datebaza, main} from '../wailsjs/go/models';
 
 export function durata(minute: number, t: TFunction): string {
@@ -151,7 +151,13 @@ export function Setari({date, ocupat, salveazaNorma, adaugaSectie, adaugaDeparta
     const [mesajBackup, setMesajBackup] = useState('');
     const [eroareBackup, setEroareBackup] = useState('');
     const [dialogDezvoltare, setDialogDezvoltare] = useState(false);
+    const [versiuneCurenta, setVersiuneCurenta] = useState('');
     useEffect(() => { setOre(String(date.norma_intreaga_minute / 60)); }, [date.norma_intreaga_minute]);
+    useEffect(() => {
+        let activ = true;
+        Informatii().then(info => { if (activ) setVersiuneCurenta(info.versiune); }).catch(() => {});
+        return () => { activ = false; };
+    }, []);
 
     async function trimiteNorma(e: FormEvent) {
         e.preventDefault();
@@ -214,12 +220,13 @@ export function Setari({date, ocupat, salveazaNorma, adaugaSectie, adaugaDeparta
                 <p><strong>{t('aplicatie.titlu')}</strong> — {t('aplicatie.subtitlu')}</p>
                 <div className="insigne-sumar-despre">
                     <span className="cip-info">Repo: <strong>karios</strong></span>
-                    <span className="cip-info">Versiune: <strong>v0.56.0</strong></span>
+                    <span className="cip-info">Versiune: <strong>v{versiuneCurenta || '...'}</strong></span>
+                    <span className="cip-info">Licență: <strong>Apache-2.0</strong></span>
                     <span className="cip-info">100% Offline & Local</span>
                     <span className="cip-info">Model: <strong>Qwen2.5 / llama.cpp</strong></span>
                 </div>
                 <p className="semnatura-dezvoltator-card">{t('aplicatie.dezvoltat_de', {autor: 'Ioan Tuns'})}</p>
-                <p className="drepturi-autor">© 2026 Ioan Tuns. {t('aplicatie.toate_drepturile_rezervate')}</p>
+                <p className="drepturi-autor">© 2026 Ioan Tuns · {t('aplicatie.licenta_descriere')}</p>
                 <div className="actiuni-despre">
                     <button
                         type="button"
@@ -325,6 +332,14 @@ export function DialogDetaliiDezvoltare({inchide}: {inchide: () => void}) {
                                 <div className="linie-proprietate">
                                     <span className="eticheta-prop">Compilator & Framework:</span>
                                     <span className="valoare-prop">{detalii.versiune_go} · Wails {detalii.versiune_wails}</span>
+                                </div>
+                                <div className="linie-proprietate">
+                                    <span className="eticheta-prop">Licență Repository:</span>
+                                    <strong className="valoare-prop">{detalii.licenta}</strong>
+                                </div>
+                                <div className="linie-proprietate">
+                                    <span className="eticheta-prop">Autor & Copyright:</span>
+                                    <span className="valoare-prop">{detalii.autor} (© 2026)</span>
                                 </div>
                             </div>
                         </section>
