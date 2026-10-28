@@ -4,6 +4,24 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.58.0 · 2026-10-28
+
+Sistem de diagnoză locală, captare robustă a erorilor și profilare a timpilor de interogare (D043, F16).
+
+- **Pachet backend dedicat (`internal/diagnoza`):**
+  * Salvare persistentă a erorilor în fișiere de log rotative locale (`karios/jurnale/pontix-AAAA-LL.log`, max 5 MB).
+  * Protecție strictă GDPR: jurnalele conțin exclusiv date tehnice (timestamp, nivel, modul, eroare, stack trace), fără PII sau date medicale.
+  * Captare panici Go (`RecupereazaPanic`) cu stivă de execuție completă pentru a preveni crash-ul executabilului.
+  * Măsurare a timpilor de execuție a interogărilor (`Cronometreaza`), semnalizare slow queries (>50ms) și calcul statistici (minim, mediu, maxim).
+- **Captare globală a erorilor frontend (`ErrorBoundary.tsx`, `main.tsx`):**
+  * Componentă React `ErrorBoundary` înfășurând fiecare ecran principal pentru recuperare graceful fără blocarea întregii aplicații.
+  * Ascultători globali `window.addEventListener('error')` și `window.addEventListener('unhandledrejection')` trimițând automat excepțiile JS către backend prin `InregistreazaEroareFrontend`.
+- **Panou de diagnoză și export în interfață (`Formulare.tsx`):**
+  * Integrarea secțiunii de diagnoză în dialogul *Detalii dezvoltare, integritate și cerințe sistem*.
+  * Butoane rapide: `📁 Deschide folderul de jurnale` (Explorer) și `📋 Copiază ultimele 100 linii din log`.
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
 ## 0.57.0 · 2026-10-28
 
 Aliniere licență aplicație și UI cu licența repository-ului (Apache-2.0).

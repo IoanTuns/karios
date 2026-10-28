@@ -4,6 +4,7 @@ import {AdaugaDepartament, AdaugaSectie, AtribuieCategorieProgramLot, DateInitia
 import {datebaza, main} from '../wailsjs/go/models';
 import {DialogDemo, FormularAngajat, Setari, durata, denumireSectie, denumireDepartament} from './Formulare';
 import {DialogImportAngajati} from './ImportDialogs';
+import {ErrorBoundary} from './ErrorBoundary';
 import type {ContextPontaj} from './Pontaj';
 
 const Pontaj = lazy(() => import('./Pontaj').then(m => ({ default: m.Pontaj })));
@@ -178,7 +179,8 @@ function App() {
             {mesaj && <div className="mesaj succes" role="status">{mesaj}</div>}
             {incarcare ? <div className="asteptare" role="status">{t('ui.incarcare')}</div>
                 : !date ? <button className="buton secundar" disabled={ocupat} onClick={() => executa(DateInitiale, '')}>{t('ui.reincearca')}</button>
-                : <Suspense fallback={<div className="asteptare" role="status">{t('ui.incarcare')}</div>}>
+                : <ErrorBoundary key={ecran} numeModul={ecran}>
+                    <Suspense fallback={<div className="asteptare" role="status">{t('ui.incarcare')}</div>}>
                     {ecran === 'pontaj' ? <Pontaj date={date} context={contextPontaj} onModificari={setPontajModificat} onOcupat={setPontajOcupat} onDeschideAbsente={(an, angajatId) => { setFiltruAbsente({an, angajatId}); setPontajModificat(false); setEcran('absente'); setEroare(''); setMesaj(''); }}/>
                     : ecran === 'planificare' ? <Planificare date={date} initial={contextPlanificare} onOcupat={setPontajOcupat} onDeschidePontaj={(an,luna)=>{contextPontaj.current={an,luna,sectie:'',departament:'',categorieProgram:'',cautare:'',filtruRanduri:'',selectie:null,derulareX:0,derulareY:0};setEcran('pontaj');setEroare('');setMesaj('');}}/>
                     : ecran === 'sarbatori' ? <Sarbatori/>
@@ -304,7 +306,8 @@ function App() {
                             <footer className="subsol-tabel">{t('ui.rezultate', {vizibile: vizibili.length, total: lista.length})}</footer>
                         </section>
                     </>}
-                </Suspense>}
+                    </Suspense>
+                  </ErrorBoundary>}
         </main>
         {editare && date && <FormularAngajat key={editare.id || 'nou'} angajat={editare} date={date} ocupat={ocupat} eroare={eroare}
             inchide={() => { setEditare(null); setEroare(''); }}

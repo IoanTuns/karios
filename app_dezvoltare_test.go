@@ -26,4 +26,7 @@ func TestAppDetaliiDezvoltare(t *testing.T) {
 	if detalii.Licenta != "Apache License 2.0 (Apache-2.0)" {
 		t.Errorf("așteptat Apache License 2.0 (Apache-2.0), obținut: %s", detalii.Licenta)
 	}
+	if detalii.StatisticiDiagnoza.CaleFolderJurnale == "" {
+		t.Errorf("calea folderului de jurnale nu trebuie să fie goală")
+	}
 }

@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"pontix/internal/ai"
+	"pontix/internal/diagnoza"
 	"pontix/internal/versiune"
 )
 
@@ -39,20 +40,21 @@ type InfoDetaliatLLM struct {
 
 // DetaliiDezvoltare conține metadatele complete despre repo, build, integritate și cerințe.
 type DetaliiDezvoltare struct {
-	NumeRepo          string          `json:"nume_repo"`
-	NumeAplicatie     string          `json:"nume_aplicatie"`
-	Versiune          string          `json:"versiune"`
-	Commit            string          `json:"commit"`
-	Arhitectura       string          `json:"arhitectura"`
-	VersiuneGo        string          `json:"versiune_go"`
-	VersiuneWails     string          `json:"versiune_wails"`
-	CaleExecutabil    string          `json:"cale_executabil"`
-	ChecksumExe       string          `json:"checksum_exe"`
-	Autor             string          `json:"autor"`
-	Licenta           string          `json:"licenta"`
-	Confidentialitate string          `json:"confidentialitate"`
-	CerinteMinime     CerinteSistem   `json:"cerinte_minime"`
-	DetaliiLLM        InfoDetaliatLLM `json:"detalii_llm"`
+	NumeRepo           string                      `json:"nume_repo"`
+	NumeAplicatie      string                      `json:"nume_aplicatie"`
+	Versiune           string                      `json:"versiune"`
+	Commit             string                      `json:"commit"`
+	Arhitectura        string                      `json:"arhitectura"`
+	VersiuneGo         string                      `json:"versiune_go"`
+	VersiuneWails      string                      `json:"versiune_wails"`
+	CaleExecutabil     string                      `json:"cale_executabil"`
+	ChecksumExe        string                      `json:"checksum_exe"`
+	Autor              string                      `json:"autor"`
+	Licenta            string                      `json:"licenta"`
+	Confidentialitate  string                      `json:"confidentialitate"`
+	CerinteMinime      CerinteSistem               `json:"cerinte_minime"`
+	DetaliiLLM         InfoDetaliatLLM             `json:"detalii_llm"`
+	StatisticiDiagnoza diagnoza.StatisticiDiagnoza `json:"statistici_diagnoza"`
 }
 
 func calculeazaChecksumExe() (string, string) {
@@ -161,5 +163,6 @@ func (a *App) DetaliiDezvoltare() DetaliiDezvoltare {
 			DimensiuneModel:  dimModel,
 			IzolareRetea:     "127.0.0.1 (Strict local, zero conexiuni exterioare, conformitate GDPR)",
 		},
+		StatisticiDiagnoza: diagnoza.ObtineManager().Statistici(),
 	}
 }

@@ -5,6 +5,7 @@ import {main} from '../models';
 import {datebaza} from '../models';
 import {rapoarte} from '../models';
 import {calcul} from '../models';
+import {diagnoza} from '../models';
 
 export function AdaugaDepartament(arg1:string,arg2:i18n.Text):Promise<main.RaspunsDate>;
 
@@ -53,6 +54,14 @@ export function DateInitiale():Promise<main.RaspunsDate>;
 export function DescarcaSablon(arg1:string,arg2:string):Promise<main.RaspunsDescarcaSablon>;
 
 export function DeschidePDFPentruTiparire(arg1:string):Promise<main.RaspunsFisierRaport>;
+
+export function DeschideFolderJurnale():Promise<string>;
+
+export function CitesteUltimeleLiniiJurnal(arg1:number):Promise<string>;
+
+export function InregistreazaEroareFrontend(arg1:string,arg2:string,arg3:string):Promise<void>;
+
+export function StatisticiDiagnoza():Promise<diagnoza.StatisticiDiagnoza>;
 
 export function DetaliiDezvoltare():Promise<main.DetaliiDezvoltare>;
 

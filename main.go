@@ -12,6 +12,7 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
 
+	"pontix/internal/diagnoza"
 	"pontix/internal/i18n"
 	"pontix/internal/portabil"
 	"pontix/internal/stocare"
@@ -25,8 +26,11 @@ func main() {
 	if err != nil {
 		oprireCuEroare(err)
 	}
+	diagnoza.Initializeaza(foldere.Radacina)
+
 	db, err := stocare.Deschide(context.Background(), foldere.Radacina)
 	if err != nil {
+		diagnoza.ObtineManager().InregistreazaEroare("pornire/stocare", err)
 		oprireCuEroare(err)
 	}
 

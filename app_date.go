@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"pontix/internal/datebaza"
+	"pontix/internal/diagnoza"
 	"pontix/internal/i18n"
 	"pontix/internal/portabil"
 	"pontix/internal/stocare"
@@ -97,6 +98,9 @@ func (a *App) contextLucru() context.Context {
 }
 
 func (a *App) raspunsDate(err error) RaspunsDate {
+	stop := diagnoza.Cronometreaza("Date.Citeste")
+	defer stop(&err)
+
 	var date datebaza.Date
 	if err == nil {
 		date, err = datebaza.Nou(a.db).Citeste(a.contextLucru())

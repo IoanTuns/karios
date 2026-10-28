@@ -1,7 +1,7 @@
 import {useEffect, useRef, useState, type FormEvent, type ReactNode} from 'react';
 import {useTranslation} from 'react-i18next';
 import type {TFunction} from 'i18next';
-import {CreeazaBackup, DetaliiDezvoltare, Informatii} from '../wailsjs/go/main/App';
+import {CitesteUltimeleLiniiJurnal, CreeazaBackup, DeschideFolderJurnale, DetaliiDezvoltare, Informatii} from '../wailsjs/go/main/App';
 import {datebaza, main} from '../wailsjs/go/models';
 
 export function durata(minute: number, t: TFunction): string {
@@ -290,6 +290,15 @@ export function DialogDetaliiDezvoltare({inchide}: {inchide: () => void}) {
 - Port local: ${detalii.detalii_llm.port_local} (127.0.0.1)
 - Stare: ${detalii.detalii_llm.stare}
 - Izolare rețea: ${detalii.detalii_llm.izolare_retea}
+
+## Diagnoză & Profilare Performanță
+- Erori înregistrate: ${detalii.statistici_diagnoza?.numar_erori || 0}
+- Total interogări: ${detalii.statistici_diagnoza?.total_interogari || 0}
+- Timp mediu interogare: ${(detalii.statistici_diagnoza?.timp_mediu_ms || 0).toFixed(2)} ms
+- Timp maxim interogare: ${(detalii.statistici_diagnoza?.timp_maxim_ms || 0).toFixed(2)} ms
+- Interogare lentă de vârf: ${detalii.statistici_diagnoza?.lenta_interogare || 'Niciuna'}
+- Fișier jurnal: ${detalii.statistici_diagnoza?.fisier_jurnal_curent || '—'}
+- Director jurnale: ${detalii.statistici_diagnoza?.cale_folder_jurnale || '—'}
 `;
         navigator.clipboard.writeText(text).then(() => {
             setCopiat(true);
@@ -431,6 +440,70 @@ export function DialogDetaliiDezvoltare({inchide}: {inchide: () => void}) {
                                     <span className="eticheta-prop">Securitate & Izolare:</span>
                                     <span className="valoare-prop">{detalii.detalii_llm.izolare_retea}</span>
                                 </div>
+                            </div>
+                        </section>
+
+                        <section className="sectiune-raport">
+                            <h3>📊 Diagnoză Locală, Jurnal Erori & Profilare Interogări</h3>
+                            <div className="tabel-proprietati-tehnice">
+                                <div className="linie-proprietate">
+                                    <span className="eticheta-prop">Erori în sesiune:</span>
+                                    <span className="valoare-prop" style={{ fontWeight: 600, color: (detalii.statistici_diagnoza?.numar_erori || 0) > 0 ? '#b02a24' : '#1e7040' }}>
+                                        {detalii.statistici_diagnoza?.numar_erori || 0} erori înregistrate
+                                    </span>
+                                </div>
+                                <div className="linie-proprietate">
+                                    <span className="eticheta-prop">Total interogări executate:</span>
+                                    <span className="valoare-prop">{detalii.statistici_diagnoza?.total_interogari || 0}</span>
+                                </div>
+                                <div className="linie-proprietate">
+                                    <span className="eticheta-prop">Timp mediu interogare:</span>
+                                    <strong className="valoare-prop">{(detalii.statistici_diagnoza?.timp_mediu_ms || 0).toFixed(2)} ms</strong>
+                                </div>
+                                <div className="linie-proprietate">
+                                    <span className="eticheta-prop">Timp maxim interogare:</span>
+                                    <span className="valoare-prop">{(detalii.statistici_diagnoza?.timp_maxim_ms || 0).toFixed(2)} ms</span>
+                                </div>
+                                <div className="linie-proprietate">
+                                    <span className="eticheta-prop">Interogare lentă de vârf:</span>
+                                    <span className="valoare-prop cod-evidential">{detalii.statistici_diagnoza?.lenta_interogare || 'Nicio interogare lentă (>50ms)'}</span>
+                                </div>
+                                <div className="linie-proprietate">
+                                    <span className="eticheta-prop">Fișier jurnal activ:</span>
+                                    <span className="valoare-prop">{detalii.statistici_diagnoza?.fisier_jurnal_curent || '—'} ({detalii.statistici_diagnoza?.dimensiune_jurnal || '0 B'})</span>
+                                </div>
+                                <div className="linie-proprietate coloana-completa">
+                                    <span className="eticheta-prop">Director jurnale locale:</span>
+                                    <span className="valoare-prop cale-fisier">{detalii.statistici_diagnoza?.cale_folder_jurnale || '—'}</span>
+                                </div>
+                                {detalii.statistici_diagnoza?.ultima_eroare && (
+                                    <div className="linie-proprietate coloana-completa">
+                                        <span className="eticheta-prop">Ultima eroare captată:</span>
+                                        <span className="valoare-prop cod-evidential" style={{ color: '#b02a24' }}>
+                                            {detalii.statistici_diagnoza.ultima_eroare}
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px', marginTop: '10px', flexWrap: 'wrap' }}>
+                                <button
+                                    type="button"
+                                    className="buton secundar"
+                                    onClick={() => DeschideFolderJurnale()}
+                                >
+                                    📁 Deschide folderul de jurnale
+                                </button>
+                                <button
+                                    type="button"
+                                    className="buton secundar"
+                                    onClick={async () => {
+                                        const linii = await CitesteUltimeleLiniiJurnal(100);
+                                        await navigator.clipboard.writeText(linii);
+                                        alert('Ultimele 100 de linii din jurnalul de diagnoză au fost copiate în clipboard!');
+                                    }}
+                                >
+                                    📋 Copiază ultimele 100 linii din log
+                                </button>
                             </div>
                         </section>
                     </div>

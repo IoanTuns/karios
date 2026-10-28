@@ -98,6 +98,22 @@ export function DeschidePDFPentruTiparire(arg1) {
   return window['go']['main']['App']['DeschidePDFPentruTiparire'](arg1);
 }
 
+export function DeschideFolderJurnale() {
+  return window['go']['main']['App']['DeschideFolderJurnale']();
+}
+
+export function CitesteUltimeleLiniiJurnal(arg1) {
+  return window['go']['main']['App']['CitesteUltimeleLiniiJurnal'](arg1);
+}
+
+export function InregistreazaEroareFrontend(arg1, arg2, arg3) {
+  return window['go']['main']['App']['InregistreazaEroareFrontend'](arg1, arg2, arg3);
+}
+
+export function StatisticiDiagnoza() {
+  return window['go']['main']['App']['StatisticiDiagnoza']();
+}
+
 export function DetaliiDezvoltare() {
   return window['go']['main']['App']['DetaliiDezvoltare']();
 }

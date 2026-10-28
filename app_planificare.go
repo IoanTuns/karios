@@ -3,6 +3,7 @@ package main
 import (
 	"pontix/internal/calcul"
 	"pontix/internal/datebaza"
+	"pontix/internal/diagnoza"
 )
 
 type RaspunsPlanificare struct {
@@ -28,6 +29,10 @@ type RaspunsPlanificatVsRealizat struct {
 }
 
 func (a *App) CitestePlanificare(an, luna int) RaspunsPlanificare {
+	stop := diagnoza.Cronometreaza("Planificare.Citeste")
+	var err error
+	defer stop(&err)
+
 	p, err := datebaza.Nou(a.db).CitestePlanificare(a.contextLucru(), an, luna)
 	if err != nil {
 		return RaspunsPlanificare{Eroare: mesajPontaj(err)}

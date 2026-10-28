@@ -557,9 +557,6 @@ export namespace calcul {
 		}
 	}
 
-
-
-
 }
 
 export namespace datebaza {
@@ -1482,6 +1479,7 @@ export namespace main {
 	    confidentialitate: string;
 	    cerinte_minime: CerinteSistem;
 	    detalii_llm: InfoDetaliatLLM;
+	    statistici_diagnoza: diagnoza.StatisticiDiagnoza;
 
 	    static createFrom(source: any = {}) {
 	        return new DetaliiDezvoltare(source);
@@ -1503,6 +1501,7 @@ export namespace main {
 	        this.confidentialitate = source["confidentialitate"];
 	        this.cerinte_minime = this.convertValues(source["cerinte_minime"], CerinteSistem);
 	        this.detalii_llm = this.convertValues(source["detalii_llm"], InfoDetaliatLLM);
+	        this.statistici_diagnoza = this.convertValues(source["statistici_diagnoza"], diagnoza.StatisticiDiagnoza);
 	    }
 
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -2846,8 +2845,44 @@ export namespace rapoarte {
 		}
 	}
 
+}
 
+export namespace diagnoza {
+	
+	export class StatisticiDiagnoza {
+	    numar_erori: number;
+	    ultima_eroare: string;
+	    total_interogari: number;
+	    total_lente: number;
+	    lenta_interogare: string;
+	    timp_maxim_ms: number;
+	    timp_mediu_ms: number;
+	    ultima_interogare: string;
+	    ultimul_timp_ms: number;
+	    cale_folder_jurnale: string;
+	    fisier_jurnal_curent: string;
+	    dimensiune_jurnal: string;
 
+	    static createFrom(source: any = {}) {
+	        return new StatisticiDiagnoza(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.numar_erori = source["numar_erori"];
+	        this.ultima_eroare = source["ultima_eroare"];
+	        this.total_interogari = source["total_interogari"];
+	        this.total_lente = source["total_lente"];
+	        this.lenta_interogare = source["lenta_interogare"];
+	        this.timp_maxim_ms = source["timp_maxim_ms"];
+	        this.timp_mediu_ms = source["timp_mediu_ms"];
+	        this.ultima_interogare = source["ultima_interogare"];
+	        this.ultimul_timp_ms = source["ultimul_timp_ms"];
+	        this.cale_folder_jurnale = source["cale_folder_jurnale"];
+	        this.fisier_jurnal_curent = source["fisier_jurnal_curent"];
+	        this.dimensiune_jurnal = source["dimensiune_jurnal"];
+	    }
+	}
 
 }
 

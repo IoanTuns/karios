@@ -5,6 +5,7 @@ import (
 
 	"pontix/internal/calcul"
 	"pontix/internal/datebaza"
+	"pontix/internal/diagnoza"
 	"pontix/internal/i18n"
 )
 
@@ -68,6 +69,9 @@ func (a *App) SalveazaSchita(an, luna int, celule []datebaza.CelulaSchita) Raspu
 }
 
 func (a *App) raspunsSchita(an, luna int, err error) RaspunsSchita {
+	stop := diagnoza.Cronometreaza("Pontaj.SchitaLuna")
+	defer stop(&err)
+
 	var schita datebaza.SchitaLuna
 	if err == nil {
 		schita, err = datebaza.Nou(a.db).CitesteSchita(a.contextLucru(), an, luna)
