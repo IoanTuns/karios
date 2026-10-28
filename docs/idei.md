@@ -6,6 +6,8 @@ Stări: `nouă`, `în analiză`, `transformată` (în task sau decizie), `amâna
 
 | ID | Data | Idee | Cine | Stare | Legături / motiv |
 | --- | --- | --- | --- | --- | --- |
+| I064 | 2026-10-28 | Detectarea înlocuirii bazei cu o copie mai veche, validă (contor autentificat în seif) | Claude | transformată | F06-T09, [D044](decizii/D044-jurnal-audit-sigilat.md) |
+| I063 | 2026-10-28 | Trasabilitate: orice modificare a datelor făcută în afara aplicației trebuie detectată (jurnal înlănțuit, sigiliul tabelelor, amprenta lunii pe hârtia semnată) | Ioan Tuns, Claude | transformată | F06-T04, F06-T08, F12-T04, [D044](decizii/D044-jurnal-audit-sigilat.md), [review](review-ui-ux-performanta-securitate-2026-10-28.md) |
 | I062 | 2026-10-26 | Raport oficial dedicat pentru graficul lunar de gărzi și schimburi (format A3 Peisaj, totaluri de ore/gărzi, linie de sinteză acoperire TOTAL/ZI și semnături oficiale), accesibil direct din ecranul de Planificare | Ioan Tuns | transformată | F11-T07, [D040](decizii/D040-raport-grafic-garzi-si-schimburi.md) |
 | I061 | 2026-10-26 | Motor de reguli configurabile (Rule Engine) pentru validare, succesiune, repaus minim, plafoane lunare și restricții definite liber de utilizator | Ioan Tuns | în analiză | [D041](decizii/D041-motor-reguli-configurabile.md) |
 | I060 | 2026-10-26 | Verificare echitate și rotație de sărbători (Crăciun/Revelion/Paști) între ani și marcaj vizual pentru ture consecutive pe zile libere/gărzi | Ioan Tuns | transformată | F11-T06, [D039](decizii/D039-sumar-angajat-raport-acoperire-echitate-sarbatori.md) |

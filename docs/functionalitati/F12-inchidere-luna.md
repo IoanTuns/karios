@@ -13,3 +13,4 @@ O lună închisă nu se mai poate modifica și calculul ei rămâne înghețat. 
 | F12-T01 | Închiderea și redeschiderea lunii; înghețarea pontajului și planificării împotriva modificărilor | gata | Antigravity | Implementat în 0.51.0: migrarea 0019 `stare_luni`, protecție în `SalveazaSchita` și `SalveazaPlanificare` (`pontaj.luna_inchisa`), banner vizual în `Pontaj.tsx` și buton de închidere/redeschidere cu confirmare. |
 | F12-T02 | Ecranul jurnalului de modificări | de făcut | | Tabelul vine din F06-T04 |
 | F12-T03 | „Cine” în jurnal = contul din aplicație | de făcut | | Vine din F15-T08 |
+| F12-T04 | Amprenta lunii închise: calculată la închidere, tipărită în subsolul rapoartelor, verificată în pontaj | în lucru | Claude | [D044](../decizii/D044-jurnal-audit-sigilat.md) punctul 6 |
