@@ -14,6 +14,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"pontix/internal/audit"
 	"pontix/internal/bd/acces"
 	"pontix/internal/i18n"
 )
@@ -76,6 +77,9 @@ func traduce(err error) error {
 	var e *i18n.Eroare
 	if errors.As(err, &e) {
 		return err
+	}
+	if audit.EsteEditareBlocata(err) {
+		return eroare(audit.CodEditareBlocata)
 	}
 	return eroare("rapoarte.eroare")
 }

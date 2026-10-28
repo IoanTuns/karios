@@ -755,5 +755,21 @@
   "planificare.avertisment_craciun_pasti": "A fost planificat de Crăciun anul acesta și este pe același schimb de Paști anul viitor",
   "planificare.raport_garzi": "Grafic gărzi (PDF)",
   "planificare.previzualizare_garzi": "Grafic lunar de gărzi și schimburi",
-  "planificare.inchide_raport": "Închide raport"
+  "planificare.inchide_raport": "Închide raport",
+  "audit.editare_blocata": "Editarea este blocată: datele au fost modificate în afara aplicației. Confirmă incidentul pentru a continua.",
+  "audit.motiv_obligatoriu": "Scrie motivul confirmării.",
+  "audit.titlu_incident": "Date modificate în afara aplicației",
+  "audit.descriere_incident": "La pornire, sigiliile bazei de date nu au corespuns. Datele se pot citi și exporta, dar editarea este blocată până la confirmarea incidentului.",
+  "audit.tabele": "Tabele afectate: {{tabele}}",
+  "audit.rand_rupt": "Jurnalul de modificări este întrerupt de la intrarea {{rand}}.",
+  "audit.verificat_la": "Verificat la {{moment}}",
+  "audit.confirma": "Confirmă incidentul",
+  "audit.confirma_descriere": "Confirmarea acceptă datele așa cum sunt acum și deblochează editarea. Ce s-a detectat și motivul tău rămân în jurnalul de modificări.",
+  "audit.motiv": "Motivul (de exemplu: corectură făcută de IT, tichetul 123)",
+  "audit.confirmat": "Incidentul a fost confirmat și notat în jurnal.",
+  "pontaj.amprenta": "Amprenta lunii: {{amprenta}}",
+  "pontaj.amprenta_corespunde": "datele corespund închiderii",
+  "pontaj.amprenta_diferita": "ATENȚIE: datele s-au schimbat după închidere",
+  "rapoarte.amprenta_luna": "amprentă lună închisă {{amprenta}}",
+  "rapoarte.amprenta_diferita": "ATENȚIE: datele diferă de amprenta închiderii {{amprenta}} (acum {{curenta}})"
 }

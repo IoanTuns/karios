@@ -10,6 +10,7 @@ import (
 	"time"
 	_ "time/tzdata"
 
+	"pontix/internal/audit"
 	"pontix/internal/bd/acces"
 	"pontix/internal/calcul"
 	"pontix/internal/datebaza"
@@ -476,8 +477,38 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 	if configuratie.Revizie != "" {
 		doc.Metadate += " · " + i18n.T(limba, "pontaj.revizie_reguli", map[string]string{"revizie": configuratie.Revizie})
 	}
+	if d.Continut.Sursa != "ABSENTE_ANUALE" {
+		amprenta, err := amprentaLunii(ctx, tx, c.An, c.Luna, limba)
+		if err != nil {
+			return Document{}, traduce(err)
+		}
+		if amprenta != "" {
+			doc.Metadate += " · " + amprenta
+		}
+	}
 	if err := tx.Commit(); err != nil {
 		return Document{}, traduce(err)
 	}
 	return doc, nil
+}
+
+// amprentaLunii întoarce textul amprentei pentru subsol, dacă luna a fost închisă (D044
+// punctul 6). Dacă datele s-au schimbat după închidere, textul o spune.
+func amprentaLunii(ctx context.Context, tx *sql.Tx, an, luna int, limba i18n.Limba) (string, error) {
+	var pastrata string
+	err := tx.QueryRowContext(ctx, `SELECT amprenta FROM stare_luni WHERE an = ? AND luna = ?`, an, luna).Scan(&pastrata)
+	if err == sql.ErrNoRows || (err == nil && pastrata == "") {
+		return "", nil
+	}
+	if err != nil {
+		return "", err
+	}
+	curenta, err := audit.AmprentaLuna(ctx, tx, an, luna)
+	if err != nil {
+		return "", err
+	}
+	if curenta == pastrata {
+		return i18n.T(limba, "rapoarte.amprenta_luna", map[string]string{"amprenta": pastrata}), nil
+	}
+	return i18n.T(limba, "rapoarte.amprenta_diferita", map[string]string{"amprenta": pastrata, "curenta": curenta}), nil
 }

@@ -755,5 +755,21 @@
   "planificare.avertisment_craciun_pasti": "Was scheduled on Christmas this year and has the exact same shift on Easter next year",
   "planificare.raport_garzi": "On-call chart (PDF)",
   "planificare.previzualizare_garzi": "Monthly on-call and shift schedule",
-  "planificare.inchide_raport": "Close report"
+  "planificare.inchide_raport": "Close report",
+  "audit.editare_blocata": "Editing is blocked: the data was changed outside the application. Acknowledge the incident to continue.",
+  "audit.motiv_obligatoriu": "Enter the reason for the acknowledgement.",
+  "audit.titlu_incident": "Data changed outside the application",
+  "audit.descriere_incident": "At startup, the database seals did not match. Data can be read and exported, but editing is blocked until the incident is acknowledged.",
+  "audit.tabele": "Affected tables: {{tabele}}",
+  "audit.rand_rupt": "The change log is broken from entry {{rand}}.",
+  "audit.verificat_la": "Checked at {{moment}}",
+  "audit.confirma": "Acknowledge incident",
+  "audit.confirma_descriere": "Acknowledging accepts the data as it is now and unblocks editing. What was detected and your reason remain in the change log.",
+  "audit.motiv": "Reason (for example: correction made by IT, ticket 123)",
+  "audit.confirmat": "The incident was acknowledged and recorded in the log.",
+  "pontaj.amprenta": "Month fingerprint: {{amprenta}}",
+  "pontaj.amprenta_corespunde": "data matches the closing",
+  "pontaj.amprenta_diferita": "WARNING: data changed after closing",
+  "rapoarte.amprenta_luna": "closed month fingerprint {{amprenta}}",
+  "rapoarte.amprenta_diferita": "WARNING: data differs from the closing fingerprint {{amprenta}} (now {{curenta}})"
 }

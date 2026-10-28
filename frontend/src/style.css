@@ -549,6 +549,16 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .banner-luna-blocata .simbol-lacat { font-size: 20px; }
 .banner-luna-blocata strong { display: block; font-size: 13.5px; color: #612500; margin-bottom: 2px; }
 .banner-luna-blocata p { margin: 0; font-size: 12px; color: #873800; }
+.banner-luna-blocata .amprenta-luna { margin-top: 4px; font-family: Consolas, monospace; color: #3f5f2a; }
+.banner-luna-blocata .amprenta-luna.diferita { color: #a8071a; font-weight: 600; }
+.banner-audit { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; background: #fff1f0; border: 1px solid #ffa39e; border-radius: 8px; padding: 12px 16px; margin: 10px 0; color: #820014; font-size: 13px; }
+.banner-audit .simbol-audit { font-size: 22px; line-height: 1; }
+.banner-audit > div { flex: 1; }
+.banner-audit strong { display: block; font-size: 14px; margin-bottom: 4px; }
+.banner-audit p { margin: 2px 0; }
+[data-theme="dark"] .banner-audit { background: #2a1215; border-color: #5c2223; color: #ffccc7; }
+[data-theme="dark"] .banner-luna-blocata .amprenta-luna { color: #95de64; }
+[data-theme="dark"] .banner-luna-blocata .amprenta-luna.diferita { color: #ff7875; }
 
 /* Grafic Gantt Concedii & Suprapuneri (F08-T05 / Lot 6) */
 .panou-gantt-absente { display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px; }

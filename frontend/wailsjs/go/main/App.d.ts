@@ -49,6 +49,8 @@ export function CompleteazaSarbatoriAn(arg1:number):Promise<main.RaspunsCalendar
 
 export function CompleteazaSchimburiInitiale(arg1:string):Promise<main.RaspunsSchimburi>;
 
+export function ConfirmaIncidentAudit(arg1:string):Promise<main.RaspunsAudit>;
+
 export function CreeazaBackup():Promise<main.RaspunsBackup>;
 
 export function DateInitiale():Promise<main.RaspunsDate>;
@@ -136,6 +138,8 @@ export function SeteazaAutoPornireAI(arg1:boolean):Promise<boolean>;
 export function SeteazaStareLuna(arg1:number,arg2:number,arg3:string,arg4:string):Promise<main.RaspunsStareLuna>;
 
 export function StareAI():Promise<main.RaspunsStareAI>;
+
+export function StareAudit():Promise<main.RaspunsAudit>;
 
 export function StatisticiDiagnoza():Promise<diagnoza.StatisticiDiagnoza>;
 

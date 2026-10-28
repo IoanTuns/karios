@@ -13,6 +13,7 @@ import (
 	"github.com/ncruces/go-sqlite3/driver"
 	_ "github.com/ncruces/go-sqlite3/vfs/xts" // criptarea AES-256-XTS (D008)
 
+	"pontix/internal/audit"
 	"pontix/internal/i18n"
 )
 
@@ -24,7 +25,19 @@ var fisiereMigrari embed.FS
 
 // Deschide baza criptată de la cale, o creează dacă nu există și verifică cheia.
 // O cheie greșită sau un fișier deteriorat dau *i18n.Eroare „bd.nu_se_deschide”.
+// Conexiunile au funcțiile auditului, dar nu și trigger-ele lui: așa se verifică
+// și se migrează baza (D044).
 func Deschide(cale string, cheie []byte) (*sql.DB, error) {
+	return deschide(cale, cheie, nil)
+}
+
+// DeschideCuAudit deschide baza pentru lucru: fiecare conexiune are trigger-ele care
+// țin sigiliile la zi, iar paza refuză scrierile cât timp există un incident (D044).
+func DeschideCuAudit(cale string, cheie []byte, paza *audit.Paza) (*sql.DB, error) {
+	return deschide(cale, cheie, paza)
+}
+
+func deschide(cale string, cheie []byte, paza *audit.Paza) (*sql.DB, error) {
 	if len(cheie) != LungimeCheie {
 		return nil, &i18n.Eroare{Cod: "bd.cheie_invalida"}
 	}
@@ -33,12 +46,15 @@ func Deschide(cale string, cheie []byte) (*sql.DB, error) {
 	// Cheia se dă prin PRAGMA la fiecare conexiune, nu în textul conexiunii, ca să
 	// nu fie vizibilă altor părți ale programului.
 	initializare := func(c *sqlite3.Conn) error {
-		return c.Exec(`PRAGMA hexkey='` + hexCheie + `';
+		if err := c.Exec(`PRAGMA hexkey='` + hexCheie + `';
 			PRAGMA journal_mode=WAL;
 			PRAGMA synchronous=NORMAL;
 			PRAGMA foreign_keys=ON;
 			PRAGMA temp_store=MEMORY;
-			PRAGMA busy_timeout=5000;`)
+			PRAGMA busy_timeout=5000;`); err != nil {
+			return err
+		}
+		return audit.PregatesteConexiune(c, cheie, paza)
 	}
 
 	db, err := driver.Open("file:"+filepath.ToSlash(cale)+"?vfs=xts", initializare)

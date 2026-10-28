@@ -86,6 +86,10 @@ export function CompleteazaSchimburiInitiale(arg1) {
   return window['go']['main']['App']['CompleteazaSchimburiInitiale'](arg1);
 }
 
+export function ConfirmaIncidentAudit(arg1) {
+  return window['go']['main']['App']['ConfirmaIncidentAudit'](arg1);
+}
+
 export function CreeazaBackup() {
   return window['go']['main']['App']['CreeazaBackup']();
 }
@@ -260,6 +264,10 @@ export function SeteazaStareLuna(arg1, arg2, arg3, arg4) {
 
 export function StareAI() {
   return window['go']['main']['App']['StareAI']();
+}
+
+export function StareAudit() {
+  return window['go']['main']['App']['StareAudit']();
 }
 
 export function StatisticiDiagnoza() {

@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"pontix/internal/ai"
+	"pontix/internal/audit"
 	"pontix/internal/i18n"
 	"pontix/internal/versiune"
 )
@@ -19,6 +20,7 @@ type App struct {
 	raportCache  map[string]raportPregatit
 	raportOrdine []string
 	aiManager    *ai.Manager
+	paza         *audit.Paza
 }
 
 func NewApp(db *sql.DB) *App {

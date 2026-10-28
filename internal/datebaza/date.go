@@ -14,6 +14,7 @@ import (
 
 	"github.com/ncruces/go-sqlite3"
 
+	"pontix/internal/audit"
 	"pontix/internal/bd/acces"
 	"pontix/internal/i18n"
 )
@@ -378,12 +379,17 @@ func (s *Serviciu) AdaugaDepartament(ctx context.Context, sectieID string, denum
 }
 
 func (s *Serviciu) modifica(ctx context.Context, actiune func(*acces.Queries) error) error {
+	return s.modificaTx(ctx, func(_ *sql.Tx, q *acces.Queries) error { return actiune(q) })
+}
+
+// modificaTx dă acțiunii și tranzacția, pentru interogările scrise direct în SQL.
+func (s *Serviciu) modificaTx(ctx context.Context, actiune func(*sql.Tx, *acces.Queries) error) error {
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		return traduceEroare(err)
 	}
 	defer tx.Rollback()
-	if err := actiune(acces.New(tx)); err != nil {
+	if err := actiune(tx, acces.New(tx)); err != nil {
 		return traduceEroare(err)
 	}
 	return traduceEroare(tx.Commit())
@@ -418,6 +424,8 @@ func traduceEroare(err error) error {
 		return e
 	}
 	switch {
+	case audit.EsteEditareBlocata(err):
+		return eroare(audit.CodEditareBlocata)
 	case errors.Is(err, sql.ErrNoRows):
 		return eroare("date.inexistent")
 	case errors.Is(err, sqlite3.CONSTRAINT_UNIQUE):

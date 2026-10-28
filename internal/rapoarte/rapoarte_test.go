@@ -10,6 +10,7 @@ import (
 	"flag"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -340,16 +341,7 @@ func TestReferinteRapoarteSiPDF(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			v := "3"
-			if id == "raport-absente" {
-				v = "2"
-			}
-			if id == "raport-pontaj-detaliat" {
-				v = "2"
-			}
-			if id == "raport-garzi" {
-				v = "1"
-			}
+			v := strconv.Itoa(doc.VersiuneRaport)
 			cale := filepath.Join("testdata", id+"-v"+v+".json")
 			if *actualizeazaReferinte {
 				if err := os.MkdirAll("testdata", 0700); err != nil {

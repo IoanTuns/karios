@@ -4,6 +4,7 @@ import (
 	"context"
 	"embed"
 	"errors"
+	"fmt"
 	"log"
 	"os"
 
@@ -12,6 +13,7 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
 
+	"pontix/internal/audit"
 	"pontix/internal/diagnoza"
 	"pontix/internal/i18n"
 	"pontix/internal/portabil"
@@ -28,14 +30,19 @@ func main() {
 	}
 	diagnoza.Initializeaza(foldere.Radacina)
 
-	db, err := stocare.Deschide(context.Background(), foldere.Radacina)
+	db, paza, err := stocare.Deschide(context.Background(), foldere.Radacina)
 	if err != nil {
 		diagnoza.ObtineManager().InregistreazaEroare("pornire/stocare", err)
 		oprireCuEroare(err)
 	}
+	if r := paza.Rezultat(); r.Stare == audit.StareIncident {
+		// Doar numele tabelelor și id-ul rândului din jurnal, fără date (D043).
+		diagnoza.ObtineManager().InregistreazaEroare("pornire/audit", fmt.Errorf("incident: tabele %v, rând rupt %d", r.Tabele, r.RandRupt))
+	}
 
 	app := NewApp(db)
 	app.radacina = foldere.Radacina
+	app.paza = paza
 
 	err = wails.Run(&options.App{
 		Title:     i18n.T(i18n.Implicita, "aplicatie.titlu", nil),

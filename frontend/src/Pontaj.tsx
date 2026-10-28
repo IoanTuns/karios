@@ -2,6 +2,7 @@ import {useEffect, useLayoutEffect, useMemo, useRef, useState, type ClipboardEve
 import {useTranslation} from 'react-i18next';
 import {CitesteCalendar, CitesteSchita, ListaSchimburi, SalveazaSchita, PrevizualizeazaSchita, PrevizualizeazaPrecompletare, ExportaPontajExcel, CitesteStareLuna, SeteazaStareLuna} from '../wailsjs/go/main/App';
 import {calcul, datebaza} from '../wailsjs/go/models';
+import {AmprentaLuna} from './Audit';
 import {Dialog, denumireSectie, denumireDepartament} from './Formulare';
 import {programPlanificat} from './Planificare';
 import {notifica} from './Toast';
@@ -356,6 +357,13 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
 
     function poateAbandona() { return !modificari.size || window.confirm(t('ui.renunta')); }
     const lunaBlocata = schita?.stare === 'INCHISA' || schita?.stare === 'BLOCATA';
+    const [stareLuna, setStareLuna] = useState<datebaza.StareLuna | null>(null);
+    useEffect(() => {
+        let activ = true;
+        if (!lunaBlocata) { setStareLuna(null); return; }
+        CitesteStareLuna(an, luna).then(r => { if (activ && !r.eroare) setStareLuna(r.stare); }).catch(() => {});
+        return () => { activ = false; };
+    }, [an, luna, lunaBlocata, schita]);
 
     async function comutaStareLuna() {
         if (!schita || ocupat) return;
@@ -373,6 +381,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                 setEroare(t(resp.eroare.cod, resp.eroare.param ?? {}));
             } else {
                 setSchita(prev => prev ? new datebaza.SchitaLuna({...prev, stare: resp.stare.stare}) : null);
+                setStareLuna(resp.stare);
                 setMesaj(esteInchisa ? 'Luna a fost redeschisă pentru editare.' : 'Luna a fost închisă cu succes.');
             }
         } catch {
@@ -476,6 +485,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                 <div>
                     <strong>{t('pontaj.stare_luna_inchisa_titlu')}</strong>
                     <p>{t('pontaj.stare_luna_inchisa_descriere')}</p>
+                    <AmprentaLuna amprenta={stareLuna?.amprenta ?? ''} corespunde={stareLuna?.amprenta_corespunde ?? false}/>
                 </div>
                 <button type="button" className="buton secundar mic" disabled={ocupat} onClick={comutaStareLuna}>
                     🔓 {t('pontaj.redeschide_luna')}

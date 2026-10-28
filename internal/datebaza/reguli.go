@@ -2,6 +2,7 @@ package datebaza
 
 import (
 	"context"
+	"database/sql"
 	"strings"
 	"time"
 
@@ -53,17 +54,29 @@ func (s *Serviciu) SalveazaRegulaConfigurabila(ctx context.Context, r calcul.Reg
 		activNumar = 1
 	}
 
-	return s.modifica(ctx, func(q *acces.Queries) error {
+	return s.modificaTx(ctx, func(tx *sql.Tx, q *acces.Queries) error {
 		if r.ID == "" {
 			r.ID = idNou()
-			_, err := s.db.ExecContext(ctx, `
+			_, err := tx.ExecContext(ctx, `
 				INSERT INTO reguli_configurabile (id, cod, denumire, descriere, tip_regula, severitate, coduri_schimb, valoare_numerica, activ, creat_la, modificat_la)
 				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 			`, r.ID, r.Cod, r.Denumire, r.Descriere, r.TipRegula, r.Severitate, r.CoduriSchimb, r.ValoareNumerica, activNumar, acum, acum)
-			return err
+			if err != nil {
+				return err
+			}
+			return jurnal(ctx, q, "reguli_configurabile", r.ID, nil, r)
 		}
 
-		_, err := s.db.ExecContext(ctx, `
+		var vechi calcul.RegulaConfigurabila
+		var activVechi int
+		if err := tx.QueryRowContext(ctx, `
+			SELECT id, cod, denumire, descriere, tip_regula, severitate, coduri_schimb, valoare_numerica, activ
+			FROM reguli_configurabile WHERE id = ?
+		`, r.ID).Scan(&vechi.ID, &vechi.Cod, &vechi.Denumire, &vechi.Descriere, &vechi.TipRegula, &vechi.Severitate, &vechi.CoduriSchimb, &vechi.ValoareNumerica, &activVechi); err != nil {
+			return err
+		}
+		vechi.Activ = activVechi == 1
+		_, err := tx.ExecContext(ctx, `
 			UPDATE reguli_configurabile SET
 				denumire = ?,
 				descriere = ?,
@@ -75,7 +88,11 @@ func (s *Serviciu) SalveazaRegulaConfigurabila(ctx context.Context, r calcul.Reg
 				modificat_la = ?
 			WHERE id = ?
 		`, r.Denumire, r.Descriere, r.TipRegula, r.Severitate, r.CoduriSchimb, r.ValoareNumerica, activNumar, acum, r.ID)
-		return err
+		if err != nil {
+			return err
+		}
+		r.Cod = vechi.Cod // codul nu se modifică după creare
+		return jurnal(ctx, q, "reguli_configurabile", r.ID, vechi, r)
 	})
 }
 

@@ -4,6 +4,21 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.60.0 · 2026-10-28
+
+Trasabilitate: orice modificare a datelor făcută în afara aplicației este detectată (F06-T04, F06-T08, F12-T04, [D044](decizii/D044-jurnal-audit-sigilat.md)).
+
+- **Sigiliul tabelelor (`internal/audit`):** pentru fiecare tabel și pentru schemă, suma modulo 2^256 a HMAC-urilor rândurilor, cu cheia de audit derivată din cheia de date. Trigger-ele TEMP create de aplicație pe fiecare conexiune țin sigiliul la zi în aceeași tranzacție cu scrierea; funcțiile SQL sunt `DIRECTONLY`.
+- **Lanțul jurnalului:** fiecare rând din `jurnal_modificari` are `mac` = HMAC(mac anterior ‖ rând).
+- **Pornirea:** baza se verifică înainte de migrări; după migrări se resigilează doar o bază intactă, cu migrarea notată în jurnal. Prima sigilare se face o singură dată, la aplicarea migrării 0021.
+- **Incident:** banner permanent cu tabelele afectate și primul rând rupt din jurnal; scrierile sunt refuzate (`audit.editare_blocata`) până la confirmarea cu motiv, notată în jurnal. Incidentul se scrie și în jurnalul de diagnoză, doar cu numele tabelelor.
+- **Închiderea lunii și regulile configurabile** scriu acum în tranzacție și în jurnal (înainte scriau în afara tranzacției).
+- **Amprenta lunii închise:** calculată la închidere din pontaj, absențe și planificare, păstrată în `stare_luni.amprenta`, afișată în bannerul lunii și în subsolul rapoartelor lunare, cu avertisment dacă datele s-au schimbat după închidere.
+
+Baza de date: migrarea `0021_audit_sigilii` (tabelul `sigilii`, coloanele `jurnal_modificari.mac` și `stare_luni.amprenta`).
+
+Rapoarte: pontaj lunar v3 → v4, pontaj detaliat v2 → v3, fișă individuală v3 → v4, grafic gărzi v1 → v2 (amprenta în subsol pentru lunile închise). Absențele anuale rămân la v2.
+
 ## 0.59.0 · 2026-10-28
 
 Pachet complet de rafinare UX/UI (F16-T04..T10, prioritățile 1, 2 și 3):

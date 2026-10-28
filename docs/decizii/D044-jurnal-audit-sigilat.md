@@ -20,10 +20,12 @@ Până acum:
 
 ### 2. Sigiliul tabelelor
 
-- Pentru fiecare tabel de date, `sigilii(tabel, valoare)` păstrează XOR-ul valorilor `HMAC(cheie_audit, tabel ‖ rând)` pentru toate rândurile, cu o codificare canonică pe tipuri (NULL, întreg, real, text, BLOB).
+- Pentru fiecare tabel de date, `sigilii(tabel, valoare)` păstrează suma modulo 2^256 a valorilor `HMAC(cheie_audit, tabel ‖ rând)` pentru toate rândurile, cu o codificare canonică pe tipuri (NULL, întreg, real, text, BLOB). Suma, spre deosebire de XOR, nu se anulează la două rânduri identice.
 - Aplicația creează pe fiecare conexiune **trigger-e temporare** (`TEMP`, invizibile în fișier) care actualizează sigiliul în aceeași tranzacție cu scrierea. Orice scriere a aplicației e acoperită, indiferent de cod.
 - O modificare făcută cu alt program nu are trigger-ele și nici cheia, deci sigiliul nu mai corespunde.
-- Tabelele acoperite: toate, mai puțin `sigilii`, tabelul de migrări goose și tabelele interne `sqlite_*`. Un tabel nou dintr-o migrare intră automat.
+- Tabelele acoperite: toate, mai puțin `sigilii` și tabelele interne `sqlite_*`, inclusiv `goose_db_version`. Un tabel nou dintr-o migrare intră automat.
+- Se sigilează și schema (`sqlite_schema`, fără `rootpage`): un trigger, o vedere sau un index adăugat din afară e incident.
+- Funcțiile SQL ale auditului sunt `DIRECTONLY`: merg din trigger-ele TEMP ale aplicației, dar nu dintr-un trigger salvat în fișier, care ar putea „repara” sigiliul la următoarea scriere a aplicației.
 
 ### 3. Lanțul jurnalului
 
@@ -54,7 +56,8 @@ Detectarea înlocuirii bazei cu o copie mai veche, validă (contor autentificat 
 
 - **Doar lanțul jurnalului** — nu vede o modificare a datelor care ocolește jurnalul.
 - **Coloană de sigiliu pe fiecare rând** — schimbă toate tabelele și tot codul de scriere; sigiliul pe tabel prin trigger-e temporare nu atinge codul existent.
-- **Sigiliu recalculat integral la fiecare salvare** — cost liniar cu toată baza la fiecare salvare; actualizarea incrementală prin XOR are cost constant.
+- **Sigiliu recalculat integral la fiecare salvare** — cost liniar cu toată baza la fiecare salvare; actualizarea incrementală a sumei are cost constant.
+- **XOR în loc de sumă** — două rânduri identice s-ar anula.
 - **Trigger-e permanente în schemă** — ar fi vizibile și ar rula și pentru alt program, care le-ar putea șterge; nu pot apela funcțiile cu cheie ale aplicației.
 - **Blocare totală sau doar avertizare** la incident — alese de Ioan Tuns: avertizare și blocarea editării.
 - **Amprenta cu capătul lanțului jurnalului** — ar face amprenta dependentă de jurnalul de după închidere; pentru hârtia semnată contează doar datele lunii.
