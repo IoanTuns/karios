@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.60.1 · 2026-10-28
+
+Actualizarea dependențelor (AGENTS.md §6, F06-T08): `github.com/pdfcpu/pdfcpu` v0.16.3 → v0.16.4 (patch, aceeași licență Apache-2.0). `go mod tidy` a trecut `github.com/xuri/excelize/v2` v2.11.0 la dependență directă, cum e folosită de `internal/exportexcel`; versiunea nu se schimbă. Go 1.27.3 și pachetele npm erau deja la ultima versiune stabilă.
+
 ## 0.60.0 · 2026-10-28
 
 Trasabilitate: orice modificare a datelor făcută în afara aplicației este detectată (F06-T04, F06-T08, F12-T04, [D044](decizii/D044-jurnal-audit-sigilat.md)).
