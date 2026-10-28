@@ -14,6 +14,7 @@ import (
 
 	"github.com/ncruces/go-sqlite3"
 
+	"pontix/internal/audit"
 	"pontix/internal/bd/acces"
 	"pontix/internal/i18n"
 )
@@ -26,6 +27,7 @@ type Angajat struct {
 	Functie             string `json:"functie"`
 	SectieID            string `json:"sectie_id"`
 	DepartamentID       string `json:"departament_id"`
+	CategorieProgramID  string `json:"categorie_program_id"`
 	TipContract         string `json:"tip_contract"`
 	NormaPartialaMinute *int64 `json:"norma_partiala_minute"`
 	NormaMinute         int64  `json:"norma_minute"`
@@ -45,11 +47,12 @@ type Departament struct {
 }
 
 type Date struct {
-	Angajati            []Angajat     `json:"angajati"`
-	Sectii              []Sectie      `json:"sectii"`
-	Departamente        []Departament `json:"departamente"`
-	NormaIntreagaMinute int64         `json:"norma_intreaga_minute"`
-	DemoDisponibil      bool          `json:"demo_disponibil"`
+	Angajati            []Angajat          `json:"angajati"`
+	Sectii              []Sectie           `json:"sectii"`
+	Departamente        []Departament      `json:"departamente"`
+	CategoriiProgram    []CategorieProgram `json:"categorii_program"`
+	NormaIntreagaMinute int64              `json:"norma_intreaga_minute"`
+	DemoDisponibil      bool               `json:"demo_disponibil"`
 }
 
 type Serviciu struct{ db *sql.DB }
@@ -83,8 +86,9 @@ func (s *Serviciu) Citeste(ctx context.Context) (Date, error) {
 		}
 		rez.Angajati = append(rez.Angajati, Angajat{ID: a.ID, Nume: a.Nume, Prenume: a.Prenume,
 			Marca: a.Marca, Functie: textSauGol(a.Functie), SectieID: textSauGol(a.SectieID),
-			DepartamentID: textSauGol(a.DepartamentID),
-			TipContract:   a.TipContract, NormaPartialaMinute: a.NormaPartialaMinute,
+			DepartamentID:      textSauGol(a.DepartamentID),
+			CategorieProgramID: textSauGol(a.CategorieProgramID),
+			TipContract:        a.TipContract, NormaPartialaMinute: a.NormaPartialaMinute,
 			NormaMinute: norma, ConcediuZileAn: a.ConcediuZileAn, Activ: a.Activ == 1})
 	}
 	sectii, err := q.ListaSectii(ctx)
@@ -108,6 +112,10 @@ func (s *Serviciu) Citeste(ctx context.Context) (Date, error) {
 			return Date{}, traduceEroare(err)
 		}
 		rez.Departamente = append(rez.Departamente, Departament{ID: r.ID, SectieID: r.SectieID, Denumire: denumire})
+	}
+	rez.CategoriiProgram, err = citesteCategoriiProgram(ctx, q)
+	if err != nil {
+		return Date{}, traduceEroare(err)
 	}
 	n, err := q.NumaraAngajati(ctx)
 	if err != nil {
@@ -142,6 +150,18 @@ func (s *Serviciu) SalveazaAngajat(ctx context.Context, a Angajat) error {
 		return eroare("date.concediu_invalid")
 	}
 	return s.modifica(ctx, func(q *acces.Queries) error {
+		if a.CategorieProgramID != "" {
+			c, err := q.CitesteCategorieProgram(ctx, a.CategorieProgramID)
+			if err != nil {
+				return eroare("program.categorie_invalida")
+			}
+			if c.Activ != 1 {
+				vechi, err := q.CitesteAngajat(ctx, a.ID)
+				if err != nil || textSauGol(vechi.CategorieProgramID) != a.CategorieProgramID {
+					return eroare("program.categorie_inactiva")
+				}
+			}
+		}
 		if a.DepartamentID != "" {
 			d, err := q.CitesteDepartamentActiv(ctx, a.DepartamentID)
 			if errors.Is(err, sql.ErrNoRows) || (err == nil && d.SectieID != a.SectieID) {
@@ -157,8 +177,9 @@ func (s *Serviciu) SalveazaAngajat(ctx context.Context, a Angajat) error {
 			a.ID = idNou()
 			if err := q.AdaugaAngajat(ctx, acces.AdaugaAngajatParams{ID: a.ID, Nume: a.Nume, Prenume: a.Prenume,
 				Marca: a.Marca, Functie: textOptional(a.Functie), SectieID: textOptional(a.SectieID),
-				DepartamentID: textOptional(a.DepartamentID),
-				TipContract:   a.TipContract, NormaPartialaMinute: a.NormaPartialaMinute,
+				DepartamentID:      textOptional(a.DepartamentID),
+				CategorieProgramID: textOptional(a.CategorieProgramID),
+				TipContract:        a.TipContract, NormaPartialaMinute: a.NormaPartialaMinute,
 				ConcediuZileAn: a.ConcediuZileAn, Activ: numarBool(a.Activ), CreatLa: acum, ModificatLa: acum}); err != nil {
 				return err
 			}
@@ -170,8 +191,9 @@ func (s *Serviciu) SalveazaAngajat(ctx context.Context, a Angajat) error {
 			vechi = r
 			n, err := q.ModificaAngajat(ctx, acces.ModificaAngajatParams{ID: a.ID, Nume: a.Nume, Prenume: a.Prenume,
 				Marca: a.Marca, Functie: textOptional(a.Functie), SectieID: textOptional(a.SectieID),
-				DepartamentID: textOptional(a.DepartamentID),
-				TipContract:   a.TipContract, NormaPartialaMinute: a.NormaPartialaMinute,
+				DepartamentID:      textOptional(a.DepartamentID),
+				CategorieProgramID: textOptional(a.CategorieProgramID),
+				TipContract:        a.TipContract, NormaPartialaMinute: a.NormaPartialaMinute,
 				ConcediuZileAn: a.ConcediuZileAn, Activ: numarBool(a.Activ), ModificatLa: acum})
 			if err != nil {
 				return err
@@ -202,6 +224,83 @@ func (s *Serviciu) SchimbaActiv(ctx context.Context, id string, activ bool) erro
 			return err
 		}
 		return jurnal(ctx, q, "angajati", id, vechi, nou)
+	})
+}
+
+func (s *Serviciu) AtribuieCategorieProgramLot(ctx context.Context, angajatIDs []string, categorieID string) error {
+	categorieID = strings.TrimSpace(categorieID)
+	return s.modifica(ctx, func(q *acces.Queries) error {
+		if categorieID != "" {
+			if _, err := q.CitesteCategorieProgram(ctx, categorieID); err != nil {
+				return eroare("program.categorie_invalida")
+			}
+		}
+		for _, id := range angajatIDs {
+			id = strings.TrimSpace(id)
+			if id == "" {
+				continue
+			}
+			vechi, err := q.CitesteAngajat(ctx, id)
+			if err != nil {
+				return err
+			}
+			catVal := textOptional(categorieID)
+			n, err := q.ModificaAngajat(ctx, acces.ModificaAngajatParams{
+				ID:                  vechi.ID,
+				Nume:                vechi.Nume,
+				Prenume:             vechi.Prenume,
+				Marca:               vechi.Marca,
+				Functie:             vechi.Functie,
+				SectieID:            vechi.SectieID,
+				DepartamentID:       vechi.DepartamentID,
+				CategorieProgramID:  catVal,
+				TipContract:         vechi.TipContract,
+				NormaPartialaMinute: vechi.NormaPartialaMinute,
+				ConcediuZileAn:      vechi.ConcediuZileAn,
+				Activ:               vechi.Activ,
+				ModificatLa:         moment(),
+			})
+			if err != nil {
+				return err
+			}
+			if n != 1 {
+				return sql.ErrNoRows
+			}
+			nou, err := q.CitesteAngajat(ctx, id)
+			if err != nil {
+				return err
+			}
+			if err := jurnal(ctx, q, "angajati", id, vechi, nou); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+}
+
+func (s *Serviciu) SchimbaActivLot(ctx context.Context, ids []string, activ bool) error {
+	return s.modifica(ctx, func(q *acces.Queries) error {
+		for _, id := range ids {
+			id = strings.TrimSpace(id)
+			if id == "" {
+				continue
+			}
+			vechi, err := q.CitesteAngajat(ctx, id)
+			if err != nil {
+				return err
+			}
+			if _, err := q.SchimbaActivAngajat(ctx, acces.SchimbaActivAngajatParams{ID: id, Activ: numarBool(activ), ModificatLa: moment()}); err != nil {
+				return err
+			}
+			nou, err := q.CitesteAngajat(ctx, id)
+			if err != nil {
+				return err
+			}
+			if err := jurnal(ctx, q, "angajati", id, vechi, nou); err != nil {
+				return err
+			}
+		}
+		return nil
 	})
 }
 
@@ -280,12 +379,17 @@ func (s *Serviciu) AdaugaDepartament(ctx context.Context, sectieID string, denum
 }
 
 func (s *Serviciu) modifica(ctx context.Context, actiune func(*acces.Queries) error) error {
+	return s.modificaTx(ctx, func(_ *sql.Tx, q *acces.Queries) error { return actiune(q) })
+}
+
+// modificaTx dă acțiunii și tranzacția, pentru interogările scrise direct în SQL.
+func (s *Serviciu) modificaTx(ctx context.Context, actiune func(*sql.Tx, *acces.Queries) error) error {
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		return traduceEroare(err)
 	}
 	defer tx.Rollback()
-	if err := actiune(acces.New(tx)); err != nil {
+	if err := actiune(tx, acces.New(tx)); err != nil {
 		return traduceEroare(err)
 	}
 	return traduceEroare(tx.Commit())
@@ -320,6 +424,8 @@ func traduceEroare(err error) error {
 		return e
 	}
 	switch {
+	case audit.EsteEditareBlocata(err):
+		return eroare(audit.CodEditareBlocata)
 	case errors.Is(err, sql.ErrNoRows):
 		return eroare("date.inexistent")
 	case errors.Is(err, sqlite3.CONSTRAINT_UNIQUE):

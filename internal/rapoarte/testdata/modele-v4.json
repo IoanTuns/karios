@@ -1,0 +1,358 @@
+{
+  "modele": [
+    {
+      "id": "raport-absente",
+      "denumire": {
+        "en": "Absence register",
+        "ro": "Evidența absențelor"
+      },
+      "antet": {
+        "stanga": {
+          "en": "",
+          "ro": ""
+        },
+        "centru": {
+          "en": "ABSENCE REGISTER · {{an}}",
+          "ro": "EVIDENȚA ABSENȚELOR · {{an}}"
+        },
+        "dreapta": {
+          "en": "",
+          "ro": ""
+        }
+      },
+      "continut": {
+        "sursa": "ABSENTE_ANUALE",
+        "coloane": [
+          "data",
+          "angajat",
+          "marca",
+          "cod",
+          "descriere",
+          "categorie"
+        ],
+        "text": {
+          "en": "",
+          "ro": ""
+        }
+      },
+      "subsol": {
+        "stanga": {
+          "en": "Prepared by: __________________",
+          "ro": "Întocmit: __________________"
+        },
+        "centru": {
+          "en": "",
+          "ro": ""
+        },
+        "dreapta": {
+          "en": "Checked by: __________________",
+          "ro": "Verificat: __________________"
+        }
+      },
+      "pagina": {
+        "format": "A4",
+        "orientare": "PEISAJ",
+        "margine_mm": 10,
+        "font_pt": 8
+      },
+      "activ": true,
+      "revizie": "1"
+    },
+    {
+      "id": "raport-fisa",
+      "denumire": {
+        "en": "Individual timesheet",
+        "ro": "Fișă individuală"
+      },
+      "antet": {
+        "stanga": {
+          "en": "",
+          "ro": ""
+        },
+        "centru": {
+          "en": "INDIVIDUAL TIMESHEET · {{angajat}}\n{{perioada}}",
+          "ro": "FIȘĂ INDIVIDUALĂ · {{angajat}}\n{{perioada}}"
+        },
+        "dreapta": {
+          "en": "",
+          "ro": ""
+        }
+      },
+      "continut": {
+        "sursa": "FISA_INDIVIDUALA",
+        "coloane": [
+          "data",
+          "zi",
+          "ore",
+          "descriere"
+        ],
+        "text": {
+          "en": "",
+          "ro": ""
+        }
+      },
+      "subsol": {
+        "stanga": {
+          "en": "Prepared by: __________________",
+          "ro": "Întocmit: __________________"
+        },
+        "centru": {
+          "en": "",
+          "ro": ""
+        },
+        "dreapta": {
+          "en": "Checked by: __________________",
+          "ro": "Verificat: __________________"
+        }
+      },
+      "pagina": {
+        "format": "A4",
+        "orientare": "PORTRET",
+        "margine_mm": 10,
+        "font_pt": 8
+      },
+      "activ": true,
+      "revizie": "2"
+    },
+    {
+      "id": "raport-garzi",
+      "denumire": {
+        "en": "On-call and shift schedule",
+        "ro": "Grafic gărzi și schimburi"
+      },
+      "antet": {
+        "stanga": {
+          "en": "Unit: {{sectie}}\n{{departament}}",
+          "ro": "Unitate: {{sectie}}\n{{departament}}"
+        },
+        "centru": {
+          "en": "MONTHLY ON-CALL AND SHIFT SCHEDULE · {{perioada}}",
+          "ro": "GRAFIC LUNAR DE GĂRZI ȘI SCHIMBURI · {{perioada}}"
+        },
+        "dreapta": {
+          "en": "APPROVED,\nManager",
+          "ro": "APROBAT,\nManager"
+        }
+      },
+      "continut": {
+        "sursa": "GRAFIC_GARZI",
+        "coloane": [
+          "angajat",
+          "marca",
+          "functie",
+          "zile",
+          "total_garzi",
+          "total_ore"
+        ],
+        "text": {
+          "en": "",
+          "ro": ""
+        }
+      },
+      "subsol": {
+        "stanga": {
+          "en": "Prepared by: __________________\nOn-call coordinator",
+          "ro": "Întocmit: __________________\nCoordonator gărzi"
+        },
+        "centru": {
+          "en": "Endorsed: __________________\nDepartment head",
+          "ro": "Avizat: __________________\nȘef secție"
+        },
+        "dreapta": {
+          "en": "Approved: __________________\nMedical director",
+          "ro": "Aprobat: __________________\nDirector medical"
+        }
+      },
+      "pagina": {
+        "format": "A3",
+        "orientare": "PEISAJ",
+        "margine_mm": 10,
+        "font_pt": 7
+      },
+      "activ": true,
+      "revizie": "1"
+    },
+    {
+      "id": "raport-pontaj",
+      "denumire": {
+        "en": "Monthly timesheet",
+        "ro": "Pontaj lunar"
+      },
+      "antet": {
+        "stanga": {
+          "en": "",
+          "ro": ""
+        },
+        "centru": {
+          "en": "TIMESHEET · {{perioada}}",
+          "ro": "PONTAJ · {{perioada}}"
+        },
+        "dreapta": {
+          "en": "",
+          "ro": ""
+        }
+      },
+      "continut": {
+        "sursa": "PONTAJ_LUNAR",
+        "coloane": [
+          "angajat",
+          "marca",
+          "zile"
+        ],
+        "text": {
+          "en": "",
+          "ro": ""
+        }
+      },
+      "subsol": {
+        "stanga": {
+          "en": "Prepared by: __________________",
+          "ro": "Întocmit: __________________"
+        },
+        "centru": {
+          "en": "",
+          "ro": ""
+        },
+        "dreapta": {
+          "en": "Checked by: __________________",
+          "ro": "Verificat: __________________"
+        }
+      },
+      "pagina": {
+        "format": "A3",
+        "orientare": "PEISAJ",
+        "margine_mm": 10,
+        "font_pt": 8
+      },
+      "activ": true,
+      "revizie": "1"
+    },
+    {
+      "id": "raport-pontaj-detaliat",
+      "denumire": {
+        "en": "Detailed timesheet",
+        "ro": "Pontaj detaliat"
+      },
+      "antet": {
+        "stanga": {
+          "en": "",
+          "ro": ""
+        },
+        "centru": {
+          "en": "DETAILED TIMESHEET · {{perioada}}",
+          "ro": "PONTAJ DETALIAT · {{perioada}}"
+        },
+        "dreapta": {
+          "en": "",
+          "ro": ""
+        }
+      },
+      "continut": {
+        "sursa": "PONTAJ_DETALIAT",
+        "coloane": [
+          "angajat",
+          "marca",
+          "zile",
+          "totaluri"
+        ],
+        "text": {
+          "en": "",
+          "ro": ""
+        }
+      },
+      "subsol": {
+        "stanga": {
+          "en": "Prepared by: __________________",
+          "ro": "Întocmit: __________________"
+        },
+        "centru": {
+          "en": "",
+          "ro": ""
+        },
+        "dreapta": {
+          "en": "Checked by: __________________",
+          "ro": "Verificat: __________________"
+        }
+      },
+      "pagina": {
+        "format": "A3",
+        "orientare": "PEISAJ",
+        "margine_mm": 10,
+        "font_pt": 6
+      },
+      "activ": true,
+      "revizie": "1"
+    }
+  ],
+  "surse": [
+    {
+      "cod": "PONTAJ_LUNAR",
+      "coloane": [
+        "angajat",
+        "marca",
+        "sectie",
+        "departament",
+        "functie",
+        "zile"
+      ]
+    },
+    {
+      "cod": "PONTAJ_DETALIAT",
+      "coloane": [
+        "angajat",
+        "marca",
+        "sectie",
+        "departament",
+        "functie",
+        "zile",
+        "totaluri"
+      ]
+    },
+    {
+      "cod": "FISA_INDIVIDUALA",
+      "coloane": [
+        "data",
+        "zi",
+        "ore",
+        "descriere",
+        "categorie"
+      ]
+    },
+    {
+      "cod": "ABSENTE_ANUALE",
+      "coloane": [
+        "data",
+        "angajat",
+        "marca",
+        "sectie",
+        "departament",
+        "cod",
+        "descriere",
+        "categorie"
+      ]
+    },
+    {
+      "cod": "GRAFIC_GARZI",
+      "coloane": [
+        "angajat",
+        "marca",
+        "sectie",
+        "departament",
+        "functie",
+        "zile",
+        "total_garzi",
+        "total_ore"
+      ]
+    }
+  ],
+  "variabile": [
+    "titlu",
+    "an",
+    "luna",
+    "perioada",
+    "sectie",
+    "departament",
+    "angajat",
+    "generat_la"
+  ]
+}

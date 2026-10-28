@@ -10,12 +10,32 @@ export function AdaugaSectie(arg1) {
   return window['go']['main']['App']['AdaugaSectie'](arg1);
 }
 
+export function AnalizeazaImportAngajati(arg1, arg2) {
+  return window['go']['main']['App']['AnalizeazaImportAngajati'](arg1, arg2);
+}
+
+export function AnalizeazaImportSarbatori(arg1, arg2) {
+  return window['go']['main']['App']['AnalizeazaImportSarbatori'](arg1, arg2);
+}
+
+export function AplicaPropunereAI(arg1) {
+  return window['go']['main']['App']['AplicaPropunereAI'](arg1);
+}
+
+export function AtribuieCategorieProgramLot(arg1, arg2) {
+  return window['go']['main']['App']['AtribuieCategorieProgramLot'](arg1, arg2);
+}
+
 export function Catalog(arg1) {
   return window['go']['main']['App']['Catalog'](arg1);
 }
 
 export function CitesteAbsente(arg1) {
   return window['go']['main']['App']['CitesteAbsente'](arg1);
+}
+
+export function CitesteAcoperirePlanificare(arg1, arg2, arg3) {
+  return window['go']['main']['App']['CitesteAcoperirePlanificare'](arg1, arg2, arg3);
 }
 
 export function CitesteCalendar(arg1) {
@@ -30,16 +50,44 @@ export function CitesteDocumentAbsenta(arg1) {
   return window['go']['main']['App']['CitesteDocumentAbsenta'](arg1);
 }
 
+export function CitesteEchitatePlanificare(arg1, arg2) {
+  return window['go']['main']['App']['CitesteEchitatePlanificare'](arg1, arg2);
+}
+
+export function CitestePlanificare(arg1, arg2) {
+  return window['go']['main']['App']['CitestePlanificare'](arg1, arg2);
+}
+
+export function CitestePlanificatVsRealizat(arg1, arg2) {
+  return window['go']['main']['App']['CitestePlanificatVsRealizat'](arg1, arg2);
+}
+
 export function CitesteSchita(arg1, arg2) {
   return window['go']['main']['App']['CitesteSchita'](arg1, arg2);
+}
+
+export function CitesteStareLuna(arg1, arg2) {
+  return window['go']['main']['App']['CitesteStareLuna'](arg1, arg2);
+}
+
+export function CitesteUltimeleLiniiJurnal(arg1) {
+  return window['go']['main']['App']['CitesteUltimeleLiniiJurnal'](arg1);
 }
 
 export function CompleteazaSarbatori2026() {
   return window['go']['main']['App']['CompleteazaSarbatori2026']();
 }
 
+export function CompleteazaSarbatoriAn(arg1) {
+  return window['go']['main']['App']['CompleteazaSarbatoriAn'](arg1);
+}
+
 export function CompleteazaSchimburiInitiale(arg1) {
   return window['go']['main']['App']['CompleteazaSchimburiInitiale'](arg1);
+}
+
+export function ConfirmaIncidentAudit(arg1) {
+  return window['go']['main']['App']['ConfirmaIncidentAudit'](arg1);
 }
 
 export function CreeazaBackup() {
@@ -50,8 +98,36 @@ export function DateInitiale() {
   return window['go']['main']['App']['DateInitiale']();
 }
 
+export function DescarcaSablon(arg1, arg2) {
+  return window['go']['main']['App']['DescarcaSablon'](arg1, arg2);
+}
+
+export function DeschideFolderJurnale() {
+  return window['go']['main']['App']['DeschideFolderJurnale']();
+}
+
 export function DeschidePDFPentruTiparire(arg1) {
   return window['go']['main']['App']['DeschidePDFPentruTiparire'](arg1);
+}
+
+export function DetaliiDezvoltare() {
+  return window['go']['main']['App']['DetaliiDezvoltare']();
+}
+
+export function EsteAutoPornireAI() {
+  return window['go']['main']['App']['EsteAutoPornireAI']();
+}
+
+export function ExecutaImportAngajati(arg1) {
+  return window['go']['main']['App']['ExecutaImportAngajati'](arg1);
+}
+
+export function ExecutaImportSarbatori(arg1, arg2) {
+  return window['go']['main']['App']['ExecutaImportSarbatori'](arg1, arg2);
+}
+
+export function ExportaPontajExcel(arg1, arg2) {
+  return window['go']['main']['App']['ExportaPontajExcel'](arg1, arg2);
 }
 
 export function IncarcaDemo() {
@@ -62,6 +138,14 @@ export function Informatii() {
   return window['go']['main']['App']['Informatii']();
 }
 
+export function InregistreazaEroareFrontend(arg1, arg2, arg3) {
+  return window['go']['main']['App']['InregistreazaEroareFrontend'](arg1, arg2, arg3);
+}
+
+export function InterogheazaAI(arg1) {
+  return window['go']['main']['App']['InterogheazaAI'](arg1);
+}
+
 export function Limbi() {
   return window['go']['main']['App']['Limbi']();
 }
@@ -70,16 +154,40 @@ export function ListaModeleRapoarte() {
   return window['go']['main']['App']['ListaModeleRapoarte']();
 }
 
+export function ListaReguliConfigurabile() {
+  return window['go']['main']['App']['ListaReguliConfigurabile']();
+}
+
 export function ListaSchimburi() {
   return window['go']['main']['App']['ListaSchimburi']();
+}
+
+export function OpresteAI() {
+  return window['go']['main']['App']['OpresteAI']();
+}
+
+export function PornesteAI(arg1) {
+  return window['go']['main']['App']['PornesteAI'](arg1);
 }
 
 export function PregatesteRaport(arg1) {
   return window['go']['main']['App']['PregatesteRaport'](arg1);
 }
 
+export function PrevizualizeazaPrecompletare(arg1, arg2, arg3, arg4) {
+  return window['go']['main']['App']['PrevizualizeazaPrecompletare'](arg1, arg2, arg3, arg4);
+}
+
+export function PrevizualizeazaPublicarePlan(arg1) {
+  return window['go']['main']['App']['PrevizualizeazaPublicarePlan'](arg1);
+}
+
 export function PrevizualizeazaSchita(arg1, arg2, arg3) {
   return window['go']['main']['App']['PrevizualizeazaSchita'](arg1, arg2, arg3);
+}
+
+export function PublicaPlanificare(arg1) {
+  return window['go']['main']['App']['PublicaPlanificare'](arg1);
 }
 
 export function SalveazaAbsente(arg1, arg2) {
@@ -88,6 +196,10 @@ export function SalveazaAbsente(arg1, arg2) {
 
 export function SalveazaAngajat(arg1) {
   return window['go']['main']['App']['SalveazaAngajat'](arg1);
+}
+
+export function SalveazaCategorieProgram(arg1) {
+  return window['go']['main']['App']['SalveazaCategorieProgram'](arg1);
 }
 
 export function SalveazaConfiguratiePontaj(arg1) {
@@ -104,6 +216,14 @@ export function SalveazaNormaIntreaga(arg1) {
 
 export function SalveazaPDFRaport(arg1) {
   return window['go']['main']['App']['SalveazaPDFRaport'](arg1);
+}
+
+export function SalveazaPlanificare(arg1, arg2, arg3) {
+  return window['go']['main']['App']['SalveazaPlanificare'](arg1, arg2, arg3);
+}
+
+export function SalveazaRegulaConfigurabila(arg1) {
+  return window['go']['main']['App']['SalveazaRegulaConfigurabila'](arg1);
 }
 
 export function SalveazaSarbatoare(arg1, arg2, arg3) {
@@ -126,6 +246,34 @@ export function SchimbaActivAngajat(arg1, arg2) {
   return window['go']['main']['App']['SchimbaActivAngajat'](arg1, arg2);
 }
 
+export function SchimbaActivAngajatiLot(arg1, arg2) {
+  return window['go']['main']['App']['SchimbaActivAngajatiLot'](arg1, arg2);
+}
+
 export function SchimbaActivSchimb(arg1, arg2) {
   return window['go']['main']['App']['SchimbaActivSchimb'](arg1, arg2);
+}
+
+export function SeteazaAutoPornireAI(arg1) {
+  return window['go']['main']['App']['SeteazaAutoPornireAI'](arg1);
+}
+
+export function SeteazaStareLuna(arg1, arg2, arg3, arg4) {
+  return window['go']['main']['App']['SeteazaStareLuna'](arg1, arg2, arg3, arg4);
+}
+
+export function StareAI() {
+  return window['go']['main']['App']['StareAI']();
+}
+
+export function StareAudit() {
+  return window['go']['main']['App']['StareAudit']();
+}
+
+export function StatisticiDiagnoza() {
+  return window['go']['main']['App']['StatisticiDiagnoza']();
+}
+
+export function VerificaReguliPlanificare(arg1, arg2) {
+  return window['go']['main']['App']['VerificaReguliPlanificare'](arg1, arg2);
 }

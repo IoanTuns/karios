@@ -33,7 +33,7 @@ func TestProbaRapoarteFaceBackupInainteaCompletariiCererilor(t *testing.T) {
 	}
 	dir := t.TempDir()
 	acum := func() time.Time { return time.Date(2026, 10, 25, 13, 0, 0, 0, time.UTC) }
-	db, err := deschide(ctx, dir, surse, acum)
+	db, _, err := deschide(ctx, dir, surse, acum)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -44,7 +44,7 @@ func TestProbaRapoarteFaceBackupInainteaCompletariiCererilor(t *testing.T) {
 	if err := db.Close(); err != nil {
 		t.Fatal(err)
 	}
-	db, err = deschide(ctx, dir, bd.Migrari, acum)
+	db, _, err = deschide(ctx, dir, bd.Migrari, acum)
 	if err != nil {
 		t.Fatal(err)
 	}

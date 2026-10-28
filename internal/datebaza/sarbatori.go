@@ -26,8 +26,14 @@ type CalendarAn struct {
 	ImportDisponibil bool         `json:"import_disponibil"`
 }
 
+//go:embed calendare/romania-2025.json
+var calendar2025 []byte
+
 //go:embed calendare/romania-2026.json
 var calendar2026 []byte
+
+//go:embed calendare/romania-2027.json
+var calendar2027 []byte
 
 func (s *Serviciu) CitesteCalendar(ctx context.Context, an int) (CalendarAn, error) {
 	if an < 1 || an > 9999 {
@@ -38,7 +44,7 @@ func (s *Serviciu) CitesteCalendar(ctx context.Context, an int) (CalendarAn, err
 	if err != nil {
 		return CalendarAn{}, traduceEroare(err)
 	}
-	rez := CalendarAn{An: an, Sarbatori: []Sarbatoare{}, ImportDisponibil: an == 2026}
+	rez := CalendarAn{An: an, Sarbatori: []Sarbatoare{}, ImportDisponibil: an == 2025 || an == 2026 || an == 2027}
 	for _, r := range randuri {
 		var denumire i18n.Text
 		if err := json.Unmarshal([]byte(r.Denumire), &denumire); err != nil {
@@ -98,9 +104,20 @@ func (s *Serviciu) SalveazaSarbatoare(ctx context.Context, initiala string, sarb
 	})
 }
 
-func (s *Serviciu) CompleteazaSarbatori2026(ctx context.Context) (int64, error) {
+func (s *Serviciu) CompleteazaSarbatoriAn(ctx context.Context, an int) (int64, error) {
+	var dateCalendar []byte
+	switch an {
+	case 2025:
+		dateCalendar = calendar2025
+	case 2026:
+		dateCalendar = calendar2026
+	case 2027:
+		dateCalendar = calendar2027
+	default:
+		return 0, eroare("sarbatori.an_fara_import")
+	}
 	var sarbatori []Sarbatoare
-	if err := json.Unmarshal(calendar2026, &sarbatori); err != nil {
+	if err := json.Unmarshal(dateCalendar, &sarbatori); err != nil {
 		return 0, traduceEroare(err)
 	}
 	var adaugate int64
@@ -128,4 +145,8 @@ func (s *Serviciu) CompleteazaSarbatori2026(ctx context.Context) (int64, error) 
 		return 0, err
 	}
 	return adaugate, nil
+}
+
+func (s *Serviciu) CompleteazaSarbatori2026(ctx context.Context) (int64, error) {
+	return s.CompleteazaSarbatoriAn(ctx, 2026)
 }

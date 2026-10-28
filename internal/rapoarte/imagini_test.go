@@ -264,7 +264,7 @@ func TestMigrareImaginiPastreazaDefinitiile(t *testing.T) {
 	if _, err := db.Exec(`UPDATE definitii_rapoarte SET antet=json_set(antet,'$.stanga.ro','Unitate personalizata'), revizie=7,modificat_la='moment-neschimbat' WHERE id='raport-pontaj'`); err != nil {
 		t.Fatal(err)
 	}
-	if n, err := bd.Migreaza(context.Background(), db, bd.Migrari); err != nil || n != 2 {
+	if n, err := bd.Migreaza(context.Background(), db, bd.Migrari); err != nil || n != 8 {
 		t.Fatalf("migrare imagini: %d %v", n, err)
 	}
 	d := initiala(t, &mediu{s: Nou(db)}, "raport-pontaj")
@@ -313,7 +313,7 @@ func TestActualizareDinProbaRapoarte020(t *testing.T) {
 	if err != nil || versiune != 13 || !inAsteptare {
 		t.Fatalf("starea actualizarii 0.20: %d %v %v", versiune, inAsteptare, err)
 	}
-	if n, err := bd.Migreaza(context.Background(), db, bd.Migrari); err != nil || n != 3 {
+	if n, err := bd.Migreaza(context.Background(), db, bd.Migrari); err != nil || n != 9 {
 		t.Fatalf("actualizarea 0.20: %d %v", n, err)
 	}
 	d := initiala(t, &mediu{s: Nou(db)}, "raport-pontaj")

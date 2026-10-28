@@ -21,8 +21,14 @@ Salvările concurente sunt refuzate; reîncarcă apoi reaplică modificările. C
 
 ## Completarea grilei
 
-Selectează una sau mai multe celule, alege programul după denumire, interval și regim, apoi apasă **Aplică programul**. Alternativ introdu **Ore manuale pe zi** și apasă **Aplică orele manuale**; nu se deduce un program din numărul de ore. F2 sau dublu clic focalizează câmpul manual. Orele manuale aparțin zilei selectate; sunt acceptate 0–48 ore, cu precizie de un minut și separator zecimal punct sau virgulă.
+Butonul **Precompletează L–V** este permanent vizibil pentru programul ales. Pentru implicite individuale și combinații de programe, folosește **După categorii**, după configurarea și atribuirea categoriilor pe angajați. Propunerile respectă absențele active, norma individuală, calendarul și turele existente; vezi [ghidul categoriilor de program](ghid-categorii-program.md).
+
+Selectează una sau mai multe celule și deschide **Completare**. Alege programul după denumire, interval și regim, apoi apasă **Aplică programul**. Alternativ introdu **Ore manuale pe zi** și apasă **Aplică orele manuale**; nu se deduce un program din numărul de ore. F2 sau dublu clic deschide Completare și focalizează câmpul manual. Orele manuale aparțin zilei selectate; sunt acceptate 0–48 ore, cu precizie de un minut și separator zecimal punct sau virgulă.
 
 Grila și copierea afișează ore; codul programului rămâne în înregistrare. Lipirea TSV acceptă ore, nu coduri. Calculul modificărilor este o previzualizare; apasă **Salvează schița** pentru persistență. Câmpul manual gol sau Delete șterge înregistrările din zilele selectate. Orele continuate din ziua anterioară se modifică la data începerii turei, indicată în explicația celulei. Celulele cu absențe active sunt protejate.
 
 Un cod istoric necunoscut apare „—”; înlocuiește-l explicit cu programul corect sau cu ore manuale. O absență activă anulează programul propriei zile. Orele continuate dintr-o tură anterioară rămân vizibile; compatibilitatea cu concediul nu este decisă automat.
+
+**Filtre** grupează secția, departamentul și categoria de rânduri; căutarea după nume/marcă este permanent vizibilă. **Ajutor** explică totalurile și scurtăturile. Panourile se închid cu același buton, cu Escape sau cu un clic în afara lor. Legenda de sub inspecție explică marcajele vizuale. T diferit de Ore norm nu este avertisment contractual; filtrul de avertismente urmărește verificările existente după G24 și peste 24 h într-o zi.
+
+La revenirea între ecrane se păstrează în sesiune anul/luna, filtrele, selecția și derularea grilei. Confirmarea pentru renunțarea la modificări rămâne activă, iar datele se recitesc din bază: o schiță abandonată nu reapare și nu se salvează automat. Contextul se resetează la repornirea aplicației. În Configurare pontaj, bara de salvare rămâne accesibilă la derularea regulilor.

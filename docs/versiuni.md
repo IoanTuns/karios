@@ -4,6 +4,430 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.60.1 · 2026-10-28
+
+Actualizarea dependențelor (AGENTS.md §6, F06-T08): `github.com/pdfcpu/pdfcpu` v0.16.3 → v0.16.4 (patch, aceeași licență Apache-2.0). `go mod tidy` a trecut `github.com/xuri/excelize/v2` v2.11.0 la dependență directă, cum e folosită de `internal/exportexcel`; versiunea nu se schimbă. Go 1.27.3 și pachetele npm erau deja la ultima versiune stabilă.
+
+## 0.60.0 · 2026-10-28
+
+Trasabilitate: orice modificare a datelor făcută în afara aplicației este detectată (F06-T04, F06-T08, F12-T04, [D044](decizii/D044-jurnal-audit-sigilat.md)).
+
+- **Sigiliul tabelelor (`internal/audit`):** pentru fiecare tabel și pentru schemă, suma modulo 2^256 a HMAC-urilor rândurilor, cu cheia de audit derivată din cheia de date. Trigger-ele TEMP create de aplicație pe fiecare conexiune țin sigiliul la zi în aceeași tranzacție cu scrierea; funcțiile SQL sunt `DIRECTONLY`.
+- **Lanțul jurnalului:** fiecare rând din `jurnal_modificari` are `mac` = HMAC(mac anterior ‖ rând).
+- **Pornirea:** baza se verifică înainte de migrări; după migrări se resigilează doar o bază intactă, cu migrarea notată în jurnal. Prima sigilare se face o singură dată, la aplicarea migrării 0021.
+- **Incident:** banner permanent cu tabelele afectate și primul rând rupt din jurnal; scrierile sunt refuzate (`audit.editare_blocata`) până la confirmarea cu motiv, notată în jurnal. Incidentul se scrie și în jurnalul de diagnoză, doar cu numele tabelelor.
+- **Închiderea lunii și regulile configurabile** scriu acum în tranzacție și în jurnal (înainte scriau în afara tranzacției).
+- **Amprenta lunii închise:** calculată la închidere din pontaj, absențe și planificare, păstrată în `stare_luni.amprenta`, afișată în bannerul lunii și în subsolul rapoartelor lunare, cu avertisment dacă datele s-au schimbat după închidere.
+
+Baza de date: migrarea `0021_audit_sigilii` (tabelul `sigilii`, coloanele `jurnal_modificari.mac` și `stare_luni.amprenta`).
+
+Rapoarte: pontaj lunar v3 → v4, pontaj detaliat v2 → v3, fișă individuală v3 → v4, grafic gărzi v1 → v2 (amprenta în subsol pentru lunile închise). Absențele anuale rămân la v2.
+
+## 0.59.0 · 2026-10-28
+
+Pachet complet de rafinare UX/UI (F16-T04..T10, prioritățile 1, 2 și 3):
+
+- **Prioritatea 1 · Eficiență imediată & vizibilitate grilă:**
+  * **Bară laterală pliabilă (Compact / Icon-only Sidebar, F16-T04):** Adăugat comutator toggle `[◀] / [▶]` în antetul meniului lateral care restrânge bara la 64px (doar pictogramele cu tooltips native). Eliberează peste 140px lățime direct pentru grilele de pontaj și planificare pe laptopuri. Starea este persistată în `localStorage`.
+  * **Control de densitate & Zoom pentru grilă (F16-T05):** Comutator rapid `[S (44px)] [M (52px)] [L (62px)]` în bara de unelte a ecranelor de Pontaj și Planificare, permițând densitate maximă pe ecrane mici sau lizibilitate mărită pe monitoare de rezoluție înaltă.
+  * **Tooltips rapide la hover (F16-T06):** La trecerea cursorului peste orice celulă, se afișează instant un rezumat clar: nume angajat, marcă, data, zi de weekend/sărbătoare, cod schimb cu denumire completă și ore, plus eventuale avertismente sau concedii.
+- **Prioritatea 2 · Notificări unificate & scurtături universale:**
+  * **Sistem unificat Toast Notifications (`Toast.tsx`, F16-T07):** Notificări neintruzive animate în colțul din dreapta-jos pentru confirmări de salvare (`succes`), copiere în clipboard (`info`), avertismente de gardă (`avertisment`) și erori (`eroare`).
+  * **Scurtături de tastatură universale (F16-T08):** Închiderea oricărui dialog modal prin tasta `Escape`; confirmare și trimitere rapidă a formularelor prin `Ctrl + Enter`.
+- **Prioritatea 3 · Confort vizual & ghid de start:**
+  * **Suport Dark Mode / Temă Nocturnă (F16-T09):** Temă întunecată dedicată gărzilor de noapte cu paletă medicală odihnitoare (`[data-theme="dark"]`), comutator `☀️ Zi / 🌙 Noapte` în subsolul barei laterale și persistență a preferinței.
+  * **Ghid vizual pe ecrane goale (Onboarding Empty State, F16-T10):** Înlocuirea textelor simple de lipsă date din Pontaj și Planificare cu carduri interactive ghidate, oferind butoane de reîmprospătare sau resetare rapidă a filtrelor.
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
+## 0.58.0 · 2026-10-28
+
+Sistem de diagnoză locală, captare robustă a erorilor și profilare a timpilor de interogare (D043, F16).
+
+- **Pachet backend dedicat (`internal/diagnoza`):**
+  * Salvare persistentă a erorilor în fișiere de log rotative locale (`karios/jurnale/pontix-AAAA-LL.log`, max 5 MB).
+  * Protecție strictă GDPR: jurnalele conțin exclusiv date tehnice (timestamp, nivel, modul, eroare, stack trace), fără PII sau date medicale.
+  * Captare panici Go (`RecupereazaPanic`) cu stivă de execuție completă pentru a preveni crash-ul executabilului.
+  * Măsurare a timpilor de execuție a interogărilor (`Cronometreaza`), semnalizare slow queries (>50ms) și calcul statistici (minim, mediu, maxim).
+- **Captare globală a erorilor frontend (`ErrorBoundary.tsx`, `main.tsx`):**
+  * Componentă React `ErrorBoundary` înfășurând fiecare ecran principal pentru recuperare graceful fără blocarea întregii aplicații.
+  * Ascultători globali `window.addEventListener('error')` și `window.addEventListener('unhandledrejection')` trimițând automat excepțiile JS către backend prin `InregistreazaEroareFrontend`.
+- **Panou de diagnoză și export în interfață (`Formulare.tsx`):**
+  * Integrarea secțiunii de diagnoză în dialogul *Detalii dezvoltare, integritate și cerințe sistem*.
+  * Butoane rapide: `📁 Deschide folderul de jurnale` (Explorer) și `📋 Copiază ultimele 100 linii din log`.
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
+## 0.57.0 · 2026-10-28
+
+Aliniere licență aplicație și UI cu licența repository-ului (Apache-2.0).
+
+- **Aliniere termen licență cu `LICENSE` din repo (`app_dezvoltare.go`, `app_dezvoltare_test.go`):**
+  * Corectat câmpul `Licenta` din raportul backend `DetaliiDezvoltare()` la `Apache License 2.0 (Apache-2.0)` conform fișierului `LICENSE` aflat la rădăcina repoului karios (anterior marcat eronat ca proprietar).
+  * Adăugat test specific de validare a licenței în `app_dezvoltare_test.go`.
+- **Actualizare UI și internaționalizare (`Formulare.tsx`, `ro.json`, `en.json`):**
+  * Afișare insignă de licență `Licență: Apache-2.0` în cardul *Despre Pontix & Autor*.
+  * Preluare dinamică a versiunii curente prin `Informatii()` pentru a preveni desincronizările.
+  * Actualizare text drepturi autor: `© 2026 Ioan Tuns · Distribuit conform termenilor Apache License 2.0.`
+  * Adăugat rând dedicat pentru `Licență Repository: Apache License 2.0 (Apache-2.0)` în fereastra modală tehnică `DialogDetaliiDezvoltare`.
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
+## 0.56.0 · 2026-10-28
+
+Fereastră dedicată și raport complet de dezvoltare, integritate și cerințe sistem în Setări (D009, D042).
+
+- **Raport tehnic complet de dezvoltare (`app_dezvoltare.go`, `app_dezvoltare_test.go`):**
+  * Noul endpoint backend `DetaliiDezvoltare()` colectează și structurează metadatele tehnice ale aplicației:
+    - **Identificare:** Nume repository (`karios`), nume aplicație (`Pontix`), versiune compilată (`0.56.0`), Git commit hash (`versiune.Commit`), arhitectură (`windows/amd64`), versiune Go și Wails (`v2.17.0`).
+    - **Validare integritate:** Calea binarului executabil și calculul dinamic al amprentei criptografice **SHA-256 Checksum** a executabilului pentru audit și securitate.
+    - **Cerințe minime și recomandate:** OS (Windows 10/11 64-bit), CPU (x64 AVX2), RAM (4 GB fără AI / 8–16 GB cu AI), disc (100 MB de bază / 3.5 GB cu AI), dependințe (WebView2) și conectivitate (100% Offline).
+    - **Modul Local AI & LLM:** Nume model (`model.gguf`), dimensiune fișier pe disc, format GGUF 4-bit, motor C++ `llama-server` cu AVX2, fereastră context (8192 tokeni), port local (28491) și izolare completă de rețea (127.0.0.1, 0 KB/s trafic exterior, GDPR).
+- **Interfață utilizator & Fereastră Pop-up în Setări (`Formulare.tsx`, `style.css`):**
+  * Secțiunea *Despre Pontix & Dezvoltare* din ecranul de Setări afișează insigne rapide (Repo, Versiune, Model AI, Offline) și butonul dedicat `ℹ️ Detalii dezvoltare, integritate și cerințe sistem`.
+  * Dialogul modal `DialogDetaliiDezvoltare` prezintă raportul organizat pe categorii și include butonul `📋 Copiază raportul tehnic` pentru asistență sau audit.
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
+## 0.55.0 · 2026-10-27
+
+Extindere fereastră context AI la 8192 tokeni (F14-T04 / D042).
+
+- **Rezolvare eroare depășire context (`exceed_context_size_error`):**
+  * Corectat parametrul `-c` al procesului `llama-server.exe` din `internal/ai/proces.go` la **8192 tokeni** (anterior limitat la 2048).
+  * Permite încărcarea simultană fără erori 400 a tuturor datelor lunare agregate (personal medical complet, lista tuturor schimburilor, absențele și concediile lunare, turele deja planificate și istoricul conversațional extins, care cumulează peste 2800 tokeni).
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
+## 0.54.0 · 2026-10-27
+
+Pachet complet de optimizări de performanță, viteză de lansare, productivitate și consum de memorie (Optimizarile 1–5).
+
+- **Optimizarea 1 · Code-Splitting asincron pe Frontend (`React.lazy` + `Suspense` în `App.tsx`):**
+  * Divizarea modulelor mari (`Planificare`, `Absente`, `Pontaj`, `Rapoarte`, `AsistentAI`, `Schimburi`, `Sarbatori`) în chunk-uri asincrone încărcate la cerere.
+  * Scăderea dimensiunii pachetului JavaScript inițial cu **51%** (de la 515 KB la 252 KB), eliminând complet avertismentul Vite de bundle și accelerând lansarea interfeței în WebView2.
+- **Optimizarea 2 & 3 · Navigare rapidă și productivitate în grilă (Excel-style în `Pontaj.tsx` și `Planificare.tsx`):**
+  * Adăugat suport pentru tastele `Home` (salt la ziua 1), `End` (salt la ultima zi din lună), `PageUp` / `PageDown` (salt 5 rânduri) și `Space` (deschidere introducere ore).
+  * **Introducere directă a orelor din cifre:** tastarea tastelor `0..9` direct pe celulă introduce orele (`@M480` pentru 8h, curățare pentru 0) și avansează automat focusul la ziua următoare, multiplicând viteza de introducere a pontajului.
+- **Optimizarea 4 · Eficiență inferență AI Locală & economisire RAM (`internal/ai/proces.go`, `asistent.go`):**
+  * Redus fereastra de context de la 4096 la 2048 tokeni, diminuând alocarea KV cache în memorie cu 50% (~500 MB RAM economisiți pe desktop-urile cu resurse limitate).
+  * Adăugat procesare de prompt accelerată vectorial (`-b 512`, `-ub 512`).
+  * Extins `AnalizeazaInterogareSinteza` cu `sintetizeazaGhidComenzi` pentru comenzi de ajutor/ghid cu răspuns determinist instant (0 ms, 0% CPU).
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
+## 0.53.0 · 2026-10-27
+
+Motor de reguli configurabile (Rule Engine) pentru restricții medicale și de gardă (Lot 7 / D041 / I061).
+
+- **Motor de evaluare a regulilor medicale (`internal/calcul/motor_reguli.go`):**
+  * Evaluare automată a regulilor specifice unităților medicale:
+    - `REPAUS_G24`: repaus minim obligatoriu de 24 de ore după o gardă completă de 24h.
+    - `PLAFON_GARZI`: limită maximă configurabilă de gărzi/ture per angajat într-o lună (implicit 6).
+    - `SUCCESIUNE_G24_Z7`: interdicție succesiune imediată (gardă 24h urmată direct de tură de dimineață a doua zi).
+  * Raportare structurată a încălcărilor (`IncalcareRegula`) cu severitate (`AVERTISMENT` / `BLOCANT`), dată, angajat, mesaj explicativ și referință legală/medicală.
+- **Persistență și configurare în baza de date (Migrarea 0020 `reguli_configurabile`):**
+  * Tabelul `reguli_configurabile` cu cod, denumire, descriere, tip regulă, severitate, coduri schimb vizate, valoare numerică limită și stare de activare.
+  * Funcții de citire și salvare (`ListaReguliConfigurabile`, `SalveazaRegulaConfigurabila`, `VerificaReguliPlanificare` în `internal/datebaza/reguli.go` și `app_reguli.go`).
+- **Interfață de configurare și alertare în timp real (`Planificare.tsx`, `style.css`):**
+  * Alertă vizuală în antetul planificării cu numărul de atenționări medicale și detalii per angajat.
+  * Dialog dedicat `DialogConfigurareReguli` pentru ajustarea plafoanelor, schimbarea severității și activarea/dezactivarea regulilor.
+  * Teste unitare și de integrare complete în `internal/calcul/reguli_test.go` și `app_reguli_test.go`.
+
+Baza de date: migrarea 0020 adaugă tabelul `reguli_configurabile`. Rapoarte: nicio schimbare.
+
+## 0.52.0 · 2026-10-27
+
+Grafic Gantt anual de concedii și vizualizare panoramică a absențelor (F08-T05 / Lot 6).
+
+- **Vizualizare panoramică și zoom lunar (`PanouGanttAbsente` în `GanttAbsente.tsx`, `Absente.tsx`):**
+  * Modul Gantt integrat direct în ecranul de Concedii și absențe, accesibil prin fila dedicată „Cronologie (Gantt)”.
+  * Oferă două moduri de afișare: **Panoramă anuală (12 luni)** pentru o perspectivă macro asupra distribuției concediilor și **Lună detaliată (zilele 1..31)** pentru inspecția detaliată a fiecărei zile lucrătoare și de weekend.
+  * Grupează automat zilele consecutive în intervale continue per angajat, colorate conform categoriei legale (Odihnă = verde, Medical = portocaliu/roșu, Special = albastru).
+- **Detector automat de suprapuneri critice pe departament (Overlap Engine):**
+  * Algoritmul identifică în timp real situațiile în care doi sau mai mulți colegi din același departament sunt în concediu în aceleași zile.
+  * Afișează caseta de avertisment cu posturile afectate, intervalele critice și numele colegilor implicați.
+  * Evidențiază vizual zilele cu deficit de personal prin etichete galbene/portocalii în antetul coloanei și în celule.
+- **Carduri sintetice și filtrare pe departament:** Total intervale înregistrate, număr de suprapuneri identificate și filtru rapid `[ ] Doar angajați cu suprapuneri`.
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
+## 0.51.0 · 2026-10-27
+
+Închiderea și blocarea lunii la editare (F12-T01).
+
+- **Persistență stare luni calendaristice (Migrarea 0019 `stare_luni`):** Adăugat tabelul `stare_luni` cu câmpurile `an`, `luna`, `stare` (`DESCHISA`, `BLOCATA`, `INCHISA`), `modificat_la`, `modificat_de`, `motiv`.
+- **Protecție strictă împotriva modificărilor (`SalveazaSchita`, `SalveazaPlanificare`):** Backend-ul verifică starea lunii înainte de salvare (`EsteLunaInchisa`). Dacă luna este `INCHISA` sau `BLOCATA`, orice încercare de editare este respinsă tranzacțional cu eroarea explicită `pontaj.luna_inchisa`.
+- **Semnalizare vizuală și comenzi administrative (`Pontaj.tsx`, `style.css`):**
+  * Banner de avertizare stilizat `banner-luna-blocata` cu pictograma 🔒, afișând mesajul „Lună blocată la editare (Transmis la salarii)” și buton rapid de redeschidere.
+  * Buton de comutare a stării în antet („🔒 Închide luna (salarii)” / „🔓 Redeschide luna”) protejat prin dialog nativ de confirmare.
+  * Dezactivare automată a aplicării celulelor și a butonului de salvare când luna este închisă.
+- **Teste unitare și de integrare:** Adăugate `TestStareLunaSiBlocareEditare` în `internal/datebaza/inchidere_test.go` și `TestAppStareLuna` în `app_pontaj_test.go`.
+
+Baza de date: migrarea 0019 adaugă tabelul `stare_luni`. Rapoarte: nicio schimbare.
+
+## 0.50.0 · 2026-10-27
+
+Export Excel nativ (.xlsx via excelize) al foii colective de pontaj și centralizatorului pentru salarizare (F10-T02).
+
+- **Generare registru Excel profesional (`internal/exportexcel/export.go`):** Generator nativ bazat pe biblioteca `excelize/v2`, structurat pe două foi de calcul:
+  * **Foaia 1 („Pontaj Lunar”):** Foaia colectivă de prezență completă (Nr. crt., Nume, Marcă, Funcție, zilele 1..31 cu distincție vizuală weekend/lucrătoare, total ore, ore gardă/noapte, ore ZNL, normă, zile CO, zile CM).
+  * **Foaia 2 („Centralizator Salarii”):** Centralizatorul sintetizat pentru departamentul de contabilitate și salarizare (Ore normă, Ore efectiv lucrate, Ore gărzi, Ore ZNL, Zile CO, Zile CM) incluzând rândul de **TOTAL GENERAL** calculat cu formule native Excel `=SUM(...)`.
+- **Salvare nativă și descărcare web (`app_export.go`, `frontend/wailsjs`):** Metoda `ExportaPontajExcel` integrează dialogul de salvare nativ pe disc (`SaveFileDialog`) sau descarcă automat fișierul generat prin blob Base64.
+- **Butoane de export dedicate:** Adăugat butonul „📊 Export Excel (.xlsx)” în bara de acțiuni a ecranului de Pontaj (`Pontaj.tsx`) și în generatorul de rapoarte (`Rapoarte.tsx`).
+- **Teste unitare și de integrare:** Adăugate `TestGenereazaRegistruExcel` în `internal/exportexcel/export_test.go` și `TestAppExportaPontajExcel` în `app_export_test.go`.
+
+Baza de date și rapoarte: nicio schimbare de schemă. Format export Excel v1.0.0.
+
+## 0.49.0 · 2026-10-27
+
+Raport comparativ „Planificat vs. Realizat” în ecranul de Planificare și Rapoarte (F11-T02).
+
+- **Vizualizare comparativă interactivă (`PanouComparativPlanificatVsRealizat` în `Planificare.tsx`):** Adăugat modulul comparativ accesibil direct din selectorul de vizualizare al ecranului de Planificare („Planificat vs. Realizat”). Afișează grila lunară completă punând în paralel tura planificată cu pontajul efectiv/ciornă.
+- **Identificare automată a discrepanțelor și variațiilor:** Evidențiază stările celulelor prin coduri de culori și insigne dedicate:
+  * 🟢 *Identic:* planul a fost respectat exact (`Plan == Realizat`).
+  * 🟠 *Modificat:* schimb efectuat diferit de cel planificat inițial (ex: `Z7 ➔ G24`).
+  * 🔵 *Neplanificat:* prezență la serviciu fără alocare prealabilă în plan (acoperire ad-hoc).
+  * 🔴 *Neefectuat:* tură planificată, dar neînregistrată în pontaj.
+  * 🟣 *Concediu / Absență:* zi acoperită de concediu (CO, CM, etc.).
+- **Carduri sintetice și filtrare rapidă:** Carduri cu total ore planificate, total ore realizate, variație globală (+/- ore) și număr de angajați cu discrepanțe; filtru binar `[ ] Doar angajați cu discrepanțe` și buton de salt direct în Pontaj.
+- **Modul pur de calcul backend (`internal/calcul/comparativ.go`, `internal/datebaza/planificare.go`, `app_planificare.go`):** `CalculeazaPlanificatVsRealizat` și `CitestePlanificatVsRealizat` rulează fără dependențe externe și generează structura de date completă pentru UI și export.
+- **Teste unitare și de integrare:** Adăugate `TestCalculeazaPlanificatVsRealizat` în `internal/calcul/comparativ_test.go` și `TestAppCitestePlanificatVsRealizat` în `app_planificare_test.go`.
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
+## 0.48.0 · 2026-10-27
+
+Atribuire în masă (bulk) a categoriilor de program pe selecție multiplă de angajați (F07-T15 / I055).
+
+- **Selecție multiplă în tabelul de angajați (`App.tsx`):** Adăugată coloană dedicată cu casete de bifare (checkboxes) per angajat și selector global „Selectează toți angajații vizibili” în antetul tabelului.
+- **Bară de comenzi rapide pentru loturi (`bara-actiuni-lot` în `App.tsx`, `style.css`):** La selectarea unuia sau mai multor angajați, apare automat bara contextuală care afișează numărul de angajați selectați, selectorul categoriilor de program definite (cu opțiune de eliminare a categoriei), butonul de aplicare în masă și butonul de deselectare.
+- **Operații backend optimizate (`internal/datebaza/date.go`, `app_date.go`):** Implementate metodele `AtribuieCategorieProgramLot` și `SchimbaActivLot` care actualizează atomic în baza de date categoria de program sau starea activ/inactiv pentru o listă de ID-uri, cu înregistrarea completă a modificărilor în jurnalul de audit (`jurnal_modificari`).
+- **Traduceri complete:** Adăugate cheile `ui.actiuni_lot`, `ui.selectati_numar`, `ui.atribuie_categorie_lot`, `ui.fara_categorie_program`, `ui.aplica_categorie_lot`, `ui.deselecteaza_tot`, `ui.selecteaza_toti`, `ui.categorie_lot_aplicata` în română și engleză.
+- **Teste unitare și de integrare:** Adăugat `TestAtribuieCategorieProgramLot` în `internal/datebaza/date_test.go` și `TestAppAtribuieCategorieProgramLot` în `app_date_test.go`.
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
+## 0.47.0 · 2026-10-27
+
+Comenzi analitice și interogări de sinteză în Asistentul AI (F14-T07, D042).
+
+- **Sinteză analitică factuală instantanee (`internal/ai/asistent.go`):** Implementat modulul `AnalizeazaInterogareSinteza` care răspunde determinist, precis și fără latență la interogările frecvente despre personal:
+  * *Disponibilitate weekend:* „Cine este liber în acest weekend?” — analizează toate schimburile și concediile din sâmbătă și duminică, raportând lista completă a angajaților liberi și a celor la serviciu sau absenți.
+  * *Concedii și absențe:* „Cine este în concediu luna asta?” — sintetizează intervalele de absențe pe tipuri (CO, CM, CF etc.) și totalul de zile pe secție.
+  * *Verificare acoperire posturi:* „Verifică dacă lipsesc posturi obligatorii” — analizează fiecare zi de weekend și semnalează zilele neacoperite sau cu deficit de personal.
+  * *Statistici gărzi și ore:* „Statistici gărzi și ore” — calculează tabelul centralizat pe angajați cu numărul de gărzi, total ture și ore planificate.
+- **Context extins cu absențe și planificare (`app_ai.go`):** `ContextPontix` colectează acum automat absențele active și turele planificate/completate în ciornă pentru luna curentă, oferindu-le modelului AI în promptul de sistem.
+- **Teste unitare de integrare:** Adăugate `TestAnalizeazaInterogareSinteza` în `internal/ai/asistent_test.go` și `TestAppInterogheazaAIComenziAnalitice` în `app_ai_test.go`.
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
+## 0.46.0 · 2026-10-27
+
+Execuție automată la confirmări în chat („da” / „confirm”), suport pentru weekenduri alternate și unelte de planificare recurente (F14-T04, D042).
+
+- **Execuție directă la răspuns afirmativ în chat (`AsistentAI.tsx`):** Când utilizatorul confirmă o propunere tastând „da”, „confirm”, „aplică”, „ok” etc. în caseta de mesaj, aplicația detectează automat intenția și execută direct salvarea (`AplicaPropunereAI`), eliminând confuzia în care modelul confirma doar verbal fără a opera modificarea în baza de date.
+- **Suport complet pentru weekenduri alternate și recurență (`app_ai.go`, `internal/ai/asistent.go`):** Adăugat filtrul `tot_al_doilea_weekend` și `weekend` în `planifica_interval` și unealta dedicată `planifica_zile`. Comanda utilizatorului (ex: „Dumitru Andrei pe octombrie lucrează tot al doilea weekend pe zi, schimb de 12 ore, începând cu data de 3”) este mapată exact pe schimbul `Z12` și pe datele corecte ale weekendurilor (3–4 oct, 17–18 oct, 31 oct), fără a mai forța eronat zile lucrătoare L–V.
+- **Rezolvare revizii existente în Planificare (`app_ai.go`):** La sincronizarea în planificare pentru turele de gărzi/weekend (Z12), sunt prelucrate reviziile și identificatorii pozițiilor existente pentru a preveni erorile de concurență.
+- **Parser defensiv de propuneri (`internal/ai/asistent.go`):** În cazurile în care modelul generează accidental descrierea acțiunii sub formă de text în loc de apel nativ de unelte, backend-ul sintetizează automat propunerea și afișează cardul interactiv cu butoane de confirmare.
+- **Teste unitare de regresie:** Adăugate `TestAplicaPropunereAITotAlDoileaWeekend` în `app_ai_test.go` și actualizate testele în `asistent_test.go`.
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
+## 0.45.0 · 2026-10-27
+
+Persistența conversației pe durata sesiunii, context îmbogățit pentru comenzi consecutive și buton de salt direct în pontaj (F14-T04, D042).
+
+- **Persistență în sesiune (`AsistentAI.tsx`):** Conversația nu se mai pierde la navigarea între ecrane (de ex. la comutarea între Asistent AI, Pontaj și Planificare). Mesajele sunt salvate în `sessionStorage` și restaurate automat la revenire.
+- **Buton „Conversație nouă” (`ai.conversatie_noua`):** Adăugat buton în bara de stare a asistentului pentru resetarea rapidă a fluxului conversațional când utilizatorul dorește să înceapă un dialog curat.
+- **Memorie contextuală multi-turn (`istoricAPI`):** Răspunsurile asistentului trimise în istoricul către LLM includ acum explicit detaliile acțiunilor propuse anterior și starea acestora (`[confirmată și aplicată în pontaj]` vs `[în așteptare]`). Comenzi ulterioare precum „și Popescu la fel”, „de fapt pune-l pe noapte” sau „pe 15 e liber” păstrează contextul exact al persoanei, lunii și programului discutat.
+- **Buton direct „Deschide în Pontaj” (`ai.deschide_in_pontaj`):** Pe cardurile de acțiune aplicate cu succes apare opțiunea de salt direct în ecranul de Pontaj, prefiltrat exact pe anul și luna vizată de comandă.
+- **Traduceri:** Actualizate cataloagele de limbă `ro.json` și `en.json` pentru noile acțiuni și etichete.
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
+## 0.44.0 · 2026-10-27
+
+Aplicare directă în pontaj și interpretare automată a cererilor pentru întreaga lună (F14-T04, D042).
+
+- **Interpretare comenzi lună întreagă (`internal/ai/asistent.go`):** Când utilizatorul menționează o lună (ex: „în octombrie”, „in octombrie”) sau o perioadă („toată luna”, „tata luna”) fără a specifica o anumită zi, asistentul generează automat `planifica_interval` pentru prima și ultima zi a lunii cu `doar_lucratoare: true`. Adăugată funcția `esteCerereToataLuna` pentru corecție defensivă pe server și test de regresie `TestEsteCerereToataLuna`.
+- **Metodă unificată de aplicare acțiuni AI (`AplicaPropunereAI` în `app_ai.go`):** Eliminat eroarea `Selecția pentru planificare nu este validă` cauzată de apelarea `SalveazaPlanificare` pentru schimburi normale de zi (cum ar fi `Z7`). Noul endpoint salvează direct în pontaj (`SalveazaSchita` cu revizii la zi) și sincronizează automat tabelul de planificare exclusiv pentru turele din categoriile gărzi (`GARZI`) sau după-amiază (`DUPA_AMIAZA`).
+- **Actualizare client frontend (`AsistentAI.tsx`):** Simplificat handlerul `aplicaPropunere` pentru a delega execuția completă către backend-ul Go prin `AplicaPropunereAI`.
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
+## 0.43.0 · 2026-10-27
+
+Reguli stricte de mapare intervale orare și corecție automată schimb cerut (F14-T04, D042).
+
+- **Mapare strictă intervale orare în promptul de sistem (`internal/ai/asistent.go`):** Instruit modelul cu reguli fără echivoc: „7 la 14” / „07:00–14:00” corespunde exclusiv schimbului `Z7` (Zi 07–14), iar `S7` este rezervat pentru „15 la 22” (Seară). Inclus intervalul orar explicit în lista fiecărui schimb din prompt.
+- **Protecție defensivă de corecție automată (`corecteazaSchimbDacaEroare`):** Dacă utilizatorul a cerut „7 la 14” sau „dimineață”, dar modelul propusese eronat `S7`, backend-ul corectează automat codul de schimb la `Z7`. De asemenea, pentru cererile „toată luna” pe programe de zi, setează implicit `doar_lucratoare: true` pentru a proteja weekendurile.
+- **Test unitar de regresie:** Adăugat `TestCorecteazaSchimbDacaEroare` în `internal/ai/asistent_test.go`.
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
+## 0.42.0 · 2026-10-27
+
+Afișare completă nume angajat și detalii program în propuneri AI și rezoluție robustă marcă (F14-T04, D042).
+
+- **Descriere extinsă a propunerilor (`internal/ai/asistent.go`):** Lângă codul schimbului este afișată denumirea completă, intervalul orar și durata (ex: `Z7 – Zi 07–14 (07:00–14:00, 7 ore)`), iar lângă marcă este inclus numele complet al angajatului (ex: `Dobre Rareș (marca DEMO-008)`).
+- **Canonicizare și rezoluție tolerantă a mărcii:** Adăugată normalizare alfanumerică împotriva diferențelor de formatare (ex: `DEM008` vs `DEMO-008`), diacriticelor sau căutărilor după nume; backend-ul canonicizează automat parametrul mărcii la valoarea oficială din baza de date, iar frontend-ul (`gasesteAngajat`) găsește angajatul garantat la aplicare.
+- **Insigne vizuale structurate în UI (`AsistentAI.tsx`):** Cardul de propunere afișează etichete dedicate pentru Program, Angajat și Dată/Interval.
+- **Formatare interval orar schimburi (`app_ai.go`):** Calculat intervalul orar (start–sfârșit) din minute pentru contextul asistentului.
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
+## 0.41.0 · 2026-10-27
+
+Optimizare parametri server AI local (`-np 1`, fire CPU dinamice) și extindere timeout HTTP (F14-T04, D042).
+
+- **Optimizare slot unic (`-np 1`) în `internal/ai/proces.go`:** Eliminat supraîncărcarea memoriei și a nucleelor prin forțarea unui singur slot activ (`-np 1`), specific scenariului de asistent desktop monopost. Timpul de evaluare inițială a promptului pe CPU scade dramatic (de la >24s la ~7.5s).
+- **Alocare dinamică de nuclee CPU:** Serverul folosește acum `runtime.NumCPU() - 2` (minimum 2 fire) în loc de o valoare fixă de 4 nuclee, lăsând resurse pentru sistem și interfață și utilizând la maximum arhitectura procesorului gazdă.
+- **Creștere timeout HTTP client la 180 secunde (`internal/ai/asistent.go`):** Previne eroarea `context deadline exceeded` în timpul generărilor lungi sau pe procesoare mai lente la prima interogare.
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
+## 0.40.0 · 2026-10-27
+
+Planificare pe perioade/luni întregi pentru Asistentul AI și extindere unelte structurate (F14-T04, D042).
+
+- **Unelte noi `planifica_interval` și `sterge_interval` (`internal/ai/asistent.go`):** Suport pentru atribuirea sau ștergerea turelor pe un interval de date, o săptămână sau toată luna dintr-o singură instrucțiune rapidă (1–2 secunde), eliminând generarea a 30 de apeluri repetitive și riscul de expirare timeout.
+- **Suport opțional zile lucrătoare:** Parametrul `doar_lucratoare` (Luni–Vineri) pentru programările pe intervale fără weekend.
+- **Creștere timeout comunicare HTTP:** Mărit timeout-ul clientului la 120 secunde pentru a permite generări ample pe procesor.
+- **Potrivire flexibilă angajat:** Recunoaștere în interfață după marcă, `Nume Prenume`, `Prenume Nume` sau nume de familie.
+- **Mesaje tehnice explicite:** Înlocuit mesajul generic de eroare cu detalii clare de diagnostic (`ai.eroare_generare`).
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
+## 0.39.0 · 2026-10-27
+
+Corectare cale rezoluție folder local AI portabil și extindere timeout inițializare (F14-T02, F14-T05, D042).
+
+- **Corectare rezoluție cale `karios/ai/` (`app_ai.go`):** Eliminat dublarea numelui de folder `karios` (`karios/karios/ai`) care apărea când `app.radacina` conținea deja calea folderului de date portabil; asistentul scanează acum corect folderul `karios/ai/` de lângă executabil.
+- **Extindere timeout inițializare motor AI:** Crescut timeout-ul de pornire la 45 secunde în `internal/ai/proces.go` pentru a permite încărcarea fluentă în memoria RAM a modelelor LLM mari (GGUF ~2 GB+).
+- **Test de regresie:** Adăugată verificare automată în `app_ai_test.go` împotriva dublării segmentului de cale portabilă.
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
+## 0.38.0 · 2026-10-27
+
+Compilare nativă llama.cpp pe Windows cu toolchain portabil și integrare în procesul de Deploy (F14-T06, D042).
+
+- **Toolchain portabil C/C++ și CMake (`scripts/pregateste-toolchain.ps1`):** Configurare complet autonomă a unui mediu de compilare în `tools/toolchain/` (CMake 3.31.5 și MinGW-w64 GCC 16.2.0 via `w64devkit`) fără modificări în sistemul de operare Windows, fără drepturi de administrator și ignorat complet de Git.
+- **Compilare nativă a motorului AI (`scripts/compileaza-llama.ps1`):** Clonare și compilare a executabilului C++ `llama-server.exe` optimizat cu AVX2 direct pe Windows folosind toate nucleele procesorului (cu suport incremental de ~7 secunde la recompilare), generând binarul verificat independent și plasat în `karios/ai/` și `.cache-ai/`.
+- **Integrare în procesul de Deploy (`build.ps1 -CuCompilareAI`):** Extinderea scriptului oficial de build cu parametrul `-CuCompilareAI` pentru a asigura compilarea proaspătă a binarului `llama-server.exe` și includerea automată a acestuia în structura livrată la fiecare lansare de versiune.
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
+## 0.37.0 · 2026-10-26
+
+Pachet portabil Pontix AI Ready și pornire automată la lansare (F14-T05, D042).
+
+- **Script automatizat de împachetare AI Ready (`scripts/creaza-pachet-ai.ps1`):** Script dedicat care produce o distribuție portabilă completă (sau arhivă `.zip`) conținând executabilul `pontix.exe`, directorul `karios/ai/` pre-populat cu binarul motorului C++ `llama-server.exe` și modelul LLM cuantizat (`qwen2.5-3b-instruct-q4_k_m.gguf`), script de descărcare la cerere, ghid detaliat `README-AI-READY.txt` și fișierul de integritate `build.json` cu sume de control SHA256 calculate pentru fiecare componentă.
+- **Pornire automată supravegheată a motorului AI:** Funcționalitate nativă de pornire automată în fundal la lansarea aplicației dacă fișierele sunt prezente în `karios/ai/`, pentru a elimina timpul de încărcare atunci când utilizatorul deschide prima dată ecranul de asistență.
+- **Comutator în interfață:** Adăugată bifa „Pornire automată la lansare” în bara de stare a ecranului Asistent AI, cu persistență portabilă locală (fișier `fara-autostart` în `karios/ai/`).
+- **Suport extins teste unitare:** Adăugat `app_ai_test.go` pentru verificarea activării/dezactivării pornirii automate și detectării corecte a stării pe folder gol.
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
+## 0.36.0 · 2026-10-26
+
+Integrare arhitectură și asistent AI local, offline și portabil (F14-T02, F14-T04, D042).
+
+- **Arhitectură motor AI local portabil (`internal/ai`):** Modul nativ Go pentru supravegherea procesului `llama-server` în fundal fără consolă vizibilă (`HideWindow: true` pe Windows), cu verificare automată a integrității fișierelor și a stării de sănătate (`/health`) pe port local dinamic (`127.0.0.1:28491`).
+- **Director portabil dedicat:** Adăugat folderul `karios/ai/` în structura portabilă a aplicației pentru binarul `llama-server.exe` și modelele cuantizate `.gguf`.
+- **Client de inferență cu apelare structurată de unelte (Function Calling):** Client HTTP OpenAI-compatible local cu scheme JSON stricte pentru acțiunile de pontaj și planificare (`planifica_tura`, `sterge_tura`). Modelul nu rulează calcule matematice sau SQL direct, ci emite propuneri de acțiuni structurate.
+- **Ecran dedicat Asistent AI (`AsistentAI.tsx`):** Punct de control în meniul principal cu indicator de stare a motorului local (activ / gata / fișiere lipsă cu ghidare cale folder), flux interactiv de conversație, cipuri de comenzi rapide și carduri de confirmare a acțiunilor propuse cu buton `Confirmă și aplică` și verificare atomică a salvarii în planificare.
+- **Garantare GDPR și siguranță:** Oprire automată a procesului copil la părăsirea aplicației Pontix; nicio transmisie de date prin rețea externă sau cloud.
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
+## 0.35.0 · 2026-10-26
+
+Import de date pentru angajați și sărbători legale din Excel (.xlsx) și CSV (.csv), șabloane demonstrative descărcabile, semnătura dezvoltatorului în interfață și definirea deciziei pentru asistent AI exclusiv local (F02-T13, F03-T08, F14, D042).
+
+- **Import angajați din Excel (.xlsx) și CSV (.csv):** Analiză și validare automată la încărcarea fișierului, recunoaștere inteligentă antete indiferent de diacritice sau majuscule, detecție automată delimitator (virgulă / punct și virgulă), creare automată pentru secțiile și departamentele noi, opțiune de actualizare angajați existenți (după marcă) și execuție tranzacțională atomică în SQLite.
+- **Import sărbători legale din Excel (.xlsx) și CSV (.csv):** Suport pentru formate multiple de dată (`AAAA-LL-ZZ`, `ZZ.LL.AAAA`, `ZZ/LL/AAAA`), identificare denumiri RO/EN, detectare duplicate și opțiune de actualizare/înlocuire sărbători existente.
+- **Șabloane demonstrative descărcabile:** Generare directă din interfață a șabloanelor structurate pentru angajați și sărbători în formate Excel (.xlsx via excelize) și CSV (cu UTF-8 BOM pentru afișarea corectă a diacriticelor românești în Excel).
+- **Semnătura dezvoltatorului:** Integrarea semnăturii oficiale a autorului („Dezvoltat de Ioan Tuns”) în subsolul bazei de navigație a aplicației și în ecranul Setări într-o secțiune dedicată Despre Pontix & Autor (cu copyright © 2026 Ioan Tuns).
+- **Asistent AI exclusiv local:** Stabilirea deciziei arhitecturale D042 care impune operarea exclusivă pe modele LLM locale (fără trimitere de date în cloud sau dependențe de API-uri externe), protejând datele salariale și confidențialitatea personalului.
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
+## 0.34.0 · 2026-10-26
+
+Raport dedicat pentru graficul lunar de gărzi și schimburi, calendare sărbători legale 2025 și 2027, eliminare avertisment zile consecutive în mod standard și propunere arhitectură motor reguli configurabile (F11-T07, D040, D041, I061, I062).
+
+- **Raport oficial Grafic lunar de gărzi și schimburi (`raport-garzi`):** Sursă nouă de raportare `GRAFIC_GARZI`, generată direct din tabela de planificare, afișând matricea lunară cu personalul pe rânduri, zilele 1–31 cu evidențierea weekendurilor și a sărbătorilor, totalurile lunare de gărzi și ore, rândul de sinteză `TOTAL / ZI` pentru verificarea acoperirii zilnice și blocul oficial de semnături (Întocmit, Avizat, Aprobat).
+- **Acces direct din Planificare:** Buton dedicat `Grafic gărzi (PDF)` în bara de acțiuni a ecranului Planificare, cu previzualizare instantanee în dialog modal maximizabil, opțiuni de descărcare și tipărire directă.
+- **Sărbători legale 2025 și 2027:** Adăugarea calendarelor oficiale de sărbători legale pentru România pentru anii 2025 (Paști 20 aprilie, Rusalii 8–9 iunie) și 2027 (Paști 2 mai, Rusalii 20–21 iunie), cu import complet automat în interfață.
+- **Ajustare avertismente grilă:** Eliminarea avertismentului neadecvat pentru ture în zile consecutive normale (`CONSECUTIV`), păstrând exclusiv rotația de sărbători (Crăciun/Revelion/Paști).
+
+Baza de date: migrarea **0018** (`definitii_rapoarte` pentru `raport-garzi`).
+Rapoarte: raport nou `raport-garzi` (sursa `GRAFIC_GARZI`, versiune **1**).
+
+## 0.33.0 · 2026-10-26
+
+Îmbunătățire ergonomie modal sumar planificare angajat: opțiune de mărire/maximizare dialog și bară de derulare completă pe verticală și orizontală (F11-T04).
+
+- **Opțiune de mărire fereastră (maximizare):** Buton dedicat `🗖` / `🗗` în antetul dialogului pentru comutarea între dimensiunea standard mărită (`min(880px, calc(100vw - 36px))`) și modul pe tot ecranul (`calc(100vw - 32px)` / `calc(100vh - 32px)`).
+- **Bară de derulare și lățime optimizată:** Zona tabelară a sumarului lunar include acum bară de derulare verticală dedicată cu `scrollbar-gutter: stable` și stil Pontix, permițând parcurgerea facilă a tuturor celor 31 de zile, iar lățimea generoasă elimină tăierea coloanei de acțiuni.
+
+Baza de date și rapoarte: nicio schimbare.
+
+## 0.32.0 · 2026-10-26
+
+Sumar editabil pe angajat, raport complet de acoperire pentru weekenduri și sărbători legale, verificare echitate rotație și marcaje pentru ture consecutive (F11-T04, F11-T05, F11-T06, I058–I060, D039).
+
+- **Sumar editabil pe angajat:** Vizualizare dedicată și fereastră modală accesibilă din grilă printr-un clic pe rândul angajatului. Afișează totalul de ture și ore planificate în lună, lista zilelor cu evidențierea weekendurilor și a sărbătorilor, selector rapid pentru schimburi permise sau ștergere tură și avertismentele specifice angajatului.
+- **Raport complet de acoperire weekend și sărbători legale:** Vizualizare tabelară dedicată care verifică prezența personalului pe posturile obligatorii (`G24`, `Z12`, `N12`, `IN9`) pentru fiecare sâmbătă, duminică și sărbătoare legală. Afișează badge-uri cu angajații alocați sau semnalizare vizuală `Lipsă / Neacoperit`, carduri sintetice cu procentul de acoperire și filtru pentru afișarea exclusivă a zilelor cu deficit.
+- **Echitate sărbători și marcaj ture consecutive:** Verificarea automată a istoricului de sărbători majore (Crăciun `N-1` -> Revelion `N`, Crăciun `N` -> Paști `N+1` pe același schimb) și a turelor/gărzilor planificate în zile consecutive (fără repaus după `G24` sau ture succesive). Semnalizare vizuală neblocantă în grilă (`celula-atentie`), tooltip-uri explicative și detalii în panoul de inspecție poziție.
+
+Baza de date și rapoarte: nicio schimbare de schemă sau formule.
+
+## 0.31.0 · 2026-10-26
+
+Grilă lunară tabelară de planificare cu atribuire directă pe celule (pereche zi – tip program) pentru gărzi, intrare weekend și după-amiază, cu publicare unificată în schița de pontaj (F11-T03, I057, D038).
+
+- **Grilă lunară interactivă:** Angajații pe rânduri și zilele 1–31 pe coloane, cu evidențierea weekendurilor, a sărbătorilor legale și a absențelor active (concedii de odihnă, medicale, evenimente).
+- **Atribuire rapidă pereche zi – program:** Paletă rapidă cu cipurile schimburilor speciale (`S7`, `IN9`, `G24`, `Z12`, `N12`) și acțiune de ștergere, cu aplicare dintr-un clic pe celula activă sau pe o selecție multiplă (drag / Shift+Click).
+- **Verificare categorii și stivă Undo / Redo:** Validare împotriva atribuirii schimburilor nepermise de categoria activă a angajatului; butoane și scurtături `Ctrl+Z` / `Ctrl+Y` pentru anularea/refacerea pașilor locali.
+- **Publicare unificată:** Previzualizarea și publicarea în pontaj permit selectarea tuturor secțiunilor simultan (`TOATE`), cu verificarea tranzacțională a absențelor, schițelor existente și pontajelor efective.
+- **Comutator Grilă / Listă:** Păstrarea tabelului detaliat de audit pentru consultarea istoricului și a datelor de publicare.
+
+Baza de date și rapoarte: nicio schimbare de schemă sau formule.
+
+## 0.30.0 · 2026-10-26
+
+Secțiune operațională **Planificare**, cu **Gărzi** și **După-amiază**, salvare independentă și publicare explicită în schița de pontaj (F11-T01, I056, D037).
+
+- Planificarea pe angajat, program și date se salvează fără a modifica pontajul. Listele au filtre, selecție și stări de publicare; retragerea din plan păstrează pontajul deja publicat.
+- Publicarea se previzualizează, completează implicit numai celulele goale și permite înlocuirea explicită a schițelor cu afișarea înainte/după. Sunt reverificate tranzacțional absențele, programele permise, intervalele, pontajele efective și reviziile. Republicarea valorilor identice nu dublează orele.
+- Precompletarea automată din Pontaj direcționează schimburile de după-amiază și gărzile către Planificare; corecțiile manuale în pontaj rămân disponibile.
+
+Baza de date: migrarea **0017**, tabel de planificare și metadate de publicare. Formulele și versiunile rapoartelor sunt păstrate.
+
+## 0.29.0 · 2026-10-26
+
+Categorii de program pe angajat și precompletare explicită, conform confirmării utilizatorului (F07-T14, I053, D036).
+
+- **Precompletează L–V** revine în bara vizibilă din Pontaj. Butonul **După categorii** propune programul implicit individual, cu previzualizare și aplicare în schiță, Undo/Redo și salvare ulterioară.
+- **Setări → Categorii de program** permite creare/editare, denumiri RO/EN, schimburi permise, implicit opțional și dezactivare. Șase categorii inițiale sunt editabile; niciun angajat existent nu este atribuit automat. Combinațiile nu generează rotații; gărzile se aleg explicit.
+- Fișa angajatului are categorie de program, vizibilă și în lista angajaților. Pontajul se filtrează după categorie, inclusiv angajații fără categorie.
+- Precompletarea pe categorii respectă calendarul, toate absențele active, datele existente, norma individuală, suprapunerile și trecerile dintre luni. Programele incomplete, inactive sau cele speciale fără alegere explicită sunt omise cu explicații. Programele cunoscute din afara categoriei active sunt refuzate la aplicare și salvare; orele manuale rămân introduse explicit fără deducerea unui schimb.
+
+Baza de date: migrarea **0016**, categorii, legături stabile la schimburi și atribuire opțională pe angajat. Rapoarte și reguli de plată: nicio schimbare. Corecția încărcării calendarului în adaptorul vechi de totaluri este urmărită separat în F04-T09.
+
+## 0.28.0 · 2026-10-26
+
+Primul lot UI după audit (F05-T19, I045–I048, D035): comenzile detaliate din Pontaj sunt grupate în Filtre, Completare și Ajutor, lăsând grilei mai mult spațiu. Căutarea și salvarea rămân la vedere; legenda textuală și contrastul orelor/valorilor necalculate clarifică stările.
+
+- T diferit de Ore norm nu mai produce un avertisment de normă contractuală. Ore norm păstrează sensul de ore lucrate în zile normale; explicația este disponibilă în Ajutor și la total. Avertismentele existente după G24 și peste 24 h se păstrează.
+- Navigarea din și în Pontaj păstrează în sesiune perioada, filtrele, selecția și derularea. Modificările nesalvate cer în continuare confirmare; la revenire datele se recitesc din bază.
+- Dialogurile lungi au antet și acțiuni permanente, cu derulare în corp. Bara de salvare din Configurare pontaj rămâne accesibilă la derularea paginii.
+
+Rapoarte, formule, biblioteci și baza de date: nicio schimbare. Lista următoarelor loturi este în [lista UI](lista-lucru-ui.md).
+
 ## 0.27.0 · 2026-10-26
 
 Gruparea ecranelor de configurare în meniul Setări, redenumirea „Sărbători” în „Zile libere legale” și temă vizuală distinctă (albastru-ardezie) pentru zona Setări (F05-T17, I044, D034).

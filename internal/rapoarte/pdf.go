@@ -171,7 +171,7 @@ func ConstruiestePDF(d Document) (core.Maroto, error) {
 				culoare = culori[fundal[i]]
 			}
 			aliniere := align.Left
-			if len(d.Coloane[i].Cod) == 10 && d.Coloane[i].Cod[4] == '-' {
+			if (len(d.Coloane[i].Cod) == 10 && d.Coloane[i].Cod[4] == '-') || d.Coloane[i].Cod == "total_garzi" || d.Coloane[i].Cod == "total_ore" {
 				aliniere = align.Center
 			}
 			col := text.NewCol(latimi[i], v, props.Text{Family: "Go", Style: stil, Size: float64(d.Pagina.FontPT), Align: aliniere, Top: 1, Bottom: 1.5, Left: 0.7, Right: 0.7})

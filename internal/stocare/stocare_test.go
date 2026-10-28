@@ -20,7 +20,7 @@ func TestPrimaPornireSiRedeschidere(t *testing.T) {
 	ctx := context.Background()
 	dir := t.TempDir()
 
-	db, err := Deschide(ctx, dir)
+	db, _, err := Deschide(ctx, dir)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -35,7 +35,7 @@ func TestPrimaPornireSiRedeschidere(t *testing.T) {
 	}
 
 	// A doua pornire găsește aceeași cheie și aceleași date.
-	db, err = Deschide(ctx, dir)
+	db, _, err = Deschide(ctx, dir)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -50,7 +50,7 @@ func TestPrimaPornireSiRedeschidere(t *testing.T) {
 func TestBazaFaraSeif(t *testing.T) {
 	ctx := context.Background()
 	dir := t.TempDir()
-	db, err := Deschide(ctx, dir)
+	db, _, err := Deschide(ctx, dir)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -59,7 +59,7 @@ func TestBazaFaraSeif(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if _, err := Deschide(ctx, dir); !errors.Is(err, seif.ErrDeteriorat) {
+	if _, _, err := Deschide(ctx, dir); !errors.Is(err, seif.ErrDeteriorat) {
 		t.Fatalf("aștepta seif.ErrDeteriorat, a primit %v", err)
 	}
 	if _, err := os.Stat(filepath.Join(dir, NumeSeif)); !os.IsNotExist(err) {
@@ -107,7 +107,7 @@ func TestBackupInainteDeMigrare(t *testing.T) {
 	dir := t.TempDir()
 
 	// Baza nouă: nimic de salvat, deci niciun backup.
-	db, err := deschide(ctx, dir, migrariPana(t, 1), ceas(0))
+	db, _, err := deschide(ctx, dir, migrariPana(t, 1), ceas(0))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -120,7 +120,7 @@ func TestBackupInainteDeMigrare(t *testing.T) {
 	}
 
 	// O versiune nouă aduce migrarea 0002: întâi backup, apoi migrare.
-	db, err = deschide(ctx, dir, migrariPana(t, 2), ceas(1))
+	db, _, err = deschide(ctx, dir, migrariPana(t, 2), ceas(1))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -154,7 +154,7 @@ func TestBackupInainteDeMigrare(t *testing.T) {
 	copie.Close()
 
 	// Fără migrări noi, nu se face alt backup.
-	db, err = deschide(ctx, dir, migrariPana(t, 2), ceas(2))
+	db, _, err = deschide(ctx, dir, migrariPana(t, 2), ceas(2))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -169,7 +169,7 @@ func TestBackupInainteDeMigrare(t *testing.T) {
 func TestBackupMigrarilorContractuale(t *testing.T) {
 	ctx := context.Background()
 	dir := t.TempDir()
-	db, err := deschide(ctx, dir, migrariPana(t, 1), ceas(0))
+	db, _, err := deschide(ctx, dir, migrariPana(t, 1), ceas(0))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -180,7 +180,7 @@ func TestBackupMigrarilorContractuale(t *testing.T) {
 	}
 	db.Close()
 
-	db, err = deschide(ctx, dir, bd.Migrari, ceas(1))
+	db, _, err = deschide(ctx, dir, bd.Migrari, ceas(1))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -215,7 +215,7 @@ func TestBackupMigrarilorContractuale(t *testing.T) {
 	}
 	// Redeschiderea aceleiași versiuni nu repetă migrările sau backup-ul.
 	db.Close()
-	db, err = deschide(ctx, dir, bd.Migrari, ceas(2))
+	db, _, err = deschide(ctx, dir, bd.Migrari, ceas(2))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -229,7 +229,7 @@ func TestBackupMigrarilorContractuale(t *testing.T) {
 func TestCelMult7Backupuri(t *testing.T) {
 	ctx := context.Background()
 	dir := t.TempDir()
-	db, err := deschide(ctx, dir, migrariPana(t, 1), ceas(0))
+	db, _, err := deschide(ctx, dir, migrariPana(t, 1), ceas(0))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -242,7 +242,7 @@ func TestCelMult7Backupuri(t *testing.T) {
 	}
 
 	for i := 2; i <= 11; i++ {
-		db, err := deschide(ctx, dir, migrariPana(t, i), ceas(i))
+		db, _, err := deschide(ctx, dir, migrariPana(t, i), ceas(i))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -270,7 +270,7 @@ func TestCelMult7Backupuri(t *testing.T) {
 func TestBackupManualPastreazaCopiileAutomateSiCriptarea(t *testing.T) {
 	ctx := context.Background()
 	dir := t.TempDir()
-	db, err := deschide(ctx, dir, migrariPana(t, 1), ceas(0))
+	db, _, err := deschide(ctx, dir, migrariPana(t, 1), ceas(0))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -315,7 +315,7 @@ func TestBackupManualPastreazaCopiileAutomateSiCriptarea(t *testing.T) {
 	copie.Close()
 
 	for i := 2; i <= 10; i++ {
-		db, err := deschide(ctx, dir, migrariPana(t, i), ceas(10+i))
+		db, _, err := deschide(ctx, dir, migrariPana(t, i), ceas(10+i))
 		if err != nil {
 			t.Fatal(err)
 		}

@@ -21,6 +21,7 @@ Actualizat: 2026-10-25
 | [F13](functionalitati/F13-autentificare-sincronizare.md) | Autentificare și sincronizare | Ulterior | amânat | F06 |
 | [F14](functionalitati/F14-asistent-llm.md) | Asistent LLM local | Ulterior | amânat | F07, F08 |
 | [F15](functionalitati/F15-conturi-acces.md) | Conturi și acces (auto-login, roluri, recuperare) | V1 | de făcut | F05, F06 |
+| [F16](functionalitati/F16-diagnoza-si-optimizari-ui.md) | Sistem de diagnoză, captare erori și rafinări UI/UX | V1.1 | în lucru | F05, F08 |
 
 ## Ordinea de lucru
 

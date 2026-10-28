@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"pontix/internal/datebaza"
+	"pontix/internal/diagnoza"
 	"pontix/internal/i18n"
 	"pontix/internal/portabil"
 	"pontix/internal/stocare"
@@ -57,8 +58,20 @@ func (a *App) SalveazaAngajat(angajat datebaza.Angajat) RaspunsDate {
 	return a.raspunsDate(datebaza.Nou(a.db).SalveazaAngajat(a.contextLucru(), angajat))
 }
 
+func (a *App) SalveazaCategorieProgram(categorie datebaza.CategorieProgram) RaspunsDate {
+	return a.raspunsDate(datebaza.Nou(a.db).SalveazaCategorieProgram(a.contextLucru(), categorie))
+}
+
 func (a *App) SchimbaActivAngajat(id string, activ bool) RaspunsDate {
 	return a.raspunsDate(datebaza.Nou(a.db).SchimbaActiv(a.contextLucru(), id, activ))
+}
+
+func (a *App) AtribuieCategorieProgramLot(angajatIDs []string, categorieID string) RaspunsDate {
+	return a.raspunsDate(datebaza.Nou(a.db).AtribuieCategorieProgramLot(a.contextLucru(), angajatIDs, categorieID))
+}
+
+func (a *App) SchimbaActivAngajatiLot(ids []string, activ bool) RaspunsDate {
+	return a.raspunsDate(datebaza.Nou(a.db).SchimbaActivLot(a.contextLucru(), ids, activ))
 }
 
 func (a *App) SalveazaNormaIntreaga(minute int64) RaspunsDate {
@@ -85,6 +98,9 @@ func (a *App) contextLucru() context.Context {
 }
 
 func (a *App) raspunsDate(err error) RaspunsDate {
+	stop := diagnoza.Cronometreaza("Date.Citeste")
+	defer stop(&err)
+
 	var date datebaza.Date
 	if err == nil {
 		date, err = datebaza.Nou(a.db).Citeste(a.contextLucru())

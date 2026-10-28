@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"sync"
 
+	"pontix/internal/ai"
+	"pontix/internal/audit"
 	"pontix/internal/i18n"
 	"pontix/internal/versiune"
 )
@@ -17,6 +19,8 @@ type App struct {
 	raportMu     sync.Mutex
 	raportCache  map[string]raportPregatit
 	raportOrdine []string
+	aiManager    *ai.Manager
+	paza         *audit.Paza
 }
 
 func NewApp(db *sql.DB) *App {
@@ -25,9 +29,13 @@ func NewApp(db *sql.DB) *App {
 
 func (a *App) pornire(ctx context.Context) {
 	a.ctx = ctx
+	go a.autoPornesteAIDacaEPosibil()
 }
 
 func (a *App) oprire(ctx context.Context) {
+	if a.aiManager != nil {
+		_ = a.aiManager.Opreste()
+	}
 	a.db.Close()
 }
 

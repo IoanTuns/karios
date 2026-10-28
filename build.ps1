@@ -1,6 +1,6 @@
 # F02-T12: fiecare build are propriul director; datele existente nu se suprascriu.
-# Folosire: .\build.ps1 [-NumeExecutabil pontix.exe]
-param([string]$NumeExecutabil = 'pontix.exe')
+# Folosire: .\build.ps1 [-NumeExecutabil pontix.exe] [-CuCompilareAI]
+param([string]$NumeExecutabil = 'pontix.exe', [switch]$CuCompilareAI)
 
 $ErrorActionPreference = 'Stop'
 $locatieInitiala = Get-Location
@@ -76,6 +76,16 @@ try {
     if ($inExe -ne $versiune -or $nume -ne 'Pontix') { throw "Executabilul are produsul '$nume', versiunea '$inExe'; asteptat Pontix $versiune." }
     $manifest.stare = 'complet'
     $manifest.sha256 = (Get-FileHash -LiteralPath $caleExecutabil -Algorithm SHA256).Hash
+
+    if ($CuCompilareAI) {
+        Write-Host "Compilare nativa llama-server pentru livrare..." -ForegroundColor Cyan
+        $rezAI = & (Join-Path $PSScriptRoot 'scripts/compileaza-llama.ps1')
+        $destAiDir = Join-Path $directorBuild 'karios/ai'
+        New-Item -ItemType Directory -Path $destAiDir -Force | Out-Null
+        Copy-Item -LiteralPath $rezAI.Executabil -Destination (Join-Path $destAiDir 'llama-server.exe') -Force
+        $manifest.llama_server_sha256 = $rezAI.SHA256
+    }
+
     Scrie-ManifestBuild
     Write-Host "$caleExecutabil`: Pontix $versiune, commit $commit"
     # Rezultatul poate fi preluat de verificari sau de un script de livrare.

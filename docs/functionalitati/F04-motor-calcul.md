@@ -15,6 +15,7 @@ Fiecare tură introdusă se împarte automat pe categorii de tarif, corect și �
 
 | ID | Task | Stare | Responsabil | Note |
 | --- | --- | --- | --- | --- |
+| F04-T09 | Corectarea citirii calendarului pe ani în adaptorul de calcul al pontajului | de făcut | | I054, găsit la testul F07-T14: pontaj_calcul.go apelează ListaSarbatori(ctx,nil), dar interogarea filtrează an=?. Motorul pur primește corect calendarul dacă este furnizat; adaptorul trebuie să încarce anii de la granița lunii. Cazuri necesare: sărbătoare în cursul săptămânii și tură peste an, concordanță grilă/PDF. Task separat conform regulii de scop. |
 | F04-T01 | `Segmenteaza`, `Valideaza` și calendarul cu sărbători | gata | Claude | `internal/calcul/`, 2026-10-24 |
 | F04-T02 | Teste: exemplele din documentul de design, gărzi, sărbători, limite de interval, schimbarea orei | gata | Claude | 20 de teste, toate trec |
 | F04-T03 | Modelul de sporuri: categorie de bază + sporuri cumulate (de exemplu noapte peste weekend) | blocat | | Așteaptă F01-T02; probabil o decizie nouă |

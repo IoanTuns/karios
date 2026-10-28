@@ -3,6 +3,7 @@ import {useTranslation} from 'react-i18next';
 import {CitesteAbsente, CitesteCalendar, CitesteDocumentAbsenta, SalveazaAbsente, SalveazaTipAbsenta} from '../wailsjs/go/main/App';
 import {datebaza, main} from '../wailsjs/go/models';
 import {Dialog} from './Formulare';
+import {PanouGanttAbsente} from './GanttAbsente';
 
 const categorii = ['ODIHNA', 'MEDICAL', 'SPECIAL'];
 const stariAprobare = ['IN_ASTEPTARE', 'APROBATA', 'RESPINSA'];
@@ -28,7 +29,7 @@ export function Absente({date, filtruInitial}: {date: datebaza.Date; filtruIniti
     const [categorie, setCategorie] = useState('');
     const [filtruAprobare, setFiltruAprobare] = useState('');
     const [cautareAbsente, setCautareAbsente] = useState('');
-    const [sectiuneActiva, setSectiuneActiva] = useState<'toate' | 'zile' | 'sumar' | 'tipuri'>('toate');
+    const [sectiuneActiva, setSectiuneActiva] = useState<'toate' | 'gantt' | 'zile' | 'sumar' | 'tipuri'>('toate');
     const [incarcare, setIncarcare] = useState(true);
     const [ocupat, setOcupat] = useState(false);
     const blocat = useRef(false);
@@ -150,8 +151,17 @@ export function Absente({date, filtruInitial}: {date: datebaza.Date; filtruIniti
                 <label>{t('absente.cauta')}<input name="cautare_absente" aria-label={t('absente.cauta')} placeholder={t('absente.cauta_indiciu')} disabled={ocupat} value={cautareAbsente} onChange={e => schimbaFiltru(() => setCautareAbsente(e.target.value))}/></label>
                 <button className="legatura" disabled={ocupat} onClick={() => setReincarcare(x => x + 1)}>{t('absente.reincarca')}</button></div>
             <div className="taburi-sectiuni" role="group" aria-label={t('ui.absente')}>
-                {(['toate', 'zile', 'sumar', 'tipuri'] as const).map(s => <button key={s} type="button" className={`buton-tab ${sectiuneActiva === s ? 'activ' : ''}`} aria-pressed={sectiuneActiva === s} onClick={() => setSectiuneActiva(s)}>{t(`absente.sectiune_${s}`)}</button>)}
+                {(['toate', 'gantt', 'zile', 'sumar', 'tipuri'] as const).map(s => <button key={s} type="button" className={`buton-tab ${sectiuneActiva === s ? 'activ' : ''}`} aria-pressed={sectiuneActiva === s} onClick={() => setSectiuneActiva(s)}>{t(`absente.sectiune_${s}`)}</button>)}
             </div>
+            {(sectiuneActiva === 'toate' || sectiuneActiva === 'gantt') && <>
+                <h2>Cronologie Gantt & Suprapuneri Concedii ({an})</h2>
+                <PanouGanttAbsente
+                    an={an}
+                    date={date}
+                    zileAbsenta={dateAbsente.zile}
+                    tipuriAbsenta={dateAbsente.tipuri}
+                />
+            </>}
             {(sectiuneActiva === 'toate' || sectiuneActiva === 'sumar') && <>
             <h2>{t('absente.sumar', {an})}</h2><p className="nota-calendar">{t('absente.sumar_indiciu')}</p>
             <div className="panou tabel-derulant"><table className="sumar-absente"><thead><tr><th>{t('ui.angajat')}</th><th>{t('absente.drept_contractual')}</th>{categorii.map(c => <th key={c}>{t(`absente.${c}`)}</th>)}</tr></thead><tbody>

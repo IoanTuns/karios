@@ -168,6 +168,11 @@ func TestMigrareInitialePastreazaCoduriExistente(t *testing.T) {
 
 func TestCompletareInitialeEsteAtomica(t *testing.T) {
 	m := pregateste(t)
+	// Proba pornește fără Z7/S7; eliminăm întâi referințele din categoriile inițiale.
+	if _, err := m.db.Exec(`UPDATE categorii_program SET schimb_implicit_id=NULL;
+	DELETE FROM categorii_program_schimburi WHERE schimb_id IN (SELECT id FROM tipuri_schimb WHERE cod IN ('Z7','S7'))`); err != nil {
+		t.Fatal(err)
+	}
 	if _, err := m.db.Exec(`DELETE FROM tipuri_schimb WHERE cod IN ('Z7', 'S7')`); err != nil {
 		t.Fatal(err)
 	}

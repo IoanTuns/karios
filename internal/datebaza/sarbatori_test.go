@@ -40,8 +40,14 @@ func TestCalendar2026GeneratSiIdempotent(t *testing.T) {
 	if n, err := m.serviciu.CompleteazaSarbatori2026(ctx); err != nil || n != 0 {
 		t.Fatalf("import repetat: %d, %v", n, err)
 	}
-	if c, err := m.serviciu.CitesteCalendar(ctx, 2027); err != nil || len(c.Sarbatori) != 0 || c.ImportDisponibil {
-		t.Fatalf("calendar 2027: %+v, %v", c, err)
+	if c, err := m.serviciu.CitesteCalendar(ctx, 2028); err != nil || len(c.Sarbatori) != 0 || c.ImportDisponibil {
+		t.Fatalf("calendar 2028: %+v, %v", c, err)
+	}
+	if n, err := m.serviciu.CompleteazaSarbatoriAn(ctx, 2025); err != nil || n == 0 {
+		t.Fatalf("import 2025: %d, %v", n, err)
+	}
+	if n, err := m.serviciu.CompleteazaSarbatoriAn(ctx, 2027); err != nil || n == 0 {
+		t.Fatalf("import 2027: %d, %v", n, err)
 	}
 }
 

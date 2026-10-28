@@ -27,7 +27,7 @@ func TestRaportCacheTokenSiPDF(t *testing.T) {
 	}
 	a := NewApp(db)
 	modele := a.ListaModeleRapoarte()
-	if modele.Eroare != nil || len(modele.Configuratie.Modele) != 4 {
+	if modele.Eroare != nil || len(modele.Configuratie.Modele) != 5 {
 		t.Fatalf("modele: %+v", modele)
 	}
 	prima := a.PregatesteRaport(rapoarte.Cerere{ModelID: "raport-pontaj", An: 2026, Luna: 10, Limba: "ro"})

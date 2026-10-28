@@ -5,12 +5,26 @@ import (
 
 	"pontix/internal/calcul"
 	"pontix/internal/datebaza"
+	"pontix/internal/diagnoza"
 	"pontix/internal/i18n"
 )
 
 type RaspunsSchita struct {
 	Schita *datebaza.SchitaLuna `json:"schita"`
 	Eroare *MesajEroare         `json:"eroare"`
+}
+
+type RaspunsPrecompletare struct {
+	Plan   *calcul.PlanPrecompletare `json:"plan"`
+	Eroare *MesajEroare              `json:"eroare"`
+}
+
+func (a *App) PrevizualizeazaPrecompletare(an, luna int, angajati []string, modificari []datebaza.CelulaSchita) RaspunsPrecompletare {
+	p, err := datebaza.Nou(a.db).PrevizualizeazaPrecompletare(a.contextLucru(), an, luna, angajati, modificari)
+	if err != nil {
+		return RaspunsPrecompletare{Eroare: mesajPontaj(err)}
+	}
+	return RaspunsPrecompletare{Plan: &p}
 }
 
 func (a *App) CitesteSchita(an, luna int) RaspunsSchita { return a.raspunsSchita(an, luna, nil) }
@@ -55,6 +69,9 @@ func (a *App) SalveazaSchita(an, luna int, celule []datebaza.CelulaSchita) Raspu
 }
 
 func (a *App) raspunsSchita(an, luna int, err error) RaspunsSchita {
+	stop := diagnoza.Cronometreaza("Pontaj.SchitaLuna")
+	defer stop(&err)
+
 	var schita datebaza.SchitaLuna
 	if err == nil {
 		schita, err = datebaza.Nou(a.db).CitesteSchita(a.contextLucru(), an, luna)
@@ -68,4 +85,25 @@ func (a *App) raspunsSchita(an, luna int, err error) RaspunsSchita {
 		return RaspunsSchita{Eroare: mesaj}
 	}
 	return RaspunsSchita{Schita: &schita}
+}
+
+type RaspunsStareLuna struct {
+	Stare  datebaza.StareLuna `json:"stare"`
+	Eroare *MesajEroare       `json:"eroare,omitempty"`
+}
+
+func (a *App) CitesteStareLuna(an, luna int) RaspunsStareLuna {
+	st, err := datebaza.Nou(a.db).CitesteStareLuna(a.contextLucru(), an, luna)
+	if err != nil {
+		return RaspunsStareLuna{Eroare: mesajPontaj(err)}
+	}
+	return RaspunsStareLuna{Stare: st}
+}
+
+func (a *App) SeteazaStareLuna(an, luna int, stare, motiv string) RaspunsStareLuna {
+	st, err := datebaza.Nou(a.db).SeteazaStareLuna(a.contextLucru(), an, luna, stare, motiv, "Utilizator")
+	if err != nil {
+		return RaspunsStareLuna{Eroare: mesajPontaj(err)}
+	}
+	return RaspunsStareLuna{Stare: st}
 }

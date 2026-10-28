@@ -10,6 +10,7 @@ import (
 	"flag"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -83,6 +84,7 @@ func fixture(t *testing.T, m *mediu) {
 		`INSERT INTO angajati(id,nume,prenume,marca,activ,creat_la,modificat_la) VALUES ('c','Fictiv','Inactiv','DEMO-R03',0,'x','x')`,
 		`INSERT INTO pontaj_ciorne(angajat_id,data,valoare,modificat_la) VALUES ('a','2026-10-23','IN9','x'),('b','2026-10-01','Z7','x'),('a','2028-02-29','N9','x')`,
 		`INSERT INTO absente_zile(angajat_id,data,cod,activ,creat_la,modificat_la) VALUES ('a','2026-10-24','CO',1,'x','x'),('a','2026-10-25','CM',0,'x','x'),('b','2027-01-01','CM',1,'x','x')`,
+		`INSERT INTO planificare(id,angajat_id,data,schimb_id,sectiune,activ,creat_la,modificat_la) VALUES ('p1','a','2026-10-23','20000000-0000-4000-8000-000000000004','GARZI',1,'x','x')`,
 	} {
 		if _, err := m.db.Exec(comanda); err != nil {
 			t.Fatal(err)
@@ -159,7 +161,7 @@ func TestModeleInitialeReferinta(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	cale := filepath.Join("testdata", "modele-v3.json")
+	cale := filepath.Join("testdata", "modele-v4.json")
 	if *actualizeazaReferinte {
 		if err := os.MkdirAll("testdata", 0700); err != nil {
 			t.Fatal(err)
@@ -299,7 +301,7 @@ func TestDateRaportFiltreCalendarSiAbsente(t *testing.T) {
 func TestReferinteRapoarteSiPDF(t *testing.T) {
 	m := pregateste(t)
 	fixture(t, m)
-	for _, id := range []string{"raport-pontaj", "raport-fisa", "raport-absente", "raport-pontaj-detaliat"} {
+	for _, id := range []string{"raport-pontaj", "raport-fisa", "raport-absente", "raport-pontaj-detaliat", "raport-garzi"} {
 		t.Run(id, func(t *testing.T) {
 			c := Cerere{ModelID: id, An: 2026, Luna: 10, Limba: "ro"}
 			if id == "raport-fisa" {
@@ -339,13 +341,7 @@ func TestReferinteRapoarteSiPDF(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			v := "3"
-			if id == "raport-absente" {
-				v = "2"
-			}
-			if id == "raport-pontaj-detaliat" {
-				v = "2"
-			}
+			v := strconv.Itoa(doc.VersiuneRaport)
 			cale := filepath.Join("testdata", id+"-v"+v+".json")
 			if *actualizeazaReferinte {
 				if err := os.MkdirAll("testdata", 0700); err != nil {
