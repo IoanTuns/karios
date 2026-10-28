@@ -590,6 +590,25 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .parametri-regula input[type="number"] { width: 60px; padding: 4px 6px; font-size: 12px; margin: 0 4px; }
 .parametri-regula select { padding: 4px 8px; font-size: 12px; }
 
+/* Detalii Dezvoltare, Sistem & LLM */
+.insigne-sumar-despre { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+.cip-info { background: #f0f4f1; border: 1px solid #d4ded7; padding: 3px 8px; border-radius: 12px; font-size: 11.5px; color: #2d4538; }
+.actiuni-despre { margin-top: 14px; }
+.detalii-dezvoltare-dialog { display: flex; flex-direction: column; gap: 18px; padding-right: 4px; }
+.sectiune-raport { background: #ffffff; border: 1px solid var(--linie); border-radius: 8px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+.sectiune-raport h3 { margin: 0; font-size: 14px; color: #163f25; font-weight: 700; border-bottom: 1px solid #edf2ee; padding-bottom: 6px; }
+.tabel-proprietati-tehnice { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px 18px; font-size: 12.5px; }
+.linie-proprietate { display: flex; flex-direction: column; gap: 2px; }
+.linie-proprietate.coloana-completa { grid-column: 1 / -1; }
+.eticheta-prop { font-size: 11px; text-transform: uppercase; color: var(--discret); font-weight: 600; letter-spacing: 0.3px; }
+.valoare-prop { color: var(--text); word-break: break-word; line-height: 1.4; }
+.cod-evidential { font-family: monospace; background: #f2f5f3; padding: 2px 6px; border-radius: 4px; font-size: 12px; color: #1b4332; }
+.insigna-versiune { font-weight: 700; color: #0f5132; background: #d1e7dd; padding: 2px 8px; border-radius: 4px; font-size: 12px; display: inline-block; width: fit-content; }
+.cale-fisier { font-family: monospace; font-size: 11px; color: #495057; background: #f8f9fa; padding: 4px 8px; border-radius: 4px; border: 1px solid #e9ecef; }
+.hash-integritate { font-family: monospace; font-size: 11px; color: #084298; background: #cfe2ff; padding: 4px 8px; border-radius: 4px; border: 1px solid #b6d4fe; word-break: break-all; }
+.insigna-stare-ai { font-weight: 600; color: #1b4332; background: #e8f5e9; padding: 2px 8px; border-radius: 4px; display: inline-block; width: fit-content; }
+
+
 
 
 

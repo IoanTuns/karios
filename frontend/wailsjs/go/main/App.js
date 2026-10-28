@@ -98,6 +98,10 @@ export function DeschidePDFPentruTiparire(arg1) {
   return window['go']['main']['App']['DeschidePDFPentruTiparire'](arg1);
 }
 
+export function DetaliiDezvoltare() {
+  return window['go']['main']['App']['DetaliiDezvoltare']();
+}
+
 export function EsteAutoPornireAI() {
   return window['go']['main']['App']['EsteAutoPornireAI']();
 }

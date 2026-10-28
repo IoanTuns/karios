@@ -4,6 +4,22 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.56.0 · 2026-10-28
+
+Fereastră dedicată și raport complet de dezvoltare, integritate și cerințe sistem în Setări (D009, D042).
+
+- **Raport tehnic complet de dezvoltare (`app_dezvoltare.go`, `app_dezvoltare_test.go`):**
+  * Noul endpoint backend `DetaliiDezvoltare()` colectează și structurează metadatele tehnice ale aplicației:
+    - **Identificare:** Nume repository (`karios`), nume aplicație (`Pontix`), versiune compilată (`0.56.0`), Git commit hash (`versiune.Commit`), arhitectură (`windows/amd64`), versiune Go și Wails (`v2.17.0`).
+    - **Validare integritate:** Calea binarului executabil și calculul dinamic al amprentei criptografice **SHA-256 Checksum** a executabilului pentru audit și securitate.
+    - **Cerințe minime și recomandate:** OS (Windows 10/11 64-bit), CPU (x64 AVX2), RAM (4 GB fără AI / 8–16 GB cu AI), disc (100 MB de bază / 3.5 GB cu AI), dependințe (WebView2) și conectivitate (100% Offline).
+    - **Modul Local AI & LLM:** Nume model (`model.gguf`), dimensiune fișier pe disc, format GGUF 4-bit, motor C++ `llama-server` cu AVX2, fereastră context (8192 tokeni), port local (28491) și izolare completă de rețea (127.0.0.1, 0 KB/s trafic exterior, GDPR).
+- **Interfață utilizator & Fereastră Pop-up în Setări (`Formulare.tsx`, `style.css`):**
+  * Secțiunea *Despre Pontix & Dezvoltare* din ecranul de Setări afișează insigne rapide (Repo, Versiune, Model AI, Offline) și butonul dedicat `ℹ️ Detalii dezvoltare, integritate și cerințe sistem`.
+  * Dialogul modal `DialogDetaliiDezvoltare` prezintă raportul organizat pe categorii și include butonul `📋 Copiază raportul tehnic` pentru asistență sau audit.
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
 ## 0.55.0 · 2026-10-27
 
 Extindere fereastră context AI la 8192 tokeni (F14-T04 / D042).

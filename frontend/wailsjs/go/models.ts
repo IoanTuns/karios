@@ -1417,6 +1417,113 @@ export namespace main {
 		    return a;
 		}
 	}
+	export class CerinteSistem {
+	    sistem_operare: string;
+	    procesor: string;
+	    ram_minim: string;
+	    ram_recomandat: string;
+	    spatiu_disc: string;
+	    dependinte: string;
+	    retea: string;
+
+	    static createFrom(source: any = {}) {
+	        return new CerinteSistem(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.sistem_operare = source["sistem_operare"];
+	        this.procesor = source["procesor"];
+	        this.ram_minim = source["ram_minim"];
+	        this.ram_recomandat = source["ram_recomandat"];
+	        this.spatiu_disc = source["spatiu_disc"];
+	        this.dependinte = source["dependinte"];
+	        this.retea = source["retea"];
+	    }
+	}
+	export class InfoDetaliatLLM {
+	    nume_model: string;
+	    format: string;
+	    motor_inferenta: string;
+	    fereastra_context: number;
+	    port_local: number;
+	    stare: string;
+	    dimensiune_model: string;
+	    izolare_retea: string;
+
+	    static createFrom(source: any = {}) {
+	        return new InfoDetaliatLLM(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.nume_model = source["nume_model"];
+	        this.format = source["format"];
+	        this.motor_inferenta = source["motor_inferenta"];
+	        this.fereastra_context = source["fereastra_context"];
+	        this.port_local = source["port_local"];
+	        this.stare = source["stare"];
+	        this.dimensiune_model = source["dimensiune_model"];
+	        this.izolare_retea = source["izolare_retea"];
+	    }
+	}
+	export class DetaliiDezvoltare {
+	    nume_repo: string;
+	    nume_aplicatie: string;
+	    versiune: string;
+	    commit: string;
+	    arhitectura: string;
+	    versiune_go: string;
+	    versiune_wails: string;
+	    cale_executabil: string;
+	    checksum_exe: string;
+	    autor: string;
+	    licenta: string;
+	    confidentialitate: string;
+	    cerinte_minime: CerinteSistem;
+	    detalii_llm: InfoDetaliatLLM;
+
+	    static createFrom(source: any = {}) {
+	        return new DetaliiDezvoltare(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.nume_repo = source["nume_repo"];
+	        this.nume_aplicatie = source["nume_aplicatie"];
+	        this.versiune = source["versiune"];
+	        this.commit = source["commit"];
+	        this.arhitectura = source["arhitectura"];
+	        this.versiune_go = source["versiune_go"];
+	        this.versiune_wails = source["versiune_wails"];
+	        this.cale_executabil = source["cale_executabil"];
+	        this.checksum_exe = source["checksum_exe"];
+	        this.autor = source["autor"];
+	        this.licenta = source["licenta"];
+	        this.confidentialitate = source["confidentialitate"];
+	        this.cerinte_minime = this.convertValues(source["cerinte_minime"], CerinteSistem);
+	        this.detalii_llm = this.convertValues(source["detalii_llm"], InfoDetaliatLLM);
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+
 	export class Informatii {
 	    versiune: string;
 	    commit: string;

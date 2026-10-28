@@ -54,6 +54,8 @@ export function DescarcaSablon(arg1:string,arg2:string):Promise<main.RaspunsDesc
 
 export function DeschidePDFPentruTiparire(arg1:string):Promise<main.RaspunsFisierRaport>;
 
+export function DetaliiDezvoltare():Promise<main.DetaliiDezvoltare>;
+
 export function EsteAutoPornireAI():Promise<boolean>;
 
 export function ExecutaImportAngajati(arg1:datebaza.CerereExecutaImportAngajati):Promise<main.RaspunsExecutaImportAngajati>;
