@@ -36,8 +36,18 @@ export function Dialog({titlu, ocupat, inchide, children, permiteMaximizare, cla
     useEffect(() => {
         const dialog = ref.current;
         dialog?.showModal();
-        return () => { dialog?.close(); };
-    }, []);
+        const laTasta = (e: KeyboardEvent) => {
+            if (e.key === 'Escape' && !ocupat) {
+                e.preventDefault();
+                inchide();
+            }
+        };
+        window.addEventListener('keydown', laTasta);
+        return () => {
+            dialog?.close();
+            window.removeEventListener('keydown', laTasta);
+        };
+    }, [ocupat, inchide]);
     return <dialog ref={ref} className={`dialog ${clasa||''} ${maximizat?'dialog-maximizat':''}`} aria-labelledby="titlu-dialog"
         onCancel={e => { e.preventDefault(); if (!ocupat) inchide(); }}>
         <div className="antet-dialog">
@@ -97,7 +107,12 @@ export function FormularAngajat({angajat, date, ocupat, eroare, inchide, salveaz
     }
 
     return <Dialog titlu={t(angajat.id ? 'ui.editare_angajat' : 'ui.adauga_angajat')} ocupat={ocupat} inchide={inchideCuVerificare}>
-        <form onSubmit={trimite}>
+        <form onSubmit={trimite} onKeyDown={e => {
+            if (e.ctrlKey && e.key === 'Enter') {
+                e.preventDefault();
+                (e.currentTarget as HTMLFormElement).requestSubmit();
+            }
+        }}>
             <div className="corp-dialog"><p className="text-discret">{t('ui.formular_indiciu')}</p>
                 {(validare || eroare) && <div className="mesaj eroare" role="alert">{validare || eroare}</div>}
                 <fieldset disabled={ocupat} className="campuri">

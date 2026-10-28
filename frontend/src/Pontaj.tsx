@@ -4,6 +4,7 @@ import {CitesteCalendar, CitesteSchita, ListaSchimburi, SalveazaSchita, Previzua
 import {calcul, datebaza} from '../wailsjs/go/models';
 import {Dialog, denumireSectie, denumireDepartament} from './Formulare';
 import {programPlanificat} from './Planificare';
+import {notifica} from './Toast';
 
 type Pozitie = {rand: number; zi: number};
 type Selectie = {inceput: Pozitie; sfarsit: Pozitie};
@@ -61,6 +62,11 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
     const [eroare, setEroare] = useState('');
     const [mesaj, setMesaj] = useState('');
     const [reincarcare, setReincarcare] = useState(0);
+    const [zoomGrila, setZoomGrila] = useState<'compact' | 'normal' | 'extins'>(() => (localStorage.getItem('pontix_zoom_grila') as any) || 'normal');
+    const schimbaZoom = (z: 'compact' | 'normal' | 'extins') => {
+        setZoomGrila(z);
+        localStorage.setItem('pontix_zoom_grila', z);
+    };
     const grila = useRef<HTMLDivElement>(null);
     const ignoraFocus = useRef(false);
     const blocat = useRef(false);
@@ -382,8 +388,8 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
         blocat.current = true; setOcupat(true); onOcupat(true); setEroare(''); setMesaj('');
         try {
             const r = await SalveazaSchita(an, luna, [...modificari.values()]);
-            if (r.eroare) setEroare(t(r.eroare.cod, r.eroare.param ?? {}));
-            else if (r.schita) { setSchita(r.schita); setCalculat(r.schita.calcul); setModificari(new Map()); setIstoricInapoi([]); setIstoricInainte([]); setMesaj(t('pontaj.salvat')); }
+            if (r.eroare) { setEroare(t(r.eroare.cod, r.eroare.param ?? {})); notifica(t(r.eroare.cod, r.eroare.param ?? {}), 'eroare'); }
+            else if (r.schita) { setSchita(r.schita); setCalculat(r.schita.calcul); setModificari(new Map()); setIstoricInapoi([]); setIstoricInainte([]); setMesaj(t('pontaj.salvat')); notifica(t('pontaj.salvat'), 'succes'); }
             else setEroare(t('date.eroare'));
         } catch { setEroare(t('date.eroare')); }
         finally { blocat.current = false; setOcupat(false); onOcupat(false); }
@@ -486,6 +492,12 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                 <button type="button" className="buton secundar" title={t('program.completare_program_indiciu')} disabled={ocupat||!randuri.length||!programCompletare} onClick={precompleteazaLV}>{t('pontaj.precompleteaza_lv')}</button>
                 <button type="button" className="buton secundar" disabled={ocupat||!randuri.length} onClick={()=>void previzualizeazaCategorii(false)}>{t('program.precompleteaza')}</button>
                 <button type="button" className="buton secundar" title="Export Excel (.xlsx)" disabled={ocupat||!randuri.length} onClick={exportaExcel}>📊 {t('pontaj.export_excel')}</button>
+                <div className="grup-zoom-grila" role="group" aria-label="Densitate afișare grilă">
+                    <span className="eticheta-zoom">🔎 Zoom:</span>
+                    <button type="button" className={`buton-zoom ${zoomGrila === 'compact' ? 'activ' : ''}`} title="Comprimat (44px) - densitate maximă" onClick={() => schimbaZoom('compact')}>S</button>
+                    <button type="button" className={`buton-zoom ${zoomGrila === 'normal' ? 'activ' : ''}`} title="Normal (52px) - echilibrat" onClick={() => schimbaZoom('normal')}>M</button>
+                    <button type="button" className={`buton-zoom ${zoomGrila === 'extins' ? 'activ' : ''}`} title="Extins (62px) - lizibilitate mare" onClick={() => schimbaZoom('extins')}>L</button>
+                </div>
                 <span className="stare-modificari" aria-live="polite">{t('pontaj.modificate', {numar: modificari.size})}</span>
                 <div id="pontaj-panou-filtre" className="panou-unelte" hidden={panou !== 'filtre'}>
                 <select aria-label={t('ui.sectie')} value={sectie} disabled={ocupat} onChange={e => { setSectie(e.target.value); setDepartament(''); }}><option value="">{t('ui.toate_sectiile')}</option>
@@ -514,7 +526,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                 </div>
                 <button type="button" className="buton secundar" disabled={ocupat || !istoricInapoi.length} onClick={anuleazaPas}>{t('pontaj.anuleaza_pas')}</button>
                 <button type="button" className="buton secundar" disabled={ocupat || !istoricInainte.length} onClick={refaPas}>{t('pontaj.refa_pas')}</button>
-                <button className="buton secundar" disabled={ocupat || calculare || !calculat || !randuri.length} onClick={async () => { try { await navigator.clipboard.writeText(textSelectat()); } catch { setEroare(t('pontaj.clipboard')); } }}>{t('pontaj.copiaza')}</button>
+                <button className="buton secundar" disabled={ocupat || calculare || !calculat || !randuri.length} onClick={async () => { try { await navigator.clipboard.writeText(textSelectat()); notifica('Selecția a fost copiată în clipboard!', 'info'); } catch { setEroare(t('pontaj.clipboard')); } }}>{t('pontaj.copiaza')}</button>
                 <button className="legatura" disabled={ocupat} onClick={() => { if (poateAbandona()) setReincarcare(x => x + 1); }}>{t('pontaj.reincarca')}</button>
                 </div>
                 <div id="pontaj-panou-ajutor" className="panou-unelte ajutor-pontaj" hidden={panou !== 'ajutor'}>
@@ -535,7 +547,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
             <div className="legenda-grila" aria-label={t('pontaj.legenda')}>
                 {['weekend', 'sarbatoare', 'selectie', 'modificat', 'avertisment', 'inlocuire'].map(stare => <span key={stare}><i aria-hidden="true" className={`mostra-${stare}`}/>{t(`pontaj.legenda_${stare}`)}</span>)}
             </div>
-            <div className="panou grila-container" ref={grila} onScroll={e => {
+            <div className={`panou grila-container zoom-${zoomGrila}`} ref={grila} onScroll={e => {
                 if (stareCurenta.current) { stareCurenta.current.derulareX = e.currentTarget.scrollLeft; stareCurenta.current.derulareY = e.currentTarget.scrollTop; }
             }} onPaste={lipeste} onCopy={e => { e.preventDefault(); e.clipboardData.setData('text/plain', textSelectat()); }}>
                 <table className="grila-pontaj" aria-label={t('pontaj.grila', {an, luna})}><thead><tr><th className="fix-nume">{t('ui.angajat')}</th><th className="fix-marca">{t('ui.marca')}</th>
@@ -558,14 +570,37 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                             const peste24h = minuteZi > 1440;
                             const titluAvertisment = [dupaG24 ? t('pontaj.avertisment_dupa_g24') : '', peste24h ? t('pontaj.avertisment_peste_24h', {ore: oreText(minuteZi)}) : ''].filter(Boolean).join(' · ');
                             return <td key={data} className={`${sarbatori.has(data) ? 'zi-sarbatoare' : weekend ? 'zi-weekend' : ''} ${selectata ? 'celula-selectata' : ''} ${modificari.has(k) ? 'celula-modificata' : ''} ${colegiInlocuiti?.length ? 'celula-inlocuitor' : ''} ${titluAvertisment ? 'celula-avertisment' : ''}`}>
-                            <input data-rand={r} data-zi={z} aria-label={t('pontaj.celula', {nume: `${a.nume} ${a.prenume}`, data})} title={[titluAbsenta,titluInlocuire,titluAvertisment,sarbatori.get(data)||data,t('pontaj.editare_ore'),oreCalculate.get(k)?.surse.length?t('pontaj.surse_ore',{date:oreCalculate.get(k)!.surse.join(', ')}):''].filter(Boolean).join(' · ')} disabled={ocupat} readOnly className={absenta ? `celula-absenta celula-absenta-${stareAbsenta}` : ''} value={valoare(r, z)}
+                            <input data-rand={r} data-zi={z} aria-label={t('pontaj.celula', {nume: `${a.nume} ${a.prenume}`, data})} title={[
+                                `${a.nume} ${a.prenume} (marca: ${a.marca || '—'})`,
+                                `Data: ${data}${weekend ? ' [Weekend]' : ''}${sarbatori.has(data) ? ` [${sarbatori.get(data)}]` : ''}`,
+                                `Schimb: ${valoare(r, z) || 'Liber'}`,
+                                titluAbsenta,
+                                titluInlocuire,
+                                titluAvertisment,
+                                oreCalculate.get(k)?.surse.length ? t('pontaj.surse_ore', {date: oreCalculate.get(k)!.surse.join(', ')}) : ''
+                            ].filter(Boolean).join(' · ')} disabled={ocupat} readOnly className={absenta ? `celula-absenta celula-absenta-${stareAbsenta}` : ''} value={valoare(r, z)}
                                 onFocus={() => { if (ignoraFocus.current) ignoraFocus.current = false; else setSelectie({inceput: {rand: r, zi: z}, sfarsit: {rand: r, zi: z}}); }}
                                 onMouseDown={e => { if (e.shiftKey) { e.preventDefault(); focalizeaza({rand: r, zi: z}, true); } }}
                                 onMouseEnter={e => { if (e.buttons === 1 && !ocupat) setSelectie(s => ({...s, sfarsit: {rand: r, zi: z}})); }}
                                 onKeyDown={e => taste(e, r, z)} onDoubleClick={deschideOreManuale}/></td>;
                         })}
                         {totaluri.map(c => {const v=totaluriCalculate.get(a.id)?.[c],regula=schita?.configuratie.reguli.find(r=>r.coloana===c),titluTotal=!v?.definita?t('pontaj.necalculat'):regula?.sursa==='ORE_NORMA'?t('pontaj.ore_norm_explicatie'):t(v.unitate==='ZILE'?'pontaj.unitate_zile':'pontaj.unitate_ore');return <td key={c} className={`${!v?.definita?'total-necalculat':''} ${c==='T'?'fix-total-t':''}`.trim()} title={titluTotal}>{calculare?'…':v?valoareText(v):calculat&&regula?.sursa!=='NEDEFINITA'?'0':'—'}</td>;})}</tr>)}
-                </tbody></table>{randuri.length === 0 && <p className="fara-rezultate">{t('pontaj.fara_angajati')}</p>}
+                </tbody></table>
+                {randuri.length === 0 && (
+                    <div className="card-onboarding-gol" role="region" aria-label="Ghid de pornire">
+                        <div className="simbol-gol">📋</div>
+                        <h3>Nu există personal disponibil în această vizualizare</h3>
+                        <p>Pentru a începe pontajul acestei luni, poți ajusta filtrele de căutare sau poți importa lista completă a angajaților.</p>
+                        <div className="actiuni-onboarding-rapide">
+                            <button type="button" className="buton secundar" onClick={() => setReincarcare(x => x + 1)}>
+                                🔄 Reîncarcă datele
+                            </button>
+                            <button type="button" className="buton secundar" onClick={() => { setSectie(''); setDepartament(''); setCautare(''); setFiltruRanduri(''); setCategorieProgram(''); }}>
+                                Resetează filtrele active
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
             <p className="indiciu-grila">{t('pontaj.dimensiuni', {randuri: randuri.length, zile: numarZile})} · {t('pontaj.inactivi_indiciu')}</p>
         </>}

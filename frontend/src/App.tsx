@@ -5,6 +5,7 @@ import {datebaza, main} from '../wailsjs/go/models';
 import {DialogDemo, FormularAngajat, Setari, durata, denumireSectie, denumireDepartament} from './Formulare';
 import {DialogImportAngajati} from './ImportDialogs';
 import {ErrorBoundary} from './ErrorBoundary';
+import {ToastContainer} from './Toast';
 import type {ContextPontaj} from './Pontaj';
 
 const Pontaj = lazy(() => import('./Pontaj').then(m => ({ default: m.Pontaj })));
@@ -67,6 +68,23 @@ function App() {
     const contextPontaj = useRef<ContextPontaj | null>(null);
     const [contextPlanificare,setContextPlanificare]=useState<{an:number;luna:number}|undefined>();
     const [filtruAbsente, setFiltruAbsente] = useState<{an: number; angajatId: string} | null>(null);
+    const [sidebarCompact, setSidebarCompact] = useState(() => localStorage.getItem('pontix_sidebar_compact') === 'true');
+    const [tema, setTema] = useState<'light' | 'dark'>(() => (localStorage.getItem('pontix_tema') as any) || 'light');
+
+    useEffect(() => {
+        document.documentElement.setAttribute('data-theme', tema);
+        localStorage.setItem('pontix_tema', tema);
+    }, [tema]);
+
+    const comutaTema = () => setTema(t => (t === 'light' ? 'dark' : 'light'));
+
+    const comutaSidebar = () => {
+        setSidebarCompact(prev => {
+            const nou = !prev;
+            localStorage.setItem('pontix_sidebar_compact', String(nou));
+            return nou;
+        });
+    };
 
     function aplica(raspuns: main.RaspunsDate): boolean {
         if (raspuns.eroare) {
@@ -124,9 +142,21 @@ function App() {
         setEcran(item); setEroare(''); setMesaj('');
     }
 
-    return <div className="aplicatie">
+    return <div className={`aplicatie ${sidebarCompact ? 'sidebar-compact' : ''}`}>
         <aside className="bara-laterala">
-            <div className="marca-aplicatie"><span className="sigla" aria-hidden="true">p<span>·</span></span><strong>{t('aplicatie.titlu')}</strong></div>
+            <div className="marca-aplicatie">
+                <span className="sigla" aria-hidden="true">p<span>·</span></span>
+                <strong>{t('aplicatie.titlu')}</strong>
+                <button
+                    type="button"
+                    className="buton-pliere-sidebar"
+                    onClick={comutaSidebar}
+                    title={sidebarCompact ? "Extinde meniul lateral" : "Restrânge meniul lateral (compact)"}
+                    aria-label={sidebarCompact ? "Extinde meniul lateral" : "Restrânge meniul lateral"}
+                >
+                    {sidebarCompact ? "▶" : "◀"}
+                </button>
+            </div>
             <p className="eticheta-meniu">{t('ui.date_baza')}</p>
             <nav aria-label={t('ui.date_baza')}>
                 {ecranePrincipale.map(item => {
@@ -134,8 +164,9 @@ function App() {
                     return <div key={item} className="grup-navigare">
                         <button className={`navigare ${item === 'setari' ? 'navigare-setari' : ''} ${activ ? 'selectat' : ''}`}
                             aria-current={activ ? 'page' : undefined} disabled={ocupat || pontajOcupat}
+                            title={t(`ui.${item}`)}
                             onClick={() => schimbaEcran(item)}>
-                            <Simbol tip={item}/>{t(`ui.${item}`)}</button>
+                            <Simbol tip={item}/><span className="text-navigare">{t(`ui.${item}`)}</span></button>
                         {item === 'setari' && esteInSetari && <div className="submeniu-setari" role="group" aria-label={t('ui.setari')}>
                             {sectiuniSetari.map(sub => <button key={sub} type="button" className={`subnavigare ${ecran === sub ? 'selectat' : ''}`}
                                 aria-current={ecran === sub ? 'page' : undefined} disabled={ocupat || pontajOcupat}
@@ -152,6 +183,15 @@ function App() {
                 <div className="rand-subsol-info">
                     <span className="punct-local"/>{t('ui.local')}
                     {versiune && <span className="versiune">{t('aplicatie.versiune', {versiune})}</span>}
+                    <button
+                        type="button"
+                        className="buton-comutator-tema"
+                        onClick={comutaTema}
+                        title={tema === 'dark' ? "Comută la modul luminos" : "Comută la modul nocturn (Dark Mode)"}
+                        aria-label="Comută tema"
+                    >
+                        {tema === 'dark' ? '☀️ Zi' : '🌙 Noapte'}
+                    </button>
                     <select name="limba_interfata" className="selector-limba" aria-label={t('ui.limba_interfata')} value={i18n.language === 'en' ? 'en' : 'ro'}
                         onChange={e => { const l = e.target.value; void i18n.changeLanguage(l); document.documentElement.lang = l; document.title = i18n.t('aplicatie.titlu'); }}>
                         <option value="ro">{t('rapoarte.ro')}</option><option value="en">{t('rapoarte.en')}</option>
@@ -321,6 +361,7 @@ function App() {
                 setMesaj(msg);
                 setEroare('');
             }}/>}
+        <ToastContainer />
     </div>;
 }
 

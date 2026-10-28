@@ -41,6 +41,8 @@ export function CitesteSchita(arg1:number,arg2:number):Promise<main.RaspunsSchit
 
 export function CitesteStareLuna(arg1:number,arg2:number):Promise<main.RaspunsStareLuna>;
 
+export function CitesteUltimeleLiniiJurnal(arg1:number):Promise<string>;
+
 export function CompleteazaSarbatori2026():Promise<main.RaspunsCalendar>;
 
 export function CompleteazaSarbatoriAn(arg1:number):Promise<main.RaspunsCalendar>;
@@ -53,15 +55,9 @@ export function DateInitiale():Promise<main.RaspunsDate>;
 
 export function DescarcaSablon(arg1:string,arg2:string):Promise<main.RaspunsDescarcaSablon>;
 
-export function DeschidePDFPentruTiparire(arg1:string):Promise<main.RaspunsFisierRaport>;
-
 export function DeschideFolderJurnale():Promise<string>;
 
-export function CitesteUltimeleLiniiJurnal(arg1:number):Promise<string>;
-
-export function InregistreazaEroareFrontend(arg1:string,arg2:string,arg3:string):Promise<void>;
-
-export function StatisticiDiagnoza():Promise<diagnoza.StatisticiDiagnoza>;
+export function DeschidePDFPentruTiparire(arg1:string):Promise<main.RaspunsFisierRaport>;
 
 export function DetaliiDezvoltare():Promise<main.DetaliiDezvoltare>;
 
@@ -76,6 +72,8 @@ export function ExportaPontajExcel(arg1:number,arg2:number):Promise<main.Raspuns
 export function IncarcaDemo():Promise<main.RaspunsDate>;
 
 export function Informatii():Promise<main.Informatii>;
+
+export function InregistreazaEroareFrontend(arg1:string,arg2:string,arg3:string):Promise<void>;
 
 export function InterogheazaAI(arg1:main.CerereInterogareAI):Promise<main.RaspunsInterogareAI>;
 
@@ -138,5 +136,7 @@ export function SeteazaAutoPornireAI(arg1:boolean):Promise<boolean>;
 export function SeteazaStareLuna(arg1:number,arg2:number,arg3:string,arg4:string):Promise<main.RaspunsStareLuna>;
 
 export function StareAI():Promise<main.RaspunsStareAI>;
+
+export function StatisticiDiagnoza():Promise<diagnoza.StatisticiDiagnoza>;
 
 export function VerificaReguliPlanificare(arg1:number,arg2:number):Promise<main.RaspunsVerificaReguli>;

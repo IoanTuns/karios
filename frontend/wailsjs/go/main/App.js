@@ -70,6 +70,10 @@ export function CitesteStareLuna(arg1, arg2) {
   return window['go']['main']['App']['CitesteStareLuna'](arg1, arg2);
 }
 
+export function CitesteUltimeleLiniiJurnal(arg1) {
+  return window['go']['main']['App']['CitesteUltimeleLiniiJurnal'](arg1);
+}
+
 export function CompleteazaSarbatori2026() {
   return window['go']['main']['App']['CompleteazaSarbatori2026']();
 }
@@ -94,24 +98,12 @@ export function DescarcaSablon(arg1, arg2) {
   return window['go']['main']['App']['DescarcaSablon'](arg1, arg2);
 }
 
-export function DeschidePDFPentruTiparire(arg1) {
-  return window['go']['main']['App']['DeschidePDFPentruTiparire'](arg1);
-}
-
 export function DeschideFolderJurnale() {
   return window['go']['main']['App']['DeschideFolderJurnale']();
 }
 
-export function CitesteUltimeleLiniiJurnal(arg1) {
-  return window['go']['main']['App']['CitesteUltimeleLiniiJurnal'](arg1);
-}
-
-export function InregistreazaEroareFrontend(arg1, arg2, arg3) {
-  return window['go']['main']['App']['InregistreazaEroareFrontend'](arg1, arg2, arg3);
-}
-
-export function StatisticiDiagnoza() {
-  return window['go']['main']['App']['StatisticiDiagnoza']();
+export function DeschidePDFPentruTiparire(arg1) {
+  return window['go']['main']['App']['DeschidePDFPentruTiparire'](arg1);
 }
 
 export function DetaliiDezvoltare() {
@@ -140,6 +132,10 @@ export function IncarcaDemo() {
 
 export function Informatii() {
   return window['go']['main']['App']['Informatii']();
+}
+
+export function InregistreazaEroareFrontend(arg1, arg2, arg3) {
+  return window['go']['main']['App']['InregistreazaEroareFrontend'](arg1, arg2, arg3);
 }
 
 export function InterogheazaAI(arg1) {
@@ -264,6 +260,10 @@ export function SeteazaStareLuna(arg1, arg2, arg3, arg4) {
 
 export function StareAI() {
   return window['go']['main']['App']['StareAI']();
+}
+
+export function StatisticiDiagnoza() {
+  return window['go']['main']['App']['StatisticiDiagnoza']();
 }
 
 export function VerificaReguliPlanificare(arg1, arg2) {

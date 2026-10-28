@@ -4,6 +4,23 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.59.0 · 2026-10-28
+
+Pachet complet de rafinare UX/UI (F16-T04..T10, prioritățile 1, 2 și 3):
+
+- **Prioritatea 1 · Eficiență imediată & vizibilitate grilă:**
+  * **Bară laterală pliabilă (Compact / Icon-only Sidebar, F16-T04):** Adăugat comutator toggle `[◀] / [▶]` în antetul meniului lateral care restrânge bara la 64px (doar pictogramele cu tooltips native). Eliberează peste 140px lățime direct pentru grilele de pontaj și planificare pe laptopuri. Starea este persistată în `localStorage`.
+  * **Control de densitate & Zoom pentru grilă (F16-T05):** Comutator rapid `[S (44px)] [M (52px)] [L (62px)]` în bara de unelte a ecranelor de Pontaj și Planificare, permițând densitate maximă pe ecrane mici sau lizibilitate mărită pe monitoare de rezoluție înaltă.
+  * **Tooltips rapide la hover (F16-T06):** La trecerea cursorului peste orice celulă, se afișează instant un rezumat clar: nume angajat, marcă, data, zi de weekend/sărbătoare, cod schimb cu denumire completă și ore, plus eventuale avertismente sau concedii.
+- **Prioritatea 2 · Notificări unificate & scurtături universale:**
+  * **Sistem unificat Toast Notifications (`Toast.tsx`, F16-T07):** Notificări neintruzive animate în colțul din dreapta-jos pentru confirmări de salvare (`succes`), copiere în clipboard (`info`), avertismente de gardă (`avertisment`) și erori (`eroare`).
+  * **Scurtături de tastatură universale (F16-T08):** Închiderea oricărui dialog modal prin tasta `Escape`; confirmare și trimitere rapidă a formularelor prin `Ctrl + Enter`.
+- **Prioritatea 3 · Confort vizual & ghid de start:**
+  * **Suport Dark Mode / Temă Nocturnă (F16-T09):** Temă întunecată dedicată gărzilor de noapte cu paletă medicală odihnitoare (`[data-theme="dark"]`), comutator `☀️ Zi / 🌙 Noapte` în subsolul barei laterale și persistență a preferinței.
+  * **Ghid vizual pe ecrane goale (Onboarding Empty State, F16-T10):** Înlocuirea textelor simple de lipsă date din Pontaj și Planificare cu carduri interactive ghidate, oferind butoane de reîmprospătare sau resetare rapidă a filtrelor.
+
+Baza de date și rapoarte: nicio schimbare de schemă.
+
 ## 0.58.0 · 2026-10-28
 
 Sistem de diagnoză locală, captare robustă a erorilor și profilare a timpilor de interogare (D043, F16).

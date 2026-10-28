@@ -20,6 +20,7 @@ import {
 import {datebaza, calcul, main, rapoarte} from '../wailsjs/go/models';
 import {Dialog, denumireSectie, denumireDepartament, durata} from './Formulare';
 import {oraText} from './Schimburi';
+import {notifica} from './Toast';
 
 export function programPlanificat(p:datebaza.Schimb) {
     return p.tip==='GARDA'||p.tip==='NOAPTE'||p.regim==='NELUCRATOARE'||p.regim==='INTRARE_ZI_LIBERA'||(p.ora_start>=720&&p.ora_start<1320);
@@ -68,6 +69,11 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
     const [istoricInainte,setIstoricInainte]=useState<Map<string,datebaza.PozitiePlanificare>[]>([]);
     const [selectie,setSelectie]=useState<Selectie>({inceput:{rand:0,zi:0},sfarsit:{rand:0,zi:0}});
     const [programAles,setProgramAles]=useState('');
+    const [zoomGrila, setZoomGrila] = useState<'compact' | 'normal' | 'extins'>(() => (localStorage.getItem('pontix_zoom_grila') as any) || 'normal');
+    const schimbaZoom = (z: 'compact' | 'normal' | 'extins') => {
+        setZoomGrila(z);
+        localStorage.setItem('pontix_zoom_grila', z);
+    };
     const [incalcariReguli, setIncalcariReguli] = useState<calcul.IncalcareRegula[]>([]);
     const [dialogReguli, setDialogReguli] = useState<boolean>(false);
     const grilaRef=useRef<HTMLDivElement>(null);
@@ -275,9 +281,10 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
         try{
             const pozitii=Array.from(modificari.values());
             const r=await SalveazaPlanificare(an,luna,pozitii);
-            if(r.eroare)setEroare(t(r.eroare.cod,r.eroare.param??{}));
+            if(r.eroare){setEroare(t(r.eroare.cod,r.eroare.param??{}));notifica(t(r.eroare.cod,r.eroare.param??{}), 'eroare');}
             else if(r.planificare){
                 setPlan(r.planificare);setModificari(new Map());setIstoricInapoi([]);setIstoricInainte([]);setMesaj(t('planificare.salvata'));
+                notifica(t('planificare.salvata'), 'succes');
                 setReincarcare(x=>x+1);
             }else setEroare(t('date.eroare'));
         }catch{setEroare(t('date.eroare'));}finally{blocat.current=false;setOcupat(false);onOcupat(false);}
@@ -287,9 +294,10 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
         if(blocat.current)return;blocat.current=true;setOcupat(true);onOcupat(true);setEroare('');setMesaj('');
         try{
             const r=await SalveazaPlanificare(an,luna,pozitii);
-            if(r.eroare)setEroare(t(r.eroare.cod,r.eroare.param??{}));
+            if(r.eroare){setEroare(t(r.eroare.cod,r.eroare.param??{}));notifica(t(r.eroare.cod,r.eroare.param??{}), 'eroare');}
             else if(r.planificare){
                 setPlan(r.planificare);setEditare(null);setDialogSumar(null);setMesaj(t('planificare.salvata'));
+                notifica(t('planificare.salvata'), 'succes');
                 setReincarcare(x=>x+1);
             }else setEroare(t('date.eroare'));
         }catch{setEroare(t('date.eroare'));}finally{blocat.current=false;setOcupat(false);onOcupat(false);}
@@ -431,6 +439,12 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
                 <option value="DUPA_AMIAZA">{t('planificare.sectiune_DUPA_AMIAZA')}</option>
             </select>
             <input name="cautare_planificare" aria-label={t('ui.cautare')} placeholder={t('ui.cautare_indiciu')} value={cautare} disabled={ocupat} onChange={e=>setCautare(e.target.value)}/>
+            {mod==='grila'&&<div className="grup-zoom-grila" role="group" aria-label="Densitate afișare grilă">
+                <span className="eticheta-zoom">🔎 Zoom:</span>
+                <button type="button" className={`buton-zoom ${zoomGrila === 'compact' ? 'activ' : ''}`} title="Comprimat (44px) - densitate maximă" onClick={() => schimbaZoom('compact')}>S</button>
+                <button type="button" className={`buton-zoom ${zoomGrila === 'normal' ? 'activ' : ''}`} title="Normal (52px) - echilibrat" onClick={() => schimbaZoom('normal')}>M</button>
+                <button type="button" className={`buton-zoom ${zoomGrila === 'extins' ? 'activ' : ''}`} title="Extins (62px) - lizibilitate mare" onClick={() => schimbaZoom('extins')}>L</button>
+            </div>}
             {mod==='lista'&&<label className="bifa"><input type="checkbox" name="planificari_inactive" checked={inactive} disabled={ocupat} onChange={e=>setInactive(e.target.checked)}/>{t('planificare.arata_retrase')}</label>}
             {mod==='grila'&&modificari.size>0&&<span className="stare-modificari" aria-live="polite">{t('planificare.modificari_nesalvate',{numar:modificari.size})}</span>}
         </div>
@@ -488,7 +502,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
         {mesaj&&<p role="status" className="mesaj succes">{mesaj}</p>}
 
         {incarcare?<p role="status">{t('ui.incarcare')}</p>:plan&&mod==='grila'?<>
-            <div className="panou grila-container" ref={grilaRef}>
+            <div className={`panou grila-container zoom-${zoomGrila}`} ref={grilaRef}>
                 <table className="grila-planificare" aria-label={t('ui.planificare')}>
                     <thead>
                         <tr>
@@ -535,7 +549,13 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
                                             readOnly disabled={ocupat}
                                             className={`${absenta?'celula-absenta':''} ${stareClasa}`}
                                             value={valoareAfisata}
-                                            title={[absenta?`${t('absente.celula_protejata')}: ${absenta.cod}`:'',schimb?`${schimb.cod} (${schimb.denumire[i18n.language]||schimb.denumire.ro})`:sarbatori.get(data)||data,...(avertismenteCelula?avertismenteCelula.map(x=>`⚠️ ${x.mesaj}`):[])].filter(Boolean).join(' · ')}
+                                            title={[
+                                                `${a.nume} ${a.prenume} (marca: ${a.marca || '—'})`,
+                                                `Data: ${data}${weekend ? ' [Weekend]' : ''}${sarbatori.has(data) ? ` [${sarbatori.get(data)}]` : ''}`,
+                                                `Schimb: ${valoareAfisata || 'Liber'}${schimb ? ` (${schimb.denumire[i18n.language] || schimb.denumire.ro}, ${durata(schimb.durata_minute, t)})` : ''}`,
+                                                absenta ? `${t('absente.celula_protejata')}: ${absenta.cod}` : '',
+                                                ...(avertismenteCelula ? avertismenteCelula.map(x => `⚠️ ${x.mesaj}`) : [])
+                                            ].filter(Boolean).join(' · ')}
                                             onFocus={()=>setSelectie({inceput:{rand:r,zi:z},sfarsit:{rand:r,zi:z}})}
                                             onMouseDown={e=>{if(e.shiftKey){e.preventDefault();focalizeaza({rand:r,zi:z},true);}}}
                                             onMouseEnter={e=>{if(e.buttons===1&&!ocupat)setSelectie(s=>({...s,sfarsit:{rand:r,zi:z}}));}}
@@ -547,7 +567,21 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
                         })}
                     </tbody>
                 </table>
-                {!randuri.length&&<p className="fara-rezultate">{t('pontaj.fara_angajati')}</p>}
+                {!randuri.length && (
+                    <div className="card-onboarding-gol" role="region" aria-label="Ghid de pornire planificare">
+                        <div className="simbol-gol">📅</div>
+                        <h3>Niciun angajat în această selecție de planificare</h3>
+                        <p>Pentru a stabili turele și gărzi pe această lună, verifică filtrele pe secție sau comută pe Asistentul AI pentru distribuire automată.</p>
+                        <div className="actiuni-onboarding-rapide">
+                            <button type="button" className="buton secundar" onClick={() => setReincarcare(x => x + 1)}>
+                                🔄 Reîncarcă planificarea
+                            </button>
+                            <button type="button" className="buton secundar" onClick={() => { setSectie(''); setDepartament(''); setCautare(''); setSectiune('TOATE'); }}>
+                                Resetează filtrele secției
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
             <p className="indiciu-grila">{t('planificare.indiciu')}</p>
         </>:plan&&mod==='comparativ'?<PanouComparativPlanificatVsRealizat
