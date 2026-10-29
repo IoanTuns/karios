@@ -790,3 +790,5 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .interpretare-propunere { margin: 4px 0 6px; font-size: 12px; }
 .corecturi-propunere { color: #ad6800; }
 [data-theme="dark"] .corecturi-propunere { color: #ffc069; }
+.reaplicare-propunere { margin: 4px 0; font-size: 12px; color: #ad6800; }
+[data-theme="dark"] .reaplicare-propunere { color: #ffc069; }

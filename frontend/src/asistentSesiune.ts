@@ -14,6 +14,8 @@ export interface MesajUI {
     text: string;
     propuneri?: ai.PropunereActiune[];
     propuneriAplicata?: Record<string, boolean>;
+    // reaplicari: propunerile identice cu una deja aplicată mai sus (F14-T19).
+    reaplicari?: Record<string, boolean>;
 }
 
 // RezultatSarcinaAI vine prin evenimentul Wails, nu printr-o metodă legată, deci generatorul
@@ -84,11 +86,21 @@ function cheiePropunere(p: ai.PropunereActiune): string {
 }
 
 // faraRepetari scoate propunerile identice cu unele deja făcute sau încă afișate (F14-T09).
-function faraRepetari(propuneri: ai.PropunereActiune[] | undefined): {noi: ai.PropunereActiune[]; omise: number} {
-    const existente = new Set<string>();
-    for (const m of stare.conversatie) for (const p of m.propuneri ?? []) existente.add(cheiePropunere(p));
-    const noi = (propuneri ?? []).filter(p => !existente.has(cheiePropunere(p)));
-    return {noi, omise: (propuneri?.length ?? 0) - noi.length};
+// Se omit doar duplicatele unor propuneri încă neconfirmate (se confirmă cardul de mai sus);
+// cele identice cu una deja aplicată se arată, marcate, ca utilizatorul să poată reaplica (F14-T19).
+function faraRepetari(propuneri: ai.PropunereActiune[] | undefined): {noi: ai.PropunereActiune[]; omise: number; reaplicari: Record<string, boolean>} {
+    const neconfirmate = new Set<string>(), aplicate = new Set<string>();
+    for (const m of stare.conversatie) for (const p of m.propuneri ?? []) {
+        (m.propuneriAplicata?.[p.id] ? aplicate : neconfirmate).add(cheiePropunere(p));
+    }
+    const reaplicari: Record<string, boolean> = {};
+    const noi = (propuneri ?? []).filter(p => {
+        const k = cheiePropunere(p);
+        if (neconfirmate.has(k) && !aplicate.has(k)) return false;
+        if (aplicate.has(k)) reaplicari[p.id] = true;
+        return true;
+    });
+    return {noi, omise: (propuneri?.length ?? 0) - noi.length, reaplicari};
 }
 
 function laTerminare(rez: RezultatSarcinaAI) {
@@ -103,7 +115,7 @@ function laTerminare(rez: RezultatSarcinaAI) {
     } else if (rez.eroare) {
         schimbare.eroare = textEroare(rez.eroare);
     } else if (rez.raspuns) {
-        const {noi, omise} = faraRepetari(rez.raspuns.propuneri);
+        const {noi, omise, reaplicari} = faraRepetari(rez.raspuns.propuneri);
         let text = rez.raspuns.mesaj || (noi.length ? i18next.t('ai.propuneri_titlu') : '');
         if (omise > 0) text = [noi.length ? text : '', i18next.t('ai.propuneri_repetate', {numar: String(omise)})].filter(Boolean).join('\n');
         schimbare.conversatie = [...stare.conversatie, {
@@ -112,6 +124,7 @@ function laTerminare(rez: RezultatSarcinaAI) {
             text,
             propuneri: noi,
             propuneriAplicata: {},
+            reaplicari,
         }];
     }
     if (vizibil === 0 && !rez.oprita) {

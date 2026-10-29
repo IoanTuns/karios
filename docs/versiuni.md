@@ -4,6 +4,15 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.81.0 · 2026-10-29
+
+Propunerile repetate tratate după starea lor (F14-T19).
+
+- Se omit doar propunerile identice cu unele încă neconfirmate din conversație (se confirmă cardul de mai sus); mesajul spune asta.
+- O propunere identică cu una deja aplicată se arată, cu nota „O propunere identică a fost deja aplicată mai sus. Confirmă doar dacă vrei să o aplici din nou.” Utilizatorul nu mai rămâne fără răspuns când cere explicit reaplicarea.
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.80.0 · 2026-10-29
 
 Detectarea răspunsurilor care pretind o planificare fără nicio acțiune (F14-T18).

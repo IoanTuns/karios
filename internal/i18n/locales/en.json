@@ -779,7 +779,7 @@
   "ai.sarcina_terminata": "The AI assistant has finished. The reply is waiting in the assistant screen.",
   "ai.sarcina_eroare": "The AI assistant could not reply. Details are in the assistant screen.",
   "ai.grup_angajati": "{{numar}} employees · {{grup}}",
-  "ai.propuneri_repetate": "Skipped {{numar}} proposals identical to ones already shown or applied above.",
+  "ai.propuneri_repetate": "Skipped {{numar}} proposals identical to unconfirmed ones above; you can confirm them there.",
   "ai.confirma_cu_butonul": "For safety, proposals are confirmed only with the “Confirm and apply” button on the card, where you can see exactly what changes.",
   "ai.luna_de_lucru": "Working month",
   "ai.luna_de_lucru_indiciu": "Requests without a specific month refer to this month; taken from the timesheet.",
@@ -1103,5 +1103,6 @@
   "pontaj.ultima_modificare": "Last change: {{cine}}, {{cand}}",
   "pontaj.ultima_modificare_indiciu": "From the change log; the full history is in Settings → Change log.",
   "ai.am_inteles": "Understood:",
-  "ai.corectat": "corrected:"
+  "ai.corectat": "corrected:",
+  "ai.deja_aplicata_reaplica": "An identical proposal was already applied above. Confirm only if you want to apply it again."
 }

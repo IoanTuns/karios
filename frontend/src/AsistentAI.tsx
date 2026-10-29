@@ -374,6 +374,7 @@ export function AsistentAI({
                                                 <span className="simbol-actiune">⚡</span>
                                                 <strong>{p.descriere}</strong>
                                             </div>
+                                            {m.reaplicari?.[p.id] && !esteAplicata && <p className="reaplicare-propunere">↻ {t('ai.deja_aplicata_reaplica')}</p>}
                                             {p.parametri?.interpretare && <p className="interpretare-propunere">
                                                 {t('ai.am_inteles')} <strong>{String(p.parametri.interpretare)}</strong>
                                                 {Array.isArray(p.parametri?.corecturi) && p.parametri.corecturi.length > 0 &&
