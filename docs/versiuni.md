@@ -4,6 +4,16 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.81.1 · 2026-10-29
+
+Corecturi pe ecranele contului (F15-T09).
+
+- Crearea primului administrator citește parolele direct din formular la trimitere: completarea automată a WebView2 poate scrie în câmp fără să actualizeze starea, iar formularul raporta „Parolele nu coincid” cu parole identice. Câmpurile de parolă și cele de autentificare ascultă și de `onInput`.
+- Buton „Arată / Ascunde” lângă fiecare parolă.
+- Chenarul întrebărilor de recuperare rămâne în lățimea cardului (`fieldset` avea lățimea minimă a conținutului), iar textul de ajutor e mai mic.
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.81.0 · 2026-10-29
 
 Propunerile repetate tratate după starea lor (F14-T19).

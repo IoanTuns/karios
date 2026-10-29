@@ -1104,5 +1104,7 @@
   "pontaj.ultima_modificare_indiciu": "From the change log; the full history is in Settings → Change log.",
   "ai.am_inteles": "Understood:",
   "ai.corectat": "corrected:",
-  "ai.deja_aplicata_reaplica": "An identical proposal was already applied above. Confirm only if you want to apply it again."
+  "ai.deja_aplicata_reaplica": "An identical proposal was already applied above. Confirm only if you want to apply it again.",
+  "cont.arata_parola": "Show",
+  "cont.ascunde_parola": "Hide"
 }

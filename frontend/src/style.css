@@ -792,3 +792,13 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 [data-theme="dark"] .corecturi-propunere { color: #ffc069; }
 .reaplicare-propunere { margin: 4px 0; font-size: 12px; color: #ad6800; }
 [data-theme="dark"] .reaplicare-propunere { color: #ffc069; }
+/* F15-T09: fieldset-ul are implicit lățimea minimă a conținutului; listele lungi îl împingeau în afara cardului. */
+.card-cont, .formular-cont { min-width: 0; }
+.intrebari-cont { min-inline-size: 0; min-width: 0; }
+.rand-intrebare { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); }
+.rand-intrebare select, .rand-intrebare input { width: 100%; min-width: 0; }
+.card-cont input, .card-cont select, .formular-cont input, .formular-cont select { width: 100%; box-sizing: border-box; }
+.card-cont .text-discret, .formular-cont .text-discret { font-size: 12px; margin: 0; }
+.camp-parola { display: flex; align-items: center; gap: 8px; }
+.camp-parola input { flex: 1; min-width: 0; }
+.camp-parola .buton-text { white-space: nowrap; }

@@ -1104,5 +1104,7 @@
   "pontaj.ultima_modificare_indiciu": "Din jurnalul de modificări; istoricul complet este în Setări → Jurnal modificări.",
   "ai.am_inteles": "Am înțeles:",
   "ai.corectat": "corectat:",
-  "ai.deja_aplicata_reaplica": "O propunere identică a fost deja aplicată mai sus. Confirmă doar dacă vrei să o aplici din nou."
+  "ai.deja_aplicata_reaplica": "O propunere identică a fost deja aplicată mai sus. Confirmă doar dacă vrei să o aplici din nou.",
+  "cont.arata_parola": "Arată",
+  "cont.ascunde_parola": "Ascunde"
 }

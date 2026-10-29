@@ -23,3 +23,4 @@ Fiecare persoană lucrează în contul ei, cu parolă și întrebări de recuper
 | F15-T06 | Limitarea încercărilor greșite, cu așteptare progresivă și jurnal | gata | Claude | 0.68.0: 1/5/30/120 min de la a 5-a încercare greșită; jurnal pentru fiecare încercare |
 | F15-T07 | Ecranul de administrare a conturilor | gata | Claude | 0.68.0: Setări → Conturi (doar administrator); ultimul administrator protejat |
 | F15-T08 | Contul curent ca „Cine” în jurnalul de modificări | gata | Claude | 0.68.0: `contextLucru` poartă numele contului; folosit de F12 |
+| F15-T09 | Ecranul de creare a contului: întrebările în lățimea cardului, parolele citite corect și la completarea automată, buton „Arată” | gata | Claude | 0.81.1: `FormData` la trimitere, `onInput`, „Arată”, CSS; neverificat vizual |

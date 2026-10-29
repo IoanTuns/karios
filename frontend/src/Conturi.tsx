@@ -47,9 +47,19 @@ function FormularIntrebari({toate, intrebari, raspunsuri, schimba, ocupat}: {
     </fieldset>;
 }
 
-function CampParola({eticheta, valoare, schimba, ocupat, nou}: {eticheta: string; valoare: string; schimba: (v: string) => void; ocupat: boolean; nou?: boolean}) {
+// CampParola: onInput prinde și valorile scrise de completarea automată a WebView2, care nu
+// declanșează mereu onChange; butonul arată parola, ca utilizatorul să verifice ce a scris.
+function CampParola({eticheta, valoare, schimba, ocupat, nou, nume}: {eticheta: string; valoare: string; schimba: (v: string) => void; ocupat: boolean; nou?: boolean; nume?: string}) {
+    const {t} = useTranslation();
+    const [vizibila, setVizibila] = useState(false);
     return <label>{eticheta}
-        <input type="password" value={valoare} disabled={ocupat} autoComplete={nou ? 'new-password' : 'current-password'} onChange={e => schimba(e.target.value)}/>
+        <span className="camp-parola">
+            <input type={vizibila ? 'text' : 'password'} name={nume} value={valoare} disabled={ocupat} autoComplete={nou ? 'new-password' : 'current-password'}
+                onChange={e => schimba(e.target.value)} onInput={e => schimba((e.target as HTMLInputElement).value)}/>
+            <button type="button" className="buton-text" aria-pressed={vizibila} disabled={ocupat} onClick={() => setVizibila(v => !v)}>
+                {t(vizibila ? 'cont.ascunde_parola' : 'cont.arata_parola')}
+            </button>
+        </span>
     </label>;
 }
 
@@ -68,8 +78,12 @@ function EcranPrimulAdministrator({intrebariToate, gata}: {intrebariToate: strin
     const [ocupat, setOcupat] = useState(false);
     const [eroare, setEroare] = useState('');
 
-    async function trimite(e: FormEvent) {
+    async function trimite(e: FormEvent<HTMLFormElement>) {
         e.preventDefault();
+        // Valorile se citesc din formular: completarea automată poate ocoli starea React.
+        const f = new FormData(e.currentTarget);
+        const parola = String(f.get('parola') ?? ''), confirmare = String(f.get('confirmare_parola') ?? '');
+        setParola(parola); setConfirmare(confirmare);
         if (!parolaValida(parola)) { setEroare(t('cont.parola_slaba')); return; }
         if (parola !== confirmare) { setEroare(t('cont.parole_diferite')); return; }
         setOcupat(true); setEroare('');
@@ -88,8 +102,8 @@ function EcranPrimulAdministrator({intrebariToate, gata}: {intrebariToate: strin
         <p className="text-discret">{t('cont.primul_descriere')}</p>
         <label>{t('cont.nume')}<input value={nume} disabled={ocupat} autoComplete="username" onChange={e => setNume(e.target.value)} required/></label>
         <label>{t('cont.nume_afisat')}<input value={numeAfisat} disabled={ocupat} onChange={e => setNumeAfisat(e.target.value)}/></label>
-        <CampParola eticheta={t('cont.parola')} valoare={parola} schimba={setParola} ocupat={ocupat} nou/>
-        <CampParola eticheta={t('cont.confirma_parola')} valoare={confirmare} schimba={setConfirmare} ocupat={ocupat} nou/>
+        <CampParola eticheta={t('cont.parola')} nume="parola" valoare={parola} schimba={setParola} ocupat={ocupat} nou/>
+        <CampParola eticheta={t('cont.confirma_parola')} nume="confirmare_parola" valoare={confirmare} schimba={setConfirmare} ocupat={ocupat} nou/>
         <p className="text-discret">{t('cont.regula_parola')}</p>
         <FormularIntrebari toate={intrebariToate} intrebari={intrebari} raspunsuri={raspunsuri} ocupat={ocupat} schimba={(q, r) => { setIntrebari(q); setRaspunsuri(r); }}/>
         {eroare && <div className="mesaj eroare" role="alert">{eroare}</div>}
@@ -157,8 +171,8 @@ function EcranAutentificare({ultimulNume, gata}: {ultimulNume: string; gata: (r:
 
     return <div className="ecran-cont"><form className="card-cont" onSubmit={autentifica}>
         <h1>{t('cont.autentificare_titlu')}</h1>
-        <label>{t('cont.nume')}<input value={nume} disabled={ocupat} autoComplete="username" autoFocus={!ultimulNume} onChange={e => setNume(e.target.value)} required/></label>
-        <label>{t('cont.parola')}<input type="password" value={parola} disabled={ocupat} autoComplete="current-password" autoFocus={!!ultimulNume} onChange={e => setParola(e.target.value)} required/></label>
+        <label>{t('cont.nume')}<input value={nume} disabled={ocupat} autoComplete="username" autoFocus={!ultimulNume} onChange={e => setNume(e.target.value)} onInput={e => setNume((e.target as HTMLInputElement).value)} required/></label>
+        <label>{t('cont.parola')}<input type="password" value={parola} disabled={ocupat} autoComplete="current-password" autoFocus={!!ultimulNume} onChange={e => setParola(e.target.value)} onInput={e => setParola((e.target as HTMLInputElement).value)} required/></label>
         {eroare && <div className="mesaj eroare" role="alert">{eroare}</div>}
         <button className="buton primar" disabled={ocupat || !nume.trim() || !parola}>{t('cont.intra')}</button>
         <button type="button" className="legatura" disabled={ocupat} onClick={incepeRecuperarea}>{t('cont.am_uitat_parola')}</button>
