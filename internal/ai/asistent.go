@@ -48,6 +48,10 @@ type ContextPontix struct {
 	// CuPontaj întoarce angajații (după ID) care au ceva completat în pontajul lunii date;
 	// folosit de filtrul „fără pontaj” (F14-T16). Nu intră în prompt.
 	CuPontaj func(an, luna int) map[string]bool `json:"-"`
+	// ActiuniAnterioare sunt propunerile din conversație, cu starea lor („aplicată” sau
+	// „neconfirmată”). Intră în promptul de sistem, nu în mesajele asistentului, ca modelul
+	// să nu le copieze ca răspuns (F14-T17).
+	ActiuniAnterioare []string `json:"-"`
 }
 
 type InfoAngajat struct {
@@ -804,7 +808,7 @@ func construiestePromptSistem(info ContextPontix) string {
 	sb.WriteString("  * '22 la 7', 'noapte' -> codul este N9 sau N12.\n")
 	sb.WriteString("  * 'gardă', '24 ore' -> codul este G24.\n")
 	sb.WriteString("- REGULĂ STRICTĂ: Orice planificare cerută de utilizator se execută EXCLUSIV prin apel de unelte (tool calls). NU genera niciodată în text confirmări simulate sau 'Acțiuni propuse' fără tool call!\n")
-	sb.WriteString("- În istoric, propunerile marcate „deja aplicată” sunt făcute: NU le propune din nou. Răspunde doar la ultima cerere a utilizatorului.\n")
+	sb.WriteString("- Răspunde doar la ultima cerere a utilizatorului. NU scrie în text că ai planificat sau aplicat ceva: orice modificare se face doar prin apel de unealtă, iar utilizatorul o confirmă.\n")
 	sb.WriteString("- Folosește EXACT numărul de marcă așa cum este indicat în lista de personal de mai jos (ex: 'DEMO-008', NU prescurta și nu elimina cratima).\n")
 	sb.WriteString(fmt.Sprintf("Anul curent de lucru: %d, Luna: %d.\n", info.An, info.Luna))
 
@@ -830,6 +834,13 @@ func construiestePromptSistem(info ContextPontix) string {
 		sb.WriteString("Concedii și absențe programate în această lună:\n")
 		for _, a := range info.Absente {
 			sb.WriteString(fmt.Sprintf("- %s (%s): %s pe %s\n", a.Nume, a.Marca, a.Cod, a.Data))
+		}
+	}
+
+	if len(info.ActiuniAnterioare) > 0 {
+		sb.WriteString("Acțiuni din această conversație (informativ; nu le repeta și nu le reformula în răspuns):\n")
+		for _, a := range info.ActiuniAnterioare {
+			sb.WriteString("- " + a + "\n")
 		}
 	}
 

@@ -25,6 +25,8 @@ type CerereInterogareAI struct {
 	Istoric []ai.MesajConversatie `json:"istoric"`
 	An      int                   `json:"an"`
 	Luna    int                   `json:"luna"`
+	// Actiuni: propunerile din conversație, cu starea lor (F14-T17).
+	Actiuni []string `json:"actiuni"`
 }
 
 type RaspunsInterogareAI struct {
@@ -159,9 +161,10 @@ func (a *App) interogheazaAI(ctx context.Context, cerere CerereInterogareAI) Ras
 	schimburi, _ := datebaza.Nou(a.db).ListaSchimburi(ctx)
 
 	contextPontix := ai.ContextPontix{
-		Limba: "ro",
-		An:    cerere.An,
-		Luna:  cerere.Luna,
+		Limba:             "ro",
+		An:                cerere.An,
+		Luna:              cerere.Luna,
+		ActiuniAnterioare: cerere.Actiuni,
 		CuPontaj: func(an, luna int) map[string]bool {
 			rez := map[string]bool{}
 			if s, err := datebaza.Nou(a.db).CitesteSchita(ctx, an, luna); err == nil {

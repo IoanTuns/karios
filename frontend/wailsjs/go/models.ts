@@ -1588,6 +1588,7 @@ export namespace main {
 	    istoric: ai.MesajConversatie[];
 	    an: number;
 	    luna: number;
+	    actiuni: string[];
 	
 	    static createFrom(source: any = {}) {
 	        return new CerereInterogareAI(source);
@@ -1598,6 +1599,7 @@ export namespace main {
 	        this.istoric = this.convertValues(source["istoric"], ai.MesajConversatie);
 	        this.an = source["an"];
 	        this.luna = source["luna"];
+	        this.actiuni = source["actiuni"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

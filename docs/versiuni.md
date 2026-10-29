@@ -4,6 +4,16 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.79.0 · 2026-10-29
+
+Istoricul trimis modelului fără text de imitat (F14-T17).
+
+- Mesajele asistentului cu propuneri ajung la model doar cu textul lor (sau „(propuneri afișate utilizatorului)”), fără descrierea propunerilor.
+- Propunerile din conversație, cu starea „[aplicată]” sau „[neconfirmată]”, se trimit separat (`CerereInterogareAI.actiuni`) și apar în promptul de sistem ca listă informativă.
+- Promptul cere explicit să nu se scrie în text că s-a planificat sau aplicat ceva; modificările se fac doar prin unelte.
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.78.0 · 2026-10-29
 
 Filtrul „fără pontaj” și completarea doar a celulelor goale (F14-T16).

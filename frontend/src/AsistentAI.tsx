@@ -199,27 +199,23 @@ export function AsistentAI({
         const istoricNou = [...conversatie, mesajUtilizator];
         seteazaConversatie(() => istoricNou);
 
-        // Trimite ultimele 10 mesaje pentru context conversațional bogat
+        // Ultimele 10 mesaje; propunerile nu intră în textul mesajelor asistentului, ci separat,
+        // în lista de acțiuni, ca modelul să nu le copieze ca răspuns (F14-T17).
         const istoricAPI: ai.MesajConversatie[] = istoricNou
             .filter(m => m.id !== 'bun_venit')
             .slice(-10)
-            .map(m => {
-                let continut = m.text;
-                if (m.rol === 'assistant' && m.propuneri && m.propuneri.length > 0) {
-                    const detalii = m.propuneri.map(p => {
-                        const stareTxt = m.propuneriAplicata?.[p.id] ? '(deja aplicată)' : '(propusă, neconfirmată)';
-                        return `${p.descriere} ${stareTxt}`;
-                    }).join('; ');
-                    continut = continut && !continut.includes('Acțiuni propuse') ? `${continut}. ${detalii}` : detalii;
-                }
-                return new ai.MesajConversatie({
-                    role: m.rol,
-                    content: continut,
-                });
-            });
+            .map(m => new ai.MesajConversatie({
+                role: m.rol,
+                content: m.rol === 'assistant' && m.propuneri?.length && (!m.text || m.text === t('ai.propuneri_titlu'))
+                    ? '(propuneri afișate utilizatorului)'
+                    : m.text,
+            }));
+        const actiuni = istoricNou.flatMap(m => (m.propuneri ?? []).map(p =>
+            `${m.propuneriAplicata?.[p.id] ? '[aplicată]' : '[neconfirmată]'} ${p.descriere}`)).slice(-10);
 
         await pornesteSarcina(new main.CerereInterogareAI({
             istoric: istoricAPI,
+            actiuni,
             an: anCurent,
             luna: lunaCurenta,
         }));
