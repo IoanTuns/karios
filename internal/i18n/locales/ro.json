@@ -930,5 +930,7 @@
   "restaurare.anuleaza": "Anulează restaurarea",
   "restaurare.inchide_acum": "Închide aplicația acum",
   "stocare.backup_inexistent": "Backup-ul nu există.",
-  "stocare.backup_modificat": "Backup-ul a fost modificat în afara aplicației și nu se poate restaura."
+  "stocare.backup_modificat": "Backup-ul a fost modificat în afara aplicației și nu se poate restaura.",
+  "ai.angajat_negasit": "Nu am găsit exact angajatul „{{cautat}}”. Folosește marca sau numele complet.",
+  "ai.angajat_ambiguu": "„{{cautat}}” se potrivește cu mai mulți angajați: {{candidati}}. Folosește marca."
 }

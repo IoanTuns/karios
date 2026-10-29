@@ -342,30 +342,11 @@ func (a *App) AplicaPropunereAI(cerere CerereAplicaPropunereAI) RaspunsAplicaPro
 		return a.aplicaPropunereGrup(p, date)
 	}
 
-	// Găsim angajatul după marcă sau nume (tolerant la formatare)
-	var angajatID string
-	marcaNorm := strings.ToLower(strings.TrimSpace(marca))
-	marcaFaraCratima := strings.ReplaceAll(marcaNorm, "-", "")
-	for _, ang := range date.Angajati {
-		aNorm := strings.ToLower(strings.TrimSpace(ang.Marca))
-		aFaraCratima := strings.ReplaceAll(aNorm, "-", "")
-		numeComplet := strings.ToLower(strings.TrimSpace(ang.Nume + " " + ang.Prenume))
-		prenumeComplet := strings.ToLower(strings.TrimSpace(ang.Prenume + " " + ang.Nume))
-		if aNorm == marcaNorm || aFaraCratima == marcaFaraCratima ||
-			numeComplet == marcaNorm || prenumeComplet == marcaNorm ||
-			strings.Contains(numeComplet, marcaNorm) || strings.Contains(prenumeComplet, marcaNorm) ||
-			(len(ang.Nume) >= 3 && strings.Contains(marcaNorm, strings.ToLower(ang.Nume))) {
-			angajatID = ang.ID
-			break
-		}
-	}
-	if angajatID == "" {
-		return RaspunsAplicaPropunereAI{
-			Eroare: &MesajEroare{
-				Cod:   "ai.eroare_generare",
-				Param: map[string]string{"detalii": fmt.Sprintf("Nu a fost găsit angajatul cu marca sau numele \"%s\".", marca)},
-			},
-		}
+	// Angajatul se identifică exact (F14-T13, SEC-4): după marcă sau după numele complet,
+	// doar dacă e unic. O potrivire parțială („Ana” în „Ioana”) nu mai e acceptată.
+	angajatID, e := identificaAngajat(marca, date.Angajati)
+	if e != nil {
+		return RaspunsAplicaPropunereAI{Eroare: e}
 	}
 
 	// Determinăm lista de date calendaristice vizate
@@ -648,3 +629,48 @@ func (a *App) salveazaPropunere(an, luna int, tinte map[string][]string, codSchi
 	_ = datebaza.Nou(a.db).SalveazaPlanificare(ctx, an, luna, pozitii)
 	return nil
 }
+
+// identificaAngajat găsește un angajat activ după marca exactă (cu sau fără cratime) sau,
+// dacă nu, după numele complet („Nume Prenume” ori „Prenume Nume”), fără diacritice și
+// majuscule. Mai mulți candidați sau niciunul dau eroare.
+func identificaAngajat(text string, angajati []datebaza.Angajat) (string, *MesajEroare) {
+	norm := func(s string) string {
+		return strings.Join(strings.Fields(faraDiacriticeAI.Replace(strings.ToLower(s))), " ")
+	}
+	cautat := norm(text)
+	if cautat == "" {
+		return "", &MesajEroare{Cod: "ai.angajat_negasit", Param: map[string]string{"cautat": text}}
+	}
+	faraCratime := strings.ReplaceAll(strings.ReplaceAll(cautat, "-", ""), " ", "")
+	var dupaMarca, dupaNume []datebaza.Angajat
+	for _, a := range angajati {
+		if !a.Activ {
+			continue
+		}
+		m := norm(a.Marca)
+		if m == cautat || strings.ReplaceAll(strings.ReplaceAll(m, "-", ""), " ", "") == faraCratime {
+			dupaMarca = append(dupaMarca, a)
+		}
+		if norm(a.Nume+" "+a.Prenume) == cautat || norm(a.Prenume+" "+a.Nume) == cautat {
+			dupaNume = append(dupaNume, a)
+		}
+	}
+	gasiti := dupaMarca
+	if len(gasiti) == 0 {
+		gasiti = dupaNume
+	}
+	switch len(gasiti) {
+	case 1:
+		return gasiti[0].ID, nil
+	case 0:
+		return "", &MesajEroare{Cod: "ai.angajat_negasit", Param: map[string]string{"cautat": text}}
+	default:
+		nume := make([]string, len(gasiti))
+		for i, a := range gasiti {
+			nume[i] = strings.TrimSpace(a.Nume+" "+a.Prenume) + " (" + a.Marca + ")"
+		}
+		return "", &MesajEroare{Cod: "ai.angajat_ambiguu", Param: map[string]string{"cautat": text, "candidati": strings.Join(nume, ", ")}}
+	}
+}
+
+var faraDiacriticeAI = strings.NewReplacer("ă", "a", "â", "a", "î", "i", "ș", "s", "ş", "s", "ț", "t", "ţ", "t")

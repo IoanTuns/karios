@@ -4,6 +4,15 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.73.0 · 2026-10-29
+
+Identificarea exactă a angajatului la aplicarea propunerilor AI (F14-T13, SEC-4 din review).
+
+- La aplicare, angajatul se găsește doar după marca exactă (cu sau fără cratime) sau după numele complet („Nume Prenume” ori „Prenume Nume”), fără diacritice și majuscule. Potrivirile parțiale (de ex. „Ana” în „Ioana”) nu mai sunt acceptate.
+- Mai mulți candidați dau eroarea `ai.angajat_ambiguu`, cu lista lor; niciunul dă `ai.angajat_negasit`. Angajații inactivi nu se iau în calcul.
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.72.0 · 2026-10-29
 
 Serverul AI local protejat (F14-T12, SEC-2 și SEC-3 din review).

@@ -930,5 +930,7 @@
   "restaurare.anuleaza": "Cancel the restore",
   "restaurare.inchide_acum": "Close the application now",
   "stocare.backup_inexistent": "The backup does not exist.",
-  "stocare.backup_modificat": "The backup was changed outside the application and cannot be restored."
+  "stocare.backup_modificat": "The backup was changed outside the application and cannot be restored.",
+  "ai.angajat_negasit": "No employee matches “{{cautat}}” exactly. Use the badge number or the full name.",
+  "ai.angajat_ambiguu": "“{{cautat}}” matches several employees: {{candidati}}. Use the badge number."
 }
