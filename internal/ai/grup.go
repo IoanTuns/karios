@@ -46,6 +46,17 @@ func esteToti(m string) bool {
 	return false
 }
 
+// esteFaraPontaj: „fără pontaj” / „fara pontajul” după corectură (F14-T16).
+func esteFaraPontaj(m string) bool {
+	c := strings.Fields(m)
+	for i := 0; i+1 < len(c); i++ {
+		if c[i] == "fara" && strings.HasPrefix(c[i+1], "pontaj") {
+			return true
+		}
+	}
+	return false
+}
+
 // lunaDin găsește luna numită în mesaj. „mai” contează ca lună doar în context clar
 // („în mai”, „luna mai”, „mai 2026”), ca să nu fie confundat cu adverbul.
 func lunaDin(m string) (int, bool) {
@@ -181,6 +192,24 @@ func AnalizeazaComandaGrup(mesaj string, info ContextPontix) (RaspunsAsistent, b
 	if l, ok := lunaDin(m); ok {
 		luna = l
 	}
+	// „fără pontaj” (F14-T16): doar angajații care nu au nimic completat în luna vizată.
+	if esteFaraPontaj(m) {
+		if info.CuPontaj == nil {
+			return RaspunsAsistent{}, false
+		}
+		cu := info.CuPontaj(an, luna)
+		var fara []InfoAngajat
+		for _, a := range grup.angajati {
+			if !cu[a.ID] {
+				fara = append(fara, a)
+			}
+		}
+		grup.angajati = fara
+		grup.eticheta += " fără pontaj"
+		if len(fara) == 0 {
+			return RaspunsAsistent{Mesaj: fmt.Sprintf("Toți angajații din grup (%s) au deja pontaj în %s %d.", grup.eticheta, luniAfisate[luna-1], an)}, true
+		}
+	}
 	if an <= 0 || luna < 1 || luna > 12 {
 		return RaspunsAsistent{}, false
 	}
@@ -210,7 +239,7 @@ func AnalizeazaComandaGrup(mesaj string, info ContextPontix) (RaspunsAsistent, b
 	p := PropunereActiune{
 		ID:  fmt.Sprintf("grup_%d", time.Now().UnixNano()),
 		Tip: TipPlanificaGrup,
-		Descriere: fmt.Sprintf("Planificare schimb %s pentru %d angajați (%s), %s – %s, %s; zilele cu concediu sau absență se sar",
+		Descriere: fmt.Sprintf("Planificare schimb %s pentru %d angajați (%s), %s – %s, %s; se completează doar zilele goale, fără concedii sau absențe",
 			denumire, len(grup.angajati), grup.eticheta, inceput.Format(time.DateOnly), sfarsit.Format(time.DateOnly), textFiltru),
 		Parametri: map[string]any{
 			"marci":        marci,
@@ -220,6 +249,7 @@ func AnalizeazaComandaGrup(mesaj string, info ContextPontix) (RaspunsAsistent, b
 			"data_inceput": inceput.Format(time.DateOnly),
 			"data_sfarsit": sfarsit.Format(time.DateOnly),
 			"filtru_zile":  filtru,
+			"doar_goale":   true,
 			"interpretare": interpretare(grup.eticheta, inceput, schimb, textFiltru),
 			"corecturi":    textCorecturi(corecturi),
 		},

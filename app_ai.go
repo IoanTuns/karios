@@ -162,6 +162,17 @@ func (a *App) interogheazaAI(ctx context.Context, cerere CerereInterogareAI) Ras
 		Limba: "ro",
 		An:    cerere.An,
 		Luna:  cerere.Luna,
+		CuPontaj: func(an, luna int) map[string]bool {
+			rez := map[string]bool{}
+			if s, err := datebaza.Nou(a.db).CitesteSchita(ctx, an, luna); err == nil {
+				for _, c := range s.Celule {
+					if strings.TrimSpace(c.Valoare) != "" {
+						rez[c.AngajatID] = true
+					}
+				}
+			}
+			return rez
+		},
 	}
 
 	numeSectii := make(map[string]string)
@@ -477,6 +488,17 @@ func (a *App) aplicaPropunereGrup(p ai.PropunereActiune, date datebaza.Date) Ras
 		}
 	}
 	zile := zileDinInterval(t1, t2, filtru, false)
+	// Implicit nu se suprascrie nimic (F14-T16): zilele deja completate în pontaj se sar.
+	ocupate := make(map[string]bool)
+	if doarGoale, ok := p.Parametri["doar_goale"].(bool); !ok || doarGoale {
+		if s, err := datebaza.Nou(a.db).CitesteSchita(a.contextLucru(), t1.Year(), int(t1.Month())); err == nil {
+			for _, c := range s.Celule {
+				if strings.TrimSpace(c.Valoare) != "" {
+					ocupate[c.AngajatID+"/"+c.Data] = true
+				}
+			}
+		}
+	}
 	tinte := make(map[string][]string)
 	for _, m := range marci {
 		id, ok := dupaMarca[strings.ToLower(strings.TrimSpace(m))]
@@ -484,7 +506,7 @@ func (a *App) aplicaPropunereGrup(p ai.PropunereActiune, date datebaza.Date) Ras
 			return RaspunsAplicaPropunereAI{Eroare: &MesajEroare{Cod: "ai.angajat_negasit", Param: map[string]string{"cautat": m}}}
 		}
 		for _, zi := range zile {
-			if !absente[id+"/"+zi] {
+			if !absente[id+"/"+zi] && !ocupate[id+"/"+zi] {
 				tinte[id] = append(tinte[id], zi)
 			}
 		}

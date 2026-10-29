@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"crypto/rand"
+	"fmt"
 	"path/filepath"
 	"testing"
 	"time"
@@ -198,5 +199,49 @@ func TestManagerAIUnicLaApeluriParalele(t *testing.T) {
 		if m := <-rez; m != primul {
 			t.Fatal("au fost create mai multe managere AI")
 		}
+	}
+}
+
+func TestPropunereaDeGrupNuSuprascrie(t *testing.T) {
+	a := appCuDemo(t)
+	ctx := context.Background()
+	date, err := datebaza.Nou(a.db).Citeste(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	id := date.Angajati[0].ID
+	if err := datebaza.Nou(a.db).SalveazaSchita(ctx, 2026, 10, []datebaza.CelulaSchita{{AngajatID: id, Data: "2026-10-05", Valoare: "N12"}}); err != nil {
+		t.Fatal(err)
+	}
+	r := a.InterogheazaAI(CerereInterogareAI{An: 2026, Luna: 10, Istoric: []ai.MesajConversatie{{Rol: "user", Continut: "toti angajatii in octombrie pe Z7"}}})
+	if r.Raspuns == nil || len(r.Raspuns.Propuneri) != 1 {
+		t.Fatalf("propunere: %+v", r)
+	}
+	if rez := a.AplicaPropunereAI(CerereAplicaPropunereAI{Propunere: r.Raspuns.Propuneri[0]}); !rez.Succes {
+		t.Fatalf("aplicare: %+v", rez.Eroare)
+	}
+	s, err := datebaza.Nou(a.db).CitesteSchita(ctx, 2026, 10)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var celula, completate string
+	n := 0
+	for _, c := range s.Celule {
+		if c.AngajatID == id && c.Data == "2026-10-05" {
+			celula = c.Valoare
+		}
+		if c.AngajatID == id && c.Valoare != "" {
+			n++
+		}
+	}
+	completate = fmt.Sprint(n)
+	if celula == "" || completate != "22" {
+		t.Fatalf("celula existentă: %q; zile completate pentru angajat: %s", celula, completate)
+	}
+	// Celula N12 a rămas cea veche: nu există nicio intrare de jurnal nouă pentru ea după salvarea manuală.
+	var intrari int
+	a.db.QueryRow(`SELECT count(*) FROM jurnal_modificari WHERE tabel = 'pontaj_ciorne' AND rand_id = ?`, id+"/2026-10-05").Scan(&intrari)
+	if intrari != 1 {
+		t.Fatalf("celula completată a fost rescrisă: %d intrări în jurnal", intrari)
 	}
 }

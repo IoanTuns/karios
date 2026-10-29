@@ -4,6 +4,15 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.78.0 · 2026-10-29
+
+Filtrul „fără pontaj” și completarea doar a celulelor goale (F14-T16).
+
+- „toți angajații fără pontaj …” (și „secția X fără pontaj”) restrânge grupul la angajații care nu au nimic completat în pontajul lunii vizate. Dacă toți au deja pontaj, asistentul o spune în loc să propună.
+- Propunerile de grup completează implicit doar zilele goale: valorile deja existente în pontaj nu se suprascriu (`doar_goale`), iar concediile și absențele se sar ca înainte.
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.77.0 · 2026-10-29
 
 Comenzile asistentului recunoscute și cu greșeli de tastare (F14-T15).

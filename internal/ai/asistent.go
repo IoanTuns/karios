@@ -45,6 +45,9 @@ type ContextPontix struct {
 	Schimburi       []InfoSchimb             `json:"schimburi"`
 	Absente         []InfoAbsenta            `json:"absente,omitempty"`
 	TurePlanificate []InfoPozitiePlanificare `json:"ture_planificate,omitempty"`
+	// CuPontaj întoarce angajații (după ID) care au ceva completat în pontajul lunii date;
+	// folosit de filtrul „fără pontaj” (F14-T16). Nu intră în prompt.
+	CuPontaj func(an, luna int) map[string]bool `json:"-"`
 }
 
 type InfoAngajat struct {

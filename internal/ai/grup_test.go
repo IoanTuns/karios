@@ -1,6 +1,9 @@
 package ai
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func contextGrup() ContextPontix {
 	return ContextPontix{
@@ -61,5 +64,29 @@ func TestComandaGrupSfarsitLuna(t *testing.T) {
 	r, ok := AnalizeazaComandaGrup("toti angajatii in februarie pe Z7", contextGrup())
 	if !ok || r.Propuneri[0].Parametri["data_sfarsit"] != "2026-02-28" {
 		t.Fatalf("%v %+v", ok, r)
+	}
+}
+
+func TestComandaGrupFaraPontaj(t *testing.T) {
+	info := contextGrup()
+	for i := range info.Angajati {
+		info.Angajati[i].ID = info.Angajati[i].Marca
+	}
+	var cerut [2]int
+	info.CuPontaj = func(an, luna int) map[string]bool {
+		cerut = [2]int{an, luna}
+		return map[string]bool{"M1": true}
+	}
+	r, ok := AnalizeazaComandaGrup("Toti angajati fara pontaj in octombie lucreaza de la 7 la 14", info)
+	if !ok || len(r.Propuneri) != 1 {
+		t.Fatalf("nerecunoscută: %+v", r)
+	}
+	p := r.Propuneri[0].Parametri
+	if len(p["marci"].([]any)) != 2 || !strings.Contains(p["grup"].(string), "fără pontaj") || p["doar_goale"] != true || cerut != [2]int{2026, 10} {
+		t.Fatalf("parametri: %+v, lună cerută %v", p, cerut)
+	}
+	info.CuPontaj = func(an, luna int) map[string]bool { return map[string]bool{"M1": true, "M2": true, "M3": true} }
+	if r, ok := AnalizeazaComandaGrup("toti angajatii fara pontaj pe Z7", info); !ok || len(r.Propuneri) != 0 || r.Mesaj == "" {
+		t.Fatalf("toți au pontaj: %+v", r)
 	}
 }
