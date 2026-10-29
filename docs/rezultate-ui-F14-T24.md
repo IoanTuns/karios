@@ -39,6 +39,8 @@ PNG-urile au dimensiunile cerute browserului; acestea nu sunt confundate cu `inn
 
 ## Probe și limite
 
+Executabilul 0.83.0 a fost generat cu `build.ps1`: `build/bin/pontix-0.83.0-20261029-204644-63ccb73cea084f6aad743fdf6df9171e/pontix.exe`. Scriptul a verificat proprietățile versiunii și SHA-256. Commit în manifest: `8801330-modificat`; folderul preexistent `.vscode/` neurmărit determină sufixul. Ramura rămâne `F14-T24-ui-asistent-p1`, fără integrare în `main` sau push.
+
 Fixture-urile sunt în `frontend/probe/asistent-ui.html`, `frontend/probe/asistent-ui.jsx` și proba existentă `frontend/probe/plan-ai.jsx`. Se rulează cu Vite, de exemplu `npm --prefix frontend run dev -- --host 127.0.0.1 --port 5177`, apoi `/probe/asistent-ui.html?caz=rezultat&limba=ro`. Rezultatul este în atributul `data-rezultat`; la succes este `trecut`. Ecranele de probă nu sunt incluse în build-ul de producție.
 
 Capturi, DOM și scriptul local de lansare sunt în `build/bin/proba-ui-F14-T24/`, ignorat de Git: [editare](../build/bin/proba-ui-F14-T24/editare-ro-1024x640.png), [verificare](../build/bin/proba-ui-F14-T24/previzualizare-ro-1024x640.png), [rezultat la viewport 1024×640](../build/bin/proba-ui-F14-T24/rezultat-ro-1050x733.png), [eroare](../build/bin/proba-ui-F14-T24/eroare-ro-1024x640.png), [rezultat EN](../build/bin/proba-ui-F14-T24/rezultat-en-1024x640.png).
