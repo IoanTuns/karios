@@ -23,3 +23,4 @@ Interfața, mesajele, rapoartele și datele introduse de utilizator sunt disponi
 | F03-T07 | Formatarea datelor și a numerelor după limbă | de făcut | | 24.10.2026 / 10/24/2026; virgulă / punct |
 | F03-T08 | Ecran de setări pentru limbă și traducerile lipsă | de făcut | | Folosește `i18n.Lipsa` |
 | F03-T09 | Rapoartele PDF și Excel în limba aleasă | de făcut | | Se face în F09 și F10 |
+| F03-T10 | Mutarea în cataloage a textelor scrise direct în cod (Pontaj, Toast, export Excel, mesajele motorului AI, detaliile de dezvoltare) (UI-4) | de făcut | | [review](../review-ui-ux-performanta-securitate-2026-10-28.md) |

@@ -1,6 +1,6 @@
 # F14 · Asistent LLM local
 
-Etapă: Ulterior · Stare: amânat · Depinde de: F07, F08
+Etapă: Ulterior · Stare: în lucru · Depinde de: F07, F08
 
 ## Scop
 
@@ -16,3 +16,11 @@ Utilizatorul poate da comenzi în limbaj natural („pune-l pe Ion de noapte joi
 | F14-T04 | Interfața Go `Asistent`: client local, JSON impus prin schemă, confirmare explicită | finalizat | Antigravity | Fără SQL direct; fiecare acțiune cere confirmare în UI (v0.36.0) |
 | F14-T05 | Pachet portabil AI Ready și pornire automată supravegheată | finalizat | Antigravity | Script creaza-pachet-ai.ps1, karios/ai/ pre-populat, opțiune de pornire automată la lansare (v0.37.0) |
 | F14-T06 | Compilare nativă llama.cpp pe Windows cu toolchain portabil și integrare deploy | finalizat | Antigravity | GCC 16 + CMake portabil în tools/, scripts/compileaza-llama.ps1, build.ps1 -CuCompilareAI (v0.38.0) |
+| F14-T07 | Interogarea ca sarcină în fundal: conversația ținută în Go, eveniment Wails la final, buton „Oprește”, notificare pe alt ecran | de făcut | | Ioan Tuns, 2026-10-29: azi răspunsul se pierde la schimbarea ecranului. Propunerile nu se aplică niciodată singure |
+| F14-T08 | Propuneri de grup pentru „toți angajații / secția X / categoria Y”, recunoscute din cod, cu lista persoanelor și o singură confirmare | de făcut | | Captura 2026-10-29: „toți angajații” s-a aplicat doar unui angajat |
+| F14-T09 | Răspuns din cod pentru listări („listează / câți / cine”); fără propuneri repetate sau deja aplicate | de făcut | | Captura 2026-10-29: „Listează toți angajații” a reprodus o propunere aplicată |
+| F14-T10 | Luna din contextul ecranului (UX-3) și confirmare doar prin buton (UX-2) | de făcut | | [review](../review-ui-ux-performanta-securitate-2026-10-28.md) |
+| F14-T11 | Modificările aplicate de asistent apar în jurnal ca „asistent AI, confirmat de utilizator” | de făcut | | Trasabilitate, D044 |
+| F14-T12 | Serverul local cu cheie API aleatoare la fiecare pornire și verificarea procesului propriu (SEC-2) | de făcut | | [review](../review-ui-ux-performanta-securitate-2026-10-28.md) |
+| F14-T13 | Identificarea angajatului doar exact (marcă) sau după nume unic; refuz la mai mulți candidați (SEC-4) | de făcut | | [review](../review-ui-ux-performanta-securitate-2026-10-28.md) |
+| F14-T14 | Inițializarea sincronizată a managerului AI, fără procese `llama-server` duble (SEC-6) | de făcut | | [review](../review-ui-ux-performanta-securitate-2026-10-28.md) |

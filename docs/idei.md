@@ -6,6 +6,7 @@ Stări: `nouă`, `în analiză`, `transformată` (în task sau decizie), `amâna
 
 | ID | Data | Idee | Cine | Stare | Legături / motiv |
 | --- | --- | --- | --- | --- | --- |
+| I065 | 2026-10-29 | Îmbunătățiri după review și capturile asistentului: asistent în fundal, propuneri de grup, listări din cod, lună din context, autorul AI în jurnal, ecranul jurnalului, motivul închiderii, avertizare la închiderea ferestrei, restaurare și backup zilnic, securitatea serverului AI, texte în cataloage, CI și unelte | Ioan Tuns, Claude | transformată | F14-T07…T14, F12-T02, F12-T05, F15, F05-T24…T26, F03-T10, F08-T10, F02-T13…T15, F06-T10 |
 | I064 | 2026-10-28 | Detectarea înlocuirii bazei cu o copie mai veche, validă (contor autentificat în seif) | Claude | transformată | F06-T09, [D044](decizii/D044-jurnal-audit-sigilat.md) |
 | I063 | 2026-10-28 | Trasabilitate: orice modificare a datelor făcută în afara aplicației trebuie detectată (jurnal înlănțuit, sigiliul tabelelor, amprenta lunii pe hârtia semnată) | Ioan Tuns, Claude | transformată | F06-T04, F06-T08, F12-T04, [D044](decizii/D044-jurnal-audit-sigilat.md), [review](review-ui-ux-performanta-securitate-2026-10-28.md) |
 | I062 | 2026-10-26 | Raport oficial dedicat pentru graficul lunar de gărzi și schimburi (format A3 Peisaj, totaluri de ore/gărzi, linie de sinteză acoperire TOTAL/ZI și semnături oficiale), accesibil direct din ecranul de Planificare | Ioan Tuns | transformată | F11-T07, [D040](decizii/D040-raport-grafic-garzi-si-schimburi.md) |
