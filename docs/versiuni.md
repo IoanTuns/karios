@@ -4,6 +4,15 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.74.0 · 2026-10-29
+
+Managerul motorului AI creat o singură dată (F14-T14, SEC-6 din review).
+
+- `asiguratManagerAI` folosește `sync.Once`: pornirea automată din fundal și apelurile din interfață nu mai pot crea două managere și două procese `llama-server`, dintre care unul rămânea pornit după închidere.
+- La închiderea aplicației se oprește procesul managerului unic.
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.73.0 · 2026-10-29
 
 Identificarea exactă a angajatului la aplicarea propunerilor AI (F14-T13, SEC-4 din review).

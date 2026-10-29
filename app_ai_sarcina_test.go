@@ -186,3 +186,17 @@ func TestModificarileAsistentuluiAparInJurnal(t *testing.T) {
 		t.Fatalf("autor salvare manuală: %q, %v", cine, err)
 	}
 }
+
+func TestManagerAIUnicLaApeluriParalele(t *testing.T) {
+	a := &App{radacina: t.TempDir()}
+	rez := make(chan *ai.Manager, 32)
+	for i := 0; i < cap(rez); i++ {
+		go func() { rez <- a.asiguratManagerAI() }()
+	}
+	primul := <-rez
+	for i := 1; i < cap(rez); i++ {
+		if m := <-rez; m != primul {
+			t.Fatal("au fost create mai multe managere AI")
+		}
+	}
+}

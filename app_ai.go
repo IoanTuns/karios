@@ -93,10 +93,12 @@ func (a *App) autoPornesteAIDacaEPosibil() {
 	_ = mgr.Porneste(context.Background(), "")
 }
 
+// asiguratManagerAI creează managerul o singură dată (F14-T14, SEC-6): pornirea automată
+// rulează în paralel cu apelurile din interfață, iar două managere ar lansa două procese.
 func (a *App) asiguratManagerAI() *ai.Manager {
-	if a.aiManager == nil {
+	a.aiManagerOnce.Do(func() {
 		a.aiManager = ai.NouManager(a.folderAI(), ai.PortImplicit)
-	}
+	})
 	return a.aiManager
 }
 

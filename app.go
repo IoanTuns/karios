@@ -14,16 +14,17 @@ import (
 
 // App conține metodele apelate din interfața React.
 type App struct {
-	ctx          context.Context
-	db           *sql.DB
-	radacina     string
-	raportMu     sync.Mutex
-	raportCache  map[string]raportPregatit
-	raportOrdine []string
-	aiManager    *ai.Manager
-	aiMu         sync.Mutex
-	aiSarcina    *sarcinaAI
-	paza         *audit.Paza
+	ctx           context.Context
+	db            *sql.DB
+	radacina      string
+	raportMu      sync.Mutex
+	raportCache   map[string]raportPregatit
+	raportOrdine  []string
+	aiManager     *ai.Manager
+	aiManagerOnce sync.Once
+	aiMu          sync.Mutex
+	aiSarcina     *sarcinaAI
+	paza          *audit.Paza
 
 	inchidereMu         sync.Mutex
 	modificariNesalvate bool
@@ -44,9 +45,8 @@ func (a *App) pornire(ctx context.Context) {
 }
 
 func (a *App) oprire(ctx context.Context) {
-	if a.aiManager != nil {
-		_ = a.aiManager.Opreste()
-	}
+	// Și dacă pornirea automată creează managerul chiar acum, procesul se oprește.
+	_ = a.asiguratManagerAI().Opreste()
 	a.db.Close()
 }
 
