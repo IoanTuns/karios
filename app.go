@@ -9,6 +9,7 @@ import (
 	"pontix/internal/audit"
 	"pontix/internal/conturi"
 	"pontix/internal/i18n"
+	"pontix/internal/stocare"
 	"pontix/internal/versiune"
 )
 
@@ -47,6 +48,10 @@ func (a *App) pornire(ctx context.Context) {
 func (a *App) oprire(ctx context.Context) {
 	// Și dacă pornirea automată creează managerul chiar acum, procesul se oprește.
 	_ = a.asiguratManagerAI().Opreste()
+	// Contorul din seif reține starea de la închidere (F06-T09); nu și peste un incident nerezolvat.
+	if a.radacina != "" && !a.paza.Blocata() {
+		_ = stocare.ActualizeazaSecventa(context.Background(), a.db, a.radacina)
+	}
 	a.db.Close()
 }
 

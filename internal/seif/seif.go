@@ -49,6 +49,24 @@ const (
 type fisier struct {
 	Versiune int              `json:"versiune"`
 	Copii    map[string]copie `json:"copii"`
+	// Secventa e ultimul număr din jurnalul bazei, autentificat de cine îl scrie (F06-T09):
+	// o bază înlocuită cu o copie mai veche are mai puține intrări decât spune seiful.
+	Secventa *Secventa `json:"secventa,omitempty"`
+}
+
+// Secventa e un contor cu codul lui de autentificare; seiful doar îl păstrează.
+type Secventa struct {
+	Numar int64  `json:"numar"`
+	Mac   []byte `json:"mac"`
+}
+
+// Secventa întoarce contorul păstrat sau nil.
+func (s *Seif) Secventa() *Secventa { return s.f.Secventa }
+
+// SeteazaSecventa înlocuiește contorul și salvează seiful.
+func (s *Seif) SeteazaSecventa(x Secventa) error {
+	s.f.Secventa = &x
+	return s.salveaza()
 }
 
 type copie struct {

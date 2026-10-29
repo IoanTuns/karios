@@ -55,6 +55,9 @@ type Rezultat struct {
 	RandRupt    int64    `json:"rand_rupt"` // primul rând din jurnal cu lanțul rupt; 0 = niciunul
 	VerificatLa string   `json:"verificat_la"`
 	DurataMs    int64    `json:"durata_ms"`
+	// CopieVeche: baza are mai puține intrări în jurnal decât a văzut aplicația ultima dată
+	// (F06-T09), adică a fost înlocuită cu o copie mai veche, chiar dacă sigiliile ei sunt valide.
+	CopieVeche bool `json:"copie_veche"`
 }
 
 // Paza ține rezultatul verificării pentru o bază deschisă și blochează scrierile
@@ -688,4 +691,21 @@ func Confirma(ctx context.Context, db *sql.DB, paza *Paza, motiv string) (Rezult
 // EsteEditareBlocata recunoaște eroarea dată de trigger-e cât timp există un incident.
 func EsteEditareBlocata(err error) bool {
 	return err != nil && strings.Contains(err.Error(), CodEditareBlocata)
+}
+
+// MacSecventa autentifică contorul de jurnal păstrat în seif (F06-T09).
+func MacSecventa(cheieDate []byte, numar int64) []byte {
+	m := hmac.New(sha256.New, Cheie(cheieDate))
+	m.Write([]byte("secventa\x00"))
+	var b [8]byte
+	binary.BigEndian.PutUint64(b[:], uint64(numar))
+	m.Write(b[:])
+	return m.Sum(nil)
+}
+
+// UltimulRandJurnal întoarce cel mai mare id din jurnal_modificari (0 dacă e gol).
+func UltimulRandJurnal(ctx context.Context, q Interogator) (int64, error) {
+	var n int64
+	err := q.QueryRowContext(ctx, `SELECT coalesce(max(id), 0) FROM main.jurnal_modificari`).Scan(&n)
+	return n, err
 }

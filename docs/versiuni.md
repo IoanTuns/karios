@@ -4,6 +4,16 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.86.0 · 2026-10-30
+
+Detectarea înlocuirii bazei cu o copie mai veche (F06-T09, D044 punctul 7).
+
+- Seiful păstrează ultimul număr din jurnalul de modificări văzut de aplicație, autentificat cu cheia de audit. Se scrie la pornire, la închidere și după confirmarea unui incident.
+- La pornire, o bază cu mai puține intrări în jurnal decât contorul (o copie mai veche, chiar cu sigilii valide) sau un contor falsificat dă incident de audit, cu mesaj dedicat în banner (`copie_veche`).
+- Restaurarea cerută din aplicație (F05-T25) nu dă incident: e notată în jurnal, iar contorul se rescrie după ea.
+
+Baza de date și rapoarte: nicio schimbare de schemă. Seiful primește câmpul opțional `secventa`.
+
 ## 0.85.2 · 2026-10-29
 
 Întrebări despre o zi anume, cu răspuns din cod (F14-T28).

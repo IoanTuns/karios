@@ -176,6 +176,7 @@ export namespace audit {
 	    rand_rupt: number;
 	    verificat_la: string;
 	    durata_ms: number;
+	    copie_veche: boolean;
 
 	    static createFrom(source: any = {}) {
 	        return new Rezultat(source);
@@ -188,6 +189,7 @@ export namespace audit {
 	        this.rand_rupt = source["rand_rupt"];
 	        this.verificat_la = source["verificat_la"];
 	        this.durata_ms = source["durata_ms"];
+	        this.copie_veche = source["copie_veche"];
 	    }
 	}
 

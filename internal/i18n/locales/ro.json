@@ -1282,5 +1282,6 @@
   "cont.arata_parola": "Arată",
   "cont.ascunde_parola": "Ascunde",
   "ai.deschide_formular_concediu": "Deschide formularul de concediu",
-  "absente.nr_inregistrare_obligatoriu": "Completează numărul de înregistrare al cererii."
+  "absente.nr_inregistrare_obligatoriu": "Completează numărul de înregistrare al cererii.",
+  "audit.copie_veche": "Baza de date pare să fi fost înlocuită cu o copie mai veche: are mai puține modificări decât a înregistrat aplicația la ultima închidere. Dacă ai restaurat manual un backup, confirmă incidentul; altfel verifică cine a schimbat fișierele."
 }

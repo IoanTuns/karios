@@ -48,6 +48,7 @@ export function BannerAudit() {
                 <p>{t('audit.descriere_incident')}</p>
                 {tabele && <p>{t('audit.tabele', {tabele})}</p>}
                 {rezultat.rand_rupt > 0 && <p>{t('audit.rand_rupt', {rand: String(rezultat.rand_rupt)})}</p>}
+                {rezultat.copie_veche && <p>{t('audit.copie_veche')}</p>}
                 <p className="text-discret">{t('audit.verificat_la', {moment: new Date(rezultat.verificat_la).toLocaleString()})}</p>
             </div>
             <button type="button" className="buton secundar mic" onClick={() => { setMotiv(''); setEroare(''); setDialog(true); }}>{t('audit.confirma')}</button>

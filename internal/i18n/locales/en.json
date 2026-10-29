@@ -1282,5 +1282,6 @@
   "cont.arata_parola": "Show",
   "cont.ascunde_parola": "Hide",
   "ai.deschide_formular_concediu": "Open the leave form",
-  "absente.nr_inregistrare_obligatoriu": "Enter the request registration number."
+  "absente.nr_inregistrare_obligatoriu": "Enter the request registration number.",
+  "audit.copie_veche": "The database appears to have been replaced with an older copy: it has fewer changes than the application recorded at the last shutdown. If you restored a backup manually, acknowledge the incident; otherwise check who changed the files."
 }

@@ -79,10 +79,27 @@ func deschide(ctx context.Context, radacina string, migrari fs.FS, acum func() t
 			return nil, nil, err
 		}
 	}
+	// O copie mai veche, dar validă, a bazei (F06-T09). Restaurarea cerută din aplicație e
+	// intenționată și notată în jurnal, deci nu e incident; contorul se rescrie după ea.
+	if rest == nil && rez.Stare != audit.StareIncident {
+		veche, err := verificaSecventa(ctx, caleBaza, s)
+		if err != nil {
+			return nil, nil, err
+		}
+		if veche {
+			rez.Stare, rez.CopieVeche = audit.StareIncident, true
+		}
+	}
 	paza := audit.NouaPaza(rez)
 	db, err := bd.DeschideCuAudit(caleBaza, s.CheieDate, paza)
 	if err != nil {
 		return nil, nil, err
+	}
+	if rez.Stare != audit.StareIncident {
+		if err := scrieSecventa(ctx, db, s); err != nil {
+			db.Close()
+			return nil, nil, err
+		}
 	}
 	return db, paza, nil
 }

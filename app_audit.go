@@ -2,6 +2,7 @@ package main
 
 import (
 	"pontix/internal/audit"
+	"pontix/internal/stocare"
 )
 
 // RaspunsAudit întoarce rezultatul verificării sigiliilor (D044).
@@ -30,6 +31,12 @@ func (a *App) ConfirmaIncidentAudit(motiv string) RaspunsAudit {
 	rez, err := audit.Confirma(a.contextLucru(), a.db, a.paza, motiv)
 	if err != nil {
 		return RaspunsAudit{Rezultat: rez, Eroare: eroareInterfata(err)}
+	}
+	// După confirmare, starea acceptată devine noul punct de referință pentru copiile vechi.
+	if a.radacina != "" {
+		if err := stocare.ActualizeazaSecventa(a.contextLucru(), a.db, a.radacina); err != nil {
+			return RaspunsAudit{Rezultat: rez, Eroare: eroareInterfata(err)}
+		}
 	}
 	return RaspunsAudit{Rezultat: rez}
 }
