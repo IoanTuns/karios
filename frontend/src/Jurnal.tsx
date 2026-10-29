@@ -84,6 +84,13 @@ export function Jurnal({date}: {date: datebaza.Date}) {
         return text === k ? tabel : text;
     }
 
+    // autor: „local” sau „local/asistent_ai”; contul vine cu F15.
+    function autor(cine: string): string {
+        const [baza, sursa] = cine.split('/');
+        const nume = baza === 'local' ? t('jurnal.cine_local') : baza;
+        return sursa === 'asistent_ai' ? t('jurnal.cine_asistent', {cine: nume}) : nume;
+    }
+
     function rand(i: datebaza.IntrareJurnal): string {
         const [id, zi] = i.rand_id.split('/');
         const a = angajati.get(id);
@@ -136,7 +143,7 @@ export function Jurnal({date}: {date: datebaza.Date}) {
                 <tbody>
                     {(pagina?.intrari ?? []).map(i => <tr key={i.id}>
                         <td>{format.format(new Date(i.cand))}</td>
-                        <td>{i.cine}</td>
+                        <td>{autor(i.cine)}</td>
                         <td>{eticheta(i.tabel)}</td>
                         <td>{rand(i)}</td>
                         <td>{!i.vechi

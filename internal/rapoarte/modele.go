@@ -16,6 +16,7 @@ import (
 
 	"pontix/internal/audit"
 	"pontix/internal/bd/acces"
+	"pontix/internal/datebaza"
 	"pontix/internal/i18n"
 )
 
@@ -252,7 +253,7 @@ func (s *Serviciu) Salveaza(ctx context.Context, d Definitie) (string, error) {
 		vechi = &text
 	}
 	nou := codifica(d)
-	if err := q.AdaugaJurnal(ctx, acces.AdaugaJurnalParams{Tabel: "definitii_rapoarte", RandID: d.ID, ValoareVeche: vechi, ValoareNoua: &nou, Cand: acum, Cine: "local"}); err != nil {
+	if err := q.AdaugaJurnal(ctx, acces.AdaugaJurnalParams{Tabel: "definitii_rapoarte", RandID: d.ID, ValoareVeche: vechi, ValoareNoua: &nou, Cand: acum, Cine: datebaza.Actor(ctx)}); err != nil {
 		return "", traduce(err)
 	}
 	return d.ID, traduce(tx.Commit())

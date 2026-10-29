@@ -163,3 +163,26 @@ func TestPropunerePesteSfarsitulLuniiSeSalveazaPeFiecareLuna(t *testing.T) {
 		t.Fatalf("octombrie %d, noiembrie %d, septembrie %d", o, n, s)
 	}
 }
+
+func TestModificarileAsistentuluiAparInJurnal(t *testing.T) {
+	a := appCuDemo(t)
+	date, err := datebaza.Nou(a.db).Citeste(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	p := ai.PropunereActiune{Tip: "planifica_tura", Parametri: map[string]any{"marca": date.Angajati[0].Marca, "cod_schimb": "Z7", "data": "2026-10-06"}}
+	if r := a.AplicaPropunereAI(CerereAplicaPropunereAI{Propunere: p}); !r.Succes {
+		t.Fatalf("aplicare: %+v", r.Eroare)
+	}
+	var cine string
+	if err := a.db.QueryRow(`SELECT cine FROM jurnal_modificari WHERE tabel = 'pontaj_ciorne' ORDER BY id DESC LIMIT 1`).Scan(&cine); err != nil || cine != "local/asistent_ai" {
+		t.Fatalf("autor: %q, %v", cine, err)
+	}
+	// O salvare obișnuită rămâne „local”.
+	if err := datebaza.Nou(a.db).SalveazaSchita(context.Background(), 2026, 10, []datebaza.CelulaSchita{{AngajatID: date.Angajati[1].ID, Data: "2026-10-07", Valoare: "Z7"}}); err != nil {
+		t.Fatal(err)
+	}
+	if err := a.db.QueryRow(`SELECT cine FROM jurnal_modificari WHERE tabel = 'pontaj_ciorne' ORDER BY id DESC LIMIT 1`).Scan(&cine); err != nil || cine != "local" {
+		t.Fatalf("autor salvare manuală: %q, %v", cine, err)
+	}
+}

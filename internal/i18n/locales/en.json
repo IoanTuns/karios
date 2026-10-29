@@ -832,5 +832,7 @@
   "pontaj.motiv_inchidere_implicit": "Sent to payroll",
   "pontaj.redeschidere_amprenta": "The fingerprint {{amprenta}}, printed at closing, will no longer match after changes; the next closing computes a new one.",
   "pontaj.luna_redeschisa": "The month was reopened for editing.",
-  "pontaj.luna_inchisa_succes": "The month was closed."
+  "pontaj.luna_inchisa_succes": "The month was closed.",
+  "jurnal.cine_local": "local user",
+  "jurnal.cine_asistent": "AI assistant, confirmed by {{cine}}"
 }

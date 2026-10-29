@@ -560,7 +560,7 @@ func zileDinInterval(t1, t2 time.Time, filtruZile string, doarLucratoare bool) [
 // salveazaPropunere scrie codul schimbului în pontaj pentru zilele fiecărui angajat, într-o
 // singură salvare, și, pentru schimburile de planificat (gărzi, după-amiază), în planificare.
 func (a *App) salveazaPropunere(an, luna int, tinte map[string][]string, codSchimb string) *MesajEroare {
-	ctx := a.contextLucru()
+	ctx := datebaza.CuAsistentAI(a.contextLucru()) // autorul din jurnal: „local/asistent_ai” (F14-T11)
 	schita, err := datebaza.Nou(a.db).CitesteSchita(ctx, an, luna)
 	if err != nil {
 		return eroareInterfata(err)

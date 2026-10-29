@@ -832,5 +832,7 @@
   "pontaj.motiv_inchidere_implicit": "Transmis la salarizare",
   "pontaj.redeschidere_amprenta": "Amprenta {{amprenta}}, tipărită la închidere, nu va mai corespunde după modificări; la următoarea închidere se calculează una nouă.",
   "pontaj.luna_redeschisa": "Luna a fost redeschisă pentru editare.",
-  "pontaj.luna_inchisa_succes": "Luna a fost închisă."
+  "pontaj.luna_inchisa_succes": "Luna a fost închisă.",
+  "jurnal.cine_local": "utilizator local",
+  "jurnal.cine_asistent": "asistent AI, confirmat de {{cine}}"
 }

@@ -410,7 +410,7 @@ func jurnal(ctx context.Context, q *acces.Queries, tabel, id string, vechi, nou 
 		return err
 	}
 	v := string(text)
-	return q.AdaugaJurnal(ctx, acces.AdaugaJurnalParams{Tabel: tabel, RandID: id, ValoareVeche: inainte, ValoareNoua: &v, Cand: moment(), Cine: "local"})
+	return q.AdaugaJurnal(ctx, acces.AdaugaJurnalParams{Tabel: tabel, RandID: id, ValoareVeche: inainte, ValoareNoua: &v, Cand: moment(), Cine: Actor(ctx)})
 }
 
 func eroare(cod string) error { return &i18n.Eroare{Cod: cod} }

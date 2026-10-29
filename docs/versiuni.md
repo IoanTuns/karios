@@ -4,6 +4,16 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.67.0 · 2026-10-29
+
+Autorul modificărilor aplicate de asistentul AI (F14-T11).
+
+- Autorul din jurnal vine acum din context (`datebaza.CuActor`, `Actor`); implicit `local`, iar ce aplică asistentul după confirmare se notează `local/asistent_ai`. Codul stocat nu depinde de limbă; ecranul jurnalului îl afișează „asistent AI, confirmat de utilizator local”.
+- Definițiile rapoartelor folosesc același autor din context.
+- Când vin conturile (F15), `local` se înlocuiește cu numele contului, fără schimbarea formatului.
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.66.0 · 2026-10-29
 
 Motivul închiderii și al redeschiderii lunii (F12-T05).
