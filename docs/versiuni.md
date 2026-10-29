@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.82.1 · 2026-10-29
+
+F14-T22: actualizare separată a dependențelor folosite de aplicație: `go-sqlite3` 0.35.6 → 0.36.0, `go-sqlite3-wasm/v6` 6.3.35401 → 6.4.35401, `mscfb` 1.0.7 → 1.0.9, `efp` 0.0.1 → 0.0.2 și `x/net` 0.61.0 → 0.62.0. Go 1.27.3 și pachetele npm sunt deja la versiunile stabile raportate la verificare. Fără schimbarea schemei bazei de date, rapoartelor sau comportamentului interacțiunii AI din 0.82.0.
+
 ## 0.82.0 · 2026-10-29
 
 F14-T22: interacțiune ghidată a asistentului AI, D048 propusă.
