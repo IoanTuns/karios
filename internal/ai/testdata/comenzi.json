@@ -124,7 +124,7 @@
   },
   {
     "mesaj": "Cine lipseste pe 15 octombrie?",
-    "ruta": "model",
-    "sursa": "întrebare fără răspuns din cod încă: ajunge la model"
+    "ruta": "sinteza",
+    "sursa": "F14-T28: răspuns din cod pentru o zi anume"
   }
 ]

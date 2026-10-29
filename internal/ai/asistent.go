@@ -1002,6 +1002,11 @@ func AnalizeazaInterogareSinteza(mesaj string, info ContextPontix) (string, bool
 		numeLuna = numeLuni[info.Luna-1]
 	}
 
+	// 0. Întrebări despre o zi anume (F14-T28), înaintea listei concediilor pe toată luna.
+	if r, ok := sintetizeazaZi(mesaj, info); ok {
+		return r, true
+	}
+
 	// 1. Interogare concedii / absențe ("cine este în concediu", "cine e în concediu", "concedii luna", "absențe")
 	// O comandă („X merge în concediu…”) nu e o întrebare despre concedii (F14-T26).
 	if (strings.Contains(m, "in concediu") || strings.Contains(m, "în concediu") ||

@@ -4,6 +4,16 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.85.2 · 2026-10-29
+
+Întrebări despre o zi anume, cu răspuns din cod (F14-T28).
+
+- „Cine lipsește pe 15 octombrie?”, „Cine lucrează pe 15?”, „Ce avem pe 15 octombrie?” primesc lista exactă a absenților și/sau a celor programați în acea zi, fără model.
+- Pentru o zi din afara lunii de lucru, asistentul spune că poate răspunde doar pentru luna de lucru și cum o schimbi, în loc să ghicească.
+- Setul de comenzi reale: întrebarea „Cine lipsește pe 15 octombrie?” trece de la model la răspunsul din cod.
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.85.1 · 2026-10-29
 
 O singură poartă pentru mesajele asistentului și setul de comenzi reale (F14-T27, F14-T01).
