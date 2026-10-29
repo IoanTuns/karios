@@ -921,7 +921,7 @@ func AnalizeazaInterogareSinteza(mesaj string, info ContextPontix) (string, bool
 	}
 
 	// 1b. Listări de angajați și de schimburi (F14-T09); se compară fără diacritice
-	if mn := normalizeaza(m); esteListareAngajati(mn) {
+	if mn, _ := corecteazaMesaj(m, info); esteListareAngajati(mn) {
 		return sintetizeazaListaAngajati(mn, info), true
 	} else if esteListareSchimburi(mn) {
 		return sintetizeazaListaSchimburi(info), true

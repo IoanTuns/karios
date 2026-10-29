@@ -28,7 +28,7 @@ func esteListareSchimburi(m string) bool {
 func sintetizeazaListaAngajati(m string, info ContextPontix) string {
 	angajati := info.Angajati
 	eticheta := "Angajați activi"
-	if g, ok := gasesteGrup(m, info); ok {
+	if g, ok := gasesteGrup(m, info); ok && g.eticheta != etichetaToti {
 		angajati = g.angajati
 		eticheta = "Angajați activi · " + g.eticheta
 	}

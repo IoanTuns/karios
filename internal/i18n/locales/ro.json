@@ -1101,5 +1101,7 @@
   "diagnoza.fara_jurnal": "Nu există încă un jurnal de diagnoză în această lună.",
   "diagnoza.eroare_citire": "Jurnalul de diagnoză nu s-a putut citi.",
   "pontaj.ultima_modificare": "Ultima modificare: {{cine}}, {{cand}}",
-  "pontaj.ultima_modificare_indiciu": "Din jurnalul de modificări; istoricul complet este în Setări → Jurnal modificări."
+  "pontaj.ultima_modificare_indiciu": "Din jurnalul de modificări; istoricul complet este în Setări → Jurnal modificări.",
+  "ai.am_inteles": "Am înțeles:",
+  "ai.corectat": "corectat:"
 }

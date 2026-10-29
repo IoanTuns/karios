@@ -4,6 +4,17 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.77.0 · 2026-10-29
+
+Comenzile asistentului recunoscute și cu greșeli de tastare (F14-T15).
+
+- Înainte de recunoaștere, fiecare cuvânt fără cifre se compară cu un vocabular (luni, zile ale săptămânii, „toți”, „angajat”, „secția”, „categoria”, „weekend”, „fără”, „pontaj”… și numele secțiilor și categoriilor) prin distanța Damerau-Levenshtein, scrisă în cod. Prag: până la 4 litere exact, 5–7 o greșeală, de la 8 două; la egalitate între cuvinte diferite nu se corectează nimic, iar între formele aceluiași cuvânt se ia cea mai scurtă.
+- Grupul „toți” se recunoaște după cuantificator + substantiv în orice formă („toti angajati”, „tot personalul”). „mai” e lună doar în context clar („în mai”, „luna mai”, „mai 2026”).
+- Codurile de schimb și orele rămân exacte. Mesajul trimis modelului rămâne cel original.
+- Cardul propunerii de grup arată „Am înțeles: …” și corecturile („octombie” → octombrie).
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.76.2 · 2026-10-29
 
 Măsurare pe o bază mare (F06-T10).

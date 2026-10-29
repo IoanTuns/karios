@@ -378,6 +378,11 @@ export function AsistentAI({
                                                 <span className="simbol-actiune">⚡</span>
                                                 <strong>{p.descriere}</strong>
                                             </div>
+                                            {p.parametri?.interpretare && <p className="interpretare-propunere">
+                                                {t('ai.am_inteles')} <strong>{String(p.parametri.interpretare)}</strong>
+                                                {Array.isArray(p.parametri?.corecturi) && p.parametri.corecturi.length > 0 &&
+                                                    <span className="corecturi-propunere"> · {t('ai.corectat')} {(p.parametri.corecturi as string[]).join(', ')}</span>}
+                                            </p>}
                                             <div className="detalii-propunere">
                                                 {p.parametri?.cod_schimb && (
                                                     <span className="insigna-detaliu schimb">

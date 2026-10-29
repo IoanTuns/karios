@@ -19,7 +19,50 @@ func normalizeaza(s string) string {
 	return strings.Join(strings.Fields(faraDiacritice.Replace(strings.ToLower(s))), " ")
 }
 
-var expresiiToti = []string{"toti angajatii", "toti salariatii", "tot personalul", "toata lumea", "toate persoanele", "fiecare angajat", "toti colegii", "toti oamenii"}
+// Un grup „toți” = un cuantificator urmat, în cel mult două cuvinte, de un substantiv
+// pentru oameni, în orice formă („toti angajati”, „toți angajații”, „tot personalul”).
+var (
+	cuantificatori     = map[string]bool{"toti": true, "toate": true, "tot": true, "toata": true, "fiecare": true}
+	radaciniPersoane   = []string{"angajat", "salariat", "personal", "coleg", "persoan", "oamen", "lume"}
+	reLunaMaiNeambiguu = regexp.MustCompile(`\b(?:in|pe|din|luna|lunii|pentru) mai\b|\bmai \d{4}\b`)
+)
+
+const etichetaToti = "toți angajații activi"
+
+func esteToti(m string) bool {
+	c := strings.Fields(m)
+	for i, x := range c {
+		if !cuantificatori[x] {
+			continue
+		}
+		for j := i + 1; j < len(c) && j <= i+2; j++ {
+			for _, r := range radaciniPersoane {
+				if strings.HasPrefix(c[j], r) {
+					return true
+				}
+			}
+		}
+	}
+	return false
+}
+
+// lunaDin găsește luna numită în mesaj. „mai” contează ca lună doar în context clar
+// („în mai”, „luna mai”, „mai 2026”), ca să nu fie confundat cu adverbul.
+func lunaDin(m string) (int, bool) {
+	gasita := 0
+	for i, l := range luniNorm {
+		if l == "mai" {
+			if reLunaMaiNeambiguu.MatchString(m) {
+				gasita = i + 1
+			}
+			continue
+		}
+		if regexp.MustCompile(`\b` + l + `\b`).MatchString(m) {
+			gasita = i + 1
+		}
+	}
+	return gasita, gasita > 0
+}
 
 var (
 	reInterval = regexp.MustCompile(`\b(\d{1,2})(?:[:.](\d{2}))?\s*(?:-|–|—|la|pana la)\s*(\d{1,2})(?:[:.](\d{2}))?\b`)
@@ -35,10 +78,8 @@ type grupComanda struct {
 }
 
 func gasesteGrup(m string, info ContextPontix) (grupComanda, bool) {
-	for _, e := range expresiiToti {
-		if strings.Contains(m, e) {
-			return grupComanda{eticheta: "toți angajații activi", angajati: info.Angajati}, true
-		}
+	if esteToti(m) {
+		return grupComanda{eticheta: etichetaToti, angajati: info.Angajati}, true
 	}
 	potrivire := func(cuvant string, camp func(InfoAngajat) string) (grupComanda, bool) {
 		if !strings.Contains(m, cuvant+" ") {
@@ -116,8 +157,11 @@ func gasesteSchimb(mesaj, m string, schimburi []InfoSchimb) (InfoSchimb, bool) {
 // AnalizeazaComandaGrup recunoaște fără model o comandă de planificare pentru un grup
 // („toți angajații”, „secția X”, „categoria Y”) pe o lună întreagă și întoarce o singură
 // propunere cu lista persoanelor. Comenzile pentru o zi anume rămân la model.
+//
+// Mesajul se corectează întâi (F14-T15): greșelile de tastare din cuvintele comenzii nu mai
+// trimit cererea la model, iar corecturile apar pe card, ca utilizatorul să le vadă.
 func AnalizeazaComandaGrup(mesaj string, info ContextPontix) (RaspunsAsistent, bool) {
-	m := normalizeaza(mesaj)
+	m, corecturi := corecteazaMesaj(mesaj, info)
 	if m == "" || reZiAnume.MatchString(m) {
 		return RaspunsAsistent{}, false
 	}
@@ -134,10 +178,8 @@ func AnalizeazaComandaGrup(mesaj string, info ContextPontix) (RaspunsAsistent, b
 	}
 
 	an, luna := info.An, info.Luna
-	for i, l := range luniNorm {
-		if regexp.MustCompile(`\b` + l + `\b`).MatchString(m) {
-			luna = i + 1
-		}
+	if l, ok := lunaDin(m); ok {
+		luna = l
 	}
 	if an <= 0 || luna < 1 || luna > 12 {
 		return RaspunsAsistent{}, false
@@ -178,6 +220,8 @@ func AnalizeazaComandaGrup(mesaj string, info ContextPontix) (RaspunsAsistent, b
 			"data_inceput": inceput.Format(time.DateOnly),
 			"data_sfarsit": sfarsit.Format(time.DateOnly),
 			"filtru_zile":  filtru,
+			"interpretare": interpretare(grup.eticheta, inceput, schimb, textFiltru),
+			"corecturi":    textCorecturi(corecturi),
 		},
 		NecesitaConfirmare: true,
 	}
@@ -185,4 +229,24 @@ func AnalizeazaComandaGrup(mesaj string, info ContextPontix) (RaspunsAsistent, b
 		Mesaj:     fmt.Sprintf("Am pregătit o propunere pentru %d angajați. Verifică lista și confirmă.", len(grup.angajati)),
 		Propuneri: []PropunereActiune{p},
 	}, true
+}
+
+var luniAfisate = []string{"ianuarie", "februarie", "martie", "aprilie", "mai", "iunie", "iulie", "august", "septembrie", "octombrie", "noiembrie", "decembrie"}
+
+// interpretare descrie pe scurt ce a înțeles aplicația din comandă (F14-T15).
+func interpretare(grup string, luna time.Time, schimb InfoSchimb, filtru string) string {
+	s := schimb.Cod
+	if schimb.Interval != "" {
+		s += " (" + schimb.Interval + ")"
+	}
+	return fmt.Sprintf("%s · %s %d · %s · %s", grup, luniAfisate[luna.Month()-1], luna.Year(), s, filtru)
+}
+
+// textCorecturi întoarce corecturile ca listă de texte „scris → înțeles”, pentru card.
+func textCorecturi(c []Corectura) []any {
+	rez := make([]any, len(c))
+	for i, x := range c {
+		rez[i] = "„" + x.Scris + "” → " + x.Inteles
+	}
+	return rez
 }
