@@ -1,0 +1,45 @@
+# F02-T13, D046: verificările automate la fiecare push și pull request.
+# Aceleași comenzi ca înainte de commit (AGENTS.md §5); versiunile sunt fixate exact (§6).
+name: Verificari
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verificari:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      - uses: actions/setup-go@v7.0.0
+        with:
+          go-version-file: go.mod
+
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24.22.1
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      # frontend/dist intră în .exe prin go:embed, deci interfața se compilează înainte de Go.
+      - name: Interfata (npm ci, build)
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+      - name: gofmt
+        shell: bash
+        run: |
+          nef=$(gofmt -l .)
+          if [ -n "$nef" ]; then echo "Fișiere neformatate:"; echo "$nef"; exit 1; fi
+
+      - name: go vet
+        run: go vet ./...
+
+      - name: go test
+        run: go test ./...
