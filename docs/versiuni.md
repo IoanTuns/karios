@@ -4,6 +4,17 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.65.0 · 2026-10-29
+
+Ecranul jurnalului de modificări (F12-T02), în Setări.
+
+- Filtre: zona (tabelul), angajatul (inclusiv zilele lui din pontaj și absențe), luna vizată, căutare în valori; paginare câte 100, cele mai noi primele.
+- Fiecare intrare arată când, cine, zona, rândul (angajatul și ziua, unde e cazul) și doar câmpurile schimbate, „înainte → după”; câmpurile tehnice (revizie, momente) se ascund.
+- Starea sigiliului (verificat la pornire sau incident) apare deasupra listei.
+- Export CSV (separator „;”, UTF-8 cu BOM, pentru Excel) al intrărilor filtrate, în folderul ales.
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.64.0 · 2026-10-29
 
 Luna din context și confirmare doar prin buton în asistentul AI (F14-T10, UX-2 și UX-3 din review).

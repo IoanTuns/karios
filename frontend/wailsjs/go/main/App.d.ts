@@ -33,6 +33,8 @@ export function CitesteDocumentAbsenta(arg1:string):Promise<main.RaspunsDocument
 
 export function CitesteEchitatePlanificare(arg1:number,arg2:number):Promise<main.RaspunsEchitatePlan>;
 
+export function CitesteJurnal(arg1:datebaza.FiltruJurnal):Promise<main.RaspunsJurnal>;
+
 export function CitestePlanificare(arg1:number,arg2:number):Promise<main.RaspunsPlanificare>;
 
 export function CitestePlanificatVsRealizat(arg1:number,arg2:number):Promise<main.RaspunsPlanificatVsRealizat>;
@@ -68,6 +70,8 @@ export function EsteAutoPornireAI():Promise<boolean>;
 export function ExecutaImportAngajati(arg1:datebaza.CerereExecutaImportAngajati):Promise<main.RaspunsExecutaImportAngajati>;
 
 export function ExecutaImportSarbatori(arg1:datebaza.CerereExecutaImportSarbatori,arg2:number):Promise<main.RaspunsExecutaImportSarbatori>;
+
+export function ExportaJurnalCSV(arg1:datebaza.FiltruJurnal,arg2:string):Promise<main.RaspunsExportJurnal>;
 
 export function ExportaPontajExcel(arg1:number,arg2:number):Promise<main.RaspunsExportExcel>;
 

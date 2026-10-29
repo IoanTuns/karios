@@ -54,6 +54,10 @@ export function CitesteEchitatePlanificare(arg1, arg2) {
   return window['go']['main']['App']['CitesteEchitatePlanificare'](arg1, arg2);
 }
 
+export function CitesteJurnal(arg1) {
+  return window['go']['main']['App']['CitesteJurnal'](arg1);
+}
+
 export function CitestePlanificare(arg1, arg2) {
   return window['go']['main']['App']['CitestePlanificare'](arg1, arg2);
 }
@@ -124,6 +128,10 @@ export function ExecutaImportAngajati(arg1) {
 
 export function ExecutaImportSarbatori(arg1, arg2) {
   return window['go']['main']['App']['ExecutaImportSarbatori'](arg1, arg2);
+}
+
+export function ExportaJurnalCSV(arg1, arg2) {
+  return window['go']['main']['App']['ExportaJurnalCSV'](arg1, arg2);
 }
 
 export function ExportaPontajExcel(arg1, arg2) {
