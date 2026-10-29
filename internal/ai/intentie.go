@@ -17,6 +17,7 @@ type SelectiePlan struct {
 }
 
 type IntentiePlan struct {
+	AnDeConfirmat bool         `json:"an_de_confirmat"`
 	Selectie      SelectiePlan `json:"selectie"`
 	DeLa          string       `json:"de_la"`
 	PanaLa        string       `json:"pana_la"`
@@ -190,12 +191,16 @@ func InterpreteazaPlan(mesaj string, info ContextPontix) (IntentiePlan, bool) {
 	case strings.Contains(m, "inlocuieste") || strings.Contains(m, "suprascrie") || strings.Contains(m, "replace existing"):
 		i.ModExistente = "inlocuieste"
 	}
+	i.AnDeConfirmat = reAnPlan.FindString(m) == ""
 	i.CompleteazaClarificari()
 	return i, true
 }
 
 func (i *IntentiePlan) CompleteazaClarificari() {
 	i.Clarificari = []string{}
+	if i.AnDeConfirmat {
+		i.Clarificari = append(i.Clarificari, "an")
+	}
 	if i.Selectie.Tip == "" || (i.Selectie.Tip != "toti" && i.Selectie.Tip != "persoane" && i.Selectie.Valoare == "") || (i.Selectie.Tip == "persoane" && len(i.Selectie.Marci) == 0) {
 		i.Clarificari = append(i.Clarificari, "selectie")
 	}

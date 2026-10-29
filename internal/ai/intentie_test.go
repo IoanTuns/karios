@@ -75,6 +75,18 @@ func TestIntentiePlanRegresii(t *testing.T) {
 	}
 }
 
+func TestAnImplicitCereConfirmare(t *testing.T) {
+	for _, caz := range []struct {
+		mesaj      string
+		confirmare bool
+	}{{"toti Z7 in noiembrie", true}, {"toti Z7 in noiembrie 2026", false}, {"all employees Z7 2026-11-02", false}} {
+		i, ok := InterpreteazaPlan(caz.mesaj, contextGrup())
+		if !ok || i.AnDeConfirmat != caz.confirmare {
+			t.Fatal(caz, i, ok)
+		}
+	}
+}
+
 func TestContextSpecificNuTrimiteEchipa(t *testing.T) {
 	info := contextGrup()
 	for n := range info.Angajati {

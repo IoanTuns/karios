@@ -96,6 +96,7 @@ func TestPropunereGrupToataLunaPentruTotiAngajatii(t *testing.T) {
 	// F14-T22: zilele și păstrarea celulelor se aleg explicit înaintea planului.
 	i := *r.Raspuns.Intentie
 	i.FiltruZile, i.ModExistente = "lucratoare", "pastreaza"
+	i.AnDeConfirmat = false // Confirmarea explicită a anului din context.
 	// Un angajat are concediu pe 2026-10-05: ziua se sare.
 	idCuConcediu := ""
 	for _, ang := range date.Angajati {
@@ -222,6 +223,7 @@ func TestPropunereaDeGrupNuSuprascrie(t *testing.T) {
 	}
 	i := *r.Raspuns.Intentie
 	i.FiltruZile, i.ModExistente = "lucratoare", "pastreaza"
+	i.AnDeConfirmat = false // Confirmarea explicită a anului din context.
 	p := a.PrevizualizeazaPlanAI(i)
 	if p.Eroare != nil {
 		t.Fatalf("plan: %+v", p.Eroare)

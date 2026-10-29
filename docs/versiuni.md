@@ -4,6 +4,17 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.84.0 · 2026-10-29
+
+F14-T25: instrumentele asistentului cerute de utilizator.
+
+- Anularea ultimei operații AI prin instantanee persistente, verificare și confirmare tranzacțională, cu refuz integral la conflicte sau luni închise; audit păstrat.
+- Explicații pentru selecție, rezumate pe luni și persoane, căutare și filtre în detalii și selecția nominală.
+- Confirmarea anului preluat din context, validarea perioadei și șabloane locale încărcate în editor.
+- Verificare consultativă a pontajului existent, modelul efectiv pornit/context configurat și export CSV local verificat de backend.
+
+Migrarea 0023 adaugă operațiile și șabloanele AI. Exportul CSV al planului are formatul propriu 1.0.0, inclus în fișier. Nu se schimbă regulile salariale sau versiunile rapoartelor existente. D050 propusă; probele și limitele sunt în documentația F14-T25.
+
 ## 0.83.0 · 2026-10-29
 
 F14-T24, I072–I074: primul lot după review-ul UI al asistentului.

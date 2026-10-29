@@ -22,6 +22,10 @@ export function AnuleazaRestaurarea() {
   return window['go']['main']['App']['AnuleazaRestaurarea']();
 }
 
+export function AnuleazaUltimaOperatieAI(arg1) {
+  return window['go']['main']['App']['AnuleazaUltimaOperatieAI'](arg1);
+}
+
 export function AplicaPropunereAI(arg1) {
   return window['go']['main']['App']['AplicaPropunereAI'](arg1);
 }
@@ -154,6 +158,10 @@ export function ExportaJurnalCSV(arg1, arg2) {
   return window['go']['main']['App']['ExportaJurnalCSV'](arg1, arg2);
 }
 
+export function ExportaPlanAICSV(arg1, arg2, arg3, arg4) {
+  return window['go']['main']['App']['ExportaPlanAICSV'](arg1, arg2, arg3, arg4);
+}
+
 export function ExportaPontajExcel(arg1, arg2) {
   return window['go']['main']['App']['ExportaPontajExcel'](arg1, arg2);
 }
@@ -206,6 +214,10 @@ export function ListaReguliConfigurabile() {
   return window['go']['main']['App']['ListaReguliConfigurabile']();
 }
 
+export function ListaSabloaneAI() {
+  return window['go']['main']['App']['ListaSabloaneAI']();
+}
+
 export function ListaSchimburi() {
   return window['go']['main']['App']['ListaSchimburi']();
 }
@@ -232,6 +244,10 @@ export function PornesteSarcinaAI(arg1) {
 
 export function PregatesteRaport(arg1) {
   return window['go']['main']['App']['PregatesteRaport'](arg1);
+}
+
+export function PrevizualizeazaAnulareAI() {
+  return window['go']['main']['App']['PrevizualizeazaAnulareAI']();
 }
 
 export function PrevizualizeazaPlanAI(arg1) {
@@ -300,6 +316,10 @@ export function SalveazaPlanificare(arg1, arg2, arg3) {
 
 export function SalveazaRegulaConfigurabila(arg1) {
   return window['go']['main']['App']['SalveazaRegulaConfigurabila'](arg1);
+}
+
+export function SalveazaSablonAI(arg1, arg2) {
+  return window['go']['main']['App']['SalveazaSablonAI'](arg1, arg2);
 }
 
 export function SalveazaSarbatoare(arg1, arg2, arg3) {
@@ -374,12 +394,20 @@ export function StatisticiDiagnoza() {
   return window['go']['main']['App']['StatisticiDiagnoza']();
 }
 
+export function StergeSablonAI(arg1) {
+  return window['go']['main']['App']['StergeSablonAI'](arg1);
+}
+
 export function UltimaModificareCelula(arg1, arg2) {
   return window['go']['main']['App']['UltimaModificareCelula'](arg1, arg2);
 }
 
 export function VerificaBackup(arg1) {
   return window['go']['main']['App']['VerificaBackup'](arg1);
+}
+
+export function VerificaPontajAI(arg1) {
+  return window['go']['main']['App']['VerificaPontajAI'](arg1);
 }
 
 export function VerificaReguliPlanificare(arg1, arg2) {

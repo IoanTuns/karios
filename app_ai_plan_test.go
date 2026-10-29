@@ -27,7 +27,8 @@ func TestPlanAIDouaLuniTotiAngajatii(t *testing.T) {
 	}
 	i.FiltruZile = "lucratoare"
 	i.ModExistente = "pastreaza"
-	i.CodSchimb = "Z7" // Utilizatorul alege explicit între programele cu același interval.
+	i.AnDeConfirmat = false // Utilizatorul confirmă anul afișat din context.
+	i.CodSchimb = "Z7"      // Utilizatorul alege explicit între programele cu același interval.
 	p := a.PrevizualizeazaPlanAI(i)
 	if p.Eroare != nil {
 		t.Fatalf("previzualizare: %+v", p.Eroare)

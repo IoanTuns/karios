@@ -91,3 +91,11 @@ Stări: `nouă`, `în analiză`, `transformată` (în task sau decizie), `amâna
 | I079 | 2026-10-29 | P2: rezumat actual al planului AI separat de cererea inițială, date neambigue și contoare lizibile | Codex | nouă | F14-T23, review-ui-asistent-2026-10-29.md |
 
 | I080 | 2026-10-29 | P2: detalii pliabile cu modelul AI efectiv activ, contextul configurat și utilizarea raportată de motor, fără estimări prezentate ca măsurători | Codex | nouă | F14-T23, review-ui-asistent-2026-10-29.md |
+| I081 | 2026-10-29 | Anularea ultimei operații AI pe baza instantaneelor persistente și reviziilor, cu refuz integral la conflicte | Codex, cerere Ioan Tuns | transformată | F14-T25, D050 propusă |
+| I082 | 2026-10-29 | Explicarea selecției pentru fiecare persoană, cu criteriu de grup și excepții pe zile | Codex, cerere Ioan Tuns | transformată | F14-T25, D050 propusă |
+| I083 | 2026-10-29 | Clarificarea anului din context și a parametrilor înainte de planificare | Codex, cerere Ioan Tuns | transformată | F14-T25 |
+| I084 | 2026-10-29 | Șabloane locale de planificare, încărcate în editor pentru revizuire | Codex, cerere Ioan Tuns | transformată | F14-T25, D050 propusă |
+| I085 | 2026-10-29 | Verificare consultativă a pontajului, folosind programele, categoriile și regulile configurate | Codex, cerere Ioan Tuns | transformată | F14-T25 |
+| I086 | 2026-10-29 | Export local al propunerii și rezultatului AI, verificat de backend, fără transmitere automată | Codex, cerere Ioan Tuns | transformată | F14-T25, D050 propusă |
+
+F14-T25 implementează sumarul și filtrele din I075 și detaliile model/context din I080, fără măsurători inventate de utilizare. Din I076 sunt implementate căutarea și selectarea rezultatelor; vederea exclusiv pentru cei selectați rămâne posibilă ulterior. Din I077 sunt implementate validarea selecției/perioadei și recuperarea la token expirat; validarea detaliată a fiecărui câmp rămâne separată. I078 privind păstrarea previzualizării între planuri nu este înlocuită de anularea operațiilor aplicate; I079 beneficiază de noile rezumate.

@@ -850,3 +850,14 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .tabel-plan-ai th, .tabel-plan-ai td { padding: .45rem; border-bottom: 1px solid #ccd7d6; text-align: left; }
 .tabel-plan-ai th { position: sticky; top: -8px; z-index: 1; }
 .previzualizare-plan-ai [role="status"] .buton { margin: .4rem; }
+.filtre-detalii-ai { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+.filtre-detalii-ai label, .sabloane-ai label { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.filtre-detalii-ai input, .filtre-detalii-ai select, .sabloane-ai input, .sabloane-ai select { min-width: 0; max-width: 100%; box-sizing: border-box; }
+.sumar-plan-ai, .explicatii-selectie-ai, .sabloane-ai { margin: 8px 0; }
+.sumar-plan-ai p { margin: 3px 0 8px; font-size: 12px; }
+.sumar-plan-ai ul, .explicatii-selectie-ai ul { padding-left: 20px; }
+.validare-plan-ai { color: var(--discret); font-size: 12px; }
+.sabloane-ai fieldset { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.instrumente-asistent-ai p, .instrumente-asistent-ai li { overflow-wrap: anywhere; }
+.meniu-motor-ai p { margin: 5px 0; overflow-wrap: anywhere; }
+.plan-separat-anulare-ai { display: block; color: var(--discret); }

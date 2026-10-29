@@ -17,6 +17,8 @@ const PortImplicit = 28491
 
 // StareMediu descrie starea componentelor motorului local pe disc și în memorie.
 type StareMediu struct {
+	ModelActiv        string   `json:"model_activ"`
+	ContextConfigurat int      `json:"context_configurat"`
 	Instalat          bool     `json:"instalat"`
 	CaleFolder        string   `json:"cale_folder"`
 	CaleBinar         string   `json:"cale_binar"`

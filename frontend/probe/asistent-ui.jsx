@@ -30,6 +30,7 @@ let confirmari = 0, intentiePrevizualizata, lunaDeschisa;
 window.runtime = {EventsOnMultiple: () => () => {}};
 window.go = {main: {App: {
     StareAI: async () => ({stare: {instalat: !faraMotor, activ: !faraMotor, port: 5000, cale_folder: 'date-fictive/ai'}}), EsteAutoPornireAI: async () => true, SarcinaAIActiva: async () => '',
+    ListaSabloaneAI: async () => ({sabloane: []}),
     ListaSchimburi: async () => ({schimburi: [{id: 'z7', cod: 'Z7', denumire: {ro: 'Zi 07:00–14:00', en: 'Day 07:00–14:00'}, activ: true}]}),
     PrevizualizeazaPlanAI: async i => {intentiePrevizualizata = i; return {plan: {...plan, intentie: i, aplicate: 0}};},
     ConfirmaPlanAI: async (i, token) => {

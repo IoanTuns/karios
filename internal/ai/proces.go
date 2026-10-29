@@ -11,9 +11,27 @@ import (
 	"path/filepath"
 	"runtime"
 	"slices"
+	"strconv"
 	"sync"
 	"time"
 )
+
+const ContextConfigurat = 32768
+
+// ModelActiv expune numai numele procesului propriu, fără căi sau cheia API.
+func (m *Manager) ModelActiv() string {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if m.cmd == nil {
+		return ""
+	}
+	select {
+	case <-m.terminat:
+		return ""
+	default:
+		return filepath.Base(m.model)
+	}
+}
 
 // Manager se ocupă de pornirea, monitorizarea și oprirea procesului local llama-server.
 //
@@ -144,7 +162,7 @@ func (m *Manager) Porneste(ctx context.Context, numeModel string) error {
 		"-m", caleModel,
 		"--host", "127.0.0.1",
 		"--port", fmt.Sprintf("%d", m.port),
-		"-c", "32768",
+		"-c", strconv.Itoa(ContextConfigurat),
 		"-b", "512",
 		"-ub", "512",
 		"-np", "1",

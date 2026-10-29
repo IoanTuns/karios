@@ -36,17 +36,22 @@ type RandPlanAI struct {
 }
 
 type PlanAI struct {
-	Intentie  ai.IntentiePlan  `json:"intentie"`
-	Persoane  []PersoanaPlanAI `json:"persoane"`
-	Luni      []string         `json:"luni"`
-	Randuri   []RandPlanAI     `json:"randuri"`
-	Token     string           `json:"token"`
-	Noi       int              `json:"noi"`
-	Inlocuiri int              `json:"inlocuiri"`
-	Identice  int              `json:"identice"`
-	Ocupate   int              `json:"ocupate"`
-	Blocate   int              `json:"blocate"`
-	Aplicate  int              `json:"aplicate"`
+	Anulat            bool                   `json:"anulat"`
+	OperatieID        string                 `json:"operatie_id"`
+	SelectieExplicata []ExplicatieSelectieAI `json:"selectie_explicata"`
+	SumarLuni         []SumarPlanAI          `json:"sumar_luni"`
+	SumarPersoane     []SumarPlanAI          `json:"sumar_persoane"`
+	Intentie          ai.IntentiePlan        `json:"intentie"`
+	Persoane          []PersoanaPlanAI       `json:"persoane"`
+	Luni              []string               `json:"luni"`
+	Randuri           []RandPlanAI           `json:"randuri"`
+	Token             string                 `json:"token"`
+	Noi               int                    `json:"noi"`
+	Inlocuiri         int                    `json:"inlocuiri"`
+	Identice          int                    `json:"identice"`
+	Ocupate           int                    `json:"ocupate"`
+	Blocate           int                    `json:"blocate"`
+	Aplicate          int                    `json:"aplicate"`
 }
 
 func normalPlan(s string) string {
@@ -81,7 +86,7 @@ func construiestePlanAI(ctx context.Context, tx *sql.Tx, q *acces.Queries, i ai.
 	var surse sursePlanificare
 	prima, e1 := time.Parse(time.DateOnly, i.DeLa)
 	ultima, e2 := time.Parse(time.DateOnly, i.PanaLa)
-	if e1 != nil || e2 != nil || prima.Year() < 2000 || ultima.Year() > 2100 || ultima.Before(prima) || ultima.Sub(prima) > 366*24*time.Hour ||
+	if i.AnDeConfirmat || e1 != nil || e2 != nil || prima.Year() < 2000 || ultima.Year() > 2100 || ultima.Before(prima) || ultima.Sub(prima) > 366*24*time.Hour ||
 		(i.FiltruZile != "lucratoare" && i.FiltruZile != "toate" && i.FiltruZile != "weekend") || (i.ModExistente != "pastreaza" && i.ModExistente != "inlocuieste") {
 		return p, surse, eroare("ai.plan_incomplet")
 	}
@@ -152,8 +157,10 @@ func construiestePlanAI(ctx context.Context, tx *sql.Tx, q *acces.Queries, i ai.
 		marci[m] = true
 	}
 	gasite := 0
+	p.SelectieExplicata = []ExplicatieSelectieAI{}
 	for _, a := range surse.oameni {
 		if a.Activ != 1 {
+			p.SelectieExplicata = append(p.SelectieExplicata, ExplicatieSelectieAI{a.ID, a.Marca, strings.TrimSpace(a.Nume + " " + a.Prenume), false, "inactiv"})
 			continue
 		}
 		inclus := false
@@ -175,11 +182,17 @@ func construiestePlanAI(ctx context.Context, tx *sql.Tx, q *acces.Queries, i ai.
 		if inclus {
 			p.Persoane = append(p.Persoane, PersoanaPlanAI{a.ID, a.Marca, strings.TrimSpace(a.Nume + " " + a.Prenume)})
 		}
+		motivSelectie := "alt_grup"
+		if inclus {
+			motivSelectie = i.Selectie.Tip
+		}
+		p.SelectieExplicata = append(p.SelectieExplicata, ExplicatieSelectieAI{a.ID, a.Marca, strings.TrimSpace(a.Nume + " " + a.Prenume), inclus, motivSelectie})
 	}
 	if len(p.Persoane) == 0 || (i.Selectie.Tip == "persoane" && gasite != len(marci)) {
 		return p, surse, eroare("ai.plan_selectie_invalida")
 	}
 	sort.Slice(p.Persoane, func(x, y int) bool { return p.Persoane[x].Marca < p.Persoane[y].Marca })
+	sort.Slice(p.SelectieExplicata, func(x, y int) bool { return p.SelectieExplicata[x].Marca < p.SelectieExplicata[y].Marca })
 	stari := map[string]string{}
 	for d := time.Date(prima.Year(), prima.Month(), 1, 0, 0, 0, 0, time.UTC); !d.After(ultima); d = d.AddDate(0, 1, 0) {
 		luna := d.Format("2006-01")
@@ -301,6 +314,7 @@ func construiestePlanAI(ctx context.Context, tx *sql.Tx, q *acces.Queries, i ai.
 			p.Randuri = append(p.Randuri, r)
 		}
 	}
+	p.SumarLuni, p.SumarPersoane = rezumaPlanAI(p)
 	date, err := json.Marshal(struct {
 		Plan  PlanAI
 		Surse surseAmprentaAI
@@ -341,9 +355,14 @@ func (s *Serviciu) AplicaPlanAI(ctx context.Context, i ai.IntentiePlan, token st
 			return eroare("ai.fara_zile")
 		}
 		program := surse.coduri[strings.ToUpper(i.CodSchimb)]
+		instantanee := []InstantaneuCelulaAI{}
 		for _, r := range p.Randuri {
 			if r.Stare != "noua" && r.Stare != "inlocuire" {
 				continue
+			}
+			instantaneu, err := citesteInstantaneuAI(ctx, tx, r.AngajatID, r.Data)
+			if err != nil {
+				return err
 			}
 			if calcul.ProgramDePlanificat(program) {
 				sectiune := "GARZI"
@@ -398,6 +417,12 @@ func (s *Serviciu) AplicaPlanAI(ctx context.Context, i ai.IntentiePlan, token st
 				return eroare("ai.plan_verificare_esuat")
 			}
 			p.Aplicate++
+			dupa, err := citesteInstantaneuAI(ctx, tx, r.AngajatID, r.Data)
+			if err != nil {
+				return err
+			}
+			instantaneu.Dupa = &dupa
+			instantanee = append(instantanee, instantaneu)
 		}
 		if calcul.ProgramDePlanificat(program) {
 			pozitii, err := q.ListaPlanificare(ctx, acces.ListaPlanificareParams{DataDeLa: i.DeLa, DataPanaLa: i.PanaLa})
@@ -415,6 +440,21 @@ func (s *Serviciu) AplicaPlanAI(ctx context.Context, i ai.IntentiePlan, token st
 					return eroare("ai.plan_verificare_esuat")
 				}
 			}
+		}
+		p.OperatieID = idNou()
+		continut, err := json.Marshal(p)
+		if err != nil {
+			return err
+		}
+		imagini, err := json.Marshal(instantanee)
+		if err != nil {
+			return err
+		}
+		if _, err := tx.ExecContext(ctx, `INSERT INTO operatii_ai(id,creat_la,plan,instantanee) VALUES(?,?,?,?)`, p.OperatieID, moment(), string(continut), string(imagini)); err != nil {
+			return err
+		}
+		if err := jurnal(ctx, q, "operatii_ai", p.OperatieID, nil, p); err != nil {
+			return err
 		}
 		plan = p
 		return nil

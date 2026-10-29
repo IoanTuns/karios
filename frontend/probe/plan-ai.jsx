@@ -15,6 +15,7 @@ const date = {angajati:persoane.map(p=>({...p,prenume:'',activ:true})),sectii:[]
 const program = {id:'z7',cod:'Z7',denumire:{ro:'Zi 07:00–14:00',en:'Day 07:00–14:00'},activ:true,ora_start:420,durata_minute:420};
 let confirmari = 0;
 window.go={main:{App:{
+    ListaSabloaneAI:async()=>({sabloane:[]}),
     ListaSchimburi:async()=>({schimburi:[program]}),
     PrevizualizeazaPlanAI:async intentie=>({plan:{intentie,persoane,luni:['2026-10','2026-11'],noi:127,inlocuiri:0,identice:0,ocupate:1,blocate:1,aplicate:0,token:'proba',randuri:Array.from({length:129},(_,x)=>({angajat_id:persoane[x%3].id,marca:persoane[x%3].marca,nume:persoane[x%3].nume,data:`2026-${x<66?'10':'11'}-${String(x%21+1).padStart(2,'0')}`,inainte:x===0?'6':'',dupa:'Z7',stare:x===0?'ocupata':x===1?'blocata':'noua',motiv:x===1?'absenta':''}))}}),
     ConfirmaPlanAI:async(intentie,token)=>{confirmari++; if(token!=='proba')throw Error('token'); const r=await window.go.main.App.PrevizualizeazaPlanAI(intentie);r.plan.aplicate=127;return r;},

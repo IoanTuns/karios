@@ -1,5 +1,6 @@
 import {useEffect, useLayoutEffect, useRef, useState, type FormEvent} from 'react';
 import {PlanAsistentAI} from './PlanAsistentAI';
+import {InstrumenteAsistentAI} from './InstrumenteAsistentAI';
 import {useTranslation} from 'react-i18next';
 import {AplicaPropunereAI, EsteAutoPornireAI, OpresteAI, PornesteAI, SeteazaAutoPornireAI, StareAI} from '../wailsjs/go/main/App';
 import {ai, datebaza, main} from '../wailsjs/go/models';
@@ -83,7 +84,7 @@ export function AsistentAI({
     const planuri = conversatie.filter(m => m.intentie);
     const [planSelectat, setPlanSelectat] = useState('');
     const planActiv = planuri.find(m => m.id === planSelectat) ?? planuri.at(-1);
-    const [vizualizare, setVizualizare] = useState<'conversatie' | 'plan'>(planuri.length ? 'plan' : 'conversatie');
+    const [vizualizare, setVizualizare] = useState<'conversatie' | 'plan' | 'instrumente'>(planuri.length ? 'plan' : 'conversatie');
     const lucreaza = sesiune.sarcina !== '';
     const blocat = ocupat || lucreaza;
     const [autoPornire, setAutoPornire] = useState(true);
@@ -164,6 +165,13 @@ export function AsistentAI({
         setPlanSelectat(''); setVizualizare('conversatie'); urmaresteCapatuRef.current = true;
         setMesaj('');
         setEroare('');
+    }
+
+    function incarcaPlan(intentie?: ai.IntentiePlan) {
+        const id = crypto.randomUUID();
+        const i = intentie ?? new ai.IntentiePlan({selectie: {tip: '', valoare: '', marci: [], fara_pontaj: false}, de_la: `${anCurent}-${String(lunaCurenta).padStart(2, '0')}-01`, pana_la: `${anCurent}-${String(lunaCurenta).padStart(2, '0')}-${new Date(anCurent, lunaCurenta, 0).getDate()}`, cod_schimb: '', filtru_zile: '', mod_existente: '', mesaj_original: '', clarificari: [], an_de_confirmat: true});
+        seteazaConversatie(prev => [...prev, {id, rol: 'assistant', text: t('ai.plan_titlu'), intentie: i}]);
+        setPlanSelectat(id); setVizualizare('plan');
     }
 
     async function toggleAutoPornire(activ: boolean) {
@@ -309,6 +317,10 @@ export function AsistentAI({
                     <details className="optiuni-motor-ai">
                     <summary>{t('ai.optiuni_motor')}</summary>
                     <div className="meniu-motor-ai">
+                    <p>{t('ai.model_activ')}: <strong>{stare?.model_activ || t('ai.model_nepornit')}</strong></p>
+                    <p>{t('ai.context_configurat', {numar: stare?.context_configurat ?? '—'})}</p>
+                    <p className="text-discret">{t('ai.context_indiciu')}</p>
+                    <p className="text-discret">{t('ai.reset_indiciu')}</p>
                     <label className="comutator-autopornire-ai" title={t('ai.autopornire_descriere')}>
                         <input
                             type="checkbox"
@@ -352,8 +364,10 @@ export function AsistentAI({
             </div>
 
             <div className="navigare-lucru-ai" role="group" aria-label={t('ai.zona_lucru')}>
-                <button type="button" className={`buton mic ${vizualizare === 'conversatie' ? 'primar' : 'secundar'}`} aria-pressed={vizualizare === 'conversatie'} onClick={() => setVizualizare('conversatie')}>{t('ai.zona_conversatie')}</button>
-                <button type="button" className={`buton mic ${vizualizare === 'plan' ? 'primar' : 'secundar'}`} disabled={!planActiv} aria-pressed={vizualizare === 'plan'} onClick={() => setVizualizare('plan')}>{t('ai.zona_plan')}</button>
+                <button type="button" className={`buton mic ${vizualizare === 'conversatie' ? 'primar' : 'secundar'}`} disabled={blocat} aria-pressed={vizualizare === 'conversatie'} onClick={() => setVizualizare('conversatie')}>{t('ai.zona_conversatie')}</button>
+                <button type="button" className={`buton mic ${vizualizare === 'plan' ? 'primar' : 'secundar'}`} disabled={!planActiv || blocat} aria-pressed={vizualizare === 'plan'} onClick={() => setVizualizare('plan')}>{t('ai.zona_plan')}</button>
+                <button type="button" className={`buton mic ${vizualizare === 'instrumente' ? 'primar' : 'secundar'}`} disabled={blocat} aria-pressed={vizualizare === 'instrumente'} onClick={() => setVizualizare('instrumente')}>{t('ai.instrumente')}</button>
+                <button type="button" className="buton secundar mic" disabled={blocat} onClick={() => incarcaPlan()}>{t('ai.plan_nou')}</button>
                 {vizualizare === 'plan' && planuri.length > 1 && <select aria-label={t('ai.alege_plan')} value={planActiv?.id} disabled={blocat} onChange={e => setPlanSelectat(e.target.value)}>
                     {planuri.map((m, index) => <option key={m.id} value={m.id}>{t('ai.plan_numar', {numar: index + 1})} · {m.intentie?.de_la} – {m.intentie?.pana_la}</option>)}
                 </select>}
@@ -372,6 +386,10 @@ export function AsistentAI({
 
             {(eroare || sesiune.eroare) && <div className="mesaj eroare" role="alert">{eroare || sesiune.eroare}</div>}
             {mesaj && <div className="mesaj succes" role="status">{mesaj}</div>}
+
+            <div className="zona-plan-ai" hidden={vizualizare !== 'instrumente'}>
+                {vizualizare === 'instrumente' && <InstrumenteAsistentAI blocat={blocat} onOcupat={setOcupat} onIncarca={incarcaPlan} onAnulat={id => seteazaConversatie(prev => prev.map(m => m.rezultatPlan?.operatie_id === id ? {...m, rezultatPlan: new datebaza.PlanAI({...m.rezultatPlan, anulat: true})} : m))}/>}
+            </div>
 
             <div className="zona-plan-ai" hidden={vizualizare !== 'plan'}>
                 {planActiv?.intentie && <PlanAsistentAI key={planActiv.id}

@@ -110,6 +110,10 @@ func (a *App) stareMediuAI() ai.StareMediu {
 	mgr := a.asiguratManagerAI()
 	stare := ai.DetecteazaMediu(a.folderAI(), mgr.Port())
 	stare.Activ = mgr.EsteActiv()
+	stare.ContextConfigurat = ai.ContextConfigurat
+	if stare.Activ {
+		stare.ModelActiv = mgr.ModelActiv()
+	}
 	if stare.Activ {
 		stare.Mesaj = "Motorul local este activ și gata de utilizare."
 	} else if stare.Instalat {
@@ -365,7 +369,7 @@ func (a *App) interogheazaAI(ctx context.Context, cerere CerereInterogareAI) Ras
 		if stergeri {
 			return RaspunsInterogareAI{Raspuns: &raspuns}
 		}
-		intentie := ai.IntentiePlan{MesajOriginal: mesajCurent, Selectie: ai.SelectiePlan{Marci: []string{}}}
+		intentie := ai.IntentiePlan{AnDeConfirmat: true, MesajOriginal: mesajCurent, Selectie: ai.SelectiePlan{Marci: []string{}}}
 		if len(raspuns.Propuneri) == 1 {
 			p := raspuns.Propuneri[0]
 			if strings.HasPrefix(p.Tip, "planifica_") {

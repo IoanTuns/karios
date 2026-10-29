@@ -19,6 +19,8 @@ export function AnalizeazaImportSarbatori(arg1:string,arg2:string):Promise<main.
 
 export function AnuleazaRestaurarea():Promise<main.RaspunsBackupuri>;
 
+export function AnuleazaUltimaOperatieAI(arg1:string):Promise<main.RaspunsInstrumenteAI>;
+
 export function AplicaPropunereAI(arg1:main.CerereAplicaPropunereAI):Promise<main.RaspunsAplicaPropunereAI>;
 
 export function AtribuieCategorieProgramLot(arg1:Array<string>,arg2:string):Promise<main.RaspunsDate>;
@@ -85,6 +87,8 @@ export function ExecutaImportSarbatori(arg1:datebaza.CerereExecutaImportSarbator
 
 export function ExportaJurnalCSV(arg1:datebaza.FiltruJurnal,arg2:string):Promise<main.RaspunsExportJurnal>;
 
+export function ExportaPlanAICSV(arg1:ai.IntentiePlan,arg2:string,arg3:string,arg4:string):Promise<main.RaspunsExportJurnal>;
+
 export function ExportaPontajExcel(arg1:number,arg2:number):Promise<main.RaspunsExportExcel>;
 
 export function IesireDinCont():Promise<main.RaspunsStareCont>;
@@ -111,6 +115,8 @@ export function ListaModeleRapoarte():Promise<main.RaspunsModeleRapoarte>;
 
 export function ListaReguliConfigurabile():Promise<main.RaspunsListaReguli>;
 
+export function ListaSabloaneAI():Promise<main.RaspunsInstrumenteAI>;
+
 export function ListaSchimburi():Promise<main.RaspunsSchimburi>;
 
 export function ModificaCont(arg1:conturi.Cont):Promise<main.RaspunsConturi>;
@@ -124,6 +130,8 @@ export function PornesteAI(arg1:string):Promise<main.RaspunsStareAI>;
 export function PornesteSarcinaAI(arg1:main.CerereInterogareAI):Promise<main.RaspunsSarcinaAI>;
 
 export function PregatesteRaport(arg1:rapoarte.Cerere):Promise<main.RaspunsRaport>;
+
+export function PrevizualizeazaAnulareAI():Promise<main.RaspunsInstrumenteAI>;
 
 export function PrevizualizeazaPlanAI(arg1:ai.IntentiePlan):Promise<main.RaspunsPlanAI>;
 
@@ -158,6 +166,8 @@ export function SalveazaPDFRaport(arg1:string):Promise<main.RaspunsFisierRaport>
 export function SalveazaPlanificare(arg1:number,arg2:number,arg3:Array<datebaza.PozitiePlanificare>):Promise<main.RaspunsPlanificare>;
 
 export function SalveazaRegulaConfigurabila(arg1:calcul.RegulaConfigurabila):Promise<main.RaspunsSalvareRegula>;
+
+export function SalveazaSablonAI(arg1:string,arg2:ai.IntentiePlan):Promise<main.RaspunsInstrumenteAI>;
 
 export function SalveazaSarbatoare(arg1:string,arg2:datebaza.Sarbatoare,arg3:number):Promise<main.RaspunsCalendar>;
 
@@ -195,8 +205,12 @@ export function StareCont():Promise<main.RaspunsStareCont>;
 
 export function StatisticiDiagnoza():Promise<diagnoza.StatisticiDiagnoza>;
 
+export function StergeSablonAI(arg1:string):Promise<main.RaspunsInstrumenteAI>;
+
 export function UltimaModificareCelula(arg1:string,arg2:string):Promise<main.RaspunsUltimaModificare>;
 
 export function VerificaBackup(arg1:string):Promise<main.RaspunsVerificareBackup>;
+
+export function VerificaPontajAI(arg1:ai.IntentiePlan):Promise<main.RaspunsInstrumenteAI>;
 
 export function VerificaReguliPlanificare(arg1:number,arg2:number):Promise<main.RaspunsVerificaReguli>;
