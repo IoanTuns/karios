@@ -61,7 +61,7 @@ Detalii în [D009](docs/decizii/D009-versionare.md).
 - **Aplicația:** orice commit care schimbă codul crește `const Aplicatie` din `internal/versiune/versiune.go` (`MAJOR.MINOR.PATCH`) și adaugă o secțiune în [docs/versiuni.md](docs/versiuni.md), în același commit. Commit-urile doar cu documentație nu schimbă versiunea.
 - **Rapoartele:** fiecare raport are versiunea lui (`const Versiune` în pachetul raportului), care crește când se schimbă conținutul, aspectul sau calculul. Testul cu fișier de referință al raportului trebuie actualizat odată cu versiunea.
 - **Baza de date:** orice schimbare e o migrare nouă, numerotată, în `internal/bd/migrari/` (goose, [D010](docs/decizii/D010-migrari-goose.md)). O migrare existentă în `main` nu se mai modifică; pe o ramură neadusă încă în `main` se poate redenumi.
-- **Hook-ul** `.githooks/pre-commit` verifică primele și ultimele reguli. Se activează o dată pe clonă: `git config core.hooksPath .githooks`. Nu se ocolește (`--no-verify`).
+- **Hook-ul** `.githooks/pre-commit` verifică primele și ultimele reguli, plus formatarea `gofmt` a fișierelor Go din commit. Se activează o dată pe clonă: `git config core.hooksPath .githooks`. Nu se ocolește (`--no-verify`).
 
 ## 8. Traduceri
 

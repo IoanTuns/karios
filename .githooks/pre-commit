@@ -35,4 +35,26 @@ if [ -n "$modificate" ]; then
 	exit 1
 fi
 
+# 3. Fișierele Go din commit sunt formatate cu gofmt (AGENTS.md §5, F02-T14).
+go_staged=$(printf '%s\n' "$staged" | grep -E '\.go$' || true)
+if [ -n "$go_staged" ]; then
+	if ! command -v gofmt >/dev/null 2>&1; then
+		echo "gofmt nu este în PATH; nu pot verifica formatarea fișierelor Go." >&2
+		exit 1
+	fi
+	neformatate=""
+	for f in $go_staged; do
+		[ -f "$f" ] || continue
+		# Se verifică versiunea din index, nu cea din directorul de lucru.
+		if [ -n "$(git show ":$f" | gofmt -l)" ]; then
+			neformatate="$neformatate $f"
+		fi
+	done
+	if [ -n "$neformatate" ]; then
+		echo "Fișiere Go neformatate; rulează gofmt -w:" >&2
+		printf '  %s\n' $neformatate >&2
+		exit 1
+	fi
+fi
+
 exit 0
