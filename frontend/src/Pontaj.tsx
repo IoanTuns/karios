@@ -365,27 +365,35 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
         return () => { activ = false; };
     }, [an, luna, lunaBlocata, schita]);
 
-    async function comutaStareLuna() {
-        if (!schita || ocupat) return;
-        const esteInchisa = schita.stare === 'INCHISA' || schita.stare === 'BLOCATA';
-        const mesajConfirmare = esteInchisa
-            ? t('pontaj.confirmare_redeschidere')
-            : t('pontaj.confirmare_inchidere');
-        if (!window.confirm(mesajConfirmare)) return;
+    // Închiderea și redeschiderea cer un motiv scris de utilizator, care intră în jurnal (F12-T05).
+    const [dialogLuna, setDialogLuna] = useState(false);
+    const [motivLuna, setMotivLuna] = useState('');
+    const [eroareLuna, setEroareLuna] = useState('');
 
-        setOcupat(true); onOcupat(true); setEroare(''); setMesaj('');
-        const nouaStare = esteInchisa ? 'DESCHISA' : 'INCHISA';
+    function comutaStareLuna() {
+        if (!schita || ocupat) return;
+        setMotivLuna(lunaBlocata ? '' : t('pontaj.motiv_inchidere_implicit'));
+        setEroareLuna('');
+        setDialogLuna(true);
+    }
+
+    async function confirmaStareLuna() {
+        if (!schita || ocupat) return;
+        if (!motivLuna.trim()) { setEroareLuna(t('pontaj.motiv_obligatoriu')); return; }
+        const esteInchisa = lunaBlocata;
+        setOcupat(true); onOcupat(true); setEroare(''); setMesaj(''); setEroareLuna('');
         try {
-            const resp = await SeteazaStareLuna(an, luna, nouaStare, esteInchisa ? 'Redeschidere utilizator' : 'Închidere lună salarizare');
+            const resp = await SeteazaStareLuna(an, luna, esteInchisa ? 'DESCHISA' : 'INCHISA', motivLuna.trim());
             if (resp.eroare) {
-                setEroare(t(resp.eroare.cod, resp.eroare.param ?? {}));
+                setEroareLuna(t(resp.eroare.cod, resp.eroare.param ?? {}));
             } else {
                 setSchita(prev => prev ? new datebaza.SchitaLuna({...prev, stare: resp.stare.stare}) : null);
                 setStareLuna(resp.stare);
-                setMesaj(esteInchisa ? 'Luna a fost redeschisă pentru editare.' : 'Luna a fost închisă cu succes.');
+                setDialogLuna(false);
+                setMesaj(t(esteInchisa ? 'pontaj.luna_redeschisa' : 'pontaj.luna_inchisa_succes'));
             }
         } catch {
-            setEroare(t('date.eroare'));
+            setEroareLuna(t('date.eroare'));
         } finally {
             setOcupat(false); onOcupat(false);
         }
@@ -492,6 +500,20 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                 </button>
             </div>
         )}
+        {dialogLuna && <Dialog titlu={t(lunaBlocata ? 'pontaj.redeschide_luna' : 'pontaj.inchide_luna')} ocupat={ocupat} inchide={() => setDialogLuna(false)}>
+            <div className="corp-dialog">
+                <p>{t(lunaBlocata ? 'pontaj.confirmare_redeschidere' : 'pontaj.confirmare_inchidere')}</p>
+                {lunaBlocata && stareLuna?.amprenta && <p className="text-discret">{t('pontaj.redeschidere_amprenta', {amprenta: stareLuna.amprenta})}</p>}
+                <label>{t('pontaj.motiv_luna')}
+                    <textarea name="motiv_luna" rows={3} value={motivLuna} disabled={ocupat} onChange={e => setMotivLuna(e.target.value)} required/>
+                </label>
+                {eroareLuna && <div className="mesaj eroare" role="alert">{eroareLuna}</div>}
+            </div>
+            <footer className="subsol-dialog">
+                <button className="buton secundar" disabled={ocupat} onClick={() => setDialogLuna(false)}>{t('ui.anuleaza')}</button>
+                <button className="buton primar" disabled={ocupat || !motivLuna.trim()} onClick={() => void confirmaStareLuna()}>{t(lunaBlocata ? 'pontaj.redeschide_luna' : 'pontaj.inchide_luna')}</button>
+            </footer>
+        </Dialog>}
         {eroare && <div className="mesaj eroare" role="alert">{eroare}</div>}{mesaj && <div className="mesaj succes" role="status">{mesaj}</div>}
         {incarcare ? <p role="status">{t('ui.incarcare')}</p> : !schita ? <button className="buton secundar" onClick={() => setReincarcare(x => x + 1)}>{t('ui.reincearca')}</button> : <>
             <div className="unelte-grila" ref={unelte} onKeyDown={e => {

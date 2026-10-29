@@ -4,6 +4,16 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.66.0 · 2026-10-29
+
+Motivul închiderii și al redeschiderii lunii (F12-T05).
+
+- `window.confirm` și textele fixe din cod („Închidere lună salarizare”, „Redeschidere utilizator”, mesajele de succes) sunt înlocuite cu un dialog în care utilizatorul scrie motivul; la închidere e precompletat „Transmis la salarizare”, la redeschidere e gol.
+- La redeschiderea unei luni închise, dialogul spune că amprenta tipărită nu va mai corespunde după modificări.
+- `SeteazaStareLuna` refuză un motiv gol (`pontaj.motiv_obligatoriu`); motivul intră în jurnal.
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.65.0 · 2026-10-29
 
 Ecranul jurnalului de modificări (F12-T02), în Setări.

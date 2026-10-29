@@ -826,5 +826,11 @@
   "jurnal.tabel_reguli_configurabile": "Reguli configurabile",
   "jurnal.tabel_stare_luni": "Închiderea lunii",
   "jurnal.tabel_audit": "Audit",
-  "jurnal.tabel_definitii_rapoarte": "Definiții rapoarte"
+  "jurnal.tabel_definitii_rapoarte": "Definiții rapoarte",
+  "pontaj.motiv_luna": "Motivul (rămâne în jurnalul de modificări)",
+  "pontaj.motiv_obligatoriu": "Scrie motivul închiderii sau al redeschiderii.",
+  "pontaj.motiv_inchidere_implicit": "Transmis la salarizare",
+  "pontaj.redeschidere_amprenta": "Amprenta {{amprenta}}, tipărită la închidere, nu va mai corespunde după modificări; la următoarea închidere se calculează una nouă.",
+  "pontaj.luna_redeschisa": "Luna a fost redeschisă pentru editare.",
+  "pontaj.luna_inchisa_succes": "Luna a fost închisă."
 }

@@ -89,7 +89,7 @@ func TestAmprentaLaInchidereSiJurnal(t *testing.T) {
 	if citita, _ = m.serviciu.CitesteStareLuna(ctx, 2026, 10); citita.AmprentaCorespunde {
 		t.Fatal("amprenta corespunde după modificarea datelor")
 	}
-	blocata, err := m.serviciu.SeteazaStareLuna(ctx, 2026, 10, "BLOCATA", "", "Admin")
+	blocata, err := m.serviciu.SeteazaStareLuna(ctx, 2026, 10, "BLOCATA", "Verificare", "Admin")
 	if err != nil || blocata.Amprenta != st.Amprenta {
 		t.Fatalf("blocarea unei luni închise păstrează amprenta: %+v, %v", blocata, err)
 	}
@@ -101,4 +101,10 @@ func TestAmprentaLaInchidereSiJurnal(t *testing.T) {
 	if err := m.db.QueryRow(`SELECT count(*) FROM jurnal_modificari WHERE tabel = 'stare_luni' AND rand_id = '2026-10'`).Scan(&n); err != nil || n != 3 {
 		t.Fatalf("intrări de jurnal pentru stare_luni: %d, %v", n, err)
 	}
+}
+
+func TestStareLunaCereMotiv(t *testing.T) {
+	m := pregateste(t)
+	_, err := m.serviciu.SeteazaStareLuna(context.Background(), 2026, 10, "INCHISA", "   ", "Admin")
+	verificaCod(t, err, "pontaj.motiv_obligatoriu")
 }

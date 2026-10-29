@@ -65,6 +65,10 @@ func (s *Serviciu) SeteazaStareLuna(ctx context.Context, an, luna int, stare, mo
 	if an < 1 || an > 9999 || luna < 1 || luna > 12 {
 		return StareLuna{}, eroare("pontaj.perioada_invalida")
 	}
+	// Motivul îl scrie utilizatorul și intră în jurnal (F12-T05).
+	if motiv = strings.TrimSpace(motiv); motiv == "" {
+		return StareLuna{}, eroare("pontaj.motiv_obligatoriu")
+	}
 	if utilizator == "" {
 		utilizator = "Utilizator"
 	}

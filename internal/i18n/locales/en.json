@@ -826,5 +826,11 @@
   "jurnal.tabel_reguli_configurabile": "Configurable rules",
   "jurnal.tabel_stare_luni": "Month closing",
   "jurnal.tabel_audit": "Audit",
-  "jurnal.tabel_definitii_rapoarte": "Report definitions"
+  "jurnal.tabel_definitii_rapoarte": "Report definitions",
+  "pontaj.motiv_luna": "Reason (kept in the change log)",
+  "pontaj.motiv_obligatoriu": "Enter the reason for closing or reopening.",
+  "pontaj.motiv_inchidere_implicit": "Sent to payroll",
+  "pontaj.redeschidere_amprenta": "The fingerprint {{amprenta}}, printed at closing, will no longer match after changes; the next closing computes a new one.",
+  "pontaj.luna_redeschisa": "The month was reopened for editing.",
+  "pontaj.luna_inchisa_succes": "The month was closed."
 }
