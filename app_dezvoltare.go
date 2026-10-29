@@ -10,7 +10,6 @@ import (
 	"runtime"
 	"strings"
 
-	"pontix/internal/ai"
 	"pontix/internal/diagnoza"
 	"pontix/internal/versiune"
 )
@@ -101,7 +100,7 @@ func formateazaOcteti(octeti int64) string {
 func (a *App) DetaliiDezvoltare() DetaliiDezvoltare {
 	caleExe, shaExe := calculeazaChecksumExe()
 	folderAI := a.folderAI()
-	stareAI := ai.DetecteazaMediu(folderAI, ai.PortImplicit)
+	stareAI := a.stareMediuAI()
 
 	dimModel := "Nedetectat"
 	numeModel := "Niciun model instalat"

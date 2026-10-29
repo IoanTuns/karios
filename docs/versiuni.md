@@ -4,6 +4,16 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.72.0 · 2026-10-29
+
+Serverul AI local protejat (F14-T12, SEC-2 și SEC-3 din review).
+
+- `llama-server` pornește pe un port liber ales la fiecare pornire și cu o cheie API aleatoare (`--api-key`), trimisă de client în antetul `Authorization`. Alte procese locale nu mai pot folosi motorul.
+- Aplicația consideră activ doar procesul lansat de ea (urmărit până la oprire); un alt program care răspunde la `/health` pe portul 28491 nu mai primește datele angajaților. Starea motorului din ecranul asistentului și din detaliile de dezvoltare vine din procesul propriu.
+- Numele modelului cerut la pornire se acceptă doar dacă e un fișier `.gguf` din folderul AI, fără căi.
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.71.0 · 2026-10-29
 
 Backup automat zilnic (F05-T26).

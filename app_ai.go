@@ -85,11 +85,11 @@ func (a *App) autoPornesteAIDacaEPosibil() {
 		return
 	}
 	folder := a.folderAI()
-	stare := ai.DetecteazaMediu(folder, ai.PortImplicit)
-	if !stare.Instalat || stare.Activ || len(stare.ModeleDisponibile) == 0 {
+	stare := ai.DetecteazaMediu(folder, 0)
+	mgr := a.asiguratManagerAI()
+	if !stare.Instalat || mgr.EsteActiv() || len(stare.ModeleDisponibile) == 0 {
 		return
 	}
-	mgr := a.asiguratManagerAI()
 	_ = mgr.Porneste(context.Background(), "")
 }
 
@@ -100,18 +100,30 @@ func (a *App) asiguratManagerAI() *ai.Manager {
 	return a.aiManager
 }
 
+// stareMediuAI: fișierele de pe disc și starea procesului propriu. Un alt program care
+// răspunde pe un port nu contează ca motor activ (F14-T12).
+func (a *App) stareMediuAI() ai.StareMediu {
+	mgr := a.asiguratManagerAI()
+	stare := ai.DetecteazaMediu(a.folderAI(), mgr.Port())
+	stare.Activ = mgr.EsteActiv()
+	if stare.Activ {
+		stare.Mesaj = "Motorul local este activ și gata de utilizare."
+	} else if stare.Instalat {
+		stare.Mesaj = "Fișierele locale sunt instalate. Motorul poate fi pornit."
+	}
+	return stare
+}
+
 // StareAI raportează disponibilitatea motorului și starea procesului local.
 func (a *App) StareAI() RaspunsStareAI {
-	folder := a.folderAI()
-	stare := ai.DetecteazaMediu(folder, ai.PortImplicit)
-	return RaspunsStareAI{Stare: stare}
+	return RaspunsStareAI{Stare: a.stareMediuAI()}
 }
 
 // PornesteAI lansează motorul local în fundal dacă fișierele sunt prezente.
 func (a *App) PornesteAI(numeModel string) RaspunsStareAI {
 	mgr := a.asiguratManagerAI()
 	err := mgr.Porneste(a.contextLucru(), numeModel)
-	stare := ai.DetecteazaMediu(a.folderAI(), mgr.Port())
+	stare := a.stareMediuAI()
 	if err != nil {
 		return RaspunsStareAI{
 			Stare:  stare,
@@ -125,7 +137,7 @@ func (a *App) PornesteAI(numeModel string) RaspunsStareAI {
 func (a *App) OpresteAI() RaspunsStareAI {
 	mgr := a.asiguratManagerAI()
 	_ = mgr.Opreste()
-	stare := ai.DetecteazaMediu(a.folderAI(), mgr.Port())
+	stare := a.stareMediuAI()
 	return RaspunsStareAI{Stare: stare}
 }
 
@@ -299,7 +311,7 @@ func (a *App) interogheazaAI(ctx context.Context, cerere CerereInterogareAI) Ras
 		}
 	}
 
-	client := ai.NouClient(mgr.Port())
+	client := mgr.Client()
 	raspuns, err := client.Interogheaza(ctx, cerere.Istoric, contextPontix)
 	if err != nil {
 		return RaspunsInterogareAI{

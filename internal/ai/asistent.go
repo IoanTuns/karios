@@ -85,7 +85,14 @@ type InfoPozitiePlanificare struct {
 // Client gestionează comunicarea HTTP cu endpoint-ul local al modelului.
 type Client struct {
 	baseURL    string
+	cheieAPI   string
 	httpClient *http.Client
+}
+
+// CuCheie setează cheia API trimisă serverului local (F14-T12).
+func (c *Client) CuCheie(cheie string) *Client {
+	c.cheieAPI = cheie
+	return c
 }
 
 // NouClient creează un client pentru serverul local (de ex: http://127.0.0.1:28491).
@@ -304,6 +311,9 @@ func (c *Client) Interogheaza(ctx context.Context, istoric []MesajConversatie, i
 		return RaspunsAsistent{}, err
 	}
 	req.Header.Set("Content-Type", "application/json")
+	if c.cheieAPI != "" {
+		req.Header.Set("Authorization", "Bearer "+c.cheieAPI)
+	}
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
