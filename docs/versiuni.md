@@ -4,6 +4,16 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.83.0 · 2026-10-29
+
+F14-T24, I072–I074: primul lot după review-ul UI al asistentului.
+
+- Planul activ are zonă proprie pe lățimea utilă, cu etape Interpretare / Verificare / Rezultat, context vizibil și acțiuni în afara conținutului derulabil. Istoricul conversației rămâne disponibil separat.
+- Editarea intenției păstrează poziția și focusul. Derularea automată a istoricului se face doar pentru mesaje noi când utilizatorul urmărește capătul, fără deplasarea paginii.
+- În rezultatul salvat se afișează valoarea finală și stările Salvat / Păstrat / Neaplicat / Deja identic. Celulele excluse sau păstrate nu sunt prezentate ca valori propuse aplicate.
+
+Verificarea tokenului, clarificările și confirmarea explicită rămân active. Fără schimbări ale bazei de date, calculelor sau rapoartelor. Îmbunătățirile P2 din review rămân în backlog.
+
 ## 0.82.1 · 2026-10-29
 
 F14-T22: actualizare separată a dependențelor folosite de aplicație: `go-sqlite3` 0.35.6 → 0.36.0, `go-sqlite3-wasm/v6` 6.3.35401 → 6.4.35401, `mscfb` 1.0.7 → 1.0.9, `efp` 0.0.1 → 0.0.2 și `x/net` 0.61.0 → 0.62.0. Go 1.27.3 și pachetele npm sunt deja la versiunile stabile raportate la verificare. Fără schimbarea schemei bazei de date, rapoartelor sau comportamentului interacțiunii AI din 0.82.0.

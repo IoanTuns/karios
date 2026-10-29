@@ -11,3 +11,5 @@ Pentru spațiul de lucru, recomand extinderea planului activ pe lățimea dispon
 Nu se simplifică verificările datelor, clarificările lipsă sau confirmarea prin eliminarea lor. Nu se adaugă biblioteci și nu se schimbă reguli de calcul în acest audit.
 
 Decizia și implementarea rămân pentru evaluare umană. Nicio remediere nu este declarată executată.
+
+Ulterior review-ului, Ioan Tuns a cerut „Incepe implementarea”. F14-T24 implementează primul lot I072–I074; [rezultatele](../rezultate-ui-F14-T24.md) disting implementarea și verificările de propunerea inițială. Starea deciziei nu a fost schimbată în acceptată fără o acceptare explicită.

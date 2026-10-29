@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState, type FormEvent} from 'react';
+import {useEffect, useLayoutEffect, useRef, useState, type FormEvent} from 'react';
 import {PlanAsistentAI} from './PlanAsistentAI';
 import {useTranslation} from 'react-i18next';
 import {AplicaPropunereAI, EsteAutoPornireAI, OpresteAI, PornesteAI, SeteazaAutoPornireAI, StareAI} from '../wailsjs/go/main/App';
@@ -80,6 +80,10 @@ export function AsistentAI({
     const [textIntrare, setTextIntrare] = useState('');
     const sesiune = useSesiuneAI();
     const conversatie = sesiune.conversatie;
+    const planuri = conversatie.filter(m => m.intentie);
+    const [planSelectat, setPlanSelectat] = useState('');
+    const planActiv = planuri.find(m => m.id === planSelectat) ?? planuri.at(-1);
+    const [vizualizare, setVizualizare] = useState<'conversatie' | 'plan'>(planuri.length ? 'plan' : 'conversatie');
     const lucreaza = sesiune.sarcina !== '';
     const blocat = ocupat || lucreaza;
     const [autoPornire, setAutoPornire] = useState(true);
@@ -89,7 +93,27 @@ export function AsistentAI({
         if (perioadaEcran) seteazaPerioada(perioadaEcran);
     }, [perioadaEcran?.an, perioadaEcran?.luna]);
 
-    const capatConversatieRef = useRef<HTMLDivElement>(null);
+    const panouRef = useRef<HTMLDivElement>(null);
+    const fluxRef = useRef<HTMLDivElement>(null);
+    const urmaresteCapatuRef = useRef(true);
+    const ultimMesajRef = useRef('');
+    const ultimMesajId = conversatie.at(-1)?.id ?? '';
+
+    useLayoutEffect(() => {
+        const panou = panouRef.current;
+        if (!panou) return;
+        const dimensioneaza = () => {
+            const parinte = panou.closest('main');
+            const subsol = parinte ? parseFloat(getComputedStyle(parinte).paddingBottom) || 0 : 0;
+            const inaltime = Math.max(260, window.innerHeight - (panou.getBoundingClientRect().top + window.scrollY) - subsol - 12);
+            panou.style.setProperty('--inaltime-asistent', `${inaltime}px`);
+        };
+        dimensioneaza();
+        window.addEventListener('resize', dimensioneaza);
+        const observator = new ResizeObserver(dimensioneaza);
+        if (panou.parentElement) observator.observe(panou.parentElement);
+        return () => { window.removeEventListener('resize', dimensioneaza); observator.disconnect(); };
+    }, []);
 
     async function actualizeazaStare() {
         try {
@@ -121,11 +145,23 @@ export function AsistentAI({
     }, []);
 
     useEffect(() => {
-        capatConversatieRef.current?.scrollIntoView({behavior: 'smooth'});
-    }, [conversatie, lucreaza]);
+        // Modificarea intenției păstrează ID-ul mesajului și nu derulează istoricul.
+        if (!ultimMesajId || ultimMesajRef.current === ultimMesajId) return;
+        ultimMesajRef.current = ultimMesajId;
+        const ultim = conversatie.at(-1);
+        if (ultim?.intentie) {
+            setPlanSelectat(ultim.id);
+            setVizualizare('plan');
+            return;
+        }
+        if (vizualizare === 'conversatie' && urmaresteCapatuRef.current && fluxRef.current) {
+            fluxRef.current.scrollTo({top: fluxRef.current.scrollHeight, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'});
+        }
+    }, [ultimMesajId, conversatie, vizualizare]);
 
     function reseteazaConversatie() {
         reseteazaSesiunea();
+        setPlanSelectat(''); setVizualizare('conversatie'); urmaresteCapatuRef.current = true;
         setMesaj('');
         setEroare('');
     }
@@ -172,6 +208,7 @@ export function AsistentAI({
     async function trimiteMesaj(textDeTrimis?: string) {
         const text = (textDeTrimis ?? textIntrare).trim();
         if (!text || blocat) return;
+        setVizualizare('conversatie'); urmaresteCapatuRef.current = true;
 
         setEroare('');
         seteazaEroare('');
@@ -247,7 +284,7 @@ export function AsistentAI({
     }
 
     return (
-        <div className="panou-asistent-ai">
+        <div className="panou-asistent-ai" ref={panouRef}>
             {/* Bara de stare a motorului local */}
             <div className="antet-stare-ai">
                 <div className="indicator-stare-motor">
@@ -269,6 +306,9 @@ export function AsistentAI({
                 </div>
 
                 <div className="actiuni-stare-motor">
+                    <details className="optiuni-motor-ai">
+                    <summary>{t('ai.optiuni_motor')}</summary>
+                    <div className="meniu-motor-ai">
                     <label className="comutator-autopornire-ai" title={t('ai.autopornire_descriere')}>
                         <input
                             type="checkbox"
@@ -297,6 +337,8 @@ export function AsistentAI({
                             ⏹ {t('ai.opreste')}
                         </button>
                     )}
+                    </div>
+                    </details>
                     <button
                         type="button"
                         className="buton secundar mic buton-conversatie-noua"
@@ -309,7 +351,15 @@ export function AsistentAI({
                 </div>
             </div>
 
-            <div className="perioada-asistent">
+            <div className="navigare-lucru-ai" role="group" aria-label={t('ai.zona_lucru')}>
+                <button type="button" className={`buton mic ${vizualizare === 'conversatie' ? 'primar' : 'secundar'}`} aria-pressed={vizualizare === 'conversatie'} onClick={() => setVizualizare('conversatie')}>{t('ai.zona_conversatie')}</button>
+                <button type="button" className={`buton mic ${vizualizare === 'plan' ? 'primar' : 'secundar'}`} disabled={!planActiv} aria-pressed={vizualizare === 'plan'} onClick={() => setVizualizare('plan')}>{t('ai.zona_plan')}</button>
+                {vizualizare === 'plan' && planuri.length > 1 && <select aria-label={t('ai.alege_plan')} value={planActiv?.id} disabled={blocat} onChange={e => setPlanSelectat(e.target.value)}>
+                    {planuri.map((m, index) => <option key={m.id} value={m.id}>{t('ai.plan_numar', {numar: index + 1})} · {m.intentie?.de_la} – {m.intentie?.pana_la}</option>)}
+                </select>}
+            </div>
+
+            <div className="perioada-asistent" hidden={vizualizare !== 'conversatie'}>
                 <label>{t('ai.luna_de_lucru')}
                     <select value={lunaCurenta} disabled={blocat} onChange={e => seteazaPerioada({an: anCurent, luna: Number(e.target.value)})}>
                         {Array.from({length: 12}, (_, i) => <option key={i} value={i + 1}>{new Intl.DateTimeFormat(i18n.language, {month: 'long', timeZone: 'UTC'}).format(new Date(Date.UTC(2026, i, 15)))}</option>)}
@@ -320,42 +370,44 @@ export function AsistentAI({
                 <span className="text-discret">{t('ai.luna_de_lucru_indiciu')}</span>
             </div>
 
-            {/* Avertisment ghidat dacă fișierele lipsesc */}
-            {stare && !stare.instalat && (
-                <div className="card-lipsa-fisiere-ai">
-                    <h3>📁 {t('ai.lipsa_fisiere_titlu')}</h3>
-                    <p>{t('ai.lipsa_fisiere_detalii')}</p>
-                    <div className="cutie-cale-folder">
-                        <code>{stare.cale_folder}</code>
-                    </div>
-                    <ul className="instructiuni-fisiere-ai">
-                        <li>
-                            <strong>{stare.cale_binar ? '✓' : '1.'} llama-server.exe</strong> ({t('ai.binar_descriere')})
-                        </li>
-                        <li>
-                            <strong>{stare.cale_model ? '✓' : '2.'} model.gguf</strong> ({t('ai.model_recomandat')})
-                        </li>
-                    </ul>
-                </div>
-            )}
-
             {(eroare || sesiune.eroare) && <div className="mesaj eroare" role="alert">{eroare || sesiune.eroare}</div>}
             {mesaj && <div className="mesaj succes" role="status">{mesaj}</div>}
 
+            <div className="zona-plan-ai" hidden={vizualizare !== 'plan'}>
+                {planActiv?.intentie && <PlanAsistentAI key={planActiv.id}
+                    intentie={planActiv.intentie} date={date} rezultat={planActiv.rezultatPlan} blocat={blocat} onOcupat={setOcupat}
+                    onSchimba={intentie => seteazaConversatie(prev => prev.map(m => m.id === planActiv.id ? {...m, intentie} : m))}
+                    onAplicat={rezultatPlan => seteazaConversatie(prev => prev.map(m => m.id === planActiv.id ? {...m, rezultatPlan} : m))}
+                    onDeschidePontaj={onDeschidePontaj}
+                />}
+            </div>
+
+            <div className="zona-conversatie-ai" hidden={vizualizare !== 'conversatie'}>
+
             {/* Zona de conversație */}
-            <div className="flux-conversatie-ai">
+            <div className="flux-conversatie-ai" ref={fluxRef} onScroll={() => {
+                const flux = fluxRef.current;
+                if (flux) urmaresteCapatuRef.current = flux.scrollHeight - flux.scrollTop - flux.clientHeight < 48;
+            }}>
+                {stare && !stare.instalat && <div className="card-lipsa-fisiere-ai">
+                    <h3>📁 {t('ai.lipsa_fisiere_titlu')}</h3>
+                    <p>{t('ai.lipsa_fisiere_detalii')}</p>
+                    <div className="cutie-cale-folder"><code>{stare.cale_folder}</code></div>
+                    <ul className="instructiuni-fisiere-ai">
+                        <li><strong>{stare.cale_binar ? '✓' : '1.'} llama-server.exe</strong> ({t('ai.binar_descriere')})</li>
+                        <li><strong>{stare.cale_model ? '✓' : '2.'} model.gguf</strong> ({t('ai.model_recomandat')})</li>
+                    </ul>
+                </div>}
                 {conversatie.map(m => (
                     <div key={m.id} className={`bula-mesaj ${m.rol}`}>
                         <div className="expeditor-mesaj">
                             {t(m.rol === 'user' ? 'ai.tu' : 'ai.expeditor_asistent')}
                         </div>
                         <div className="continut-mesaj">{m.text}</div>
-						{m.intentie && <PlanAsistentAI
-							intentie={m.intentie} date={date} rezultat={m.rezultatPlan} blocat={blocat} onOcupat={setOcupat}
-							onSchimba={intentie => seteazaConversatie(prev => prev.map(x => x.id === m.id ? {...x, intentie} : x))}
-							onAplicat={rezultatPlan => seteazaConversatie(prev => prev.map(x => x.id === m.id ? {...x, rezultatPlan} : x))}
-							onDeschidePontaj={onDeschidePontaj}
-						/>}
+                        {m.intentie && <div className="referinta-plan-ai">
+                            <span>{m.rezultatPlan ? t('ai.plan_aplicate', {numar: m.rezultatPlan.aplicate}) : t('ai.plan_titlu')}</span>
+                            <button type="button" className="buton secundar mic" disabled={blocat} onClick={() => {setPlanSelectat(m.id); setVizualizare('plan');}}>{t('ai.deschide_plan')}</button>
+                        </div>}
 
                         {/* Carduri de acțiune propusă */}
                         {m.propuneri && m.propuneri.length > 0 && (
@@ -460,11 +512,10 @@ export function AsistentAI({
                         <button type="button" className="buton secundar mic" onClick={() => void opresteSarcina()}>⏹ {t('ai.opreste_sarcina')}</button>
                     </div>
                 )}
-                <div ref={capatConversatieRef} />
             </div>
 
             {/* Sugestii rapide de comenzi */}
-            <div className="sugestii-comenzi-ai">
+            {conversatie.length <= 1 && <div className="sugestii-comenzi-ai">
                 <span className="eticheta-sugestii">{t('ai.sugestii_titlu')}</span>
                 {[t('ai.sugestie_1'), t('ai.sugestie_2'), t('ai.sugestie_3')].map((s, idx) => (
                     <button
@@ -477,7 +528,7 @@ export function AsistentAI({
                         💬 {s}
                     </button>
                 ))}
-            </div>
+            </div>}
 
             {/* Zona de introducere text */}
             <form
@@ -503,6 +554,7 @@ export function AsistentAI({
                     {t('ai.trimite')} ➔
                 </button>
             </form>
+            </div>
         </div>
     );
 }

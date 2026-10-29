@@ -498,21 +498,32 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .actiuni-calendar { display: flex; align-items: center; gap: 8px; }
 
 /* Asistent AI Local */
-.panou-asistent-ai { display: flex; flex-direction: column; gap: 16px; height: calc(100vh - 160px); min-height: 520px; }
-.antet-stare-ai { display: flex; justify-content: space-between; align-items: center; background: white; border: 1px solid var(--linie); border-radius: 8px; padding: 12px 18px; }
+.panou-asistent-ai { display: flex; flex-direction: column; gap: 8px; height: var(--inaltime-asistent, calc(100dvh - 200px)); min-height: 260px; }
+.panou-asistent-ai [hidden] { display: none !important; }
+.panou-asistent-ai > * { flex-shrink: 0; }
+.panou-asistent-ai > .zona-plan-ai, .panou-asistent-ai > .zona-conversatie-ai { flex: 1 1 0; min-height: 0; min-width: 0; }
+.zona-conversatie-ai { display: flex; flex-direction: column; gap: 8px; }
+.navigare-lucru-ai { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.navigare-lucru-ai .buton { min-height: 32px; padding: 5px 10px; }
+.navigare-lucru-ai select { min-height: 32px; padding: 4px 8px; max-width: min(100%, 350px); }
+.referinta-plan-ai { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.optiuni-motor-ai { position: relative; }
+.optiuni-motor-ai > summary { cursor: pointer; font-size: 12px; padding: 6px; }
+.meniu-motor-ai { position: absolute; top: calc(100% + 6px); right: 0; z-index: 20; min-width: 240px; max-height: 220px; overflow: auto; display: flex; flex-direction: column; gap: 10px; padding: 12px; border: 1px solid var(--linie); border-radius: 8px; background: white; box-shadow: 0 5px 18px #204e3e22; }
+.antet-stare-ai { display: flex; justify-content: space-between; align-items: center; gap: 8px; background: white; border: 1px solid var(--linie); border-radius: 8px; padding: 6px 10px; }
 .indicator-stare-motor { display: flex; align-items: center; gap: 12px; }
 .punct-stare-ai { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
 .punct-stare-ai.activ { background: #238636; box-shadow: 0 0 0 3px #dcf5df; }
 .punct-stare-ai.gata { background: #d29922; box-shadow: 0 0 0 3px #fef4dd; }
 .punct-stare-ai.inactiv { background: #cf222e; box-shadow: 0 0 0 3px #ffebe9; }
 .detaliu-stare-ai { display: block; font-size: 11px; color: var(--discret); margin-top: 2px; }
-.card-lipsa-fisiere-ai { background: #fffcf0; border: 1px solid #ffd591; border-radius: 8px; padding: 16px 20px; font-size: 13px; color: #613400; }
+.card-lipsa-fisiere-ai { flex-shrink: 0; background: #fffcf0; border: 1px solid #ffd591; border-radius: 8px; padding: 16px 20px; font-size: 13px; color: #613400; }
 .card-lipsa-fisiere-ai h3 { margin: 0 0 8px; font-size: 15px; color: #873800; font-weight: 650; }
 .card-lipsa-fisiere-ai p { margin: 0 0 10px; }
 .cutie-cale-folder { background: #fff8e1; border: 1px dashed #d4b106; padding: 8px 12px; border-radius: 6px; font-family: monospace; font-size: 12px; margin-bottom: 10px; word-break: break-all; }
 .instructiuni-fisiere-ai { margin: 0; padding-left: 20px; line-height: 1.6; }
 .flux-conversatie-ai { flex: 1; min-height: 0; overflow-y: auto; background: white; border: 1px solid var(--linie); border-radius: 8px; padding: 18px 20px; display: flex; flex-direction: column; gap: 14px; scrollbar-gutter: stable; }
-.bula-mesaj { max-width: 80%; padding: 12px 16px; border-radius: 8px; font-size: 13px; line-height: 1.5; }
+.bula-mesaj { max-width: 80%; flex-shrink: 0; padding: 12px 16px; border-radius: 8px; font-size: 13px; line-height: 1.5; }
 .bula-mesaj.user { align-self: flex-end; background: #eaf3ee; border: 1px solid #cce2d5; color: #17382c; }
 .bula-mesaj.assistant { align-self: flex-start; background: #f6f8fa; border: 1px solid #d0d7de; color: var(--text); }
 .expeditor-mesaj { font-size: 11px; font-weight: 700; color: var(--discret); margin-bottom: 4px; }
@@ -803,7 +814,25 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .camp-parola input { flex: 1; min-width: 0; }
 .camp-parola .buton-text { white-space: nowrap; }
 /* F14-T22: interpretarea și previzualizarea planului asistentului. */
-.plan-asistent-ai { min-width: 0; max-width: 100%; padding: 1rem; border: 1px solid var(--culoare-bordura, #ccd7d6); border-radius: .6rem; }
+.plan-asistent-ai { display: flex; flex-direction: column; height: 100%; min-height: 0; min-width: 0; max-width: 100%; overflow: hidden; border: 1px solid var(--culoare-bordura, #ccd7d6); border-radius: .6rem; background: #fff; }
+.antet-plan-ai { flex-shrink: 0; padding: 6px 12px; background: #f5f9f7; border-bottom: 1px solid var(--linie); }
+.antet-plan-ai h3 { margin: 3px 0; font-size: 15px; }
+.antet-plan-ai .mesaj { margin: 4px 0; padding: 6px 8px; }
+.context-plan-ai { margin: 3px 0; font-size: 12px; line-height: 1.4; overflow-wrap: anywhere; }
+.reguli-context-plan-ai { display: block; }
+.etape-plan-ai { display: flex; flex-wrap: wrap; gap: 6px 14px; list-style: none; padding: 0; margin: 0; font-size: 11px; color: var(--discret); }
+.etape-plan-ai [aria-current="step"] { color: var(--verde); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.corp-plan-ai { flex: 1 1 0; min-height: 0; min-width: 0; overflow: auto; padding: 8px 12px; scrollbar-gutter: stable; }
+.corp-plan-ai > .text-discret { margin: 0 0 6px; font-size: 12px; }
+.cerere-originala-ai { font-size: 12px; }
+.cerere-originala-ai summary { cursor: pointer; }
+.subsol-plan-ai { flex-shrink: 0; padding: 8px 12px; border-top: 1px solid var(--linie); background: #f8fbf9; }
+.subsol-plan-ai p { margin: 0 0 5px; font-size: 12px; }
+.subsol-plan-ai .optiune-plan-ai { font-size: 12px; line-height: 1.4; margin: 0 0 6px; }
+.subsol-plan-ai .optiune-plan-ai input { min-height: 0; height: 16px; padding: 0; margin: 0; }
+.actiuni-plan-ai { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+.actiuni-plan-ai .buton { min-height: 34px; padding: 6px 10px; white-space: normal; }
+.subsol-plan-ai > [role="status"] { display: block; font-size: 13px; margin-bottom: 5px; }
 .plan-asistent-ai fieldset { min-width: 0; margin: .7rem 0; padding: .75rem; }
 .plan-asistent-ai blockquote { margin: .5rem 0; padding-left: .75rem; border-left: 3px solid #81aaa4; overflow-wrap: anywhere; }
 .campuri-plan-ai { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr)); gap: .75rem; }
@@ -812,11 +841,12 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .clarificare-plan-ai .buton { margin: .2rem .4rem .2rem 0; white-space: normal; }
 .optiune-plan-ai { display: flex; align-items: flex-start; gap: .5rem; margin: .8rem 0; }
 .optiune-plan-ai input, .persoane-plan-ai input { width: auto; flex: 0 0 auto; }
-.persoane-plan-ai > div { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); max-height: 240px; overflow: auto; gap: .4rem; padding: .5rem 0; }
+.persoane-plan-ai > div { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: .4rem; padding: .5rem 0; }
 .persoane-plan-ai label { display: flex; align-items: center; gap: .4rem; }
 .previzualizare-plan-ai { min-width: 0; }
 .previzualizare-plan-ai p { overflow-wrap: anywhere; }
-.tabel-plan-ai { max-width: 100%; max-height: 420px; overflow: auto; margin: .75rem 0; }
+.tabel-plan-ai { margin: .75rem 0; }
 .tabel-plan-ai table { border-collapse: collapse; width: 100%; }
 .tabel-plan-ai th, .tabel-plan-ai td { padding: .45rem; border-bottom: 1px solid #ccd7d6; text-align: left; }
+.tabel-plan-ai th { position: sticky; top: -8px; z-index: 1; }
 .previzualizare-plan-ai [role="status"] .buton { margin: .4rem; }

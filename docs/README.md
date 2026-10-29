@@ -14,6 +14,7 @@ Orice idee, decizie și acțiune a proiectului se documentează aici, în acela�
 | Ghid rapoarte | [definire, PDF și tipărire](ghid-rapoarte.md) | se schimbă modelele, generarea sau tipărirea rapoartelor |
 | Asistent AI | [interpretare, clarificări și confirmare](ghid-asistent-ai.md) | se schimbă selecțiile, previzualizarea sau aplicarea planurilor |
 | Review UI asistent | [avantaje, probleme și priorități pentru 0.82.1](review-ui-asistent-2026-10-29.md) | se reevaluează ergonomia fluxului AI |
+| Rezultate UI asistent | [primul lot P1, versiunea 0.83.0](rezultate-ui-F14-T24.md) | se implementează și verifică remedierea priorităților din review |
 | Configurare pontaj | [ore, ture peste miezul nopții și totaluri](ghid-configurare-pontaj.md) | se schimbă regulile orelor sau completarea grilei |
 | Categorii de program | [atribuire pe angajat și precompletare](ghid-categorii-program.md) | se schimbă programele permise, implicitele sau completarea după categorii |
 | Construire și livrare | [directoare separate pentru fiecare build](ghid-build.md) | se schimbă scriptul de build sau organizarea artefactelor |

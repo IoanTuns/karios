@@ -22,22 +22,22 @@ window.go={main:{App:{
 function Proba() {
     const [intentie,setIntentie]=useState(new ai.IntentiePlan({selectie:{tip:'toti',valoare:'',marci:[],fara_pontaj:false},de_la:'2026-10-01',pana_la:'2026-11-30',cod_schimb:'Z7',filtru_zile:'',mod_existente:'',mesaj_original:'Toți angajații în octombrie și noiembrie lucrează de la 7 la 14',clarificari:['zile','existente']}));
     const [rezultat,setRezultat]=useState();const [ocupat,setOcupat]=useState(false);
-    return <main style={{maxWidth:1040,margin:'20px auto',padding:16}}><PlanAsistentAI intentie={intentie} date={date} rezultat={rezultat} blocat={ocupat} onOcupat={setOcupat} onSchimba={setIntentie} onAplicat={setRezultat} onDeschidePontaj={()=>{}}/></main>;
+    return <main style={{maxWidth:1040,margin:'20px auto',padding:16,height:'calc(100dvh - 40px)'}}><PlanAsistentAI intentie={intentie} date={date} rezultat={rezultat} blocat={ocupat} onOcupat={setOcupat} onSchimba={setIntentie} onAplicat={setRezultat} onDeschidePontaj={()=>{}}/></main>;
 }
 createRoot(document.getElementById('root')).render(<Proba/>);
 const asteapta=ms=>new Promise(r=>setTimeout(r,ms));
 async function proba(){
     for(let x=0;x<100 && !document.querySelector('.clarificare-plan-ai');x++)await asteapta(50);
-    const initial=document.querySelector('.plan-asistent-ai > fieldset > button');
+    const initial=document.querySelector('[data-actiune="previzualizeaza"]');
     if(!initial?.disabled)throw Error('previzualizare fără clarificări');
     document.querySelectorAll('.clarificare-plan-ai')[0].querySelector('button').click(); await asteapta(100);
     document.querySelectorAll('.clarificare-plan-ai')[1].querySelector('button').click(); await asteapta(100);
-    document.querySelector('.plan-asistent-ai > fieldset > button').click();await asteapta(200);
+    document.querySelector('[data-actiune="previzualizeaza"]').click();await asteapta(200);
     const confirmare=[...document.querySelectorAll('button')].find(b=>b.textContent.includes('127'));
     if(!confirmare?.disabled)throw Error('confirmare fără verificare');
     const casete=document.querySelectorAll('.optiune-plan-ai input');casete[casete.length-1].click();await asteapta(100);
     confirmare.click();await asteapta(200);
-    if(confirmari!==1 || !document.querySelector('.previzualizare-plan-ai [role="status"] strong'))throw Error('rezultat neverificat');
+    if(confirmari!==1 || !document.querySelector('.subsol-plan-ai [role="status"]'))throw Error('rezultat neverificat');
     if(document.documentElement.scrollWidth>innerWidth)throw Error('depășire lățime');
     document.body.dataset.rezultat='trecut';
 }

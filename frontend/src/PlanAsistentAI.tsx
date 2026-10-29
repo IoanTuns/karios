@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {ConfirmaPlanAI, ListaSchimburi, PrevizualizeazaPlanAI} from '../wailsjs/go/main/App';
 import {ai, datebaza} from '../wailsjs/go/models';
@@ -20,9 +20,12 @@ export function PlanAsistentAI({intentie, date, rezultat, blocat, onSchimba, onA
     const [ocupat, setOcupat] = useState(false);
     const [verificat, setVerificat] = useState(false);
     const [pagina, setPagina] = useState(0);
+    const titluRef = useRef<HTMLHeadingElement>(null);
+    const corpRef = useRef<HTMLDivElement>(null);
     const text = (denumire: Record<string, string>) => denumire[i18n.language] || denumire.ro || Object.values(denumire)[0] || '';
     const aplicat = !!rezultat;
     const afisat = rezultat ?? plan;
+    const etapa = aplicat ? 'rezultat' : plan ? 'verificare' : 'interpretare';
     const selectie = intentie.selectie;
     const grupuri = selectie.tip === 'sectie' ? date.sectii : selectie.tip === 'departament' ? date.departamente : selectie.tip === 'categorie' ? date.categorii_program.filter(c => c.activ) : [];
     const grupuriGasite = grupuri.some(g => g.id === selectie.valoare)
@@ -30,6 +33,21 @@ export function PlanAsistentAI({intentie, date, rezultat, blocat, onSchimba, onA
         : grupuri.filter(g => Object.values(g.denumire).some(n => n.toLocaleLowerCase() === selectie.valoare.toLocaleLowerCase()));
     const rezolvaValoare = grupuriGasite.length === 1 ? grupuriGasite[0].id : '';
     const complet = !!(selectie.tip && (selectie.tip === 'toti' || (selectie.tip === 'persoane' ? selectie.marci.length : rezolvaValoare)) && intentie.de_la && intentie.pana_la && intentie.cod_schimb && intentie.filtru_zile && intentie.mod_existente);
+
+    useEffect(() => {
+        // Schimbarea etapei este explicită; editarea câmpurilor nu mută focusul.
+        if (corpRef.current) corpRef.current.scrollTop = 0;
+        titluRef.current?.focus({preventScroll: true});
+    }, [etapa]);
+
+    const dataAfisata = (valoare: string) => {
+        const data = new Date(`${valoare}T12:00:00Z`);
+        return Number.isNaN(data.getTime()) ? valoare || t('ai.plan_alege') : new Intl.DateTimeFormat(i18n.language, {dateStyle: 'medium', timeZone: 'UTC'}).format(data);
+    };
+    const grupAfisat = selectie.tip === 'persoane'
+        ? t('ai.plan_selectate_scurt', {numar: selectie.marci.length})
+        : selectie.tip === 'toti' ? t('ai.plan_grup_toti')
+        : text(grupuriGasite[0]?.denumire ?? {}) || selectie.valoare || t('ai.plan_alege');
 
     useEffect(() => {
         let activ = true;
@@ -74,11 +92,22 @@ export function PlanAsistentAI({intentie, date, rezultat, blocat, onSchimba, onA
         finally { setOcupat(false); onOcupat(false); }
     }
 
-    return <section className="plan-asistent-ai" aria-label={t('ai.plan_titlu')}>
-        <h3>{t('ai.plan_titlu')}</h3>
+    return <section className="plan-asistent-ai" data-etapa={etapa} aria-label={t('ai.plan_titlu')}>
+        <header className="antet-plan-ai">
+            <ol className="etape-plan-ai" aria-label={t('ai.plan_etape')}>
+                {['interpretare', 'verificare', 'rezultat'].map((pas, index) => <li key={pas} aria-current={etapa === pas ? 'step' : undefined}>{index + 1}. {t(`ai.plan_etapa_${pas}`)}</li>)}
+            </ol>
+            <h3 ref={titluRef} tabIndex={-1}>{t(aplicat ? 'ai.plan_rezultat' : plan ? 'ai.plan_previzualizare' : 'ai.plan_titlu')}</h3>
+            <p className="context-plan-ai">{grupAfisat} · {intentie.cod_schimb || t('ai.plan_alege')} · {dataAfisata(intentie.de_la)} – {dataAfisata(intentie.pana_la)}
+                <span className="reguli-context-plan-ai">{intentie.filtru_zile ? t(`ai.plan_zile_${intentie.filtru_zile}`) : t('ai.plan_intrebare_zile')} · {intentie.mod_existente ? t(`ai.plan_context_${intentie.mod_existente}`) : t('ai.plan_intrebare_existente')}{selectie.fara_pontaj && <> · {t('ai.plan_context_fara_pontaj')}</>}</span>
+            </p>
+            {eroare && <p className="mesaj eroare" role="alert">{eroare}</p>}
+        </header>
+        <div className="corp-plan-ai" ref={corpRef}>
+        {!afisat && <>
         <p className="text-discret">{t('ai.plan_indiciu')}</p>
-        {intentie.mesaj_original && <blockquote>{intentie.mesaj_original}</blockquote>}
-        <fieldset disabled={blocat || ocupat || aplicat}>
+        {intentie.mesaj_original && <details className="cerere-originala-ai"><summary>{t('ai.plan_cerere_originala')}</summary><blockquote>{intentie.mesaj_original}</blockquote></details>}
+        <fieldset disabled={blocat || ocupat}>
             <legend>{t('ai.plan_interpretare')}</legend>
             <div className="campuri-plan-ai">
                 <label>{t('ai.plan_persoane')}
@@ -118,34 +147,45 @@ export function PlanAsistentAI({intentie, date, rezultat, blocat, onSchimba, onA
                 <legend>{t('ai.plan_intrebare_existente')}</legend>
                 {['pastreaza', 'inlocuieste'].map(f => <button type="button" key={f} aria-pressed={intentie.mod_existente === f} className={`buton mic ${intentie.mod_existente === f ? 'primar' : 'secundar'}`} onClick={() => schimba({mod_existente: f})}>{t(`ai.plan_existente_${f}`)}</button>)}
             </fieldset>
-            {!complet && <p role="status">{t('ai.plan_clarifica')}</p>}
-            {!aplicat && <button type="button" className="buton primar" disabled={!complet} onClick={() => void pregateste()}>{t('ai.plan_previzualizeaza')}</button>}
         </fieldset>
-        {eroare && <p className="mesaj eroare" role="alert">{eroare}</p>}
-        {ocupat && <p role="status">{t('ai.plan_in_lucru')}</p>}
+        </>}
         {afisat && <div className="previzualizare-plan-ai">
-            <h4>{t(aplicat ? 'ai.plan_rezultat' : 'ai.plan_previzualizare')}</h4>
             <p>{t('ai.plan_rezumat', {persoane: afisat.persoane.length, luni: afisat.luni.join(', '), noi: afisat.noi, inlocuiri: afisat.inlocuiri, identice: afisat.identice, ocupate: afisat.ocupate, blocate: afisat.blocate})}</p>
             <details><summary>{t('ai.plan_lista_persoane')}</summary><ul>{afisat.persoane.map(a => <li key={a.id}>{a.nume} ({a.marca})</li>)}</ul></details>
             <div className="tabel-plan-ai"><table>
                 <caption>{t('ai.plan_detalii')}</caption>
-                <thead><tr>{['persoane', 'data', 'inainte', 'dupa', 'stare'].map(c => <th key={c} scope="col">{t(`ai.plan_${c}`)}</th>)}</tr></thead>
-                <tbody>{afisat.randuri.slice(pagina * 50, (pagina + 1) * 50).map(r => <tr key={`${r.angajat_id}/${r.data}`}>
-                    <td>{r.nume} ({r.marca})</td><td>{r.data}</td><td>{r.inainte || '—'}</td><td>{r.dupa}</td><td>{t(`ai.plan_stare_${r.stare}`)}{r.motiv && <> · {t(`ai.plan_motiv_${r.motiv}`)}</>}</td>
-                </tr>)}</tbody>
+                <thead><tr>{['persoane', 'data', 'inainte', aplicat ? 'valoare_finala' : 'dupa', 'stare'].map(c => <th key={c} scope="col">{t(`ai.plan_${c}`)}</th>)}</tr></thead>
+                <tbody>{afisat.randuri.slice(pagina * 50, (pagina + 1) * 50).map(r => {
+                    const salvat = r.stare === 'noua' || r.stare === 'inlocuire';
+                    const valoare = aplicat && !salvat ? r.inainte : r.dupa;
+                    const stareFinala = salvat ? 'salvat' : r.stare === 'ocupata' ? 'pastrat' : r.stare === 'identica' ? 'identic' : 'neaplicat';
+                    return <tr key={`${r.angajat_id}/${r.data}`} data-stare={r.stare}>
+                        <td>{r.nume} ({r.marca})</td><td>{r.data}</td><td>{r.inainte || '—'}</td><td>{valoare || '—'}</td><td>{t(aplicat ? `ai.plan_final_${stareFinala}` : `ai.plan_stare_${r.stare}`)}{r.motiv && <> · {t(`ai.plan_motiv_${r.motiv}`)}</>}</td>
+                    </tr>;
+                })}</tbody>
             </table></div>
             {afisat.randuri.length > 50 && <nav className="actiuni-propunere" aria-label={t('ai.plan_pagini')}>
                 <button type="button" className="buton secundar mic" disabled={pagina === 0} onClick={() => setPagina(p => p - 1)}>{t('ai.plan_anterior')}</button>
                 <span>{pagina + 1} / {Math.ceil(afisat.randuri.length / 50)}</span>
                 <button type="button" className="buton secundar mic" disabled={(pagina + 1) * 50 >= afisat.randuri.length} onClick={() => setPagina(p => p + 1)}>{t('ai.plan_urmator')}</button>
             </nav>}
-            {aplicat ? <div role="status">
-                <strong>{t('ai.plan_aplicate', {numar: afisat.aplicate})}</strong>
-                {afisat.luni.map(luna => <button key={luna} type="button" className="buton secundar mic" onClick={() => onDeschidePontaj?.(Number(luna.slice(0, 4)), Number(luna.slice(5, 7)))}>{t('ai.plan_deschide', {luna})}</button>)}
-            </div> : <>
-                <label className="optiune-plan-ai"><input type="checkbox" checked={verificat} disabled={blocat} onChange={e => setVerificat(e.target.checked)}/>{t('ai.plan_verificat')}</label>
-                <button type="button" className="buton primar" disabled={blocat || !verificat || afisat.noi + afisat.inlocuiri === 0} onClick={() => void confirma()}>{t('ai.plan_confirma', {numar: afisat.noi + afisat.inlocuiri})}</button>
-            </>}
         </div>}
+        </div>
+        <footer className="subsol-plan-ai">
+            {ocupat && <p role="status">{t('ai.plan_in_lucru')}</p>}
+            {aplicat && afisat ? <>
+                <strong role="status">{t('ai.plan_aplicate', {numar: afisat.aplicate})}</strong>
+                <div className="actiuni-plan-ai">{onDeschidePontaj && afisat.luni.map(luna => <button key={luna} type="button" className="buton secundar mic" onClick={() => onDeschidePontaj(Number(luna.slice(0, 4)), Number(luna.slice(5, 7)))}>{t('ai.plan_deschide', {luna})}</button>)}</div>
+            </> : plan && afisat ? <>
+                <label className="optiune-plan-ai"><input type="checkbox" checked={verificat} disabled={blocat} onChange={e => setVerificat(e.target.checked)}/>{t('ai.plan_verificat')}</label>
+                <div className="actiuni-plan-ai">
+                    <button type="button" className="buton secundar" disabled={blocat} data-actiune="revizuieste" onClick={() => {setPlan(undefined); setVerificat(false); setPagina(0);}}>{t('ai.plan_revizuieste')}</button>
+                    <button type="button" className="buton primar" disabled={blocat || !verificat || afisat.noi + afisat.inlocuiri === 0} data-actiune="confirma" onClick={() => void confirma()}>{t('ai.plan_confirma', {numar: afisat.noi + afisat.inlocuiri})}</button>
+                </div>
+            </> : <>
+                {!complet && <p role="status">{t('ai.plan_clarifica')}</p>}
+                <button type="button" className="buton primar" disabled={blocat || !complet} data-actiune="previzualizeaza" onClick={() => void pregateste()}>{t('ai.plan_previzualizeaza')}</button>
+            </>}
+        </footer>
     </section>;
 }
