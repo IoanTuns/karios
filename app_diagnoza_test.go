@@ -25,4 +25,3 @@ func TestAppDiagnoza(t *testing.T) {
 		t.Errorf("jurnalul ar trebui să conțină UnitTester, obținut: %s", linii)
 	}
 }
-

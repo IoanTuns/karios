@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"pontix/internal/diagnoza"
+	"pontix/internal/i18n"
 	"pontix/internal/versiune"
 )
 
@@ -56,24 +57,24 @@ type DetaliiDezvoltare struct {
 	StatisticiDiagnoza diagnoza.StatisticiDiagnoza `json:"statistici_diagnoza"`
 }
 
-func calculeazaChecksumExe() (string, string) {
+func calculeazaChecksumExe(limba i18n.Limba) (string, string) {
 	cale, err := os.Executable()
 	if err != nil {
-		return "", "indisponibil"
+		return "", i18n.T(limba, "dezvoltare.indisponibil", nil)
 	}
 	caleLower := strings.ToLower(cale)
 	if strings.HasSuffix(caleLower, ".test.exe") || strings.Contains(caleLower, "\\go-build") || strings.Contains(caleLower, "/go-build") {
-		return cale, "Mod test / dezvoltare (fără binar final de lansare)"
+		return cale, i18n.T(limba, "dezvoltare.mod_test", nil)
 	}
 	f, err := os.Open(cale)
 	if err != nil {
-		return cale, "indisponibil (eroare acces)"
+		return cale, i18n.T(limba, "dezvoltare.indisponibil_acces", nil)
 	}
 	defer f.Close()
 
 	h := sha256.New()
 	if _, err := io.Copy(h, f); err != nil {
-		return cale, "indisponibil (eroare citire)"
+		return cale, i18n.T(limba, "dezvoltare.indisponibil_citire", nil)
 	}
 	return cale, strings.ToUpper(hex.EncodeToString(h.Sum(nil)))
 }
@@ -97,13 +98,18 @@ func formateazaOcteti(octeti int64) string {
 }
 
 // DetaliiDezvoltare întoarce raportul tehnic complet de dezvoltare, compilare, integritate și mediu AI.
-func (a *App) DetaliiDezvoltare() DetaliiDezvoltare {
-	caleExe, shaExe := calculeazaChecksumExe()
+// limba alege limba valorilor descriptive (F03-T10); etichetele sunt în interfață.
+func (a *App) DetaliiDezvoltare(limbaInterfata string) DetaliiDezvoltare {
+	limba := i18n.Limba(limbaInterfata)
+	if limba != i18n.Romana && limba != i18n.Engleza {
+		limba = i18n.Implicita
+	}
+	caleExe, shaExe := calculeazaChecksumExe(limba)
 	folderAI := a.folderAI()
 	stareAI := a.stareMediuAI()
 
-	dimModel := "Nedetectat"
-	numeModel := "Niciun model instalat"
+	dimModel := i18n.T(limba, "dezvoltare.nedetectat", nil)
+	numeModel := i18n.T(limba, "dezvoltare.fara_model", nil)
 	if stareAI.CaleModel != "" {
 		numeModel = filepath.Base(stareAI.CaleModel)
 		if fi, err := os.Stat(stareAI.CaleModel); err == nil {
@@ -116,18 +122,18 @@ func (a *App) DetaliiDezvoltare() DetaliiDezvoltare {
 		}
 	}
 
-	stareText := "Neinstalat"
+	stareText := i18n.T(limba, "dezvoltare.neinstalat", nil)
 	if stareAI.Instalat {
 		if stareAI.Activ {
-			stareText = "Activ și conectat"
+			stareText = i18n.T(limba, "dezvoltare.activ", nil)
 		} else {
-			stareText = "Instalat (oprit)"
+			stareText = i18n.T(limba, "dezvoltare.oprit", nil)
 		}
 	}
 
-	motorText := "llama-server (llama.cpp C++ nativ cu AVX2)"
+	motorText := i18n.T(limba, "dezvoltare.motor_descriere", nil)
 	if !stareAI.Instalat || stareAI.CaleBinar == "" {
-		motorText = "Neinstalat în karios/ai/"
+		motorText = i18n.T(limba, "dezvoltare.motor_lipsa", nil)
 	}
 
 	return DetaliiDezvoltare{
@@ -142,25 +148,25 @@ func (a *App) DetaliiDezvoltare() DetaliiDezvoltare {
 		ChecksumExe:       shaExe,
 		Autor:             "Ioan Tuns",
 		Licenta:           "Apache License 2.0 (Apache-2.0)",
-		Confidentialitate: "100% Offline (Date medicale și personale păstrate exclusiv local, fără cloud/telemetrie)",
+		Confidentialitate: i18n.T(limba, "dezvoltare.confidentialitate", nil),
 		CerinteMinime: CerinteSistem{
-			SistemOperare: "Windows 10 (versiunea 1809 sau mai nouă) / Windows 11 (64-biți)",
-			Procesor:      "Procesor x64 pe 64-biți (recomandat quad-core cu suport AVX2 pentru AI)",
-			RAMMinim:      "4 GB RAM (modul de bază) / 8 GB RAM (cu Asistentul AI local)",
-			RAMRecomandat: "16 GB RAM pentru comutare și inferență fluidă",
-			SpatiuDisc:    "100 MB aplicația de bază / ~3.5 GB cu motorul C++ și modelul AI local",
-			Dependinte:    "Microsoft Edge WebView2 Runtime (inclus nativ în Windows 10/11)",
-			Retea:         "Nu este necesară conexiune la internet (0 KB/s trafic exterior)",
+			SistemOperare: i18n.T(limba, "dezvoltare.cerinta_os", nil),
+			Procesor:      i18n.T(limba, "dezvoltare.cerinta_cpu", nil),
+			RAMMinim:      i18n.T(limba, "dezvoltare.cerinta_ram_minim", nil),
+			RAMRecomandat: i18n.T(limba, "dezvoltare.cerinta_ram_recomandat", nil),
+			SpatiuDisc:    i18n.T(limba, "dezvoltare.cerinta_disc", nil),
+			Dependinte:    i18n.T(limba, "dezvoltare.cerinta_dependinte", nil),
+			Retea:         i18n.T(limba, "dezvoltare.cerinta_retea", nil),
 		},
 		DetaliiLLM: InfoDetaliatLLM{
 			NumeModel:        numeModel,
-			Format:           "GGUF (cuantizare 4-bit optimizată CPU/RAM)",
+			Format:           i18n.T(limba, "dezvoltare.format_gguf", nil),
 			MotorInferenta:   motorText,
 			FereastraContext: 8192,
 			PortLocal:        stareAI.Port,
 			Stare:            stareText,
 			DimensiuneModel:  dimModel,
-			IzolareRetea:     "127.0.0.1 (Strict local, zero conexiuni exterioare, conformitate GDPR)",
+			IzolareRetea:     i18n.T(limba, "dezvoltare.izolare_descriere", nil),
 		},
 		StatisticiDiagnoza: diagnoza.ObtineManager().Statistici(),
 	}

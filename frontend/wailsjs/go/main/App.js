@@ -130,8 +130,8 @@ export function DeschidePDFPentruTiparire(arg1) {
   return window['go']['main']['App']['DeschidePDFPentruTiparire'](arg1);
 }
 
-export function DetaliiDezvoltare() {
-  return window['go']['main']['App']['DetaliiDezvoltare']();
+export function DetaliiDezvoltare(arg1) {
+  return window['go']['main']['App']['DetaliiDezvoltare'](arg1);
 }
 
 export function EsteAutoPornireAI() {
@@ -336,6 +336,10 @@ export function SchimbaParolaMea(arg1, arg2) {
 
 export function SeteazaAutoPornireAI(arg1) {
   return window['go']['main']['App']['SeteazaAutoPornireAI'](arg1);
+}
+
+export function SeteazaLimbaInterfata(arg1) {
+  return window['go']['main']['App']['SeteazaLimbaInterfata'](arg1);
 }
 
 export function SeteazaModificariNesalvate(arg1, arg2) {

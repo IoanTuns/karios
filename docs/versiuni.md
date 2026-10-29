@@ -4,6 +4,19 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.75.0 · 2026-10-29
+
+Textele din interfață mutate în cataloage (F03-T10, UI-4 din review).
+
+- Aproximativ 190 de chei noi în `ro.json` și `en.json`: bara laterală și tema, notificările, zoom-ul grilelor, tooltip-urile celulelor, ecranele goale din Pontaj și Planificare, cardul „Despre” și dialogul cu detaliile de dezvoltare (inclusiv raportul copiat), dialogul regulilor din planificare, comparația plan/realizat, harta concediilor, etichetele din cardurile asistentului AI.
+- Valorile descriptive din detaliile de dezvoltare vin din Go în limba interfeței (`DetaliiDezvoltare(limba)`); dialogurile native (salvarea exportului Excel, închiderea cu modificări nesalvate) folosesc limba interfeței, trimisă cu `SeteazaLimbaInterfata`.
+- Erorile la aplicarea propunerilor AI au coduri proprii (`ai.interval_invalid`, `ai.data_invalida`, `ai.tip_necunoscut`, `ai.fara_zile`) în locul textelor românești din `detalii`.
+- Jurnalul de diagnoză: `diagnoza.UltimeleLinii` întoarce o eroare, iar mesajul pentru utilizator îl alege aplicația.
+
+Rămâne în română: conținutul generat de asistentul AI (răspunsurile calculate din cod și cele ale modelului), care urmează limba asistentului.
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.74.0 · 2026-10-29
 
 Managerul motorului AI creat o singură dată (F14-T14, SEC-6 din review).

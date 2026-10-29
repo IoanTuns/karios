@@ -1,3 +1,4 @@
+import {useTranslation} from 'react-i18next';
 import {useEffect, useState} from 'react';
 
 export type TipToast = 'succes' | 'info' | 'avertisment' | 'eroare';
@@ -23,6 +24,7 @@ export function notifica(mesaj: string, tip: TipToast = 'succes', durataMs = 350
 }
 
 export function ToastContainer() {
+    const {t} = useTranslation();
     const [toaste, setToaste] = useState<ToastItem[]>([]);
 
     useEffect(() => {
@@ -41,7 +43,7 @@ export function ToastContainer() {
     };
 
     return (
-        <div className="container-toasturi" role="region" aria-live="polite" aria-label="Notificări de sistem">
+        <div className="container-toasturi" role="region" aria-live="polite" aria-label={t('ui.notificari')}>
             {toaste.map(t => (
                 <ToastCard key={t.id} toast={t} onElimina={() => elimina(t.id)} />
             ))}
@@ -50,6 +52,7 @@ export function ToastContainer() {
 }
 
 function ToastCard({toast, onElimina}: {toast: ToastItem; onElimina: () => void}) {
+    const {t} = useTranslation();
     useEffect(() => {
         const timer = setTimeout(onElimina, toast.durataMs);
         return () => clearTimeout(timer);
@@ -70,7 +73,7 @@ function ToastCard({toast, onElimina}: {toast: ToastItem; onElimina: () => void}
                 type="button"
                 className="buton-inchide-toast"
                 onClick={onElimina}
-                aria-label="Închide notificarea"
+                aria-label={t('ui.inchide_notificarea')}
             >
                 ×
             </button>

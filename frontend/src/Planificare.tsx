@@ -419,7 +419,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
             {mod==='grila'&&<button className="buton primar" disabled={ocupat||!modificari.size} onClick={salveazaPlanGrila}>{t('planificare.salveaza_grila')}</button>}
             <button className="buton secundar" disabled={ocupat||!dePublicatTotal.length} onClick={()=>void previzualizeazaPublicare()}>{t('planificare.previzualizeaza')}</button>
             <button type="button" className="buton secundar" disabled={ocupat} onClick={deschideRaportGarzi}>{t('planificare.raport_garzi')}</button>
-            <button type="button" className="buton secundar" title="Configurare reguli medicale de repaus, plafoane și succesiune" onClick={()=>setDialogReguli(true)}>⚙️ Reguli {incalcariReguli.length > 0 ? `(⚠️ ${incalcariReguli.length})` : ''}</button>
+            <button type="button" className="buton secundar" title={t('planificare.reguli_indiciu')} onClick={()=>setDialogReguli(true)}>⚙️ {t('planificare.reguli')} {incalcariReguli.length > 0 ? `(⚠️ ${incalcariReguli.length})` : ''}</button>
             <button className="legatura" disabled={ocupat} onClick={()=>onDeschidePontaj(an,luna)}>{t('planificare.deschide_pontaj')}</button>
             <button className="buton secundar" disabled={ocupat||incarcare} onClick={()=>setReincarcare(x=>x+1)}>{t('planificare.reincarca')}</button>
         </div>
@@ -439,11 +439,11 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
                 <option value="DUPA_AMIAZA">{t('planificare.sectiune_DUPA_AMIAZA')}</option>
             </select>
             <input name="cautare_planificare" aria-label={t('ui.cautare')} placeholder={t('ui.cautare_indiciu')} value={cautare} disabled={ocupat} onChange={e=>setCautare(e.target.value)}/>
-            {mod==='grila'&&<div className="grup-zoom-grila" role="group" aria-label="Densitate afișare grilă">
-                <span className="eticheta-zoom">🔎 Zoom:</span>
-                <button type="button" className={`buton-zoom ${zoomGrila === 'compact' ? 'activ' : ''}`} title="Comprimat (44px) - densitate maximă" onClick={() => schimbaZoom('compact')}>S</button>
-                <button type="button" className={`buton-zoom ${zoomGrila === 'normal' ? 'activ' : ''}`} title="Normal (52px) - echilibrat" onClick={() => schimbaZoom('normal')}>M</button>
-                <button type="button" className={`buton-zoom ${zoomGrila === 'extins' ? 'activ' : ''}`} title="Extins (62px) - lizibilitate mare" onClick={() => schimbaZoom('extins')}>L</button>
+            {mod==='grila'&&<div className="grup-zoom-grila" role="group" aria-label={t('ui.densitate_grila')}>
+                <span className="eticheta-zoom">🔎 {t('ui.zoom')}</span>
+                <button type="button" className={`buton-zoom ${zoomGrila === 'compact' ? 'activ' : ''}`} title={t('ui.zoom_compact')} onClick={() => schimbaZoom('compact')}>S</button>
+                <button type="button" className={`buton-zoom ${zoomGrila === 'normal' ? 'activ' : ''}`} title={t('ui.zoom_normal')} onClick={() => schimbaZoom('normal')}>M</button>
+                <button type="button" className={`buton-zoom ${zoomGrila === 'extins' ? 'activ' : ''}`} title={t('ui.zoom_extins')} onClick={() => schimbaZoom('extins')}>L</button>
             </div>}
             {mod==='lista'&&<label className="bifa"><input type="checkbox" name="planificari_inactive" checked={inactive} disabled={ocupat} onChange={e=>setInactive(e.target.checked)}/>{t('planificare.arata_retrase')}</label>}
             {mod==='grila'&&modificari.size>0&&<span className="stare-modificari" aria-live="polite">{t('planificare.modificari_nesalvate',{numar:modificari.size})}</span>}
@@ -550,9 +550,9 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
                                             className={`${absenta?'celula-absenta':''} ${stareClasa}`}
                                             value={valoareAfisata}
                                             title={[
-                                                `${a.nume} ${a.prenume} (marca: ${a.marca || '—'})`,
-                                                `Data: ${data}${weekend ? ' [Weekend]' : ''}${sarbatori.has(data) ? ` [${sarbatori.get(data)}]` : ''}`,
-                                                `Schimb: ${valoareAfisata || 'Liber'}${schimb ? ` (${schimb.denumire[i18n.language] || schimb.denumire.ro}, ${durata(schimb.durata_minute, t)})` : ''}`,
+                                                t('ui.tooltip_marca', {nume: `${a.nume} ${a.prenume}`, marca: a.marca || '—'}),
+                                                t('ui.tooltip_data', {data}) + (weekend ? ` [${t('ui.tooltip_weekend')}]` : '') + (sarbatori.has(data) ? ` [${sarbatori.get(data)}]` : ''),
+                                                t('ui.tooltip_schimb', {schimb: valoareAfisata || t('ui.tooltip_liber')}) + (schimb ? ` (${schimb.denumire[i18n.language] || schimb.denumire.ro}, ${durata(schimb.durata_minute, t)})` : ''),
                                                 absenta ? `${t('absente.celula_protejata')}: ${absenta.cod}` : '',
                                                 ...(avertismenteCelula ? avertismenteCelula.map(x => `⚠️ ${x.mesaj}`) : [])
                                             ].filter(Boolean).join(' · ')}
@@ -568,10 +568,10 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
                     </tbody>
                 </table>
                 {!randuri.length && (
-                    <div className="card-onboarding-gol" role="region" aria-label="Ghid de pornire planificare">
+                    <div className="card-onboarding-gol" role="region" aria-label={t('ui.ghid_pornire')}>
                         <div className="simbol-gol">📅</div>
-                        <h3>Niciun angajat în această selecție de planificare</h3>
-                        <p>Pentru a stabili turele și gărzi pe această lună, verifică filtrele pe secție sau comută pe Asistentul AI pentru distribuire automată.</p>
+                        <h3>{t('planificare.gol_titlu')}</h3>
+                        <p>{t('planificare.gol_descriere')}</p>
                         <div className="actiuni-onboarding-rapide">
                             <button type="button" className="buton secundar" onClick={() => setReincarcare(x => x + 1)}>
                                 🔄 Reîncarcă planificarea
@@ -607,7 +607,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
                         <strong>{acoperire.total_zile_nelucratoare}</strong>
                     </div>
                     <div className="card-acoperire">
-                        <span>Posturi necesare</span>
+                        <span>{t('planificare.posturi_necesare')}</span>
                         <strong>{acoperire.total_posturi_necesar}</strong>
                     </div>
                     <div className={`card-acoperire ${acoperire.total_posturi_lipsa===0?'card-succes':''}`}>
@@ -627,7 +627,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
                         <thead>
                             <tr>
                                 <th>{t('planificare.data')}</th>
-                                <th>Zile libere / Weekend</th>
+                                <th>{t('planificare.zile_libere_weekend')}</th>
                                 {['G24','Z12','N12','IN9'].map(p=><th key={p}>{p}</th>)}
                                 <th>{t('planificare.rezultat')}</th>
                             </tr>
@@ -901,10 +901,10 @@ function PanouSumarAngajat({
                     <tr>
                         <th>{t('planificare.data')}</th>
                         <th>Zi</th>
-                        <th>Tip zi</th>
+                        <th>{t('planificare.tip_zi')}</th>
                         <th>{t('planificare.program')}</th>
-                        <th>Durată</th>
-                        <th>Acțiune</th>
+                        <th>{t('planificare.durata')}</th>
+                        <th>{t('planificare.actiune')}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -921,10 +921,10 @@ function PanouSumarAngajat({
                         return <tr key={d} className={sarb?'plan-zi-libera':esteWeekend?'plan-weekend':''}>
                             <td><strong>{d}</strong></td>
                             <td>{new Intl.DateTimeFormat(i18n.language,{weekday:'short',timeZone:'UTC'}).format(dt)}</td>
-                            <td>{sarb?<span className="eticheta-intrare">{sarb}</span>:esteWeekend?'Weekend':'Lucrătoare'}</td>
+                            <td>{sarb?<span className="eticheta-intrare">{sarb}</span>:esteWeekend?t('ui.tooltip_weekend'):t('planificare.lucratoare')}</td>
                             <td>
                                 {absenta?<span className="eticheta-contract">{absenta.cod} ({t(`absente.${absenta.cod}`)||absenta.cod})</span>:<select disabled={ocupat} value={schimbId} onChange={e=>setModificariLocale(m=>new Map(m).set(d,e.target.value))}>
-                                    <option value="">— Niciunul —</option>
+                                    <option value="">— {t('planificare.niciunul')} —</option>
                                     {programePermise.map(pr=><option key={pr.id} value={pr.id}>{pr.cod} · {pr.denumire[i18n.language]||pr.denumire.ro}</option>)}
                                 </select>}
                             </td>
@@ -1240,10 +1240,10 @@ function PanouComparativPlanificatVsRealizat({
                                         <td key={c.data} className={sarbatori.has(c.data) ? 'zi-sarbatoare' : weekend ? 'zi-weekend' : ''}>
                                             {c.stare === 'liber' && <span className="text-discret">—</span>}
                                             {c.stare === 'identic' && <span className="insigna-comp identic" title={`${t('planificare.legenda_identic')}: ${c.rVal}`}>{c.rVal}</span>}
-                                            {c.stare === 'modificat' && <span className="insigna-comp modificat" title={`Plan: ${c.pVal} ➔ Real: ${c.rVal}`}>{c.pVal}➔{c.rVal}</span>}
-                                            {c.stare === 'neplanificat' && <span className="insigna-comp neplanificat" title={`Neplanificat ➔ Real: ${c.rVal}`}>+{c.rVal}</span>}
-                                            {c.stare === 'neefectuat' && <span className="insigna-comp neefectuat" title={`Planificat: ${c.pVal} ➔ Nerealizat`}>{c.pVal}➔—</span>}
-                                            {c.stare === 'absenta' && <span className="insigna-comp absenta" title={`Absență: ${c.rVal}`}>{c.rVal}</span>}
+                                            {c.stare === 'modificat' && <span className="insigna-comp modificat" title={t('planificare.comp_modificat', {plan: c.pVal, real: c.rVal})}>{c.pVal}➔{c.rVal}</span>}
+                                            {c.stare === 'neplanificat' && <span className="insigna-comp neplanificat" title={t('planificare.comp_neplanificat', {real: c.rVal})}>+{c.rVal}</span>}
+                                            {c.stare === 'neefectuat' && <span className="insigna-comp neefectuat" title={t('planificare.comp_neefectuat', {plan: c.pVal})}>{c.pVal}➔—</span>}
+                                            {c.stare === 'absenta' && <span className="insigna-comp absenta" title={t('planificare.comp_absenta', {cod: c.rVal})}>{c.rVal}</span>}
                                         </td>
                                     );
                                 })}
@@ -1264,6 +1264,7 @@ function DialogConfigurareReguli({
     inchide: () => void;
     onSalvat: () => void;
 }) {
+    const {t} = useTranslation();
     const [reguli, setReguli] = useState<calcul.RegulaConfigurabila[]>([]);
     const [incarcare, setIncarcare] = useState(true);
     const [salvand, setSalvand] = useState(false);
@@ -1280,7 +1281,7 @@ function DialogConfigurareReguli({
                 setReguli(r.reguli ?? []);
             }
         }).catch(() => {
-            if (activ) setEroare('Eroare la citirea regulilor.');
+            if (activ) setEroare(t('planificare.reguli_eroare_citire'));
         }).finally(() => {
             if (activ) setIncarcare(false);
         });
@@ -1304,24 +1305,24 @@ function DialogConfigurareReguli({
                     return;
                 }
             }
-            setMesaj('Regulile au fost actualizate cu succes.');
+            setMesaj(t('planificare.reguli_salvate'));
             onSalvat();
         } catch {
-            setEroare('Eroare la salvarea regulilor.');
+            setEroare(t('planificare.reguli_eroare_salvare'));
         } finally {
             setSalvand(false);
         }
     };
 
     return (
-        <Dialog titlu="⚙️ Configurare Reguli Medicale și Restricții" permiteMaximizare={true} ocupat={salvand} inchide={inchide}>
+        <Dialog titlu={`⚙️ ${t('planificare.reguli_titlu')}`} permiteMaximizare={true} ocupat={salvand} inchide={inchide}>
             <div className="corp-dialog" style={{ maxHeight: '75vh', overflowY: 'auto' }}>
                 <p className="descriere-ajutor">
-                    Configurați restricțiile medicale specifice secției și spitalului. Regulile active sunt verificate automat în timp real la planificare și semnalate în interfață.
+                    {t('planificare.reguli_descriere')}
                 </p>
                 {mesaj && <p className="mesaj-succes" role="status">{mesaj}</p>}
                 {eroare && <p className="eroare-formular" role="alert">{eroare}</p>}
-                {incarcare ? <p className="incarcare">Se încarcă regulile...</p> : (
+                {incarcare ? <p className="incarcare">{t('ui.incarcare')}</p> : (
                     <div className="grila-reguli-configurabile">
                         {reguli.map(reg => (
                             <div key={reg.id} className={`card-regula-config ${reg.activ ? 'activa' : 'inactiva'}`}>
@@ -1339,18 +1340,18 @@ function DialogConfigurareReguli({
                                 <p className="descriere-regula">{reg.descriere}</p>
                                 <div className="parametri-regula">
                                     <label>
-                                        <span>Severitate:</span>
+                                        <span>{t('planificare.severitate')}</span>
                                         <select
                                             value={reg.severitate}
                                             onChange={e => actualizeazaRegula(reg.id, 'severitate', e.target.value)}
                                         >
-                                            <option value="AVERTISMENT">Avertisment</option>
-                                            <option value="BLOCANT">Blocant</option>
+                                            <option value="AVERTISMENT">{t('planificare.severitate_avertisment')}</option>
+                                            <option value="BLOCANT">{t('planificare.severitate_blocant')}</option>
                                         </select>
                                     </label>
                                     {reg.valoare_numerica > 0 && (
                                         <label>
-                                            <span>Valoare limită:</span>
+                                            <span>{t('planificare.valoare_limita')}</span>
                                             <input
                                                 type="number"
                                                 min={1}
@@ -1367,8 +1368,8 @@ function DialogConfigurareReguli({
                 )}
             </div>
             <footer className="subsol-dialog">
-                <button type="button" className="buton secundar" disabled={salvand} onClick={inchide}>Închide</button>
-                <button type="button" className="buton primar" disabled={salvand || incarcare} onClick={salveazaTot}>Salvează modificările</button>
+                <button type="button" className="buton secundar" disabled={salvand} onClick={inchide}>{t('ui.inchide')}</button>
+                <button type="button" className="buton primar" disabled={salvand || incarcare} onClick={salveazaTot}>{t('planificare.salveaza_modificarile')}</button>
             </footer>
         </Dialog>
     );

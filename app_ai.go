@@ -364,10 +364,7 @@ func (a *App) AplicaPropunereAI(cerere CerereAplicaPropunereAI) RaspunsAplicaPro
 		t2, err2 := time.Parse(time.DateOnly, d2Str)
 		if err1 != nil || err2 != nil || t2.Before(t1) {
 			return RaspunsAplicaPropunereAI{
-				Eroare: &MesajEroare{
-					Cod:   "ai.eroare_generare",
-					Param: map[string]string{"detalii": "Interval de date invalid."},
-				},
+				Eroare: &MesajEroare{Cod: "ai.interval_invalid"},
 			}
 		}
 
@@ -386,28 +383,19 @@ func (a *App) AplicaPropunereAI(cerere CerereAplicaPropunereAI) RaspunsAplicaPro
 		dStr, _ := p.Parametri["data"].(string)
 		if _, err := time.Parse(time.DateOnly, dStr); err != nil {
 			return RaspunsAplicaPropunereAI{
-				Eroare: &MesajEroare{
-					Cod:   "ai.eroare_generare",
-					Param: map[string]string{"detalii": fmt.Sprintf("Data invalidă: %s", dStr)},
-				},
+				Eroare: &MesajEroare{Cod: "ai.data_invalida", Param: map[string]string{"data": dStr}},
 			}
 		}
 		zile = append(zile, dStr)
 	default:
 		return RaspunsAplicaPropunereAI{
-			Eroare: &MesajEroare{
-				Cod:   "ai.eroare_generare",
-				Param: map[string]string{"detalii": fmt.Sprintf("Tip acțiune necunoscut: %s", p.Tip)},
-			},
+			Eroare: &MesajEroare{Cod: "ai.tip_necunoscut", Param: map[string]string{"tip": p.Tip}},
 		}
 	}
 
 	if len(zile) == 0 {
 		return RaspunsAplicaPropunereAI{
-			Eroare: &MesajEroare{
-				Cod:   "ai.eroare_generare",
-				Param: map[string]string{"detalii": "Nu au fost identificate zile eligibile în interval."},
-			},
+			Eroare: &MesajEroare{Cod: "ai.fara_zile"},
 		}
 	}
 
@@ -415,7 +403,7 @@ func (a *App) AplicaPropunereAI(cerere CerereAplicaPropunereAI) RaspunsAplicaPro
 	// sfârșitul lunii se salvează pe fiecare lună.
 	for _, l := range peLuni(zile) {
 		if _, err := time.Parse(time.DateOnly, l.zile[0]); err != nil {
-			return RaspunsAplicaPropunereAI{Eroare: &MesajEroare{Cod: "ai.eroare_generare", Param: map[string]string{"detalii": "Data invalidă: " + l.zile[0]}}}
+			return RaspunsAplicaPropunereAI{Eroare: &MesajEroare{Cod: "ai.data_invalida", Param: map[string]string{"data": l.zile[0]}}}
 		}
 		if e := a.salveazaPropunere(l.an, l.luna, map[string][]string{angajatID: l.zile}, codSchimb); e != nil {
 			return RaspunsAplicaPropunereAI{Eroare: e}
@@ -454,9 +442,6 @@ func peLuni(zile []string) []zileLuna {
 // aplicaPropunereGrup aplică același schimb mai multor angajați (F14-T08). Angajații se
 // identifică doar după marca exactă, iar zilele cu concediu sau absență activă se sar.
 func (a *App) aplicaPropunereGrup(p ai.PropunereActiune, date datebaza.Date) RaspunsAplicaPropunereAI {
-	eroare := func(detalii string) RaspunsAplicaPropunereAI {
-		return RaspunsAplicaPropunereAI{Eroare: &MesajEroare{Cod: "ai.eroare_generare", Param: map[string]string{"detalii": detalii}}}
-	}
 	codSchimb, _ := p.Parametri["cod_schimb"].(string)
 	filtru, _ := p.Parametri["filtru_zile"].(string)
 	d1, _ := p.Parametri["data_inceput"].(string)
@@ -464,7 +449,7 @@ func (a *App) aplicaPropunereGrup(p ai.PropunereActiune, date datebaza.Date) Ras
 	t1, err1 := time.Parse(time.DateOnly, d1)
 	t2, err2 := time.Parse(time.DateOnly, d2)
 	if err1 != nil || err2 != nil || t2.Before(t1) || t1.Year() != t2.Year() || t1.Month() != t2.Month() || codSchimb == "" {
-		return eroare("Interval de date invalid.")
+		return RaspunsAplicaPropunereAI{Eroare: &MesajEroare{Cod: "ai.interval_invalid"}}
 	}
 	var marci []string
 	switch v := p.Parametri["marci"].(type) {
@@ -496,7 +481,7 @@ func (a *App) aplicaPropunereGrup(p ai.PropunereActiune, date datebaza.Date) Ras
 	for _, m := range marci {
 		id, ok := dupaMarca[strings.ToLower(strings.TrimSpace(m))]
 		if !ok {
-			return eroare(fmt.Sprintf("Angajatul cu marca \"%s\" nu mai există sau nu este activ.", m))
+			return RaspunsAplicaPropunereAI{Eroare: &MesajEroare{Cod: "ai.angajat_negasit", Param: map[string]string{"cautat": m}}}
 		}
 		for _, zi := range zile {
 			if !absente[id+"/"+zi] {
@@ -505,7 +490,7 @@ func (a *App) aplicaPropunereGrup(p ai.PropunereActiune, date datebaza.Date) Ras
 		}
 	}
 	if len(tinte) == 0 {
-		return eroare("Nu au fost identificate zile eligibile în interval.")
+		return RaspunsAplicaPropunereAI{Eroare: &MesajEroare{Cod: "ai.fara_zile"}}
 	}
 	if e := a.salveazaPropunere(t1.Year(), int(t1.Month()), tinte, codSchimb); e != nil {
 		return RaspunsAplicaPropunereAI{Eroare: e}

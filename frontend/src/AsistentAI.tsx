@@ -346,10 +346,10 @@ export function AsistentAI({
                     </div>
                     <ul className="instructiuni-fisiere-ai">
                         <li>
-                            <strong>{stare.cale_binar ? '✓' : '1.'} llama-server.exe</strong> (Binarul nativ portabil)
+                            <strong>{stare.cale_binar ? '✓' : '1.'} llama-server.exe</strong> ({t('ai.binar_descriere')})
                         </li>
                         <li>
-                            <strong>{stare.cale_model ? '✓' : '2.'} model.gguf</strong> (Recomandat: Qwen 2.5 3B Instruct Q4_K_M)
+                            <strong>{stare.cale_model ? '✓' : '2.'} model.gguf</strong> ({t('ai.model_recomandat')})
                         </li>
                     </ul>
                 </div>
@@ -363,7 +363,7 @@ export function AsistentAI({
                 {conversatie.map(m => (
                     <div key={m.id} className={`bula-mesaj ${m.rol}`}>
                         <div className="expeditor-mesaj">
-                            {m.rol === 'user' ? 'Tu' : 'Pontix AI'}
+                            {t(m.rol === 'user' ? 'ai.tu' : 'ai.expeditor_asistent')}
                         </div>
                         <div className="continut-mesaj">{m.text}</div>
 
@@ -381,7 +381,7 @@ export function AsistentAI({
                                             <div className="detalii-propunere">
                                                 {p.parametri?.cod_schimb && (
                                                     <span className="insigna-detaliu schimb">
-                                                        📋 Program: <strong>{String(p.parametri.cod_schimb)}</strong>
+                                                        📋 {t('ai.eticheta_program')} <strong>{String(p.parametri.cod_schimb)}</strong>
                                                     </span>
                                                 )}
                                                 {p.parametri?.marca && (
@@ -391,7 +391,7 @@ export function AsistentAI({
                                                             if (ang) {
                                                                 return `${ang.nume} ${ang.prenume} (${ang.marca})`;
                                                             }
-                                                            return `Marca: ${String(p.parametri.marca)}`;
+                                                            return t('ai.eticheta_marca', {marca: String(p.parametri.marca)});
                                                         })()}
                                                     </span>
                                                 )}
@@ -403,12 +403,12 @@ export function AsistentAI({
                                                 )}
                                                 {p.parametri?.data && (
                                                     <span className="insigna-detaliu data">
-                                                        📅 Data: <strong>{String(p.parametri.data)}</strong>
+                                                        📅 {t('ai.eticheta_data')} <strong>{String(p.parametri.data)}</strong>
                                                     </span>
                                                 )}
                                                 {p.parametri?.data_inceput && p.parametri?.data_sfarsit && (
                                                     <span className="insigna-detaliu data">
-                                                        📅 Interval: <strong>{String(p.parametri.data_inceput)} → {String(p.parametri.data_sfarsit)}</strong>
+                                                        📅 {t('ai.eticheta_interval')} <strong>{String(p.parametri.data_inceput)} → {String(p.parametri.data_sfarsit)}</strong>
                                                         {p.parametri?.doar_lucratoare ? ' (L–V)' : ''}
                                                     </span>
                                                 )}

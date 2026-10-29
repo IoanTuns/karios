@@ -71,7 +71,7 @@ export function DeschideFolderJurnale():Promise<string>;
 
 export function DeschidePDFPentruTiparire(arg1:string):Promise<main.RaspunsFisierRaport>;
 
-export function DetaliiDezvoltare():Promise<main.DetaliiDezvoltare>;
+export function DetaliiDezvoltare(arg1:string):Promise<main.DetaliiDezvoltare>;
 
 export function EsteAutoPornireAI():Promise<boolean>;
 
@@ -174,6 +174,8 @@ export function SchimbaIntrebarileMele(arg1:string,arg2:Array<string>,arg3:Array
 export function SchimbaParolaMea(arg1:string,arg2:string):Promise<main.RaspunsOperatieCont>;
 
 export function SeteazaAutoPornireAI(arg1:boolean):Promise<boolean>;
+
+export function SeteazaLimbaInterfata(arg1:string):Promise<void>;
 
 export function SeteazaModificariNesalvate(arg1:boolean,arg2:string):Promise<void>;
 

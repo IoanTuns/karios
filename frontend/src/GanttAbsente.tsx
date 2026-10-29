@@ -272,21 +272,21 @@ export function PanouGanttAbsente({
 			{/* Metric carduri sintetice */}
 			<div className="carduri-sumar-comparativ">
 				<div className="card-sumar-comp">
-					<span className="eticheta-card-comp">Concedii și absențe {an}</span>
+					<span className="eticheta-card-comp">{t('gantt.concedii_an', {an: String(an)})}</span>
 					<strong className="valoare-card-comp">{intervale.length}</strong>
-					<small className="detaliu-card-comp">intervale continue înregistrate</small>
+					<small className="detaliu-card-comp">{t('gantt.intervale')}</small>
 				</div>
 				<div className="card-sumar-comp">
-					<span className="eticheta-card-comp">Suprapuneri departament</span>
+					<span className="eticheta-card-comp">{t('gantt.suprapuneri')}</span>
 					<strong className={`valoare-card-comp ${suprapuneri.length > 0 ? 'culoare-alerta' : ''}`}>
 						{suprapuneri.length}
 					</strong>
-					<small className="detaliu-card-comp">perioade cu ≥ 2 colegi simultan absenți</small>
+					<small className="detaliu-card-comp">{t('gantt.suprapuneri_detaliu')}</small>
 				</div>
 				<div className="card-sumar-comp">
-					<span className="eticheta-card-comp">Angajați activi</span>
+					<span className="eticheta-card-comp">{t('gantt.angajati_activi')}</span>
 					<strong className="valoare-card-comp">{angajatiAfisati.length}</strong>
-					<small className="detaliu-card-comp">în secțiile / departamentele selectate</small>
+					<small className="detaliu-card-comp">{t('gantt.in_selectie')}</small>
 				</div>
 			</div>
 
@@ -295,22 +295,22 @@ export function PanouGanttAbsente({
 				<div className="caseta-avertismente-gantt" role="alert">
 					<div className="antet-avertisment-gantt">
 						<span>⚠️</span>
-						<strong>Atenție: Au fost detectate {suprapuneri.length} suprapuneri de concedii pe același departament!</strong>
+						<strong>{t('gantt.atentie_suprapuneri', {numar: String(suprapuneri.length)})}</strong>
 					</div>
 					<div className="lista-suprapuneri-detalii">
 						{suprapuneri.slice(0, 5).map((sup, idx) => (
 							<div key={idx} className="element-suprapunere">
 								<span className="insigna-dept">{sup.departamentNume}</span>
 								<span className="interval-sup">
-									{sup.deLa} – {sup.panaLa} ({sup.numarZile} {sup.numarZile === 1 ? 'zi' : 'zile'})
+									{sup.deLa} – {sup.panaLa} ({t(sup.numarZile === 1 ? 'gantt.o_zi' : 'gantt.zile', {numar: String(sup.numarZile)})})
 								</span>
 								<span className="colegi-sup">
-									Colegi absenți simultan: {sup.angajati.map(a => `${a.nume} [${a.cod}]`).join(', ')}
+									{t('gantt.colegi_absenti', {lista: sup.angajati.map(a => `${a.nume} [${a.cod}]`).join(', ')})}
 								</span>
 							</div>
 						))}
 						{suprapuneri.length > 5 && (
-							<small className="text-discret">...și încă {suprapuneri.length - 5} suprapuneri identificate în an.</small>
+							<small className="text-discret">{t('gantt.inca_suprapuneri', {numar: String(suprapuneri.length - 5)})}</small>
 						)}
 					</div>
 				</div>
@@ -320,27 +320,27 @@ export function PanouGanttAbsente({
 			<div className="bara-filtre-comparativ">
 				<div className="grup-filtre-comp">
 					<label>
-						Scară cronologică:
+						{t('gantt.scara')}
 						<select
 							value={lunaSelectata}
 							onChange={e => setLunaSelectata(Number(e.target.value))}
 						>
-							<option value={0}>📅 Panoramă anuală (12 luni)</option>
+							<option value={0}>📅 {t('gantt.panorama')}</option>
 							{numeLuni.map((nume, idx) => (
 								<option key={idx} value={idx + 1}>
-									Lună: {nume} {an}
+									{t('gantt.luna', {nume, an: String(an)})}
 								</option>
 							))}
 						</select>
 					</label>
 
 					<label>
-						Departament:
+						{t('gantt.departament')}
 						<select
 							value={filtruDepartament}
 							onChange={e => setFiltruDepartament(e.target.value)}
 						>
-							<option value="">Toate departamentele</option>
+							<option value="">{t('gantt.toate_departamentele')}</option>
 							{(date.departamente ?? []).map(d => (
 								<option key={d.id} value={d.id}>
 									{denumireDepartament(d, i18n.language)}
@@ -355,15 +355,15 @@ export function PanouGanttAbsente({
 							checked={doarCuSuprapuneri}
 							onChange={e => setDoarCuSuprapuneri(e.target.checked)}
 						/>
-						<span>Doar angajați cu suprapuneri</span>
+						<span>{t('gantt.doar_suprapuneri')}</span>
 					</label>
 				</div>
 
 				<div className="legenda-comparativ">
-					<span className="element-legenda"><span className="punct-legenda" style={{background: '#2e7d32'}}/> Odihnă (CO)</span>
-					<span className="element-legenda"><span className="punct-legenda" style={{background: '#d84315'}}/> Medical (CM)</span>
-					<span className="element-legenda"><span className="punct-legenda" style={{background: '#1565c0'}}/> Speciale</span>
-					<span className="element-legenda"><span className="punct-legenda" style={{background: '#f57c00'}}/> ⚠️ Suprapunere</span>
+					<span className="element-legenda"><span className="punct-legenda" style={{background: '#2e7d32'}}/> {t('gantt.legenda_odihna')}</span>
+					<span className="element-legenda"><span className="punct-legenda" style={{background: '#d84315'}}/> {t('gantt.legenda_medical')}</span>
+					<span className="element-legenda"><span className="punct-legenda" style={{background: '#1565c0'}}/> {t('gantt.legenda_speciale')}</span>
+					<span className="element-legenda"><span className="punct-legenda" style={{background: '#f57c00'}}/> ⚠️ {t('gantt.legenda_suprapunere')}</span>
 				</div>
 			</div>
 
@@ -374,8 +374,8 @@ export function PanouGanttAbsente({
 					<table className="tabel-comparativ tabel-gantt-anual">
 						<thead>
 							<tr>
-								<th className="coloana-fixa th-angajat" style={{minWidth: 200}}>Angajat</th>
-								<th className="coloana-fixa th-departament" style={{minWidth: 150}}>Departament</th>
+								<th className="coloana-fixa th-angajat" style={{minWidth: 200}}>{t('gantt.angajat')}</th>
+								<th className="coloana-fixa th-departament" style={{minWidth: 150}}>{t('gantt.departament_coloana')}</th>
 								{numeLuni.map((m, idx) => (
 									<th key={idx} className="th-luna-gantt">
 										{m.slice(0, 3)}
@@ -414,7 +414,7 @@ export function PanouGanttAbsente({
 																	key={aIdx}
 																	className="cip-gantt-interval"
 																	style={{backgroundColor: culoareCategorie(abs.categorie)}}
-																	title={`${abs.cod} (${abs.numarZile} zile): ${abs.deLa} – ${abs.panaLa}`}
+																	title={`${abs.cod} (${t('gantt.zile', {numar: String(abs.numarZile)})}): ${abs.deLa} – ${abs.panaLa}`}
 																>
 																	{abs.cod} ({abs.numarZile}z)
 																</span>
@@ -434,13 +434,13 @@ export function PanouGanttAbsente({
 					<table className="tabel-comparativ tabel-gantt-luna">
 						<thead>
 							<tr>
-								<th className="coloana-fixa th-angajat" style={{minWidth: 200}}>Angajat</th>
-								<th className="coloana-fixa th-departament" style={{minWidth: 150}}>Departament</th>
+								<th className="coloana-fixa th-angajat" style={{minWidth: 200}}>{t('gantt.angajat')}</th>
+								<th className="coloana-fixa th-departament" style={{minWidth: 150}}>{t('gantt.departament_coloana')}</th>
 								{zileLunaDetaliata.map(z => (
 									<th
 										key={z.zi}
 										className={`th-zi-gantt ${z.esteWeekend ? 'weekend' : ''} ${zileCuSuprapunere.has(z.data) ? 'suprapunere-alerta' : ''}`}
-										title={zileCuSuprapunere.has(z.data) ? '⚠️ Suprapunere de concediu în această zi' : z.data}
+										title={zileCuSuprapunere.has(z.data) ? `⚠️ ${t('gantt.suprapunere_zi')}` : z.data}
 									>
 										{z.zi}
 									</th>
@@ -482,7 +482,7 @@ export function PanouGanttAbsente({
 														<span
 															className="insigna-absenta-zi"
 															style={{backgroundColor: culoareCategorie(cat)}}
-															title={`${abs.cod} pe ${z.data}${esteSuprapunere ? ' (⚠️ Suprapunere departament)' : ''}`}
+															title={t('gantt.cod_pe_zi', {cod: abs.cod, data: z.data}) + (esteSuprapunere ? ` (⚠️ ${t('gantt.suprapuneri')})` : '')}
 														>
 															{abs.cod}
 														</span>

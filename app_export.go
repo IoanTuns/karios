@@ -56,11 +56,11 @@ func (a *App) ExportaPontajExcel(an, luna int) RaspunsExportExcel {
 	folder, _ := folderRapoarte()
 	if a.ctx != nil {
 		cale, err := wruntime.SaveFileDialog(a.ctx, wruntime.SaveDialogOptions{
-			Title:            "Salvează Foaia de Pontaj Excel",
+			Title:            i18n.T(a.limba(), "pontaj.export_dialog_titlu", nil),
 			DefaultDirectory: folder,
 			DefaultFilename:  numeFisier,
 			Filters: []wruntime.FileFilter{
-				{DisplayName: "Registru Excel (*.xlsx)", Pattern: "*.xlsx"},
+				{DisplayName: i18n.T(a.limba(), "pontaj.export_filtru", nil), Pattern: "*.xlsx"},
 			},
 			CanCreateDirectories: true,
 		})

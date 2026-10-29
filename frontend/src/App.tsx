@@ -1,6 +1,6 @@
 import {lazy, Suspense, useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {AdaugaDepartament, AdaugaSectie, AtribuieCategorieProgramLot, DateInitiale, IncarcaDemo, Informatii, SalveazaAngajat, SalveazaCategorieProgram, SalveazaNormaIntreaga, SchimbaActivAngajat} from '../wailsjs/go/main/App';
+import {AdaugaDepartament, AdaugaSectie, SeteazaLimbaInterfata, AtribuieCategorieProgramLot, DateInitiale, IncarcaDemo, Informatii, SalveazaAngajat, SalveazaCategorieProgram, SalveazaNormaIntreaga, SchimbaActivAngajat} from '../wailsjs/go/main/App';
 import {datebaza, main} from '../wailsjs/go/models';
 import {DialogDemo, FormularAngajat, Setari, durata, denumireSectie, denumireDepartament} from './Formulare';
 import {DialogImportAngajati} from './ImportDialogs';
@@ -82,7 +82,7 @@ function App() {
     const [dialogCont, setDialogCont] = useState(false);
     // Conturile se administrează doar de administrator (D045 punctul 3).
     const sectiuniVizibile = sectiuniSetari.filter(s => s !== 'conturi' || cont?.cont.rol === 'ADMINISTRATOR');
-    useEffect(() => { initializeazaSesiuneAI(); }, []);
+    useEffect(() => { initializeazaSesiuneAI(); SeteazaLimbaInterfata(i18n.language).catch(() => {}); }, []);
 
     useEffect(() => {
         document.documentElement.setAttribute('data-theme', tema);
@@ -164,8 +164,8 @@ function App() {
                     type="button"
                     className="buton-pliere-sidebar"
                     onClick={comutaSidebar}
-                    title={sidebarCompact ? "Extinde meniul lateral" : "Restrânge meniul lateral (compact)"}
-                    aria-label={sidebarCompact ? "Extinde meniul lateral" : "Restrânge meniul lateral"}
+                    title={t(sidebarCompact ? 'ui.extinde_meniul' : 'ui.restrange_meniul')}
+                    aria-label={t(sidebarCompact ? 'ui.extinde_meniul' : 'ui.restrange_meniul')}
                 >
                     {sidebarCompact ? "▶" : "◀"}
                 </button>
@@ -211,13 +211,13 @@ function App() {
                         type="button"
                         className="buton-comutator-tema"
                         onClick={comutaTema}
-                        title={tema === 'dark' ? "Comută la modul luminos" : "Comută la modul nocturn (Dark Mode)"}
-                        aria-label="Comută tema"
+                        title={t(tema === 'dark' ? 'ui.tema_luminoasa' : 'ui.tema_intunecata')}
+                        aria-label={t('ui.comuta_tema')}
                     >
-                        {tema === 'dark' ? '☀️ Zi' : '🌙 Noapte'}
+                        {tema === 'dark' ? `☀️ ${t('ui.tema_zi')}` : `🌙 ${t('ui.tema_noapte')}`}
                     </button>
                     <select name="limba_interfata" className="selector-limba" aria-label={t('ui.limba_interfata')} value={i18n.language === 'en' ? 'en' : 'ro'}
-                        onChange={e => { const l = e.target.value; void i18n.changeLanguage(l); document.documentElement.lang = l; document.title = i18n.t('aplicatie.titlu'); }}>
+                        onChange={e => { const l = e.target.value; void i18n.changeLanguage(l); document.documentElement.lang = l; document.title = i18n.t('aplicatie.titlu'); SeteazaLimbaInterfata(l).catch(() => {}); }}>
                         <option value="ro">{t('rapoarte.ro')}</option><option value="en">{t('rapoarte.en')}</option>
                     </select>
                 </div>

@@ -25,7 +25,7 @@ export class ErrorBoundary extends Component<Props, State> {
     static getDerivedStateFromError(error: Error): State {
         return {
             areEroare: true,
-            mesaj: error.message || 'Eroare necunoscută în interfață',
+            mesaj: error.message || 'unknown UI error',
             stiva: error.stack || '',
         };
     }

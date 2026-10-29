@@ -519,12 +519,12 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                 {['filtre', 'completare', 'ajutor'].map(p => <button key={p} ref={element => { butoanePanouri.current[p] = element; }} type="button" className={`buton secundar ${panou === p ? 'panou-activ' : ''}`} disabled={ocupat} aria-expanded={panou === p} aria-controls={`pontaj-panou-${p}`} onClick={() => setPanou(panou === p ? '' : p)}>{t(`pontaj.panou_${p}`)}{p === 'filtre' && numarFiltre > 0 ? ` (${numarFiltre})` : ''}</button>)}
                 <button type="button" className="buton secundar" title={t('program.completare_program_indiciu')} disabled={ocupat||!randuri.length||!programCompletare} onClick={precompleteazaLV}>{t('pontaj.precompleteaza_lv')}</button>
                 <button type="button" className="buton secundar" disabled={ocupat||!randuri.length} onClick={()=>void previzualizeazaCategorii(false)}>{t('program.precompleteaza')}</button>
-                <button type="button" className="buton secundar" title="Export Excel (.xlsx)" disabled={ocupat||!randuri.length} onClick={exportaExcel}>📊 {t('pontaj.export_excel')}</button>
-                <div className="grup-zoom-grila" role="group" aria-label="Densitate afișare grilă">
-                    <span className="eticheta-zoom">🔎 Zoom:</span>
-                    <button type="button" className={`buton-zoom ${zoomGrila === 'compact' ? 'activ' : ''}`} title="Comprimat (44px) - densitate maximă" onClick={() => schimbaZoom('compact')}>S</button>
-                    <button type="button" className={`buton-zoom ${zoomGrila === 'normal' ? 'activ' : ''}`} title="Normal (52px) - echilibrat" onClick={() => schimbaZoom('normal')}>M</button>
-                    <button type="button" className={`buton-zoom ${zoomGrila === 'extins' ? 'activ' : ''}`} title="Extins (62px) - lizibilitate mare" onClick={() => schimbaZoom('extins')}>L</button>
+                <button type="button" className="buton secundar" title={t('pontaj.export_excel_titlu')} disabled={ocupat||!randuri.length} onClick={exportaExcel}>📊 {t('pontaj.export_excel')}</button>
+                <div className="grup-zoom-grila" role="group" aria-label={t('ui.densitate_grila')}>
+                    <span className="eticheta-zoom">🔎 {t('ui.zoom')}</span>
+                    <button type="button" className={`buton-zoom ${zoomGrila === 'compact' ? 'activ' : ''}`} title={t('ui.zoom_compact')} onClick={() => schimbaZoom('compact')}>S</button>
+                    <button type="button" className={`buton-zoom ${zoomGrila === 'normal' ? 'activ' : ''}`} title={t('ui.zoom_normal')} onClick={() => schimbaZoom('normal')}>M</button>
+                    <button type="button" className={`buton-zoom ${zoomGrila === 'extins' ? 'activ' : ''}`} title={t('ui.zoom_extins')} onClick={() => schimbaZoom('extins')}>L</button>
                 </div>
                 <span className="stare-modificari" aria-live="polite">{t('pontaj.modificate', {numar: modificari.size})}</span>
                 <div id="pontaj-panou-filtre" className="panou-unelte" hidden={panou !== 'filtre'}>
@@ -554,7 +554,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                 </div>
                 <button type="button" className="buton secundar" disabled={ocupat || !istoricInapoi.length} onClick={anuleazaPas}>{t('pontaj.anuleaza_pas')}</button>
                 <button type="button" className="buton secundar" disabled={ocupat || !istoricInainte.length} onClick={refaPas}>{t('pontaj.refa_pas')}</button>
-                <button className="buton secundar" disabled={ocupat || calculare || !calculat || !randuri.length} onClick={async () => { try { await navigator.clipboard.writeText(textSelectat()); notifica('Selecția a fost copiată în clipboard!', 'info'); } catch { setEroare(t('pontaj.clipboard')); } }}>{t('pontaj.copiaza')}</button>
+                <button className="buton secundar" disabled={ocupat || calculare || !calculat || !randuri.length} onClick={async () => { try { await navigator.clipboard.writeText(textSelectat()); notifica(t('pontaj.selectie_copiata'), 'info'); } catch { setEroare(t('pontaj.clipboard')); } }}>{t('pontaj.copiaza')}</button>
                 <button className="legatura" disabled={ocupat} onClick={() => { if (poateAbandona()) setReincarcare(x => x + 1); }}>{t('pontaj.reincarca')}</button>
                 </div>
                 <div id="pontaj-panou-ajutor" className="panou-unelte ajutor-pontaj" hidden={panou !== 'ajutor'}>
@@ -599,9 +599,9 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                             const titluAvertisment = [dupaG24 ? t('pontaj.avertisment_dupa_g24') : '', peste24h ? t('pontaj.avertisment_peste_24h', {ore: oreText(minuteZi)}) : ''].filter(Boolean).join(' · ');
                             return <td key={data} className={`${sarbatori.has(data) ? 'zi-sarbatoare' : weekend ? 'zi-weekend' : ''} ${selectata ? 'celula-selectata' : ''} ${modificari.has(k) ? 'celula-modificata' : ''} ${colegiInlocuiti?.length ? 'celula-inlocuitor' : ''} ${titluAvertisment ? 'celula-avertisment' : ''}`}>
                             <input data-rand={r} data-zi={z} aria-label={t('pontaj.celula', {nume: `${a.nume} ${a.prenume}`, data})} title={[
-                                `${a.nume} ${a.prenume} (marca: ${a.marca || '—'})`,
-                                `Data: ${data}${weekend ? ' [Weekend]' : ''}${sarbatori.has(data) ? ` [${sarbatori.get(data)}]` : ''}`,
-                                `Schimb: ${valoare(r, z) || 'Liber'}`,
+                                t('ui.tooltip_marca', {nume: `${a.nume} ${a.prenume}`, marca: a.marca || '—'}),
+                                t('ui.tooltip_data', {data}) + (weekend ? ` [${t('ui.tooltip_weekend')}]` : '') + (sarbatori.has(data) ? ` [${sarbatori.get(data)}]` : ''),
+                                t('ui.tooltip_schimb', {schimb: valoare(r, z) || t('ui.tooltip_liber')}),
                                 titluAbsenta,
                                 titluInlocuire,
                                 titluAvertisment,
@@ -615,16 +615,16 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                         {totaluri.map(c => {const v=totaluriCalculate.get(a.id)?.[c],regula=schita?.configuratie.reguli.find(r=>r.coloana===c),titluTotal=!v?.definita?t('pontaj.necalculat'):regula?.sursa==='ORE_NORMA'?t('pontaj.ore_norm_explicatie'):t(v.unitate==='ZILE'?'pontaj.unitate_zile':'pontaj.unitate_ore');return <td key={c} className={`${!v?.definita?'total-necalculat':''} ${c==='T'?'fix-total-t':''}`.trim()} title={titluTotal}>{calculare?'…':v?valoareText(v):calculat&&regula?.sursa!=='NEDEFINITA'?'0':'—'}</td>;})}</tr>)}
                 </tbody></table>
                 {randuri.length === 0 && (
-                    <div className="card-onboarding-gol" role="region" aria-label="Ghid de pornire">
+                    <div className="card-onboarding-gol" role="region" aria-label={t('ui.ghid_pornire')}>
                         <div className="simbol-gol">📋</div>
-                        <h3>Nu există personal disponibil în această vizualizare</h3>
-                        <p>Pentru a începe pontajul acestei luni, poți ajusta filtrele de căutare sau poți importa lista completă a angajaților.</p>
+                        <h3>{t('pontaj.gol_titlu')}</h3>
+                        <p>{t('pontaj.gol_descriere')}</p>
                         <div className="actiuni-onboarding-rapide">
                             <button type="button" className="buton secundar" onClick={() => setReincarcare(x => x + 1)}>
-                                🔄 Reîncarcă datele
+                                🔄 {t('ui.reincarca_datele')}
                             </button>
                             <button type="button" className="buton secundar" onClick={() => { setSectie(''); setDepartament(''); setCautare(''); setFiltruRanduri(''); setCategorieProgram(''); }}>
-                                Resetează filtrele active
+                                {t('ui.reseteaza_filtrele')}
                             </button>
                         </div>
                     </div>

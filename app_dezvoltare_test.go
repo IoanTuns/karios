@@ -6,7 +6,7 @@ import (
 
 func TestAppDetaliiDezvoltare(t *testing.T) {
 	app := &App{radacina: t.TempDir()}
-	detalii := app.DetaliiDezvoltare()
+	detalii := app.DetaliiDezvoltare("ro")
 
 	if detalii.NumeRepo != "karios" {
 		t.Errorf("așteptat repo karios, obținut: %s", detalii.NumeRepo)

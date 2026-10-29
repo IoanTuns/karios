@@ -8,7 +8,7 @@ import {InregistreazaEroareFrontend} from '../wailsjs/go/main/App';
 
 // Captare globală a excepțiilor JavaScript neprinse (D043, F16)
 window.addEventListener('error', (event) => {
-    const mesaj = event.message || 'Eroare script neprinsă';
+    const mesaj = event.message || 'uncaught script error';
     const sursa = `${event.filename || 'unknown'}:${event.lineno || 0}`;
     const stack = event.error?.stack || '';
     InregistreazaEroareFrontend(sursa, mesaj, stack).catch(() => {});

@@ -1,5 +1,6 @@
 import {useEffect, useRef, useState, type FormEvent, type ReactNode} from 'react';
 import {useTranslation} from 'react-i18next';
+import {notifica} from './Toast';
 import {RestaurareBackup} from './Restaurare';
 import {useCont} from './Conturi';
 import type {TFunction} from 'i18next';
@@ -240,9 +241,9 @@ export function Setari({date, ocupat, salveazaNorma, adaugaSectie, adaugaDeparta
                 <p><strong>{t('aplicatie.titlu')}</strong> — {t('aplicatie.subtitlu')}</p>
                 <div className="insigne-sumar-despre">
                     <span className="cip-info">Repo: <strong>karios</strong></span>
-                    <span className="cip-info">Versiune: <strong>v{versiuneCurenta || '...'}</strong></span>
-                    <span className="cip-info">Licență: <strong>Apache-2.0</strong></span>
-                    <span className="cip-info">100% Offline & Local</span>
+                    <span className="cip-info">{t('ui.cip_versiune')} <strong>v{versiuneCurenta || '...'}</strong></span>
+                    <span className="cip-info">{t('ui.cip_licenta')} <strong>Apache-2.0</strong></span>
+                    <span className="cip-info">{t('ui.cip_offline')}</span>
                     <span className="cip-info">Model: <strong>Qwen2.5 / llama.cpp</strong></span>
                 </div>
                 <p className="semnatura-dezvoltator-card">{t('aplicatie.dezvoltat_de', {autor: 'Ioan Tuns'})}</p>
@@ -253,7 +254,7 @@ export function Setari({date, ocupat, salveazaNorma, adaugaSectie, adaugaDeparta
                         className="buton primar"
                         onClick={() => setDialogDezvoltare(true)}
                     >
-                        ℹ️ Detalii dezvoltare, integritate și cerințe sistem
+                        ℹ️ {t('ui.buton_detalii_dezvoltare')}
                     </button>
                 </div>
             </div>
@@ -263,13 +264,14 @@ export function Setari({date, ocupat, salveazaNorma, adaugaSectie, adaugaDeparta
 }
 
 export function DialogDetaliiDezvoltare({inchide}: {inchide: () => void}) {
+    const {t, i18n} = useTranslation();
     const [detalii, setDetalii] = useState<main.DetaliiDezvoltare | null>(null);
     const [incarcare, setIncarcare] = useState(true);
     const [copiat, setCopiat] = useState(false);
 
     useEffect(() => {
         let activ = true;
-        DetaliiDezvoltare().then(d => {
+        DetaliiDezvoltare(i18n.language).then(d => {
             if (activ) {
                 setDetalii(d);
                 setIncarcare(false);
@@ -282,44 +284,48 @@ export function DialogDetaliiDezvoltare({inchide}: {inchide: () => void}) {
 
     const copiazaRaport = () => {
         if (!detalii) return;
-        const text = `# Raport Tehnic & Dezvoltare — ${detalii.nume_aplicatie}
-- Proiect: ${detalii.nume_aplicatie} (Repository: ${detalii.nume_repo})
-- Versiune compilare: v${detalii.versiune}
-- Git Commit: ${detalii.commit}
-- Arhitectură: ${detalii.arhitectura}
-- Mediu build: Go ${detalii.versiune_go} | Wails ${detalii.versiune_wails}
-- Executabil: ${detalii.cale_executabil}
-- SHA-256 Checksum: ${detalii.checksum_exe}
-- Autor: ${detalii.autor}
-- Licență: ${detalii.licenta}
-- Confidențialitate: ${detalii.confidentialitate}
-
-## Cerințe Minime de Sistem
-- Sistem de operare: ${detalii.cerinte_minime.sistem_operare}
-- Procesor: ${detalii.cerinte_minime.procesor}
-- RAM: ${detalii.cerinte_minime.ram_minim} (Recomandat: ${detalii.cerinte_minime.ram_recomandat})
-- Spațiu disc: ${detalii.cerinte_minime.spatiu_disc}
-- Dependințe: ${detalii.cerinte_minime.dependinte}
-- Rețea: ${detalii.cerinte_minime.retea}
-
-## Modul Local AI & LLM
-- Model utilizat: ${detalii.detalii_llm.nume_model} (${detalii.detalii_llm.dimensiune_model})
-- Format: ${detalii.detalii_llm.format}
-- Motor inferență: ${detalii.detalii_llm.motor_inferenta}
-- Fereastră context (n_ctx): ${detalii.detalii_llm.fereastra_context} tokeni
-- Port local: ${detalii.detalii_llm.port_local} (127.0.0.1)
-- Stare: ${detalii.detalii_llm.stare}
-- Izolare rețea: ${detalii.detalii_llm.izolare_retea}
-
-## Diagnoză & Profilare Performanță
-- Erori înregistrate: ${detalii.statistici_diagnoza?.numar_erori || 0}
-- Total interogări: ${detalii.statistici_diagnoza?.total_interogari || 0}
-- Timp mediu interogare: ${(detalii.statistici_diagnoza?.timp_mediu_ms || 0).toFixed(2)} ms
-- Timp maxim interogare: ${(detalii.statistici_diagnoza?.timp_maxim_ms || 0).toFixed(2)} ms
-- Interogare lentă de vârf: ${detalii.statistici_diagnoza?.lenta_interogare || 'Niciuna'}
-- Fișier jurnal: ${detalii.statistici_diagnoza?.fisier_jurnal_curent || '—'}
-- Director jurnale: ${detalii.statistici_diagnoza?.cale_folder_jurnale || '—'}
-`;
+        const e = (k: string) => t(`dezvoltare.${k}`);
+        const sd = detalii.statistici_diagnoza;
+        const text = [
+            `# ${e('titlu')} — ${detalii.nume_aplicatie}`,
+            `- ${e('repo')}: ${detalii.nume_repo}`,
+            `- ${e('versiune')}: v${detalii.versiune}`,
+            `- ${e('commit')}: ${detalii.commit}`,
+            `- ${e('arhitectura')}: ${detalii.arhitectura}`,
+            `- ${e('compilator')}: Go ${detalii.versiune_go} | Wails ${detalii.versiune_wails}`,
+            `- ${e('cale_binar')}: ${detalii.cale_executabil}`,
+            `- ${e('sha256')}: ${detalii.checksum_exe}`,
+            `- ${e('autor')}: ${detalii.autor}`,
+            `- ${e('licenta')}: ${detalii.licenta}`,
+            `- ${e('securitate_date')}: ${detalii.confidentialitate}`,
+            '',
+            `## ${e('titlu_cerinte')}`,
+            `- ${e('sistem_operare')}: ${detalii.cerinte_minime.sistem_operare}`,
+            `- ${e('procesor')}: ${detalii.cerinte_minime.procesor}`,
+            `- ${e('ram_minim')}: ${detalii.cerinte_minime.ram_minim}`,
+            `- ${e('ram_recomandat')}: ${detalii.cerinte_minime.ram_recomandat}`,
+            `- ${e('spatiu_disc')}: ${detalii.cerinte_minime.spatiu_disc}`,
+            `- ${e('dependinte')}: ${detalii.cerinte_minime.dependinte}`,
+            `- ${e('retea')}: ${detalii.cerinte_minime.retea}`,
+            '',
+            `## ${e('titlu_ai')}`,
+            `- ${e('model')}: ${detalii.detalii_llm.nume_model} (${detalii.detalii_llm.dimensiune_model})`,
+            `- ${e('format_model')}: ${detalii.detalii_llm.format}`,
+            `- ${e('motor')}: ${detalii.detalii_llm.motor_inferenta}`,
+            `- ${e('context')}: ${detalii.detalii_llm.fereastra_context}`,
+            `- ${e('port')}: ${detalii.detalii_llm.port_local} (127.0.0.1)`,
+            `- ${e('stare_motor')}: ${detalii.detalii_llm.stare}`,
+            `- ${e('izolare')}: ${detalii.detalii_llm.izolare_retea}`,
+            '',
+            `## ${e('titlu_diagnoza')}`,
+            `- ${e('erori')}: ${sd?.numar_erori || 0}`,
+            `- ${e('interogari')}: ${sd?.total_interogari || 0}`,
+            `- ${e('timp_mediu')}: ${(sd?.timp_mediu_ms || 0).toFixed(2)} ms`,
+            `- ${e('timp_maxim')}: ${(sd?.timp_maxim_ms || 0).toFixed(2)} ms`,
+            `- ${e('interogare_lenta')}: ${sd?.lenta_interogare || e('fara_lente')}`,
+            `- ${e('fisier_jurnal')}: ${sd?.fisier_jurnal_curent || '—'}`,
+            `- ${e('director_jurnale')}: ${sd?.cale_folder_jurnale || '—'}`,
+        ].join('\n') + '\n';
         navigator.clipboard.writeText(text).then(() => {
             setCopiat(true);
             setTimeout(() => setCopiat(false), 2500);
@@ -327,178 +333,178 @@ export function DialogDetaliiDezvoltare({inchide}: {inchide: () => void}) {
     };
 
     return (
-        <Dialog titlu="ℹ️ Detalii Tehnice de Dezvoltare, Integritate & Sistem" permiteMaximizare={true} ocupat={false} inchide={inchide}>
+        <Dialog titlu={`ℹ️ ${t('dezvoltare.titlu')}`} permiteMaximizare={true} ocupat={false} inchide={inchide}>
             <div className="corp-dialog detalii-dezvoltare-dialog" style={{ maxHeight: '72vh', overflowY: 'auto' }}>
                 {incarcare ? (
-                    <p className="incarcare">Se colectează datele de sistem...</p>
+                    <p className="incarcare">{t('dezvoltare.incarcare')}</p>
                 ) : !detalii ? (
-                    <p className="mesaj eroare">Nu s-au putut încărca detaliile de dezvoltare.</p>
+                    <p className="mesaj eroare">{t('dezvoltare.eroare')}</p>
                 ) : (
                     <div className="continut-raport-dezvoltare">
                         <section className="sectiune-raport">
-                            <h3>📦 Identificare & Versiune de Compilare</h3>
+                            <h3>📦 {t('dezvoltare.titlu_identificare')}</h3>
                             <div className="tabel-proprietati-tehnice">
                                 <div className="linie-proprietate">
-                                    <span className="eticheta-prop">Nume Repository:</span>
+                                    <span className="eticheta-prop">{t('dezvoltare.repo')}:</span>
                                     <strong className="valoare-prop cod-evidential">{detalii.nume_repo}</strong>
                                 </div>
                                 <div className="linie-proprietate">
-                                    <span className="eticheta-prop">Aplicație:</span>
+                                    <span className="eticheta-prop">{t('dezvoltare.aplicatie')}:</span>
                                     <strong className="valoare-prop">{detalii.nume_aplicatie}</strong>
                                 </div>
                                 <div className="linie-proprietate">
-                                    <span className="eticheta-prop">Versiune compilată:</span>
+                                    <span className="eticheta-prop">{t('dezvoltare.versiune')}:</span>
                                     <span className="valoare-prop insigna-versiune">v{detalii.versiune}</span>
                                 </div>
                                 <div className="linie-proprietate">
-                                    <span className="eticheta-prop">Git Commit (SHA):</span>
-                                    <span className="valoare-prop cod-evidential" title="Hash-ul commit-ului din care s-a generat binarul">{detalii.commit}</span>
+                                    <span className="eticheta-prop">{t('dezvoltare.commit')}:</span>
+                                    <span className="valoare-prop cod-evidential" title={t('dezvoltare.commit_indiciu')}>{detalii.commit}</span>
                                 </div>
                                 <div className="linie-proprietate">
-                                    <span className="eticheta-prop">Arhitectură & OS:</span>
+                                    <span className="eticheta-prop">{t('dezvoltare.arhitectura')}:</span>
                                     <span className="valoare-prop">{detalii.arhitectura}</span>
                                 </div>
                                 <div className="linie-proprietate">
-                                    <span className="eticheta-prop">Compilator & Framework:</span>
+                                    <span className="eticheta-prop">{t('dezvoltare.compilator')}:</span>
                                     <span className="valoare-prop">{detalii.versiune_go} · Wails {detalii.versiune_wails}</span>
                                 </div>
                                 <div className="linie-proprietate">
-                                    <span className="eticheta-prop">Licență Repository:</span>
+                                    <span className="eticheta-prop">{t('dezvoltare.licenta')}:</span>
                                     <strong className="valoare-prop">{detalii.licenta}</strong>
                                 </div>
                                 <div className="linie-proprietate">
-                                    <span className="eticheta-prop">Autor & Copyright:</span>
+                                    <span className="eticheta-prop">{t('dezvoltare.autor')}:</span>
                                     <span className="valoare-prop">{detalii.autor} (© 2026)</span>
                                 </div>
                             </div>
                         </section>
 
                         <section className="sectiune-raport">
-                            <h3>🛡️ Validare Integritate & Securitate Executabil</h3>
+                            <h3>🛡️ {t('dezvoltare.titlu_integritate')}</h3>
                             <div className="tabel-proprietati-tehnice">
                                 <div className="linie-proprietate coloana-completa">
-                                    <span className="eticheta-prop">Cale binar:</span>
+                                    <span className="eticheta-prop">{t('dezvoltare.cale_binar')}:</span>
                                     <span className="valoare-prop cale-fisier" title={detalii.cale_executabil}>{detalii.cale_executabil}</span>
                                 </div>
                                 <div className="linie-proprietate coloana-completa">
-                                    <span className="eticheta-prop">SHA-256 Validare Integritate:</span>
-                                    <span className="valoare-prop hash-integritate" title="Amprenta SHA-256 a fișierului executabil">{detalii.checksum_exe}</span>
+                                    <span className="eticheta-prop">{t('dezvoltare.sha256')}:</span>
+                                    <span className="valoare-prop hash-integritate" title={t('dezvoltare.sha256_indiciu')}>{detalii.checksum_exe}</span>
                                 </div>
                                 <div className="linie-proprietate coloana-completa">
-                                    <span className="eticheta-prop">Securitate Date:</span>
+                                    <span className="eticheta-prop">{t('dezvoltare.securitate_date')}:</span>
                                     <span className="valoare-prop">{detalii.confidentialitate}</span>
                                 </div>
                             </div>
                         </section>
 
                         <section className="sectiune-raport">
-                            <h3>💻 Cerințe Minime de Sistem</h3>
+                            <h3>💻 {t('dezvoltare.titlu_cerinte')}</h3>
                             <div className="tabel-proprietati-tehnice">
                                 <div className="linie-proprietate">
-                                    <span className="eticheta-prop">Sistem de operare:</span>
+                                    <span className="eticheta-prop">{t('dezvoltare.sistem_operare')}:</span>
                                     <span className="valoare-prop">{detalii.cerinte_minime.sistem_operare}</span>
                                 </div>
                                 <div className="linie-proprietate">
-                                    <span className="eticheta-prop">Procesor (CPU):</span>
+                                    <span className="eticheta-prop">{t('dezvoltare.procesor')}:</span>
                                     <span className="valoare-prop">{detalii.cerinte_minime.procesor}</span>
                                 </div>
                                 <div className="linie-proprietate">
-                                    <span className="eticheta-prop">Memorie RAM minimă:</span>
+                                    <span className="eticheta-prop">{t('dezvoltare.ram_minim')}:</span>
                                     <span className="valoare-prop">{detalii.cerinte_minime.ram_minim}</span>
                                 </div>
                                 <div className="linie-proprietate">
-                                    <span className="eticheta-prop">Memorie RAM recomandată:</span>
+                                    <span className="eticheta-prop">{t('dezvoltare.ram_recomandat')}:</span>
                                     <strong className="valoare-prop">{detalii.cerinte_minime.ram_recomandat}</strong>
                                 </div>
                                 <div className="linie-proprietate">
-                                    <span className="eticheta-prop">Spațiu pe disc:</span>
+                                    <span className="eticheta-prop">{t('dezvoltare.spatiu_disc')}:</span>
                                     <span className="valoare-prop">{detalii.cerinte_minime.spatiu_disc}</span>
                                 </div>
                                 <div className="linie-proprietate">
-                                    <span className="eticheta-prop">Dependințe Windows:</span>
+                                    <span className="eticheta-prop">{t('dezvoltare.dependinte')}:</span>
                                     <span className="valoare-prop">{detalii.cerinte_minime.dependinte}</span>
                                 </div>
                                 <div className="linie-proprietate">
-                                    <span className="eticheta-prop">Cerințe rețea:</span>
+                                    <span className="eticheta-prop">{t('dezvoltare.retea')}:</span>
                                     <strong className="valoare-prop">{detalii.cerinte_minime.retea}</strong>
                                 </div>
                             </div>
                         </section>
 
                         <section className="sectiune-raport">
-                            <h3>🤖 Modul Local AI & Model LLM</h3>
+                            <h3>🤖 {t('dezvoltare.titlu_ai')}</h3>
                             <div className="tabel-proprietati-tehnice">
                                 <div className="linie-proprietate">
-                                    <span className="eticheta-prop">Model utilizat:</span>
+                                    <span className="eticheta-prop">{t('dezvoltare.model')}:</span>
                                     <strong className="valoare-prop">{detalii.detalii_llm.nume_model}</strong>
                                 </div>
                                 <div className="linie-proprietate">
-                                    <span className="eticheta-prop">Dimensiune model pe disc:</span>
+                                    <span className="eticheta-prop">{t('dezvoltare.dimensiune_model')}:</span>
                                     <span className="valoare-prop">{detalii.detalii_llm.dimensiune_model}</span>
                                 </div>
                                 <div className="linie-proprietate">
-                                    <span className="eticheta-prop">Format model:</span>
+                                    <span className="eticheta-prop">{t('dezvoltare.format_model')}:</span>
                                     <span className="valoare-prop">{detalii.detalii_llm.format}</span>
                                 </div>
                                 <div className="linie-proprietate">
-                                    <span className="eticheta-prop">Motor inferență:</span>
+                                    <span className="eticheta-prop">{t('dezvoltare.motor')}:</span>
                                     <span className="valoare-prop">{detalii.detalii_llm.motor_inferenta}</span>
                                 </div>
                                 <div className="linie-proprietate">
-                                    <span className="eticheta-prop">Fereastră context:</span>
+                                    <span className="eticheta-prop">{t('dezvoltare.context')}:</span>
                                     <span className="valoare-prop">{detalii.detalii_llm.fereastra_context} tokeni</span>
                                 </div>
                                 <div className="linie-proprietate">
-                                    <span className="eticheta-prop">Port & Host local:</span>
+                                    <span className="eticheta-prop">{t('dezvoltare.port')}:</span>
                                     <span className="valoare-prop">{detalii.detalii_llm.port_local} (127.0.0.1)</span>
                                 </div>
                                 <div className="linie-proprietate">
-                                    <span className="eticheta-prop">Stare motor local:</span>
+                                    <span className="eticheta-prop">{t('dezvoltare.stare_motor')}:</span>
                                     <span className="valoare-prop insigna-stare-ai">{detalii.detalii_llm.stare}</span>
                                 </div>
                                 <div className="linie-proprietate coloana-completa">
-                                    <span className="eticheta-prop">Securitate & Izolare:</span>
+                                    <span className="eticheta-prop">{t('dezvoltare.izolare')}:</span>
                                     <span className="valoare-prop">{detalii.detalii_llm.izolare_retea}</span>
                                 </div>
                             </div>
                         </section>
 
                         <section className="sectiune-raport">
-                            <h3>📊 Diagnoză Locală, Jurnal Erori & Profilare Interogări</h3>
+                            <h3>📊 {t('dezvoltare.titlu_diagnoza')}</h3>
                             <div className="tabel-proprietati-tehnice">
                                 <div className="linie-proprietate">
-                                    <span className="eticheta-prop">Erori în sesiune:</span>
+                                    <span className="eticheta-prop">{t('dezvoltare.erori')}:</span>
                                     <span className="valoare-prop" style={{ fontWeight: 600, color: (detalii.statistici_diagnoza?.numar_erori || 0) > 0 ? '#b02a24' : '#1e7040' }}>
                                         {detalii.statistici_diagnoza?.numar_erori || 0} erori înregistrate
                                     </span>
                                 </div>
                                 <div className="linie-proprietate">
-                                    <span className="eticheta-prop">Total interogări executate:</span>
+                                    <span className="eticheta-prop">{t('dezvoltare.interogari')}:</span>
                                     <span className="valoare-prop">{detalii.statistici_diagnoza?.total_interogari || 0}</span>
                                 </div>
                                 <div className="linie-proprietate">
-                                    <span className="eticheta-prop">Timp mediu interogare:</span>
+                                    <span className="eticheta-prop">{t('dezvoltare.timp_mediu')}:</span>
                                     <strong className="valoare-prop">{(detalii.statistici_diagnoza?.timp_mediu_ms || 0).toFixed(2)} ms</strong>
                                 </div>
                                 <div className="linie-proprietate">
-                                    <span className="eticheta-prop">Timp maxim interogare:</span>
+                                    <span className="eticheta-prop">{t('dezvoltare.timp_maxim')}:</span>
                                     <span className="valoare-prop">{(detalii.statistici_diagnoza?.timp_maxim_ms || 0).toFixed(2)} ms</span>
                                 </div>
                                 <div className="linie-proprietate">
-                                    <span className="eticheta-prop">Interogare lentă de vârf:</span>
-                                    <span className="valoare-prop cod-evidential">{detalii.statistici_diagnoza?.lenta_interogare || 'Nicio interogare lentă (>50ms)'}</span>
+                                    <span className="eticheta-prop">{t('dezvoltare.interogare_lenta')}:</span>
+                                    <span className="valoare-prop cod-evidential">{detalii.statistici_diagnoza?.lenta_interogare || t('dezvoltare.fara_lente')}</span>
                                 </div>
                                 <div className="linie-proprietate">
-                                    <span className="eticheta-prop">Fișier jurnal activ:</span>
+                                    <span className="eticheta-prop">{t('dezvoltare.fisier_jurnal')}:</span>
                                     <span className="valoare-prop">{detalii.statistici_diagnoza?.fisier_jurnal_curent || '—'} ({detalii.statistici_diagnoza?.dimensiune_jurnal || '0 B'})</span>
                                 </div>
                                 <div className="linie-proprietate coloana-completa">
-                                    <span className="eticheta-prop">Director jurnale locale:</span>
+                                    <span className="eticheta-prop">{t('dezvoltare.director_jurnale')}:</span>
                                     <span className="valoare-prop cale-fisier">{detalii.statistici_diagnoza?.cale_folder_jurnale || '—'}</span>
                                 </div>
                                 {detalii.statistici_diagnoza?.ultima_eroare && (
                                     <div className="linie-proprietate coloana-completa">
-                                        <span className="eticheta-prop">Ultima eroare captată:</span>
+                                        <span className="eticheta-prop">{t('dezvoltare.ultima_eroare')}:</span>
                                         <span className="valoare-prop cod-evidential" style={{ color: '#b02a24' }}>
                                             {detalii.statistici_diagnoza.ultima_eroare}
                                         </span>
@@ -511,7 +517,7 @@ export function DialogDetaliiDezvoltare({inchide}: {inchide: () => void}) {
                                     className="buton secundar"
                                     onClick={() => DeschideFolderJurnale()}
                                 >
-                                    📁 Deschide folderul de jurnale
+                                    📁 {t('dezvoltare.deschide_jurnale')}
                                 </button>
                                 <button
                                     type="button"
@@ -519,10 +525,10 @@ export function DialogDetaliiDezvoltare({inchide}: {inchide: () => void}) {
                                     onClick={async () => {
                                         const linii = await CitesteUltimeleLiniiJurnal(100);
                                         await navigator.clipboard.writeText(linii);
-                                        alert('Ultimele 100 de linii din jurnalul de diagnoză au fost copiate în clipboard!');
+                                        notifica(t('dezvoltare.linii_copiate'), 'info');
                                     }}
                                 >
-                                    📋 Copiază ultimele 100 linii din log
+                                    📋 {t('dezvoltare.copiaza_linii')}
                                 </button>
                             </div>
                         </section>
@@ -530,9 +536,9 @@ export function DialogDetaliiDezvoltare({inchide}: {inchide: () => void}) {
                 )}
             </div>
             <footer className="subsol-dialog">
-                <button type="button" className="buton secundar" onClick={inchide}>Închide</button>
+                <button type="button" className="buton secundar" onClick={inchide}>{t('ui.inchide')}</button>
                 <button type="button" className="buton primar" disabled={!detalii} onClick={copiazaRaport}>
-                    {copiat ? '✓ Raport copiat!' : '📋 Copiază raportul tehnic'}
+                    {copiat ? `✓ ${t('dezvoltare.raport_copiat')}` : `📋 ${t('dezvoltare.copiaza_raport')}`}
                 </button>
             </footer>
         </Dialog>

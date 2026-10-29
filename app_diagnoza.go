@@ -1,11 +1,14 @@
 package main
 
 import (
+	"errors"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
 
 	"pontix/internal/diagnoza"
+	"pontix/internal/i18n"
 )
 
 // StatisticiDiagnoza întoarce metricile curente de sănătate, numărul de erori și timpii de interogare.
@@ -23,7 +26,14 @@ func (a *App) CitesteUltimeleLiniiJurnal(numar int) string {
 	if numar <= 0 {
 		numar = 50
 	}
-	return diagnoza.ObtineManager().CitesteUltimeleLinii(numar)
+	linii, err := diagnoza.ObtineManager().UltimeleLinii(numar)
+	switch {
+	case errors.Is(err, fs.ErrNotExist):
+		return i18n.T(a.limba(), "diagnoza.fara_jurnal", nil)
+	case err != nil:
+		return i18n.T(a.limba(), "diagnoza.eroare_citire", nil)
+	}
+	return linii
 }
 
 // DeschideFolderJurnale deschide folderul local cu fișiere de log în Windows Explorer.
@@ -36,4 +46,3 @@ func (a *App) DeschideFolderJurnale() string {
 	}
 	return cale
 }
-

@@ -4,7 +4,6 @@ package diagnoza
 
 import (
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -242,27 +241,21 @@ func (m *Manager) Statistici() StatisticiDiagnoza {
 	}
 }
 
-// CitesteUltimeleLinii întoarce conținutul recent din jurnal pentru copiere/afișare.
-func (m *Manager) CitesteUltimeleLinii(numarLinii int) string {
+// UltimeleLinii întoarce ultimele linii din jurnalul lunii curente. Un jurnal lipsă dă
+// fs.ErrNotExist; textul pentru utilizator îl alege apelantul (F03-T10).
+func (m *Manager) UltimeleLinii(numarLinii int) (string, error) {
 	acum := m.acum()
 	caleJurnal := filepath.Join(m.folderJurnale, fmt.Sprintf("pontix-%04d-%02d.log", acum.Year(), acum.Month()))
 
-	f, err := os.Open(caleJurnal)
+	continut, err := os.ReadFile(caleJurnal)
 	if err != nil {
-		return "Niciun fișier de jurnal disponibil în această lună."
+		return "", err
 	}
-	defer f.Close()
-
-	continut, err := io.ReadAll(f)
-	if err != nil {
-		return "Eroare la citirea jurnalului."
-	}
-
 	linii := strings.Split(strings.TrimSpace(string(continut)), "\n")
 	if len(linii) > numarLinii {
 		linii = linii[len(linii)-numarLinii:]
 	}
-	return strings.Join(linii, "\n")
+	return strings.Join(linii, "\n"), nil
 }
 
 // RecupereazaPanic este o funcție utilitară pentru defer în funcțiile apelate prin Wails:
@@ -293,4 +286,3 @@ func formateazaDimensiune(octeti int64) string {
 	}
 	return fmt.Sprintf("%.1f MB", val)
 }
-

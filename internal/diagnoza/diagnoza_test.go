@@ -61,7 +61,10 @@ func TestDiagnozaFluxComplet(t *testing.T) {
 		t.Fatalf("fișierul de log nu a fost creat la: %s", caleFisier)
 	}
 
-	linii := m.CitesteUltimeleLinii(20)
+	linii, err := m.UltimeleLinii(20)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if !strings.Contains(linii, "UpdatePontaj") {
 		t.Errorf("jurnalul ar trebui să conțină UpdatePontaj")
 	}

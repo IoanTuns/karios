@@ -13,22 +13,41 @@ import (
 func (a *App) SeteazaModificariNesalvate(da bool, limba string) {
 	a.inchidereMu.Lock()
 	a.modificariNesalvate = da
+	a.inchidereMu.Unlock()
+	a.SeteazaLimbaInterfata(limba)
+}
+
+// SeteazaLimbaInterfata reține limba interfeței pentru dialogurile native (F03-T10).
+func (a *App) SeteazaLimbaInterfata(limba string) {
+	l := i18n.Limba(limba)
+	if l != i18n.Romana && l != i18n.Engleza {
+		return
+	}
+	a.inchidereMu.Lock()
 	a.limbaInterfata = limba
 	a.inchidereMu.Unlock()
+}
+
+// limba întoarce limba interfeței sau limba implicită.
+func (a *App) limba() i18n.Limba {
+	a.inchidereMu.Lock()
+	defer a.inchidereMu.Unlock()
+	if a.limbaInterfata == "" {
+		return i18n.Implicita
+	}
+	return i18n.Limba(a.limbaInterfata)
 }
 
 // inainteDeInchidere întreabă, dacă există modificări nesalvate, dacă fereastra se închide
 // totuși. Întoarce true ca să oprească închiderea.
 func (a *App) inainteDeInchidere(ctx context.Context) bool {
 	a.inchidereMu.Lock()
-	nesalvate, limba := a.modificariNesalvate, i18n.Limba(a.limbaInterfata)
+	nesalvate := a.modificariNesalvate
 	a.inchidereMu.Unlock()
 	if !nesalvate {
 		return false
 	}
-	if limba == "" {
-		limba = i18n.Implicita
-	}
+	limba := a.limba()
 	da, nu := i18n.T(limba, "ui.inchide_oricum", nil), i18n.T(limba, "ui.ramai", nil)
 	raspuns, err := wruntime.MessageDialog(ctx, wruntime.MessageDialogOptions{
 		Type:          wruntime.QuestionDialog,
