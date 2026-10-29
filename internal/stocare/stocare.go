@@ -57,6 +57,8 @@ func deschide(ctx context.Context, radacina string, migrari fs.FS, acum func() t
 		return nil, nil, err
 	}
 
+	_, errBaza := os.Stat(caleBaza)
+	bazaNoua := errors.Is(errBaza, fs.ErrNotExist)
 	rest, err := aplicaRestaurare(ctx, radacina, s.CheieDate, acum)
 	if err != nil {
 		return nil, nil, err
@@ -67,6 +69,13 @@ func deschide(ctx context.Context, radacina string, migrari fs.FS, acum func() t
 	}
 	if rest != nil && rez.Stare == audit.StareOK {
 		if rez, err = noteazaRestaurarea(ctx, caleBaza, s.CheieDate, rest); err != nil {
+			return nil, nil, err
+		}
+	}
+	// Copia zilnică nu se face pentru o bază abia creată și nici peste o bază cu incident:
+	// rotația ar împinge afară copiile bune.
+	if !bazaNoua && rez.Stare != audit.StareIncident {
+		if err := backupZilnic(ctx, caleBaza, radacina, s.CheieDate, acum); err != nil {
 			return nil, nil, err
 		}
 	}

@@ -4,6 +4,16 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.71.0 · 2026-10-29
+
+Backup automat zilnic (F05-T26).
+
+- La prima pornire din zi (UTC) se face o copie criptată `pontix-AAAA-LL-ZZ-hhmmss-zilnic-v….db`, dacă în acea zi nu există deja o copie automată (de ex. cea dinaintea unei migrări).
+- Copiile zilnice intră în aceeași rotație cu backup-urile dinaintea migrărilor: se păstrează ultimele 7 automate; cele manuale nu se ating.
+- Nu se face copie pentru o bază creată chiar la această pornire și nici peste o bază cu incident de audit, ca rotația să nu împingă afară copiile bune.
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.70.0 · 2026-10-29
 
 Restaurarea unui backup din aplicație (F05-T25).
