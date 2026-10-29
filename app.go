@@ -20,6 +20,8 @@ type App struct {
 	raportCache  map[string]raportPregatit
 	raportOrdine []string
 	aiManager    *ai.Manager
+	aiMu         sync.Mutex
+	aiSarcina    *sarcinaAI
 	paza         *audit.Paza
 }
 

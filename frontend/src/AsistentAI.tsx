@@ -1,15 +1,8 @@
-import React, {useEffect, useRef, useState, type FormEvent} from 'react';
+import {useEffect, useRef, useState, type FormEvent} from 'react';
 import {useTranslation} from 'react-i18next';
-import {AplicaPropunereAI, EsteAutoPornireAI, InterogheazaAI, OpresteAI, PornesteAI, SeteazaAutoPornireAI, StareAI} from '../wailsjs/go/main/App';
+import {AplicaPropunereAI, EsteAutoPornireAI, OpresteAI, PornesteAI, SeteazaAutoPornireAI, StareAI} from '../wailsjs/go/main/App';
 import {ai, datebaza, main} from '../wailsjs/go/models';
-
-interface MesajUI {
-    id: string;
-    rol: 'user' | 'assistant';
-    text: string;
-    propuneri?: ai.PropunereActiune[];
-    propuneriAplicata?: Record<string, boolean>;
-}
+import {marcheazaVizibil, opresteSarcina, pornesteSarcina, reseteazaConversatie as reseteazaSesiunea, seteazaConversatie, seteazaEroare, useSesiuneAI, type MesajUI} from './asistentSesiune';
 
 function curataText(str: string): string {
     return (str || '')
@@ -68,8 +61,6 @@ function gasesteAngajat(marcaSauNume: string, angajati: datebaza.Angajat[]): dat
     return undefined;
 }
 
-const CHEIE_STORAGE_CONVERSATIE = 'pontix_asistent_conversatie';
-
 export function AsistentAI({
     date,
     onDeschidePontaj,
@@ -84,26 +75,10 @@ export function AsistentAI({
     const [mesaj, setMesaj] = useState('');
     const [eroare, setEroare] = useState('');
     const [textIntrare, setTextIntrare] = useState('');
-    const [conversatie, setConversatie] = useState<MesajUI[]>(() => {
-        try {
-            const salvat = sessionStorage.getItem(CHEIE_STORAGE_CONVERSATIE);
-            if (salvat) {
-                const parsed = JSON.parse(salvat);
-                if (Array.isArray(parsed) && parsed.length > 0) {
-                    return parsed;
-                }
-            }
-        } catch {
-            // ignoră erori storage
-        }
-        return [
-            {
-                id: 'bun_venit',
-                rol: 'assistant',
-                text: t('ai.mesaj_bun_venit'),
-            },
-        ];
-    });
+    const sesiune = useSesiuneAI();
+    const conversatie = sesiune.conversatie;
+    const lucreaza = sesiune.sarcina !== '';
+    const blocat = ocupat || lucreaza;
     const [autoPornire, setAutoPornire] = useState(true);
 
     const anCurent = new Date().getFullYear();
@@ -132,28 +107,20 @@ export function AsistentAI({
     }, []);
 
     useEffect(() => {
-        try {
-            sessionStorage.setItem(CHEIE_STORAGE_CONVERSATIE, JSON.stringify(conversatie));
-        } catch {
-            // ignoră
-        }
+        if (!lucreaza) void actualizeazaStare();
+    }, [lucreaza]);
+
+    useEffect(() => {
+        marcheazaVizibil(true);
+        return () => marcheazaVizibil(false);
+    }, []);
+
+    useEffect(() => {
         capatConversatieRef.current?.scrollIntoView({behavior: 'smooth'});
-    }, [conversatie]);
+    }, [conversatie, lucreaza]);
 
     function reseteazaConversatie() {
-        const init: MesajUI[] = [
-            {
-                id: 'bun_venit',
-                rol: 'assistant',
-                text: t('ai.mesaj_bun_venit'),
-            },
-        ];
-        setConversatie(init);
-        try {
-            sessionStorage.removeItem(CHEIE_STORAGE_CONVERSATIE);
-        } catch {
-            // ignoră
-        }
+        reseteazaSesiunea();
         setMesaj('');
         setEroare('');
     }
@@ -199,9 +166,10 @@ export function AsistentAI({
 
     async function trimiteMesaj(textDeTrimis?: string) {
         const text = (textDeTrimis ?? textIntrare).trim();
-        if (!text || ocupat) return;
+        if (!text || blocat) return;
 
         setEroare('');
+        seteazaEroare('');
 
         // 1. Verificare răspuns afirmativ de confirmare a unei propuneri existente
         const textNorm = text.toLowerCase().replace(/[.!?,]/g, '').trim();
@@ -219,7 +187,7 @@ export function AsistentAI({
                 if (propuneriDeAplicat.length > 0) {
                     setTextIntrare('');
                     const mesajUtilizator: MesajUI = { id: `u_${Date.now()}`, rol: 'user', text };
-                    setConversatie(prev => [...prev, mesajUtilizator]);
+                    seteazaConversatie(prev => [...prev, mesajUtilizator]);
                     for (const p of propuneriDeAplicat) {
                         await aplicaPropunere(mesajCuPropunere.id, p);
                     }
@@ -237,54 +205,32 @@ export function AsistentAI({
         };
 
         const istoricNou = [...conversatie, mesajUtilizator];
-        setConversatie(istoricNou);
-        setOcupat(true);
+        seteazaConversatie(() => istoricNou);
 
-        try {
-            // Trimite ultimele 10 mesaje pentru context conversațional bogat
-            const istoricAPI: ai.MesajConversatie[] = istoricNou
-                .filter(m => m.id !== 'bun_venit')
-                .slice(-10)
-                .map(m => {
-                    let continut = m.text;
-                    if (m.rol === 'assistant' && m.propuneri && m.propuneri.length > 0) {
-                        const detalii = m.propuneri.map(p => {
-                            const stareTxt = m.propuneriAplicata?.[p.id] ? '(salvată)' : '(propusă)';
-                            return `${p.descriere} ${stareTxt}`;
-                        }).join('; ');
-                        continut = continut && !continut.includes('Acțiuni propuse') ? `${continut}. ${detalii}` : detalii;
-                    }
-                    return new ai.MesajConversatie({
-                        role: m.rol,
-                        content: continut,
-                    });
+        // Trimite ultimele 10 mesaje pentru context conversațional bogat
+        const istoricAPI: ai.MesajConversatie[] = istoricNou
+            .filter(m => m.id !== 'bun_venit')
+            .slice(-10)
+            .map(m => {
+                let continut = m.text;
+                if (m.rol === 'assistant' && m.propuneri && m.propuneri.length > 0) {
+                    const detalii = m.propuneri.map(p => {
+                        const stareTxt = m.propuneriAplicata?.[p.id] ? '(salvată)' : '(propusă)';
+                        return `${p.descriere} ${stareTxt}`;
+                    }).join('; ');
+                    continut = continut && !continut.includes('Acțiuni propuse') ? `${continut}. ${detalii}` : detalii;
+                }
+                return new ai.MesajConversatie({
+                    role: m.rol,
+                    content: continut,
                 });
+            });
 
-            const resp = await InterogheazaAI(new main.CerereInterogareAI({
-                istoric: istoricAPI,
-                an: anCurent,
-                luna: lunaCurenta,
-            }));
-
-            if (resp.eroare) {
-                const textEroare = t(resp.eroare.cod, resp.eroare.param ?? {});
-                setEroare(textEroare !== resp.eroare.cod ? textEroare : (resp.eroare.param?.detalii ?? resp.eroare.cod));
-            } else if (resp.raspuns) {
-                const mesajAsistent: MesajUI = {
-                    id: `a_${Date.now()}`,
-                    rol: 'assistant',
-                    text: resp.raspuns.mesaj || (resp.raspuns.propuneri?.length ? t('ai.propuneri_titlu') : ''),
-                    propuneri: resp.raspuns.propuneri,
-                    propuneriAplicata: {},
-                };
-                setConversatie([...istoricNou, mesajAsistent]);
-            }
-        } catch {
-            setEroare(t('date.eroare'));
-        } finally {
-            setOcupat(false);
-            void actualizeazaStare();
-        }
+        await pornesteSarcina(new main.CerereInterogareAI({
+            istoric: istoricAPI,
+            an: anCurent,
+            luna: lunaCurenta,
+        }));
     }
 
     async function aplicaPropunere(mesajId: string, propunere: ai.PropunereActiune) {
@@ -304,7 +250,7 @@ export function AsistentAI({
                 setEroare(textEroare !== resp.eroare.cod ? textEroare : (resp.eroare.param?.detalii ?? resp.eroare.cod));
             } else {
                 setMesaj(t('ai.actiune_aplicata'));
-                setConversatie(prev => prev.map(m => {
+                seteazaConversatie(prev => prev.map(m => {
                     if (m.id === mesajId) {
                         return {
                             ...m,
@@ -378,7 +324,7 @@ export function AsistentAI({
                     <button
                         type="button"
                         className="buton secundar mic buton-conversatie-noua"
-                        disabled={ocupat || conversatie.length <= 1}
+                        disabled={blocat || conversatie.length <= 1}
                         onClick={reseteazaConversatie}
                         title={t('ai.conversatie_noua_descriere')}
                     >
@@ -406,7 +352,7 @@ export function AsistentAI({
                 </div>
             )}
 
-            {eroare && <div className="mesaj eroare" role="alert">{eroare}</div>}
+            {(eroare || sesiune.eroare) && <div className="mesaj eroare" role="alert">{eroare || sesiune.eroare}</div>}
             {mesaj && <div className="mesaj succes" role="status">{mesaj}</div>}
 
             {/* Zona de conversație */}
@@ -488,7 +434,7 @@ export function AsistentAI({
                                                     <button
                                                         type="button"
                                                         className="buton primar mic"
-                                                        disabled={ocupat}
+                                                        disabled={blocat}
                                                         onClick={() => aplicaPropunere(m.id, p)}
                                                     >
                                                         {t('ai.confirma_actiune')}
@@ -502,9 +448,11 @@ export function AsistentAI({
                         )}
                     </div>
                 ))}
-                {ocupat && (
+                {lucreaza && (
                     <div className="bula-mesaj assistant scriere">
                         <span className="puncte-asteptare">● ● ●</span>
+                        <span className="text-discret">{t('ai.sarcina_in_lucru')}</span>
+                        <button type="button" className="buton secundar mic" onClick={() => void opresteSarcina()}>⏹ {t('ai.opreste_sarcina')}</button>
                     </div>
                 )}
                 <div ref={capatConversatieRef} />
@@ -518,7 +466,7 @@ export function AsistentAI({
                         key={idx}
                         type="button"
                         className="cip-sugestie"
-                        disabled={ocupat}
+                        disabled={blocat}
                         onClick={() => trimiteMesaj(s)}
                     >
                         💬 {s}
@@ -537,14 +485,14 @@ export function AsistentAI({
                 <input
                     type="text"
                     value={textIntrare}
-                    disabled={ocupat}
+                    disabled={blocat}
                     onChange={e => setTextIntrare(e.target.value)}
                     placeholder={t('ai.indiciu_scriere')}
                 />
                 <button
                     type="submit"
                     className="buton primar"
-                    disabled={ocupat || !textIntrare.trim()}
+                    disabled={blocat || !textIntrare.trim()}
                 >
                     {t('ai.trimite')} ➔
                 </button>

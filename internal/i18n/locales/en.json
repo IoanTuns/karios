@@ -771,5 +771,11 @@
   "pontaj.amprenta_corespunde": "data matches the closing",
   "pontaj.amprenta_diferita": "WARNING: data changed after closing",
   "rapoarte.amprenta_luna": "closed month fingerprint {{amprenta}}",
-  "rapoarte.amprenta_diferita": "WARNING: data differs from the closing fingerprint {{amprenta}} (now {{curenta}})"
+  "rapoarte.amprenta_diferita": "WARNING: data differs from the closing fingerprint {{amprenta}} (now {{curenta}})",
+  "ai.sarcina_activa": "The assistant is already working on a request. Wait or stop it.",
+  "ai.sarcina_in_lucru": "The assistant is working…",
+  "ai.opreste_sarcina": "Stop",
+  "ai.sarcina_oprita": "The request was stopped.",
+  "ai.sarcina_terminata": "The AI assistant has finished. The reply is waiting in the assistant screen.",
+  "ai.sarcina_eroare": "The AI assistant could not reply. Details are in the assistant screen."
 }

@@ -166,8 +166,16 @@ export function OpresteAI() {
   return window['go']['main']['App']['OpresteAI']();
 }
 
+export function OpresteSarcinaAI() {
+  return window['go']['main']['App']['OpresteSarcinaAI']();
+}
+
 export function PornesteAI(arg1) {
   return window['go']['main']['App']['PornesteAI'](arg1);
+}
+
+export function PornesteSarcinaAI(arg1) {
+  return window['go']['main']['App']['PornesteSarcinaAI'](arg1);
 }
 
 export function PregatesteRaport(arg1) {
@@ -240,6 +248,10 @@ export function SalveazaSchita(arg1, arg2, arg3) {
 
 export function SalveazaTipAbsenta(arg1, arg2, arg3) {
   return window['go']['main']['App']['SalveazaTipAbsenta'](arg1, arg2, arg3);
+}
+
+export function SarcinaAIActiva() {
+  return window['go']['main']['App']['SarcinaAIActiva']();
 }
 
 export function SchimbaActivAngajat(arg1, arg2) {

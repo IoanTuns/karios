@@ -6,6 +6,7 @@ import {DialogDemo, FormularAngajat, Setari, durata, denumireSectie, denumireDep
 import {DialogImportAngajati} from './ImportDialogs';
 import {ErrorBoundary} from './ErrorBoundary';
 import {BannerAudit} from './Audit';
+import {initializeazaSesiuneAI, useSesiuneAI} from './asistentSesiune';
 import {ToastContainer} from './Toast';
 import type {ContextPontaj} from './Pontaj';
 
@@ -71,6 +72,9 @@ function App() {
     const [filtruAbsente, setFiltruAbsente] = useState<{an: number; angajatId: string} | null>(null);
     const [sidebarCompact, setSidebarCompact] = useState(() => localStorage.getItem('pontix_sidebar_compact') === 'true');
     const [tema, setTema] = useState<'light' | 'dark'>(() => (localStorage.getItem('pontix_tema') as any) || 'light');
+
+    const sesiuneAI = useSesiuneAI();
+    useEffect(() => { initializeazaSesiuneAI(); }, []);
 
     useEffect(() => {
         document.documentElement.setAttribute('data-theme', tema);
@@ -167,7 +171,11 @@ function App() {
                             aria-current={activ ? 'page' : undefined} disabled={ocupat || pontajOcupat}
                             title={t(`ui.${item}`)}
                             onClick={() => schimbaEcran(item)}>
-                            <Simbol tip={item}/><span className="text-navigare">{t(`ui.${item}`)}</span></button>
+                            <Simbol tip={item}/><span className="text-navigare">{t(`ui.${item}`)}</span>
+                            {item === 'asistent_ai' && (sesiuneAI.necitit || sesiuneAI.sarcina) && <span
+                                className={`semnal-navigare ${sesiuneAI.necitit ? 'necitit' : 'in-lucru'}`}
+                                title={t(sesiuneAI.necitit ? 'ai.sarcina_terminata' : 'ai.sarcina_in_lucru')}
+                                aria-label={t(sesiuneAI.necitit ? 'ai.sarcina_terminata' : 'ai.sarcina_in_lucru')}/>}</button>
                         {item === 'setari' && esteInSetari && <div className="submeniu-setari" role="group" aria-label={t('ui.setari')}>
                             {sectiuniSetari.map(sub => <button key={sub} type="button" className={`subnavigare ${ecran === sub ? 'selectat' : ''}`}
                                 aria-current={ecran === sub ? 'page' : undefined} disabled={ocupat || pontajOcupat}

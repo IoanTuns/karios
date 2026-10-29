@@ -128,15 +128,20 @@ func (a *App) OpresteAI() RaspunsStareAI {
 	return RaspunsStareAI{Stare: stare}
 }
 
-// InterogheazaAI trimite mesajul utilizatorului către asistentul local.
+// InterogheazaAI trimite mesajul utilizatorului către asistentul local și așteaptă răspunsul.
+// Interfața folosește PornesteSarcinaAI, care nu blochează.
 func (a *App) InterogheazaAI(cerere CerereInterogareAI) RaspunsInterogareAI {
+	return a.interogheazaAI(a.contextLucru(), cerere)
+}
+
+func (a *App) interogheazaAI(ctx context.Context, cerere CerereInterogareAI) RaspunsInterogareAI {
 	// Colectează contextul de lucru (angajați și schimburi)
-	date, err := datebaza.Nou(a.db).Citeste(a.contextLucru())
+	date, err := datebaza.Nou(a.db).Citeste(ctx)
 	if err != nil {
 		return RaspunsInterogareAI{Eroare: eroareInterfata(err)}
 	}
 
-	schimburi, _ := datebaza.Nou(a.db).ListaSchimburi(a.contextLucru())
+	schimburi, _ := datebaza.Nou(a.db).ListaSchimburi(ctx)
 
 	contextPontix := ai.ContextPontix{
 		Limba: "ro",
@@ -180,7 +185,7 @@ func (a *App) InterogheazaAI(cerere CerereInterogareAI) RaspunsInterogareAI {
 	}
 
 	// Colectăm concediile și absențele din luna selectată
-	absenteAn, errAbs := datebaza.Nou(a.db).CitesteAbsente(a.contextLucru(), cerere.An)
+	absenteAn, errAbs := datebaza.Nou(a.db).CitesteAbsente(ctx, cerere.An)
 	prefixLuna := fmt.Sprintf("%04d-%02d-", cerere.An, cerere.Luna)
 	if errAbs == nil {
 		for _, za := range absenteAn.Zile {
@@ -199,7 +204,7 @@ func (a *App) InterogheazaAI(cerere CerereInterogareAI) RaspunsInterogareAI {
 	}
 
 	// Colectăm turele și gărțile planificate în luna selectată
-	planLuna, errPlan := datebaza.Nou(a.db).CitestePlanificare(a.contextLucru(), cerere.An, cerere.Luna)
+	planLuna, errPlan := datebaza.Nou(a.db).CitestePlanificare(ctx, cerere.An, cerere.Luna)
 	hartaPlan := make(map[string]bool)
 	if errPlan == nil {
 		for _, p := range planLuna.Pozitii {
@@ -229,7 +234,7 @@ func (a *App) InterogheazaAI(cerere CerereInterogareAI) RaspunsInterogareAI {
 	}
 
 	// Adăugăm și valorile completate direct în ciorna de pontaj
-	schita, errSchita := datebaza.Nou(a.db).CitesteSchita(a.contextLucru(), cerere.An, cerere.Luna)
+	schita, errSchita := datebaza.Nou(a.db).CitesteSchita(ctx, cerere.An, cerere.Luna)
 	if errSchita == nil {
 		for _, c := range schita.Celule {
 			val := strings.TrimSpace(c.Valoare)
@@ -273,7 +278,7 @@ func (a *App) InterogheazaAI(cerere CerereInterogareAI) RaspunsInterogareAI {
 	mgr := a.asiguratManagerAI()
 	if !mgr.EsteActiv() {
 		// Încearcă pornirea automată dacă este instalat
-		if err := mgr.Porneste(a.contextLucru(), ""); err != nil {
+		if err := mgr.Porneste(ctx, ""); err != nil {
 			return RaspunsInterogareAI{
 				Eroare: eroareInterfata(fmt.Errorf("ai_inactiv: %w", err)),
 			}
@@ -281,7 +286,7 @@ func (a *App) InterogheazaAI(cerere CerereInterogareAI) RaspunsInterogareAI {
 	}
 
 	client := ai.NouClient(mgr.Port())
-	raspuns, err := client.Interogheaza(a.contextLucru(), cerere.Istoric, contextPontix)
+	raspuns, err := client.Interogheaza(ctx, cerere.Istoric, contextPontix)
 	if err != nil {
 		return RaspunsInterogareAI{
 			Eroare: &MesajEroare{

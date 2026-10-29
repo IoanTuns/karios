@@ -4,6 +4,16 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.61.0 · 2026-10-29
+
+Asistentul AI lucrează în fundal (F14-T07).
+
+- `PornesteSarcinaAI` întoarce imediat; răspunsul vine prin evenimentul Wails `ai:sarcina_terminata`. O singură sarcină o dată (`ai.sarcina_activa`); `OpresteSarcinaAI` întrerupe cererea către motor; `SarcinaAIActiva` permite reluarea după reîncărcarea interfeței.
+- Conversația și sarcina în curs stau în `frontend/src/asistentSesiune.ts`, în afara ecranului: schimbarea ecranului nu mai pierde răspunsul. Pe alt ecran apare un toast, iar iconița asistentului din bara laterală are un semnal (în lucru / răspuns necitit).
+- Buton „Oprește” lângă indicatorul de lucru. Propunerile nu se aplică singure.
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.60.1 · 2026-10-28
 
 Actualizarea dependențelor (AGENTS.md §6, F06-T08): `github.com/pdfcpu/pdfcpu` v0.16.3 → v0.16.4 (patch, aceeași licență Apache-2.0). `go mod tidy` a trecut `github.com/xuri/excelize/v2` v2.11.0 la dependență directă, cum e folosită de `internal/exportexcel`; versiunea nu se schimbă. Go 1.27.3 și pachetele npm erau deja la ultima versiune stabilă.

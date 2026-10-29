@@ -771,5 +771,11 @@
   "pontaj.amprenta_corespunde": "datele corespund închiderii",
   "pontaj.amprenta_diferita": "ATENȚIE: datele s-au schimbat după închidere",
   "rapoarte.amprenta_luna": "amprentă lună închisă {{amprenta}}",
-  "rapoarte.amprenta_diferita": "ATENȚIE: datele diferă de amprenta închiderii {{amprenta}} (acum {{curenta}})"
+  "rapoarte.amprenta_diferita": "ATENȚIE: datele diferă de amprenta închiderii {{amprenta}} (acum {{curenta}})",
+  "ai.sarcina_activa": "Asistentul lucrează deja la o cerere. Așteaptă sau oprește-o.",
+  "ai.sarcina_in_lucru": "Asistentul lucrează…",
+  "ai.opreste_sarcina": "Oprește",
+  "ai.sarcina_oprita": "Cererea a fost oprită.",
+  "ai.sarcina_terminata": "Asistentul AI a terminat. Răspunsul te așteaptă în ecranul asistentului.",
+  "ai.sarcina_eroare": "Asistentul AI nu a putut răspunde. Detaliile sunt în ecranul asistentului."
 }

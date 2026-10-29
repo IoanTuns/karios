@@ -2482,6 +2482,38 @@ export namespace main {
 		    return a;
 		}
 	}
+	export class RaspunsSarcinaAI {
+	    id: string;
+	    eroare?: MesajEroare;
+
+	    static createFrom(source: any = {}) {
+	        return new RaspunsSarcinaAI(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 	export class RaspunsSchimburi {
 	    adaugate: number;
 	    schimburi: datebaza.Schimb[];
@@ -2624,6 +2656,42 @@ export namespace main {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.incalcari = this.convertValues(source["incalcari"], calcul.IncalcareRegula);
 	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class RezultatSarcinaAI {
+	    id: string;
+	    raspuns?: ai.RaspunsAsistent;
+	    eroare?: MesajEroare;
+	    oprita: boolean;
+
+	    static createFrom(source: any = {}) {
+	        return new RezultatSarcinaAI(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.raspuns = this.convertValues(source["raspuns"], ai.RaspunsAsistent);
+	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
+	        this.oprita = source["oprita"];
 	    }
 
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

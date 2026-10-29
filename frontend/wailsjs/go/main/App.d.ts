@@ -89,7 +89,11 @@ export function ListaSchimburi():Promise<main.RaspunsSchimburi>;
 
 export function OpresteAI():Promise<main.RaspunsStareAI>;
 
+export function OpresteSarcinaAI():Promise<boolean>;
+
 export function PornesteAI(arg1:string):Promise<main.RaspunsStareAI>;
+
+export function PornesteSarcinaAI(arg1:main.CerereInterogareAI):Promise<main.RaspunsSarcinaAI>;
 
 export function PregatesteRaport(arg1:rapoarte.Cerere):Promise<main.RaspunsRaport>;
 
@@ -126,6 +130,8 @@ export function SalveazaSchimb(arg1:datebaza.Schimb):Promise<main.RaspunsSchimbu
 export function SalveazaSchita(arg1:number,arg2:number,arg3:Array<datebaza.CelulaSchita>):Promise<main.RaspunsSchita>;
 
 export function SalveazaTipAbsenta(arg1:string,arg2:datebaza.TipAbsenta,arg3:number):Promise<main.RaspunsAbsente>;
+
+export function SarcinaAIActiva():Promise<string>;
 
 export function SchimbaActivAngajat(arg1:string,arg2:boolean):Promise<main.RaspunsDate>;
 

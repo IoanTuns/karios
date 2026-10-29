@@ -630,6 +630,12 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .aplicatie.sidebar-compact .marca-aplicatie strong { display: none; }
 .aplicatie.sidebar-compact .buton-pliere-sidebar { margin-left: 0; }
 .aplicatie.sidebar-compact .eticheta-meniu { display: none; }
+.navigare { position: relative; }
+.semnal-navigare { position: absolute; top: 8px; right: 10px; width: 8px; height: 8px; border-radius: 50%; }
+.semnal-navigare.necitit { background: #d4380d; }
+.semnal-navigare.in-lucru { background: #1677ff; animation: puls-semnal 1.2s ease-in-out infinite; }
+@keyframes puls-semnal { 50% { opacity: .3; } }
+@media (prefers-reduced-motion: reduce) { .semnal-navigare.in-lucru { animation: none; } }
 .aplicatie.sidebar-compact .navigare { justify-content: center; padding: 12px 0; width: 46px; margin: 0 auto; }
 .aplicatie.sidebar-compact .navigare .text-navigare { display: none; }
 .aplicatie.sidebar-compact .submeniu-setari { display: none; }
