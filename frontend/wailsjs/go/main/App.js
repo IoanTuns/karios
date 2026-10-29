@@ -366,6 +366,10 @@ export function StatisticiDiagnoza() {
   return window['go']['main']['App']['StatisticiDiagnoza']();
 }
 
+export function UltimaModificareCelula(arg1, arg2) {
+  return window['go']['main']['App']['UltimaModificareCelula'](arg1, arg2);
+}
+
 export function VerificaBackup(arg1) {
   return window['go']['main']['App']['VerificaBackup'](arg1);
 }

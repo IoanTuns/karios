@@ -1,7 +1,8 @@
 import {useEffect, useLayoutEffect, useMemo, useRef, useState, type ClipboardEvent, type KeyboardEvent, type RefObject} from 'react';
 import {useTranslation} from 'react-i18next';
+import {autorJurnal} from './autorJurnal';
 import {semnaleazaModificari} from './modificariNesalvate';
-import {CitesteCalendar, CitesteSchita, ListaSchimburi, SalveazaSchita, PrevizualizeazaSchita, PrevizualizeazaPrecompletare, ExportaPontajExcel, CitesteStareLuna, SeteazaStareLuna} from '../wailsjs/go/main/App';
+import {UltimaModificareCelula, CitesteCalendar, CitesteSchita, ListaSchimburi, SalveazaSchita, PrevizualizeazaSchita, PrevizualizeazaPrecompletare, ExportaPontajExcel, CitesteStareLuna, SeteazaStareLuna} from '../wailsjs/go/main/App';
 import {calcul, datebaza} from '../wailsjs/go/models';
 import {AmprentaLuna} from './Audit';
 import {Dialog, denumireSectie, denumireDepartament} from './Formulare';
@@ -448,6 +449,17 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
     const absentaActiva = cheieActiva ? absente.get(cheieActiva) : undefined;
     const inlocuiriActive = cheieActiva ? inlocuiri.get(cheieActiva) : undefined;
     const calcActiva = cheieActiva ? oreCalculate.get(cheieActiva) : undefined;
+    // Ultima modificare a celulei active, din jurnal (F08-T10); se recitește după salvare.
+    const [ultimaModificare, setUltimaModificare] = useState<{cheie: string; intrare?: datebaza.IntrareJurnal} | null>(null);
+    useEffect(() => {
+        if (!randActiv || !dataActiva) return;
+        let activ = true;
+        const k = cheieActiva;
+        const temporizator = window.setTimeout(() => {
+            UltimaModificareCelula(randActiv.id, dataActiva).then(r => { if (activ && !r.eroare) setUltimaModificare({cheie: k, intrare: r.intrare}); }).catch(() => {});
+        }, 200);
+        return () => { activ = false; window.clearTimeout(temporizator); };
+    }, [cheieActiva, schita]);
     const schimbActiv = brutaActiva && !brutaActiva.startsWith('@M') ? schimburi.find(s => s.cod === brutaActiva) : undefined;
     const textCodActiv = absentaActiva
         ? `${absentaActiva.cod} (${t(`absente.aprobare_${absentaActiva.stare_aprobare || 'IN_ASTEPTARE'}`)}${absentaActiva.nr_inregistrare ? ` · ${absentaActiva.nr_inregistrare}` : ''})`
@@ -569,6 +581,9 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                     {calcActiva?.calculabil && <span>{t('pontaj.inspectie_calculat', {ore: oreText(calcActiva.minute)})}</span>}
                     {inlocuiriActive?.length ? <span className="insigna-inlocuitor">{t('pontaj.inlocuieste_pe', {persoane: inlocuiriActive.map(z => { const coleg = date.angajati.find(x => x.id === z.angajat_id); return `${coleg ? `${coleg.nume} ${coleg.prenume}` : z.angajat_id} (${z.cod})`; }).join(', ')})}</span> : null}
                     {avertismentActiv && <span className="avertisment-text">{avertismentActiv}</span>}
+                    {ultimaModificare?.cheie === cheieActiva && ultimaModificare.intrare && <span className="ultima-modificare" title={t('pontaj.ultima_modificare_indiciu')}>
+                        {t('pontaj.ultima_modificare', {cine: autorJurnal(t, ultimaModificare.intrare.cine), cand: new Date(ultimaModificare.intrare.cand).toLocaleString(i18n.language)})}
+                    </span>}
                     {onDeschideAbsente && <button type="button" className="legatura" disabled={ocupat} onClick={() => { if (poateAbandona()) onDeschideAbsente(an, randActiv.id); }}>{t('pontaj.deschide_absente')}</button>}
                 </div>
             </div>}

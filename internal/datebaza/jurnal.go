@@ -134,3 +134,18 @@ func (s *Serviciu) TotJurnalul(ctx context.Context, f FiltruJurnal) ([]IntrareJu
 		f.Deplasare += limitaJurnal
 	}
 }
+
+// UltimaModificare întoarce cea mai nouă intrare din jurnal pentru un rând (F08-T10).
+func (s *Serviciu) UltimaModificare(ctx context.Context, tabel, randID string) (*IntrareJurnal, error) {
+	var i IntrareJurnal
+	err := s.db.QueryRowContext(ctx, `SELECT id, tabel, rand_id, coalesce(camp, ''), coalesce(valoare_veche, ''), coalesce(valoare_noua, ''), cand, cine
+		FROM jurnal_modificari WHERE tabel = ? AND rand_id = ? ORDER BY id DESC LIMIT 1`, tabel, randID).
+		Scan(&i.ID, &i.Tabel, &i.RandID, &i.Camp, &i.Vechi, &i.Nou, &i.Cand, &i.Cine)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, traduceEroare(err)
+	}
+	return &i, nil
+}

@@ -189,6 +189,8 @@ export function StareCont():Promise<main.RaspunsStareCont>;
 
 export function StatisticiDiagnoza():Promise<diagnoza.StatisticiDiagnoza>;
 
+export function UltimaModificareCelula(arg1:string,arg2:string):Promise<main.RaspunsUltimaModificare>;
+
 export function VerificaBackup(arg1:string):Promise<main.RaspunsVerificareBackup>;
 
 export function VerificaReguliPlanificare(arg1:number,arg2:number):Promise<main.RaspunsVerificaReguli>;

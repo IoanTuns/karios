@@ -1099,5 +1099,7 @@
   "pontaj.export_dialog_titlu": "Save the Excel timesheet",
   "pontaj.export_filtru": "Excel workbook (*.xlsx)",
   "diagnoza.fara_jurnal": "There is no diagnostic log for this month yet.",
-  "diagnoza.eroare_citire": "The diagnostic log could not be read."
+  "diagnoza.eroare_citire": "The diagnostic log could not be read.",
+  "pontaj.ultima_modificare": "Last change: {{cine}}, {{cand}}",
+  "pontaj.ultima_modificare_indiciu": "From the change log; the full history is in Settings → Change log."
 }

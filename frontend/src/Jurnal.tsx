@@ -4,6 +4,7 @@ import {useTranslation} from 'react-i18next';
 import {CitesteJurnal, ExportaJurnalCSV, StareAudit} from '../wailsjs/go/main/App';
 import {audit, datebaza} from '../wailsjs/go/models';
 import {notifica} from './Toast';
+import {autorJurnal} from './autorJurnal';
 
 const PE_PAGINA = 100;
 const CAMPURI_TEHNICE = new Set(['revizie', 'modificat_la', 'creat_la']);
@@ -84,12 +85,7 @@ export function Jurnal({date}: {date: datebaza.Date}) {
         return text === k ? tabel : text;
     }
 
-    // autor: „local” sau „local/asistent_ai”; contul vine cu F15.
-    function autor(cine: string): string {
-        const [baza, sursa] = cine.split('/');
-        const nume = baza === 'local' ? t('jurnal.cine_local') : baza;
-        return sursa === 'asistent_ai' ? t('jurnal.cine_asistent', {cine: nume}) : nume;
-    }
+    const autor = (cine: string) => autorJurnal(t, cine);
 
     function rand(i: datebaza.IntrareJurnal): string {
         const [id, zi] = i.rand_id.split('/');

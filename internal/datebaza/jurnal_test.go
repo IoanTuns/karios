@@ -48,3 +48,21 @@ func TestCitesteJurnalFiltre(t *testing.T) {
 		t.Fatalf("export: %d, %v", len(tot), err)
 	}
 }
+
+func TestUltimaModificare(t *testing.T) {
+	m := pregateste(t)
+	ctx := context.Background()
+	if err := m.serviciu.SalveazaAngajat(ctx, angajatTest("M1")); err != nil {
+		t.Fatal(err)
+	}
+	id := citeste(t, m.serviciu).Angajati[0].ID
+	if i, err := m.serviciu.UltimaModificare(ctx, "pontaj_ciorne", id+"/2026-10-01"); err != nil || i != nil {
+		t.Fatalf("fără modificări: %+v %v", i, err)
+	}
+	if err := m.serviciu.SalveazaSchita(CuActor(ctx, "ana"), 2026, 10, []CelulaSchita{{AngajatID: id, Data: "2026-10-01", Valoare: "D8"}}); err != nil {
+		t.Fatal(err)
+	}
+	if i, err := m.serviciu.UltimaModificare(ctx, "pontaj_ciorne", id+"/2026-10-01"); err != nil || i == nil || i.Cine != "ana" {
+		t.Fatalf("ultima modificare: %+v %v", i, err)
+	}
+}

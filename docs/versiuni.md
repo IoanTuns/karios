@@ -4,6 +4,15 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.76.0 · 2026-10-29
+
+Ultima modificare a celulei în bara de inspecție a pontajului (F08-T10).
+
+- Pentru celula activă, bara de inspecție arată cine și când a modificat-o ultima dată, din jurnalul de modificări (cont, „utilizator local” sau „asistent AI, confirmat de …”). Se recitește după salvare.
+- `datebaza.UltimaModificare` și `App.UltimaModificareCelula`; traducerea autorului e comună cu ecranul jurnalului (`frontend/src/autorJurnal.ts`).
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.75.0 · 2026-10-29
 
 Textele din interfață mutate în cataloage (F03-T10, UI-4 din review).

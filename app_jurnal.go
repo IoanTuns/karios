@@ -97,3 +97,18 @@ func csvJurnal(intrari []datebaza.IntrareJurnal, limba i18n.Limba) ([]byte, erro
 
 // bomUTF8 marchează fișierul ca UTF-8 pentru Excel.
 const bomUTF8 = "\xef\xbb\xbf"
+
+// RaspunsUltimaModificare întoarce ultima intrare din jurnal pentru o celulă de pontaj.
+type RaspunsUltimaModificare struct {
+	Intrare *datebaza.IntrareJurnal `json:"intrare,omitempty"`
+	Eroare  *MesajEroare            `json:"eroare,omitempty"`
+}
+
+// UltimaModificareCelula: cine și când a schimbat ultima dată ziua unui angajat (F08-T10).
+func (a *App) UltimaModificareCelula(angajatID, data string) RaspunsUltimaModificare {
+	i, err := datebaza.Nou(a.db).UltimaModificare(a.contextLucru(), "pontaj_ciorne", angajatID+"/"+data)
+	if err != nil {
+		return RaspunsUltimaModificare{Eroare: eroareInterfata(err)}
+	}
+	return RaspunsUltimaModificare{Intrare: i}
+}
