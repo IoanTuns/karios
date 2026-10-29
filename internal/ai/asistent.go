@@ -303,16 +303,8 @@ func (c *Client) Interogheaza(ctx context.Context, istoric []MesajConversatie, i
 		}
 		istoric = istoric[start:]
 	}
-	// Dacă utilizatorul a adresat o interogare analitică/de sinteză (concedii, weekend, acoperire, statistici),
-	// răspundem direct, determinist și instant folosind datele din context.
-	if len(istoric) > 0 {
-		ultimulMesaj := istoric[len(istoric)-1].Continut
-		if sinteza, ok := AnalizeazaInterogareSinteza(ultimulMesaj, info); ok {
-			return RaspunsAsistent{
-				Mesaj: sinteza,
-			}, nil
-		}
-	}
+	// Rutele rezolvate din cod (concediu, planificare, întrebări) sunt alese înainte, de Ruteaza
+	// (F14-T27); clientul trimite la model doar ce a rămas.
 
 	// Construiește promptul de sistem cu instrucțiuni și contextul disponibil
 	promptSistem := construiestePromptSistem(info)

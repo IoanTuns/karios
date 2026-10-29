@@ -1,0 +1,130 @@
+[
+  {
+    "mesaj": "Toti angajatii pe luna octombrie sunt pe zi de la 7 la 14",
+    "ruta": "planificare",
+    "sursa": "captura 2026-10-29"
+  },
+  {
+    "mesaj": "Toti angajati fara pontaj in octombie lucreaza de la 7 la 14",
+    "ruta": "planificare",
+    "sursa": "captura 2026-10-29, greșeli de tastare"
+  },
+  {
+    "mesaj": "Listeaza toti angajati",
+    "ruta": "sinteza",
+    "sursa": "captura 2026-10-29"
+  },
+  {
+    "mesaj": "Maria Daria merge in concediu in octombrie 26 pana pe 31",
+    "ruta": "concediu",
+    "sursa": "captura 2026-10-29"
+  },
+  {
+    "mesaj": "Pop Ana are concediu medical din 28 octombrie pana pe 3 noiembrie",
+    "ruta": "concediu"
+  },
+  {
+    "mesaj": "Rus Ema merge in concediu",
+    "ruta": "concediu",
+    "sursa": "comandă incompletă: cere zilele"
+  },
+  {
+    "mesaj": "Cine este in concediu in octombrie?",
+    "ruta": "sinteza"
+  },
+  {
+    "mesaj": "Cine este liber in acest weekend?",
+    "ruta": "sinteza"
+  },
+  {
+    "mesaj": "Verifica daca lipsesc posturi obligatorii",
+    "ruta": "sinteza"
+  },
+  {
+    "mesaj": "Statistici garzi",
+    "ruta": "sinteza"
+  },
+  {
+    "mesaj": "ajutor",
+    "ruta": "sinteza"
+  },
+  {
+    "mesaj": "Ce schimburi exista?",
+    "ruta": "sinteza"
+  },
+  {
+    "mesaj": "Cati angajati avem?",
+    "ruta": "sinteza"
+  },
+  {
+    "mesaj": "Listează angajații din secția ATI",
+    "ruta": "sinteza"
+  },
+  {
+    "mesaj": "Secția ATI de la 15 la 22 toate zilele",
+    "ruta": "planificare"
+  },
+  {
+    "mesaj": "Pune-l pe Pop Ana pe Z7 pe 15 octombrie",
+    "ruta": "planificare"
+  },
+  {
+    "mesaj": "tot personalu in noiebrie pe Z7",
+    "ruta": "planificare",
+    "sursa": "greșeli de tastare"
+  },
+  {
+    "mesaj": "Sterge garda lui Pop Ana din 15",
+    "ruta": "model"
+  },
+  {
+    "mesaj": "Hey",
+    "ruta": "model"
+  },
+  {
+    "mesaj": "Pati sa aplici in pontaj",
+    "ruta": "model",
+    "sursa": "captura 2026-10-29"
+  },
+  {
+    "mesaj": "Cine e in concediu medical luna asta?",
+    "ruta": "sinteza"
+  },
+  {
+    "mesaj": "DEMO-001 pleaca in concediu de odihna pe 12",
+    "ruta": "concediu"
+  },
+  {
+    "mesaj": "Marin Daria intra in concediu de boala din 3 pana pe 7 noiembrie",
+    "ruta": "concediu"
+  },
+  {
+    "mesaj": "Ce concedii are Pop Ana?",
+    "ruta": "sinteza"
+  },
+  {
+    "mesaj": "Categoria Dimineață pe Z7 inclusiv weekend",
+    "ruta": "planificare"
+  },
+  {
+    "mesaj": "toti angajatii in mai pe Z7",
+    "ruta": "planificare"
+  },
+  {
+    "mesaj": "Planifica pe Rus Ema de noapte N12 pe 20 octombrie",
+    "ruta": "planificare"
+  },
+  {
+    "mesaj": "Multumesc!",
+    "ruta": "model"
+  },
+  {
+    "mesaj": "Ce poti face?",
+    "ruta": "sinteza"
+  },
+  {
+    "mesaj": "Cine lipseste pe 15 octombrie?",
+    "ruta": "model",
+    "sursa": "întrebare fără răspuns din cod încă: ajunge la model"
+  }
+]

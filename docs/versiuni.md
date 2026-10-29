@@ -4,6 +4,15 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.85.1 · 2026-10-29
+
+O singură poartă pentru mesajele asistentului și setul de comenzi reale (F14-T27, F14-T01).
+
+- `ai.Ruteaza` alege calea fiecărui mesaj într-o ordine fixă: cerere de concediu → planificare ghidată → întrebare la care răspunde codul → model. Înainte, aceeași sinteză rula și în aplicație, și în clientul modelului, iar căile se puteau contrazice.
+- Setul de comenzi reale (`internal/ai/testdata/comenzi.json`, 30 de comenzi, inclusiv toate eșecurile din capturile Ioan Tuns) verifică ruta aleasă la fiecare `go test`. Fiecare eșec nou raportat se adaugă acolo.
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.85.0 · 2026-10-29
 
 Cererile de concediu din asistentul AI (F14-T26, [D052](decizii/D052-concedii-din-asistent.md)).

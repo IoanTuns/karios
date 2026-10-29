@@ -232,21 +232,6 @@ func (a *App) interogheazaAI(ctx context.Context, cerere CerereInterogareAI) Ras
 		}
 	}
 
-	// O cerere de concediu deschide formularul de concediu precompletat (F14-T26, D052).
-	if len(cerere.Istoric) > 0 {
-		if raspuns, ok := ai.AnalizeazaCerereConcediu(cerere.Istoric[len(cerere.Istoric)-1].Continut, contextPontix); ok {
-			return RaspunsInterogareAI{Raspuns: &raspuns}
-		}
-	}
-
-	// Planificarea ghidată nu trimite pontajul echipei la model. Datele exacte
-	// se citesc la previzualizare; ambiguitățile se rezolvă în formular (F14-T22).
-	if len(cerere.Istoric) > 0 {
-		if intentie, ok := ai.InterpreteazaPlan(cerere.Istoric[len(cerere.Istoric)-1].Continut, contextPontix); ok {
-			return RaspunsInterogareAI{Raspuns: &ai.RaspunsAsistent{Intentie: &intentie}}
-		}
-	}
-
 	// Colectăm concediile și absențele din luna selectată
 	absenteAn, errAbs := datebaza.Nou(a.db).CitesteAbsente(ctx, cerere.An)
 	prefixLuna := fmt.Sprintf("%04d-%02d-", cerere.An, cerere.Luna)
@@ -325,16 +310,12 @@ func (a *App) interogheazaAI(ctx context.Context, cerere CerereInterogareAI) Ras
 		}
 	}
 
-	// Interogările analitice deterministe (concedii, disponibilitate weekend, acoperire, statistici)
-	// se execută instant, fără a bloca sau porni procesul AI dacă acesta este oprit.
+	// O singură poartă alege calea mesajului (F14-T27): concediu, planificare ghidată, întrebări
+	// la care răspunde codul; doar restul ajunge la model. Rutele din cod nu pornesc motorul AI,
+	// iar planificarea ghidată nu trimite pontajul echipei la model (F14-T22).
 	if len(cerere.Istoric) > 0 {
-		ultimulMesaj := cerere.Istoric[len(cerere.Istoric)-1].Continut
-		if sinteza, ok := ai.AnalizeazaInterogareSinteza(ultimulMesaj, contextPontix); ok {
-			return RaspunsInterogareAI{
-				Raspuns: &ai.RaspunsAsistent{
-					Mesaj: sinteza,
-				},
-			}
+		if d := ai.Ruteaza(cerere.Istoric[len(cerere.Istoric)-1].Continut, contextPontix); d.Ruta != ai.RutaModel {
+			return RaspunsInterogareAI{Raspuns: &d.Raspuns}
 		}
 	}
 
