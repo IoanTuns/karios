@@ -63,6 +63,11 @@ type Paza struct {
 	mu         sync.RWMutex
 	rez        Rezultat
 	confirmare bool
+	// Conturile (F15, D045): până la autentificare, scrierile sunt refuzate, mai puțin
+	// operațiile de sistem (autentificarea, crearea primului cont).
+	cereCont     bool
+	autentificat bool
+	sistem       int
 }
 
 // NouaPaza pornește cu rezultatul verificării de la deschidere.
@@ -82,7 +87,50 @@ func (p *Paza) Blocata() bool {
 	}
 	p.mu.RLock()
 	defer p.mu.RUnlock()
+	if p.sistem > 0 {
+		return false
+	}
+	if p.cereCont && !p.autentificat {
+		return true
+	}
 	return p.rez.Stare == StareIncident && !p.confirmare
+}
+
+// CereAutentificare activează refuzul scrierilor până la autentificare.
+func (p *Paza) CereAutentificare(da bool) {
+	if p == nil {
+		return
+	}
+	p.mu.Lock()
+	p.cereCont = da
+	p.mu.Unlock()
+}
+
+// SeteazaAutentificat marchează dacă un cont e autentificat.
+func (p *Paza) SeteazaAutentificat(da bool) {
+	if p == nil {
+		return
+	}
+	p.mu.Lock()
+	p.autentificat = da
+	p.mu.Unlock()
+}
+
+// Sistem rulează f cu scrierile permise, pentru operațiile de autentificare, care trebuie
+// să scrie (încercări, jurnal) și înainte de autentificare sau în timpul unui incident.
+func (p *Paza) Sistem(f func() error) error {
+	if p == nil {
+		return f()
+	}
+	p.mu.Lock()
+	p.sistem++
+	p.mu.Unlock()
+	defer func() {
+		p.mu.Lock()
+		p.sistem--
+		p.mu.Unlock()
+	}()
+	return f()
 }
 
 func (p *Paza) seteaza(r Rezultat) {

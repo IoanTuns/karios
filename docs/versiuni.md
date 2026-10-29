@@ -4,6 +4,22 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.68.0 · 2026-10-29
+
+Conturi și acces (F15, [D008](decizii/D008-criptarea-datelor.md) punctul 3, [D045](decizii/D045-conturi-detalii.md)).
+
+- **Primul administrator:** la prima pornire fără conturi (inclusiv o bază existentă), aplicația cere crearea contului de administrator; datele rămân.
+- **Autentificare:** nume și parolă; parola deschide copia `P:<id>` din seif (Argon2id), fără hash în bază. Parola: minim 8 caractere, cu literă și cifră.
+- **Auto-login** pentru ultimul cont pe același utilizator Windows (SID) și calculator; „Ieșire din cont” îl oprește până la următoarea autentificare cu parolă.
+- **Recuperare:** 3 întrebări alese dintr-o listă de 10; răspunsurile normalizate deschid copia `R:<id>`. Administratorul poate reseta parola oricărui cont.
+- **Blocare progresivă:** de la a 5-a încercare greșită consecutivă: 1, 5, 30, apoi 120 de minute; fiecare încercare, reușită sau nu, intră în jurnal.
+- **Roluri:** administratorul gestionează conturile (Setări → Conturi) și confirmă incidentele de audit; operatorul face restul. Ultimul administrator activ nu poate fi retrogradat sau dezactivat.
+- **Contul meu:** schimbarea parolei și a întrebărilor; numele contului și ieșirea apar în bara laterală.
+- **Jurnal:** autorul modificărilor devine numele contului (`ana`, `ana/asistent_ai`); închiderea lunii notează numele afișat.
+- Până la autentificare, orice scriere în bază e refuzată de trigger-ele auditului, mai puțin operațiile de autentificare.
+
+Baza de date: migrarea `0022_conturi` (tabelele `conturi` și `sesiune_locala`). Rapoarte: nicio schimbare.
+
 ## 0.67.0 · 2026-10-29
 
 Autorul modificărilor aplicate de asistentul AI (F14-T11).

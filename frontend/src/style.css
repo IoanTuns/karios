@@ -756,3 +756,25 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 [data-theme="dark"] .jurnal-diferente .vechi { color: #ff7875; }
 [data-theme="dark"] .jurnal-diferente .nou { color: #95de64; }
 .paginare-jurnal { display: flex; gap: 10px; align-items: center; justify-content: flex-end; margin-top: 10px; font-size: 12px; }
+.ecran-cont { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px 16px; background: var(--fundal, #f4f6f3); }
+.card-cont { width: 100%; max-width: 460px; display: flex; flex-direction: column; gap: 12px; background: #fff; border: 1px solid #d9e0da; border-radius: 10px; padding: 28px; }
+.card-cont h1 { margin: 0; font-size: 20px; }
+.card-cont label, .formular-cont label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; }
+.formular-cont { display: flex; flex-direction: column; gap: 10px; }
+.formular-cont h3 { margin: 10px 0 0; font-size: 13px; }
+.actiuni-cont { display: flex; gap: 10px; justify-content: flex-end; }
+.intrebari-cont { border: 1px solid #d9e0da; border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+.intrebari-cont legend { font-size: 12px; padding: 0 4px; }
+.rand-intrebare { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+@media (max-width: 520px) { .rand-intrebare { grid-template-columns: 1fr; } }
+.radacina-cont { display: contents; }
+.cont-curent { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: 12px; margin-bottom: 8px; }
+.cont-curent .nume-cont { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+.buton-text { background: none; border: none; padding: 0; color: inherit; text-decoration: underline; cursor: pointer; font-size: 12px; }
+.buton-text:disabled { opacity: .5; cursor: default; }
+.aplicatie.sidebar-compact .cont-curent { display: none; }
+.ecran-conturi .actiuni-rand { display: flex; gap: 6px; justify-content: flex-end; }
+.ecran-conturi .actiuni-antet { margin-bottom: 10px; }
+[data-theme="dark"] .ecran-cont { background: #121917; }
+[data-theme="dark"] .card-cont { background: #1a2522; border-color: #2a3a35; }
+[data-theme="dark"] .intrebari-cont { border-color: #2a3a35; }

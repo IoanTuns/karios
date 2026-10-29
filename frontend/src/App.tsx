@@ -6,6 +6,7 @@ import {DialogDemo, FormularAngajat, Setari, durata, denumireSectie, denumireDep
 import {DialogImportAngajati} from './ImportDialogs';
 import {ErrorBoundary} from './ErrorBoundary';
 import {BannerAudit} from './Audit';
+import {DialogContulMeu, EcranConturi, useCont} from './Conturi';
 import {initializeazaSesiuneAI, useSesiuneAI} from './asistentSesiune';
 import {ToastContainer} from './Toast';
 import type {ContextPontaj} from './Pontaj';
@@ -22,9 +23,9 @@ const CategoriiProgram = lazy(() => import('./CategoriiProgram').then(m => ({ de
 const ReguliPontaj = lazy(() => import('./ReguliPontaj').then(m => ({ default: m.ReguliPontaj })));
 const Jurnal = lazy(() => import('./Jurnal').then(m => ({ default: m.Jurnal })));
 
-type Ecran = 'angajati' | 'pontaj' | 'planificare' | 'sarbatori' | 'schimburi' | 'categorii_program' | 'absente' | 'definire_rapoarte' | 'rapoarte' | 'asistent_ai' | 'reguli_pontaj' | 'jurnal_modificari' | 'setari';
+type Ecran = 'angajati' | 'pontaj' | 'planificare' | 'sarbatori' | 'schimburi' | 'categorii_program' | 'absente' | 'definire_rapoarte' | 'rapoarte' | 'asistent_ai' | 'reguli_pontaj' | 'jurnal_modificari' | 'conturi' | 'setari';
 const ecranePrincipale: Ecran[] = ['angajati', 'pontaj', 'planificare', 'absente', 'rapoarte', 'asistent_ai', 'setari'];
-const sectiuniSetari: Ecran[] = ['setari', 'sarbatori', 'schimburi', 'categorii_program', 'reguli_pontaj', 'definire_rapoarte', 'jurnal_modificari'];
+const sectiuniSetari: Ecran[] = ['setari', 'sarbatori', 'schimburi', 'categorii_program', 'reguli_pontaj', 'definire_rapoarte', 'jurnal_modificari', 'conturi'];
 
 function normalizat(text: string): string {
     return text.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLocaleLowerCase();
@@ -42,6 +43,7 @@ function Simbol({tip}: {tip: Ecran}) {
             : tip === 'rapoarte' ? <><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></>
             : tip === 'asistent_ai' ? <><path d="M12 2a4 4 0 0 1 4 4v1a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4zM6 10h12a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2zM9 15h.01M15 15h.01"/></>
             : tip === 'definire_rapoarte' ? <><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 8h16M4 16h16M9 8v8"/></>
+            : tip === 'conturi' ? <><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></>
             : tip === 'jurnal_modificari' ? <><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 11h6M9 15h6M9 19h3"/></>
             : tip === 'setari' ? <><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1L7 17M17 7l2.1-2.1"/></>
             : <><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3" fill="currentColor"/><circle cx="15" cy="17" r="3" fill="currentColor"/></>}
@@ -76,6 +78,10 @@ function App() {
     const [tema, setTema] = useState<'light' | 'dark'>(() => (localStorage.getItem('pontix_tema') as any) || 'light');
 
     const sesiuneAI = useSesiuneAI();
+    const cont = useCont();
+    const [dialogCont, setDialogCont] = useState(false);
+    // Conturile se administrează doar de administrator (D045 punctul 3).
+    const sectiuniVizibile = sectiuniSetari.filter(s => s !== 'conturi' || cont?.cont.rol === 'ADMINISTRATOR');
     useEffect(() => { initializeazaSesiuneAI(); }, []);
 
     useEffect(() => {
@@ -179,7 +185,7 @@ function App() {
                                 title={t(sesiuneAI.necitit ? 'ai.sarcina_terminata' : 'ai.sarcina_in_lucru')}
                                 aria-label={t(sesiuneAI.necitit ? 'ai.sarcina_terminata' : 'ai.sarcina_in_lucru')}/>}</button>
                         {item === 'setari' && esteInSetari && <div className="submeniu-setari" role="group" aria-label={t('ui.setari')}>
-                            {sectiuniSetari.map(sub => <button key={sub} type="button" className={`subnavigare ${ecran === sub ? 'selectat' : ''}`}
+                            {sectiuniVizibile.map(sub => <button key={sub} type="button" className={`subnavigare ${ecran === sub ? 'selectat' : ''}`}
                                 aria-current={ecran === sub ? 'page' : undefined} disabled={ocupat || pontajOcupat}
                                 onClick={() => schimbaEcran(sub)}>
                                 <Simbol tip={sub}/>{t(sub === 'setari' ? 'ui.setari_general' : `ui.${sub}`)}</button>)}
@@ -188,6 +194,13 @@ function App() {
                 })}
             </nav>
             <div className="subsol-meniu">
+                {cont && <div className="cont-curent">
+                    <span className="nume-cont" title={cont.cont.nume}>👤 {cont.cont.nume_afisat || cont.cont.nume}</span>
+                    <button type="button" className="buton-text" onClick={() => setDialogCont(true)}>{t('cont.contul_meu')}</button>
+                    <button type="button" className="buton-text" disabled={ocupat || pontajOcupat || pontajModificat}
+                        title={pontajModificat ? t('cont.salveaza_inainte_de_iesire') : undefined} onClick={() => void cont.iesire()}>{t('cont.iesire')}</button>
+                </div>}
+                {dialogCont && <DialogContulMeu inchide={() => setDialogCont(false)}/>}
                 <div className="semnatura-dezvoltator" title={t('aplicatie.autor', {autor: 'Ioan Tuns'})}>
                     <span className="autor-text">{t('aplicatie.dezvoltat_de', {autor: 'Ioan Tuns'})}</span>
                 </div>
@@ -222,7 +235,7 @@ function App() {
                 </div>}
             </header>
             {esteInSetari && <div className="taburi-sectiuni taburi-setari" role="group" aria-label={t('ui.setari')}>
-                {sectiuniSetari.map(sub => <button key={sub} type="button" className={`buton-tab ${ecran === sub ? 'activ' : ''}`}
+                {sectiuniVizibile.map(sub => <button key={sub} type="button" className={`buton-tab ${ecran === sub ? 'activ' : ''}`}
                     aria-pressed={ecran === sub} disabled={ocupat || pontajOcupat}
                     onClick={() => schimbaEcran(sub)}>{t(sub === 'setari' ? 'ui.setari_general' : `ui.${sub}`)}</button>)}
             </div>}
@@ -240,6 +253,7 @@ function App() {
                     : ecran === 'categorii_program' ? <CategoriiProgram date={date} ocupat={ocupat} eroare={eroare} salveaza={c=>executa(()=>SalveazaCategorieProgram(c))} reincarca={()=>executa(DateInitiale,'')} curataEroare={()=>setEroare('')}/>
                     : ecran === 'absente' ? <Absente date={date} filtruInitial={filtruAbsente}/>
                     : ecran === 'jurnal_modificari' ? <Jurnal date={date}/>
+                    : ecran === 'conturi' ? <EcranConturi/>
                     : ecran === 'reguli_pontaj' ? <ReguliPontaj onModificari={setPontajModificat} onOcupat={setPontajOcupat}/>
                     : ecran === 'definire_rapoarte' ? <DefinireRapoarte/>
                     : ecran === 'rapoarte' ? <GenerareRapoarte date={date}/>

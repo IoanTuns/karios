@@ -19,6 +19,8 @@ export function AplicaPropunereAI(arg1:main.CerereAplicaPropunereAI):Promise<mai
 
 export function AtribuieCategorieProgramLot(arg1:Array<string>,arg2:string):Promise<main.RaspunsDate>;
 
+export function Autentifica(arg1:string,arg2:string):Promise<main.RaspunsStareCont>;
+
 export function Catalog(arg1:string):Promise<Record<string, string>>;
 
 export function CitesteAbsente(arg1:number):Promise<main.RaspunsAbsente>;
@@ -55,6 +57,10 @@ export function ConfirmaIncidentAudit(arg1:string):Promise<main.RaspunsAudit>;
 
 export function CreeazaBackup():Promise<main.RaspunsBackup>;
 
+export function CreeazaCont(arg1:conturi.CerereCont):Promise<main.RaspunsConturi>;
+
+export function CreeazaPrimulAdministrator(arg1:conturi.CerereCont):Promise<main.RaspunsStareCont>;
+
 export function DateInitiale():Promise<main.RaspunsDate>;
 
 export function DescarcaSablon(arg1:string,arg2:string):Promise<main.RaspunsDescarcaSablon>;
@@ -75,6 +81,8 @@ export function ExportaJurnalCSV(arg1:datebaza.FiltruJurnal,arg2:string):Promise
 
 export function ExportaPontajExcel(arg1:number,arg2:number):Promise<main.RaspunsExportExcel>;
 
+export function IesireDinCont():Promise<main.RaspunsStareCont>;
+
 export function IncarcaDemo():Promise<main.RaspunsDate>;
 
 export function Informatii():Promise<main.Informatii>;
@@ -83,13 +91,19 @@ export function InregistreazaEroareFrontend(arg1:string,arg2:string,arg3:string)
 
 export function InterogheazaAI(arg1:main.CerereInterogareAI):Promise<main.RaspunsInterogareAI>;
 
+export function IntrebariRecuperare(arg1:string):Promise<main.RaspunsIntrebari>;
+
 export function Limbi():Promise<Array<string>>;
+
+export function ListaConturi():Promise<main.RaspunsConturi>;
 
 export function ListaModeleRapoarte():Promise<main.RaspunsModeleRapoarte>;
 
 export function ListaReguliConfigurabile():Promise<main.RaspunsListaReguli>;
 
 export function ListaSchimburi():Promise<main.RaspunsSchimburi>;
+
+export function ModificaCont(arg1:conturi.Cont):Promise<main.RaspunsConturi>;
 
 export function OpresteAI():Promise<main.RaspunsStareAI>;
 
@@ -108,6 +122,10 @@ export function PrevizualizeazaPublicarePlan(arg1:datebaza.CererePublicarePlan):
 export function PrevizualizeazaSchita(arg1:number,arg2:number,arg3:Array<datebaza.CelulaSchita>):Promise<main.RaspunsSchita>;
 
 export function PublicaPlanificare(arg1:datebaza.CererePublicarePlan):Promise<main.RaspunsPublicarePlan>;
+
+export function RecupereazaCont(arg1:string,arg2:Array<string>,arg3:string):Promise<main.RaspunsStareCont>;
+
+export function ReseteazaParolaCont(arg1:string,arg2:string):Promise<main.RaspunsConturi>;
 
 export function SalveazaAbsente(arg1:Array<datebaza.ZiAbsenta>,arg2:number):Promise<main.RaspunsAbsente>;
 
@@ -143,6 +161,10 @@ export function SchimbaActivAngajatiLot(arg1:Array<string>,arg2:boolean):Promise
 
 export function SchimbaActivSchimb(arg1:string,arg2:boolean):Promise<main.RaspunsSchimburi>;
 
+export function SchimbaIntrebarileMele(arg1:string,arg2:Array<string>,arg3:Array<string>):Promise<main.RaspunsOperatieCont>;
+
+export function SchimbaParolaMea(arg1:string,arg2:string):Promise<main.RaspunsOperatieCont>;
+
 export function SeteazaAutoPornireAI(arg1:boolean):Promise<boolean>;
 
 export function SeteazaStareLuna(arg1:number,arg2:number,arg3:string,arg4:string):Promise<main.RaspunsStareLuna>;
@@ -150,6 +172,8 @@ export function SeteazaStareLuna(arg1:number,arg2:number,arg3:string,arg4:string
 export function StareAI():Promise<main.RaspunsStareAI>;
 
 export function StareAudit():Promise<main.RaspunsAudit>;
+
+export function StareCont():Promise<main.RaspunsStareCont>;
 
 export function StatisticiDiagnoza():Promise<diagnoza.StatisticiDiagnoza>;
 

@@ -139,7 +139,7 @@ func TestMigrareContractePastreazaDatele(t *testing.T) {
 			if normaGlobala != "" {
 				executa(t, db, `INSERT INTO setari (cheie, valoare, modificat_la) VALUES ('norma_intreaga_minute', ?, 'initial')`, normaGlobala)
 			}
-			if n, err := Migreaza(context.Background(), db, Migrari); err != nil || n != 20 {
+			if n, err := Migreaza(context.Background(), db, Migrari); err != nil || n != 21 {
 				t.Fatalf("actualizarea bazei vechi: %d migrări, %v", n, err)
 			}
 			var nume, prenume, marca, creat, modificat string

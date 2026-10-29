@@ -101,7 +101,7 @@ func (a *App) CitesteStareLuna(an, luna int) RaspunsStareLuna {
 }
 
 func (a *App) SeteazaStareLuna(an, luna int, stare, motiv string) RaspunsStareLuna {
-	st, err := datebaza.Nou(a.db).SeteazaStareLuna(a.contextLucru(), an, luna, stare, motiv, "Utilizator")
+	st, err := datebaza.Nou(a.db).SeteazaStareLuna(a.contextLucru(), an, luna, stare, motiv, a.numeAfisatCurent())
 	if err != nil {
 		return RaspunsStareLuna{Eroare: mesajPontaj(err)}
 	}

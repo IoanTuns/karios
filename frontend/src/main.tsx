@@ -2,6 +2,7 @@ import {StrictMode} from 'react';
 import {createRoot} from 'react-dom/client';
 import './style.css';
 import App from './App';
+import {PoartaCont} from './Conturi';
 import {initI18n} from './i18n';
 import {InregistreazaEroareFrontend} from '../wailsjs/go/main/App';
 
@@ -22,7 +23,7 @@ window.addEventListener('unhandledrejection', (event) => {
 initI18n().then(() => {
     createRoot(document.getElementById('root')!).render(
         <StrictMode>
-            <App/>
+            <PoartaCont><App/></PoartaCont>
         </StrictMode>
     );
 });

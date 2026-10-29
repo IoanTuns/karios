@@ -24,6 +24,9 @@ func (a *App) ConfirmaIncidentAudit(motiv string) RaspunsAudit {
 	if a.paza == nil {
 		return a.StareAudit()
 	}
+	if !a.esteAdministrator() {
+		return RaspunsAudit{Rezultat: a.paza.Rezultat(), Eroare: faraDrept()}
+	}
 	rez, err := audit.Confirma(a.contextLucru(), a.db, a.paza, motiv)
 	if err != nil {
 		return RaspunsAudit{Rezultat: rez, Eroare: eroareInterfata(err)}

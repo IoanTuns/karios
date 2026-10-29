@@ -587,6 +587,57 @@ export namespace calcul {
 
 }
 
+export namespace conturi {
+
+	export class CerereCont {
+	    nume: string;
+	    nume_afisat: string;
+	    rol: string;
+	    parola: string;
+	    intrebari: string[];
+	    raspunsuri: string[];
+
+	    static createFrom(source: any = {}) {
+	        return new CerereCont(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.nume = source["nume"];
+	        this.nume_afisat = source["nume_afisat"];
+	        this.rol = source["rol"];
+	        this.parola = source["parola"];
+	        this.intrebari = source["intrebari"];
+	        this.raspunsuri = source["raspunsuri"];
+	    }
+	}
+	export class Cont {
+	    id: string;
+	    nume: string;
+	    nume_afisat: string;
+	    rol: string;
+	    activ: boolean;
+	    intrebari: string[];
+	    blocat_pana_la: string;
+
+	    static createFrom(source: any = {}) {
+	        return new Cont(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.nume = source["nume"];
+	        this.nume_afisat = source["nume_afisat"];
+	        this.rol = source["rol"];
+	        this.activ = source["activ"];
+	        this.intrebari = source["intrebari"];
+	        this.blocat_pana_la = source["blocat_pana_la"];
+	    }
+	}
+
+}
+
 export namespace datebaza {
 
 	export class FiltruJurnal {
@@ -1996,6 +2047,38 @@ export namespace main {
 		    return a;
 		}
 	}
+	export class RaspunsConturi {
+	    conturi: conturi.Cont[];
+	    eroare?: MesajEroare;
+
+	    static createFrom(source: any = {}) {
+	        return new RaspunsConturi(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.conturi = this.convertValues(source["conturi"], conturi.Cont);
+	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 	export class RaspunsDate {
 	    date?: datebaza.Date;
 	    eroare?: MesajEroare;
@@ -2334,6 +2417,38 @@ export namespace main {
 		    return a;
 		}
 	}
+	export class RaspunsIntrebari {
+	    intrebari: string[];
+	    eroare?: MesajEroare;
+
+	    static createFrom(source: any = {}) {
+	        return new RaspunsIntrebari(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.intrebari = source["intrebari"];
+	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 	export class RaspunsJurnal {
 	    pagina: datebaza.PaginaJurnal;
 	    eroare?: MesajEroare;
@@ -2411,6 +2526,38 @@ export namespace main {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.configuratie = this.convertValues(source["configuratie"], rapoarte.Configuratie);
 	        this.salvat_id = source["salvat_id"];
+	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class RaspunsOperatieCont {
+	    succes: boolean;
+	    eroare?: MesajEroare;
+
+	    static createFrom(source: any = {}) {
+	        return new RaspunsOperatieCont(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.succes = source["succes"];
 	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
 	    }
 
@@ -2741,6 +2888,46 @@ export namespace main {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.stare = this.convertValues(source["stare"], ai.StareMediu);
+	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class RaspunsStareCont {
+	    necesita_cont: boolean;
+	    autentificat: boolean;
+	    cont?: conturi.Cont;
+	    ultimul_nume: string;
+	    intrebari: string[];
+	    eroare?: MesajEroare;
+
+	    static createFrom(source: any = {}) {
+	        return new RaspunsStareCont(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.necesita_cont = source["necesita_cont"];
+	        this.autentificat = source["autentificat"];
+	        this.cont = this.convertValues(source["cont"], conturi.Cont);
+	        this.ultimul_nume = source["ultimul_nume"];
+	        this.intrebari = source["intrebari"];
 	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
 	    }
 

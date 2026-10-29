@@ -90,11 +90,13 @@ func (a *App) IncarcaDemo() RaspunsDate {
 	return a.raspunsDate(datebaza.Nou(a.db).IncarcaDemo(a.contextLucru()))
 }
 
+// contextLucru e contextul operațiilor; poartă autorul pentru jurnal (contul autentificat, F15-T08).
 func (a *App) contextLucru() context.Context {
-	if a.ctx != nil {
-		return a.ctx
+	ctx := a.ctx
+	if ctx == nil {
+		ctx = context.Background()
 	}
-	return context.Background()
+	return datebaza.CuActor(ctx, a.actorCurent())
 }
 
 func (a *App) raspunsDate(err error) RaspunsDate {

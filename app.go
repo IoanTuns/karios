@@ -7,6 +7,7 @@ import (
 
 	"pontix/internal/ai"
 	"pontix/internal/audit"
+	"pontix/internal/conturi"
 	"pontix/internal/i18n"
 	"pontix/internal/versiune"
 )
@@ -23,6 +24,10 @@ type App struct {
 	aiMu         sync.Mutex
 	aiSarcina    *sarcinaAI
 	paza         *audit.Paza
+
+	contMu            sync.Mutex
+	cont              *conturi.Cont
+	autoLoginIncercat bool
 }
 
 func NewApp(db *sql.DB) *App {
