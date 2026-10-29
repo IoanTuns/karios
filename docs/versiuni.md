@@ -4,6 +4,16 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.63.0 · 2026-10-29
+
+Listări din cod și fără propuneri repetate în asistentul AI (F14-T09).
+
+- „Listează / câți / ce angajați”, cu „secția X” sau „categoria Y” opțional, și „ce schimburi există” primesc răspuns calculat direct, fără model: angajații activi grupați pe secții (marcă, funcție, categorie), respectiv schimburile active.
+- Propunerile identice (același tip și aceiași parametri) cu unele deja afișate sau aplicate în conversație nu se mai arată; mesajul spune câte au fost omise.
+- În istoricul trimis modelului, propunerile apar ca „deja aplicată” sau „propusă, neconfirmată”, iar promptul cere să nu repropună ce e deja aplicat.
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.62.0 · 2026-10-29
 
 Propuneri de grup în asistentul AI (F14-T08).

@@ -66,6 +66,20 @@ function textEroare(e: main.MesajEroare): string {
     return text !== e.cod ? text : (e.param?.detalii ?? e.cod);
 }
 
+// cheiePropunere identifică o propunere după conținut, nu după id-ul generat la fiecare răspuns.
+function cheiePropunere(p: ai.PropunereActiune): string {
+    const parametri = p.parametri ?? {};
+    return p.tip + JSON.stringify(Object.keys(parametri).sort().map(k => [k, parametri[k]]));
+}
+
+// faraRepetari scoate propunerile identice cu unele deja făcute sau încă afișate (F14-T09).
+function faraRepetari(propuneri: ai.PropunereActiune[] | undefined): {noi: ai.PropunereActiune[]; omise: number} {
+    const existente = new Set<string>();
+    for (const m of stare.conversatie) for (const p of m.propuneri ?? []) existente.add(cheiePropunere(p));
+    const noi = (propuneri ?? []).filter(p => !existente.has(cheiePropunere(p)));
+    return {noi, omise: (propuneri?.length ?? 0) - noi.length};
+}
+
 function laTerminare(rez: main.RezultatSarcinaAI) {
     if (!rez) return;
     if (rez.id !== stare.sarcina) {
@@ -78,11 +92,14 @@ function laTerminare(rez: main.RezultatSarcinaAI) {
     } else if (rez.eroare) {
         schimbare.eroare = textEroare(rez.eroare);
     } else if (rez.raspuns) {
+        const {noi, omise} = faraRepetari(rez.raspuns.propuneri);
+        let text = rez.raspuns.mesaj || (noi.length ? i18next.t('ai.propuneri_titlu') : '');
+        if (omise > 0) text = [noi.length ? text : '', i18next.t('ai.propuneri_repetate', {numar: String(omise)})].filter(Boolean).join('\n');
         schimbare.conversatie = [...stare.conversatie, {
             id: `a_${Date.now()}`,
             rol: 'assistant',
-            text: rez.raspuns.mesaj || (rez.raspuns.propuneri?.length ? i18next.t('ai.propuneri_titlu') : ''),
-            propuneri: rez.raspuns.propuneri,
+            text,
+            propuneri: noi,
             propuneriAplicata: {},
         }];
     }

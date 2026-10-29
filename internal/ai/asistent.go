@@ -791,6 +791,7 @@ func construiestePromptSistem(info ContextPontix) string {
 	sb.WriteString("  * '22 la 7', 'noapte' -> codul este N9 sau N12.\n")
 	sb.WriteString("  * 'gardă', '24 ore' -> codul este G24.\n")
 	sb.WriteString("- REGULĂ STRICTĂ: Orice planificare cerută de utilizator se execută EXCLUSIV prin apel de unelte (tool calls). NU genera niciodată în text confirmări simulate sau 'Acțiuni propuse' fără tool call!\n")
+	sb.WriteString("- În istoric, propunerile marcate „deja aplicată” sunt făcute: NU le propune din nou. Răspunde doar la ultima cerere a utilizatorului.\n")
 	sb.WriteString("- Folosește EXACT numărul de marcă așa cum este indicat în lista de personal de mai jos (ex: 'DEMO-008', NU prescurta și nu elimina cratima).\n")
 	sb.WriteString(fmt.Sprintf("Anul curent de lucru: %d, Luna: %d.\n", info.An, info.Luna))
 
@@ -909,6 +910,13 @@ func AnalizeazaInterogareSinteza(mesaj string, info ContextPontix) (string, bool
 		return sintetizeazaConcedii(info, numeLuna), true
 	}
 
+	// 1b. Listări de angajați și de schimburi (F14-T09); se compară fără diacritice
+	if mn := normalizeaza(m); esteListareAngajati(mn) {
+		return sintetizeazaListaAngajati(mn, info), true
+	} else if esteListareSchimburi(mn) {
+		return sintetizeazaListaSchimburi(info), true
+	}
+
 	// 2. Interogare disponibilitate weekend ("cine este liber", "cine e liber în acest weekend", "disponibilitate")
 	if strings.Contains(m, "liber") || strings.Contains(m, "disponibil") {
 		return sintetizeazaDisponibilitateWeekend(m, info, numeLuna), true
@@ -949,6 +957,7 @@ func sintetizeazaGhidComenzi(numeLuna string, an int) string {
 	sb.WriteString("- *„Cine este liber în acest weekend?”*\n")
 	sb.WriteString("- *„Verifică dacă lipsesc posturi obligatorii / gărzi weekend”*\n")
 	sb.WriteString("- *„Statistici gărzi și ore planificate”*\n")
+	sb.WriteString("- *„Listează angajații din secția ATI”*, *„Ce schimburi există?”*\n")
 	return sb.String()
 }
 

@@ -778,5 +778,6 @@
   "ai.sarcina_oprita": "The request was stopped.",
   "ai.sarcina_terminata": "The AI assistant has finished. The reply is waiting in the assistant screen.",
   "ai.sarcina_eroare": "The AI assistant could not reply. Details are in the assistant screen.",
-  "ai.grup_angajati": "{{numar}} employees · {{grup}}"
+  "ai.grup_angajati": "{{numar}} employees · {{grup}}",
+  "ai.propuneri_repetate": "Skipped {{numar}} proposals identical to ones already shown or applied above."
 }

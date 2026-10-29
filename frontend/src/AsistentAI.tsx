@@ -215,7 +215,7 @@ export function AsistentAI({
                 let continut = m.text;
                 if (m.rol === 'assistant' && m.propuneri && m.propuneri.length > 0) {
                     const detalii = m.propuneri.map(p => {
-                        const stareTxt = m.propuneriAplicata?.[p.id] ? '(salvată)' : '(propusă)';
+                        const stareTxt = m.propuneriAplicata?.[p.id] ? '(deja aplicată)' : '(propusă, neconfirmată)';
                         return `${p.descriere} ${stareTxt}`;
                     }).join('; ');
                     continut = continut && !continut.includes('Acțiuni propuse') ? `${continut}. ${detalii}` : detalii;
