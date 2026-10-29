@@ -1,5 +1,6 @@
 import {useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
+import {semnaleazaModificari} from './modificariNesalvate';
 import {ListaModeleRapoarte, SalveazaModelRaport, PregatesteRaport, SalveazaPDFRaport, DeschidePDFPentruTiparire, ExportaPontajExcel} from '../wailsjs/go/main/App';
 import {datebaza, main, rapoarte} from '../wailsjs/go/models';
 import {Dialog, denumireDepartament, denumireSectie} from './Formulare';
@@ -61,7 +62,7 @@ function EditorModel({initial,configuratie,ocupat:salvareInCurs,eroare,inchide,s
     const ocupat = salvareInCurs || citireImagine;
     const sursa = configuratie.surse.find(s => s.cod === model.continut.sursa)!;
     const modificate = JSON.stringify(model) !== JSON.stringify(initial);
-    useEffect(() => { if (!modificate) return; const atentioneaza = (e: BeforeUnloadEvent) => { e.preventDefault();e.returnValue=''; }; window.addEventListener('beforeunload',atentioneaza);return () => window.removeEventListener('beforeunload',atentioneaza); },[modificate]);
+    useEffect(() => semnaleazaModificari('rapoarte', modificate), [modificate]);
     function renunta() { if (!modificate || window.confirm(t('ui.renunta'))) inchide(); }
     function textBloc(bloc: 'antet' | 'subsol',zona: 'stanga'|'centru'|'dreapta',v: string) { setModel(m => ({...m,[bloc]:{...m[bloc],[zona]:{...m[bloc][zona],[limba]:v}}})); }
     function seteazaImagine(bloc: 'antet'|'subsol',zona: string,imagine?: DateSimple<rapoarte.Imagine>) {

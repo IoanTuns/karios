@@ -908,5 +908,9 @@
   "cont.intrebare_7": "Street you lived on as a child?",
   "cont.intrebare_8": "City where you were born?",
   "cont.intrebare_9": "Name of your first employer?",
-  "cont.intrebare_10": "First name of your maternal grandfather?"
+  "cont.intrebare_10": "First name of your maternal grandfather?",
+  "ui.modificari_nesalvate_titlu": "Unsaved changes",
+  "ui.modificari_nesalvate_inchidere": "You have unsaved changes. If you close now, they will be lost.",
+  "ui.inchide_oricum": "Close without saving",
+  "ui.ramai": "Stay in the application"
 }

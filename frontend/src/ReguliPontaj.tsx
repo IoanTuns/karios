@@ -1,5 +1,6 @@
 import {useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
+import {semnaleazaModificari} from './modificariNesalvate';
 import {CitesteConfiguratiePontaj, SalveazaConfiguratiePontaj} from '../wailsjs/go/main/App';
 import {calcul, datebaza} from '../wailsjs/go/models';
 
@@ -18,7 +19,7 @@ export function ReguliPontaj({onModificari,onOcupat}: {onModificari:(v:boolean)=
     const blocat = useRef(false);
     const modificat = Boolean(config && JSON.stringify(config)!==original);
     useEffect(()=>{onModificari(modificat);return ()=>onModificari(false);},[modificat,onModificari]);
-    useEffect(()=>{if(!modificat)return;const avertizeaza=(e:BeforeUnloadEvent)=>{e.preventDefault();e.returnValue='';};window.addEventListener('beforeunload',avertizeaza);return()=>window.removeEventListener('beforeunload',avertizeaza);},[modificat]);
+    useEffect(()=>semnaleazaModificari('reguli', modificat),[modificat]);
     async function incarca() {
         if(blocat.current)return;blocat.current=true;setOcupat(true);onOcupat(true);setEroare('');
         try {const r=await CitesteConfiguratiePontaj();if(r.eroare)setEroare(t(r.eroare.cod,r.eroare.param||{}));else if(r.configuratie){setConfig(r.configuratie);setOriginal(JSON.stringify(r.configuratie));setOptiuni(r.optiuni||[]);}}

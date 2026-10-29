@@ -59,8 +59,9 @@ func main() {
 			// Fără această opțiune, WebView2 își ține datele în %APPDATA% (D002).
 			WebviewUserDataPath: foldere.WebView,
 		},
-		OnStartup:  app.pornire,
-		OnShutdown: app.oprire,
+		OnStartup:     app.pornire,
+		OnShutdown:    app.oprire,
+		OnBeforeClose: app.inainteDeInchidere,
 		Bind: []any{
 			app,
 		},

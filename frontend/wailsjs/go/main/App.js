@@ -322,6 +322,10 @@ export function SeteazaAutoPornireAI(arg1) {
   return window['go']['main']['App']['SeteazaAutoPornireAI'](arg1);
 }
 
+export function SeteazaModificariNesalvate(arg1, arg2) {
+  return window['go']['main']['App']['SeteazaModificariNesalvate'](arg1, arg2);
+}
+
 export function SeteazaStareLuna(arg1, arg2, arg3, arg4) {
   return window['go']['main']['App']['SeteazaStareLuna'](arg1, arg2, arg3, arg4);
 }

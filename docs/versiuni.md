@@ -4,6 +4,15 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.69.0 · 2026-10-29
+
+Avertizare la închiderea ferestrei cu modificări nesalvate (F05-T24, UX-1 din review).
+
+- `beforeunload` nu oprea închiderea ferestrei Wails, deci X-ul pierdea modificările. Acum `OnBeforeClose` întreabă, cu un dialog nativ în limba interfeței, dacă fereastra se închide fără salvare; implicit rămâi în aplicație.
+- Pontajul, editorul de rapoarte și configurarea regulilor își raportează modificările nesalvate prin `frontend/src/modificariNesalvate.ts`.
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.68.0 · 2026-10-29
 
 Conturi și acces (F15, [D008](decizii/D008-criptarea-datelor.md) punctul 3, [D045](decizii/D045-conturi-detalii.md)).

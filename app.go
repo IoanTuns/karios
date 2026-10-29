@@ -25,6 +25,10 @@ type App struct {
 	aiSarcina    *sarcinaAI
 	paza         *audit.Paza
 
+	inchidereMu         sync.Mutex
+	modificariNesalvate bool
+	limbaInterfata      string
+
 	contMu            sync.Mutex
 	cont              *conturi.Cont
 	autoLoginIncercat bool

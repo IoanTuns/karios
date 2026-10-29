@@ -167,6 +167,8 @@ export function SchimbaParolaMea(arg1:string,arg2:string):Promise<main.RaspunsOp
 
 export function SeteazaAutoPornireAI(arg1:boolean):Promise<boolean>;
 
+export function SeteazaModificariNesalvate(arg1:boolean,arg2:string):Promise<void>;
+
 export function SeteazaStareLuna(arg1:number,arg2:number,arg3:string,arg4:string):Promise<main.RaspunsStareLuna>;
 
 export function StareAI():Promise<main.RaspunsStareAI>;

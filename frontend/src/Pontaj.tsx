@@ -1,5 +1,6 @@
 import {useEffect, useLayoutEffect, useMemo, useRef, useState, type ClipboardEvent, type KeyboardEvent, type RefObject} from 'react';
 import {useTranslation} from 'react-i18next';
+import {semnaleazaModificari} from './modificariNesalvate';
 import {CitesteCalendar, CitesteSchita, ListaSchimburi, SalveazaSchita, PrevizualizeazaSchita, PrevizualizeazaPrecompletare, ExportaPontajExcel, CitesteStareLuna, SeteazaStareLuna} from '../wailsjs/go/main/App';
 import {calcul, datebaza} from '../wailsjs/go/models';
 import {AmprentaLuna} from './Audit';
@@ -82,12 +83,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
     }, [panou]);
 
     useEffect(() => { onModificari(modificari.size > 0); }, [modificari.size, onModificari]);
-    useEffect(() => {
-        if (!modificari.size) return;
-        const avertizeaza = (e: BeforeUnloadEvent) => { e.preventDefault(); e.returnValue = ''; };
-        window.addEventListener('beforeunload', avertizeaza);
-        return () => window.removeEventListener('beforeunload', avertizeaza);
-    }, [modificari.size]);
+    useEffect(() => semnaleazaModificari('pontaj', modificari.size > 0), [modificari.size]);
 
     useEffect(() => {
         let activ = true;

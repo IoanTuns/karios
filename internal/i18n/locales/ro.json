@@ -908,5 +908,9 @@
   "cont.intrebare_7": "Strada pe care ai locuit în copilărie?",
   "cont.intrebare_8": "Orașul în care te-ai născut?",
   "cont.intrebare_9": "Numele primului loc de muncă?",
-  "cont.intrebare_10": "Prenumele bunicului din partea mamei?"
+  "cont.intrebare_10": "Prenumele bunicului din partea mamei?",
+  "ui.modificari_nesalvate_titlu": "Modificări nesalvate",
+  "ui.modificari_nesalvate_inchidere": "Ai modificări nesalvate. Dacă închizi acum, se pierd.",
+  "ui.inchide_oricum": "Închide fără salvare",
+  "ui.ramai": "Rămân în aplicație"
 }
