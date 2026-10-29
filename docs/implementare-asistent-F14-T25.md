@@ -1,6 +1,6 @@
 # F14-T25 · Instrumente pentru asistent
 
-Responsabil: Codex. Stare: în lucru. Cerere: Ioan Tuns, implementarea tuturor celor opt propuneri. Ramură separată, fără push sau merge.
+Responsabil: Codex. Stare: gata. Cerere: Ioan Tuns, implementarea tuturor celor opt propuneri. Ramură separată, fără push sau merge.
 
 ## Criterii
 
@@ -36,3 +36,11 @@ Testele de migrare schimbă numai numerele așteptate pentru schema nouă. Teste
 Go stabil verificat: 1.27.3. `npm outdated` nu raportează actualizări. Dependențele runtime sunt curente; actualizările tranzitive ale uneltelor rămân în taskul separat F14-T21. Nu există biblioteci noi sau licențe schimbate. `gofmt -l -w .`, `go vet ./...`, `go test ./...`, compilarea TypeScript/Vite și `git diff --check` au trecut. Rulările concurente Go de durată au fost reduse, una a fost oprită, alta s-a încheiat cu succes; regresiile noi au trecut și izolat cu timeout. Reluarea finală folosește `go test -p 1 -timeout 120s ./...` și dependențele locale, fără schimbarea versiunilor. Build-ul se consemnează la predare.
 
 Nu s-au rulat probe cu modelul real, operatori, WebView2 interactiv sau măsurători de RAM pe 8 GB. Nu se pretinde că verificarea pontajului certifică legislația ori regulile salariale. Exportul CSV este testat ca date și token; dialogul nativ de salvare necesită probă umană.
+
+## Predare
+
+Reluarea finală `go test -p 1 -timeout 120s ./...` s-a încheiat cu succes pentru toate pachetele, după `gofmt` și `go vet`. Compilarea frontend și cele 24 de probe UI au trecut. Fără verificări rămase în fundal.
+
+Commit implementare: `de1fb2d`, ramură `F14-T25-asistent-instrumente`. `build.ps1` a generat și verificat executabilul 0.84.0: `build/bin/pontix-0.84.0-20261029-213148-c92a440ff6754321b0287090c8e2e883/pontix.exe`. Manifestul include proprietățile și SHA-256, commit `de1fb2d-modificat`; sufixul este produs de folderul preexistent `.vscode/` neurmărit, lăsat neatins. Fișierele generate Wails nu au rămas modificate după build. Serverul Vite temporar a fost oprit. Nu există merge în `main` sau push.
+
+Pas următor: evaluare umană în WebView2 și a dialogului de salvare CSV, proba cu modelul real pe calculatorul de 8 GB și evaluarea deciziei D050. Extensiile P2 rămase din review sunt documentate în registrul ideilor; nu sunt declarate terminate prin acest task.
