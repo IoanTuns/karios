@@ -16,6 +16,15 @@ export interface MesajUI {
     propuneriAplicata?: Record<string, boolean>;
 }
 
+// RezultatSarcinaAI vine prin evenimentul Wails, nu printr-o metodă legată, deci generatorul
+// de legături nu-l include în models.ts; corespunde lui main.RezultatSarcinaAI din Go.
+interface RezultatSarcinaAI {
+    id: string;
+    raspuns?: ai.RaspunsAsistent;
+    eroare?: main.MesajEroare;
+    oprita: boolean;
+}
+
 export interface SesiuneAI {
     conversatie: MesajUI[];
     sarcina: string; // id-ul sarcinii în curs; '' dacă nu rulează nimic
@@ -48,7 +57,7 @@ let initializata = false;
 let vizibil = 0;
 const abonati = new Set<() => void>();
 // Un răspuns calculat direct din cod poate sosi înainte ca PornesteSarcinaAI să întoarcă id-ul.
-const sositeDevreme = new Map<string, main.RezultatSarcinaAI>();
+const sositeDevreme = new Map<string, RezultatSarcinaAI>();
 const PORNIRE = 'pornire';
 
 function seteaza(schimbare: Partial<SesiuneAI>) {
@@ -82,7 +91,7 @@ function faraRepetari(propuneri: ai.PropunereActiune[] | undefined): {noi: ai.Pr
     return {noi, omise: (propuneri?.length ?? 0) - noi.length};
 }
 
-function laTerminare(rez: main.RezultatSarcinaAI) {
+function laTerminare(rez: RezultatSarcinaAI) {
     if (!rez) return;
     if (rez.id !== stare.sarcina) {
         if (stare.sarcina === PORNIRE) sositeDevreme.set(rez.id, rez);

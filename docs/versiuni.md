@@ -4,6 +4,16 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.76.1 · 2026-10-29
+
+Legăturile Wails regenerate cu generatorul (F02-T15).
+
+- `frontend/wailsjs` vine din nou din `wails generate module`, nu din editări manuale. Repară importul `conturi` care lipsea din `App.d.ts`; restul diferențelor sunt ordinea claselor și spațiile.
+- Tipul evenimentului `ai:sarcina_terminata` (`RezultatSarcinaAI`) e definit în `asistentSesiune.ts`, fiindcă generatorul include doar tipurile din semnăturile metodelor.
+- Ghidul de build descrie regenerarea.
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.76.0 · 2026-10-29
 
 Ultima modificare a celulei în bara de inspecție a pontajului (F08-T10).

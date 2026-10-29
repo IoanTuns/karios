@@ -21,6 +21,16 @@ Versiunea, data/ora și identificatorul sunt generate automat. Două builduri al
 
 Temporarele Wails folosesc `.temporar/` din directorul nou și sunt eliminate la încheiere. Fișierele blocate sau legăturile se păstrează cu avertizare. TEMP/TMP și directorul apelantului sunt restaurate inclusiv la eșec. Dependențele sunt cele fixate în proiect; buildul nu rulează actualizări sau tidy și nu utilizează `-clean`.
 
+## Legăturile dintre interfață și Go
+
+După orice schimbare a metodelor legate (`App`) sau a tipurilor lor, se regenerează `frontend/wailsjs`:
+
+```powershell
+wails generate module
+```
+
+Ieșirea generatorului e varianta de referință; nu se editează manual (F02-T15). Generatorul include doar tipurile care apar în semnăturile metodelor: un tip trimis numai prin eveniment (de ex. `RezultatSarcinaAI`, evenimentul `ai:sarcina_terminata`) se definește în frontend, lângă codul care îl folosește. `wails build` regenerează și el legăturile.
+
 ## Datele aplicației
 
 Un director nou reprezintă o copie portabilă nouă. Buildul nu transferă date între versiuni. Pentru continuarea unei baze existente, închide aplicația și copiază întregul folder `karios/` lângă executabilul nou; nu doar fișierul bazei. Păstrează copia originală până la verificarea noii versiuni.
