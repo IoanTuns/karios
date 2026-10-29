@@ -27,5 +27,5 @@ Utilizatorul poate da comenzi în limbaj natural („pune-l pe Ion de noapte joi
 | F14-T15 | Recunoașterea comenzilor cu greșeli de tastare și afișarea interpretării | gata | Claude | 0.77.0: `corectura.go`, `esteToti`, `lunaDin`; interpretarea pe card. „fără pontaj” e F14-T16 |
 | F14-T16 | Filtrul „fără pontaj” în comenzile de grup și completarea doar a celulelor goale | gata | Claude | 0.78.0: filtrul pe luna vizată; `doar_goale` implicit adevărat pentru propunerile de grup |
 | F14-T17 | Istoricul trimis modelului fără text de imitat | gata | Claude | 0.79.0: `actiuni` în cerere, secțiune în promptul de sistem; neverificat cu modelul real |
-| F14-T18 | Detectarea răspunsurilor care pretind o planificare fără nicio acțiune | de făcut | | I068: un răspuns fără propuneri care afirmă că a planificat se înlocuiește cu un mesaj cinstit |
+| F14-T18 | Detectarea răspunsurilor care pretind o planificare fără nicio acțiune | gata | Claude | 0.80.0: listă de expresii de confirmare; răspunsurile analitice din cod nu trec prin verificare |
 | F14-T19 | Propunerile identice cu unele deja aplicate se arată, cu „deja aplicată, aplică din nou?” | de făcut | | I068: azi sunt omise, iar utilizatorul rămâne fără răspuns; se omit doar duplicatele unor propuneri încă neconfirmate |

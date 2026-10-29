@@ -430,8 +430,41 @@ func (c *Client) Interogheaza(ctx context.Context, istoric []MesajConversatie, i
 			rezultat.Mesaj = ""
 		}
 	}
+	// Un răspuns fără nicio acțiune care pretinde totuși că a planificat ceva e o confirmare
+	// falsă (F14-T18): utilizatorul ar crede că s-a făcut ceva. Se înlocuiește cu adevărul.
+	if len(rezultat.Propuneri) == 0 && esteConfirmareFalsa(rezultat.Mesaj) {
+		rezultat.Mesaj = MesajFaraActiune
+	}
 
 	return rezultat, nil
+}
+
+// MesajFaraActiune înlocuiește un răspuns care pretinde o planificare fără nicio acțiune.
+const MesajFaraActiune = "Nu am putut construi o propunere pentru această cerere, deci nu s-a modificat nimic. " +
+	"Reformulează cu marca sau numele complet al angajatului și cu schimbul (de ex. Z7, G24), " +
+	"ori folosește „toți angajații …” / „secția …” pentru un grup."
+
+var semneConfirmareFalsa = []string{
+	"am planificat", "am programat", "am aplicat", "am salvat", "am adaugat", "am sters", "am completat",
+	"a fost planificat", "au fost planificat", "a fost aplicat", "au fost aplicat", "a fost programat", "au fost programat",
+	"s-a aplicat", "s-au aplicat", "deja aplicat", "actiuni propuse", "actiunea a fost",
+}
+
+// esteConfirmareFalsa recunoaște un text care afirmă că o modificare a fost făcută sau propusă.
+func esteConfirmareFalsa(mesaj string) bool {
+	m := normalizeaza(mesaj)
+	if m == "" {
+		return false
+	}
+	if strings.HasPrefix(m, "planificare ") || strings.HasPrefix(m, "stergere ") {
+		return true
+	}
+	for _, s := range semneConfirmareFalsa {
+		if strings.Contains(m, s) {
+			return true
+		}
+	}
+	return false
 }
 
 func esteCerereToataLuna(mesaj string) (bool, int) {

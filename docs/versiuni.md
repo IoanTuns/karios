@@ -4,6 +4,15 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.80.0 · 2026-10-29
+
+Detectarea răspunsurilor care pretind o planificare fără nicio acțiune (F14-T18).
+
+- Dacă modelul răspunde fără nicio propunere, dar textul afirmă că a planificat, aplicat sau salvat ceva (de ex. „Planificare interval Z7 … (deja aplicat)”), răspunsul se înlocuiește cu un mesaj cinstit: nu s-a modificat nimic, cu sugestii de reformulare.
+- Verificarea rulează după încercarea existentă de a construi propunerea din text.
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.79.0 · 2026-10-29
 
 Istoricul trimis modelului fără text de imitat (F14-T17).
