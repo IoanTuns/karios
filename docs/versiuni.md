@@ -4,6 +4,16 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.76.2 · 2026-10-29
+
+Măsurare pe o bază mare (F06-T10).
+
+- Test de măsurare la cerere (`PONTIX_MASURARE=1 go test -run MasurareBazaMare -v ./internal/datebaza/`) pe 300 de angajați și un an de pontaj (78.300 de celule).
+- Rezultate pe calculatorul de dezvoltare: prima sigilare 0,44 s; verificarea la pornire 0,45 s; amprenta unei luni 0,06 s; citirea pontajului unei luni 0,17 s; salvarea unei luni întregi (6.300 de celule) 2,4 s fără audit și 4,6 s cu trigger-ele auditului; verificarea după salvare 0,74 s.
+- Concluzie: verificarea la pornire nu e o problemă; salvarea în bloc a unei luni întregi e lentă, iar trigger-ele aproape îi dublează durata (idee I066).
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.76.1 · 2026-10-29
 
 Legăturile Wails regenerate cu generatorul (F02-T15).
