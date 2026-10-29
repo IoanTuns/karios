@@ -80,3 +80,14 @@ Stări: `nouă`, `în analiză`, `transformată` (în task sau decizie), `amâna
 | I070 | 2026-10-29 | Interacțiune ghidată cu interpretare editabilă, clarificări, selecții deterministe, plan verificat și contexte specifice pe calculatoare modeste | Ioan Tuns, Codex | transformată | F14-T22, D048 |
 
 | I071 | 2026-10-29 | Grupuri AI personalizate persistente și combinarea mai multor filtre de selecție | Codex | amânată | F14-T22 oferă cinci selecții standard și filtrul fără pontaj; configurarea persistentă nu este necesară pentru cele șase propuneri cerute. |
+
+| I072 | 2026-10-29 | P1: păstrarea poziției și focusului la editarea planului AI; derulare automată numai pentru mesaje noi relevante | Codex | nouă | F14-T23, D049 propusă, review-ui-asistent-2026-10-29.md |
+| I073 | 2026-10-29 | P1: plan AI pe lățimea utilă, etapizare și acțiune persistentă; reducerea derulărilor imbricate | Codex | nouă | F14-T23, D049 propusă, review-ui-asistent-2026-10-29.md |
+| I074 | 2026-10-29 | P1: delimitarea propunerii de rezultatul real; valori finale corecte pentru celule păstrate sau excluse | Codex | nouă | F14-T23, D049 propusă, review-ui-asistent-2026-10-29.md |
+| I075 | 2026-10-29 | P2: filtre și căutare în previzualizarea AI, sumar pe lună și numere distincte pentru selectați și afectați | Codex | nouă | F14-T23, review-ui-asistent-2026-10-29.md |
+| I076 | 2026-10-29 | P2: căutare în selecția nominală AI, vedere pentru selectați și comenzi aplicate rezultatelor filtrate | Codex | nouă | F14-T23, review-ui-asistent-2026-10-29.md |
+| I077 | 2026-10-29 | P2: validare lângă câmpurile planului AI și recuperare accesibilă din eroarea de plan expirat | Codex | nouă | F14-T23, review-ui-asistent-2026-10-29.md |
+| I078 | 2026-10-29 | P2: stări vizibile pentru planul AI activ, revizuire/anulare și revenire explicată după navigare | Codex | nouă | F14-T23, review-ui-asistent-2026-10-29.md |
+| I079 | 2026-10-29 | P2: rezumat actual al planului AI separat de cererea inițială, date neambigue și contoare lizibile | Codex | nouă | F14-T23, review-ui-asistent-2026-10-29.md |
+
+| I080 | 2026-10-29 | P2: detalii pliabile cu modelul AI efectiv activ, contextul configurat și utilizarea raportată de motor, fără estimări prezentate ca măsurători | Codex | nouă | F14-T23, review-ui-asistent-2026-10-29.md |
