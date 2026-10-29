@@ -32,6 +32,10 @@ jobs:
           npm ci
           npm run build
 
+      - name: Teste interfata (Vitest)
+        working-directory: frontend
+        run: npm test
+
       - name: gofmt
         shell: bash
         run: |

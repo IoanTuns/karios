@@ -4,6 +4,15 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.86.1 · 2026-10-30
+
+Teste automate pentru interfață (F02-T16, [D053](decizii/D053-teste-interfata-vitest.md)).
+
+- Vitest 5.0.5 (MIT) ca dependență de dezvoltare; `npm test` rulează testele, iar CI le rulează după build.
+- Funcțiile pure mutate în module testabile: `parola.ts` (regula parolei), `repetari.ts` (propunerile repetate ale asistentului), `jurnalDiferente.ts` (diferențele din jurnal). Primele 8 teste le acoperă.
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.86.0 · 2026-10-30
 
 Detectarea înlocuirii bazei cu o copie mai veche (F06-T09, D044 punctul 7).

@@ -7,6 +7,7 @@ import {OpresteSarcinaAI, PornesteSarcinaAI, SarcinaAIActiva} from '../wailsjs/g
 import {ai, datebaza, main} from '../wailsjs/go/models';
 import {EventsOn} from '../wailsjs/runtime/runtime';
 import {notifica} from './Toast';
+import {imparteRepetari} from './repetari';
 
 export interface MesajUI {
 	intentie?: ai.IntentiePlan;
@@ -81,28 +82,9 @@ function textEroare(e: main.MesajEroare): string {
     return text !== e.cod ? text : (e.param?.detalii ?? e.cod);
 }
 
-// cheiePropunere identifică o propunere după conținut, nu după id-ul generat la fiecare răspuns.
-function cheiePropunere(p: ai.PropunereActiune): string {
-    const parametri = p.parametri ?? {};
-    return p.tip + JSON.stringify(Object.keys(parametri).sort().map(k => [k, parametri[k]]));
-}
-
 // faraRepetari scoate propunerile identice cu unele deja făcute sau încă afișate (F14-T09).
-// Se omit doar duplicatele unor propuneri încă neconfirmate (se confirmă cardul de mai sus);
-// cele identice cu una deja aplicată se arată, marcate, ca utilizatorul să poată reaplica (F14-T19).
-function faraRepetari(propuneri: ai.PropunereActiune[] | undefined): {noi: ai.PropunereActiune[]; omise: number; reaplicari: Record<string, boolean>} {
-    const neconfirmate = new Set<string>(), aplicate = new Set<string>();
-    for (const m of stare.conversatie) for (const p of m.propuneri ?? []) {
-        (m.propuneriAplicata?.[p.id] ? aplicate : neconfirmate).add(cheiePropunere(p));
-    }
-    const reaplicari: Record<string, boolean> = {};
-    const noi = (propuneri ?? []).filter(p => {
-        const k = cheiePropunere(p);
-        if (neconfirmate.has(k) && !aplicate.has(k)) return false;
-        if (aplicate.has(k)) reaplicari[p.id] = true;
-        return true;
-    });
-    return {noi, omise: (propuneri?.length ?? 0) - noi.length, reaplicari};
+function faraRepetari(propuneri: ai.PropunereActiune[] | undefined) {
+    return imparteRepetari(propuneri, stare.conversatie);
 }
 
 function laTerminare(rez: RezultatSarcinaAI) {

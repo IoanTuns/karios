@@ -2,6 +2,7 @@
 // recuperarea parolei, „Contul meu” și administrarea conturilor.
 import {createContext, useContext, useEffect, useState, type FormEvent, type ReactNode} from 'react';
 import {useTranslation} from 'react-i18next';
+import {parolaValida} from './parola';
 import {Autentifica, CreeazaCont, CreeazaPrimulAdministrator, IesireDinCont, IntrebariRecuperare, ListaConturi, ModificaCont, RecupereazaCont, ReseteazaParolaCont, SchimbaIntrebarileMele, SchimbaParolaMea, StareCont} from '../wailsjs/go/main/App';
 import {conturi, main} from '../wailsjs/go/models';
 import {Dialog} from './Formulare';
@@ -61,10 +62,6 @@ function CampParola({eticheta, valoare, schimba, ocupat, nou, nume}: {eticheta: 
             </button>
         </span>
     </label>;
-}
-
-function parolaValida(p: string): boolean {
-    return p.length >= 8 && /\p{L}/u.test(p) && /\p{N}/u.test(p);
 }
 
 function EcranPrimulAdministrator({intrebariToate, gata}: {intrebariToate: string[]; gata: (r: main.RaspunsStareCont) => void}) {
