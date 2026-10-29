@@ -21,6 +21,7 @@ export interface SesiuneAI {
     sarcina: string; // id-ul sarcinii în curs; '' dacă nu rulează nimic
     eroare: string;
     necitit: boolean; // a venit un răspuns cât timp ecranul asistentului era închis
+    perioada: {an: number; luna: number}; // luna la care se referă cererile (F14-T10)
 }
 
 const CHEIE_STORAGE = 'pontix_asistent_conversatie';
@@ -41,7 +42,8 @@ function incarca(): MesajUI[] {
     return [mesajBunVenit()];
 }
 
-let stare: SesiuneAI = {conversatie: [], sarcina: '', eroare: '', necitit: false};
+const azi = new Date();
+let stare: SesiuneAI = {conversatie: [], sarcina: '', eroare: '', necitit: false, perioada: {an: azi.getFullYear(), luna: azi.getMonth() + 1}};
 let initializata = false;
 let vizibil = 0;
 const abonati = new Set<() => void>();
@@ -137,6 +139,10 @@ export function marcheazaVizibil(da: boolean) {
 
 export function seteazaConversatie(f: (c: MesajUI[]) => MesajUI[]) {
     seteaza({conversatie: f(stare.conversatie)});
+}
+
+export function seteazaPerioada(perioada: {an: number; luna: number}) {
+    if (perioada.an !== stare.perioada.an || perioada.luna !== stare.perioada.luna) seteaza({perioada});
 }
 
 export function seteazaEroare(eroare: string) {

@@ -2,7 +2,7 @@ import {useEffect, useRef, useState, type FormEvent} from 'react';
 import {useTranslation} from 'react-i18next';
 import {AplicaPropunereAI, EsteAutoPornireAI, OpresteAI, PornesteAI, SeteazaAutoPornireAI, StareAI} from '../wailsjs/go/main/App';
 import {ai, datebaza, main} from '../wailsjs/go/models';
-import {marcheazaVizibil, opresteSarcina, pornesteSarcina, reseteazaConversatie as reseteazaSesiunea, seteazaConversatie, seteazaEroare, useSesiuneAI, type MesajUI} from './asistentSesiune';
+import {marcheazaVizibil, opresteSarcina, pornesteSarcina, reseteazaConversatie as reseteazaSesiunea, seteazaConversatie, seteazaEroare, seteazaPerioada, useSesiuneAI, type MesajUI} from './asistentSesiune';
 
 function curataText(str: string): string {
     return (str || '')
@@ -63,12 +63,14 @@ function gasesteAngajat(marcaSauNume: string, angajati: datebaza.Angajat[]): dat
 
 export function AsistentAI({
     date,
+    perioadaEcran,
     onDeschidePontaj,
 }: {
     date: datebaza.Date;
+    perioadaEcran?: {an: number; luna: number};
     onDeschidePontaj?: (an: number, luna: number) => void;
 }) {
-    const {t} = useTranslation();
+    const {t, i18n} = useTranslation();
     const [stare, setStare] = useState<ai.StareMediu | null>(null);
     const [incarcare, setIncarcare] = useState(true);
     const [ocupat, setOcupat] = useState(false);
@@ -81,8 +83,10 @@ export function AsistentAI({
     const blocat = ocupat || lucreaza;
     const [autoPornire, setAutoPornire] = useState(true);
 
-    const anCurent = new Date().getFullYear();
-    const lunaCurenta = new Date().getMonth() + 1;
+    const {an: anCurent, luna: lunaCurenta} = sesiune.perioada;
+    useEffect(() => {
+        if (perioadaEcran) seteazaPerioada(perioadaEcran);
+    }, [perioadaEcran?.an, perioadaEcran?.luna]);
 
     const capatConversatieRef = useRef<HTMLDivElement>(null);
 
@@ -171,29 +175,17 @@ export function AsistentAI({
         setEroare('');
         seteazaEroare('');
 
-        // 1. Verificare răspuns afirmativ de confirmare a unei propuneri existente
+        // Un „da” sau „ok” nu aplică nimic (F14-T10): propunerile se confirmă doar cu butonul
+        // de pe card, unde se vede exact ce se modifică.
         const textNorm = text.toLowerCase().replace(/[.!?,]/g, '').trim();
-        const esteConfirmare = ['da', 'confirm', 'confirma', 'aplica', 'aplic', 'ok', 'de acord', 'executa', 'fa asa', 'este bine', 'e bine', 'da aplica', 'da te rog', 'sigur', 'salveaza'].includes(textNorm);
-
-        if (esteConfirmare) {
-            const mesajCuPropunere = [...conversatie].reverse().find(m =>
-                m.rol === 'assistant' &&
-                m.propuneri &&
-                m.propuneri.some(p => !m.propuneriAplicata?.[p.id])
-            );
-
-            if (mesajCuPropunere && mesajCuPropunere.propuneri) {
-                const propuneriDeAplicat = mesajCuPropunere.propuneri.filter(p => !mesajCuPropunere.propuneriAplicata?.[p.id]);
-                if (propuneriDeAplicat.length > 0) {
-                    setTextIntrare('');
-                    const mesajUtilizator: MesajUI = { id: `u_${Date.now()}`, rol: 'user', text };
-                    seteazaConversatie(prev => [...prev, mesajUtilizator]);
-                    for (const p of propuneriDeAplicat) {
-                        await aplicaPropunere(mesajCuPropunere.id, p);
-                    }
-                    return;
-                }
-            }
+        const esteConfirmare = ['da', 'confirm', 'confirma', 'confirmă', 'aplica', 'aplică', 'aplic', 'ok', 'de acord', 'executa', 'execută', 'fa asa', 'fă așa', 'este bine', 'e bine', 'da aplica', 'da te rog', 'sigur', 'salveaza', 'salvează'].includes(textNorm);
+        const arePropuneriDeschise = conversatie.some(m => m.propuneri?.some(p => !m.propuneriAplicata?.[p.id]));
+        if (esteConfirmare && arePropuneriDeschise) {
+            setTextIntrare('');
+            seteazaConversatie(prev => [...prev,
+                {id: `u_${Date.now()}`, rol: 'user', text},
+                {id: `a_${Date.now()}`, rol: 'assistant', text: t('ai.confirma_cu_butonul')}]);
+            return;
         }
 
         setTextIntrare('');
@@ -331,6 +323,17 @@ export function AsistentAI({
                         🔄 {t('ai.conversatie_noua')}
                     </button>
                 </div>
+            </div>
+
+            <div className="perioada-asistent">
+                <label>{t('ai.luna_de_lucru')}
+                    <select value={lunaCurenta} disabled={blocat} onChange={e => seteazaPerioada({an: anCurent, luna: Number(e.target.value)})}>
+                        {Array.from({length: 12}, (_, i) => <option key={i} value={i + 1}>{new Intl.DateTimeFormat(i18n.language, {month: 'long', timeZone: 'UTC'}).format(new Date(Date.UTC(2026, i, 15)))}</option>)}
+                    </select>
+                </label>
+                <input type="number" aria-label={t('sarbatori.an')} min={2000} max={2100} value={anCurent} disabled={blocat}
+                    onChange={e => { const an = Number(e.target.value); if (an >= 2000 && an <= 2100) seteazaPerioada({an, luna: lunaCurenta}); }}/>
+                <span className="text-discret">{t('ai.luna_de_lucru_indiciu')}</span>
             </div>
 
             {/* Avertisment ghidat dacă fișierele lipsesc */}

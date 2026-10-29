@@ -416,19 +416,44 @@ func (a *App) AplicaPropunereAI(cerere CerereAplicaPropunereAI) RaspunsAplicaPro
 		}
 	}
 
-	tPrima, _ := time.Parse(time.DateOnly, zile[0])
-	an := cerere.An
-	luna := cerere.Luna
-	if an <= 0 {
-		an = tPrima.Year()
-	}
-	if luna <= 0 {
-		luna = int(tPrima.Month())
-	}
-	if e := a.salveazaPropunere(an, luna, map[string][]string{angajatID: zile}, codSchimb); e != nil {
-		return RaspunsAplicaPropunereAI{Eroare: e}
+	// Luna se ia din datele propunerii, nu din ecran (F14-T10); un interval peste
+	// sfârșitul lunii se salvează pe fiecare lună.
+	for _, l := range peLuni(zile) {
+		if _, err := time.Parse(time.DateOnly, l.zile[0]); err != nil {
+			return RaspunsAplicaPropunereAI{Eroare: &MesajEroare{Cod: "ai.eroare_generare", Param: map[string]string{"detalii": "Data invalidă: " + l.zile[0]}}}
+		}
+		if e := a.salveazaPropunere(l.an, l.luna, map[string][]string{angajatID: l.zile}, codSchimb); e != nil {
+			return RaspunsAplicaPropunereAI{Eroare: e}
+		}
 	}
 	return RaspunsAplicaPropunereAI{Succes: true}
+}
+
+type zileLuna struct {
+	an, luna int
+	zile     []string
+}
+
+// peLuni grupează datele AAAA-LL-ZZ pe luni, în ordine.
+func peLuni(zile []string) []zileLuna {
+	var rez []zileLuna
+	index := map[string]int{}
+	for _, z := range zile {
+		t, err := time.Parse(time.DateOnly, z)
+		if err != nil {
+			rez = append(rez, zileLuna{zile: []string{z}})
+			continue
+		}
+		cheie := t.Format("2006-01")
+		i, ok := index[cheie]
+		if !ok {
+			i = len(rez)
+			index[cheie] = i
+			rez = append(rez, zileLuna{an: t.Year(), luna: int(t.Month())})
+		}
+		rez[i].zile = append(rez[i].zile, z)
+	}
+	return rez
 }
 
 // aplicaPropunereGrup aplică același schimb mai multor angajați (F14-T08). Angajații se

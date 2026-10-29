@@ -131,3 +131,35 @@ func TestPropunereGrupToataLunaPentruTotiAngajatii(t *testing.T) {
 		t.Fatalf("angajați completați: %d din %d; zile pentru cel cu concediu: %d", len(pe), activi, pe[idCuConcediu])
 	}
 }
+
+func TestPropunerePesteSfarsitulLuniiSeSalveazaPeFiecareLuna(t *testing.T) {
+	a := appCuDemo(t)
+	date, err := datebaza.Nou(a.db).Citeste(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	marca := date.Angajati[0].Marca
+	p := ai.PropunereActiune{Tip: "planifica_interval", Parametri: map[string]any{
+		"marca": marca, "cod_schimb": "Z7", "data_inceput": "2026-10-30", "data_sfarsit": "2026-11-02",
+	}}
+	// Ecranul era pe septembrie: luna trimisă nu mai contează.
+	if r := a.AplicaPropunereAI(CerereAplicaPropunereAI{An: 2026, Luna: 9, Propunere: p}); !r.Succes {
+		t.Fatalf("aplicare: %+v", r.Eroare)
+	}
+	numara := func(luna int) int {
+		s, err := datebaza.Nou(a.db).CitesteSchita(context.Background(), 2026, luna)
+		if err != nil {
+			t.Fatal(err)
+		}
+		n := 0
+		for _, c := range s.Celule {
+			if c.AngajatID == date.Angajati[0].ID && c.Valoare != "" {
+				n++
+			}
+		}
+		return n
+	}
+	if o, n, s := numara(10), numara(11), numara(9); o != 2 || n != 2 || s != 0 {
+		t.Fatalf("octombrie %d, noiembrie %d, septembrie %d", o, n, s)
+	}
+}

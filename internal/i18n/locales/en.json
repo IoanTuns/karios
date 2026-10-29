@@ -779,5 +779,8 @@
   "ai.sarcina_terminata": "The AI assistant has finished. The reply is waiting in the assistant screen.",
   "ai.sarcina_eroare": "The AI assistant could not reply. Details are in the assistant screen.",
   "ai.grup_angajati": "{{numar}} employees · {{grup}}",
-  "ai.propuneri_repetate": "Skipped {{numar}} proposals identical to ones already shown or applied above."
+  "ai.propuneri_repetate": "Skipped {{numar}} proposals identical to ones already shown or applied above.",
+  "ai.confirma_cu_butonul": "For safety, proposals are confirmed only with the “Confirm and apply” button on the card, where you can see exactly what changes.",
+  "ai.luna_de_lucru": "Working month",
+  "ai.luna_de_lucru_indiciu": "Requests without a specific month refer to this month; taken from the timesheet."
 }

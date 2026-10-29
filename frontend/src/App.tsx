@@ -240,7 +240,7 @@ function App() {
                     : ecran === 'reguli_pontaj' ? <ReguliPontaj onModificari={setPontajModificat} onOcupat={setPontajOcupat}/>
                     : ecran === 'definire_rapoarte' ? <DefinireRapoarte/>
                     : ecran === 'rapoarte' ? <GenerareRapoarte date={date}/>
-                    : ecran === 'asistent_ai' ? <AsistentAI date={date} onDeschidePontaj={(an, luna) => { contextPontaj.current = { an, luna, sectie: '', departament: '', categorieProgram: '', cautare: '', filtruRanduri: '', selectie: null, derulareX: 0, derulareY: 0 }; setEcran('pontaj'); setEroare(''); setMesaj(''); }}/>
+                    : ecran === 'asistent_ai' ? <AsistentAI date={date} perioadaEcran={contextPontaj.current ? {an: contextPontaj.current.an, luna: contextPontaj.current.luna} : contextPlanificare} onDeschidePontaj={(an, luna) => { contextPontaj.current = { an, luna, sectie: '', departament: '', categorieProgram: '', cautare: '', filtruRanduri: '', selectie: null, derulareX: 0, derulareY: 0 }; setEcran('pontaj'); setEroare(''); setMesaj(''); }}/>
                     : ecran === 'setari' ? <Setari date={date} ocupat={ocupat}
                         salveazaNorma={minute => executa(() => SalveazaNormaIntreaga(minute))}
                         adaugaSectie={denumire => executa(() => AdaugaSectie({[i18n.language]: denumire}))}

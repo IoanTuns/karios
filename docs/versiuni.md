@@ -4,6 +4,16 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.64.0 · 2026-10-29
+
+Luna din context și confirmare doar prin buton în asistentul AI (F14-T10, UX-2 și UX-3 din review).
+
+- Luna de lucru a asistentului se preia din pontaj (ultima lună deschisă) sau, în lipsă, din planificare ori din data curentă; se vede și se poate schimba în antetul asistentului și rămâne în sesiune.
+- La aplicare, luna se ia din datele propunerii, nu din ecran; un interval peste sfârșitul lunii se salvează pe fiecare lună.
+- „da”, „ok”, „sigur” etc. nu mai aplică propunerile: asistentul răspunde local că se confirmă cu butonul de pe card.
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.63.0 · 2026-10-29
 
 Listări din cod și fără propuneri repetate în asistentul AI (F14-T09).

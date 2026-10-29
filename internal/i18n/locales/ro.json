@@ -779,5 +779,8 @@
   "ai.sarcina_terminata": "Asistentul AI a terminat. Răspunsul te așteaptă în ecranul asistentului.",
   "ai.sarcina_eroare": "Asistentul AI nu a putut răspunde. Detaliile sunt în ecranul asistentului.",
   "ai.grup_angajati": "{{numar}} angajați · {{grup}}",
-  "ai.propuneri_repetate": "Am omis {{numar}} propuneri identice cu unele deja afișate sau aplicate mai sus."
+  "ai.propuneri_repetate": "Am omis {{numar}} propuneri identice cu unele deja afișate sau aplicate mai sus.",
+  "ai.confirma_cu_butonul": "Pentru siguranță, propunerile se confirmă doar cu butonul „Confirmă și aplică” de pe card, unde se vede exact ce se modifică.",
+  "ai.luna_de_lucru": "Luna de lucru",
+  "ai.luna_de_lucru_indiciu": "Cererile fără o lună anume se referă la această lună; se preia din pontaj."
 }
