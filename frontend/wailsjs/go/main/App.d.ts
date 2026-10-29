@@ -15,6 +15,8 @@ export function AnalizeazaImportAngajati(arg1:string,arg2:string):Promise<main.R
 
 export function AnalizeazaImportSarbatori(arg1:string,arg2:string):Promise<main.RaspunsAnalizaImportSarbatori>;
 
+export function AnuleazaRestaurarea():Promise<main.RaspunsBackupuri>;
+
 export function AplicaPropunereAI(arg1:main.CerereAplicaPropunereAI):Promise<main.RaspunsAplicaPropunereAI>;
 
 export function AtribuieCategorieProgramLot(arg1:Array<string>,arg2:string):Promise<main.RaspunsDate>;
@@ -85,6 +87,8 @@ export function IesireDinCont():Promise<main.RaspunsStareCont>;
 
 export function IncarcaDemo():Promise<main.RaspunsDate>;
 
+export function InchideAplicatia():Promise<void>;
+
 export function Informatii():Promise<main.Informatii>;
 
 export function InregistreazaEroareFrontend(arg1:string,arg2:string,arg3:string):Promise<void>;
@@ -94,6 +98,8 @@ export function InterogheazaAI(arg1:main.CerereInterogareAI):Promise<main.Raspun
 export function IntrebariRecuperare(arg1:string):Promise<main.RaspunsIntrebari>;
 
 export function Limbi():Promise<Array<string>>;
+
+export function ListaBackupuri():Promise<main.RaspunsBackupuri>;
 
 export function ListaConturi():Promise<main.RaspunsConturi>;
 
@@ -120,6 +126,8 @@ export function PrevizualizeazaPrecompletare(arg1:number,arg2:number,arg3:Array<
 export function PrevizualizeazaPublicarePlan(arg1:datebaza.CererePublicarePlan):Promise<main.RaspunsPublicarePlan>;
 
 export function PrevizualizeazaSchita(arg1:number,arg2:number,arg3:Array<datebaza.CelulaSchita>):Promise<main.RaspunsSchita>;
+
+export function ProgrameazaRestaurare(arg1:string):Promise<main.RaspunsBackupuri>;
 
 export function PublicaPlanificare(arg1:datebaza.CererePublicarePlan):Promise<main.RaspunsPublicarePlan>;
 
@@ -178,5 +186,7 @@ export function StareAudit():Promise<main.RaspunsAudit>;
 export function StareCont():Promise<main.RaspunsStareCont>;
 
 export function StatisticiDiagnoza():Promise<diagnoza.StatisticiDiagnoza>;
+
+export function VerificaBackup(arg1:string):Promise<main.RaspunsVerificareBackup>;
 
 export function VerificaReguliPlanificare(arg1:number,arg2:number):Promise<main.RaspunsVerificaReguli>;

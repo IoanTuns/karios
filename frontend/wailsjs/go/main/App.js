@@ -18,6 +18,10 @@ export function AnalizeazaImportSarbatori(arg1, arg2) {
   return window['go']['main']['App']['AnalizeazaImportSarbatori'](arg1, arg2);
 }
 
+export function AnuleazaRestaurarea() {
+  return window['go']['main']['App']['AnuleazaRestaurarea']();
+}
+
 export function AplicaPropunereAI(arg1) {
   return window['go']['main']['App']['AplicaPropunereAI'](arg1);
 }
@@ -158,6 +162,10 @@ export function IncarcaDemo() {
   return window['go']['main']['App']['IncarcaDemo']();
 }
 
+export function InchideAplicatia() {
+  return window['go']['main']['App']['InchideAplicatia']();
+}
+
 export function Informatii() {
   return window['go']['main']['App']['Informatii']();
 }
@@ -176,6 +184,10 @@ export function IntrebariRecuperare(arg1) {
 
 export function Limbi() {
   return window['go']['main']['App']['Limbi']();
+}
+
+export function ListaBackupuri() {
+  return window['go']['main']['App']['ListaBackupuri']();
 }
 
 export function ListaConturi() {
@@ -228,6 +240,10 @@ export function PrevizualizeazaPublicarePlan(arg1) {
 
 export function PrevizualizeazaSchita(arg1, arg2, arg3) {
   return window['go']['main']['App']['PrevizualizeazaSchita'](arg1, arg2, arg3);
+}
+
+export function ProgrameazaRestaurare(arg1) {
+  return window['go']['main']['App']['ProgrameazaRestaurare'](arg1);
 }
 
 export function PublicaPlanificare(arg1) {
@@ -344,6 +360,10 @@ export function StareCont() {
 
 export function StatisticiDiagnoza() {
   return window['go']['main']['App']['StatisticiDiagnoza']();
+}
+
+export function VerificaBackup(arg1) {
+  return window['go']['main']['App']['VerificaBackup'](arg1);
 }
 
 export function VerificaReguliPlanificare(arg1, arg2) {

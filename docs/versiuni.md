@@ -4,6 +4,17 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.70.0 · 2026-10-29
+
+Restaurarea unui backup din aplicație (F05-T25).
+
+- Setări → Backup arată copiile din `karios/backup/` (automate și manuale). Administratorul alege o copie; aplicația îi verifică sigiliile pe o copie temporară (D044) și refuză o copie modificată în afara aplicației.
+- Restaurarea se programează și se aplică la următoarea pornire, cu baza închisă: baza curentă se salvează ca backup `pontix-manual-inainte-de-restaurare-…` (nu intră în rotația celor 7), copia îi ia locul, iar restaurarea se notează în jurnalul bazei restaurate și se resigilează.
+- Programarea se poate anula; butonul „Închide aplicația acum” grăbește repornirea.
+- Numele backup-ului se acceptă doar ca nume de fișier din `backup/`, fără căi.
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.69.0 · 2026-10-29
 
 Avertizare la închiderea ferestrei cu modificări nesalvate (F05-T24, UX-1 din review).

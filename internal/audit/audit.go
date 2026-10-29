@@ -644,6 +644,17 @@ func DupaMigrare(ctx context.Context, db *sql.DB, deLa, panaLa int64) error {
 	})
 }
 
+// NoteazaEveniment scrie în jurnal un eveniment de sistem (de ex. restaurarea unui backup)
+// și resigilează. Se apelează doar pe o bază verificată.
+func NoteazaEveniment(ctx context.Context, db *sql.DB, rand string, vechi, nou any) error {
+	return inTranzactie(ctx, db, func(tx *sql.Tx) error {
+		if err := scrieJurnal(ctx, tx, rand, vechi, nou); err != nil {
+			return err
+		}
+		return resigileaza(ctx, tx)
+	})
+}
+
 // Confirma acceptă starea curentă a bazei după un incident: scrie în jurnal ce s-a
 // detectat și motivul, resigilează și deblochează editarea.
 func Confirma(ctx context.Context, db *sql.DB, paza *Paza, motiv string) (Rezultat, error) {

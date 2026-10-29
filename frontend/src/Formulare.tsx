@@ -1,5 +1,7 @@
 import {useEffect, useRef, useState, type FormEvent, type ReactNode} from 'react';
 import {useTranslation} from 'react-i18next';
+import {RestaurareBackup} from './Restaurare';
+import {useCont} from './Conturi';
 import type {TFunction} from 'i18next';
 import {CitesteUltimeleLiniiJurnal, CreeazaBackup, DeschideFolderJurnale, DetaliiDezvoltare, Informatii} from '../wailsjs/go/main/App';
 import {datebaza, main} from '../wailsjs/go/models';
@@ -164,6 +166,8 @@ export function Setari({date, ocupat, salveazaNorma, adaugaSectie, adaugaDeparta
     const [validare, setValidare] = useState('');
     const [ocupatBackup, setOcupatBackup] = useState(false);
     const [mesajBackup, setMesajBackup] = useState('');
+    const [backupuriCreate, setBackupuriCreate] = useState(0);
+    const esteAdministrator = useCont()?.cont.rol === 'ADMINISTRATOR';
     const [eroareBackup, setEroareBackup] = useState('');
     const [dialogDezvoltare, setDialogDezvoltare] = useState(false);
     const [versiuneCurenta, setVersiuneCurenta] = useState('');
@@ -188,7 +192,7 @@ export function Setari({date, ocupat, salveazaNorma, adaugaSectie, adaugaDeparta
         try {
             const r = await CreeazaBackup();
             if (r.eroare) setEroareBackup(t(r.eroare.cod, r.eroare.param ?? {}));
-            else if (r.cale) setMesajBackup(t('ui.backup_creat', {cale: r.cale}));
+            else if (r.cale) { setMesajBackup(t('ui.backup_creat', {cale: r.cale})); setBackupuriCreate(n => n + 1); }
             else setEroareBackup(t('date.eroare'));
         } catch {
             setEroareBackup(t('date.eroare'));
@@ -227,6 +231,7 @@ export function Setari({date, ocupat, salveazaNorma, adaugaSectie, adaugaDeparta
             {eroareBackup && <p className="mesaj eroare" role="alert">{eroareBackup}</p>}
             {mesajBackup && <p className="mesaj succes" role="status">{mesajBackup}</p>}
             <button type="button" className="buton secundar" disabled={ocupat || ocupatBackup} onClick={creeazaBackup}>{t(ocupatBackup ? 'ui.salvare' : 'ui.creeaza_backup')}</button>
+            {esteAdministrator && <RestaurareBackup reimprospatare={backupuriCreate} ocupat={ocupat || ocupatBackup}/>}
         </section>
         <section className="panou card-setari card-despre">
             <h2>{t('ui.despre_titlu')}</h2>

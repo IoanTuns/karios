@@ -57,9 +57,18 @@ func deschide(ctx context.Context, radacina string, migrari fs.FS, acum func() t
 		return nil, nil, err
 	}
 
+	rest, err := aplicaRestaurare(ctx, radacina, s.CheieDate, acum)
+	if err != nil {
+		return nil, nil, err
+	}
 	rez, err := verificaSiMigreaza(ctx, caleBaza, radacina, s.CheieDate, migrari, acum)
 	if err != nil {
 		return nil, nil, err
+	}
+	if rest != nil && rez.Stare == audit.StareOK {
+		if rez, err = noteazaRestaurarea(ctx, caleBaza, s.CheieDate, rest); err != nil {
+			return nil, nil, err
+		}
 	}
 	paza := audit.NouaPaza(rez)
 	db, err := bd.DeschideCuAudit(caleBaza, s.CheieDate, paza)
@@ -67,6 +76,19 @@ func deschide(ctx context.Context, radacina string, migrari fs.FS, acum func() t
 		return nil, nil, err
 	}
 	return db, paza, nil
+}
+
+// noteazaRestaurarea scrie restaurarea în jurnalul bazei restaurate și o resigilează.
+func noteazaRestaurarea(ctx context.Context, caleBaza string, cheie []byte, rest *restaurare) (audit.Rezultat, error) {
+	db, err := bd.Deschide(caleBaza, cheie)
+	if err != nil {
+		return audit.Rezultat{}, err
+	}
+	defer db.Close()
+	if err := audit.NoteazaEveniment(ctx, db, "restaurare", nil, rest); err != nil {
+		return audit.Rezultat{}, err
+	}
+	return audit.Verifica(ctx, db)
 }
 
 // verificaSiMigreaza lucrează pe o conexiune fără trigger-ele auditului: verifică

@@ -1979,6 +1979,40 @@ export namespace main {
 		    return a;
 		}
 	}
+	export class RaspunsBackupuri {
+	    backupuri: stocare.Backup[];
+	    programata: string;
+	    eroare?: MesajEroare;
+
+	    static createFrom(source: any = {}) {
+	        return new RaspunsBackupuri(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.backupuri = this.convertValues(source["backupuri"], stocare.Backup);
+	        this.programata = source["programata"];
+	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 	export class RaspunsCalendar {
 	    calendar?: datebaza.CalendarAn;
 	    adaugate: number;
@@ -3013,6 +3047,38 @@ export namespace main {
 		    return a;
 		}
 	}
+	export class RaspunsVerificareBackup {
+	    rezultat: audit.Rezultat;
+	    eroare?: MesajEroare;
+
+	    static createFrom(source: any = {}) {
+	        return new RaspunsVerificareBackup(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.rezultat = this.convertValues(source["rezultat"], audit.Rezultat);
+	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 	export class RezultatSarcinaAI {
 	    id: string;
 	    raspuns?: ai.RaspunsAsistent;
@@ -3358,3 +3424,25 @@ export namespace rapoarte {
 
 }
 
+export namespace stocare {
+
+	export class Backup {
+	    nume: string;
+	    dimensiune: number;
+	    modificat: string;
+	    manual: boolean;
+
+	    static createFrom(source: any = {}) {
+	        return new Backup(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.nume = source["nume"];
+	        this.dimensiune = source["dimensiune"];
+	        this.modificat = source["modificat"];
+	        this.manual = source["manual"];
+	    }
+	}
+
+}

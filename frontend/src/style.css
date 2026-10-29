@@ -778,3 +778,11 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 [data-theme="dark"] .ecran-cont { background: #121917; }
 [data-theme="dark"] .card-cont { background: #1a2522; border-color: #2a3a35; }
 [data-theme="dark"] .intrebari-cont { border-color: #2a3a35; }
+.restaurare-backup { margin-top: 16px; border-top: 1px solid #e3e8e4; padding-top: 12px; }
+.restaurare-backup h3 { margin: 0 0 4px; font-size: 13px; }
+.lista-backupuri { list-style: none; padding: 0; margin: 8px 0 0; display: flex; flex-direction: column; gap: 6px; max-height: 260px; overflow-y: auto; }
+.lista-backupuri li { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 12px; }
+.lista-backupuri small { word-break: break-all; }
+.mesaj.atentionare { background: #fff8e6; border: 1px solid #ffd591; color: #873800; border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+[data-theme="dark"] .mesaj.atentionare { background: #2b2111; border-color: #594214; color: #ffd591; }
+[data-theme="dark"] .restaurare-backup { border-top-color: #2a3a35; }
