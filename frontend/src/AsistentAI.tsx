@@ -1,4 +1,5 @@
 import {useEffect, useRef, useState, type FormEvent} from 'react';
+import {PlanAsistentAI} from './PlanAsistentAI';
 import {useTranslation} from 'react-i18next';
 import {AplicaPropunereAI, EsteAutoPornireAI, OpresteAI, PornesteAI, SeteazaAutoPornireAI, StareAI} from '../wailsjs/go/main/App';
 import {ai, datebaza, main} from '../wailsjs/go/models';
@@ -221,41 +222,28 @@ export function AsistentAI({
         }));
     }
 
-    async function aplicaPropunere(mesajId: string, propunere: ai.PropunereActiune) {
-        setOcupat(true);
-        setEroare('');
-        setMesaj('');
+    function revedePropunere(propunere: ai.PropunereActiune) {
+        // Cardurile din sesiuni mai vechi trebuie și ele previzualizate înaintea aplicării.
+        const p = propunere.parametri ?? {};
+        const marci = Array.isArray(p.marci) ? p.marci.map(String) : p.marca ? [String(p.marca)] : [];
+        const intentie = new ai.IntentiePlan({
+            selectie: {tip: marci.length ? 'persoane' : '', valoare: '', marci, fara_pontaj: false},
+            de_la: String(p.data_inceput ?? p.data ?? ''), pana_la: String(p.data_sfarsit ?? p.data ?? ''),
+            cod_schimb: String(p.cod_schimb ?? ''), filtru_zile: '', mod_existente: '',
+            mesaj_original: propunere.descriere, clarificari: [],
+        });
+        seteazaConversatie(prev => [...prev, {id: `plan_${Date.now()}`, rol: 'assistant', text: '', intentie}]);
+    }
 
+    async function confirmaStergere(mesajId: string, propunere: ai.PropunereActiune) {
+        if (blocat || !propunere.tip.startsWith('sterge_')) return;
+        setOcupat(true); setEroare('');
         try {
-            const resp = await AplicaPropunereAI(new main.CerereAplicaPropunereAI({
-                an: anCurent,
-                luna: lunaCurenta,
-                propunere,
-            }));
-
-            if (resp.eroare) {
-                const textEroare = t(resp.eroare.cod, resp.eroare.param ?? {});
-                setEroare(textEroare !== resp.eroare.cod ? textEroare : (resp.eroare.param?.detalii ?? resp.eroare.cod));
-            } else {
-                setMesaj(t('ai.actiune_aplicata'));
-                seteazaConversatie(prev => prev.map(m => {
-                    if (m.id === mesajId) {
-                        return {
-                            ...m,
-                            propuneriAplicata: {
-                                ...(m.propuneriAplicata ?? {}),
-                                [propunere.id]: true,
-                            },
-                        };
-                    }
-                    return m;
-                }));
-            }
-        } catch (err: any) {
-            setEroare(err?.message || t('date.eroare'));
-        } finally {
-            setOcupat(false);
-        }
+            const r = await AplicaPropunereAI(new main.CerereAplicaPropunereAI({an: anCurent, luna: lunaCurenta, propunere}));
+            if (r.eroare) setEroare(t(r.eroare.cod, r.eroare.param ?? {}));
+            else seteazaConversatie(prev => prev.map(m => m.id === mesajId ? {...m, propuneriAplicata: {...m.propuneriAplicata, [propunere.id]: true}} : m));
+        } catch { setEroare(t('date.eroare')); }
+        finally { setOcupat(false); }
     }
 
     return (
@@ -362,6 +350,12 @@ export function AsistentAI({
                             {t(m.rol === 'user' ? 'ai.tu' : 'ai.expeditor_asistent')}
                         </div>
                         <div className="continut-mesaj">{m.text}</div>
+						{m.intentie && <PlanAsistentAI
+							intentie={m.intentie} date={date} rezultat={m.rezultatPlan} blocat={blocat} onOcupat={setOcupat}
+							onSchimba={intentie => seteazaConversatie(prev => prev.map(x => x.id === m.id ? {...x, intentie} : x))}
+							onAplicat={rezultatPlan => seteazaConversatie(prev => prev.map(x => x.id === m.id ? {...x, rezultatPlan} : x))}
+							onDeschidePontaj={onDeschidePontaj}
+						/>}
 
                         {/* Carduri de acțiune propusă */}
                         {m.propuneri && m.propuneri.length > 0 && (
@@ -446,9 +440,9 @@ export function AsistentAI({
                                                         type="button"
                                                         className="buton primar mic"
                                                         disabled={blocat}
-                                                        onClick={() => aplicaPropunere(m.id, p)}
+                                                        onClick={() => p.tip.startsWith('sterge_') ? void confirmaStergere(m.id, p) : revedePropunere(p)}
                                                     >
-                                                        {t('ai.confirma_actiune')}
+                                                        {t(p.tip.startsWith('sterge_') ? 'ai.confirma_actiune' : 'ai.plan_revede')}
                                                     </button>
                                                 )}
                                             </div>
@@ -496,6 +490,7 @@ export function AsistentAI({
                 <input
                     type="text"
                     value={textIntrare}
+					maxLength={4000}
                     disabled={blocat}
                     onChange={e => setTextIntrare(e.target.value)}
                     placeholder={t('ai.indiciu_scriere')}

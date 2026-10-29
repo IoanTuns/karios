@@ -102,6 +102,10 @@ export function ConfirmaIncidentAudit(arg1) {
   return window['go']['main']['App']['ConfirmaIncidentAudit'](arg1);
 }
 
+export function ConfirmaPlanAI(arg1, arg2) {
+  return window['go']['main']['App']['ConfirmaPlanAI'](arg1, arg2);
+}
+
 export function CreeazaBackup() {
   return window['go']['main']['App']['CreeazaBackup']();
 }
@@ -228,6 +232,10 @@ export function PornesteSarcinaAI(arg1) {
 
 export function PregatesteRaport(arg1) {
   return window['go']['main']['App']['PregatesteRaport'](arg1);
+}
+
+export function PrevizualizeazaPlanAI(arg1) {
+  return window['go']['main']['App']['PrevizualizeazaPlanAI'](arg1);
 }
 
 export function PrevizualizeazaPrecompletare(arg1, arg2, arg3, arg4) {

@@ -12,6 +12,7 @@ Orice idee, decizie și acțiune a proiectului se documentează aici, în acela�
 | Versiuni | [versiuni.md](versiuni.md) | se schimbă codul, un raport sau baza de date (D009) |
 | Ghid de utilizare | [primele funcționalități și demo](ghid-primele-functionalitati.md) | se schimbă fluxurile disponibile în aplicație |
 | Ghid rapoarte | [definire, PDF și tipărire](ghid-rapoarte.md) | se schimbă modelele, generarea sau tipărirea rapoartelor |
+| Asistent AI | [interpretare, clarificări și confirmare](ghid-asistent-ai.md) | se schimbă selecțiile, previzualizarea sau aplicarea planurilor |
 | Configurare pontaj | [ore, ture peste miezul nopții și totaluri](ghid-configurare-pontaj.md) | se schimbă regulile orelor sau completarea grilei |
 | Categorii de program | [atribuire pe angajat și precompletare](ghid-categorii-program.md) | se schimbă programele permise, implicitele sau completarea după categorii |
 | Construire și livrare | [directoare separate pentru fiecare build](ghid-build.md) | se schimbă scriptul de build sau organizarea artefactelor |

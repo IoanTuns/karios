@@ -186,17 +186,22 @@ func (a *App) interogheazaAI(ctx context.Context, cerere CerereInterogareAI) Ras
 	for _, c := range date.CategoriiProgram {
 		numeCategorii[c.ID] = c.Denumire.In(i18n.Romana)
 	}
+	numeDepartamente := make(map[string]string)
+	for _, d := range date.Departamente {
+		numeDepartamente[d.ID] = d.Denumire.In(i18n.Romana)
+	}
 	hartaAngajati := make(map[string]ai.InfoAngajat)
 	for _, ang := range date.Angajati {
 		if ang.Activ {
 			infoAng := ai.InfoAngajat{
-				ID:        ang.ID,
-				Nume:      ang.Nume,
-				Prenume:   ang.Prenume,
-				Marca:     ang.Marca,
-				Functie:   ang.Functie,
-				Sectie:    numeSectii[ang.SectieID],
-				Categorie: numeCategorii[ang.CategorieProgramID],
+				ID:          ang.ID,
+				Nume:        ang.Nume,
+				Prenume:     ang.Prenume,
+				Marca:       ang.Marca,
+				Functie:     ang.Functie,
+				Sectie:      numeSectii[ang.SectieID],
+				Categorie:   numeCategorii[ang.CategorieProgramID],
+				Departament: numeDepartamente[ang.DepartamentID],
 			}
 			contextPontix.Angajati = append(contextPontix.Angajati, infoAng)
 			hartaAngajati[ang.ID] = infoAng
@@ -220,6 +225,14 @@ func (a *App) interogheazaAI(ctx context.Context, cerere CerereInterogareAI) Ras
 				Ore:      int(s.DurataMinute / 60),
 				Interval: interval,
 			})
+		}
+	}
+
+	// Planificarea ghidată nu trimite pontajul echipei la model. Datele exacte
+	// se citesc la previzualizare; ambiguitățile se rezolvă în formular (F14-T22).
+	if len(cerere.Istoric) > 0 {
+		if intentie, ok := ai.InterpreteazaPlan(cerere.Istoric[len(cerere.Istoric)-1].Continut, contextPontix); ok {
+			return RaspunsInterogareAI{Raspuns: &ai.RaspunsAsistent{Intentie: &intentie}}
 		}
 	}
 
@@ -305,9 +318,6 @@ func (a *App) interogheazaAI(ctx context.Context, cerere CerereInterogareAI) Ras
 	// se execută instant, fără a bloca sau porni procesul AI dacă acesta este oprit.
 	if len(cerere.Istoric) > 0 {
 		ultimulMesaj := cerere.Istoric[len(cerere.Istoric)-1].Continut
-		if raspuns, ok := ai.AnalizeazaComandaGrup(ultimulMesaj, contextPontix); ok {
-			return RaspunsInterogareAI{Raspuns: &raspuns}
-		}
 		if sinteza, ok := ai.AnalizeazaInterogareSinteza(ultimulMesaj, contextPontix); ok {
 			return RaspunsInterogareAI{
 				Raspuns: &ai.RaspunsAsistent{
@@ -328,8 +338,15 @@ func (a *App) interogheazaAI(ctx context.Context, cerere CerereInterogareAI) Ras
 	}
 
 	client := mgr.Client()
-	raspuns, err := client.Interogheaza(ctx, cerere.Istoric, contextPontix)
+	mesajCurent := ""
+	if len(cerere.Istoric) > 0 {
+		mesajCurent = cerere.Istoric[len(cerere.Istoric)-1].Continut
+	}
+	raspuns, err := client.Interogheaza(ctx, cerere.Istoric, ai.ContextPentruCerere(mesajCurent, contextPontix))
 	if err != nil {
+		if e := eroareInterfata(err); e.Cod != "date.eroare" {
+			return RaspunsInterogareAI{Eroare: e}
+		}
 		return RaspunsInterogareAI{
 			Eroare: &MesajEroare{
 				Cod:   "ai.eroare_generare",
@@ -338,6 +355,31 @@ func (a *App) interogheazaAI(ctx context.Context, cerere CerereInterogareAI) Ras
 		}
 	}
 
+	// Nici modelul nu aplică direct o selecție: utilizatorul revizuiește intenția.
+	if len(raspuns.Propuneri) > 0 {
+		// Ștergerile păstrează confirmarea existentă; formularul nou este pentru planificare.
+		stergeri := true
+		for _, p := range raspuns.Propuneri {
+			stergeri = stergeri && strings.HasPrefix(p.Tip, "sterge_")
+		}
+		if stergeri {
+			return RaspunsInterogareAI{Raspuns: &raspuns}
+		}
+		intentie := ai.IntentiePlan{MesajOriginal: mesajCurent, Selectie: ai.SelectiePlan{Marci: []string{}}}
+		if len(raspuns.Propuneri) == 1 {
+			p := raspuns.Propuneri[0]
+			if strings.HasPrefix(p.Tip, "planifica_") {
+				intentie.CodSchimb, _ = p.Parametri["cod_schimb"].(string)
+				intentie.DeLa, _ = p.Parametri["data_inceput"].(string)
+				intentie.PanaLa, _ = p.Parametri["data_sfarsit"].(string)
+				if d, ok := p.Parametri["data"].(string); ok {
+					intentie.DeLa, intentie.PanaLa = d, d
+				}
+			}
+		}
+		intentie.CompleteazaClarificari()
+		raspuns = ai.RaspunsAsistent{Intentie: &intentie}
+	}
 	return RaspunsInterogareAI{Raspuns: &raspuns}
 }
 

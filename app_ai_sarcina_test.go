@@ -90,13 +90,12 @@ func TestPropunereGrupToataLunaPentruTotiAngajatii(t *testing.T) {
 		}
 	}
 	r := a.InterogheazaAI(CerereInterogareAI{An: 2026, Luna: 10, Istoric: []ai.MesajConversatie{{Rol: "user", Continut: "Toti angajatii pe luna octombrie sunt pe zi de la 7 la 14"}}})
-	if r.Eroare != nil || r.Raspuns == nil || len(r.Raspuns.Propuneri) != 1 {
+	if r.Eroare != nil || r.Raspuns == nil || r.Raspuns.Intentie == nil {
 		t.Fatalf("interogare: %+v", r)
 	}
-	p := r.Raspuns.Propuneri[0]
-	if p.Tip != ai.TipPlanificaGrup || len(p.Parametri["marci"].([]any)) != activi {
-		t.Fatalf("propunere: %+v (activi %d)", p, activi)
-	}
+	// F14-T22: zilele și păstrarea celulelor se aleg explicit înaintea planului.
+	i := *r.Raspuns.Intentie
+	i.FiltruZile, i.ModExistente = "lucratoare", "pastreaza"
 	// Un angajat are concediu pe 2026-10-05: ziua se sare.
 	idCuConcediu := ""
 	for _, ang := range date.Angajati {
@@ -108,7 +107,11 @@ func TestPropunereGrupToataLunaPentruTotiAngajatii(t *testing.T) {
 	if _, err := a.db.Exec(`INSERT INTO absente_zile (angajat_id, data, cod, activ, creat_la, modificat_la) VALUES (?, '2026-10-05', 'CO', 1, 'x', 'x')`, idCuConcediu); err != nil {
 		t.Fatal(err)
 	}
-	if rez := a.AplicaPropunereAI(CerereAplicaPropunereAI{An: 2026, Luna: 10, Propunere: p}); !rez.Succes {
+	p := a.PrevizualizeazaPlanAI(i)
+	if p.Eroare != nil || len(p.Plan.Persoane) != activi {
+		t.Fatalf("plan: %+v", p)
+	}
+	if rez := a.ConfirmaPlanAI(i, p.Plan.Token); rez.Eroare != nil {
 		t.Fatalf("aplicare: %+v", rez.Eroare)
 	}
 	schita, err := datebaza.Nou(a.db).CitesteSchita(context.Background(), 2026, 10)
@@ -214,10 +217,16 @@ func TestPropunereaDeGrupNuSuprascrie(t *testing.T) {
 		t.Fatal(err)
 	}
 	r := a.InterogheazaAI(CerereInterogareAI{An: 2026, Luna: 10, Istoric: []ai.MesajConversatie{{Rol: "user", Continut: "toti angajatii in octombrie pe Z7"}}})
-	if r.Raspuns == nil || len(r.Raspuns.Propuneri) != 1 {
+	if r.Raspuns == nil || r.Raspuns.Intentie == nil {
 		t.Fatalf("propunere: %+v", r)
 	}
-	if rez := a.AplicaPropunereAI(CerereAplicaPropunereAI{Propunere: r.Raspuns.Propuneri[0]}); !rez.Succes {
+	i := *r.Raspuns.Intentie
+	i.FiltruZile, i.ModExistente = "lucratoare", "pastreaza"
+	p := a.PrevizualizeazaPlanAI(i)
+	if p.Eroare != nil {
+		t.Fatalf("plan: %+v", p.Eroare)
+	}
+	if rez := a.ConfirmaPlanAI(i, p.Plan.Token); rez.Eroare != nil {
 		t.Fatalf("aplicare: %+v", rez.Eroare)
 	}
 	s, err := datebaza.Nou(a.db).CitesteSchita(ctx, 2026, 10)

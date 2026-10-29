@@ -4,11 +4,13 @@
 import {useSyncExternalStore} from 'react';
 import i18next from 'i18next';
 import {OpresteSarcinaAI, PornesteSarcinaAI, SarcinaAIActiva} from '../wailsjs/go/main/App';
-import {ai, main} from '../wailsjs/go/models';
+import {ai, datebaza, main} from '../wailsjs/go/models';
 import {EventsOn} from '../wailsjs/runtime/runtime';
 import {notifica} from './Toast';
 
 export interface MesajUI {
+	intentie?: ai.IntentiePlan;
+	rezultatPlan?: datebaza.PlanAI;
     id: string;
     rol: 'user' | 'assistant';
     text: string;
@@ -125,6 +127,7 @@ function laTerminare(rez: RezultatSarcinaAI) {
             propuneri: noi,
             propuneriAplicata: {},
             reaplicari,
+			intentie: rez.raspuns.intentie,
         }];
     }
     if (vizibil === 0 && !rez.oprita) {

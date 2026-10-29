@@ -4,6 +4,18 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.82.0 · 2026-10-29
+
+F14-T22: interacțiune ghidată a asistentului AI, D048 propusă.
+
+- Interpretarea apare într-un formular editabil: persoane, grup, program și interval, inclusiv între luni și ani.
+- Zilele și comportamentul pentru celulele ocupate se aleg explicit când lipsesc. Selecțiile disponibile: toți activii, secție, departament, categorie, persoane nominalizate și filtrul fără pontaj pe lună.
+- Previzualizarea arată persoanele, lunile, valorile vechi/noi și excluderile. Confirmarea verifică amprenta datelor și salvează tranzacțional întregul plan; scrierea este recitită înainte de commit.
+- Contextele modelului sunt limitate și separate pe planificare, absențe, pontaj sau ajutor; analizele deterministe folosesc datele complete. Cererea curentă nu se trunchiază.
+- 40 de comenzi RO/EN de regresie și teste pentru date schimbate, selecții, absențe, celule ocupate și rollback între luni. Cardurile vechi trec prin revizuire înainte de aplicare.
+
+Baza de date și rapoartele nu își schimbă schema sau versiunea. Nu au fost adăugate biblioteci. Calitatea modelului real și consumul pe calculator cu 8 GB rămân de măsurat separat.
+
 ## 0.81.2 · 2026-10-29
 
 F14-T20: contextul motorului AI crește de la 8192 la 32768 tokenuri. La depășire, clientul reîncearcă fără schimburile cele mai vechi, păstrând ultima cerere și datele aplicației. Fără modificări ale bazei de date sau rapoartelor.

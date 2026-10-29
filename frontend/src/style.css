@@ -802,3 +802,21 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .camp-parola { display: flex; align-items: center; gap: 8px; }
 .camp-parola input { flex: 1; min-width: 0; }
 .camp-parola .buton-text { white-space: nowrap; }
+/* F14-T22: interpretarea și previzualizarea planului asistentului. */
+.plan-asistent-ai { min-width: 0; max-width: 100%; padding: 1rem; border: 1px solid var(--culoare-bordura, #ccd7d6); border-radius: .6rem; }
+.plan-asistent-ai fieldset { min-width: 0; margin: .7rem 0; padding: .75rem; }
+.plan-asistent-ai blockquote { margin: .5rem 0; padding-left: .75rem; border-left: 3px solid #81aaa4; overflow-wrap: anywhere; }
+.campuri-plan-ai { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr)); gap: .75rem; }
+.campuri-plan-ai label { display: flex; flex-direction: column; gap: .3rem; }
+.campuri-plan-ai select, .campuri-plan-ai input { width: 100%; min-width: 0; box-sizing: border-box; }
+.clarificare-plan-ai .buton { margin: .2rem .4rem .2rem 0; white-space: normal; }
+.optiune-plan-ai { display: flex; align-items: flex-start; gap: .5rem; margin: .8rem 0; }
+.optiune-plan-ai input, .persoane-plan-ai input { width: auto; flex: 0 0 auto; }
+.persoane-plan-ai > div { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); max-height: 240px; overflow: auto; gap: .4rem; padding: .5rem 0; }
+.persoane-plan-ai label { display: flex; align-items: center; gap: .4rem; }
+.previzualizare-plan-ai { min-width: 0; }
+.previzualizare-plan-ai p { overflow-wrap: anywhere; }
+.tabel-plan-ai { max-width: 100%; max-height: 420px; overflow: auto; margin: .75rem 0; }
+.tabel-plan-ai table { border-collapse: collapse; width: 100%; }
+.tabel-plan-ai th, .tabel-plan-ai td { padding: .45rem; border-bottom: 1px solid #ccd7d6; text-align: left; }
+.previzualizare-plan-ai [role="status"] .buton { margin: .4rem; }

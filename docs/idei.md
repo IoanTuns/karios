@@ -76,3 +76,7 @@ Stări: `nouă`, `în analiză`, `transformată` (în task sau decizie), `amâna
 | I001 | 2026-10-24 | Răspunsurile contabilității introduse direct ca teste automate (tabelul de cazuri din chestionar) | Claude | transformată | F01-T03, F04-T07 |
 
 | I069 | 2026-10-29 | Mărirea contextului AI și recuperare la depășirea lui prin reducerea istoricului | Codex | transformată | F14-T20, D047 propusă |
+
+| I070 | 2026-10-29 | Interacțiune ghidată cu interpretare editabilă, clarificări, selecții deterministe, plan verificat și contexte specifice pe calculatoare modeste | Ioan Tuns, Codex | transformată | F14-T22, D048 |
+
+| I071 | 2026-10-29 | Grupuri AI personalizate persistente și combinarea mai multor filtre de selecție | Codex | amânată | F14-T22 oferă cinci selecții standard și filtrul fără pontaj; configurarea persistentă nu este necesară pentru cele șase propuneri cerute. |

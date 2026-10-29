@@ -3,6 +3,7 @@
 import {i18n} from '../models';
 import {main} from '../models';
 import {datebaza} from '../models';
+import {ai} from '../models';
 import {conturi} from '../models';
 import {rapoarte} from '../models';
 import {calcul} from '../models';
@@ -57,6 +58,8 @@ export function CompleteazaSarbatoriAn(arg1:number):Promise<main.RaspunsCalendar
 export function CompleteazaSchimburiInitiale(arg1:string):Promise<main.RaspunsSchimburi>;
 
 export function ConfirmaIncidentAudit(arg1:string):Promise<main.RaspunsAudit>;
+
+export function ConfirmaPlanAI(arg1:ai.IntentiePlan,arg2:string):Promise<main.RaspunsPlanAI>;
 
 export function CreeazaBackup():Promise<main.RaspunsBackup>;
 
@@ -121,6 +124,8 @@ export function PornesteAI(arg1:string):Promise<main.RaspunsStareAI>;
 export function PornesteSarcinaAI(arg1:main.CerereInterogareAI):Promise<main.RaspunsSarcinaAI>;
 
 export function PregatesteRaport(arg1:rapoarte.Cerere):Promise<main.RaspunsRaport>;
+
+export function PrevizualizeazaPlanAI(arg1:ai.IntentiePlan):Promise<main.RaspunsPlanAI>;
 
 export function PrevizualizeazaPrecompletare(arg1:number,arg2:number,arg3:Array<string>,arg4:Array<datebaza.CelulaSchita>):Promise<main.RaspunsPrecompletare>;
 

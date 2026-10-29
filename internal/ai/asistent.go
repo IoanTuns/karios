@@ -11,6 +11,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"pontix/internal/i18n"
 )
 
 // PropunereActiune reprezintă o acțiune structurată propusă de asistent,
@@ -31,6 +33,7 @@ type MesajConversatie struct {
 
 // RaspunsAsistent este rezultatul interogării asistentului AI.
 type RaspunsAsistent struct {
+	Intentie  *IntentiePlan      `json:"intentie,omitempty"`
 	Mesaj     string             `json:"mesaj"`
 	Propuneri []PropunereActiune `json:"propuneri"`
 	Eroare    string             `json:"eroare,omitempty"`
@@ -38,13 +41,15 @@ type RaspunsAsistent struct {
 
 // ContextPontix oferă asistentului informații despre personal și schimburile definite.
 type ContextPontix struct {
-	Limba           string                   `json:"limba"`
-	An              int                      `json:"an"`
-	Luna            int                      `json:"luna"`
-	Angajati        []InfoAngajat            `json:"angajati"`
-	Schimburi       []InfoSchimb             `json:"schimburi"`
-	Absente         []InfoAbsenta            `json:"absente,omitempty"`
-	TurePlanificate []InfoPozitiePlanificare `json:"ture_planificate,omitempty"`
+	Domeniu          string                   `json:"domeniu,omitempty"`
+	ContextIncomplet bool                     `json:"context_incomplet,omitempty"`
+	Limba            string                   `json:"limba"`
+	An               int                      `json:"an"`
+	Luna             int                      `json:"luna"`
+	Angajati         []InfoAngajat            `json:"angajati"`
+	Schimburi        []InfoSchimb             `json:"schimburi"`
+	Absente          []InfoAbsenta            `json:"absente,omitempty"`
+	TurePlanificate  []InfoPozitiePlanificare `json:"ture_planificate,omitempty"`
 	// CuPontaj întoarce angajații (după ID) care au ceva completat în pontajul lunii date;
 	// folosit de filtrul „fără pontaj” (F14-T16). Nu intră în prompt.
 	CuPontaj func(an, luna int) map[string]bool `json:"-"`
@@ -61,8 +66,9 @@ type InfoAngajat struct {
 	Marca   string `json:"marca"`
 	Functie string `json:"functie"`
 	// Sectie și Categorie servesc comenzilor de grup (F14-T08); nu intră în prompt.
-	Sectie    string `json:"sectie,omitempty"`
-	Categorie string `json:"categorie,omitempty"`
+	Sectie      string `json:"sectie,omitempty"`
+	Categorie   string `json:"categorie,omitempty"`
+	Departament string `json:"departament,omitempty"`
 }
 
 type InfoSchimb struct {
@@ -276,6 +282,27 @@ var definitiiUnelte = []map[string]any{
 
 // Interogheaza trimite mesajul utilizatorului către modelul local și parsează rezultatul.
 func (c *Client) Interogheaza(ctx context.Context, istoric []MesajConversatie, info ContextPontix) (RaspunsAsistent, error) {
+	if len(istoric) > 0 && len(istoric[len(istoric)-1].Continut) > 12000 {
+		return RaspunsAsistent{}, &i18n.Eroare{Cod: "ai.cerere_prea_lunga"}
+	}
+	// Păstrăm cererea curentă întreagă și doar schimburi recente întregi.
+	if len(istoric) > 1 {
+		buget := 4000
+		start := len(istoric) - 1
+		for x := len(istoric) - 2; x >= 0; x-- {
+			buget -= len(istoric[x].Continut)
+			if buget < 0 {
+				break
+			}
+			if istoric[x].Rol == "user" {
+				start = x
+			}
+			if len(istoric)-x >= 5 {
+				break
+			}
+		}
+		istoric = istoric[start:]
+	}
 	// Dacă utilizatorul a adresat o interogare analitică/de sinteză (concedii, weekend, acoperire, statistici),
 	// răspundem direct, determinist și instant folosind datele din context.
 	if len(istoric) > 0 {
@@ -301,6 +328,7 @@ func (c *Client) Interogheaza(ctx context.Context, istoric []MesajConversatie, i
 	}
 
 	corpCerere := map[string]any{
+		"max_tokens":  1024,
 		"messages":    mesaje,
 		"tools":       definitiiUnelte,
 		"tool_choice": "auto",
@@ -840,6 +868,12 @@ func corecteazaSchimbDacaEroare(args map[string]any, istoric []MesajConversatie,
 
 func construiestePromptSistem(info ContextPontix) string {
 	var sb strings.Builder
+	if info.Domeniu != "" {
+		sb.WriteString("Context specific cererii: " + info.Domeniu + ". Selecțiile de grup și modificările sunt verificate ulterior de aplicație.\n")
+	}
+	if info.ContextIncomplet {
+		sb.WriteString("CONTEXT PARȚIAL: lipsa unei persoane sau înregistrări din acest context NU înseamnă că ea nu există. Nu enumera și nu număra echipa din acest extras. Nu afirma rezultate exacte din date incomplete; cere precizări.\n")
+	}
 	sb.WriteString("Ești Asistentul inteligent al aplicației Pontix pentru pontaj și planificare de gărzi/ture.\n")
 	sb.WriteString("Răspunde întotdeauna concis, politicos și în limba română (sau engleză dacă ți se cere).\n")
 	sb.WriteString("NU inventa date și NU calcula formule salariale pe cont propriu.\n")
