@@ -2,6 +2,7 @@ import {useEffect, useLayoutEffect, useRef, useState, type FormEvent} from 'reac
 import {PlanAsistentAI} from './PlanAsistentAI';
 import {InstrumenteAsistentAI} from './InstrumenteAsistentAI';
 import {useTranslation} from 'react-i18next';
+import type {CerereConcediu} from './cerereConcediu';
 import {AplicaPropunereAI, EsteAutoPornireAI, OpresteAI, PornesteAI, SeteazaAutoPornireAI, StareAI} from '../wailsjs/go/main/App';
 import {ai, datebaza, main} from '../wailsjs/go/models';
 import {marcheazaVizibil, opresteSarcina, pornesteSarcina, reseteazaConversatie as reseteazaSesiunea, seteazaConversatie, seteazaEroare, seteazaPerioada, useSesiuneAI, type MesajUI} from './asistentSesiune';
@@ -67,10 +68,12 @@ export function AsistentAI({
     date,
     perioadaEcran,
     onDeschidePontaj,
+    onDeschideConcediu,
 }: {
     date: datebaza.Date;
     perioadaEcran?: {an: number; luna: number};
     onDeschidePontaj?: (an: number, luna: number) => void;
+    onDeschideConcediu?: (c: CerereConcediu) => void;
 }) {
     const {t, i18n} = useTranslation();
     const [stare, setStare] = useState<ai.StareMediu | null>(null);
@@ -505,6 +508,20 @@ export function AsistentAI({
                                                             </button>
                                                         )}
                                                     </div>
+                                                ) : p.tip === 'deschide_concediu' ? (
+                                                    <button
+                                                        type="button"
+                                                        className="buton primar mic"
+                                                        disabled={blocat || !onDeschideConcediu}
+                                                        onClick={() => onDeschideConcediu?.({
+                                                            angajatId: String(p.parametri?.angajat_id ?? ''),
+                                                            cod: String(p.parametri?.cod ?? ''),
+                                                            deLa: String(p.parametri?.data_inceput ?? ''),
+                                                            panaLa: String(p.parametri?.data_sfarsit ?? ''),
+                                                        })}
+                                                    >
+                                                        📝 {t('ai.deschide_formular_concediu')}
+                                                    </button>
                                                 ) : (
                                                     <button
                                                         type="button"

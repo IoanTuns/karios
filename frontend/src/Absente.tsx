@@ -1,5 +1,6 @@
 import {useEffect, useRef, useState, type ChangeEvent} from 'react';
 import {useTranslation} from 'react-i18next';
+import type {CerereConcediu} from './cerereConcediu';
 import {CitesteAbsente, CitesteCalendar, CitesteDocumentAbsenta, SalveazaAbsente, SalveazaTipAbsenta} from '../wailsjs/go/main/App';
 import {datebaza, main} from '../wailsjs/go/models';
 import {Dialog} from './Formulare';
@@ -20,7 +21,8 @@ function interval(deLa: string, panaLa: string): string[] {
     return zile[0] === deLa && zile[zile.length - 1] === panaLa ? zile : [];
 }
 
-export function Absente({date, filtruInitial}: {date: datebaza.Date; filtruInitial?: {an: number; angajatId: string} | null}) {
+export function Absente({date, filtruInitial, cerereConcediu, onCerereDeschisa}: {date: datebaza.Date; filtruInitial?: {an: number; angajatId: string} | null;
+    cerereConcediu?: CerereConcediu | null; onCerereDeschisa?: () => void}) {
     const {t, i18n} = useTranslation();
     const [an, setAn] = useState(filtruInitial?.an ?? new Date().getFullYear());
     const [anText, setAnText] = useState(String(an));
@@ -41,6 +43,15 @@ export function Absente({date, filtruInitial}: {date: datebaza.Date; filtruIniti
     const [lotEditat, setLotEditat] = useState<datebaza.ZiAbsenta[] | null>(null);
     const [docPrevizualizat, setDocPrevizualizat] = useState<datebaza.DocumentAbsenta | null>(null);
     const [selectate, setSelectate] = useState<Set<string>>(new Set());
+    // Cererea venită din asistent deschide formularul nou, precompletat (F14-T26).
+    const [precompletare, setPrecompletare] = useState<CerereConcediu | null>(null);
+    useEffect(() => {
+        if (!cerereConcediu) return;
+        setPrecompletare(cerereConcediu);
+        setLotEditat(null);
+        setZiEditata(null);
+        onCerereDeschisa?.();
+    }, [cerereConcediu]);
 
     useEffect(() => {
         if (!filtruInitial) return;
@@ -213,7 +224,7 @@ export function Absente({date, filtruInitial}: {date: datebaza.Date; filtruIniti
             </>}
         </>}
         {tipEditat && <FormularTip key={tipEditat.cod || 'nou'} tip={tipEditat} ocupat={ocupat} eroare={eroare} inchide={() => { setTipEditat(null); setEroare(''); }} salveaza={tip => executa(() => SalveazaTipAbsenta(tipEditat.cod, tip, an))}/>}
-        {(ziEditata !== undefined || lotEditat) && dateAbsente && <FormularAbsente key={lotEditat ? `lot-${lotEditat.map(cheieZi).join(',')}` : ziEditata ? cheieZi(ziEditata) : 'nou'} zi={ziEditata ?? null} lot={lotEditat} date={date} absente={dateAbsente} angajatImplicit={angajat} ocupat={ocupat} eroare={eroare} inchide={() => { setZiEditata(undefined); setLotEditat(null); setEroare(''); }} salveaza={zile => executa(() => SalveazaAbsente(zile, an))}/>}
+        {(ziEditata !== undefined || lotEditat) && dateAbsente && <FormularAbsente key={lotEditat ? `lot-${lotEditat.map(cheieZi).join(',')}` : ziEditata ? cheieZi(ziEditata) : 'nou'} zi={ziEditata ?? null} lot={lotEditat} date={date} absente={dateAbsente} angajatImplicit={angajat} precompletare={ziEditata === null && !lotEditat ? precompletare : null} ocupat={ocupat} eroare={eroare} inchide={() => { setZiEditata(undefined); setLotEditat(null); setEroare(''); setPrecompletare(null); }} salveaza={zile => executa(() => SalveazaAbsente(zile, an))}/>}
         {docPrevizualizat && <PrevizualizareCerere doc={docPrevizualizat} inchide={() => setDocPrevizualizat(null)} descarca={() => descarcaObiectDocument(docPrevizualizat)}/>}
     </section>;
 }
@@ -257,17 +268,17 @@ function FormularTip({tip, ocupat, eroare, inchide, salveaza}: {tip: datebaza.Ti
     </form></Dialog>;
 }
 
-function FormularAbsente({zi, lot, date, absente, angajatImplicit, ocupat, eroare, inchide, salveaza}: {zi: datebaza.ZiAbsenta | null; lot: datebaza.ZiAbsenta[] | null; date: datebaza.Date; absente: datebaza.AbsenteAn; angajatImplicit: string; ocupat: boolean; eroare: string; inchide: () => void; salveaza: (zile: datebaza.ZiAbsenta[]) => Promise<void>}) {
+function FormularAbsente({zi, lot, date, absente, angajatImplicit, precompletare, ocupat, eroare, inchide, salveaza}: {zi: datebaza.ZiAbsenta | null; lot: datebaza.ZiAbsenta[] | null; date: datebaza.Date; absente: datebaza.AbsenteAn; angajatImplicit: string; precompletare?: CerereConcediu | null; ocupat: boolean; eroare: string; inchide: () => void; salveaza: (zile: datebaza.ZiAbsenta[]) => Promise<void>}) {
     const {t, i18n} = useTranslation();
     const sursa = zi ?? (lot?.[0] ?? null);
     const modEditare = Boolean(zi || lot);
     const acelasiAngajatLot = !lot || new Set(lot.map(z => z.angajat_id)).size === 1;
     const azi = new Date(), dataImplicita = absente.an === azi.getFullYear() ? `${absente.an}-${String(azi.getMonth()+1).padStart(2,'0')}-${String(azi.getDate()).padStart(2,'0')}` : `${String(absente.an).padStart(4,'0')}-01-01`;
     const initial = {
-        angajat: sursa?.angajat_id || angajatImplicit,
-        cod: sursa?.cod || absente.tipuri.find(tip => tip.activ && tip.categorie === 'ODIHNA')?.cod || absente.tipuri.find(tip => tip.activ)?.cod || '',
-        deLa: zi?.data || (lot ? lot[0].data : dataImplicita),
-        panaLa: zi?.data || (lot ? lot[lot.length - 1].data : dataImplicita),
+        angajat: sursa?.angajat_id || precompletare?.angajatId || angajatImplicit,
+        cod: sursa?.cod || (precompletare && absente.tipuri.some(tip => tip.activ && tip.cod === precompletare.cod) ? precompletare.cod : '') || absente.tipuri.find(tip => tip.activ && tip.categorie === 'ODIHNA')?.cod || absente.tipuri.find(tip => tip.activ)?.cod || '',
+        deLa: zi?.data || (lot ? lot[0].data : precompletare?.deLa || dataImplicita),
+        panaLa: zi?.data || (lot ? lot[lot.length - 1].data : precompletare?.panaLa || dataImplicita),
         nrInregistrare: sursa?.nr_inregistrare || '',
         inlocuitor: sursa?.inlocuitor_id || '',
         stareAprobare: sursa?.stare_aprobare || 'IN_ASTEPTARE',
@@ -336,6 +347,8 @@ function FormularAbsente({zi, lot, date, absente, angajatImplicit, ocupat, eroar
     return <Dialog titlu={t(modEditare ? 'absente.editeaza' : 'absente.adauga')} ocupat={ocupat} inchide={renunta}><form onSubmit={e => {
         e.preventDefault(); setValidare('');
         if ((!lot && !campuri.angajat) || !alese.length) { setValidare(t('absente.selectie_invalida')); return; }
+        // Cererile pornite din asistent au număr de înregistrare obligatoriu (D052).
+        if (precompletare && !campuri.nrInregistrare.trim()) { setValidare(t('absente.nr_inregistrare_obligatoriu')); return; }
         if (zileInlocuitorAbsent.length) { setValidare(t('absente.inlocuitor_absent')); return; }
         if (zileTitularInlocuieste.length) { setValidare(t('absente.titular_este_inlocuitor')); return; }
         if (lot) {
@@ -378,7 +391,7 @@ function FormularAbsente({zi, lot, date, absente, angajatImplicit, ocupat, eroar
             {acelasiAngajatLot && <label className="latime-completa">{t('ui.angajat')} *<select name="angajat" required disabled={modEditare} value={campuri.angajat} onChange={e => seteaza('angajat',e.target.value)}><option value="">{t('absente.alege_angajat')}</option>{date.angajati.map(a => <option key={a.id} value={a.id}>{a.nume} {a.prenume} · {a.marca}{!a.activ ? ` · ${t('ui.inactiv')}` : ''}</option>)}</select></label>}
             <label className="latime-completa">{t('absente.tip')}<select name="tip" required value={campuri.cod} onChange={e => seteaza('cod',e.target.value)}>{absente.tipuri.filter(tip => tip.activ || tip.cod === sursa?.cod).map(tip => <option key={tip.cod} value={tip.cod}>{tip.cod} · {numeTip(tip,i18n.language)}{!tip.activ ? ` · ${t('ui.inactiv')}` : ''}</option>)}</select></label>
             {!lot && <><label>{t('absente.de_la')} *<input name="de_la" type="date" min="0001-01-01" max="9999-12-31" required readOnly={!!zi} value={campuri.deLa} onChange={e => seteaza('deLa',e.target.value)}/></label><label>{t('absente.pana_la')} *<input name="pana_la" type="date" min="0001-01-01" max="9999-12-31" required readOnly={!!zi} value={campuri.panaLa} onChange={e => seteaza('panaLa',e.target.value)}/></label></>}
-            <label>{t('absente.nr_inregistrare')}<input name="nr_inregistrare" maxLength={64} value={campuri.nrInregistrare} onChange={e => seteaza('nrInregistrare',e.target.value)}/></label>
+            <label>{t('absente.nr_inregistrare')}{precompletare ? ' *' : ''}<input name="nr_inregistrare" maxLength={64} required={Boolean(precompletare)} autoFocus={Boolean(precompletare)} value={campuri.nrInregistrare} onChange={e => seteaza('nrInregistrare',e.target.value)}/></label>
             <label>{t('absente.inlocuitor')}<select name="inlocuitor" value={campuri.inlocuitor} onChange={e => seteaza('inlocuitor',e.target.value)}><option value="">{t('absente.fara_inlocuitor')}</option>{inlocuitoriDisponibili.map(a => <option key={a.id} value={a.id}>{a.nume} {a.prenume} · {a.marca}{!a.activ ? ` · ${t('ui.inactiv')}` : ''}</option>)}</select></label>
             <label>{t('absente.aprobare')}<select name="stare_aprobare" value={campuri.stareAprobare} onChange={e => seteaza('stareAprobare',e.target.value)}>{stariAprobare.map(s => <option key={s} value={s}>{t(`absente.aprobare_${s}`)}</option>)}</select></label>
             <label>{t('absente.aprobat_de')}<input name="aprobat_de" maxLength={120} value={campuri.aprobatDe} onChange={e => seteaza('aprobatDe',e.target.value)}/></label>

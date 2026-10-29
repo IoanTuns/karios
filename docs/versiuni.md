@@ -4,6 +4,17 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.85.0 · 2026-10-29
+
+Cererile de concediu din asistentul AI (F14-T26, [D052](decizii/D052-concedii-din-asistent.md)).
+
+- „X merge în concediu …” e recunoscut ca cerere (nu ca întrebare) înaintea celorlalte căi. Angajatul se identifică după marcă sau nume complet, cu toleranță la greșeli („Maria Daria” → Marin Daria); intervalul, din zilele și luna din mesaj; tipul CO, sau CM la „medical”.
+- Cardul are butonul „Deschide formularul de concediu”: ecranul Concedii și absențe se deschide cu formularul nou precompletat (angajat, tip, interval). Numărul de înregistrare e obligatoriu pentru aceste cereri; starea rămâne „în așteptare”. Salvarea trece prin validările obișnuite.
+- Comenzile incomplete primesc o întrebare (ce angajat, ce zile), nu lista concediilor.
+- Lista concediilor răspunde doar la întrebări și nu mai afirmă că „tot personalul este activ și la dispoziție”.
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.84.0 · 2026-10-29
 
 F14-T25: instrumentele asistentului cerute de utilizator.

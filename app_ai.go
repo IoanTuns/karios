@@ -232,6 +232,13 @@ func (a *App) interogheazaAI(ctx context.Context, cerere CerereInterogareAI) Ras
 		}
 	}
 
+	// O cerere de concediu deschide formularul de concediu precompletat (F14-T26, D052).
+	if len(cerere.Istoric) > 0 {
+		if raspuns, ok := ai.AnalizeazaCerereConcediu(cerere.Istoric[len(cerere.Istoric)-1].Continut, contextPontix); ok {
+			return RaspunsInterogareAI{Raspuns: &raspuns}
+		}
+	}
+
 	// Planificarea ghidată nu trimite pontajul echipei la model. Datele exacte
 	// se citesc la previzualizare; ambiguitățile se rezolvă în formular (F14-T22).
 	if len(cerere.Istoric) > 0 {

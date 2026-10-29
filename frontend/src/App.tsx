@@ -7,6 +7,7 @@ import {DialogImportAngajati} from './ImportDialogs';
 import {ErrorBoundary} from './ErrorBoundary';
 import {BannerAudit} from './Audit';
 import {DialogContulMeu, EcranConturi, useCont} from './Conturi';
+import type {CerereConcediu} from './cerereConcediu';
 import {initializeazaSesiuneAI, useSesiuneAI} from './asistentSesiune';
 import {ToastContainer} from './Toast';
 import type {ContextPontaj} from './Pontaj';
@@ -74,6 +75,7 @@ function App() {
     const contextPontaj = useRef<ContextPontaj | null>(null);
     const [contextPlanificare,setContextPlanificare]=useState<{an:number;luna:number}|undefined>();
     const [filtruAbsente, setFiltruAbsente] = useState<{an: number; angajatId: string} | null>(null);
+    const [cerereConcediu, setCerereConcediu] = useState<CerereConcediu | null>(null);
     const [sidebarCompact, setSidebarCompact] = useState(() => localStorage.getItem('pontix_sidebar_compact') === 'true');
     const [tema, setTema] = useState<'light' | 'dark'>(() => (localStorage.getItem('pontix_tema') as any) || 'light');
 
@@ -251,13 +253,13 @@ function App() {
                     : ecran === 'sarbatori' ? <Sarbatori/>
                     : ecran === 'schimburi' ? <Schimburi/>
                     : ecran === 'categorii_program' ? <CategoriiProgram date={date} ocupat={ocupat} eroare={eroare} salveaza={c=>executa(()=>SalveazaCategorieProgram(c))} reincarca={()=>executa(DateInitiale,'')} curataEroare={()=>setEroare('')}/>
-                    : ecran === 'absente' ? <Absente date={date} filtruInitial={filtruAbsente}/>
+                    : ecran === 'absente' ? <Absente date={date} filtruInitial={filtruAbsente} cerereConcediu={cerereConcediu} onCerereDeschisa={() => setCerereConcediu(null)}/>
                     : ecran === 'jurnal_modificari' ? <Jurnal date={date}/>
                     : ecran === 'conturi' ? <EcranConturi/>
                     : ecran === 'reguli_pontaj' ? <ReguliPontaj onModificari={setPontajModificat} onOcupat={setPontajOcupat}/>
                     : ecran === 'definire_rapoarte' ? <DefinireRapoarte/>
                     : ecran === 'rapoarte' ? <GenerareRapoarte date={date}/>
-                    : ecran === 'asistent_ai' ? <AsistentAI date={date} perioadaEcran={contextPontaj.current ? {an: contextPontaj.current.an, luna: contextPontaj.current.luna} : contextPlanificare} onDeschidePontaj={(an, luna) => { contextPontaj.current = { an, luna, sectie: '', departament: '', categorieProgram: '', cautare: '', filtruRanduri: '', selectie: null, derulareX: 0, derulareY: 0 }; setEcran('pontaj'); setEroare(''); setMesaj(''); }}/>
+                    : ecran === 'asistent_ai' ? <AsistentAI date={date} perioadaEcran={contextPontaj.current ? {an: contextPontaj.current.an, luna: contextPontaj.current.luna} : contextPlanificare} onDeschideConcediu={c => { setFiltruAbsente({an: Number(c.deLa.slice(0, 4)), angajatId: c.angajatId}); setCerereConcediu(c); setEcran('absente'); setEroare(''); setMesaj(''); }} onDeschidePontaj={(an, luna) => { contextPontaj.current = { an, luna, sectie: '', departament: '', categorieProgram: '', cautare: '', filtruRanduri: '', selectie: null, derulareX: 0, derulareY: 0 }; setEcran('pontaj'); setEroare(''); setMesaj(''); }}/>
                     : ecran === 'setari' ? <Setari date={date} ocupat={ocupat}
                         salveazaNorma={minute => executa(() => SalveazaNormaIntreaga(minute))}
                         adaugaSectie={denumire => executa(() => AdaugaSectie({[i18n.language]: denumire}))}

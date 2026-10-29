@@ -1280,5 +1280,7 @@
   "ai.corectat": "corectat:",
   "ai.deja_aplicata_reaplica": "O propunere identică a fost deja aplicată mai sus. Confirmă doar dacă vrei să o aplici din nou.",
   "cont.arata_parola": "Arată",
-  "cont.ascunde_parola": "Ascunde"
+  "cont.ascunde_parola": "Ascunde",
+  "ai.deschide_formular_concediu": "Deschide formularul de concediu",
+  "absente.nr_inregistrare_obligatoriu": "Completează numărul de înregistrare al cererii."
 }

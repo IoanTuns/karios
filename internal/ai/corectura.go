@@ -23,6 +23,7 @@ var vocabularComenzi = []string{
 	"sectia", "sectie", "sectiei", "categoria", "categorie", "categoriei",
 	"weekend", "weekendul", "weekenduri", "weekendurile", "lucratoare", "zilele", "inclusiv", "fiecare",
 	"fara", "pontaj", "pontajul", "pontajului", "luna", "lunii", "listeaza", "schimburi", "schimburile",
+	"concediu", "concediul", "concedii", "odihna", "medical", "boala", "absenta", "absente", "pana", "merge", "pleaca",
 }
 
 // pragGreseli: câte greșeli se acceptă după lungimea cuvântului (D-L): cuvintele scurte

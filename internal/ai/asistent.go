@@ -1011,8 +1011,9 @@ func AnalizeazaInterogareSinteza(mesaj string, info ContextPontix) (string, bool
 	}
 
 	// 1. Interogare concedii / absențe ("cine este în concediu", "cine e în concediu", "concedii luna", "absențe")
-	if strings.Contains(m, "in concediu") || strings.Contains(m, "în concediu") ||
-		strings.Contains(m, "concedii") || strings.Contains(m, "absente") || strings.Contains(m, "absențe") {
+	// O comandă („X merge în concediu…”) nu e o întrebare despre concedii (F14-T26).
+	if (strings.Contains(m, "in concediu") || strings.Contains(m, "în concediu") ||
+		strings.Contains(m, "concedii") || strings.Contains(m, "absente") || strings.Contains(m, "absențe")) && !EsteComandaConcediu(mesaj, info) {
 		return sintetizeazaConcedii(info, numeLuna), true
 	}
 
@@ -1069,7 +1070,7 @@ func sintetizeazaGhidComenzi(numeLuna string, an int) string {
 
 func sintetizeazaConcedii(info ContextPontix, numeLuna string) string {
 	if len(info.Absente) == 0 {
-		return fmt.Sprintf("🏖️ **Concedii și absențe (%s %d)**\n\nNu este înregistrat niciun concediu sau absență pentru luna %s %d. Tot personalul este activ și la dispoziție.", numeLuna, info.An, numeLuna, info.An)
+		return fmt.Sprintf("🏖️ **Concedii și absențe (%s %d)**\n\nNu este înregistrat niciun concediu sau absență pentru luna %s %d.", numeLuna, info.An, numeLuna, info.An)
 	}
 
 	tipuri := map[string]string{

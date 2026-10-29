@@ -1280,5 +1280,7 @@
   "ai.corectat": "corrected:",
   "ai.deja_aplicata_reaplica": "An identical proposal was already applied above. Confirm only if you want to apply it again.",
   "cont.arata_parola": "Show",
-  "cont.ascunde_parola": "Hide"
+  "cont.ascunde_parola": "Hide",
+  "ai.deschide_formular_concediu": "Open the leave form",
+  "absente.nr_inregistrare_obligatoriu": "Enter the request registration number."
 }
