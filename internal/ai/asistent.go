@@ -330,6 +330,21 @@ func (c *Client) Interogheaza(ctx context.Context, istoric []MesajConversatie, i
 
 	if resp.StatusCode != http.StatusOK {
 		corpEroare, _ := io.ReadAll(resp.Body)
+		var eroareContext struct {
+			Eroare struct {
+				Tip string `json:"type"`
+			} `json:"error"`
+		}
+		// Reluăm numai eroarea explicită de context, eliminând un schimb vechi
+		// întreg. Instrucțiunile, datele și ultima cerere nu sunt trunchiate.
+		if resp.StatusCode == http.StatusBadRequest && json.Unmarshal(corpEroare, &eroareContext) == nil && eroareContext.Eroare.Tip == "exceed_context_size_error" {
+			for i := 1; i < len(istoric); i++ {
+				if istoric[i].Rol == "user" {
+					resp.Body.Close()
+					return c.Interogheaza(ctx, istoric[i:], info)
+				}
+			}
+		}
 		return RaspunsAsistent{}, fmt.Errorf("serverul AI a returnat codul %d: %s", resp.StatusCode, string(corpEroare))
 	}
 

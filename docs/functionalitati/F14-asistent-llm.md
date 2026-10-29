@@ -10,6 +10,8 @@ Utilizatorul poate da comenzi în limbaj natural („pune-l pe Ion de noapte joi
 
 | ID | Task | Stare | Responsabil | Note |
 | --- | --- | --- | --- | --- |
+| F14-T20 | Corectarea depășirii contextului motorului AI | gata | Codex | 0.81.2: context 32768; reluare exclusiv la eroarea de context, fără schimburile vechi. D047 propusă. Teste AI, toate testele Go și vet trecute; build.ps1 reușit. Pas următor: acceptarea D047 și proba cu modelul real, inclusiv consumul de memorie. |
+| F14-T21 | Verificarea completă și actualizarea dependențelor după F14-T20 | de făcut | | Verificarea de rețea a detectat actualizări tranzitive (atomicgo.dev/keyboard 0.2.9 → 0.2.10, dario.cat/mergo 1.0.0 → 1.0.2). Go 1.27.3 este curent; npm outdated fără rezultate. Actualizările Go rămân pentru verificare completă și commit separat, fără schimbarea dependențelor în corectura AI. |
 | F14-T01 | Setul de 30–50 de comenzi reale pentru validare | amânat | | În română și engleză (D004) |
 | F14-T02 | `llama-server` pe `127.0.0.1`, supraveghetor portabil și autoverificare mediu | finalizat | Antigravity | Verificare portabilitate, căi karios/ai/, pornire/oprire proces copil fără consolă (v0.36.0) |
 | F14-T03 | Compararea modelelor disponibile la acel moment | amânat | | Qwen 2.5 3B/7B GGUF Q4_K_M recomandat |

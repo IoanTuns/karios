@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.81.2 · 2026-10-29
+
+F14-T20: contextul motorului AI crește de la 8192 la 32768 tokenuri. La depășire, clientul reîncearcă fără schimburile cele mai vechi, păstrând ultima cerere și datele aplicației. Fără modificări ale bazei de date sau rapoartelor.
+
 ## 0.81.1 · 2026-10-29
 
 Corecturi pe ecranele contului (F15-T09).

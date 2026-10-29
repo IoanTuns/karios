@@ -136,7 +136,7 @@ func (m *Manager) Porneste(ctx context.Context, numeModel string) error {
 	// -m: calea către fișierul GGUF
 	// --port: portul de ascultare
 	// --host: strict 127.0.0.1 (fără ascultare în rețea)
-	// -c 8192: lungime generoasă de context pentru a acomoda promptul complet de personal, schimburi, absențe și istoric conversațional
+	// -c 32768: context pentru instrucțiuni, personal, pontaj și conversație (F14-T20).
 	// -b 512, -ub 512: evaluare prompt vectorială accelerată
 	// -np 1: un singur slot pentru a maximiza viteza de inferență și a evita fragmentarea memoriei
 	// --threads: numărul optim de nuclee alocate
@@ -144,7 +144,7 @@ func (m *Manager) Porneste(ctx context.Context, numeModel string) error {
 		"-m", caleModel,
 		"--host", "127.0.0.1",
 		"--port", fmt.Sprintf("%d", m.port),
-		"-c", "8192",
+		"-c", "32768",
 		"-b", "512",
 		"-ub", "512",
 		"-np", "1",

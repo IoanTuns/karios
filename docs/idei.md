@@ -74,3 +74,5 @@ Stări: `nouă`, `în analiză`, `transformată` (în task sau decizie), `amâna
 | I003 | 2026-10-24 | GitHub Issues legate de ID-urile de task | Claude | amânată | Repo-ul nu are remote; vezi [D005](decizii/D005-documentare.md) |
 | I002 | 2026-10-24 | Coduri scurte diferite pe limbă în grilă (de exemplu `CM` / `SL`) | Claude | respinsă | Ar complica importul și exportul; se poate redeschide la cerere ([D004](decizii/D004-traduceri.md)) |
 | I001 | 2026-10-24 | Răspunsurile contabilității introduse direct ca teste automate (tabelul de cazuri din chestionar) | Claude | transformată | F01-T03, F04-T07 |
+
+| I069 | 2026-10-29 | Mărirea contextului AI și recuperare la depășirea lui prin reducerea istoricului | Codex | transformată | F14-T20, D047 propusă |
