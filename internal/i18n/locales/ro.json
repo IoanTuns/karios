@@ -777,5 +777,6 @@
   "ai.opreste_sarcina": "Oprește",
   "ai.sarcina_oprita": "Cererea a fost oprită.",
   "ai.sarcina_terminata": "Asistentul AI a terminat. Răspunsul te așteaptă în ecranul asistentului.",
-  "ai.sarcina_eroare": "Asistentul AI nu a putut răspunde. Detaliile sunt în ecranul asistentului."
+  "ai.sarcina_eroare": "Asistentul AI nu a putut răspunde. Detaliile sunt în ecranul asistentului.",
+  "ai.grup_angajati": "{{numar}} angajați · {{grup}}"
 }

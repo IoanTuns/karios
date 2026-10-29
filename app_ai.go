@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 
@@ -149,15 +150,25 @@ func (a *App) interogheazaAI(ctx context.Context, cerere CerereInterogareAI) Ras
 		Luna:  cerere.Luna,
 	}
 
+	numeSectii := make(map[string]string)
+	for _, s := range date.Sectii {
+		numeSectii[s.ID] = s.Denumire.In(i18n.Romana)
+	}
+	numeCategorii := make(map[string]string)
+	for _, c := range date.CategoriiProgram {
+		numeCategorii[c.ID] = c.Denumire.In(i18n.Romana)
+	}
 	hartaAngajati := make(map[string]ai.InfoAngajat)
 	for _, ang := range date.Angajati {
 		if ang.Activ {
 			infoAng := ai.InfoAngajat{
-				ID:      ang.ID,
-				Nume:    ang.Nume,
-				Prenume: ang.Prenume,
-				Marca:   ang.Marca,
-				Functie: ang.Functie,
+				ID:        ang.ID,
+				Nume:      ang.Nume,
+				Prenume:   ang.Prenume,
+				Marca:     ang.Marca,
+				Functie:   ang.Functie,
+				Sectie:    numeSectii[ang.SectieID],
+				Categorie: numeCategorii[ang.CategorieProgramID],
 			}
 			contextPontix.Angajati = append(contextPontix.Angajati, infoAng)
 			hartaAngajati[ang.ID] = infoAng
@@ -266,6 +277,9 @@ func (a *App) interogheazaAI(ctx context.Context, cerere CerereInterogareAI) Ras
 	// se execută instant, fără a bloca sau porni procesul AI dacă acesta este oprit.
 	if len(cerere.Istoric) > 0 {
 		ultimulMesaj := cerere.Istoric[len(cerere.Istoric)-1].Continut
+		if raspuns, ok := ai.AnalizeazaComandaGrup(ultimulMesaj, contextPontix); ok {
+			return RaspunsInterogareAI{Raspuns: &raspuns}
+		}
 		if sinteza, ok := ai.AnalizeazaInterogareSinteza(ultimulMesaj, contextPontix); ok {
 			return RaspunsInterogareAI{
 				Raspuns: &ai.RaspunsAsistent{
@@ -311,6 +325,9 @@ func (a *App) AplicaPropunereAI(cerere CerereAplicaPropunereAI) RaspunsAplicaPro
 	date, err := datebaza.Nou(a.db).Citeste(a.contextLucru())
 	if err != nil {
 		return RaspunsAplicaPropunereAI{Eroare: eroareInterfata(err)}
+	}
+	if p.Tip == ai.TipPlanificaGrup {
+		return a.aplicaPropunereGrup(p, date)
 	}
 
 	// Găsim angajatul după marcă sau nume (tolerant la formatare)
@@ -359,39 +376,7 @@ func (a *App) AplicaPropunereAI(cerere CerereAplicaPropunereAI) RaspunsAplicaPro
 			}
 		}
 
-		// Referința pentru calculul weekendurilor alternate este prima sâmbătă din sau după t1
-		refSambata := t1
-		for refSambata.Weekday() != time.Saturday && !refSambata.After(t2) {
-			refSambata = refSambata.AddDate(0, 0, 1)
-		}
-
-		for cur := t1; !cur.After(t2); cur = cur.AddDate(0, 0, 1) {
-			ziSapt := cur.Weekday()
-			esteWeekend := (ziSapt == time.Saturday || ziSapt == time.Sunday)
-
-			if filtruZile == "tot_al_doilea_weekend" {
-				if esteWeekend {
-					sambataCurenta := cur
-					if ziSapt == time.Sunday {
-						sambataCurenta = cur.AddDate(0, 0, -1)
-					}
-					diferentaZile := int(sambataCurenta.Sub(refSambata).Hours() / 24)
-					if diferentaZile >= 0 && (diferentaZile/7)%2 == 0 {
-						zile = append(zile, cur.Format(time.DateOnly))
-					}
-				}
-			} else if filtruZile == "weekend" {
-				if esteWeekend {
-					zile = append(zile, cur.Format(time.DateOnly))
-				}
-			} else if doarLucratoare || filtruZile == "lucratoare" {
-				if !esteWeekend {
-					zile = append(zile, cur.Format(time.DateOnly))
-				}
-			} else {
-				zile = append(zile, cur.Format(time.DateOnly))
-			}
-		}
+		zile = zileDinInterval(t1, t2, filtruZile, doarLucratoare)
 	case "planifica_zile", "sterge_zile":
 		if rawZile, ok := p.Parametri["zile"].([]any); ok {
 			for _, rz := range rawZile {
@@ -440,37 +425,143 @@ func (a *App) AplicaPropunereAI(cerere CerereAplicaPropunereAI) RaspunsAplicaPro
 	if luna <= 0 {
 		luna = int(tPrima.Month())
 	}
+	if e := a.salveazaPropunere(an, luna, map[string][]string{angajatID: zile}, codSchimb); e != nil {
+		return RaspunsAplicaPropunereAI{Eroare: e}
+	}
+	return RaspunsAplicaPropunereAI{Succes: true}
+}
 
-	// Citim schița existentă pentru a obține reviziile celulelor curente
-	schita, err := datebaza.Nou(a.db).CitesteSchita(a.contextLucru(), an, luna)
+// aplicaPropunereGrup aplică același schimb mai multor angajați (F14-T08). Angajații se
+// identifică doar după marca exactă, iar zilele cu concediu sau absență activă se sar.
+func (a *App) aplicaPropunereGrup(p ai.PropunereActiune, date datebaza.Date) RaspunsAplicaPropunereAI {
+	eroare := func(detalii string) RaspunsAplicaPropunereAI {
+		return RaspunsAplicaPropunereAI{Eroare: &MesajEroare{Cod: "ai.eroare_generare", Param: map[string]string{"detalii": detalii}}}
+	}
+	codSchimb, _ := p.Parametri["cod_schimb"].(string)
+	filtru, _ := p.Parametri["filtru_zile"].(string)
+	d1, _ := p.Parametri["data_inceput"].(string)
+	d2, _ := p.Parametri["data_sfarsit"].(string)
+	t1, err1 := time.Parse(time.DateOnly, d1)
+	t2, err2 := time.Parse(time.DateOnly, d2)
+	if err1 != nil || err2 != nil || t2.Before(t1) || t1.Year() != t2.Year() || t1.Month() != t2.Month() || codSchimb == "" {
+		return eroare("Interval de date invalid.")
+	}
+	var marci []string
+	switch v := p.Parametri["marci"].(type) {
+	case []any:
+		for _, m := range v {
+			if s, ok := m.(string); ok {
+				marci = append(marci, s)
+			}
+		}
+	case []string:
+		marci = v
+	}
+	dupaMarca := make(map[string]string)
+	for _, ang := range date.Angajati {
+		if ang.Activ {
+			dupaMarca[strings.ToLower(ang.Marca)] = ang.ID
+		}
+	}
+	absente := make(map[string]bool)
+	if abs, err := datebaza.Nou(a.db).CitesteAbsente(a.contextLucru(), t1.Year()); err == nil {
+		for _, z := range abs.Zile {
+			if z.Activ {
+				absente[z.AngajatID+"/"+z.Data] = true
+			}
+		}
+	}
+	zile := zileDinInterval(t1, t2, filtru, false)
+	tinte := make(map[string][]string)
+	for _, m := range marci {
+		id, ok := dupaMarca[strings.ToLower(strings.TrimSpace(m))]
+		if !ok {
+			return eroare(fmt.Sprintf("Angajatul cu marca \"%s\" nu mai există sau nu este activ.", m))
+		}
+		for _, zi := range zile {
+			if !absente[id+"/"+zi] {
+				tinte[id] = append(tinte[id], zi)
+			}
+		}
+	}
+	if len(tinte) == 0 {
+		return eroare("Nu au fost identificate zile eligibile în interval.")
+	}
+	if e := a.salveazaPropunere(t1.Year(), int(t1.Month()), tinte, codSchimb); e != nil {
+		return RaspunsAplicaPropunereAI{Eroare: e}
+	}
+	return RaspunsAplicaPropunereAI{Succes: true}
+}
+
+// zileDinInterval întoarce zilele dintre t1 și t2 (inclusiv) care trec de filtru:
+// "weekend", "tot_al_doilea_weekend", "lucratoare" (sau doarLucratoare) ori toate.
+func zileDinInterval(t1, t2 time.Time, filtruZile string, doarLucratoare bool) []string {
+	var zile []string
+	// Referința pentru calculul weekendurilor alternate este prima sâmbătă din sau după t1
+	refSambata := t1
+	for refSambata.Weekday() != time.Saturday && !refSambata.After(t2) {
+		refSambata = refSambata.AddDate(0, 0, 1)
+	}
+	for cur := t1; !cur.After(t2); cur = cur.AddDate(0, 0, 1) {
+		ziSapt := cur.Weekday()
+		esteWeekend := ziSapt == time.Saturday || ziSapt == time.Sunday
+		switch {
+		case filtruZile == "tot_al_doilea_weekend":
+			if esteWeekend {
+				sambataCurenta := cur
+				if ziSapt == time.Sunday {
+					sambataCurenta = cur.AddDate(0, 0, -1)
+				}
+				diferentaZile := int(sambataCurenta.Sub(refSambata).Hours() / 24)
+				if diferentaZile >= 0 && (diferentaZile/7)%2 == 0 {
+					zile = append(zile, cur.Format(time.DateOnly))
+				}
+			}
+		case filtruZile == "weekend":
+			if esteWeekend {
+				zile = append(zile, cur.Format(time.DateOnly))
+			}
+		case doarLucratoare || filtruZile == "lucratoare":
+			if !esteWeekend {
+				zile = append(zile, cur.Format(time.DateOnly))
+			}
+		default:
+			zile = append(zile, cur.Format(time.DateOnly))
+		}
+	}
+	return zile
+}
+
+// salveazaPropunere scrie codul schimbului în pontaj pentru zilele fiecărui angajat, într-o
+// singură salvare, și, pentru schimburile de planificat (gărzi, după-amiază), în planificare.
+func (a *App) salveazaPropunere(an, luna int, tinte map[string][]string, codSchimb string) *MesajEroare {
+	ctx := a.contextLucru()
+	schita, err := datebaza.Nou(a.db).CitesteSchita(ctx, an, luna)
 	if err != nil {
-		return RaspunsAplicaPropunereAI{Eroare: eroareInterfata(err)}
+		return eroareInterfata(err)
 	}
 	revizii := make(map[string]string)
 	for _, c := range schita.Celule {
-		if c.AngajatID == angajatID {
-			revizii[c.Data] = c.Revizie
+		revizii[c.AngajatID+"/"+c.Data] = c.Revizie
+	}
+	ids := make([]string, 0, len(tinte))
+	for id := range tinte {
+		ids = append(ids, id)
+	}
+	sort.Strings(ids)
+
+	var celule []datebaza.CelulaSchita
+	for _, id := range ids {
+		for _, zi := range tinte[id] {
+			celule = append(celule, datebaza.CelulaSchita{AngajatID: id, Data: zi, Valoare: codSchimb, Revizie: revizii[id+"/"+zi]})
 		}
 	}
-
-	// Construim celulele pentru pontaj
-	var celule []datebaza.CelulaSchita
-	for _, zi := range zile {
-		celule = append(celule, datebaza.CelulaSchita{
-			AngajatID: angajatID,
-			Data:      zi,
-			Valoare:   codSchimb,
-			Revizie:   revizii[zi],
-		})
-	}
-
-	// Salvăm în pontaj
-	if err := datebaza.Nou(a.db).SalveazaSchita(a.contextLucru(), an, luna, celule); err != nil {
-		return RaspunsAplicaPropunereAI{Eroare: eroareInterfata(err)}
+	if err := datebaza.Nou(a.db).SalveazaSchita(ctx, an, luna, celule); err != nil {
+		return eroareInterfata(err)
 	}
 
 	// Dacă schimbul este și de tip planificare (gardă sau după-amiază), îl actualizăm și în tabelul de planificare
-	schimburi, _ := datebaza.Nou(a.db).ListaSchimburi(a.contextLucru())
+	schimburi, _ := datebaza.Nou(a.db).ListaSchimburi(ctx)
 	var schimbGasit *datebaza.Schimb
 	for i := range schimburi {
 		if strings.EqualFold(schimburi[i].Cod, codSchimb) {
@@ -478,52 +569,45 @@ func (a *App) AplicaPropunereAI(cerere CerereAplicaPropunereAI) RaspunsAplicaPro
 			break
 		}
 	}
-
-	if schimbGasit != nil {
-		pProg := calcul.ProgramPrecompletare{
-			ID:           schimbGasit.ID,
-			Cod:          schimbGasit.Cod,
-			OraStart:     schimbGasit.OraStart,
-			DurataMinute: schimbGasit.DurataMinute,
-			Tip:          schimbGasit.Tip,
-			Regim:        schimbGasit.Regim,
-		}
-		if calcul.ProgramDePlanificat(pProg) {
-			sectiune := "GARZI"
-			if calcul.ProgramInSectiune(pProg, "DUPA_AMIAZA") {
-				sectiune = "DUPA_AMIAZA"
-			}
-
-			pozExistente := make(map[string]datebaza.PozitiePlanificare)
-			if plan, err := datebaza.Nou(a.db).CitestePlanificare(a.contextLucru(), an, luna); err == nil {
-				for _, poz := range plan.Pozitii {
-					cheie := fmt.Sprintf("%s|%s|%s", poz.AngajatID, poz.Data, poz.Sectiune)
-					pozExistente[cheie] = poz
-				}
-			}
-
-			var pozitii []datebaza.PozitiePlanificare
-			for _, zi := range zile {
-				cheie := fmt.Sprintf("%s|%s|%s", angajatID, zi, sectiune)
-				id := ""
-				revizie := ""
-				if ex, ok := pozExistente[cheie]; ok {
-					id = ex.ID
-					revizie = ex.Revizie
-				}
-				pozitii = append(pozitii, datebaza.PozitiePlanificare{
-					ID:        id,
-					AngajatID: angajatID,
-					Data:      zi,
-					SchimbID:  schimbGasit.ID,
-					Sectiune:  sectiune,
-					Activ:     codSchimb != "",
-					Revizie:   revizie,
-				})
-			}
-			_ = datebaza.Nou(a.db).SalveazaPlanificare(a.contextLucru(), an, luna, pozitii)
+	if schimbGasit == nil {
+		return nil
+	}
+	pProg := calcul.ProgramPrecompletare{
+		ID:           schimbGasit.ID,
+		Cod:          schimbGasit.Cod,
+		OraStart:     schimbGasit.OraStart,
+		DurataMinute: schimbGasit.DurataMinute,
+		Tip:          schimbGasit.Tip,
+		Regim:        schimbGasit.Regim,
+	}
+	if !calcul.ProgramDePlanificat(pProg) {
+		return nil
+	}
+	sectiune := "GARZI"
+	if calcul.ProgramInSectiune(pProg, "DUPA_AMIAZA") {
+		sectiune = "DUPA_AMIAZA"
+	}
+	pozExistente := make(map[string]datebaza.PozitiePlanificare)
+	if plan, err := datebaza.Nou(a.db).CitestePlanificare(ctx, an, luna); err == nil {
+		for _, poz := range plan.Pozitii {
+			pozExistente[poz.AngajatID+"|"+poz.Data+"|"+poz.Sectiune] = poz
 		}
 	}
-
-	return RaspunsAplicaPropunereAI{Succes: true}
+	var pozitii []datebaza.PozitiePlanificare
+	for _, id := range ids {
+		for _, zi := range tinte[id] {
+			ex := pozExistente[id+"|"+zi+"|"+sectiune]
+			pozitii = append(pozitii, datebaza.PozitiePlanificare{
+				ID:        ex.ID,
+				AngajatID: id,
+				Data:      zi,
+				SchimbID:  schimbGasit.ID,
+				Sectiune:  sectiune,
+				Activ:     codSchimb != "",
+				Revizie:   ex.Revizie,
+			})
+		}
+	}
+	_ = datebaza.Nou(a.db).SalveazaPlanificare(ctx, an, luna, pozitii)
+	return nil
 }

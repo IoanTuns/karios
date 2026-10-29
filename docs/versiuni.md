@@ -4,6 +4,18 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.62.0 · 2026-10-29
+
+Propuneri de grup în asistentul AI (F14-T08).
+
+- Comenzile pentru „toți angajații”, „secția X” sau „categoria Y” cu un schimb (cod sau interval, de ex. „de la 7 la 14”) pe o lună întreagă sunt recunoscute direct din cod (`ai.AnalizeazaComandaGrup`), fără model: o singură propunere `planifica_grup` cu lista persoanelor.
+- Implicit doar zile lucrătoare (L–V); „toate zilele / inclusiv weekend” și „weekend” schimbă filtrul. Comenzile pentru o zi anume și intervalele ambigue rămân la model.
+- La aplicare, angajații se identifică doar după marca exactă, zilele cu concediu sau absență activă se sar, iar pontajul se salvează într-o singură operație pentru tot grupul.
+- Cardul propunerii arată numărul de persoane și lista lor (pliabilă).
+- `AplicaPropunereAI`: calculul zilelor și salvarea extrase în `zileDinInterval` și `salveazaPropunere`, folosite de ambele tipuri de propuneri.
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.61.0 · 2026-10-29
 
 Asistentul AI lucrează în fundal (F14-T07).

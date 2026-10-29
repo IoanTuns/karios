@@ -736,12 +736,5 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .card-onboarding-gol h3 { font-size: 18px; margin: 0 0 8px; color: #1e3f32; }
 .card-onboarding-gol p { font-size: 13px; color: var(--discret); max-width: 600px; margin: 0 auto 24px; line-height: 1.6; }
 .actiuni-onboarding-rapide { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 14px; }
-
-
-
-
-
-
-
-
-
+.lista-grup summary { cursor: pointer; }
+.lista-grup ul { margin: 6px 0 0; padding-left: 18px; max-height: 180px; overflow-y: auto; }

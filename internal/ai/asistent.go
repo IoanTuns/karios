@@ -53,6 +53,9 @@ type InfoAngajat struct {
 	Prenume string `json:"prenume"`
 	Marca   string `json:"marca"`
 	Functie string `json:"functie"`
+	// Sectie și Categorie servesc comenzilor de grup (F14-T08); nu intră în prompt.
+	Sectie    string `json:"sectie,omitempty"`
+	Categorie string `json:"categorie,omitempty"`
 }
 
 type InfoSchimb struct {

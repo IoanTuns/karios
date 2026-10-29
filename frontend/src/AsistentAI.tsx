@@ -392,6 +392,12 @@ export function AsistentAI({
                                                         })()}
                                                     </span>
                                                 )}
+                                                {Array.isArray(p.parametri?.nume) && (
+                                                    <details className="insigna-detaliu angajat lista-grup">
+                                                        <summary>👥 {t('ai.grup_angajati', {numar: String(p.parametri.nume.length), grup: String(p.parametri.grup ?? '')})}</summary>
+                                                        <ul>{(p.parametri.nume as string[]).map(n => <li key={n}>{n}</li>)}</ul>
+                                                    </details>
+                                                )}
                                                 {p.parametri?.data && (
                                                     <span className="insigna-detaliu data">
                                                         📅 Data: <strong>{String(p.parametri.data)}</strong>
