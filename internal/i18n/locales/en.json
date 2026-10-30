@@ -1,4 +1,9 @@
 {
+  "pontaj.plan_actualizeaza": "Update schedule",
+  "pontaj.plan_actualizeaza_indiciu": "Copy the saved special shift for {{nume}}, {{data}}, to the schedule. Save timesheet changes first.",
+  "pontaj.plan_actualizat": "The selected cell's schedule has been updated.",
+  "pontaj.plan_independent": "A different schedule was edited separately. Check this day in Scheduling before changing the shift in Timesheet.",
+
   "ai.instrumente": "Tools",
   "ai.instrumente_indiciu": "Create a new plan to schedule work or check existing timesheets.",
   "ai.plan_nou": "New plan / check",

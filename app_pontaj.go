@@ -65,7 +65,7 @@ func (a *App) SalveazaConfiguratiePontaj(c calcul.ConfiguratiePontaj) RaspunsCon
 }
 
 func (a *App) SalveazaSchita(an, luna int, celule []datebaza.CelulaSchita) RaspunsSchita {
-	return a.raspunsSchita(an, luna, datebaza.Nou(a.db).SalveazaSchita(a.contextLucru(), an, luna, celule))
+	return a.raspunsSchita(an, luna, datebaza.Nou(a.db).SalveazaSchitaCuPlanificare(a.contextLucru(), an, luna, celule))
 }
 
 func (a *App) raspunsSchita(an, luna int, err error) RaspunsSchita {

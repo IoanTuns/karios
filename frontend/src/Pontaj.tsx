@@ -468,14 +468,14 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
         }
     }
 
-    async function salveaza() {
+    async function salveaza(celulaPlan?: datebaza.CelulaSchita) {
         if (lunaBlocata) { setEroare(t('pontaj.luna_inchisa')); return; }
         if (blocat.current) return;
         blocat.current = true; setOcupat(true); onOcupat(true); setEroare(''); setMesaj('');
         try {
-            const r = await SalveazaSchita(an, luna, [...modificari.values()]);
+            const r = await SalveazaSchita(an, luna, celulaPlan ? [celulaPlan] : [...modificari.values()]);
             if (r.eroare) { setEroare(t(r.eroare.cod, r.eroare.param ?? {})); notifica(t(r.eroare.cod, r.eroare.param ?? {}), 'eroare'); }
-            else if (r.schita) { setSchita(r.schita); setCalculat(r.schita.calcul); setModificari(new Map()); setIstoricInapoi([]); setIstoricInainte([]); setMesaj(t('pontaj.salvat')); notifica(t('pontaj.salvat'), 'succes'); }
+            else if (r.schita) { setSchita(r.schita); setCalculat(r.schita.calcul); setModificari(new Map()); setIstoricInapoi([]); setIstoricInainte([]); setMesaj(t(celulaPlan ? 'pontaj.plan_actualizat' : 'pontaj.salvat')); notifica(t(celulaPlan ? 'pontaj.plan_actualizat' : 'pontaj.salvat'), 'succes'); }
             else setEroare(t('date.eroare'));
         } catch { setEroare(t('date.eroare')); }
         finally { blocat.current = false; setOcupat(false); onOcupat(false); }
@@ -532,7 +532,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
         }, 200);
         return () => { activ = false; window.clearTimeout(temporizator); };
     }, [cheieActiva, schita]);
-    const schimbActiv = brutaActiva && !brutaActiva.startsWith('@M') ? schimburi.find(s => s.cod === brutaActiva) : undefined;
+    const schimbActiv = brutaActiva && !brutaActiva.startsWith('@M') ? schimburi.find(s => s.cod.toUpperCase() === brutaActiva.toUpperCase()) : undefined;
     const textCodActiv = absentaActiva
         ? `${absentaActiva.cod} (${t(`absente.aprobare_${absentaActiva.stare_aprobare || 'IN_ASTEPTARE'}`)}${absentaActiva.nr_inregistrare ? ` · ${absentaActiva.nr_inregistrare}` : ''})`
         : brutaActiva.startsWith('@M')
@@ -565,7 +565,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                 {Array.from({length: 12}, (_, i) => <option key={i} value={i + 1}>{formatData(i18n.language, {month: 'long', timeZone: 'UTC'}).format(new Date(`2026-${String(i + 1).padStart(2, '0')}-01T12:00:00Z`))}</option>)}
             </select></label>
             <button type="button" className="buton secundar buton-luna-nav" aria-label={t('pontaj.luna_urmatoare')} disabled={ocupat} onClick={() => schimbaLunaRelativ(1)}>▶</button></form>
-            <button className="buton primar" disabled={ocupat || incarcare || !modificari.size || lunaBlocata} onClick={salveaza}>{t(ocupat ? 'ui.salvare' : 'pontaj.salveaza')}</button>
+            <button className="buton primar" disabled={ocupat || incarcare || !modificari.size || lunaBlocata} onClick={() => void salveaza()}>{t(ocupat ? 'ui.salvare' : 'pontaj.salveaza')}</button>
             <button type="button" className="buton secundar" title={lunaBlocata ? t('pontaj.redeschide_luna') : t('pontaj.inchide_luna')} disabled={ocupat || incarcare} onClick={comutaStareLuna}>{lunaBlocata ? `🔓 ${t('pontaj.redeschide_luna')}` : `🔒 ${t('pontaj.inchide_luna')}`}</button></div>
         {lunaBlocata && (
             <div className="banner-luna-blocata" role="alert">
@@ -650,6 +650,10 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                     <strong>{randActiv.nume} {randActiv.prenume}</strong>
                     <span>{dataActiva}{sarbatori.get(dataActiva) ? ` · ${sarbatori.get(dataActiva)}` : ''}</span>
                     <span className="eticheta-contract">{textCodActiv}</span>
+                    {schimbActiv && programPlanificat(schimbActiv) && <button type="button" className="legatura"
+                        title={t('pontaj.plan_actualizeaza_indiciu', {nume: `${randActiv.nume} ${randActiv.prenume}`, data: dataActiva})}
+                        disabled={ocupat || incarcare || calculare || lunaBlocata || modificari.size > 0 || !!absentaActiva || !originale.has(cheieActiva)}
+                        onClick={() => void salveaza(originale.get(cheieActiva))}>{t('pontaj.plan_actualizeaza')}</button>}
                     {calcActiva?.calculabil && <span>{t('pontaj.inspectie_calculat', {ore: oreText(calcActiva.minute)})}</span>}
                     {inlocuiriActive?.length ? <span className="insigna-inlocuitor">{t('pontaj.inlocuieste_pe', {persoane: inlocuiriActive.map(z => { const coleg = date.angajati.find(x => x.id === z.angajat_id); return `${coleg ? `${coleg.nume} ${coleg.prenume}` : z.angajat_id} (${z.cod})`; }).join(', ')})}</span> : null}
                     {avertismentActiv && <span className="avertisment-text">{avertismentActiv}</span>}

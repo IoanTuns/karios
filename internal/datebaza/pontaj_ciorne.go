@@ -77,6 +77,15 @@ func (s *Serviciu) CitesteSchita(ctx context.Context, an, luna int, previzualiza
 }
 
 func (s *Serviciu) SalveazaSchita(ctx context.Context, an, luna int, celule []CelulaSchita) error {
+	return s.salveazaSchita(ctx, an, luna, celule, false)
+}
+
+// SalveazaSchitaCuPlanificare sincronizează programele speciale la salvarea din grilă.
+func (s *Serviciu) SalveazaSchitaCuPlanificare(ctx context.Context, an, luna int, celule []CelulaSchita) error {
+	return s.salveazaSchita(ctx, an, luna, celule, true)
+}
+
+func (s *Serviciu) salveazaSchita(ctx context.Context, an, luna int, celule []CelulaSchita, cuPlanificare bool) error {
 	inchisa, err := s.EsteLunaInchisa(ctx, an, luna)
 	if err != nil {
 		return err
@@ -103,7 +112,18 @@ func (s *Serviciu) SalveazaSchita(ctx context.Context, an, luna int, celule []Ce
 		}
 		vazute[cheie] = true
 	}
-	return s.modifica(ctx, func(q *acces.Queries) error {
+	return s.modificaTx(ctx, func(tx *sql.Tx, q *acces.Queries) error {
+		if cuPlanificare {
+			stare := "DESCHISA"
+			err := tx.QueryRowContext(ctx, `SELECT stare FROM stare_luni WHERE an=? AND luna=?`, an, luna).Scan(&stare)
+			if err != nil && err != sql.ErrNoRows {
+				return err
+			}
+			if stare != "DESCHISA" {
+				return eroare("pontaj.luna_inchisa")
+			}
+		}
+		modificariPlan := []schimbarePontajPlan{}
 		angajati := map[string]bool{}
 		categorii := map[string]string{}
 		schimburi, err := q.ListaSchimburi(ctx)
@@ -157,6 +177,9 @@ func (s *Serviciu) SalveazaSchita(ctx context.Context, an, luna int, celule []Ce
 				return eroare("pontaj.conflict")
 			}
 			c.Valoare = strings.TrimSpace(c.Valoare)
+			if cuPlanificare {
+				modificariPlan = append(modificariPlan, schimbarePontajPlan{Celula: c, Inainte: veche.Valoare})
+			}
 			if (exista && c.Valoare == veche.Valoare) || (!exista && c.Valoare == "") {
 				continue
 			}
@@ -193,6 +216,9 @@ func (s *Serviciu) SalveazaSchita(ctx context.Context, an, luna int, celule []Ce
 			if err := jurnal(ctx, q, "pontaj_ciorne", c.AngajatID+"/"+c.Data, inainte, c); err != nil {
 				return err
 			}
+		}
+		if cuPlanificare {
+			return sincronizeazaPontajPlan(ctx, q, deLa, panaLa, modificariPlan)
 		}
 		return nil
 	})

@@ -1,4 +1,9 @@
 {
+  "pontaj.plan_actualizeaza": "Actualizează planificarea",
+  "pontaj.plan_actualizeaza_indiciu": "Copiază programul special deja salvat pentru {{nume}}, {{data}}, în planificare. Salvează mai întâi modificările din pontaj.",
+  "pontaj.plan_actualizat": "Planificarea celulei selectate a fost actualizată.",
+  "pontaj.plan_independent": "Există o planificare diferită, modificată separat. Verifică ziua în Planificare înainte de a schimba programul în Pontaj.",
+
   "ai.instrumente": "Instrumente",
   "ai.instrumente_indiciu": "Creează un plan nou pentru planificare sau verificarea pontajului existent.",
   "ai.plan_nou": "Plan nou / verificare",
