@@ -1,6 +1,6 @@
 # F15 · Conturi și acces
 
-Etapă: V1 · Stare: gata · Depinde de: F05, F06
+Etapă: V1 · Stare: în lucru · Depinde de: F05, F06
 
 ## Scop
 
@@ -24,3 +24,7 @@ Fiecare persoană lucrează în contul ei, cu parolă și întrebări de recuper
 | F15-T07 | Ecranul de administrare a conturilor | gata | Claude | 0.68.0: Setări → Conturi (doar administrator); ultimul administrator protejat |
 | F15-T08 | Contul curent ca „Cine” în jurnalul de modificări | gata | Claude | 0.68.0: `contextLucru` poartă numele contului; folosit de F12 |
 | F15-T09 | Ecranul de creare a contului: întrebările în lățimea cardului, parolele citite corect și la completarea automată, buton „Arată” | gata | Claude | 0.81.1: `FormData` la trimitere, `onInput`, „Arată”, CSS; neverificat vizual |
+| F15-T10 | Seiful fără cheie în cod: copia W (DPAPI pe utilizatorul Windows) și copia K (cheia de recuperare) | în lucru | Claude | [D054](../decizii/D054-chei-fara-cod-recuperare.md) |
+| F15-T11 | Trecerea datelor existente: cheie de date nouă, recriptarea bazei și a backup-urilor, P0/R0 refăcute la autentificare, ștergerea copiei A | în lucru | Claude | D054 punctul 4 |
+| F15-T12 | Ecranul „Deblochează datele” (parolă sau cheie de recuperare) când copia W lipsește | în lucru | Claude | D054 punctul 2 |
+| F15-T13 | Cheia de recuperare obligatorie: afișată administratorului, confirmată prin retastare | în lucru | Claude | D054 punctul 3 |
