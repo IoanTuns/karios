@@ -13,6 +13,7 @@ import {initializeazaSesiuneAI, useSesiuneAI} from './asistentSesiune';
 import {ToastContainer} from './Toast';
 import type {ContextPontaj} from './Pontaj';
 import {cheieTema, temaInitiala, type Tema} from './tema';
+import {DialogRaportare} from './Raportare';
 
 const Pontaj = lazy(() => import('./Pontaj').then(m => ({ default: m.Pontaj })));
 const Planificare = lazy(() => import('./Planificare').then(m => ({ default: m.Planificare })));
@@ -88,6 +89,7 @@ function App() {
     const sesiuneAI = useSesiuneAI();
     const cont = useCont();
     const [dialogCont, setDialogCont] = useState(false);
+    const [dialogRaportare, setDialogRaportare] = useState(false);
     // Conturile se administrează doar de administrator (D045 punctul 3).
     const sectiuniVizibile = sectiuniSetari.filter(s => s !== 'conturi' || cont?.cont.rol === 'ADMINISTRATOR');
     useEffect(() => { initializeazaSesiuneAI(); SeteazaLimbaInterfata(i18n.language).catch(() => {}); }, []);
@@ -222,6 +224,8 @@ function App() {
                         title={pontajModificat ? t('cont.salveaza_inainte_de_iesire') : undefined} onClick={() => void cont.iesire()}>{t('cont.iesire')}</button>
                 </div>}
                 {dialogCont && <DialogContulMeu inchide={() => setDialogCont(false)}/>}
+                <button type="button" className="buton-text buton-raportare" onClick={() => setDialogRaportare(true)}>🐞 {t('raportare.buton')}</button>
+                {dialogRaportare && <DialogRaportare ecran={ecran} inchide={() => setDialogRaportare(false)}/>}
                 <div className="semnatura-dezvoltator" title={t('aplicatie.autor', {autor: 'Ioan Tuns'})}>
                     <span className="autor-text">{t('aplicatie.dezvoltat_de', {autor: 'Ioan Tuns'})}</span>
                 </div>

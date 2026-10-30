@@ -412,6 +412,10 @@ Articolele de mai jos sunt generate din catalogul comun RO/EN. Aceleași instruc
 
 Indicatorul zilnic numara persoanele cu inregistrari din lista filtrata; nu confirma necesarul de personal sau deficitul. Panoul AI cere confirmare inainte de schimbarea perioadei ori deschiderea concediilor daca exista modificari nesalvate. Ghidurile functioneaza fara model; configurarea motorului este pliabila. Pe ecrane inguste panoul AI se suprapune peste grila si se inchide din antet. Shift+F10 deschide actiunile celulei; Tab parcurge butoanele, Escape revine la celula. Cautarea in ghiduri afiseaza un rezultat curent; o citare veche ofera deschiderea ghidului versiunii actuale.
 
-### Pachetul de livrare 0.88.16
+### Pachetul de livrare 0.89.1
 
 Buildul include o arhiva ZIP cu executabilul, manualele, manifestul, LICENSE, instructiunile ACTUALIZARE.md, NOTE-VERSIUNE.md si CHECKLIST-ACCEPTANTA.md. SHA256SUMS.txt verifica fisierele incluse; fisierul .zip.sha256 de langa arhiva verifica descarcarea. Pachetul standard nu include baza, seiful, backupuri sau modele AI. Extrageti arhiva inainte de pornire si urmati instructiunile de actualizare. Checklistul este de completat de operator, nu o lista de teste deja executate.
+
+### Raporteaza o problema sau trimite o parere
+
+Din meniul lateral alege Raporteaza o problema. Selecteaza tipul, descrie situatia si adauga pasii de reproducere. Jurnalul de diagnoza este optional. Genereaza raportul si verifica textul inainte de a-l trimite; elimina orice date personale ramase. Salveaza fisierul pentru trimitere pe canalul organizatiei sau deschide formularul GitHub precompletat. Publicarea pe GitHub este confirmata de tine in browser si necesita contul tau; aplicatia nu trimite automat raportul. Pentru descrieri lungi, pastreaza fisierul complet, deoarece formularul GitHub poate contine text scurtat.

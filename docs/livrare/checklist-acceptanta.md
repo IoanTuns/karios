@@ -19,6 +19,7 @@ Folositi numai date fictive si un folder separat. Marcati Trecut / Esuat / Neexe
 | Backup, modificare fictiva si restaurare | Dupa repornire revine starea din backup; copia de siguranta este pastrata | |
 | Actualizare pe copia completa karios | Datele si accesul sunt pastrate, sursa veche ramane intacta | |
 | Recuperare pe calculator/utilizator separat | Deblocarea cu cheia sau parola functioneaza; cheia nu se trimite in raport | |
+| Raportare problema cu date fictive | Raportul poate fi verificat si salvat; GitHub deschide un formular, fara publicare automata | |
 | Validare contabilitate | Formatul si rezultatele acceptate sunt confirmate de persoana responsabila | |
 
 Probleme blocante: ______. Acceptat pentru pilot de: ______. Aceasta fisa nu autorizeaza automat publicarea sau utilizarea pentru salarizare.

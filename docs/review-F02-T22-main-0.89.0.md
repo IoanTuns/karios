@@ -13,3 +13,7 @@ Codul raportarii, App, CSS si legaturile Wails nu au conflicte textuale in simul
 ## Pas urmator
 
 Integrare pe ramura taskului, rezolvare cumulativa a jurnalului/istoricului, versiune unica peste 0.89.0, revizuire manual si documente operator pentru raportare, verificari traduceri/legaturi, frontend/Go si build ZIP/PDF. Aceasta verificare nu efectueaza merge, push sau publicare.
+
+## Remediere pentru PR
+
+Main 8cce680 integrat pe ramura taskului; cele patru conflicte rezolvate cumulativ. Versiune 0.89.1, manual editia 1.5 revizuit pentru raportarea problemelor; instructiuni si checklist operator actualizate. Traduceri fara erori, frontend/13 teste, manual/3 probe si livrare/7 probe trecute. gofmt/vet/suita Go completa trecute; build final urmeaza.
