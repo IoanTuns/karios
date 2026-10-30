@@ -78,6 +78,7 @@ Niciun text afișat utilizatorului nu se scrie direct în cod ([D004](docs/deciz
 - Versiunea Go a proiectului e cea din `toolchain` în `go.mod` (secțiunea 6).
 - Terminațiile de linie sunt LF (`.gitattributes`).
 - **Build:** `.\build.ps1` (PowerShell). Pune versiunea în proprietățile `.exe`, commit-ul prin `-ldflags` și verifică rezultatul. La creșterea versiunii se actualizează și `info.productVersion` din `wails.json` (verificat de `TestWailsJSON`).
+- **Manualele:** la fiecare versiune se revizuiește `docs/manual-utilizare-ro.md` și se actualizează `versiune_revizuita` din `docs/manual/manual.json`. Buildul regenerează Markdown, HTML și PDF cu versiunea și commitul livrării, lângă executabil. Nu se copiază un PDF vechi cu o etichetă nouă; o livrare fără manualele generate nu este completă.
 
 ## 10. Limba
 

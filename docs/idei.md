@@ -6,6 +6,7 @@ Stări: `nouă`, `în analiză`, `transformată` (în task sau decizie), `amâna
 
 | ID | Data | Idee | Cine | Stare | Legături / motiv |
 | --- | --- | --- | --- | --- | --- |
+| I092 | 2026-10-30 | Manuale regenerate pentru fiecare versiune, marcate și salvate lângă executabil | Utilizator, Codex | transformată | F02-T18; sursă editabilă, versiune revizuită, generare MD/HTML/PDF, manifest și hashuri; D058 propusă |
 | I091 | 2026-10-30 | Inserarea automată a cratimelor când utilizatorul introduce cheia de recuperare | Utilizator, Codex | transformată | F05-T28; formatul existent XXXXX-XXXXX-XXXXX-XXXXX-XXXXX |
 | I090 | 2026-10-30 | Sincronizare la salvarea manual? a programelor speciale din Pontaj ?i reparare explicit? pentru celule salvate anterior | Ioan Tuns, Codex | transformat? | F07-T21, D051 propus?; f?r? modificarea datelor la citire |
 | I068 | 2026-10-29 | Alte remedieri ale asistentului, observate în aceeași captură: filtrul „fără pontaj” (doar angajații fără nimic completat în lună, iar propunerea de grup completează implicit doar celulele goale); istoricul trimis modelului ca notă scurtă de sistem, nu ca text pe care să-l copieze; detectarea răspunsurilor care pretind o planificare fără nicio acțiune; o propunere identică cu una deja aplicată se arată cu „deja aplicată, aplică din nou?” în loc să fie omisă | Claude | transformată | F14-T16 … F14-T19 (Ioan Tuns, 2026-10-29) |

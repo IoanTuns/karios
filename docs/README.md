@@ -4,6 +4,7 @@ Orice idee, decizie și acțiune a proiectului se documentează aici, în acela�
 
 | Ce | Unde | Se actualizează când |
 | --- | --- | --- |
+| Manual utilizator | [sursa română](manual-utilizare-ro.md), [generare și versiuni](manual/README.md) | la fiecare versiune, înainte de build; documentele generate se livrează lângă executabil |
 | Idei | [idei.md](idei.md) | apare orice idee, chiar dacă nu se face acum |
 | Roadmap | [roadmap.md](roadmap.md) | apare o funcționalitate nouă sau își schimbă starea |
 | Funcționalități și taskuri | [functionalitati/](functionalitati/) | un task începe, se termină, se blochează sau apare unul nou |

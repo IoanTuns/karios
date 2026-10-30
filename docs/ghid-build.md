@@ -10,14 +10,19 @@ $buildNou.Executabil
 Fiecare invocare creează un director nou:
 
 ```text
-build/bin/pontix-0.22.2-20261026-094422-<identificator>/
+build/bin/pontix-X.Y.Z-AAAALLZZ-HHMMSS-<identificator>/
   pontix.exe
   build.json
+  manual-utilizare-ro-X.Y.Z.md
+  manual-utilizare-ro-X.Y.Z.html
+  manual-utilizare-ro-X.Y.Z.pdf
 ```
 
 Versiunea, data/ora și identificatorul sunt generate automat. Două builduri ale aceleiași versiuni au directoare diferite. Pentru alt nume al executabilului, folosește `-NumeExecutabil pontix-proba.exe`; directorul rămâne unic.
 
-`build.json` înregistrează versiunea, commitul, momentul, numele executabilului și SHA256. Un build complet are `stare: complet`; un eșec are `stare: esuat`. Sufixul `-modificat` al commitului indică surse cu modificări necomise. Proprietățile Windows ale executabilului sunt verificate înainte de marcarea buildului ca reușit.
+`build.json` înregistrează versiunea, commitul, momentul, numele executabilului și SHA256, plus ediția, identitatea și hashurile celor trei manuale. Din 0.88.11, fiecare build regenerează manualele și le pune lângă executabil, cu aceeași versiune și același commit. Un build complet are `stare: complet`; un eșec are `stare: esuat`. Sufixul `-modificat` al commitului indică surse cu modificări necomise. Proprietățile Windows ale executabilului și manualele sunt verificate înainte de marcarea buildului ca reușit.
+
+Înainte de fiecare versiune, revizuiește `docs/manual-utilizare-ro.md` și actualizează `versiune_revizuita` din `docs/manual/manual.json`; altfel buildul se oprește înainte de compilare. Sunt necesare Python și Microsoft Edge existente pe calculatorul de construire. Nu se instalează nimic automat. Detalii și previzualizare: [manual/README.md](manual/README.md). Aplicația construită nu necesită Python.
 
 Temporarele Wails folosesc `.temporar/` din directorul nou și sunt eliminate la încheiere. Fișierele blocate sau legăturile se păstrează cu avertizare. TEMP/TMP și directorul apelantului sunt restaurate inclusiv la eșec. Dependențele sunt cele fixate în proiect; buildul nu rulează actualizări sau tidy și nu utilizează `-clean`.
 

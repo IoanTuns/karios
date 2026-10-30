@@ -32,6 +32,10 @@ try {
     $radacinaIesire = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot 'build/bin'))
     $identificator = [Guid]::NewGuid().ToString('N')
     $momentBuild = [DateTimeOffset]::Now
+    $generatorManual = Join-Path $PSScriptRoot 'docs/manual/genereaza.py'
+    # Manualul trebuie revizuit pentru versiunea curenta inaintea compilarii costisitoare.
+    python $generatorManual --versiune $versiune --commit $commit --data $momentBuild.ToString('o') --verifica-sursa
+    if ($LASTEXITCODE -ne 0) { throw 'Verificarea sursei manualului a esuat.' }
     $numeDirector = 'pontix-' + $versiune + '-' + $momentBuild.ToString('yyyyMMdd-HHmmss') + '-' + $identificator
     $directorBuild = [IO.Path]::GetFullPath((Join-Path $radacinaIesire $numeDirector))
     if ([IO.Path]::GetDirectoryName($directorBuild) -ne $radacinaIesire -or
@@ -51,7 +55,7 @@ try {
     }
     $caleManifest = Join-Path $directorBuild 'build.json'
     function Scrie-ManifestBuild {
-        [IO.File]::WriteAllText($caleManifest, (($manifest | ConvertTo-Json) -replace "`r`n", "`n") + "`n", [Text.UTF8Encoding]::new($false))
+        [IO.File]::WriteAllText($caleManifest, (($manifest | ConvertTo-Json -Depth 8) -replace "`r`n", "`n") + "`n", [Text.UTF8Encoding]::new($false))
     }
     Scrie-ManifestBuild
     # Motorul AI compilat nativ se face inaintea aplicatiei: suma lui intra in executabil, care
@@ -84,7 +88,6 @@ try {
     $inExe = $exe.ExtendedProperty('System.Software.ProductVersion')
     $nume = $exe.ExtendedProperty('System.Software.ProductName')
     if ($inExe -ne $versiune -or $nume -ne 'Pontix') { throw "Executabilul are produsul '$nume', versiunea '$inExe'; asteptat Pontix $versiune." }
-    $manifest.stare = 'complet'
     $manifest.sha256 = (Get-FileHash -LiteralPath $caleExecutabil -Algorithm SHA256).Hash
 
     if ($null -ne $rezAI) {
@@ -94,6 +97,22 @@ try {
         $manifest.llama_server_sha256 = $rezAI.SHA256
     }
 
+    # O livrare nu este completa fara manualele aceleiasi versiuni si aceluiasi commit.
+    $jsonManuale = python $generatorManual --versiune $versiune --commit $commit --data $momentBuild.ToString('o') --destinatie $directorBuild --temporare $directorTemporar
+    if ($LASTEXITCODE -ne 0) { throw 'Generarea manualelor a esuat; livrarea ramane incompleta.' }
+    $manifest.manuale = ($jsonManuale -join "`n") | ConvertFrom-Json
+    if ($manifest.manuale.versiune -ne $versiune -or $manifest.manuale.commit -ne $commit -or $manifest.manuale.fisiere.Count -ne 3) {
+        throw 'Manualele nu corespund livrarii.'
+    }
+    foreach ($manual in $manifest.manuale.fisiere) {
+        $caleManual = Join-Path $directorBuild $manual.nume
+        if ([IO.Path]::GetFileName($manual.nume) -ne $manual.nume -or
+            -not (Test-Path -LiteralPath $caleManual -PathType Leaf) -or
+            (Get-FileHash -LiteralPath $caleManual -Algorithm SHA256).Hash -ne $manual.sha256) {
+            throw 'Fisierul manualului lipseste sau are suma de verificare incorecta.'
+        }
+    }
+    $manifest.stare = 'complet'
     Scrie-ManifestBuild
     Write-Host "$caleExecutabil`: Pontix $versiune, commit $commit"
     # Rezultatul poate fi preluat de verificari sau de un script de livrare.

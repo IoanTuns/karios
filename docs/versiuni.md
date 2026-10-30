@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.88.11 · 2026-10-30
+
+F02-T18: build.ps1 regenerează manualele românești Markdown, HTML cu căutare și PDF și le salvează lângă executabil, cu versiunea în nume, ediție, data buildului și commit. Manifestul include versiunea și hashurile manualelor; livrarea este completă numai după generarea tuturor documentelor. Manualul ediția 1.1 include sincronizarea Pontaj și formatarea automată a cheii. Versiunea revizuită editorial este verificată înainte de compilare. Fără biblioteci noi sau modificări ale datelor aplicației.
+
 ## 0.88.10 · 2026-10-30
 
 F05-T28: câmpurile de confirmare și deblocare cu cheia de recuperare adaugă automat cratime între grupurile de câte cinci caractere și transformă literele în majuscule. Corectarea în mijloc păstrează poziția cursorului. Confirmarea păstrează retastarea obligatorie, fără lipire. Formatul și validarea cheii din seif rămân cele existente.

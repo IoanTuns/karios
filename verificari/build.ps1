@@ -8,12 +8,23 @@ $folderProbe = [IO.Path]::GetFullPath((Join-Path $radacinaProiect 'build/bin'))
 $referinta = (Resolve-Path -LiteralPath $ExecutabilReferinta).Path
 $apeluri = [Collections.Generic.List[string]]::new()
 $simuleazaEsec = $false
+$simuleazaEsecManual = $false
+$pythonReal = (Get-Command python -CommandType Application | Select-Object -First 1).Source
 $temporarInitial = $env:TEMP
 $tmpInitial = $env:TMP
 $locatieInitiala = (Get-Location).Path
 $numeProba = 'proba-conservare-' + [Guid]::NewGuid().ToString('N') + '.exe'
 $caleProba = Join-Path $folderProbe $numeProba
 $blocare = $null
+
+function python {
+    if ($simuleazaEsecManual -and $args -contains '--destinatie') {
+        Set-Variable -Name LASTEXITCODE -Value 13 -Scope 1
+        return
+    }
+    & $pythonReal @args
+    Set-Variable -Name LASTEXITCODE -Value $LASTEXITCODE -Scope 1
+}
 
 function wails {
     $indice = [Array]::IndexOf([object[]]$args, '-o')
@@ -46,6 +57,12 @@ try {
     foreach ($rezultat in @($primul,$alDoilea)) {
         $manifest = Get-Content -LiteralPath $rezultat.Manifest -Raw | ConvertFrom-Json
         if ($manifest.stare -ne 'complet' -or $manifest.sha256 -ne (Get-FileHash -LiteralPath $rezultat.Executabil).Hash) { throw 'Manifestul nu descrie executabilul verificat.' }
+        if ($manifest.manuale.versiune -ne $manifest.versiune -or $manifest.manuale.commit -ne $manifest.commit -or $manifest.manuale.fisiere.Count -ne 3) { throw 'Manualele nu apartin buildului.' }
+        foreach ($manual in $manifest.manuale.fisiere) {
+            $caleManual = Join-Path $rezultat.Director $manual.nume
+            if ((Get-FileHash -LiteralPath $caleManual).Hash -ne $manual.sha256) { throw 'Manual cu hash incorect.' }
+            if ($manual.nume -notlike "manual-utilizare-ro-$($manifest.versiune).*") { throw 'Manual fara versiune in nume.' }
+        }
         if (Test-Path -LiteralPath (Join-Path $rezultat.Director '.temporar')) { throw 'Temporarele buildului nu au fost curatate.' }
     }
     $simuleazaEsec = $true
@@ -55,11 +72,18 @@ try {
     $esuat = $apeluri[$apeluri.Count-1]
     $manifestEsuat = Get-Content -LiteralPath (Join-Path $esuat 'build.json') -Raw | ConvertFrom-Json
     if ($manifestEsuat.stare -ne 'esuat' -or (Test-Path -LiteralPath (Join-Path $esuat '.temporar'))) { throw 'Esec fara manifest sau temporare ramase.' }
+    $simuleazaEsec = $false
+    $simuleazaEsecManual = $true
+    $refuzat = $false
+    try { & $scriptBuild -NumeExecutabil $numeProba | Out-Null } catch { $refuzat = $_.Exception.Message -like '*Generarea manualelor a esuat*' }
+    if (-not $refuzat) { throw 'O livrare fara manuale a fost acceptata.' }
+    $faraManual = Get-Content -LiteralPath (Join-Path $apeluri[$apeluri.Count-1] 'build.json') -Raw | ConvertFrom-Json
+    if ($faraManual.stare -ne 'esuat') { throw 'PDF lipsa fara manifest esuat.' }
     if ($env:TEMP -ne $temporarInitial -or $env:TMP -ne $tmpInitial -or (Get-Location).Path -ne $locatieInitiala) { throw 'Mediul apelantului nu a fost restaurat.' }
     $blocare.Dispose()
     $blocare = $null
     if ([IO.File]::ReadAllText($caleProba) -ne 'fisier existent protejat') { throw 'Fisierul existent a fost modificat.' }
-    Write-Output 'Build verificat: directoare distincte, iesire existenta blocata pastrata, hash/manifest, temporare izolate, cai invalide si esec Wails.'
+    Write-Output 'Build verificat: directoare distincte, manuale MD/HTML/PDF versionate, hashuri, temporare, conservare fisiere, cai invalide, esec Wails si esec manuale.'
 } finally {
     if ($null -ne $blocare) { $blocare.Dispose() }
     if (Test-Path -LiteralPath $caleProba) { Remove-Item -LiteralPath $caleProba }
