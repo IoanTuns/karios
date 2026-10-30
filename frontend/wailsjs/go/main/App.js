@@ -102,6 +102,10 @@ export function CompleteazaSchimburiInitiale(arg1) {
   return window['go']['main']['App']['CompleteazaSchimburiInitiale'](arg1);
 }
 
+export function ConfirmaCheiaRecuperare(arg1) {
+  return window['go']['main']['App']['ConfirmaCheiaRecuperare'](arg1);
+}
+
 export function ConfirmaIncidentAudit(arg1) {
   return window['go']['main']['App']['ConfirmaIncidentAudit'](arg1);
 }
@@ -124,6 +128,14 @@ export function CreeazaPrimulAdministrator(arg1) {
 
 export function DateInitiale() {
   return window['go']['main']['App']['DateInitiale']();
+}
+
+export function DeblocheazaCuParola(arg1, arg2) {
+  return window['go']['main']['App']['DeblocheazaCuParola'](arg1, arg2);
+}
+
+export function DeblocheazaCuRecuperare(arg1) {
+  return window['go']['main']['App']['DeblocheazaCuRecuperare'](arg1);
 }
 
 export function DescarcaSablon(arg1, arg2) {
@@ -164,6 +176,10 @@ export function ExportaPlanAICSV(arg1, arg2, arg3, arg4) {
 
 export function ExportaPontajExcel(arg1, arg2) {
   return window['go']['main']['App']['ExportaPontajExcel'](arg1, arg2);
+}
+
+export function GenereazaCheieRecuperareNoua() {
+  return window['go']['main']['App']['GenereazaCheieRecuperareNoua']();
 }
 
 export function IesireDinCont() {
@@ -388,6 +404,14 @@ export function StareAudit() {
 
 export function StareCont() {
   return window['go']['main']['App']['StareCont']();
+}
+
+export function StareRecuperare() {
+  return window['go']['main']['App']['StareRecuperare']();
+}
+
+export function StareSeif() {
+  return window['go']['main']['App']['StareSeif']();
 }
 
 export function StatisticiDiagnoza() {

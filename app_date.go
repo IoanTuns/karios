@@ -36,7 +36,7 @@ func (a *App) CreeazaBackup() RaspunsBackup {
 		}
 		radacina = foldere.Radacina
 	}
-	cale, err := stocare.BackupManual(a.contextLucru(), a.db, radacina)
+	cale, err := stocare.BackupManual(a.contextLucru(), a.db, radacina, a.seif.CheieDate)
 	if err != nil {
 		return RaspunsBackup{Eroare: eroareInterfata(err)}
 	}

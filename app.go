@@ -9,6 +9,7 @@ import (
 	"pontix/internal/audit"
 	"pontix/internal/conturi"
 	"pontix/internal/i18n"
+	"pontix/internal/seif"
 	"pontix/internal/stocare"
 	"pontix/internal/versiune"
 )
@@ -26,6 +27,10 @@ type App struct {
 	aiMu          sync.Mutex
 	aiSarcina     *sarcinaAI
 	paza          *audit.Paza
+	// seif e seiful deschis la pornire sau la deblocare (D054); codRecuperare, cheia de
+	// recuperare încă neconfirmată, de afișat administratorului.
+	seif          *seif.Seif
+	codRecuperare string
 
 	inchidereMu         sync.Mutex
 	modificariNesalvate bool
@@ -49,8 +54,11 @@ func (a *App) oprire(ctx context.Context) {
 	// Și dacă pornirea automată creează managerul chiar acum, procesul se oprește.
 	_ = a.asiguratManagerAI().Opreste()
 	// Contorul din seif reține starea de la închidere (F06-T09); nu și peste un incident nerezolvat.
-	if a.radacina != "" && !a.paza.Blocata() {
-		_ = stocare.ActualizeazaSecventa(context.Background(), a.db, a.radacina)
+	if a.db == nil {
+		return // datele nu au fost deblocate
+	}
+	if a.seif != nil && !a.paza.Blocata() {
+		_ = stocare.ActualizeazaSecventa(context.Background(), a.db, a.seif)
 	}
 	a.db.Close()
 }

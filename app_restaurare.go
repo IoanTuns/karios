@@ -29,7 +29,7 @@ func (a *App) ListaBackupuri() RaspunsBackupuri {
 }
 
 func (a *App) VerificaBackup(nume string) RaspunsVerificareBackup {
-	r, err := stocare.VerificaBackup(a.contextLucru(), a.radacina, nume)
+	r, err := stocare.VerificaBackup(a.contextLucru(), a.radacina, nume, a.seif.CheieDate)
 	if err != nil {
 		return RaspunsVerificareBackup{Eroare: eroareInterfata(err)}
 	}
@@ -42,7 +42,7 @@ func (a *App) ProgrameazaRestaurare(nume string) RaspunsBackupuri {
 	if !a.esteAdministrator() {
 		return RaspunsBackupuri{Eroare: faraDrept()}
 	}
-	r, err := stocare.VerificaBackup(a.contextLucru(), a.radacina, nume)
+	r, err := stocare.VerificaBackup(a.contextLucru(), a.radacina, nume, a.seif.CheieDate)
 	if err != nil {
 		return RaspunsBackupuri{Eroare: eroareInterfata(err)}
 	}

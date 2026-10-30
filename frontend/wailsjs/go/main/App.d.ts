@@ -59,6 +59,8 @@ export function CompleteazaSarbatoriAn(arg1:number):Promise<main.RaspunsCalendar
 
 export function CompleteazaSchimburiInitiale(arg1:string):Promise<main.RaspunsSchimburi>;
 
+export function ConfirmaCheiaRecuperare(arg1:string):Promise<main.RaspunsRecuperare>;
+
 export function ConfirmaIncidentAudit(arg1:string):Promise<main.RaspunsAudit>;
 
 export function ConfirmaPlanAI(arg1:ai.IntentiePlan,arg2:string):Promise<main.RaspunsPlanAI>;
@@ -70,6 +72,10 @@ export function CreeazaCont(arg1:conturi.CerereCont):Promise<main.RaspunsConturi
 export function CreeazaPrimulAdministrator(arg1:conturi.CerereCont):Promise<main.RaspunsStareCont>;
 
 export function DateInitiale():Promise<main.RaspunsDate>;
+
+export function DeblocheazaCuParola(arg1:string,arg2:string):Promise<main.RaspunsStareCont>;
+
+export function DeblocheazaCuRecuperare(arg1:string):Promise<main.RaspunsStareCont>;
 
 export function DescarcaSablon(arg1:string,arg2:string):Promise<main.RaspunsDescarcaSablon>;
 
@@ -90,6 +96,8 @@ export function ExportaJurnalCSV(arg1:datebaza.FiltruJurnal,arg2:string):Promise
 export function ExportaPlanAICSV(arg1:ai.IntentiePlan,arg2:string,arg3:string,arg4:string):Promise<main.RaspunsExportJurnal>;
 
 export function ExportaPontajExcel(arg1:number,arg2:number):Promise<main.RaspunsExportExcel>;
+
+export function GenereazaCheieRecuperareNoua():Promise<main.RaspunsRecuperare>;
 
 export function IesireDinCont():Promise<main.RaspunsStareCont>;
 
@@ -202,6 +210,10 @@ export function StareAI():Promise<main.RaspunsStareAI>;
 export function StareAudit():Promise<main.RaspunsAudit>;
 
 export function StareCont():Promise<main.RaspunsStareCont>;
+
+export function StareRecuperare():Promise<main.RaspunsRecuperare>;
+
+export function StareSeif():Promise<main.RaspunsStareSeif>;
 
 export function StatisticiDiagnoza():Promise<diagnoza.StatisticiDiagnoza>;
 

@@ -2,11 +2,9 @@ package main
 
 import (
 	"context"
-	"path/filepath"
 
 	"pontix/internal/conturi"
 	"pontix/internal/datebaza"
-	"pontix/internal/stocare"
 )
 
 // RaspunsStareCont spune interfeței ce ecran să arate: crearea primului administrator,
@@ -36,7 +34,7 @@ type RaspunsOperatieCont struct {
 }
 
 func (a *App) serviciuConturi() *conturi.Serviciu {
-	return conturi.Nou(a.db, filepath.Join(a.radacina, stocare.NumeSeif), a.paza)
+	return conturi.Nou(a.db, a.seif, a.paza)
 }
 
 // contCurent întoarce contul autentificat sau nil.

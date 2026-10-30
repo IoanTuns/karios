@@ -33,50 +33,105 @@ const (
 	sufixBackup        = ".db"
 )
 
-// Deschide deschide seiful și baza din folderul de date, verifică sigiliile, aplică
-// migrările și redeschide baza cu auditul activ (D044). La prima pornire (fără seif
-// și fără bază) le creează pe amândouă. Paza întoarsă spune dacă s-a găsit un incident.
-func Deschide(ctx context.Context, radacina string) (*sql.DB, *audit.Paza, error) {
-	return deschide(ctx, radacina, bd.Migrari, time.Now)
+// Deschidere e rezultatul pornirii (D054). Blocat: seiful nu are copia W a utilizatorului Windows
+// curent, deci datele se deblochează cu o parolă sau cu cheia de recuperare (Deblocheaza).
+// CodRecuperare: o cheie de recuperare nouă, neconfirmată, de afișat administratorului.
+type Deschidere struct {
+	DB            *sql.DB
+	Paza          *audit.Paza
+	Seif          *seif.Seif
+	Blocat        bool
+	CodRecuperare string
 }
 
-func deschide(ctx context.Context, radacina string, migrari fs.FS, acum func() time.Time) (*sql.DB, *audit.Paza, error) {
-	caleSeif := filepath.Join(radacina, NumeSeif)
-	caleBaza := filepath.Join(radacina, NumeBaza)
+// Deschide deschide seiful și baza din folderul de date, verifică sigiliile, aplică migrările
+// și redeschide baza cu auditul activ (D044). La prima pornire (fără seif și fără bază) le
+// creează pe amândouă; un seif cu copia A trece întâi la D054 (cheie de date nouă).
+func Deschide(ctx context.Context, radacina string) (*Deschidere, error) {
+	return deschideTot(ctx, radacina, bd.Migrari, time.Now)
+}
 
-	s, err := seif.Deschide(caleSeif)
-	if errors.Is(err, fs.ErrNotExist) {
-		// Fără seif, o bază existentă nu mai poate fi citită. Un seif nou ar avea
-		// altă cheie și ar ascunde problema, deci se raportează ca seif deteriorat.
-		if _, errBaza := os.Stat(caleBaza); errBaza == nil {
-			return nil, nil, seif.ErrDeteriorat
-		}
-		s, err = seif.Creeaza(caleSeif, bd.LungimeCheie)
-	}
+// deschide e forma folosită de teste: eșuează dacă datele sunt blocate.
+func deschide(ctx context.Context, radacina string, migrari fs.FS, acum func() time.Time) (*sql.DB, *audit.Paza, error) {
+	d, err := deschideTot(ctx, radacina, migrari, acum)
 	if err != nil {
 		return nil, nil, err
 	}
+	if d.Blocat {
+		return nil, nil, seif.ErrBlocat
+	}
+	return d.DB, d.Paza, nil
+}
 
+func deschideTot(ctx context.Context, radacina string, migrari fs.FS, acum func() time.Time) (*Deschidere, error) {
+	if err := finalizeazaTrecerea(ctx, radacina); err != nil {
+		return nil, err
+	}
+	caleSeif := filepath.Join(radacina, NumeSeif)
+	caleBaza := filepath.Join(radacina, NumeBaza)
+	cod := ""
+	s, err := seif.Incarca(caleSeif)
+	switch {
+	case errors.Is(err, fs.ErrNotExist):
+		// Fără seif, o bază existentă nu mai poate fi citită. Un seif nou ar avea
+		// altă cheie și ar ascunde problema, deci se raportează ca seif deteriorat.
+		if _, errBaza := os.Stat(caleBaza); errBaza == nil {
+			return nil, seif.ErrDeteriorat
+		}
+		if s, err = seif.CreeazaNou(caleSeif, bd.LungimeCheie); err != nil {
+			return nil, err
+		}
+		if cod, err = s.SeteazaRecuperare(); err != nil {
+			return nil, err
+		}
+		_ = s.AdaugaWindows() // în afara Windows datele se deschid cu parola sau cheia de recuperare
+	case err != nil:
+		return nil, err
+	case s.AreCopiaAplicatiei():
+		if s, cod, err = treceLaD054(ctx, radacina); err != nil {
+			return nil, err
+		}
+	default:
+		if err := s.DeschideWindows(); err != nil {
+			return &Deschidere{Seif: s, Blocat: true}, nil
+		}
+	}
+	return continua(ctx, radacina, s, cod, migrari, acum)
+}
+
+// Deblocheaza continuă pornirea după ce cheia de date s-a deschis cu o parolă sau cu cheia de
+// recuperare; adaugă copia W pentru utilizatorul Windows curent, ca pornirile următoare să nu mai
+// ceară secretul (D054).
+func Deblocheaza(ctx context.Context, radacina string, s *seif.Seif) (*Deschidere, error) {
+	if len(s.CheieDate) == 0 {
+		return nil, seif.ErrBlocat
+	}
+	_ = s.AdaugaWindows()
+	return continua(ctx, radacina, s, "", bd.Migrari, time.Now)
+}
+
+func continua(ctx context.Context, radacina string, s *seif.Seif, cod string, migrari fs.FS, acum func() time.Time) (*Deschidere, error) {
+	caleBaza := filepath.Join(radacina, NumeBaza)
 	_, errBaza := os.Stat(caleBaza)
 	bazaNoua := errors.Is(errBaza, fs.ErrNotExist)
 	rest, err := aplicaRestaurare(ctx, radacina, s.CheieDate, acum)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	rez, err := verificaSiMigreaza(ctx, caleBaza, radacina, s.CheieDate, migrari, acum)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	if rest != nil && rez.Stare == audit.StareOK {
 		if rez, err = noteazaRestaurarea(ctx, caleBaza, s.CheieDate, rest); err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 	}
 	// Copia zilnică nu se face pentru o bază abia creată și nici peste o bază cu incident:
 	// rotația ar împinge afară copiile bune.
 	if !bazaNoua && rez.Stare != audit.StareIncident {
 		if err := backupZilnic(ctx, caleBaza, radacina, s.CheieDate, acum); err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 	}
 	// O copie mai veche, dar validă, a bazei (F06-T09). Restaurarea cerută din aplicație e
@@ -84,7 +139,7 @@ func deschide(ctx context.Context, radacina string, migrari fs.FS, acum func() t
 	if rest == nil && rez.Stare != audit.StareIncident {
 		veche, err := verificaSecventa(ctx, caleBaza, s)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 		if veche {
 			rez.Stare, rez.CopieVeche = audit.StareIncident, true
@@ -93,15 +148,22 @@ func deschide(ctx context.Context, radacina string, migrari fs.FS, acum func() t
 	paza := audit.NouaPaza(rez)
 	db, err := bd.DeschideCuAudit(caleBaza, s.CheieDate, paza)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	if rez.Stare != audit.StareIncident {
 		if err := scrieSecventa(ctx, db, s); err != nil {
 			db.Close()
-			return nil, nil, err
+			return nil, err
 		}
 	}
-	return db, paza, nil
+	// Cât timp cheia de recuperare nu e confirmată, se generează alta la fiecare pornire (D054 punctul 3).
+	if cod == "" && !s.RecuperareConfirmata() {
+		if cod, err = s.SeteazaRecuperare(); err != nil {
+			db.Close()
+			return nil, err
+		}
+	}
+	return &Deschidere{DB: db, Paza: paza, Seif: s, CodRecuperare: cod}, nil
 }
 
 // noteazaRestaurarea scrie restaurarea în jurnalul bazei restaurate și o resigilează.
@@ -185,15 +247,11 @@ func migreaza(ctx context.Context, db *sql.DB, radacina string, cheie []byte, mi
 
 // BackupManual creează la cerere o copie criptată a bazei deschise în folderul
 // backup/ din radacina și întoarce calea completă a fișierului creat (F05-T16).
-func BackupManual(ctx context.Context, db *sql.DB, radacina string) (string, error) {
-	return backupManual(ctx, db, radacina, time.Now)
+func BackupManual(ctx context.Context, db *sql.DB, radacina string, cheie []byte) (string, error) {
+	return backupManual(ctx, db, radacina, cheie, time.Now)
 }
 
-func backupManual(ctx context.Context, db *sql.DB, radacina string, acum func() time.Time) (string, error) {
-	s, err := seif.Deschide(filepath.Join(radacina, NumeSeif))
-	if err != nil {
-		return "", err
-	}
+func backupManual(ctx context.Context, db *sql.DB, radacina string, cheie []byte, acum func() time.Time) (string, error) {
 	dir := filepath.Join(radacina, "backup")
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return "", err
@@ -206,7 +264,7 @@ func backupManual(ctx context.Context, db *sql.DB, radacina string, acum func() 
 		}
 		cale = filepath.Join(dir, fmt.Sprintf("%s-%d-v%s%s", baza, i, versiune.Aplicatie, sufixBackup))
 	}
-	if err := bd.Backup(ctx, db, cale, s.CheieDate); err != nil {
+	if err := bd.Backup(ctx, db, cale, cheie); err != nil {
 		return "", &i18n.Eroare{Cod: "stocare.backup_esuat", Param: map[string]string{"detalii": err.Error()}}
 	}
 	return cale, nil

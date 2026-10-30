@@ -1283,5 +1283,22 @@
   "cont.ascunde_parola": "Hide",
   "ai.deschide_formular_concediu": "Open the leave form",
   "absente.nr_inregistrare_obligatoriu": "Enter the request registration number.",
-  "audit.copie_veche": "The database appears to have been replaced with an older copy: it has fewer changes than the application recorded at the last shutdown. If you restored a backup manually, acknowledge the incident; otherwise check who changed the files."
+  "audit.copie_veche": "The database appears to have been replaced with an older copy: it has fewer changes than the application recorded at the last shutdown. If you restored a backup manually, acknowledge the incident; otherwise check who changed the files.",
+  "seif.blocat": "The data cannot be opened automatically on this Windows account. Use the password of an account or the recovery key.",
+  "seif.recuperare_gresita": "The recovery key is not correct.",
+  "seif.deblocare_titlu": "Unlock the data",
+  "seif.deblocare_descriere": "The data was created on another computer or another Windows account. Enter the name and password of an application account, or the recovery key. Later starts will not ask for this again.",
+  "seif.cheie_recuperare": "Recovery key",
+  "seif.cu_cheia": "I only have the recovery key",
+  "seif.cu_parola": "Use an account and password",
+  "seif.deblocheaza": "Unlock",
+  "seif.recuperare_titlu": "Recovery key",
+  "seif.recuperare_descriere": "This is the data recovery key. It opens the data if all passwords are lost or if the application is moved to another computer. Without the passwords and without this key, nobody can recover the data.",
+  "seif.recuperare_pastrare": "Write the key on paper or print the screen and keep the paper in a safe place, away from the computer. Do not keep it in the application folder.",
+  "seif.recuperare_retasteaza": "Retype the key from the paper to confirm you wrote it down correctly",
+  "seif.recuperare_confirma": "I have written down the key",
+  "seif.recuperare_asteapta_admin": "An administrator must write down and confirm the data recovery key before the application can be used. Ask an administrator to sign in.",
+  "seif.cheie_noua": "Generate a new recovery key",
+  "seif.cheie_noua_descriere": "If the paper with the recovery key is lost, generate a new one. The old key will stop working.",
+  "seif.cheie_noua_confirmare": "The current recovery key will stop working. Continue?"
 }

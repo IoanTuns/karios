@@ -1,6 +1,6 @@
 # D011 · Cheia aplicației în cod (deocamdată)
 
-Stare: acceptată · Data: 2026-10-25 · Decisă de: Ioan Tuns · Taskuri: F05-T12
+Stare: înlocuită de [D054](D054-chei-fara-cod-recuperare.md) · Data: 2026-10-25 · Decisă de: Ioan Tuns · Taskuri: F05-T12
 
 Înlocuiește parțial [D008](D008-criptarea-datelor.md) punctul 2 („cheia aplicației nu intră în repo”) și face o excepție de la [AGENTS.md](../../AGENTS.md) secțiunea 4 („niciun secret în repo”).
 

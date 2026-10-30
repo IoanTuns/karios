@@ -10,7 +10,6 @@ import (
 
 	"pontix/internal/audit"
 	"pontix/internal/bd"
-	"pontix/internal/seif"
 )
 
 // cuMigrareNoua întoarce migrările reale plus o migrare de probă după ultima.
@@ -34,10 +33,7 @@ func cuMigrareNoua(t *testing.T) fs.FS {
 
 func modificaExtern(t *testing.T, dir, sql string) {
 	t.Helper()
-	s, err := seif.Deschide(filepath.Join(dir, NumeSeif))
-	if err != nil {
-		t.Fatal(err)
-	}
+	s := seifTest(t, dir)
 	db, err := bd.Deschide(filepath.Join(dir, NumeBaza), s.CheieDate)
 	if err != nil {
 		t.Fatal(err)
@@ -51,7 +47,7 @@ func modificaExtern(t *testing.T, dir, sql string) {
 func TestPornireaSigileazaSiDetecteaza(t *testing.T) {
 	ctx := context.Background()
 	dir := t.TempDir()
-	db, paza, err := Deschide(ctx, dir)
+	db, paza, err := deschideTest(ctx, dir)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -67,7 +63,7 @@ func TestPornireaSigileazaSiDetecteaza(t *testing.T) {
 	}
 	db.Close()
 
-	db, paza, err = Deschide(ctx, dir)
+	db, paza, err = deschideTest(ctx, dir)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -77,7 +73,7 @@ func TestPornireaSigileazaSiDetecteaza(t *testing.T) {
 	db.Close()
 
 	modificaExtern(t, dir, `UPDATE setari SET valoare = 'nu' WHERE cheie = 'proba'`)
-	db, paza, err = Deschide(ctx, dir)
+	db, paza, err = deschideTest(ctx, dir)
 	if err != nil {
 		t.Fatal(err)
 	}

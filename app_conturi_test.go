@@ -15,7 +15,7 @@ import (
 func appCuConturi(t *testing.T) *App {
 	t.Helper()
 	dir := t.TempDir()
-	sf, err := seif.Creeaza(filepath.Join(dir, stocare.NumeSeif), bd.LungimeCheie)
+	sf, err := seif.CreeazaNou(filepath.Join(dir, stocare.NumeSeif), bd.LungimeCheie)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -29,6 +29,7 @@ func appCuConturi(t *testing.T) *App {
 	}
 	a := NewApp(db)
 	a.radacina = dir
+	a.seif = sf
 	return a
 }
 

@@ -9,7 +9,6 @@ import (
 
 	"pontix/internal/audit"
 	"pontix/internal/bd"
-	"pontix/internal/seif"
 )
 
 func valoare(t *testing.T, db *sql.DB, cheie string) string {
@@ -22,7 +21,7 @@ func valoare(t *testing.T, db *sql.DB, cheie string) string {
 func TestRestaurareaBackupuluiLaPornire(t *testing.T) {
 	ctx := context.Background()
 	dir := t.TempDir()
-	db, paza, err := Deschide(ctx, dir)
+	db, paza, err := deschideTest(ctx, dir)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -30,7 +29,7 @@ func TestRestaurareaBackupuluiLaPornire(t *testing.T) {
 		_, err := db.Exec(`INSERT INTO setari (cheie, valoare, modificat_la) VALUES ('inainte', 'da', 'x')`)
 		return err
 	})
-	cale, err := BackupManual(ctx, db, dir)
+	cale, err := BackupManual(ctx, db, dir, seifTest(t, dir).CheieDate)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -40,7 +39,7 @@ func TestRestaurareaBackupuluiLaPornire(t *testing.T) {
 	db.Close()
 
 	nume := filepath.Base(cale)
-	if r, err := VerificaBackup(ctx, dir, nume); err != nil || r.Stare != audit.StareOK {
+	if r, err := VerificaBackup(ctx, dir, nume, seifTest(t, dir).CheieDate); err != nil || r.Stare != audit.StareOK {
 		t.Fatalf("verificarea backup-ului: %+v %v", r, err)
 	}
 	if err := ProgrameazaRestaurare(dir, "../"+nume); err == nil {
@@ -50,7 +49,7 @@ func TestRestaurareaBackupuluiLaPornire(t *testing.T) {
 		t.Fatalf("programare: %v", err)
 	}
 
-	db, paza, err = Deschide(ctx, dir)
+	db, paza, err = deschideTest(ctx, dir)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -82,7 +81,7 @@ func TestRestaurareaBackupuluiLaPornire(t *testing.T) {
 	if siguranta == "" {
 		t.Fatalf("lipsește copia de siguranță: %+v", lista)
 	}
-	s, _ := seif.Deschide(filepath.Join(dir, NumeSeif))
+	s := seifTest(t, dir)
 	copie, err := bd.Deschide(filepath.Join(dir, "backup", siguranta), s.CheieDate)
 	if err != nil {
 		t.Fatal(err)
@@ -96,16 +95,16 @@ func TestRestaurareaBackupuluiLaPornire(t *testing.T) {
 func TestBackupModificatEsteRefuzat(t *testing.T) {
 	ctx := context.Background()
 	dir := t.TempDir()
-	db, _, err := Deschide(ctx, dir)
+	db, _, err := deschideTest(ctx, dir)
 	if err != nil {
 		t.Fatal(err)
 	}
-	cale, err := BackupManual(ctx, db, dir)
+	cale, err := BackupManual(ctx, db, dir, seifTest(t, dir).CheieDate)
 	db.Close()
 	if err != nil {
 		t.Fatal(err)
 	}
-	s, _ := seif.Deschide(filepath.Join(dir, NumeSeif))
+	s := seifTest(t, dir)
 	b, err := bd.Deschide(cale, s.CheieDate)
 	if err != nil {
 		t.Fatal(err)
@@ -114,7 +113,7 @@ func TestBackupModificatEsteRefuzat(t *testing.T) {
 		t.Fatal(err)
 	}
 	b.Close()
-	if r, err := VerificaBackup(ctx, dir, filepath.Base(cale)); err != nil || r.Stare != audit.StareIncident {
+	if r, err := VerificaBackup(ctx, dir, filepath.Base(cale), seifTest(t, dir).CheieDate); err != nil || r.Stare != audit.StareIncident {
 		t.Fatalf("backup modificat: %+v %v", r, err)
 	}
 }

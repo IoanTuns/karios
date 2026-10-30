@@ -771,6 +771,8 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .card-cont { width: 100%; max-width: 460px; display: flex; flex-direction: column; gap: 12px; background: #fff; border: 1px solid #d9e0da; border-radius: 10px; padding: 28px; }
 .card-cont h1 { margin: 0; font-size: 20px; }
 .card-cont label, .formular-cont label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; }
+.cheie-recuperare { margin: 4px 0; padding: 14px; text-align: center; background: #f4f7f4; border: 1px dashed #9db4a2; border-radius: 8px; }
+.cheie-recuperare code { font-size: 18px; letter-spacing: 2px; user-select: all; }
 .formular-cont { display: flex; flex-direction: column; gap: 10px; }
 .formular-cont h3 { margin: 10px 0 0; font-size: 13px; }
 .actiuni-cont { display: flex; gap: 10px; justify-content: flex-end; }

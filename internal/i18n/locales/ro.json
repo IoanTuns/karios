@@ -1283,5 +1283,22 @@
   "cont.ascunde_parola": "Ascunde",
   "ai.deschide_formular_concediu": "Deschide formularul de concediu",
   "absente.nr_inregistrare_obligatoriu": "Completează numărul de înregistrare al cererii.",
-  "audit.copie_veche": "Baza de date pare să fi fost înlocuită cu o copie mai veche: are mai puține modificări decât a înregistrat aplicația la ultima închidere. Dacă ai restaurat manual un backup, confirmă incidentul; altfel verifică cine a schimbat fișierele."
+  "audit.copie_veche": "Baza de date pare să fi fost înlocuită cu o copie mai veche: are mai puține modificări decât a înregistrat aplicația la ultima închidere. Dacă ai restaurat manual un backup, confirmă incidentul; altfel verifică cine a schimbat fișierele.",
+  "seif.blocat": "Datele nu se pot deschide automat pe acest cont Windows. Folosește parola unui cont sau cheia de recuperare.",
+  "seif.recuperare_gresita": "Cheia de recuperare nu este corectă.",
+  "seif.deblocare_titlu": "Deblochează datele",
+  "seif.deblocare_descriere": "Datele au fost create pe alt calculator sau alt cont Windows. Scrie numele și parola unui cont din aplicație sau cheia de recuperare. Pornirile următoare nu vor mai cere asta.",
+  "seif.cheie_recuperare": "Cheia de recuperare",
+  "seif.cu_cheia": "Am doar cheia de recuperare",
+  "seif.cu_parola": "Folosesc un cont și o parolă",
+  "seif.deblocheaza": "Deblochează",
+  "seif.recuperare_titlu": "Cheia de recuperare",
+  "seif.recuperare_descriere": "Aceasta este cheia de recuperare a datelor. Cu ea se pot deschide datele dacă toate parolele s-au pierdut sau dacă aplicația e mutată pe alt calculator. Fără parole și fără această cheie, datele nu mai pot fi recuperate de nimeni.",
+  "seif.recuperare_pastrare": "Scrie cheia pe hârtie sau tipărește ecranul și păstrează hârtia într-un loc sigur, separat de calculator. Nu o păstra în același folder cu aplicația.",
+  "seif.recuperare_retasteaza": "Retastează cheia de pe hârtie, ca să confirmi că ai notat-o corect",
+  "seif.recuperare_confirma": "Am notat cheia",
+  "seif.recuperare_asteapta_admin": "Un administrator trebuie să noteze și să confirme cheia de recuperare a datelor înainte ca aplicația să poată fi folosită. Cere-i administratorului să se autentifice.",
+  "seif.cheie_noua": "Generează o cheie de recuperare nouă",
+  "seif.cheie_noua_descriere": "Dacă hârtia cu cheia de recuperare s-a pierdut, generează alta. Cheia veche nu va mai funcționa.",
+  "seif.cheie_noua_confirmare": "Cheia de recuperare actuală nu va mai funcționa. Continui?"
 }

@@ -8,7 +8,6 @@ package conturi
 import (
 	"context"
 	"crypto/rand"
-	"crypto/subtle"
 	"database/sql"
 	"encoding/hex"
 	"encoding/json"
@@ -72,14 +71,16 @@ type Identitate struct {
 
 // Serviciu lucrează cu baza deschisă și cu seiful din același folder de date.
 type Serviciu struct {
-	db       *sql.DB
-	caleSeif string
-	paza     *audit.Paza
-	acum     func() time.Time
+	db   *sql.DB
+	seif *seif.Seif
+	paza *audit.Paza
+	acum func() time.Time
 }
 
-func Nou(db *sql.DB, caleSeif string, paza *audit.Paza) *Serviciu {
-	return &Serviciu{db: db, caleSeif: caleSeif, paza: paza, acum: time.Now}
+// Nou primește seiful deschis la pornire (D054): parolele se verifică pe copiile lui, fără să
+// redeschidă fișierul și fără nicio cheie din cod.
+func Nou(db *sql.DB, sf *seif.Seif, paza *audit.Paza) *Serviciu {
+	return &Serviciu{db: db, seif: sf, paza: paza, acum: time.Now}
 }
 
 func eroare(cod string, param ...string) error {
@@ -309,34 +310,40 @@ func (s *Serviciu) Creeaza(ctx context.Context, c CerereCont) (Cont, error) {
 // scrieSecrete scrie în seif copiile P și R ale contului. Se apelează în tranzacție,
 // ca un seif nescris să anuleze și contul.
 func (s *Serviciu) scrieSecrete(id, parola string, raspunsuri []string) error {
-	sf, err := seif.Deschide(s.caleSeif)
-	if err != nil {
-		return err
-	}
 	if parola != "" {
-		if err := sf.SeteazaSecret("P:"+id, parola); err != nil {
+		if err := s.seif.SeteazaSecret(seif.PrefixParola+id, parola); err != nil {
 			return err
 		}
+		_ = s.seif.StergeCopie(seif.PrefixParolaVeche + id)
 	}
 	if raspunsuri != nil {
-		if err := sf.SeteazaSecret("R:"+id, secretRaspunsuri(raspunsuri)); err != nil {
+		if err := s.seif.SeteazaSecret(seif.PrefixRaspunsuri+id, secretRaspunsuri(raspunsuri)); err != nil {
 			return err
 		}
+		_ = s.seif.StergeCopie(seif.PrefixRaspunsuriVechi + id)
 	}
 	return nil
 }
 
-// verificaSecret deschide copia id cu secretul și compară cheia obținută cu cea de date.
+// verificaSecret spune dacă secretul deschide copia P sau R a contului cu cheia de date curentă.
+// Un cont care nu s-a mai autentificat de la trecerea D054 are doar copia veche (P0/R0): secretul
+// se verifică pe ea și, dacă e corect, copia se reface pe cheia nouă, iar cea veche se șterge.
 func (s *Serviciu) verificaSecret(id, secret string) bool {
-	a, err := seif.Deschide(s.caleSeif)
-	if err != nil {
+	prefix, vechi := seif.PrefixParola, seif.PrefixParolaVeche
+	if strings.HasPrefix(id, seif.PrefixRaspunsuri) {
+		prefix, vechi = seif.PrefixRaspunsuri, seif.PrefixRaspunsuriVechi
+	}
+	cont := strings.TrimPrefix(id, prefix)
+	if s.seif.AreCopia(prefix + cont) {
+		return s.seif.VerificaSecret(prefix+cont, secret)
+	}
+	if !s.seif.AreCopia(vechi+cont) || !s.seif.VerificaSecret(vechi+cont, secret) {
 		return false
 	}
-	b, err := seif.DeschideCuSecret(s.caleSeif, id, secret)
-	if err != nil {
-		return false
+	if err := s.seif.SeteazaSecret(prefix+cont, secret); err == nil {
+		_ = s.seif.StergeCopie(vechi + cont)
 	}
-	return subtle.ConstantTimeCompare(a.CheieDate, b.CheieDate) == 1
+	return true
 }
 
 func (s *Serviciu) verificaBlocare(c Cont) error {

@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/hmac"
 	"database/sql"
-	"path/filepath"
 
 	"pontix/internal/audit"
 	"pontix/internal/bd"
@@ -48,10 +47,6 @@ func scrieSecventa(ctx context.Context, db *sql.DB, s *seif.Seif) error {
 
 // ActualizeazaSecventa scrie în seif ultimul id din jurnalul bazei deschise; se apelează la
 // închidere și după confirmarea unui incident.
-func ActualizeazaSecventa(ctx context.Context, db *sql.DB, radacina string) error {
-	s, err := seif.Deschide(filepath.Join(radacina, NumeSeif))
-	if err != nil {
-		return err
-	}
+func ActualizeazaSecventa(ctx context.Context, db *sql.DB, s *seif.Seif) error {
 	return scrieSecventa(ctx, db, s)
 }

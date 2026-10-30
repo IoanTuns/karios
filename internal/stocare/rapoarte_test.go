@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"pontix/internal/bd"
-	"pontix/internal/seif"
 )
 
 func TestProbaRapoarteFaceBackupInainteaCompletariiCererilor(t *testing.T) {
@@ -57,10 +56,7 @@ func TestProbaRapoarteFaceBackupInainteaCompletariiCererilor(t *testing.T) {
 	if err != nil || len(copii) != 1 {
 		t.Fatalf("backup: %d %v", len(copii), err)
 	}
-	s, err := seif.Deschide(filepath.Join(dir, NumeSeif))
-	if err != nil {
-		t.Fatal(err)
-	}
+	s := seifTest(t, dir)
 	copie, err := bd.Deschide(filepath.Join(dir, "backup", copii[0].Name()), s.CheieDate)
 	if err != nil {
 		t.Fatal(err)

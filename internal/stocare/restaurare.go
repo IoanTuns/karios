@@ -15,7 +15,6 @@ import (
 	"pontix/internal/audit"
 	"pontix/internal/bd"
 	"pontix/internal/i18n"
-	"pontix/internal/seif"
 	"pontix/internal/versiune"
 )
 
@@ -95,12 +94,8 @@ func copiaza(sursa, tinta string) error {
 
 // VerificaBackup deschide o copie temporară a backup-ului cu cheia de date și îi verifică
 // sigiliile (D044), fără să atingă fișierul original.
-func VerificaBackup(ctx context.Context, radacina, nume string) (audit.Rezultat, error) {
+func VerificaBackup(ctx context.Context, radacina, nume string, cheie []byte) (audit.Rezultat, error) {
 	cale, err := caleBackup(radacina, nume)
-	if err != nil {
-		return audit.Rezultat{}, err
-	}
-	s, err := seif.Deschide(filepath.Join(radacina, NumeSeif))
 	if err != nil {
 		return audit.Rezultat{}, err
 	}
@@ -113,7 +108,7 @@ func VerificaBackup(ctx context.Context, radacina, nume string) (audit.Rezultat,
 	if err := copiaza(cale, copie); err != nil {
 		return audit.Rezultat{}, err
 	}
-	db, err := bd.Deschide(copie, s.CheieDate)
+	db, err := bd.Deschide(copie, cheie)
 	if err != nil {
 		return audit.Rezultat{}, err
 	}

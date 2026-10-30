@@ -4,6 +4,18 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.87.0 · 2026-10-30
+
+Cheile datelor fără secret în cod, cu cheie de recuperare (F15-T10 … F15-T13, [D054](decizii/D054-chei-fara-cod-recuperare.md)).
+
+- Seiful nu mai folosește cheia din cod. Cheia de date se deschide automat cu copia W (DPAPI, legată de utilizatorul Windows curent), cu parola sau răspunsurile unui cont (copiile P/R) sau cu cheia de recuperare (copia K, 25 de caractere).
+- La prima pornire a versiunii, datele existente trec automat pe o cheie de date nouă: baza și backup-urile se recriptează, sigiliile auditului și amprentele lunilor închise se refac, iar perechile amprentă veche → nouă intră în jurnal (`trecere_d054`). Copia A (cheia publică) se șterge. O trecere întreruptă se termină la pornirea următoare.
+- Conturile create înainte de trecere au copii vechi (P0/R0), refăcute pe cheia nouă la prima autentificare.
+- Ecran nou „Deblochează datele” când seiful nu are copia acestui utilizator Windows (alt calculator, alt cont, Windows reinstalat): nume + parolă sau cheia de recuperare. După deblocare se adaugă copia W, iar pornirile următoare nu mai cer nimic.
+- Cheia de recuperare e obligatorie: după autentificare, administratorul o vede, o notează și o retastează (lipirea e oprită); ceilalți utilizatori așteaptă confirmarea unui administrator. „Contul meu” permite administratorului să genereze o cheie nouă (cea veche nu mai funcționează).
+
+Baza de date: nicio migrare; fișierul bazei se recriptează o dată, la trecere. Rapoarte: nicio schimbare.
+
 ## 0.86.2 · 2026-10-30
 
 Salvarea pontajului în bloc cu mai puține interogări (F06-T11, I066).

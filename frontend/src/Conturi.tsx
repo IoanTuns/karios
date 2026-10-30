@@ -3,7 +3,7 @@
 import {createContext, useContext, useEffect, useState, type FormEvent, type ReactNode} from 'react';
 import {useTranslation} from 'react-i18next';
 import {parolaValida} from './parola';
-import {Autentifica, CreeazaCont, CreeazaPrimulAdministrator, IesireDinCont, IntrebariRecuperare, ListaConturi, ModificaCont, RecupereazaCont, ReseteazaParolaCont, SchimbaIntrebarileMele, SchimbaParolaMea, StareCont} from '../wailsjs/go/main/App';
+import {Autentifica, ConfirmaCheiaRecuperare, CreeazaCont, CreeazaPrimulAdministrator, DeblocheazaCuParola, DeblocheazaCuRecuperare, GenereazaCheieRecuperareNoua, IesireDinCont, IntrebariRecuperare, ListaConturi, ModificaCont, RecupereazaCont, ReseteazaParolaCont, SchimbaIntrebarileMele, SchimbaParolaMea, StareCont, StareRecuperare, StareSeif} from '../wailsjs/go/main/App';
 import {conturi, main} from '../wailsjs/go/models';
 import {Dialog} from './Formulare';
 import {notifica} from './Toast';
@@ -12,6 +12,8 @@ interface StareContext {
     cont: conturi.Cont;
     intrebari: string[];
     iesire: () => Promise<void>;
+    // cheieNoua: administratorul înlocuiește cheia de recuperare; poarta cere apoi confirmarea ei.
+    cheieNoua: () => Promise<void>;
 }
 
 const ContextCont = createContext<StareContext | null>(null);
@@ -176,25 +178,128 @@ function EcranAutentificare({ultimulNume, gata}: {ultimulNume: string; gata: (r:
     </form></div>;
 }
 
-// PoartaCont arată aplicația doar după autentificare (D045 punctul 4).
+// EcranDeblocare: seiful nu are copia acestui utilizator Windows (alt calculator, alt cont
+// Windows sau Windows reinstalat). Datele se deschid cu parola unui cont sau cu cheia de
+// recuperare (D054); după aceea, pornirile următoare nu mai cer nimic.
+function EcranDeblocare({gata}: {gata: (r: main.RaspunsStareCont) => void}) {
+    const {t} = useTranslation();
+    const [nume, setNume] = useState('');
+    const [parola, setParola] = useState('');
+    const [cuCheie, setCuCheie] = useState(false);
+    const [cheie, setCheie] = useState('');
+    const [ocupat, setOcupat] = useState(false);
+    const [eroare, setEroare] = useState('');
+
+    function trimite(e: FormEvent) {
+        e.preventDefault();
+        setOcupat(true); setEroare('');
+        (cuCheie ? DeblocheazaCuRecuperare(cheie) : DeblocheazaCuParola(nume, parola))
+            .then(r => { if (r.eroare) { setEroare(textEroare(t, r.eroare)); setParola(''); } else gata(r); })
+            .catch(() => setEroare(t('date.eroare')))
+            .finally(() => setOcupat(false));
+    }
+
+    return <div className="ecran-cont"><form className="card-cont" onSubmit={trimite}>
+        <h1>{t('seif.deblocare_titlu')}</h1>
+        <p className="text-discret">{t('seif.deblocare_descriere')}</p>
+        {cuCheie
+            ? <label>{t('seif.cheie_recuperare')}
+                <input type="text" value={cheie} disabled={ocupat} autoComplete="off" spellCheck={false} placeholder="XXXXX-XXXXX-XXXXX-XXXXX-XXXXX" onChange={e => setCheie(e.target.value)}/>
+            </label>
+            : <>
+                <label>{t('cont.nume')}<input type="text" value={nume} disabled={ocupat} autoComplete="username" onChange={e => setNume(e.target.value)}/></label>
+                <CampParola eticheta={t('cont.parola')} valoare={parola} schimba={setParola} ocupat={ocupat}/>
+            </>}
+        {eroare && <div className="mesaj eroare" role="alert">{eroare}</div>}
+        <div className="actiuni-cont">
+            <button type="button" className="buton secundar" disabled={ocupat} onClick={() => { setCuCheie(v => !v); setEroare(''); }}>
+                {t(cuCheie ? 'seif.cu_parola' : 'seif.cu_cheia')}
+            </button>
+            <button className="buton primar" disabled={ocupat || (cuCheie ? !cheie.trim() : !nume.trim() || !parola)}>{t('seif.deblocheaza')}</button>
+        </div>
+    </form></div>;
+}
+
+// EcranCheieRecuperare: cheia de recuperare e obligatorie (D054 punctul 3). Administratorul o
+// notează și o retastează; ceilalți așteaptă ca un administrator să o confirme.
+function EcranCheieRecuperare({stare, gata, iesire}: {stare: main.RaspunsRecuperare; gata: (r: main.RaspunsRecuperare) => void; iesire: () => void}) {
+    const {t} = useTranslation();
+    const [cheie, setCheie] = useState('');
+    const [ocupat, setOcupat] = useState(false);
+    const [eroare, setEroare] = useState('');
+
+    if (!stare.cod) {
+        return <div className="ecran-cont"><div className="card-cont">
+            <h1>{t('seif.recuperare_titlu')}</h1>
+            <p>{t('seif.recuperare_asteapta_admin')}</p>
+            <div className="actiuni-cont"><button type="button" className="buton secundar" onClick={iesire}>{t('cont.iesire')}</button></div>
+        </div></div>;
+    }
+
+    function confirma(e: FormEvent) {
+        e.preventDefault();
+        setOcupat(true); setEroare('');
+        ConfirmaCheiaRecuperare(cheie)
+            .then(r => { if (r.eroare) setEroare(textEroare(t, r.eroare)); else gata(r); })
+            .catch(() => setEroare(t('date.eroare')))
+            .finally(() => setOcupat(false));
+    }
+
+    // Lipirea e oprită în câmpul de confirmare: cheia trebuie copiată de pe hârtie, nu din ecran.
+    return <div className="ecran-cont"><form className="card-cont" onSubmit={confirma}>
+        <h1>{t('seif.recuperare_titlu')}</h1>
+        <p>{t('seif.recuperare_descriere')}</p>
+        <p className="cheie-recuperare" aria-label={t('seif.cheie_recuperare')}><code>{stare.cod}</code></p>
+        <p className="text-discret">{t('seif.recuperare_pastrare')}</p>
+        <label>{t('seif.recuperare_retasteaza')}
+            <input type="text" value={cheie} disabled={ocupat} autoComplete="off" spellCheck={false} onPaste={e => e.preventDefault()} onChange={e => setCheie(e.target.value)}/>
+        </label>
+        {eroare && <div className="mesaj eroare" role="alert">{eroare}</div>}
+        <div className="actiuni-cont">
+            <button className="buton primar" disabled={ocupat || !cheie.trim()}>{t('seif.recuperare_confirma')}</button>
+        </div>
+    </form></div>;
+}
+
+// PoartaCont arată aplicația doar după deblocarea datelor (D054), autentificare (D045 punctul 4)
+// și confirmarea cheii de recuperare.
 export function PoartaCont({children}: {children: ReactNode}) {
     const {t} = useTranslation();
+    const [blocat, setBlocat] = useState<boolean | null>(null);
     const [stare, setStare] = useState<main.RaspunsStareCont | null>(null);
+    const [recuperare, setRecuperare] = useState<main.RaspunsRecuperare | null>(null);
     const [eroare, setEroare] = useState('');
 
     useEffect(() => {
-        StareCont().then(setStare).catch(() => setEroare(t('date.eroare')));
+        StareSeif().then(s => {
+            setBlocat(s.blocat);
+            if (!s.blocat) return StareCont().then(setStare);
+        }).catch(() => setEroare(t('date.eroare')));
     }, [t]);
 
+    const idCont = stare?.autentificat ? stare.cont?.id : undefined;
+    useEffect(() => {
+        setRecuperare(null);
+        if (!idCont) return;
+        StareRecuperare().then(setRecuperare).catch(() => setEroare(t('date.eroare')));
+    }, [idCont, t]);
+
     if (eroare) return <div className="ecran-cont"><div className="mesaj eroare" role="alert">{eroare}</div></div>;
+    if (blocat) return <EcranDeblocare gata={r => { setBlocat(false); setStare(r); }}/>;
     if (!stare) return <div className="ecran-cont"><p role="status">{t('ui.incarcare')}</p></div>;
     if (stare.necesita_cont) return <EcranPrimulAdministrator intrebariToate={stare.intrebari} gata={setStare}/>;
     if (!stare.autentificat || !stare.cont) return <EcranAutentificare ultimulNume={stare.ultimul_nume} gata={setStare}/>;
+    if (!recuperare) return <div className="ecran-cont"><p role="status">{t('ui.incarcare')}</p></div>;
+    if (recuperare.necesara) return <EcranCheieRecuperare stare={recuperare} gata={setRecuperare} iesire={() => void IesireDinCont().then(setStare)}/>;
 
     const valoare: StareContext = {
         cont: stare.cont,
         intrebari: stare.intrebari,
         iesire: async () => { setStare(await IesireDinCont()); },
+        cheieNoua: async () => {
+            const r = await GenereazaCheieRecuperareNoua();
+            if (r.eroare) notifica(textEroare(t, r.eroare)); else setRecuperare(r);
+        },
     };
     // Cheia remontează aplicația la schimbarea contului, ca datele să se reîncarce.
     return <ContextCont.Provider value={valoare}><div key={stare.cont.id} className="radacina-cont">{children}</div></ContextCont.Provider>;
@@ -236,6 +341,11 @@ export function DialogContulMeu({inchide}: {inchide: () => void}) {
             <FormularIntrebari toate={ctx.intrebari} intrebari={intrebari} raspunsuri={raspunsuri} ocupat={ocupat} schimba={(q, r) => { setIntrebari(q); setRaspunsuri(r); }}/>
             <CampParola eticheta={t('cont.parola_confirmare')} valoare={parolaIntrebari} schimba={setParolaIntrebari} ocupat={ocupat}/>
             <button type="button" className="buton secundar" disabled={ocupat || !parolaIntrebari} onClick={() => void ruleaza(() => SchimbaIntrebarileMele(parolaIntrebari, intrebari, raspunsuri), 'cont.intrebari_schimbate')}>{t('cont.salveaza_intrebarile')}</button>
+            {ctx.cont.rol === 'ADMINISTRATOR' && <>
+                <h3>{t('seif.recuperare_titlu')}</h3>
+                <p className="text-discret">{t('seif.cheie_noua_descriere')}</p>
+                <button type="button" className="buton secundar" disabled={ocupat} onClick={() => { if (window.confirm(t('seif.cheie_noua_confirmare'))) { inchide(); void ctx.cheieNoua(); } }}>{t('seif.cheie_noua')}</button>
+            </>}
             {eroare && <div className="mesaj eroare" role="alert">{eroare}</div>}
         </div>
         <footer className="subsol-dialog"><button className="buton secundar" disabled={ocupat} onClick={inchide}>{t('ui.inchide')}</button></footer>

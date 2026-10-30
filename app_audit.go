@@ -33,8 +33,8 @@ func (a *App) ConfirmaIncidentAudit(motiv string) RaspunsAudit {
 		return RaspunsAudit{Rezultat: rez, Eroare: eroareInterfata(err)}
 	}
 	// După confirmare, starea acceptată devine noul punct de referință pentru copiile vechi.
-	if a.radacina != "" {
-		if err := stocare.ActualizeazaSecventa(a.contextLucru(), a.db, a.radacina); err != nil {
+	if a.seif != nil {
+		if err := stocare.ActualizeazaSecventa(a.contextLucru(), a.db, a.seif); err != nil {
 			return RaspunsAudit{Rezultat: rez, Eroare: eroareInterfata(err)}
 		}
 	}

@@ -18,13 +18,18 @@ import (
 	"encoding/json"
 	"errors"
 	"os"
+	"sync"
 
 	"golang.org/x/crypto/argon2"
 
 	"pontix/internal/i18n"
 )
 
-// CheieAplicatie este cheia aplicației, în hex (32 de octeți). Deocamdată stă în cod
+// CheieAplicatie este cheia aplicației dinaintea D054, în hex (32 de octeți). Repo-ul e public, deci
+// cheia e publică: nu mai protejează nimic și servește doar trecerii seifurilor vechi la D054
+// (Deschide/Creeaza mai jos). Seifurile noi nu au copia A.
+//
+// Istoric: deocamdată stă în cod
 // (D011): datele nu se pot citi fără executabil, dar oricine are codul sursă le poate
 // decripta. Mutarea ei în afara codului: I008. Poate fi înlocuită la build cu
 // -ldflags "-X pontix/internal/seif.CheieAplicatie=…".
@@ -52,6 +57,8 @@ type fisier struct {
 	// Secventa e ultimul număr din jurnalul bazei, autentificat de cine îl scrie (F06-T09):
 	// o bază înlocuită cu o copie mai veche are mai puține intrări decât spune seiful.
 	Secventa *Secventa `json:"secventa,omitempty"`
+	// RecuperareConfirmata: administratorul a retastat cheia de recuperare (D054 punctul 3).
+	RecuperareConfirmata bool `json:"recuperare_confirmata,omitempty"`
 }
 
 // Secventa e un contor cu codul lui de autentificare; seiful doar îl păstrează.
@@ -61,10 +68,16 @@ type Secventa struct {
 }
 
 // Secventa întoarce contorul păstrat sau nil.
-func (s *Seif) Secventa() *Secventa { return s.f.Secventa }
+func (s *Seif) Secventa() *Secventa {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.f.Secventa
+}
 
 // SeteazaSecventa înlocuiește contorul și salvează seiful.
 func (s *Seif) SeteazaSecventa(x Secventa) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	s.f.Secventa = &x
 	return s.salveaza()
 }
@@ -76,10 +89,16 @@ type copie struct {
 	Fire    uint8  `json:"fire,omitempty"`
 	Nonce   []byte `json:"nonce"`
 	Date    []byte `json:"date"`
+	// IdOriginal e id-ul sub care s-a criptat copia, când a fost redenumită (P → P0, D054);
+	// intră în datele autentificate, deci decriptarea îl folosește pe el.
+	IdOriginal string `json:"id_original,omitempty"`
 }
 
 // Seif e fișierul deschis; CheieDate e cheia bazei de date.
 type Seif struct {
+	// mu protejează copiile și scrierea pe disc: seiful deschis la pornire e folosit de mai multe
+	// operații ale aplicației (autentificări, schimbări de parolă) în paralel.
+	mu        sync.RWMutex
 	cale      string
 	f         fisier
 	CheieDate []byte
@@ -174,12 +193,16 @@ func (s *Seif) SeteazaSecret(id, secret string) error {
 		return err
 	}
 	c.Sare, c.Timp, c.Memorie, c.Fire = sare, argonTimp, argonMemorie, argonFire
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	s.f.Copii[id] = c
 	return s.salveaza()
 }
 
 // StergeCopie elimină copia id și salvează seiful. Ultima copie nu se poate șterge.
 func (s *Seif) StergeCopie(id string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	if _, ok := s.f.Copii[id]; !ok {
 		return nil
 	}
@@ -192,6 +215,8 @@ func (s *Seif) StergeCopie(id string) error {
 
 // Copii întoarce identificatorii copiilor din seif.
 func (s *Seif) Copii() []string {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	var rez []string
 	for id := range s.f.Copii {
 		rez = append(rez, id)
@@ -241,7 +266,7 @@ func citeste(cale string) (*Seif, error) {
 	return s, nil
 }
 
-// salveaza scrie seiful printr-un fișier temporar și o redenumire, ca o întrerupere
+// salveaza scrie seiful; apelantul ține s.mu. printr-un fișier temporar și o redenumire, ca o întrerupere
 // în timpul scrierii să nu lase un seif pe jumătate scris.
 func (s *Seif) salveaza() error {
 	data, err := json.Marshal(s.f)

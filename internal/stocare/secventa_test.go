@@ -32,7 +32,7 @@ func copiazaFisier(t *testing.T, sursa, tinta string) {
 func porneste(t *testing.T, dir, cheie string) *audit.Paza {
 	t.Helper()
 	ctx := context.Background()
-	db, paza, err := Deschide(ctx, dir)
+	db, paza, err := deschideTest(ctx, dir)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -42,7 +42,7 @@ func porneste(t *testing.T, dir, cheie string) *audit.Paza {
 		}
 	}
 	if !paza.Blocata() {
-		if err := ActualizeazaSecventa(ctx, db, dir); err != nil {
+		if err := ActualizeazaSecventa(ctx, db, seifTest(t, dir)); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -74,10 +74,7 @@ func TestContorFalsificat(t *testing.T) {
 	dir := t.TempDir()
 	porneste(t, dir, "")
 	porneste(t, dir, "a")
-	s, err := seif.Deschide(filepath.Join(dir, NumeSeif))
-	if err != nil {
-		t.Fatal(err)
-	}
+	s := seifTest(t, dir)
 	c := s.Secventa()
 	if c == nil || c.Numar == 0 {
 		t.Fatalf("contorul nu e scris: %+v", c)
@@ -94,11 +91,11 @@ func TestContorFalsificat(t *testing.T) {
 func TestRestaurareaNuEsteCopieVeche(t *testing.T) {
 	ctx := context.Background()
 	dir := t.TempDir()
-	db, _, err := Deschide(ctx, dir)
+	db, _, err := deschideTest(ctx, dir)
 	if err != nil {
 		t.Fatal(err)
 	}
-	cale, err := BackupManual(ctx, db, dir)
+	cale, err := BackupManual(ctx, db, dir, seifTest(t, dir).CheieDate)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -20,7 +20,7 @@ func TestPrimaPornireSiRedeschidere(t *testing.T) {
 	ctx := context.Background()
 	dir := t.TempDir()
 
-	db, _, err := Deschide(ctx, dir)
+	db, _, err := deschideTest(ctx, dir)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -35,7 +35,7 @@ func TestPrimaPornireSiRedeschidere(t *testing.T) {
 	}
 
 	// A doua pornire găsește aceeași cheie și aceleași date.
-	db, _, err = Deschide(ctx, dir)
+	db, _, err = deschideTest(ctx, dir)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -50,7 +50,7 @@ func TestPrimaPornireSiRedeschidere(t *testing.T) {
 func TestBazaFaraSeif(t *testing.T) {
 	ctx := context.Background()
 	dir := t.TempDir()
-	db, _, err := Deschide(ctx, dir)
+	db, _, err := deschideTest(ctx, dir)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -59,7 +59,7 @@ func TestBazaFaraSeif(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if _, _, err := Deschide(ctx, dir); !errors.Is(err, seif.ErrDeteriorat) {
+	if _, _, err := deschideTest(ctx, dir); !errors.Is(err, seif.ErrDeteriorat) {
 		t.Fatalf("aștepta seif.ErrDeteriorat, a primit %v", err)
 	}
 	if _, err := os.Stat(filepath.Join(dir, NumeSeif)); !os.IsNotExist(err) {
@@ -134,10 +134,7 @@ func TestBackupInainteDeMigrare(t *testing.T) {
 	}
 
 	// Backup-ul are datele de dinainte și schema de dinainte de migrare.
-	s, err := seif.Deschide(filepath.Join(dir, NumeSeif))
-	if err != nil {
-		t.Fatal(err)
-	}
+	s := seifTest(t, dir)
 	copie, err := bd.Deschide(filepath.Join(dir, "backup", b[0]), s.CheieDate)
 	if err != nil {
 		t.Fatal(err)
@@ -194,10 +191,7 @@ func TestBackupMigrarilorContractuale(t *testing.T) {
 	if len(copii) != 1 {
 		t.Fatalf("backup-uri pentru cele două migrări noi: %v", copii)
 	}
-	s, err := seif.Deschide(filepath.Join(dir, NumeSeif))
-	if err != nil {
-		t.Fatal(err)
-	}
+	s := seifTest(t, dir)
 	copie, err := bd.Deschide(filepath.Join(dir, "backup", copii[0]), s.CheieDate)
 	if err != nil {
 		t.Fatal(err)
@@ -278,12 +272,12 @@ func TestBackupManualPastreazaCopiileAutomateSiCriptarea(t *testing.T) {
 		db.Close()
 		t.Fatal(err)
 	}
-	cale1, err := backupManual(ctx, db, dir, ceas(5))
+	cale1, err := backupManual(ctx, db, dir, seifTest(t, dir).CheieDate, ceas(5))
 	if err != nil {
 		db.Close()
 		t.Fatal(err)
 	}
-	cale2, err := backupManual(ctx, db, dir, ceas(5))
+	cale2, err := backupManual(ctx, db, dir, seifTest(t, dir).CheieDate, ceas(5))
 	if err != nil {
 		db.Close()
 		t.Fatal(err)
@@ -299,10 +293,7 @@ func TestBackupManualPastreazaCopiileAutomateSiCriptarea(t *testing.T) {
 		t.Fatalf("nume neașteptat pentru al doilea backup manual: %s", filepath.Base(cale2))
 	}
 
-	s, err := seif.Deschide(filepath.Join(dir, NumeSeif))
-	if err != nil {
-		t.Fatal(err)
-	}
+	s := seifTest(t, dir)
 	copie, err := bd.Deschide(cale1, s.CheieDate)
 	if err != nil {
 		t.Fatal(err)

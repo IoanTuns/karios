@@ -32,7 +32,7 @@ Faptele despre proiect stau în repo, nu în memoria privată a unui agent, pe c
 ## 4. Date și securitate
 
 - **Datele reale ale angajaților nu intră în repo** (date personale, GDPR). Stau în `date-reale/`, ignorat de git. În teste intră doar date anonimizate.
-- **Niciun secret în repo:** tokenuri, parole, chei. Fișierele cu secrete sunt ignorate de git. **Singura excepție:** cheia aplicației din `internal/seif` ([D011](docs/decizii/D011-cheia-aplicatiei-in-cod.md)), care nu se schimbă și nu se copiază în altă parte. Din cauza ei, repo-ul se tratează ca privat.
+- **Niciun secret în repo:** tokenuri, parole, chei. Fișierele cu secrete sunt ignorate de git. Repo-ul e public: cheile datelor stau doar la utilizatori (Windows, parole, cheia de recuperare, [D054](docs/decizii/D054-chei-fara-cod-recuperare.md)). Vechea cheie a aplicației din `internal/seif` (D011) e publică și servește doar la trecerea datelor vechi; nu se folosește pentru nimic nou.
 - **O bibliotecă nouă** cere o decizie scrisă, cu licența verificată.
 - **Nu se rulează `wails build -v 2`** sau alte comenzi care afișează toate variabilele de mediu: pot conține parole și tokenuri, care ajung apoi în jurnale și conversații.
 

@@ -22,6 +22,7 @@ type mediu struct {
 	cale  string
 	cheie []byte
 	seif  string
+	sf    *seif.Seif
 	ceas  time.Time
 }
 
@@ -29,10 +30,11 @@ func pregateste(t *testing.T) *mediu {
 	t.Helper()
 	dir := t.TempDir()
 	m := &mediu{cale: filepath.Join(dir, "pontix.db"), seif: filepath.Join(dir, "seif"), ceas: time.Date(2026, 10, 29, 9, 0, 0, 0, time.UTC)}
-	sf, err := seif.Creeaza(m.seif, bd.LungimeCheie)
+	sf, err := seif.CreeazaNou(m.seif, bd.LungimeCheie)
 	if err != nil {
 		t.Fatal(err)
 	}
+	m.sf = sf
 	m.cheie = sf.CheieDate
 	m.db, err = bd.Deschide(m.cale, m.cheie)
 	if err != nil {
@@ -42,7 +44,7 @@ func pregateste(t *testing.T) *mediu {
 	if _, err := bd.Migreaza(ctx, m.db, bd.Migrari); err != nil {
 		t.Fatal(err)
 	}
-	m.s = Nou(m.db, m.seif, nil)
+	m.s = Nou(m.db, m.sf, nil)
 	m.s.acum = func() time.Time { return m.ceas }
 	return m
 }
@@ -87,9 +89,8 @@ func TestCreareSiValidari(t *testing.T) {
 	if n, _ := m.s.Numar(ctx); n != 2 {
 		t.Fatalf("număr conturi: %d", n)
 	}
-	sf, err := seif.Deschide(m.seif)
-	if err != nil || len(sf.Copii()) != 5 {
-		t.Fatalf("copiile din seif (A + P și R pentru două conturi): %v, %v", sf.Copii(), err)
+	if n := len(m.sf.CopiiCuPrefix(seif.PrefixParola)) + len(m.sf.CopiiCuPrefix(seif.PrefixRaspunsuri)); n != 4 {
+		t.Fatalf("copiile din seif (P și R pentru două conturi): %v", m.sf.Copii())
 	}
 }
 
@@ -241,7 +242,7 @@ func TestPazaRefuzaScrierileInainteDeAutentificare(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer db.Close()
-	s := Nou(db, m.seif, paza)
+	s := Nou(db, m.sf, paza)
 	s.acum = m.s.acum
 	if _, err := db.Exec(`INSERT INTO setari (cheie, valoare, modificat_la) VALUES ('x', 'y', 'z')`); !audit.EsteEditareBlocata(err) {
 		t.Fatalf("scriere înainte de autentificare: %v", err)
@@ -259,5 +260,39 @@ func TestPazaRefuzaScrierileInainteDeAutentificare(t *testing.T) {
 	}
 	if rez, err := audit.Verifica(ctx, db); err != nil || rez.Stare != audit.StareOK {
 		t.Fatalf("sigiliile după operațiile conturilor: %+v %v", rez, err)
+	}
+}
+
+func TestContulDinainteaTreceriiSeRefaceLaAutentificare(t *testing.T) {
+	m := pregateste(t)
+	c, err := m.s.Creeaza(ctx, cerere("ana", RolOperator))
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Trecerea D054: copiile contului devin P0/R0, legate de cheia de date veche.
+	m.sf.RedenumesteCopie(seif.PrefixParola+c.ID, seif.PrefixParolaVeche+c.ID)
+	m.sf.RedenumesteCopie(seif.PrefixRaspunsuri+c.ID, seif.PrefixRaspunsuriVechi+c.ID)
+	cheieNoua := make([]byte, len(m.sf.CheieDate))
+	copy(cheieNoua, m.sf.CheieDate)
+	cheieNoua[0] ^= 0xff
+	m.sf.CheieDate = cheieNoua
+	if _, err := m.s.Autentifica(ctx, "ana", "gresit123", aici); err == nil {
+		t.Fatal("parola greșită acceptată pe copia veche")
+	}
+	if _, err := m.s.Autentifica(ctx, "ana", "parola123", aici); err != nil {
+		t.Fatalf("autentificarea cu copia veche: %v", err)
+	}
+	if !m.sf.AreCopia(seif.PrefixParola+c.ID) || m.sf.AreCopia(seif.PrefixParolaVeche+c.ID) {
+		t.Fatalf("copia P nu a fost refăcută: %v", m.sf.Copii())
+	}
+	if !m.sf.VerificaSecret(seif.PrefixParola+c.ID, "parola123") {
+		t.Fatal("copia refăcută nu ține cheia nouă")
+	}
+	// Recuperarea cu răspunsuri reface și copia R.
+	if _, err := m.s.Recupereaza(ctx, "ana", []string{"Școala nr. 5", "Bobiță", "Brașov"}, "nouaParola1", aici); err != nil {
+		t.Fatalf("recuperare cu copia veche: %v", err)
+	}
+	if !m.sf.AreCopia(seif.PrefixRaspunsuri+c.ID) || m.sf.AreCopia(seif.PrefixRaspunsuriVechi+c.ID) {
+		t.Fatalf("copia R nu a fost refăcută: %v", m.sf.Copii())
 	}
 }
