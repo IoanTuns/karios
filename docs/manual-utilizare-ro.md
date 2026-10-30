@@ -154,7 +154,7 @@ F2 sau dublu clic deschide completarea manuală. Câmpul manual gol ori Delete g
 
 **Precompletează L–V** completează celulele eligibile conform programului ales. **După categorii** folosește categoriile atribuite persoanelor și arată o previzualizare. Verifică persoanele, intervalul și motivele zilelor omise. Aplicarea intră în schiță; apasă apoi **Salvează schița**.
 
-Celulele cu absențe sunt protejate. Copierea și lipirea din Excel folosesc ore; lipirea nu acceptă coduri de program. Pentru schimburi folosește selectorul de programe.
+Celulele cu absențe sunt protejate. Copierea și lipirea din clipboard sau Excel (Ctrl+C / Ctrl+V) acceptă atât ore zecimale, cât și coduri de schimb cunoscute (ex: G24, 12, 8). Clic dreapta pe o celulă deschide un meniu contextual rapid cu schimburi frecvente, ștergere, copiere/lipire și salt la concedii. În antetul grilei, rândul de acoperire (mini-hartă heatmap) arată personalul prezent pe fiecare zi. Butonul **Asistent AI** din bara de unelte deschide un panou lateral retractabil (drawer) pentru interogări și planificări directe pe grilă.
 
 ### Scurtături de lucru
 
@@ -162,6 +162,8 @@ Celulele cu absențe sunt protejate. Copierea și lipirea din Excel folosesc ore
 | --- | --- |
 | Deplasare | Săgeți, Enter, Tab |
 | Selectarea unui dreptunghi | Shift + săgeți, Shift + clic sau tragere cu mouse-ul |
+| Copiere / Lipire selecție | Ctrl+C / Ctrl+V |
+| Meniu contextual rapid | Clic dreapta pe celulă sau pe selecție |
 | Anularea/refacerea unui pas nesalvat | Ctrl+Z / Ctrl+Y |
 | Copiere/lipire de ore | Ctrl+C / Ctrl+V |
 | Completare manuală | F2 sau dublu clic |
@@ -390,7 +392,7 @@ Pentru suport, notează versiunea aplicației, ecranul, anul/luna, pașii și er
 
 ## 19. Despre acest manual
 
-Acoperire: meniurile principale și subsecțiunile din Setări, fluxurile de date și instrumentele AI din versiunea {{VERSIUNE}}. Revizia editorială 1.1 include sincronizarea Pontaj → Planificare și formatarea cheii de recuperare. Referința exactă a livrării este commitul de pe copertă. Actualizarea versiunii nu înlocuiește revizuirea instrucțiunilor: buildul cere confirmarea versiunii revizuite în sursele manualului.
+Acoperire: meniurile principale și subsecțiunile din Setări, fluxurile de date și instrumentele AI din versiunea {{VERSIUNE}}. Revizia editorială 1.2 include optimizările UI din Pontaj: meniul contextual clic dreapta, clipboardul avansat, mini-harta de acoperire pe zile și panoul drawer pentru Asistentul AI. Referința exactă a livrării este commitul de pe copertă. Actualizarea versiunii nu înlocuiește revizuirea instrucțiunilor: buildul cere confirmarea versiunii revizuite în sursele manualului.
 
 Manualul nu substituie regulile de salarizare și aprobările organizației. Nu certifică validarea interactivă a fiecărui ecran pe calculatorul utilizatorului. În cazul unei diferențe între instrucțiuni și aplicație, notează versiunea și cere verificarea fluxului înainte de aplicări în lot.
 
