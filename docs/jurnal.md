@@ -4,6 +4,7 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 
 | Data | Acțiune | Cine | Legături |
 | --- | --- | --- | --- |
+| 2026-10-30 | F16-T21: ramura publicata si PR draft #4 creat catre main; fara merge. Predare: review PR, urmarire CI si proba operator Windows curat. | Codex | [PR #4](https://github.com/IoanTuns/karios/pull/4) |
 | 2026-10-30 | F16-T21: pregatire PR solicitata explicit; worktree curat, origin/main 1006f87 inclus, diff verificat. Publicare ramura F16-T21-remedieri-ux si PR draft cu validarile livrarii 0.88.15. | Codex | rezultate-ux-F16-T21.md |
 | 2026-10-30 | F16-T21 finalizat: build oficial curat aa4eb4d, aplicatie 0.88.15, manuale 1.4 generate langa exe; manifest complet, hashuri si PDF verificate. Predare pentru review pe ramura F16-T21-remedieri-ux; fara push. Ramane proba operator pe Windows curat. | Codex | rezultate-ux-F16-T21.md |
 | 2026-10-30 | F16-T21: implementare UX01-UX08 autorizata; navigare AI protejata, indicator neutru, ghiduri fara model, drawer adaptiv, cautare/surse si tastatura. Frontend/13 teste, manual/3 probe si UI RO/EN trecute. Test nou de copiere completa a datelor fictive; gofmt/vet/suita Go completa trecute. | Codex | rezultate-ux-F16-T21.md |
