@@ -50,3 +50,26 @@ $buildNou = .\build.ps1
 ```
 
 Verificarea folosește executabilul real deja construit și simulează compilatorul pentru două invocări și un eșec. Verifică directoare diferite, manifest/hash, temporare, restaurarea mediului, refuzul căilor invalide și păstrarea unui fișier existent blocat. Elimină numai probele proprii. Testele Go obligatorii rămân `gofmt -l -w .`, `go vet ./...` și `go test ./...`.
+
+## Pachet pentru operator (F02-T22)
+
+Buildul genereaza automat langa directorul livrarii arhiva `<director-build>.zip` si suma `.zip.sha256`. Obiectul returnat de build.ps1 are si proprietatea `Pachet`. ZIP-ul contine executabilul, manifestul, cele trei manuale, LICENSE, ACTUALIZARE.md, NOTE-VERSIUNE.md, CHECKLIST-ACCEPTANTA.md si SHA256SUMS.txt. Se foloseste o lista explicita: baza, seiful, backupurile si fisierele adaugate accidental in director nu sunt preluate. Daca s-a cerut compilarea AI, numai binarul llama-server verificat este inclus in karios/ai; modelul nu este inclus automat.
+
+Documentele operatorului sunt in docs/livrare si se revizuiesc la schimbarea fluxurilor. Marcajele de versiune/commit sunt completate din manifest. Lista de acceptanta este necompletata: operatorul inregistreaza separat ce a executat.
+
+Reimpachetare fara recompilare, numai intr-un director cu manifest complet (nu suprascrie arhiva existenta):
+
+```powershell
+python verificari/pachet_release.py --director <director-build>
+```
+
+Verificari locale/CI:
+
+```powershell
+python verificari/documentatie.py
+python verificari/manuale.py
+python -m unittest discover -s verificari -p test_livrare.py
+python verificari/documentatie.py --html <manual-generat.html>
+```
+
+Controlul traducerilor compara cheile RO/EN, parametrii si apelurile t cu cheie statica. Cheile construite dinamic si textele scrise direct in cod necesita verificari suplimentare. Controlul manualului verifica ancorele locale, duplicatele si toate articolele catalogului; nu verifica disponibilitatea paginilor externe pe internet. ZIP-ul este verificat dupa scriere, iar un hash pentru arhiva este salvat separat. SHA256 detecteaza modificarea fisierelor fata de referinta; nu este semnatura digitala a editorului.

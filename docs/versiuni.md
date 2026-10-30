@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.89.1 · 2026-10-30
+
+F02-T22: buildul genereaza automat pachet ZIP pe lista explicita, cu verificarea hashurilor, instructiuni de actualizare, note pentru utilizatori si checklist operator. Verificari traduceri RO/EN, parametri, chei statice si ancore manual/ajutor; manual editia 1.5. Fara modificarea datelor sau regulilor de calcul.
+
 ## 0.89.0 · 2026-10-30
 
 Butonul „Raportează o problemă” (F16-T15, I093).
