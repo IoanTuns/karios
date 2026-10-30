@@ -21,3 +21,4 @@ Sistem integrat de diagnoză locală, captare robustă a erorilor pe frontend ș
 | F16-T09 | Suport Dark Mode / Temă Nocturnă | Antigravity | gata | UI | `style.css` |
 | F16-T10 | Ghid vizual de pornire pe ecrane goale (Empty state onboarding) | Antigravity | gata | UI | `Pontaj.tsx`, `Planificare.tsx` |
 | F16-T11 | Jurnalul de diagnoză fără date personale și panicile metodelor Wails înregistrate (SEC-7, SEC-8) | gata | Claude | 0.88.4: SEC-7, SEC-8 |
+| F16-T12 | Contrastul grilelor pe ambele teme, cu tokenuri de culoare pentru grile (UI-3, UI-2 pentru grile) | gata | Claude | 0.88.5: toate stările grilei ≥ 4,5:1 pe ambele teme |

@@ -4,6 +4,17 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.88.5 · 2026-10-30
+
+Contrastul grilelor de pontaj și planificare, pe ambele teme (F16-T12, UI-3; UI-2 pentru grile).
+
+- În tema întunecată, regula generală pentru câmpuri făcea opace celulele grilei: weekendul, sărbătorile, selecția și avertismentele nu se mai vedeau. Absențele păstrau fondul luminos, dar cu text verde deschis (1,29:1). Celula cu avertisment avea fond luminos și text deschis. Stările planificării (publicată, modificată, nepublicată) primeau toate același verde.
+- Culorile stărilor din grile sunt acum tokenuri pe `:root`, redefinite în `[data-theme="dark"]`; suprascrierile punctuale ale grilelor din tema întunecată au dispărut.
+- Tema luminoasă: textul discret (`--discret`, în toată aplicația) trece de la `#657773` la `#566663`, iar „modificată” din planificare de la `#8c661d` la `#765515`, ca să aibă cel puțin 4,5:1 și pe weekend, sărbătoare și selecție.
+- Verificare nouă `verificari/contrast-grila.mjs` (Edge headless, date fictive): citește culorile calculate ale fiecărei celule din grila de pontaj pe ambele teme. Rezultat: toate stările au cel puțin 4,5:1 (înainte: 8 stări sub prag în tema întunecată, 4 în cea luminoasă).
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.88.4 · 2026-10-30
 
 Jurnalul de diagnoză fără date personale, cu panicile metodelor înregistrate (F16-T11, SEC-7 și SEC-8).
