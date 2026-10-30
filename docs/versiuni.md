@@ -4,6 +4,17 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.89.0 · 2026-10-30
+
+Butonul „Raportează o problemă” (F16-T15, I093).
+
+- Din meniul lateral se deschide un formular: problemă sau părere, descriere, pașii (opțional) și, la alegere, ultimele 40 de linii din jurnalul de diagnoză.
+- Aplicația pregătește raportul în Markdown: textul utilizatorului, versiunea și commit-ul, sistemul, ecranul curent, momentul și numărul de erori. Descrierea, pașii și jurnalul trec prin `diagnoza.Curata` (textele dintre ghilimele, numerele lungi, emailurile). Utilizatorul vede raportul și îl poate modifica înainte de trimitere.
+- „Salvează fișierul” îl scrie în `karios/rapoarte-probleme/raport-AAAALLZZ-HHMMSS.md`, pentru trimitere pe email. „Deschide pe GitHub” deschide în browser pagina de issue nou din repo-ul public, completată cu titlul și raportul (scurtat la 6.000 de caractere; textul complet rămâne în fișier). Trimiterea o face utilizatorul, cu contul lui; aplicația nu are niciun token GitHub.
+- Pachet nou `internal/raportare`, cu teste; 29 de chei i18n.
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.88.15 · 2026-10-30
 
 F16-T21: protectie la navigarea AI din Pontaj, anul cererii de concediu respectat, indicator neutru pentru persoanele cu inregistrari in lista filtrata. Ghiduri disponibile fara model, configurare pliabila, drawer adaptat ecranelor mici, cautare coerenta in ajutor, versiune diferita explicita si meniu contextual prin Shift+F10 cu focus. Manual editia 1.4.
