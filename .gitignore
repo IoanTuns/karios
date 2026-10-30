@@ -30,3 +30,6 @@ frontend/package.json.md5
 *.gguf
 llama-server.exe
 tools/
+
+# Cache Python generat de verificarile livrarii.
+__pycache__/

@@ -114,9 +114,13 @@ try {
     }
     $manifest.stare = 'complet'
     Scrie-ManifestBuild
+    # F02-T22: livrarea contine numai fisierele aprobate, niciodata baza/seiful.
+    $calePachet = python (Join-Path $PSScriptRoot 'verificari/pachet_release.py') --director $directorBuild
+    if ($LASTEXITCODE -ne 0) { throw 'Generarea pachetului ZIP a esuat.' }
+    Write-Host $calePachet
     Write-Host "$caleExecutabil`: Pontix $versiune, commit $commit"
     # Rezultatul poate fi preluat de verificari sau de un script de livrare.
-    [PSCustomObject]@{Director = $directorBuild; Executabil = $caleExecutabil; Manifest = $caleManifest}
+    [PSCustomObject]@{Director = $directorBuild; Executabil = $caleExecutabil; Manifest = $caleManifest; Pachet = $calePachet}
 } catch {
     if ($null -ne $manifest) {
         $manifest.stare = 'esuat'

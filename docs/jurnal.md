@@ -4,6 +4,7 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 
 | Data | Acțiune | Cine | Legături |
 | --- | --- | --- | --- |
+| 2026-10-30 | F02-T22: implementate toate cele cinci propuneri autorizate: ZIP explicit cu hashuri, checklist, note utilizator, traduceri si legaturi manual/ajutor. 7 probe livrare negative/pozitive si 3 probe manual trecute; frontend build/13 teste trecute. Go 1.27.3/npm curente; tranzitive Go urmarite in F14-T21. gofmt/vet/suita Go completa trecute; build final urmeaza. | Codex | ghid-build.md; docs/livrare; F02-T22 |
 | 2026-10-30 | F16-T21: ramura publicata si PR draft #4 creat catre main; fara merge. Predare: review PR, urmarire CI si proba operator Windows curat. | Codex | [PR #4](https://github.com/IoanTuns/karios/pull/4) |
 | 2026-10-30 | F16-T21: pregatire PR solicitata explicit; worktree curat, origin/main 1006f87 inclus, diff verificat. Publicare ramura F16-T21-remedieri-ux si PR draft cu validarile livrarii 0.88.15. | Codex | rezultate-ux-F16-T21.md |
 | 2026-10-30 | F16-T21 finalizat: build oficial curat aa4eb4d, aplicatie 0.88.15, manuale 1.4 generate langa exe; manifest complet, hashuri si PDF verificate. Predare pentru review pe ramura F16-T21-remedieri-ux; fara push. Ramane proba operator pe Windows curat. | Codex | rezultate-ux-F16-T21.md |

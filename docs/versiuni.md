@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.88.16 · 2026-10-30
+
+F02-T22: buildul genereaza automat pachet ZIP pe lista explicita, cu verificarea hashurilor, instructiuni de actualizare, note pentru utilizatori si checklist operator. Verificari traduceri RO/EN, parametri, chei statice si ancore manual/ajutor; manual editia 1.5. Fara modificarea datelor sau regulilor de calcul.
+
 ## 0.88.15 · 2026-10-30
 
 F16-T21: protectie la navigarea AI din Pontaj, anul cererii de concediu respectat, indicator neutru pentru persoanele cu inregistrari in lista filtrata. Ghiduri disponibile fara model, configurare pliabila, drawer adaptat ecranelor mici, cautare coerenta in ajutor, versiune diferita explicita si meniu contextual prin Shift+F10 cu focus. Manual editia 1.4.
