@@ -1493,5 +1493,10 @@
   "raportare.camp_ecran": "Ecran",
   "raportare.camp_moment": "Moment",
   "raportare.camp_erori": "Erori înregistrate de la pornire: {{numar}}",
-  "raportare.text_scurtat": "(Raport scurtat pentru GitHub; textul complet e în fișierul salvat.)"
+  "raportare.text_scurtat": "(Raport scurtat pentru GitHub; textul complet e în fișierul salvat.)",
+  "eroare_ecran.titlu": "A apărut o problemă la afișarea acestui ecran ({{modul}})",
+  "eroare_ecran.descriere": "Eroarea a fost captată și înregistrată automat în jurnalul local de diagnoză. Baza ta de date și datele de pontaj sunt în siguranță.",
+  "eroare_ecran.modul_implicit": "Modul",
+  "eroare_ecran.reincearca": "Reîncearcă afișarea",
+  "eroare_ecran.reimprospateaza": "Reîmprospătează aplicația"
 }

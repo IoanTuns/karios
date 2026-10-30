@@ -21,7 +21,7 @@ import {datebaza, calcul, main, rapoarte} from '../wailsjs/go/models';
 import {Dialog, denumireSectie, denumireDepartament, durata} from './Formulare';
 import {oraText} from './Schimburi';
 import {notifica} from './Toast';
-import {formatData} from './formatare';
+import {formatData, formateazaDataSigura} from './formatare';
 
 export function programPlanificat(p:datebaza.Schimb) {
     return p.tip==='GARDA'||p.tip==='NOAPTE'||p.regim==='NELUCRATOARE'||p.regim==='INTRARE_ZI_LIBERA'||(p.ora_start>=720&&p.ora_start<1320);
@@ -692,7 +692,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
                             <th scope="row">{nume(p.angajat_id)}</th>
                             <td>{p.data}{sarbatori.has(p.data)&&<small>{sarbatori.get(p.data)}</small>}</td>
                             <td>{textSchimb(p.schimb_id)}</td>
-                            <td><span className={`stare-plan stare-plan-${p.stare}`}>{t(`planificare.stare_${p.stare}`)}</span>{p.publicat_la&&<small>{formatData(i18n.language,{dateStyle:'short',timeStyle:'short'}).format(new Date(p.publicat_la))}</small>}</td>
+                            <td><span className={`stare-plan stare-plan-${p.stare}`}>{t(`planificare.stare_${p.stare}`)}</span>{p.publicat_la&&<small>{formateazaDataSigura(p.publicat_la, i18n.language, {dateStyle:'short',timeStyle:'short'})}</small>}</td>
                             <td><div className="actiuni-rand"><button className="legatura" disabled={ocupat||!p.activ} onClick={()=>{setEroare('');setEditare(p);}}>{t('ui.editeaza')}</button><button className="legatura discreta" disabled={ocupat} onClick={()=>{if(window.confirm(t(p.activ?'planificare.confirma_retragerea':'planificare.confirma_reactivarea')))void salveazaPozitiiLista([new datebaza.PozitiePlanificare({...p,activ:!p.activ})]);}}>{t(p.activ?'planificare.retrage':'ui.reactiveaza')}</button></div></td>
                         </tr>)}
                     </tbody>

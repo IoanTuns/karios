@@ -1,4 +1,5 @@
 import {Component, type ErrorInfo, type ReactNode} from 'react';
+import i18next from 'i18next';
 import {InregistreazaEroareFrontend} from '../wailsjs/go/main/App';
 
 interface Props {
@@ -42,13 +43,14 @@ export class ErrorBoundary extends Component<Props, State> {
 
     render() {
         if (this.state.areEroare) {
+            const numeModul = this.props.numeModul || i18next.t('eroare_ecran.modul_implicit');
             return (
                 <div className="panou-eroare-componenta" role="alert">
                     <h3>
-                        ⚠️ A apărut o problemă la afișarea acestui ecran ({this.props.numeModul || 'Modul'})
+                        ⚠️ {i18next.t('eroare_ecran.titlu', {modul: numeModul})}
                     </h3>
                     <p>
-                        Eroarea a fost captată și înregistrată automat în jurnalul local de diagnoză. Baza ta de date și datele de pontaj sunt în siguranță.
+                        {i18next.t('eroare_ecran.descriere')}
                     </p>
                     <div className="detalii-eroare">
                         {this.state.mesaj}
@@ -59,14 +61,14 @@ export class ErrorBoundary extends Component<Props, State> {
                             className="buton primar"
                             onClick={this.reincearca}
                         >
-                            🔄 Reîncearcă afișarea
+                            🔄 {i18next.t('eroare_ecran.reincearca')}
                         </button>
                         <button
                             type="button"
                             className="buton secundar"
                             onClick={() => window.location.reload()}
                         >
-                            Reîmprospătează aplicația
+                            {i18next.t('eroare_ecran.reimprospateaza')}
                         </button>
                     </div>
                 </div>

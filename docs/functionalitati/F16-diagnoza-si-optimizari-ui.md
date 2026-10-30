@@ -33,3 +33,4 @@ Sistem integrat de diagnoză locală, captare robustă a erorilor pe frontend ș
 | F16-T20 | Analiza UX pentru release pilot 0.88.14 | Codex | gata | docs/analiza-ux-release-0.88.14.md | Audit euristic, fluxuri si prioritati; fara modificari de interfata. |
 
 | F16-T21 | Remedieri UX01-UX08 din auditul release pilot | Codex | gata | analiza-ux-release-0.88.14.md | Protectie navigare AI, indicator neutru, ajutor fara model, drawer, cautare si tastatura; validare recuperare pe date fictive. |
+| F16-T22 | Internaționalizare panou eroare (ErrorBoundary, I095) și formatare defensivă a datelor în UI (I094) | Antigravity | gata | D004, I094, I095 | `ErrorBoundary.tsx`, `formatare.ts`, `Jurnal.tsx`, `Restaurare.tsx` |

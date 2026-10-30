@@ -4,6 +4,14 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.89.2 · 2026-10-30
+
+F16-T22: internaționalizare panou de eroare și formatare defensivă a datelor în interfață:
+- Textele din panoul de captare a erorilor componentelor (`ErrorBoundary.tsx`) au fost mutate în cataloagele i18n (`ro.json` și `en.json`) conform Regulii 8 și deciziei D004 (I095).
+- Funcție helper defensivă `formateazaDataSigura` în `formatare.ts` cu teste unitare complete (16/16 teste frontend trecute): protejează împotriva valorilor vide, nule sau invalide care aruncau anterior `RangeError` (I094); aplicată în `Jurnal.tsx`, `Restaurare.tsx` și `Planificare.tsx`.
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.89.1 · 2026-10-30
 
 F02-T22: buildul genereaza automat pachet ZIP pe lista explicita, cu verificarea hashurilor, instructiuni de actualizare, note pentru utilizatori si checklist operator. Verificari traduceri RO/EN, parametri, chei statice si ancore manual/ajutor; manual editia 1.5. Fara modificarea datelor sau regulilor de calcul.

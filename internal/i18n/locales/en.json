@@ -1493,5 +1493,10 @@
   "raportare.camp_ecran": "Screen",
   "raportare.camp_moment": "Time",
   "raportare.camp_erori": "Errors recorded since start: {{numar}}",
-  "raportare.text_scurtat": "(Report shortened for GitHub; the full text is in the saved file.)"
+  "raportare.text_scurtat": "(Report shortened for GitHub; the full text is in the saved file.)",
+  "eroare_ecran.titlu": "A problem occurred while displaying this screen ({{modul}})",
+  "eroare_ecran.descriere": "The error was captured and automatically recorded in the local diagnostic log. Your database and timesheet data are safe.",
+  "eroare_ecran.modul_implicit": "Module",
+  "eroare_ecran.reincearca": "Retry displaying",
+  "eroare_ecran.reimprospateaza": "Reload application"
 }

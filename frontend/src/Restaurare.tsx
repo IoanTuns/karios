@@ -5,7 +5,7 @@ import {useTranslation} from 'react-i18next';
 import {AnuleazaRestaurarea, InchideAplicatia, ListaBackupuri, ProgrameazaRestaurare, VerificaBackup} from '../wailsjs/go/main/App';
 import {audit, main, stocare} from '../wailsjs/go/models';
 import {Dialog} from './Formulare';
-import {formatData} from './formatare';
+import {formatData, formateazaDataSigura} from './formatare';
 
 function dimensiune(octeti: number): string {
     return octeti >= 1048576 ? `${(octeti / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(octeti / 1024))} KB`;
@@ -46,7 +46,7 @@ export function RestaurareBackup({reimprospatare, ocupat: ocupatExtern}: {reimpr
         {eroare && <p className="mesaj eroare" role="alert">{eroare}</p>}
         {lista.length === 0 ? <p className="text-discret">{t('restaurare.fara_backupuri')}</p> : <ul className="lista-backupuri">
             {lista.map(b => <li key={b.nume}>
-                <span><strong>{format.format(new Date(b.modificat))}</strong> · {t(b.manual ? 'restaurare.manual' : 'restaurare.automat')} · {dimensiune(b.dimensiune)}<br/><small className="text-discret">{b.nume}</small></span>
+                <span><strong>{formateazaDataSigura(b.modificat, i18n.language, {dateStyle: 'short', timeStyle: 'short'})}</strong> · {t(b.manual ? 'restaurare.manual' : 'restaurare.automat')} · {dimensiune(b.dimensiune)}<br/><small className="text-discret">{b.nume}</small></span>
                 <button type="button" className="buton secundar mic" disabled={blocat} onClick={() => void ruleaza(async () => {
                     const r = await VerificaBackup(b.nume);
                     if (r.eroare) setEroare(t(r.eroare.cod, r.eroare.param ?? {})); else setAles({backup: b, rezultat: r.rezultat});
@@ -55,7 +55,7 @@ export function RestaurareBackup({reimprospatare, ocupat: ocupatExtern}: {reimpr
         </ul>}
         {ales && <Dialog titlu={t('restaurare.confirma_titlu')} ocupat={blocat} inchide={() => setAles(null)}>
             <div className="corp-dialog">
-                <p>{t('restaurare.confirma_descriere', {data: format.format(new Date(ales.backup.modificat))})}</p>
+                <p>{t('restaurare.confirma_descriere', {data: formateazaDataSigura(ales.backup.modificat, i18n.language, {dateStyle: 'short', timeStyle: 'short'})})}</p>
                 <p className={ales.rezultat.stare === 'incident' ? 'mesaj eroare' : 'text-discret'}>
                     {t(`restaurare.sigiliu_${ales.rezultat.stare}`, {tabele: (ales.rezultat.tabele ?? []).join(', ')})}
                 </p>
