@@ -4,6 +4,7 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 
 | Data | Acțiune | Cine | Legături |
 | --- | --- | --- | --- |
+| 2026-10-30 | F02-T22: PR draft #6 creat catre main pentru livrarea 0.89.1; conflicte rezolvate si build verificat. Predare: CI, review PR si checklist operator; fara merge in main. | Codex | [PR #6](https://github.com/IoanTuns/karios/pull/6) |
 | 2026-10-30 | F02-T22: integrare verificata eeba9be, build curat 0.89.1 complet, ZIP/hash si PDF verificate, manual 1.5 cu raportarea problemelor. Frontend/13 teste, 3 probe manual, 7 probe livrare si Go/vet trecute. Publicare ramura si PR draft conform cererii; fara merge in main. | Codex | review-F02-T22-main-0.89.0.md |
 | 2026-10-30 | F02-T22: pregatire PR autorizata, integrare main 8cce680, rezolvare cumulativa a conflictelor si versiune 0.89.1. Manualul, notele si checklistul includ raportarea problemelor. Verificari si build urmeaza. | Codex | F02-T22 |
 | 2026-10-30 | F02-T22: review dupa main 8cce680/0.89.0, simulare fara merge. Patru conflicte textuale (jurnal, istoric, versiune Go, wails.json), manual nealiniat versiunii; textele RO/EN ale ambelor ramuri pastrate in simulare. Codul raportarii nu are conflict textual. Pas urmator: integrare si regenerare la versiune unica peste main. | Codex | review-F02-T22-main-0.89.0.md |
