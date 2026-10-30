@@ -139,11 +139,14 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
     const blocat = useRef(false);
     const [meniuCtx, setMeniuCtx] = useState<{x: number; y: number; rand: number; zi: number} | null>(null);
     const [drawerAI, setDrawerAI] = useState(false);
+    const meniuElement = useRef<HTMLDivElement>(null);
+    const origineMeniu = useRef<HTMLInputElement | null>(null);
 
     useEffect(() => {
         if (!meniuCtx) return;
+        meniuElement.current?.querySelector<HTMLButtonElement>('button:not(:disabled)')?.focus();
         const inchide = () => setMeniuCtx(null);
-        const laTasta = (e: globalThis.KeyboardEvent) => { if (e.key === 'Escape') setMeniuCtx(null); };
+        const laTasta = (e: globalThis.KeyboardEvent) => { if (e.key === 'Escape') { e.preventDefault(); setMeniuCtx(null); origineMeniu.current?.focus(); } };
         window.addEventListener('pointerdown', inchide);
         window.addEventListener('keydown', laTasta);
         return () => {
@@ -256,14 +259,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
             });
             const esteWeekend = weekend[z];
             const esteSarbatoare = sarbatori.has(data);
-            let clasaStare = 'heat-optim';
-            if (esteWeekend || esteSarbatoare) {
-                clasaStare = lucratori > 0 ? 'heat-acoperit' : 'heat-liber';
-            } else {
-                if (lucratori === 0) clasaStare = 'heat-deficit';
-                else if (lucratori < Math.max(1, Math.floor(randuri.length * 0.25))) clasaStare = 'heat-redus';
-                else clasaStare = 'heat-optim';
-            }
+            const clasaStare = 'heat-neutru';
             return {
                 data,
                 zi: z,
@@ -320,6 +316,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
         dublu: () => deschideOreManuale(),
         contextMenu: (e, r, z) => {
             e.preventDefault();
+            origineMeniu.current = e.currentTarget;
             const inSel = r >= inceputRand && r <= sfarsitRand && z >= inceputZi && z <= sfarsitZi;
             if (!inSel) {
                 setSelectie({inceput: {rand: r, zi: z}, sfarsit: {rand: r, zi: z}});
@@ -525,6 +522,14 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
     }
 
     function taste(e: KeyboardEvent<HTMLInputElement>, r: number, z: number) {
+        if ((e.shiftKey && e.key === 'F10') || e.key === 'ContextMenu') {
+            e.preventDefault();
+            origineMeniu.current = e.currentTarget;
+            const rect = e.currentTarget.getBoundingClientRect();
+            setSelectie({inceput: {rand:r, zi:z}, sfarsit: {rand:r, zi:z}});
+            setMeniuCtx({x:Math.max(0, Math.min(rect.left, innerWidth - 280)), y:Math.max(0, Math.min(rect.bottom, innerHeight - 340)), rand:r, zi:z});
+            return;
+        }
         if ((e.ctrlKey || e.metaKey) && !e.altKey && e.key.toLowerCase() === 'z') { e.preventDefault(); if (e.shiftKey) refaPas(); else anuleazaPas(); return; }
         if ((e.ctrlKey || e.metaKey) && !e.altKey && e.key.toLowerCase() === 'y') { e.preventDefault(); refaPas(); return; }
         if ((e.ctrlKey || e.metaKey) && !e.altKey && e.key.toLowerCase() === 'c') { e.preventDefault(); void copiazaSelectia(); return; }
@@ -810,7 +815,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                             {totaluri.map(c => <th key={c} className={c === 'T' ? 'fix-total-t' : ''}>{t(`pontaj.total_${c}`)}</th>)}</tr>
                             <tr className="rand-heatmap" aria-label={t('pontaj.acoperire')}>
                                 <th className="fix-nume titlu-heat" scope="row"><strong>{t('pontaj.acoperire')}</strong></th>
-                                <th className="fix-marca titlu-heat-marca"><small>{randuri.length ? `${Math.round(acoperireZile.reduce((s, z) => s + z.lucratori, 0) / (numarZile || 1))}/zi` : '—'}</small></th>
+                                <th className="fix-marca titlu-heat-marca"><small>{t('pontaj.persoane_afisate', {numar: randuri.length})}</small></th>
                                 {acoperireZile.map(az => (
                                     <th key={`heat-${az.data}`} className={`celula-heat ${az.clasaStare} ${az.esteWeekend ? 'heat-weekend' : ''} ${az.esteSarbatoare ? 'heat-sarbatoare' : ''}`}
                                         title={t('pontaj.tooltip_heat', {data: az.data, lucratori: az.lucratori, ore: oreText(az.minuteTotal)})}>
@@ -859,8 +864,8 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                                 date={date}
                                 onAjutor={onAjutor}
                                 perioadaEcran={{an, luna}}
-                                onDeschidePontaj={(a, l) => { setAn(a); setAnText(String(a)); setLuna(l); }}
-                                onDeschideConcediu={onDeschideAbsente ? c => onDeschideAbsente(an, c.angajatId) : undefined}
+                                onDeschidePontaj={(a, l) => { if (ocupat || ((a !== an || l !== luna) && !poateAbandona())) return; setAn(a); setAnText(String(a)); setLuna(l); }}
+                                onDeschideConcediu={onDeschideAbsente ? c => { if (!ocupat && poateAbandona()) onDeschideAbsente(Number(c.deLa.slice(0, 4)), c.angajatId); } : undefined}
                             />
                         </div>
                     </aside>
@@ -876,7 +881,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
             {plan.celule.length>0&&<div className="tabel-derulant"><table><thead><tr><th>{t('ui.angajat')}</th><th>{t('program.data')}</th><th>{t('program.program')}</th></tr></thead><tbody>{plan.celule.slice(0,100).map(c=><tr key={`${c.angajat_id}/${c.data}`}><td>{date.angajati.find(a=>a.id===c.angajat_id)?.nume} {date.angajati.find(a=>a.id===c.angajat_id)?.prenume}</td><td>{c.data}</td><td>{schimburi.find(s=>s.cod===c.valoare)?.denumire[i18n.language]||c.valoare}</td></tr>)}</tbody></table>{plan.celule.length>100&&<p>{t('program.primele_propuneri')}</p>}</div>}
         </div><footer className="subsol-dialog"><button className="buton secundar" disabled={ocupat} onClick={()=>setPlan(null)}>{t('ui.anuleaza')}</button><button className="buton primar" disabled={ocupat||!plan.celule.length} onClick={aplicaPlan}>{t('program.aplica_plan')}</button></footer></Dialog>}
         {meniuCtx && (
-            <div className="meniu-contextual-grila" style={{top: meniuCtx.y, left: meniuCtx.x}} role="menu" aria-label={t('pontaj.meniu_contextual')} onPointerDown={e => e.stopPropagation()}>
+            <div ref={meniuElement} className="meniu-contextual-grila" style={{top: meniuCtx.y, left: meniuCtx.x}} role="group" aria-label={t('pontaj.meniu_contextual')} onPointerDown={e => e.stopPropagation()}>
                 <div className="antet-meniu-ctx">
                     <strong>{randuri[meniuCtx.rand]?.nume} {randuri[meniuCtx.rand]?.prenume}</strong>
                     <small>{zile[meniuCtx.zi] ? `${zile[meniuCtx.zi]} (ziua ${meniuCtx.zi + 1})` : ''}</small>

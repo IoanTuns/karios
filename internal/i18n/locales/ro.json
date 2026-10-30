@@ -1133,8 +1133,8 @@
   "pontaj.copiaza_scurtatura": "Copiază selecția (Ctrl+C)",
   "pontaj.lipeste_scurtatura": "Lipește din clipboard (Ctrl+V)",
   "pontaj.celule_lipite": "{{numar}} celule au fost lipite din clipboard.",
-  "pontaj.acoperire": "Acoperire / zi",
-  "pontaj.tooltip_heat": "Data {{data}}: {{lucratori}} angajați prezenți · Total ore: {{ore}}",
+  "pontaj.acoperire": "Persoane înregistrate",
+  "pontaj.tooltip_heat": "{{data}}: {{lucratori}} persoane cu înregistrări, {{ore}} ore, în lista filtrată. Nu reprezintă necesarul de personal.",
   "pontaj.asistent_drawer_titlu": "Deschide panoul lateral Asistent AI",
   "pontaj.asistent_local_titlu": "Asistent AI Pontix",
   "pontaj.asistent_drawer_subtitlu": "Comenzi directe pentru grilă",
@@ -1458,5 +1458,11 @@
   "ajutor.articol.conturi.mele.pas2": "Alege schimbarea parolei sau a întrebărilor de recuperare și completează datele cerute.",
   "ajutor.articol.conturi.mele.pas3": "Confirmă salvarea și păstrează separat datele de recuperare.",
   "ajutor.articol.conturi.mele.rezultat": "Se actualizează datele contului tău după validare.",
-  "ajutor.articol.conturi.mele.probleme": "Administrarea altor conturi este separată și necesită rol de administrator."
+  "ajutor.articol.conturi.mele.probleme": "Administrarea altor conturi este separată și necesită rol de administrator.",
+  "pontaj.persoane_afisate": "{{numar}} afișate",
+  "ai.ghiduri_fara_model": "Ghidurile de utilizare sunt disponibile fără model. Comenzile care folosesc modelul necesită configurarea motorului local.",
+  "ai.configurare_model": "Configurează motorul local",
+  "ajutor.versiune_diferita": "Ghidul citat aparține altei versiuni. ",
+  "ajutor.versiune_curenta": "Deschide ghidul versiunii curente",
+  "ajutor.detalii_sursa": "Detalii despre sursă"
 }

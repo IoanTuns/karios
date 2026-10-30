@@ -29,3 +29,7 @@ Sistem integrat de diagnoză locală, captare robustă a erorilor pe frontend ș
 | F16-T17 | Meniu contextual desktop la clic dreapta și copiere/lipire blocuri celule (Clipboard) în grilă | Antigravity | gata | UI | `Pontaj.tsx`, `style.css` |
 | F16-T18 | Mini-hartă vizuală de acoperire pe zile (Heatmap acoperire / deficit în antetul grilei) | Antigravity | gata | UI | `Pontaj.tsx`, `style.css` |
 | F16-T19 | Panou lateral retractabil (Drawer) pentru Asistentul AI integrat direct în Pontaj | Antigravity | gata | UI | `Pontaj.tsx`, `AsistentAI.tsx`, `style.css` |
+
+| F16-T20 | Analiza UX pentru release pilot 0.88.14 | Codex | gata | docs/analiza-ux-release-0.88.14.md | Audit euristic, fluxuri si prioritati; fara modificari de interfata. |
+
+| F16-T21 | Remedieri UX01-UX08 din auditul release pilot | Codex | gata | analiza-ux-release-0.88.14.md | Protectie navigare AI, indicator neutru, ajutor fara model, drawer, cautare si tastatura; validare recuperare pe date fictive. |

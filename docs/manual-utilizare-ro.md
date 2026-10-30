@@ -326,6 +326,8 @@ O copie modificată din afara aplicației poate fi refuzată. Dacă te răzgând
 
 ### Mută sau actualizează aplicația
 
+Înainte de actualizare, creează un backup din Setări, verifică locația lui și păstrează separat cheia de recuperare. Copia bazei nu înlocuiește copia completă a folderului de date.
+
 Aplicația portabilă păstrează datele în folderul `karios` de lângă executabil. Un executabil pus într-un director nou nu mută automat baza veche.
 
 1. Închide aplicația și păstrează o copie completă a folderului vechi.
@@ -392,7 +394,7 @@ Pentru suport, notează versiunea aplicației, ecranul, anul/luna, pașii și er
 
 ## 19. Despre acest manual
 
-Acoperire: meniurile principale și subsecțiunile din Setări, fluxurile de date și instrumentele AI din versiunea {{VERSIUNE}}. Revizia editorială 1.3 include optimizările UI din Pontaj: meniul contextual clic dreapta, clipboardul avansat, mini-harta de acoperire pe zile și panoul drawer pentru Asistentul AI. Include ajutorul contextual pe toate ecranele, 21 de articole comune manualului și AI, sincronizarea Pontaj → Planificare și formatarea cheii de recuperare. Referința exactă a livrării este commitul de pe copertă. Actualizarea versiunii nu înlocuiește revizuirea instrucțiunilor: buildul cere confirmarea versiunii revizuite în sursele manualului.
+Acoperire: meniurile principale și subsecțiunile din Setări, fluxurile de date și instrumentele AI din versiunea {{VERSIUNE}}. Revizia editorială 1.4 include optimizările UI din Pontaj: meniul contextual clic dreapta, clipboardul avansat, mini-harta de acoperire pe zile și panoul drawer pentru Asistentul AI. Include ajutorul contextual pe toate ecranele, 21 de articole comune manualului și AI, sincronizarea Pontaj → Planificare și formatarea cheii de recuperare. Referința exactă a livrării este commitul de pe copertă. Actualizarea versiunii nu înlocuiește revizuirea instrucțiunilor: buildul cere confirmarea versiunii revizuite în sursele manualului.
 
 Manualul nu substituie regulile de salarizare și aprobările organizației. Nu certifică validarea interactivă a fiecărui ecran pe calculatorul utilizatorului. În cazul unei diferențe între instrucțiuni și aplicație, notează versiunea și cere verificarea fluxului înainte de aplicări în lot.
 
@@ -405,3 +407,7 @@ Ajutorul contextual și accesul la articole din AI sunt disponibile din această
 Articolele de mai jos sunt generate din catalogul comun RO/EN. Aceleași instrucțiuni sunt afișate în panoul «Cum să faci» și în răspunsurile de utilizare ale asistentului. Identificatorii stabili permit citarea și deschiderea articolului.
 
 {{ARTICOLE_AJUTOR}}
+
+### Clarificari de operare pentru 0.88.15
+
+Indicatorul zilnic numara persoanele cu inregistrari din lista filtrata; nu confirma necesarul de personal sau deficitul. Panoul AI cere confirmare inainte de schimbarea perioadei ori deschiderea concediilor daca exista modificari nesalvate. Ghidurile functioneaza fara model; configurarea motorului este pliabila. Pe ecrane inguste panoul AI se suprapune peste grila si se inchide din antet. Shift+F10 deschide actiunile celulei; Tab parcurge butoanele, Escape revine la celula. Cautarea in ghiduri afiseaza un rezultat curent; o citare veche ofera deschiderea ghidului versiunii actuale.

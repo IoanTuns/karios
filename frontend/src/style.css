@@ -1248,3 +1248,10 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
     color: #ffffff !important;
     border-color: var(--accent) !important;
 }
+
+/* F16-T21: indicii neutre si panouri compacte. */
+.heat-neutru{background:var(--suprafata)!important;color:var(--text)!important}
+.ajutor-actiuni{position:sticky;bottom:0;background:var(--panou);padding:12px 0;z-index:1}
+.drawer-asistent-pontaj .card-lipsa-fisiere-ai{padding:10px}
+.drawer-asistent-pontaj .panou-motor-ai{padding:10px}
+@media(max-width:1200px){.drawer-asistent-pontaj{position:fixed;right:12px;top:12px;bottom:12px;width:min(480px,calc(100vw - 24px));max-width:calc(100vw - 24px);z-index:1000}.continut-drawer-ai{min-height:0;overflow:auto}.drawer-asistent-pontaj .formular-intrare-ai{flex-wrap:wrap}.drawer-asistent-pontaj .formular-intrare-ai input{min-width:0}}

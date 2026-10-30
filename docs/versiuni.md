@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.88.15 · 2026-10-30
+
+F16-T21: protectie la navigarea AI din Pontaj, anul cererii de concediu respectat, indicator neutru pentru persoanele cu inregistrari in lista filtrata. Ghiduri disponibile fara model, configurare pliabila, drawer adaptat ecranelor mici, cautare coerenta in ajutor, versiune diferita explicita si meniu contextual prin Shift+F10 cu focus. Manual editia 1.4.
+
 ## 0.88.14 · 2026-10-30
 
 F02-T21: ghiduri locale «Cum să faci» pe toate ecranele și la acces, catalog comun de 21 articole RO/EN, căutare fără diacritice, pași, rezultat și probleme frecvente. Întrebările de utilizare din AI sunt rezolvate determinist înainte de citirea datelor sau pornirea modelului, cu articol și versiune și legături către ghid. Navigarea păstrează protecția modificărilor nesalvate și a conturilor. Manualele ediția 1.3 includ articolele din același catalog și ancore stabile. Fără reguli noi de salarizare sau modificări ale datelor.
