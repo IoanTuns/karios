@@ -20,3 +20,4 @@ Sistem integrat de diagnoză locală, captare robustă a erorilor pe frontend ș
 | F16-T08 | Scurtături universale tastatură (Escape, Ctrl+Enter) | Antigravity | gata | UI | `Formulare.tsx` |
 | F16-T09 | Suport Dark Mode / Temă Nocturnă | Antigravity | gata | UI | `style.css` |
 | F16-T10 | Ghid vizual de pornire pe ecrane goale (Empty state onboarding) | Antigravity | gata | UI | `Pontaj.tsx`, `Planificare.tsx` |
+| F16-T11 | Jurnalul de diagnoză fără date personale și panicile metodelor Wails înregistrate (SEC-7, SEC-8) | gata | Claude | 0.88.4: SEC-7, SEC-8 |

@@ -4,6 +4,15 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.88.4 · 2026-10-30
+
+Jurnalul de diagnoză fără date personale, cu panicile metodelor înregistrate (F16-T11, SEC-7 și SEC-8).
+
+- Orice intrare din `karios/jurnale/` trece prin `diagnoza.Curata`: textele dintre ghilimele devin „…”, șirurile de cel puțin 6 cifre (CNP, telefon) devin `#`, adresele de email dispar, iar o intrare are cel mult 4.000 de caractere. Tipul erorii, sursa, datele calendaristice și locul din cod rămân.
+- Erorile și panicile metodelor apelate din interfață, pe care Wails le prindea și le scria doar în jurnalul lui, împreună cu argumentele apelului, ajung acum în jurnalul de diagnoză cu numele metodei și fără argumente.
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.88.3 · 2026-10-30
 
 Aplicația pornește doar motorul AI livrat cu ea (F14-T31, SEC-5, [D056](decizii/D056-motorul-ai-verificat.md), propusă).

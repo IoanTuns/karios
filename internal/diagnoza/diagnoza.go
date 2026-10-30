@@ -146,7 +146,7 @@ func (m *Manager) InregistreazaEroare(sursa string, err error, detalii ...string
 
 	m.mu.Lock()
 	m.numarErori++
-	m.ultimaEroare = fmt.Sprintf("[%s] %s", sursa, err.Error())
+	m.ultimaEroare = Curata(fmt.Sprintf("[%s] %s", sursa, err.Error()))
 	m.mu.Unlock()
 
 	m.scrieLinieJurnal("EROARE", sursa, mesaj)
@@ -158,7 +158,7 @@ func (m *Manager) InregistreazaPanic(sursa string, p any, stiva []byte) {
 
 	m.mu.Lock()
 	m.numarErori++
-	m.ultimaEroare = fmt.Sprintf("[%s] PANIC: %v", sursa, p)
+	m.ultimaEroare = Curata(fmt.Sprintf("[%s] PANIC: %v", sursa, p))
 	m.mu.Unlock()
 
 	m.scrieLinieJurnal("CRITIC", sursa, mesaj)
@@ -173,7 +173,7 @@ func (m *Manager) InregistreazaEroareFrontend(sursa, mesaj, stack string) {
 
 	m.mu.Lock()
 	m.numarErori++
-	m.ultimaEroare = fmt.Sprintf("[Frontend/%s] %s", sursa, mesaj)
+	m.ultimaEroare = Curata(fmt.Sprintf("[Frontend/%s] %s", sursa, mesaj))
 	m.mu.Unlock()
 
 	m.scrieLinieJurnal("FRONTEND", sursa, text)
@@ -195,7 +195,8 @@ func (m *Manager) scrieLinieJurnal(nivel, sursa, continut string) {
 		_ = os.Rename(caleFisier, caleRotita)
 	}
 
-	linie := fmt.Sprintf("[%s] [%s] [%s] %s\n", acum.Format("2006-01-02 15:04:05.000"), nivel, sursa, continut)
+	// Orice intrare trece prin Curata: niciun apelant nu poate scrie date personale (SEC-7).
+	linie := fmt.Sprintf("[%s] [%s] [%s] %s\n", acum.Format("2006-01-02 15:04:05.000"), nivel, Curata(sursa), Curata(continut))
 
 	f, err := os.OpenFile(caleFisier, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o600)
 	if err != nil {
