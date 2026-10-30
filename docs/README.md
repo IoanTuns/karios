@@ -17,6 +17,7 @@ Orice idee, decizie și acțiune a proiectului se documentează aici, în acela�
 | Rezultate UI asistent | [primul lot P1, versiunea 0.83.0](rezultate-ui-F14-T24.md) | se implementează și verifică remedierea priorităților din review |
 | Instrumente asistent | [cele opt funcționalități din 0.84.0](implementare-asistent-F14-T25.md) | se schimbă anularea, explicațiile, șabloanele, verificarea și exportul AI |
 | Configurare pontaj | [ore, ture peste miezul nopții și totaluri](ghid-configurare-pontaj.md) | se schimbă regulile orelor sau completarea grilei |
+| Sincronizare Pontaj | [salvare ?i repararea celulelor speciale](ghid-sincronizare-pontaj.md) | se schimb? sincronizarea cu Planificarea |
 | Categorii de program | [atribuire pe angajat și precompletare](ghid-categorii-program.md) | se schimbă programele permise, implicitele sau completarea după categorii |
 | Construire și livrare | [directoare separate pentru fiecare build](ghid-build.md) | se schimbă scriptul de build sau organizarea artefactelor |
 | Analiză UI/UX | [auditul versiunii 0.27.0](analiza-ui-2026-10-26.md) | observații și propuneri privind ergonomia, lizibilitatea și fluxurile |

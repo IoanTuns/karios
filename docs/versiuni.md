@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.88.9 ? 2026-10-30
+
+F07-T21: actualizare separat? i18next 26.5.11 ? 26.5.12, versiune patch stabil? fixat? exact ?n manifest ?i lockfile; f?r? biblioteci noi. Include sincronizarea Pontaj ? Planificare din 0.88.8.
+
 ## 0.88.8 · 2026-10-30
 
 F07-T21: programele speciale introduse manual în Pontaj sunt sincronizate cu Planificarea la salvare, în aceeași tranzacție. Revenirea la normal sau gol retrage poziția corespunzătoare programului anterior. Un plan independent divergent nu este suprascris. Validările de absențe, categorii, revizii, luni închise și suprapuneri folosesc lotul final; jurnalul păstrează autorul real. Pentru o celulă specială deja salvată, „Actualizează planificarea” repară explicit legătura, fără schimbarea orelor. Fără migrare sau modificări de calcul și rapoarte. D051 propusă.

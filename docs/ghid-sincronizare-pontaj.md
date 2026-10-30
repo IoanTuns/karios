@@ -1,6 +1,6 @@
 # Sincronizarea Pontaj ? Planificare
 
-Disponibil? ?n corectura F07-T21, versiunea 0.88.8. Nu este prezent? ?n executabilul 0.88.7. Integrarea ramurii ?n main r?m?ne pas separat.
+Disponibil? ?n corectura F07-T21, versiunea 0.88.8, inclus? ?n buildul 0.88.9. Nu este prezent? ?n executabilul 0.88.7. Integrarea ramurii ?n main r?m?ne pas separat.
 
 ## Modific?ri noi
 
