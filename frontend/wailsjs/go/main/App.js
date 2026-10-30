@@ -150,6 +150,10 @@ export function DeschideFolderJurnale() {
   return window['go']['main']['App']['DeschideFolderJurnale']();
 }
 
+export function DeschideFolderRapoarteProbleme() {
+  return window['go']['main']['App']['DeschideFolderRapoarteProbleme']();
+}
+
 export function DeschideManualAjutor(arg1) {
   return window['go']['main']['App']['DeschideManualAjutor'](arg1);
 }
@@ -270,6 +274,10 @@ export function PregatesteRaport(arg1) {
   return window['go']['main']['App']['PregatesteRaport'](arg1);
 }
 
+export function PregatesteRaportProblema(arg1) {
+  return window['go']['main']['App']['PregatesteRaportProblema'](arg1);
+}
+
 export function PrevizualizeazaAnulareAI() {
   return window['go']['main']['App']['PrevizualizeazaAnulareAI']();
 }
@@ -336,6 +344,10 @@ export function SalveazaPDFRaport(arg1) {
 
 export function SalveazaPlanificare(arg1, arg2, arg3) {
   return window['go']['main']['App']['SalveazaPlanificare'](arg1, arg2, arg3);
+}
+
+export function SalveazaRaportProblema(arg1) {
+  return window['go']['main']['App']['SalveazaRaportProblema'](arg1);
 }
 
 export function SalveazaRegulaConfigurabila(arg1) {
@@ -428,6 +440,10 @@ export function StatisticiDiagnoza() {
 
 export function StergeSablonAI(arg1) {
   return window['go']['main']['App']['StergeSablonAI'](arg1);
+}
+
+export function TrimiteRaportProblemaPeGitHub(arg1, arg2) {
+  return window['go']['main']['App']['TrimiteRaportProblemaPeGitHub'](arg1, arg2);
 }
 
 export function UltimaModificareCelula(arg1, arg2) {

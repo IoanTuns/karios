@@ -74,6 +74,7 @@ function punte(tema, poarta, cataloage, schimburi) {
         ListaConturi: async () => ({conturi: [cont]}),
         ListaBackupuri: async () => ({backupuri: [{nume: 'pontix-2026-10-29-080000-v0.88.11.db', dimensiune: 1048576, modificat: '2026-10-29T08:00:00Z', manual: false}]}),
         UltimaModificareCelula: async () => ({}),
+        PregatesteRaportProblema: async c => ({titlu: '[Problemă] ' + c.descriere, text: `## Problemă\n\n${c.descriere}\n\n### Mediu\n\n- Versiune: contrast`}),
     };
     window.go = {main: {App: new Proxy(metode, {get: (t, k) => t[k] ?? (async () => ({}))})}};
     window.runtime = new Proxy({}, {get: () => () => () => {}});
@@ -175,6 +176,16 @@ for (const tema of ['light', 'dark']) {
                 await masuratoare(tema, `${ecran} › ${s}`, evalueaza);
             }
         }
+        // Dialogul „Raportează o problemă” (F16-T15): formularul și raportul pregătit.
+        await evalueaza(`document.querySelector('.buton-raportare').click()`);
+        await asteapta(`Boolean(document.querySelector('.formular-raportare textarea'))`, 'dialogul de raportare nu s-a deschis');
+        await masuratoare(tema, 'Dialog raportare › formular', evalueaza);
+        await evalueaza(`(() => { const el = document.querySelector('.formular-raportare textarea');
+            Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set.call(el, 'Grila nu se salvează');
+            el.dispatchEvent(new Event('input', {bubbles: true})); })()`);
+        await evalueaza(`[...document.querySelectorAll('.subsol-dialog .buton.primar')].pop().click()`);
+        await asteapta(`Boolean(document.querySelector('.formular-raportare .text-raport')) && document.querySelector('.text-raport').value.includes('Grila nu se salvează')`, 'raportul nu s-a pregătit');
+        await masuratoare(tema, 'Dialog raportare › raport pregătit', evalueaza);
     });
     for (const poarta of ['deblocare', 'recuperare']) {
         await sesiune(tema, poarta, async ({evalueaza, asteapta}) => {

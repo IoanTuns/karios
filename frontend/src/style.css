@@ -988,7 +988,6 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .panou-eroare-componenta h3 { margin: 0 0 10px; display: flex; align-items: center; gap: 8px; }
 .panou-eroare-componenta > p { margin: 0 0 14px; font-size: 13px; color: var(--eroare-text-2); }
 .panou-eroare-componenta .detalii-eroare { background: var(--eroare-cod-fond); border: 1px solid var(--eroare-contur); padding: 10px 14px; border-radius: 6px; font-family: monospace; font-size: 12px; margin-bottom: 16px; overflow-x: auto; white-space: pre-wrap; }
-
 /* F02-T21: ajutor local, accesibil in ambele teme. */
 .ajutor-antet{order:2;flex-shrink:0}.dialog-ajutor{width:min(920px,96vw);max-height:94dvh}.ajutor-corp{overflow:auto}.ajutor-filtre{display:flex;gap:16px;align-items:end;flex-wrap:wrap}.ajutor-filtre>label:first-child{flex:1;min-width:180px}.ajutor-coloane{display:grid;grid-template-columns:minmax(180px,1fr) minmax(0,2fr);gap:20px;margin-top:18px}.ajutor-lista{display:flex;flex-direction:column;gap:8px;max-height:50dvh;overflow:auto}.ajutor-lista .buton{white-space:normal;text-align:left;min-height:44px}.ajutor-lista [aria-pressed="true"]{outline:2px solid var(--verde);outline-offset:-2px}.ajutor-articol{overflow-wrap:anywhere}.ajutor-articol h3{margin-top:0}.ajutor-articol li{margin:10px 0}.ajutor-actiuni{display:flex;flex-wrap:wrap;gap:10px}.ajutor-acces{position:fixed;top:14px;right:14px;z-index:5}@media(max-width:650px){.ajutor-coloane{grid-template-columns:1fr}.ajutor-lista{max-height:22dvh}}
 /* F16-T17: Meniu contextual la clic dreapta pe celula din grilă */
@@ -1255,3 +1254,10 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .drawer-asistent-pontaj .card-lipsa-fisiere-ai{padding:10px}
 .drawer-asistent-pontaj .panou-motor-ai{padding:10px}
 @media(max-width:1200px){.drawer-asistent-pontaj{position:fixed;right:12px;top:12px;bottom:12px;width:min(480px,calc(100vw - 24px));max-width:calc(100vw - 24px);z-index:1000}.continut-drawer-ai{min-height:0;overflow:auto}.drawer-asistent-pontaj .formular-intrare-ai{flex-wrap:wrap}.drawer-asistent-pontaj .formular-intrare-ai input{min-width:0}}
+/* Raportează o problemă (F16-T15). */
+.formular-raportare { display: flex; flex-direction: column; gap: 12px; min-width: min(560px, 80vw); }
+.formular-raportare label:not(.bifa) { display: flex; flex-direction: column; gap: 4px; font-size: 12px; }
+.formular-raportare textarea { width: 100%; resize: vertical; font: inherit; }
+.formular-raportare .text-raport { font-family: Consolas, monospace; font-size: 12px; }
+.formular-raportare .tip-raport { display: flex; gap: 16px; border: 0; padding: 0; margin: 0; }
+.buton-raportare { display: block; margin: 4px 0; }

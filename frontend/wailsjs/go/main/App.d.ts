@@ -7,6 +7,7 @@ import {datebaza} from '../models';
 import {ai} from '../models';
 import {conturi} from '../models';
 import {rapoarte} from '../models';
+import {raportare} from '../models';
 import {calcul} from '../models';
 import {diagnoza} from '../models';
 
@@ -84,6 +85,8 @@ export function DescarcaSablon(arg1:string,arg2:string):Promise<main.RaspunsDesc
 
 export function DeschideFolderJurnale():Promise<string>;
 
+export function DeschideFolderRapoarteProbleme():Promise<string>;
+
 export function DeschideManualAjutor(arg1:string):Promise<main.MesajEroare>;
 
 export function DeschidePDFPentruTiparire(arg1:string):Promise<main.RaspunsFisierRaport>;
@@ -144,6 +147,8 @@ export function PornesteSarcinaAI(arg1:main.CerereInterogareAI):Promise<main.Ras
 
 export function PregatesteRaport(arg1:rapoarte.Cerere):Promise<main.RaspunsRaport>;
 
+export function PregatesteRaportProblema(arg1:raportare.Cerere):Promise<main.RaspunsRaportProblema>;
+
 export function PrevizualizeazaAnulareAI():Promise<main.RaspunsInstrumenteAI>;
 
 export function PrevizualizeazaPlanAI(arg1:ai.IntentiePlan):Promise<main.RaspunsPlanAI>;
@@ -177,6 +182,8 @@ export function SalveazaNormaIntreaga(arg1:number):Promise<main.RaspunsDate>;
 export function SalveazaPDFRaport(arg1:string):Promise<main.RaspunsFisierRaport>;
 
 export function SalveazaPlanificare(arg1:number,arg2:number,arg3:Array<datebaza.PozitiePlanificare>):Promise<main.RaspunsPlanificare>;
+
+export function SalveazaRaportProblema(arg1:string):Promise<main.RaspunsRaportProblema>;
 
 export function SalveazaRegulaConfigurabila(arg1:calcul.RegulaConfigurabila):Promise<main.RaspunsSalvareRegula>;
 
@@ -223,6 +230,8 @@ export function StareSeif():Promise<main.RaspunsStareSeif>;
 export function StatisticiDiagnoza():Promise<diagnoza.StatisticiDiagnoza>;
 
 export function StergeSablonAI(arg1:string):Promise<main.RaspunsInstrumenteAI>;
+
+export function TrimiteRaportProblemaPeGitHub(arg1:string,arg2:string):Promise<main.RaspunsRaportProblema>;
 
 export function UltimaModificareCelula(arg1:string,arg2:string):Promise<main.RaspunsUltimaModificare>;
 
