@@ -46,7 +46,8 @@ func TestPrimaPornireSiRedeschidere(t *testing.T) {
 	}
 }
 
-// Dacă seiful lipsește, dar baza există, nu se creează un seif nou.
+// Dacă seiful lipsește, baza există și nici oglinda din backup/ nu există (D055), nu se creează
+// un seif nou.
 func TestBazaFaraSeif(t *testing.T) {
 	ctx := context.Background()
 	dir := t.TempDir()
@@ -55,8 +56,10 @@ func TestBazaFaraSeif(t *testing.T) {
 		t.Fatal(err)
 	}
 	db.Close()
-	if err := os.Remove(filepath.Join(dir, NumeSeif)); err != nil {
-		t.Fatal(err)
+	for _, f := range []string{filepath.Join(dir, NumeSeif), caleOglinda(dir)} {
+		if err := os.Remove(f); err != nil {
+			t.Fatal(err)
+		}
 	}
 
 	if _, _, err := deschideTest(ctx, dir); !errors.Is(err, seif.ErrDeteriorat) {
@@ -97,6 +100,9 @@ func backupuri(t *testing.T, dir string) []string {
 	}
 	var rez []string
 	for _, i := range intrari {
+		if i.Name() == NumeSeif {
+			continue // oglinda seifului (D055), nu e o copie a bazei
+		}
 		rez = append(rez, i.Name())
 	}
 	return rez

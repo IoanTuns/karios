@@ -40,6 +40,7 @@ Meniul **Setări** (evidențiat în albastru-ardezie pentru a separa administrar
 - Adaugă secții, apoi atribuie-le din formularul angajatului. Denumirea se păstrează ca text traductibil în limba interfeței.
 - Adaugă mai multe departamente sub fiecare secție. În formularul angajatului alegi numai dintre departamentele secției sale; schimbarea secției golește departamentul. Atribuirea este opțională, iar migrarea nu atribuie automat departamente angajaților existenți.
 - Creează pe loc o **copie de siguranță criptată** a bazei de date (`Creează copie de siguranță acum`), salvată în folderul `karios/backup/` cu prefixul `pontix-manual-`, fără oprirea aplicației și fără a afecta copiile automate făcute înaintea migrărilor.
+- În același folder stă `karios/backup/seif`, copia seifului cu cheile criptate ([D055](decizii/D055-seiful-in-backup.md)). Dacă `karios/seif` se pierde sau se strică, aplicația îl reface din ea la pornire. Pentru protecție la pierderea discului, copiază periodic tot folderul `karios/backup/` pe alt suport și păstrează cheia de recuperare pe hârtie, separat.
 
 ## Zile libere legale
 

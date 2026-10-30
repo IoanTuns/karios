@@ -4,6 +4,16 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.88.0 · 2026-10-30
+
+Copia seifului lângă backup-uri (F05-T27, [D055](decizii/D055-seiful-in-backup.md)).
+
+- La fiecare salvare a seifului (parolă, cheie de recuperare, copie Windows, contorul jurnalului) se scrie aceeași copie și în `karios/backup/seif`; la fiecare pornire deblocată oglinda se rescrie.
+- Dacă `karios/seif` lipsește sau e deteriorat, pornirea îl reface din oglindă; seiful stricat se păstrează ca `seif.deteriorat`, iar refacerea intră în jurnalul de audit (`seif_refacut`).
+- Oglinda conține doar copiile criptate ale cheii de date, deci nu deschide nimic fără parolă, cheia de recuperare sau utilizatorul Windows potrivit. Nu apare în lista de backup-uri și nu intră în rotația lor.
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.87.2 · 2026-10-30
 
 Grila de pontaj mai rapidă la secții mari (F06-T12, PERF-1).

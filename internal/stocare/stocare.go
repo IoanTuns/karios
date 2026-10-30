@@ -71,6 +71,13 @@ func deschideTot(ctx context.Context, radacina string, migrari fs.FS, acum func(
 	caleBaza := filepath.Join(radacina, NumeBaza)
 	cod := ""
 	s, err := seif.Incarca(caleSeif)
+	if errors.Is(err, fs.ErrNotExist) || errors.Is(err, seif.ErrDeteriorat) {
+		if refacut, errRef := refaSeiful(radacina); errRef != nil {
+			return nil, errRef
+		} else if refacut {
+			s, err = seif.Incarca(caleSeif)
+		}
+	}
 	switch {
 	case errors.Is(err, fs.ErrNotExist):
 		// Fără seif, o bază existentă nu mai poate fi citită. Un seif nou ar avea
@@ -111,6 +118,9 @@ func Deblocheaza(ctx context.Context, radacina string, s *seif.Seif) (*Deschider
 }
 
 func continua(ctx context.Context, radacina string, s *seif.Seif, cod string, migrari fs.FS, acum func() time.Time) (*Deschidere, error) {
+	if err := s.SeteazaOglinda(caleOglinda(radacina)); err != nil {
+		return nil, &i18n.Eroare{Cod: "stocare.backup_esuat", Param: map[string]string{"detalii": err.Error()}}
+	}
 	caleBaza := filepath.Join(radacina, NumeBaza)
 	_, errBaza := os.Stat(caleBaza)
 	bazaNoua := errors.Is(errBaza, fs.ErrNotExist)
@@ -125,6 +135,13 @@ func continua(ctx context.Context, radacina string, s *seif.Seif, cod string, mi
 	if rest != nil && rez.Stare == audit.StareOK {
 		if rez, err = noteazaRestaurarea(ctx, caleBaza, s.CheieDate, rest); err != nil {
 			return nil, err
+		}
+	}
+	if !bazaNoua && rez.Stare == audit.StareOK {
+		if r, notat, err := noteazaRefacerea(ctx, radacina, caleBaza, s.CheieDate); err != nil {
+			return nil, err
+		} else if notat {
+			rez = r
 		}
 	}
 	// Copia zilnică nu se face pentru o bază abia creată și nici peste o bază cu incident:

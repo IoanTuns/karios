@@ -3,7 +3,6 @@ package stocare
 import (
 	"context"
 	"io/fs"
-	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -52,12 +51,12 @@ func TestProbaRapoarteFaceBackupInainteaCompletariiCererilor(t *testing.T) {
 	if err := db.QueryRow(`SELECT count(*) FROM pragma_table_info('absente_zile') WHERE name='stare_aprobare'`).Scan(&curent); err != nil || curent != 1 {
 		t.Fatalf("actualizare cereri: %d %v", curent, err)
 	}
-	copii, err := os.ReadDir(filepath.Join(dir, "backup"))
-	if err != nil || len(copii) != 1 {
-		t.Fatalf("backup: %d %v", len(copii), err)
+	copii := backupuri(t, dir)
+	if len(copii) != 1 {
+		t.Fatalf("backup: %v", copii)
 	}
 	s := seifTest(t, dir)
-	copie, err := bd.Deschide(filepath.Join(dir, "backup", copii[0].Name()), s.CheieDate)
+	copie, err := bd.Deschide(filepath.Join(dir, "backup", copii[0]), s.CheieDate)
 	if err != nil {
 		t.Fatal(err)
 	}

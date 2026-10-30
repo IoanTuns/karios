@@ -18,6 +18,7 @@ import (
 	"encoding/json"
 	"errors"
 	"os"
+	"path/filepath"
 	"sync"
 
 	"golang.org/x/crypto/argon2"
@@ -102,6 +103,8 @@ type Seif struct {
 	cale      string
 	f         fisier
 	CheieDate []byte
+	// oglinda e copia seifului de lângă backup-uri, rescrisă la fiecare salvare (D055).
+	oglinda string
 }
 
 var (
@@ -273,7 +276,38 @@ func (s *Seif) salveaza() error {
 	if err != nil {
 		return err
 	}
-	tmp := s.cale + ".tmp"
+	if err := scrieAtomic(s.cale, data); err != nil {
+		return err
+	}
+	if s.oglinda != "" {
+		// Seiful e deja scris; o oglindă care nu se poate scrie acum se reface la pornirea
+		// următoare (SeteazaOglinda), deci nu anulează operația.
+		_ = scrieAtomic(s.oglinda, data)
+	}
+	return nil
+}
+
+// SeteazaOglinda alege copia seifului de lângă backup-uri și o scrie imediat (D055).
+func (s *Seif) SeteazaOglinda(cale string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.oglinda = cale
+	if len(s.f.Copii) == 0 {
+		return nil // seif încă nesalvat; oglinda se scrie odată cu el
+	}
+	data, err := json.Marshal(s.f)
+	if err != nil {
+		return err
+	}
+	if err := os.MkdirAll(filepath.Dir(cale), 0o700); err != nil {
+		return err
+	}
+	return scrieAtomic(cale, data)
+}
+
+// scrieAtomic scrie printr-un fișier temporar și o redenumire.
+func scrieAtomic(cale string, data []byte) error {
+	tmp := cale + ".tmp"
 	f, err := os.OpenFile(tmp, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
 	if err != nil {
 		return err
@@ -289,5 +323,5 @@ func (s *Seif) salveaza() error {
 	if err := f.Close(); err != nil {
 		return err
 	}
-	return os.Rename(tmp, s.cale)
+	return os.Rename(tmp, cale)
 }
