@@ -43,31 +43,14 @@ export class ErrorBoundary extends Component<Props, State> {
     render() {
         if (this.state.areEroare) {
             return (
-                <div className="panou-eroare-componenta" role="alert" style={{
-                    padding: '28px',
-                    margin: '20px',
-                    background: '#fff6f5',
-                    border: '1px solid #f8d7da',
-                    borderRadius: '10px',
-                    color: '#721c24'
-                }}>
-                    <h3 style={{ margin: '0 0 10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div className="panou-eroare-componenta" role="alert">
+                    <h3>
                         ⚠️ A apărut o problemă la afișarea acestui ecran ({this.props.numeModul || 'Modul'})
                     </h3>
-                    <p style={{ margin: '0 0 14px', fontSize: '13px', color: '#555' }}>
+                    <p>
                         Eroarea a fost captată și înregistrată automat în jurnalul local de diagnoză. Baza ta de date și datele de pontaj sunt în siguranță.
                     </p>
-                    <div style={{
-                        background: '#ffffff',
-                        border: '1px solid #ebd0d3',
-                        padding: '10px 14px',
-                        borderRadius: '6px',
-                        fontFamily: 'monospace',
-                        fontSize: '12px',
-                        marginBottom: '16px',
-                        overflowX: 'auto',
-                        whiteSpace: 'pre-wrap'
-                    }}>
+                    <div className="detalii-eroare">
                         {this.state.mesaj}
                     </div>
                     <div style={{ display: 'flex', gap: '10px' }}>

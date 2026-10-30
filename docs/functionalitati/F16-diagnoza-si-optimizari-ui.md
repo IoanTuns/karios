@@ -25,4 +25,4 @@ Sistem integrat de diagnoză locală, captare robustă a erorilor pe frontend ș
 | F16-T13 | Tema inițială după setarea din Windows (UI-1) | gata | Claude | 0.88.6 |
 | F16-T14 | Formatterele de dată refolosite în loc de create la fiecare randare (PERF-2) | gata | Claude | 0.88.7: pas de selecție la 300 de angajați 27–53 ms |
 | F16-T15 | Butonul „Raportează o problemă”: formular, raport anonimizat salvat ca fișier și link către issue GitHub precompletat (I093) | de făcut | | Fără token GitHub în aplicație. Se face după F16-T16 |
-| F16-T16 | Tema întunecată pe tokenuri și pentru celelalte ecrane, cu verificare de contrast (restul UI-2) | în lucru | Claude | |
+| F16-T16 | Tema întunecată pe tokenuri și pentru celelalte ecrane, cu verificare de contrast (restul UI-2) | gata | Claude | 0.88.12: 132 → 0 probleme de contrast pe toate ecranele, ambele teme |

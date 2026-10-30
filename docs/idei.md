@@ -6,6 +6,8 @@ Stări: `nouă`, `în analiză`, `transformată` (în task sau decizie), `amâna
 
 | ID | Data | Idee | Cine | Stare | Legături / motiv |
 | --- | --- | --- | --- | --- | --- |
+| I095 | 2026-10-30 | Textele panoului de eroare al componentelor (`ErrorBoundary.tsx`) scrise direct în cod, contrar regulii 8: mutate în cataloagele i18n | Claude | nouă | Observat în F16-T16 |
+| I094 | 2026-10-30 | Formatarea datelor din interfață să nu cadă la o dată goală sau invalidă (`format(new Date(''))` aruncă RangeError și închide ecranul) | Claude | nouă | Observat în F16-T16 pe „Jurnal modificări”, cu date simulate; aplicația completează mereu `verificat_la` |
 | I093 | 2026-10-30 | Buton „Raportează o problemă / Părerea ta”: raport anonimizat (versiune, pași, jurnal curățat) și issue GitHub precompletat; fără cont GitHub, raportul se salvează ca fișier de trimis pe email | Ioan Tuns, Claude | transformată | Varianta aleasă de Ioan Tuns: formular → fișier + link, fără token în aplicație (repo public). F16-T15 |
 | I087 | 2026-10-30 | Manual de utilizare în română, editabil, HTML local cu căutare și PDF pentru tipărire | Ioan Tuns, Codex | transformată | F02-T17, ediția 1.0 pentru 0.88.7; din F02-T18 manualul se generează la fiecare build (D058) |
 | I088 | 2026-10-30 | Articole comune pentru „Cum să faci” în fiecare meniu și căutare locală din AI, cu extrase și surse | Ioan Tuns, Codex | în analiză | F02-T17, D057 propusă; proiectare pregătită, neintegrată în aplicație |

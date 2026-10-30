@@ -4,6 +4,7 @@ import './style.css';
 import App from './App';
 import {PoartaCont} from './Conturi';
 import {initI18n} from './i18n';
+import {aplicaTemaInitiala} from './tema';
 import {InregistreazaEroareFrontend} from '../wailsjs/go/main/App';
 
 // Captare globală a excepțiilor JavaScript neprinse (D043, F16)
@@ -19,6 +20,8 @@ window.addEventListener('unhandledrejection', (event) => {
     const stack = event.reason instanceof Error ? event.reason.stack || '' : '';
     InregistreazaEroareFrontend('PromiseRespins', motiv, stack).catch(() => {});
 });
+
+aplicaTemaInitiala();
 
 initI18n().then(() => {
     createRoot(document.getElementById('root')!).render(

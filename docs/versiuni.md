@@ -4,6 +4,17 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.88.12 · 2026-10-30
+
+Tema întunecată corectă pe toate ecranele (F16-T16, restul UI-2).
+
+- Ecranele „Deblochează datele” și „Cheia de recuperare” rămâneau luminoase: tema se aplica doar în interiorul aplicației, după autentificare. Acum se aplică înainte de primul ecran (`aplicaTemaInitiala`, `main.tsx`).
+- Suprafețele, textele și accentele componentelor sunt tokenuri pe `:root`, redefinite în tema întunecată: fondurile albe scrise direct, butoanele secundare și filele, meniul lateral și Setările (care își redefinesc accentul albastru), etichetele de contract și de aprobare, cipurile, conversația asistentului, mesajele de eroare, panoul de eroare al componentelor (stilurile inline mutate în CSS), comutatorul de mod din Planificare și starea jurnalului.
+- Tema luminoasă rămâne aceeași, cu o excepție: legăturile discrete trec de la `#718078` la `#5f6e67`, ca să aibă 4,5:1.
+- Verificare nouă `verificari/contrast-ecrane.mjs`: toate ecranele din meniu, toate secțiunile din Setări și ecranele de deblocare și de cheie de recuperare, pe ambele teme. Înainte: 132 de probleme (texte sub prag și suprafețe luminoase în tema întunecată). După: niciuna. `verificari/contrast-grila.mjs` trece în continuare.
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.88.11 · 2026-10-30
 
 F02-T18: build.ps1 regenerează manualele românești Markdown, HTML cu căutare și PDF și le salvează lângă executabil, cu versiunea în nume, ediție, data buildului și commit. Manifestul include versiunea și hashurile manualelor; livrarea este completă numai după generarea tuturor documentelor. Manualul ediția 1.1 include sincronizarea Pontaj și formatarea automată a cheii. Versiunea revizuită editorial este verificată înainte de compilare. Fără biblioteci noi sau modificări ale datelor aplicației.
