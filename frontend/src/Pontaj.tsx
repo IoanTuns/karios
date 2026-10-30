@@ -1,4 +1,4 @@
-import {useEffect, useLayoutEffect, useMemo, useRef, useState, type ClipboardEvent, type KeyboardEvent, type RefObject} from 'react';
+import {memo, useEffect, useLayoutEffect, useMemo, useRef, useState, type ClipboardEvent, type KeyboardEvent, type MouseEvent, type RefObject} from 'react';
 import {useTranslation} from 'react-i18next';
 import {autorJurnal} from './autorJurnal';
 import {semnaleazaModificari} from './modificariNesalvate';
@@ -27,6 +27,66 @@ function manual(text: string): string | null {
     const ore=Number(text.trim().replace(',','.')),minute=Math.round(ore*60);
     return ore<=48&&Math.abs(ore*60-minute)<0.00001?`@M${minute}`:null;
 }
+
+// ActiuniCelula: handler-ele celulelor, ținute într-un obiect stabil (ref), ca rândurile memorate
+// să nu se redeseneze doar pentru că funcțiile din Pontaj sunt noi la fiecare randare (PERF-1).
+type ActiuniCelula = {
+    focus: (r: number, z: number) => void;
+    mouseDown: (e: MouseEvent<HTMLInputElement>, r: number, z: number) => void;
+    mouseEnter: (e: MouseEvent<HTMLInputElement>, r: number, z: number) => void;
+    keyDown: (e: KeyboardEvent<HTMLInputElement>, r: number, z: number) => void;
+    dublu: () => void;
+};
+
+type PropsRand = {
+    a: datebaza.Angajat; r: number; zile: string[]; weekend: boolean[]; sarbatori: Map<string, string>;
+    // selDe/selPana: zilele selectate din acest rând, -1 dacă rândul nu e în selecție; așa, un pas
+    // de selecție redesenează doar rândurile care intră sau ies din ea.
+    selDe: number; selPana: number;
+    modificari: Map<string, datebaza.CelulaSchita>; originale: Map<string, datebaza.CelulaSchita>;
+    absente: Map<string, datebaza.ZiAbsenta>; inlocuiri: Map<string, datebaza.ZiAbsenta[]>;
+    oreCalculate: Map<string, calcul.OreZi>; valori?: Record<string, calcul.ValoarePontaj>;
+    reguli?: calcul.RegulaColoana[]; angajati: datebaza.Angajat[];
+    ocupat: boolean; calculare: boolean; areCalcul: boolean; actiuni: RefObject<ActiuniCelula>;
+};
+
+const RandPontaj = memo(function RandPontaj({a, r, zile, weekend, sarbatori, selDe, selPana, modificari, originale, absente, inlocuiri, oreCalculate, valori, reguli, angajati, ocupat, calculare, areCalcul, actiuni}: PropsRand) {
+    const {t} = useTranslation();
+    const numeColeg = (id: string) => { const coleg = angajati.find(x => x.id === id); return coleg ? `${coleg.nume} ${coleg.prenume}` : id; };
+    const valoareBruta = (z: number) => { const k = cheie(a.id, zile[z]); return modificari.get(k)?.valoare ?? originale.get(k)?.valoare ?? ''; };
+    return <tr><th scope="row" className="fix-nume"><strong>{a.nume} {a.prenume}</strong>{!a.activ && <small>{t('ui.inactiv')}</small>}</th><td className="fix-marca">{a.marca}</td>
+        {zile.map((data, z) => {
+            const selectata = z >= selDe && z <= selPana;
+            const k = cheie(a.id, data);
+            const absenta = absente.get(k);
+            const stareAbsenta = absenta?.stare_aprobare || 'IN_ASTEPTARE';
+            const titluAbsenta = absenta ? [t('absente.celula_protejata'), `${t(`absente.aprobare_${stareAbsenta}`)}${absenta.aprobat_de ? ` (${absenta.aprobat_de})` : ''}`, absenta.nr_inregistrare ? `${t('absente.nr_inregistrare')}: ${absenta.nr_inregistrare}` : '', absenta.inlocuitor_id && angajati.some(x => x.id === absenta.inlocuitor_id) ? `${t('absente.inlocuitor')}: ${numeColeg(absenta.inlocuitor_id)}` : ''].filter(Boolean).join(' · ') : '';
+            const colegiInlocuiti = inlocuiri.get(k);
+            const titluInlocuire = colegiInlocuiti?.length ? t('pontaj.inlocuieste_pe', {persoane: colegiInlocuiti.map(z => `${numeColeg(z.angajat_id)} (${z.cod})`).join(', ')}) : '';
+            const calc = oreCalculate.get(k);
+            const minuteZi = calc?.minute ?? 0;
+            const areLucruZi = !absenta && (valoareBruta(z).trim() !== '' || minuteZi > 0);
+            const dupaG24 = z > 0 && valoareBruta(z - 1).trim().toUpperCase() === 'G24' && areLucruZi;
+            const peste24h = minuteZi > 1440;
+            const titluAvertisment = [dupaG24 ? t('pontaj.avertisment_dupa_g24') : '', peste24h ? t('pontaj.avertisment_peste_24h', {ore: oreText(minuteZi)}) : ''].filter(Boolean).join(' · ');
+            const valoare = calculare ? '…' : calc ? (calc.calculabil ? oreText(calc.minute) : '—') : areCalcul ? '' : '—';
+            return <td key={data} className={`${sarbatori.has(data) ? 'zi-sarbatoare' : weekend[z] ? 'zi-weekend' : ''} ${selectata ? 'celula-selectata' : ''} ${modificari.has(k) ? 'celula-modificata' : ''} ${colegiInlocuiti?.length ? 'celula-inlocuitor' : ''} ${titluAvertisment ? 'celula-avertisment' : ''}`}>
+            <input data-rand={r} data-zi={z} aria-label={t('pontaj.celula', {nume: `${a.nume} ${a.prenume}`, data})} title={[
+                t('ui.tooltip_marca', {nume: `${a.nume} ${a.prenume}`, marca: a.marca || '—'}),
+                t('ui.tooltip_data', {data}) + (weekend[z] ? ` [${t('ui.tooltip_weekend')}]` : '') + (sarbatori.has(data) ? ` [${sarbatori.get(data)}]` : ''),
+                t('ui.tooltip_schimb', {schimb: valoare || t('ui.tooltip_liber')}),
+                titluAbsenta,
+                titluInlocuire,
+                titluAvertisment,
+                calc?.surse.length ? t('pontaj.surse_ore', {date: calc.surse.join(', ')}) : ''
+            ].filter(Boolean).join(' · ')} disabled={ocupat} readOnly className={absenta ? `celula-absenta celula-absenta-${stareAbsenta}` : ''} value={valoare}
+                onFocus={() => actiuni.current.focus(r, z)}
+                onMouseDown={e => actiuni.current.mouseDown(e, r, z)}
+                onMouseEnter={e => actiuni.current.mouseEnter(e, r, z)}
+                onKeyDown={e => actiuni.current.keyDown(e, r, z)} onDoubleClick={() => actiuni.current.dublu()}/></td>;
+        })}
+        {totaluri.map(c => {const v=valori?.[c],regula=reguli?.find(r=>r.coloana===c),titluTotal=!v?.definita?t('pontaj.necalculat'):regula?.sursa==='ORE_NORMA'?t('pontaj.ore_norm_explicatie'):t(v.unitate==='ZILE'?'pontaj.unitate_zile':'pontaj.unitate_ore');return <td key={c} className={`${!v?.definita?'total-necalculat':''} ${c==='T'?'fix-total-t':''}`.trim()} title={titluTotal}>{calculare?'…':v?valoareText(v):areCalcul&&regula?.sursa!=='NEDEFINITA'?'0':'—'}</td>;})}</tr>;
+});
 
 export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente}: {date: datebaza.Date; context: RefObject<ContextPontaj | null>; onModificari: (modificat: boolean) => void; onOcupat: (ocupat: boolean) => void; onDeschideAbsente?: (an: number, angajatId: string) => void}) {
     const {t, i18n} = useTranslation();
@@ -127,7 +187,9 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
         return harta;
     }, [schita]);
     const numarZile = [31, an % 400 === 0 || (an % 4 === 0 && an % 100 !== 0) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][luna - 1];
-    const zile = Array.from({length: numarZile}, (_, i) => `${String(an).padStart(4, '0')}-${String(luna).padStart(2, '0')}-${String(i + 1).padStart(2, '0')}`);
+    // zile e memorat: altfel lista de rânduri (cu filtrele ei) se recalcula la orice randare (PERF-1).
+    const zile = useMemo(() => Array.from({length: numarZile}, (_, i) => `${String(an).padStart(4, '0')}-${String(luna).padStart(2, '0')}-${String(i + 1).padStart(2, '0')}`), [an, luna, numarZile]);
+    const weekend = useMemo(() => zile.map(data => [0, 6].includes(new Date(`${data}T12:00:00Z`).getUTCDay())), [zile]);
     const valBrutaId = (id: string, data: string) => {
         const k = cheie(id, data);
         return modificari.get(k)?.valoare ?? originale.get(k)?.valoare ?? '';
@@ -154,7 +216,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
             return true;
         });
     }, [date.angajati, schita, calculat, sectie, departament, categorieProgram, cautare, filtruRanduri, modificari, inlocuiri, totaluriCalculate, oreCalculate, absente, originale, zile]);
-    const sarbatori = new Map((calendar?.sarbatori ?? []).map(s => [s.data, s.denumire[i18n.language] || s.denumire.ro || Object.values(s.denumire).find(Boolean) || '']));
+    const sarbatori = useMemo(() => new Map((calendar?.sarbatori ?? []).map(s => [s.data, s.denumire[i18n.language] || s.denumire.ro || Object.values(s.denumire).find(Boolean) || ''])), [calendar, i18n.language]);
     const numeSectie = (id: string) => { const s = date.sectii.find(s => s.id === id); return s ? denumireSectie(s, i18n.language) : t('ui.fara_sectie'); };
     const inceputRand = Math.min(selectie.inceput.rand, selectie.sfarsit.rand), sfarsitRand = Math.max(selectie.inceput.rand, selectie.sfarsit.rand);
     const inceputZi = Math.min(selectie.inceput.zi, selectie.sfarsit.zi), sfarsitZi = Math.max(selectie.inceput.zi, selectie.sfarsit.zi);
@@ -185,6 +247,15 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
         }
         grila.current?.scrollTo(salvat?.derulareX ?? 0, salvat?.derulareY ?? 0);
     }, [schita, randuri, zile]);
+
+    const actiuni = useRef<ActiuniCelula>(null!);
+    actiuni.current = {
+        focus: (r, z) => { if (ignoraFocus.current) ignoraFocus.current = false; else setSelectie({inceput: {rand: r, zi: z}, sfarsit: {rand: r, zi: z}}); },
+        mouseDown: (e, r, z) => { if (e.shiftKey) { e.preventDefault(); focalizeaza({rand: r, zi: z}, true); } },
+        mouseEnter: (e, r, z) => { if (e.buttons === 1 && !ocupat) setSelectie(s => ({...s, sfarsit: {rand: r, zi: z}})); },
+        keyDown: (e, r, z) => taste(e, r, z),
+        dublu: () => deschideOreManuale(),
+    };
 
     function deschideOreManuale() {
         setPanou('completare');
@@ -594,40 +665,13 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                 if (stareCurenta.current) { stareCurenta.current.derulareX = e.currentTarget.scrollLeft; stareCurenta.current.derulareY = e.currentTarget.scrollTop; }
             }} onPaste={lipeste} onCopy={e => { e.preventDefault(); e.clipboardData.setData('text/plain', textSelectat()); }}>
                 <table className="grila-pontaj" aria-label={t('pontaj.grila', {an, luna})}><thead><tr><th className="fix-nume">{t('ui.angajat')}</th><th className="fix-marca">{t('ui.marca')}</th>
-                    {zile.map((data, z) => { const d = new Date(`${data}T12:00:00Z`), weekend = [0, 6].includes(d.getUTCDay()); return <th key={data} className={sarbatori.has(data) ? 'zi-sarbatoare' : weekend ? 'zi-weekend' : ''} title={sarbatori.get(data) || ''} scope="col"><strong>{z + 1}</strong><small>{new Intl.DateTimeFormat(i18n.language, {weekday: 'short', timeZone: 'UTC'}).format(d)}</small></th>; })}
+                    {zile.map((data, z) => { const d = new Date(`${data}T12:00:00Z`); return <th key={data} className={sarbatori.has(data) ? 'zi-sarbatoare' : weekend[z] ? 'zi-weekend' : ''} title={sarbatori.get(data) || ''} scope="col"><strong>{z + 1}</strong><small>{new Intl.DateTimeFormat(i18n.language, {weekday: 'short', timeZone: 'UTC'}).format(d)}</small></th>; })}
                     {totaluri.map(c => <th key={c} className={c === 'T' ? 'fix-total-t' : ''}>{t(`pontaj.total_${c}`)}</th>)}</tr></thead><tbody>
-                    {randuri.map((a, r) => <tr key={a.id}><th scope="row" className="fix-nume"><strong>{a.nume} {a.prenume}</strong>{!a.activ && <small>{t('ui.inactiv')}</small>}</th><td className="fix-marca">{a.marca}</td>
-                        {zile.map((data, z) => {
-                            const weekend = [0, 6].includes(new Date(`${data}T12:00:00Z`).getUTCDay());
-                            const selectata = r >= inceputRand && r <= sfarsitRand && z >= inceputZi && z <= sfarsitZi;
-                            const k = cheie(a.id, data);
-                            const absenta = absente.get(k);
-                            const stareAbsenta = absenta?.stare_aprobare || 'IN_ASTEPTARE';
-                            const inlocuitor = absenta?.inlocuitor_id ? date.angajati.find(x => x.id === absenta.inlocuitor_id) : undefined;
-                            const titluAbsenta = absenta ? [t('absente.celula_protejata'), `${t(`absente.aprobare_${stareAbsenta}`)}${absenta.aprobat_de ? ` (${absenta.aprobat_de})` : ''}`, absenta.nr_inregistrare ? `${t('absente.nr_inregistrare')}: ${absenta.nr_inregistrare}` : '', inlocuitor ? `${t('absente.inlocuitor')}: ${inlocuitor.nume} ${inlocuitor.prenume}` : ''].filter(Boolean).join(' · ') : '';
-                            const colegiInlocuiti = inlocuiri.get(k);
-                            const titluInlocuire = colegiInlocuiti?.length ? t('pontaj.inlocuieste_pe', {persoane: colegiInlocuiti.map(z => { const coleg = date.angajati.find(x => x.id === z.angajat_id); return `${coleg ? `${coleg.nume} ${coleg.prenume}` : z.angajat_id} (${z.cod})`; }).join(', ')}) : '';
-                            const minuteZi = oreCalculate.get(k)?.minute ?? 0;
-                            const areLucruZi = !absenta && (valoareBruta(r, z).trim() !== '' || minuteZi > 0);
-                            const dupaG24 = z > 0 && valoareBruta(r, z - 1).trim().toUpperCase() === 'G24' && areLucruZi;
-                            const peste24h = minuteZi > 1440;
-                            const titluAvertisment = [dupaG24 ? t('pontaj.avertisment_dupa_g24') : '', peste24h ? t('pontaj.avertisment_peste_24h', {ore: oreText(minuteZi)}) : ''].filter(Boolean).join(' · ');
-                            return <td key={data} className={`${sarbatori.has(data) ? 'zi-sarbatoare' : weekend ? 'zi-weekend' : ''} ${selectata ? 'celula-selectata' : ''} ${modificari.has(k) ? 'celula-modificata' : ''} ${colegiInlocuiti?.length ? 'celula-inlocuitor' : ''} ${titluAvertisment ? 'celula-avertisment' : ''}`}>
-                            <input data-rand={r} data-zi={z} aria-label={t('pontaj.celula', {nume: `${a.nume} ${a.prenume}`, data})} title={[
-                                t('ui.tooltip_marca', {nume: `${a.nume} ${a.prenume}`, marca: a.marca || '—'}),
-                                t('ui.tooltip_data', {data}) + (weekend ? ` [${t('ui.tooltip_weekend')}]` : '') + (sarbatori.has(data) ? ` [${sarbatori.get(data)}]` : ''),
-                                t('ui.tooltip_schimb', {schimb: valoare(r, z) || t('ui.tooltip_liber')}),
-                                titluAbsenta,
-                                titluInlocuire,
-                                titluAvertisment,
-                                oreCalculate.get(k)?.surse.length ? t('pontaj.surse_ore', {date: oreCalculate.get(k)!.surse.join(', ')}) : ''
-                            ].filter(Boolean).join(' · ')} disabled={ocupat} readOnly className={absenta ? `celula-absenta celula-absenta-${stareAbsenta}` : ''} value={valoare(r, z)}
-                                onFocus={() => { if (ignoraFocus.current) ignoraFocus.current = false; else setSelectie({inceput: {rand: r, zi: z}, sfarsit: {rand: r, zi: z}}); }}
-                                onMouseDown={e => { if (e.shiftKey) { e.preventDefault(); focalizeaza({rand: r, zi: z}, true); } }}
-                                onMouseEnter={e => { if (e.buttons === 1 && !ocupat) setSelectie(s => ({...s, sfarsit: {rand: r, zi: z}})); }}
-                                onKeyDown={e => taste(e, r, z)} onDoubleClick={deschideOreManuale}/></td>;
-                        })}
-                        {totaluri.map(c => {const v=totaluriCalculate.get(a.id)?.[c],regula=schita?.configuratie.reguli.find(r=>r.coloana===c),titluTotal=!v?.definita?t('pontaj.necalculat'):regula?.sursa==='ORE_NORMA'?t('pontaj.ore_norm_explicatie'):t(v.unitate==='ZILE'?'pontaj.unitate_zile':'pontaj.unitate_ore');return <td key={c} className={`${!v?.definita?'total-necalculat':''} ${c==='T'?'fix-total-t':''}`.trim()} title={titluTotal}>{calculare?'…':v?valoareText(v):calculat&&regula?.sursa!=='NEDEFINITA'?'0':'—'}</td>;})}</tr>)}
+                    {randuri.map((a, r) => <RandPontaj key={a.id} a={a} r={r} zile={zile} weekend={weekend} sarbatori={sarbatori}
+                        selDe={r >= inceputRand && r <= sfarsitRand ? inceputZi : -1} selPana={r >= inceputRand && r <= sfarsitRand ? sfarsitZi : -1}
+                        modificari={modificari} originale={originale} absente={absente} inlocuiri={inlocuiri} oreCalculate={oreCalculate}
+                        valori={totaluriCalculate.get(a.id)} reguli={schita?.configuratie.reguli} angajati={date.angajati}
+                        ocupat={ocupat} calculare={calculare} areCalcul={Boolean(calculat)} actiuni={actiuni}/>)}
                 </tbody></table>
                 {randuri.length === 0 && (
                     <div className="card-onboarding-gol" role="region" aria-label={t('ui.ghid_pornire')}>

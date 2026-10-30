@@ -4,6 +4,16 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.87.2 · 2026-10-30
+
+Grila de pontaj mai rapidă la secții mari (F06-T12, PERF-1).
+
+- Fiecare rând al grilei e o componentă memorată (`RandPontaj`), cu handler-ele celulelor într-un obiect stabil. Un pas de selecție (tragere cu mouse-ul, săgeți) redesenează doar rândurile care intră sau ies din selecție, nu toate celulele.
+- Lista zilelor, zilele de weekend și sărbătorile sunt memorate; înainte, lista de rânduri (cu filtrele ei) se recalcula la orice randare.
+- Măsurat cu `verificari/masurare-grila.mjs` (Edge headless, date fictive): 50 de angajați — afișare 1,2 s → 0,7 s, pas de selecție ~210 ms → ~27 ms; 300 de angajați — afișare 3,7 s → 2,1 s, pas de selecție ~1,1 s → ~61–70 ms.
+
+Comportamentul grilei nu se schimbă. Baza de date și rapoarte: nicio schimbare.
+
 ## 0.87.1 · 2026-10-30
 
 Evaluarea modelelor locale ale asistentului (F14-T03).
