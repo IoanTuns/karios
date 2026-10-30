@@ -40,6 +40,9 @@ class Manuale(unittest.TestCase):
             self.assertIn('proba-&lt;fictiva&gt;', document)
             self.assertNotIn('proba-<fictiva>', document)
             self.assertIn('Actualizează planificarea', document)
+            catalog = json.loads((radacina / "internal/ajutor/catalog.json").read_text(encoding="utf-8"))
+            for articol in catalog:
+                self.assertEqual(document.count('id="ajutor-' + articol["id"] + '"'), 1)
             original = {f.name: f.read_bytes() for f in destinatie.iterdir()}
             repetat = self.ruleaza('--destinatie', destinatie, '--fara-pdf')
             self.assertNotEqual(repetat.returncode, 0)

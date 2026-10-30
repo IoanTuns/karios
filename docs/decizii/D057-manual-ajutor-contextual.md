@@ -19,3 +19,7 @@ Panoul contextual prezintă pași și legături către ecrane. Tururile care evi
 - Numai PDF: păstrat pentru distribuire și tipărire, insuficient pentru ajutor contextual.
 
 Integrarea în aplicație nu este implementată de F02-T17 și nu schimbă executabilul recompilat din main. Ea necesită task de cod separat, versiune nouă, texte RO/EN și verificări de navigare și rutare AI. Decizia rămâne propusă.
+
+## Implementare F02-T21
+
+F02-T21 implementează catalogul comun, panoul contextual și rutarea deterministă a întrebărilor de utilizare. Articolele sunt disponibile RO/EN în aplicație și incluse în manualul românesc la build. Nu se implementează în acest task reformularea opțională cu LLM sau tururile care evidențiază controale.

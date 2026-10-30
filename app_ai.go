@@ -156,6 +156,12 @@ func (a *App) InterogheazaAI(cerere CerereInterogareAI) RaspunsInterogareAI {
 }
 
 func (a *App) interogheazaAI(ctx context.Context, cerere CerereInterogareAI) RaspunsInterogareAI {
+	if len(cerere.Istoric) > 0 {
+		if r, ok := ai.AjutorUtilizare(cerere.Istoric[len(cerere.Istoric)-1].Continut, string(a.limba())); ok {
+			return RaspunsInterogareAI{Raspuns: &r}
+		}
+	}
+
 	// Colectează contextul de lucru (angajați și schimburi)
 	date, err := datebaza.Nou(a.db).Citeste(ctx)
 	if err != nil {

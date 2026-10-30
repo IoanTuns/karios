@@ -1,0 +1,279 @@
+[
+  {
+    "id": "acces.recuperare",
+    "ecran": "acces",
+    "capitol": 2,
+    "termeni": [
+      "parola",
+      "cheie",
+      "autentificare",
+      "login",
+      "password",
+      "recovery",
+      "contul meu"
+    ]
+  },
+  {
+    "id": "angajati.adauga",
+    "ecran": "angajati",
+    "capitol": 4,
+    "termeni": [
+      "angajat",
+      "personal",
+      "import",
+      "employee",
+      "staff"
+    ]
+  },
+  {
+    "id": "pontaj.completeaza",
+    "ecran": "pontaj",
+    "capitol": 7,
+    "termeni": [
+      "pontaj",
+      "ore",
+      "salvare",
+      "schita",
+      "timesheet",
+      "hours",
+      "save"
+    ]
+  },
+  {
+    "id": "pontaj.sincronizare",
+    "ecran": "pontaj",
+    "capitol": 8,
+    "termeni": [
+      "s7",
+      "sincronizare",
+      "planificare",
+      "normal",
+      "seara",
+      "sync",
+      "evening"
+    ]
+  },
+  {
+    "id": "planificare.publica",
+    "ecran": "planificare",
+    "capitol": 8,
+    "termeni": [
+      "planificare",
+      "tura",
+      "garda",
+      "public",
+      "scheduling",
+      "shift",
+      "publish"
+    ]
+  },
+  {
+    "id": "absente.inregistreaza",
+    "ecran": "absente",
+    "capitol": 6,
+    "termeni": [
+      "concediu",
+      "concedii",
+      "absenta",
+      "cerere",
+      "leave",
+      "absence",
+      "holiday request"
+    ]
+  },
+  {
+    "id": "absente.aproba",
+    "ecran": "absente",
+    "capitol": 6,
+    "termeni": [
+      "aprobare",
+      "anulare",
+      "document",
+      "atas",
+      "approve",
+      "cancel",
+      "attachment"
+    ]
+  },
+  {
+    "id": "rapoarte.genereaza",
+    "ecran": "rapoarte",
+    "capitol": 10,
+    "termeni": [
+      "raport",
+      "pdf",
+      "excel",
+      "tipar",
+      "report",
+      "export",
+      "print"
+    ]
+  },
+  {
+    "id": "rapoarte.defineste",
+    "ecran": "definire_rapoarte",
+    "capitol": 10,
+    "termeni": [
+      "model",
+      "antet",
+      "coloane",
+      "subsol",
+      "template",
+      "header",
+      "columns"
+    ]
+  },
+  {
+    "id": "setari.generale",
+    "ecran": "setari",
+    "capitol": 5,
+    "termeni": [
+      "setari",
+      "norma",
+      "sectii",
+      "departamente",
+      "settings",
+      "department"
+    ]
+  },
+  {
+    "id": "schimburi.configureaza",
+    "ecran": "schimburi",
+    "capitol": 5,
+    "termeni": [
+      "schimb",
+      "program",
+      "interval",
+      "durata",
+      "shift code",
+      "schedule code"
+    ]
+  },
+  {
+    "id": "categorii.atribuie",
+    "ecran": "categorii_program",
+    "capitol": 5,
+    "termeni": [
+      "categorie",
+      "categorii",
+      "permis",
+      "precomplet",
+      "category",
+      "prefill"
+    ]
+  },
+  {
+    "id": "sarbatori.verifica",
+    "ecran": "sarbatori",
+    "capitol": 5,
+    "termeni": [
+      "sarbatoare",
+      "zile libere",
+      "calendar",
+      "holiday",
+      "public holiday"
+    ]
+  },
+  {
+    "id": "reguli.configureaza",
+    "ecran": "reguli_pontaj",
+    "capitol": 9,
+    "termeni": [
+      "reguli",
+      "miez",
+      "calcul",
+      "noapte",
+      "rules",
+      "midnight",
+      "calculation"
+    ]
+  },
+  {
+    "id": "jurnal.verifica",
+    "ecran": "jurnal_modificari",
+    "capitol": 15,
+    "termeni": [
+      "jurnal",
+      "cine",
+      "audit",
+      "modificari",
+      "audit log",
+      "history"
+    ]
+  },
+  {
+    "id": "conturi.administreaza",
+    "ecran": "conturi",
+    "capitol": 2,
+    "termeni": [
+      "conturi",
+      "rol",
+      "administrator",
+      "accounts",
+      "role"
+    ]
+  },
+  {
+    "id": "backup.restaureaza",
+    "ecran": "setari",
+    "capitol": 14,
+    "termeni": [
+      "backup",
+      "copie",
+      "restaur",
+      "restore"
+    ]
+  },
+  {
+    "id": "luna.inchide",
+    "ecran": "pontaj",
+    "capitol": 13,
+    "termeni": [
+      "inchid",
+      "redeschid",
+      "salarii",
+      "close month",
+      "reopen"
+    ]
+  },
+  {
+    "id": "ai.foloseste",
+    "ecran": "asistent_ai",
+    "capitol": 11,
+    "termeni": [
+      "asistent",
+      "ai",
+      "model",
+      "context",
+      "comanda",
+      "assistant"
+    ]
+  },
+  {
+    "id": "ai.instrumente",
+    "ecran": "asistent_ai",
+    "capitol": 12,
+    "termeni": [
+      "instrumente",
+      "sablon",
+      "anuleaza",
+      "csv",
+      "verificare",
+      "tools",
+      "undo",
+      "template"
+    ]
+  },
+  {
+    "id": "conturi.mele",
+    "ecran": "acces",
+    "capitol": 2,
+    "termeni": [
+      "contul meu",
+      "schimb parola",
+      "intrebari",
+      "my account",
+      "change password"
+    ]
+  }
+]

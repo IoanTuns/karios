@@ -2,7 +2,7 @@
 
 F02-T17 · D057 propusă · 30 octombrie 2026.
 
-Stare: proiectare pregătită, integrarea în aplicație neimplementată. Manualul HTML livrat are deja căutare locală și cuprins; nu controlează aplicația și nu apelează un model.
+Stare: primele două etape sunt implementate în F02-T21 (0.88.13): catalog comun, panou contextual și răspunsuri deterministe din AI. Reformularea cu LLM și tururile vizuale rămân extensii separate.
 
 ## Cum ar arăta pentru utilizator
 
@@ -54,3 +54,7 @@ Fiecare articol ar avea: `id`, `ecrane`, `intrebari`, `titlu`, `conditii`, `pasi
 - Panoul funcționează cu tastatura, la 1024×640 și în ambele teme; textele noi folosesc i18n RO/EN.
 - Documentația nu conține nume reale, parole, chei sau copii de documente ale angajaților.
 - Un test verifică existența articolelor pentru toate valorile de ecran din navigare și absența linkurilor rupte.
+
+## Implementare F02-T21
+
+F02-T21 implementează catalogul comun, panoul contextual și rutarea deterministă a întrebărilor de utilizare. Articolele sunt disponibile RO/EN în aplicație și incluse în manualul românesc la build. Nu se implementează în acest task reformularea opțională cu LLM sau tururile care evidențiază controale.

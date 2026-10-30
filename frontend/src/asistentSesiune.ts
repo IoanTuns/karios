@@ -10,6 +10,8 @@ import {notifica} from './Toast';
 import {imparteRepetari} from './repetari';
 
 export interface MesajUI {
+ articoleAjutor?: string[];
+ versiuneAjutor?: string;
 	intentie?: ai.IntentiePlan;
 	rezultatPlan?: datebaza.PlanAI;
     id: string;
@@ -110,6 +112,8 @@ function laTerminare(rez: RezultatSarcinaAI) {
             propuneriAplicata: {},
             reaplicari,
 			intentie: rez.raspuns.intentie,
+            articoleAjutor: rez.raspuns.articole_ajutor,
+            versiuneAjutor: rez.raspuns.versiune_ajutor,
         }];
     }
     if (vizibil === 0 && !rez.oprita) {

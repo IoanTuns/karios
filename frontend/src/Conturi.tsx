@@ -1,3 +1,4 @@
+import {ButonAjutor} from './Ajutor';
 // Conturile aplicației (F15, D008 punctul 3, D045): primul administrator, autentificarea,
 // recuperarea parolei, „Contul meu” și administrarea conturilor.
 import {createContext, useContext, useEffect, useLayoutEffect, useRef, useState, type FormEvent, type ReactNode} from 'react';
@@ -310,12 +311,12 @@ export function PoartaCont({children}: {children: ReactNode}) {
     }, [idCont, t]);
 
     if (eroare) return <div className="ecran-cont"><div className="mesaj eroare" role="alert">{eroare}</div></div>;
-    if (blocat) return <EcranDeblocare gata={r => { setBlocat(false); setStare(r); }}/>;
+    if (blocat) return <><ButonAjutor ecran="acces" clasa="ajutor-acces"/><EcranDeblocare gata={r => { setBlocat(false); setStare(r); }}/></>;
     if (!stare) return <div className="ecran-cont"><p role="status">{t('ui.incarcare')}</p></div>;
-    if (stare.necesita_cont) return <EcranPrimulAdministrator intrebariToate={stare.intrebari} gata={setStare}/>;
-    if (!stare.autentificat || !stare.cont) return <EcranAutentificare ultimulNume={stare.ultimul_nume} gata={setStare}/>;
+    if (stare.necesita_cont) return <><ButonAjutor ecran="acces" clasa="ajutor-acces"/><EcranPrimulAdministrator intrebariToate={stare.intrebari} gata={setStare}/></>;
+    if (!stare.autentificat || !stare.cont) return <><ButonAjutor ecran="acces" clasa="ajutor-acces"/><EcranAutentificare ultimulNume={stare.ultimul_nume} gata={setStare}/></>;
     if (!recuperare) return <div className="ecran-cont"><p role="status">{t('ui.incarcare')}</p></div>;
-    if (recuperare.necesara) return <EcranCheieRecuperare stare={recuperare} gata={setRecuperare} iesire={() => void IesireDinCont().then(setStare)}/>;
+    if (recuperare.necesara) return <><ButonAjutor ecran="acces" clasa="ajutor-acces"/><EcranCheieRecuperare stare={recuperare} gata={setRecuperare} iesire={() => void IesireDinCont().then(setStare)}/></>;
 
     const valoare: StareContext = {
         cont: stare.cont,
