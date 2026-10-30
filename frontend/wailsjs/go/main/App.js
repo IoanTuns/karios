@@ -30,6 +30,10 @@ export function AplicaPropunereAI(arg1) {
   return window['go']['main']['App']['AplicaPropunereAI'](arg1);
 }
 
+export function ArticoleAjutor(arg1) {
+  return window['go']['main']['App']['ArticoleAjutor'](arg1);
+}
+
 export function AtribuieCategorieProgramLot(arg1, arg2) {
   return window['go']['main']['App']['AtribuieCategorieProgramLot'](arg1, arg2);
 }
@@ -144,6 +148,10 @@ export function DescarcaSablon(arg1, arg2) {
 
 export function DeschideFolderJurnale() {
   return window['go']['main']['App']['DeschideFolderJurnale']();
+}
+
+export function DeschideManualAjutor(arg1) {
+  return window['go']['main']['App']['DeschideManualAjutor'](arg1);
 }
 
 export function DeschidePDFPentruTiparire(arg1) {

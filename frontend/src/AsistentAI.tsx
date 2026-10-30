@@ -70,13 +70,18 @@ export function AsistentAI({
     perioadaEcran,
     onDeschidePontaj,
     onDeschideConcediu,
+    onAjutor,
+    intrebareAjutor,
 }: {
     date: datebaza.Date;
+    onAjutor?: (id: string, versiune?: string) => void;
+    intrebareAjutor?: {text: string; id: number};
     perioadaEcran?: {an: number; luna: number};
     onDeschidePontaj?: (an: number, luna: number) => void;
     onDeschideConcediu?: (c: CerereConcediu) => void;
 }) {
     const {t, i18n} = useTranslation();
+    useEffect(() => {if (intrebareAjutor) setTextIntrare(intrebareAjutor.text);}, [intrebareAjutor]);
     const [stare, setStare] = useState<ai.StareMediu | null>(null);
     const [incarcare, setIncarcare] = useState(true);
     const [ocupat, setOcupat] = useState(false);
@@ -426,6 +431,7 @@ export function AsistentAI({
                             {t(m.rol === 'user' ? 'ai.tu' : 'ai.expeditor_asistent')}
                         </div>
                         <div className="continut-mesaj">{m.text}</div>
+                        {m.articoleAjutor?.map(id => <button type="button" key={id} className="legatura" onClick={() => onAjutor?.(id, m.versiuneAjutor)}>{t('ajutor.citire', {id})}</button>)}
                         {m.intentie && <div className="referinta-plan-ai">
                             <span>{m.rezultatPlan ? t('ai.plan_aplicate', {numar: m.rezultatPlan.aplicate}) : t('ai.plan_titlu')}</span>
                             <button type="button" className="buton secundar mic" disabled={blocat} onClick={() => {setPlanSelectat(m.id); setVizualizare('plan');}}>{t('ai.deschide_plan')}</button>

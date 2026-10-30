@@ -99,6 +99,8 @@ export namespace ai {
 	    }
 	}
 	export class RaspunsAsistent {
+	    versiune_ajutor?: string;
+	    articole_ajutor?: string[];
 	    intentie?: IntentiePlan;
 	    mesaj: string;
 	    propuneri: PropunereActiune[];
@@ -110,6 +112,8 @@ export namespace ai {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.versiune_ajutor = source["versiune_ajutor"];
+	        this.articole_ajutor = source["articole_ajutor"];
 	        this.intentie = this.convertValues(source["intentie"], IntentiePlan);
 	        this.mesaj = source["mesaj"];
 	        this.propuneri = this.convertValues(source["propuneri"], PropunereActiune);
@@ -163,6 +167,39 @@ export namespace ai {
 	        this.activ = source["activ"];
 	        this.port = source["port"];
 	        this.mesaj = source["mesaj"];
+	    }
+	}
+
+}
+
+export namespace ajutor {
+
+	export class Articol {
+	    id: string;
+	    ecran: string;
+	    capitol: number;
+	    versiune: string;
+	    titlu: string;
+	    pasi: string[];
+	    rezultat: string;
+	    probleme: string;
+	    termeni: string[];
+
+	    static createFrom(source: any = {}) {
+	        return new Articol(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.ecran = source["ecran"];
+	        this.capitol = source["capitol"];
+	        this.versiune = source["versiune"];
+	        this.titlu = source["titlu"];
+	        this.pasi = source["pasi"];
+	        this.rezultat = source["rezultat"];
+	        this.probleme = source["probleme"];
+	        this.termeni = source["termeni"];
 	    }
 	}
 

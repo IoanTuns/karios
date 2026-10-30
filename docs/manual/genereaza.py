@@ -31,6 +31,18 @@ if not re.fullmatch(r'\d+\.\d+\.\d+', args.versiune):
 if configuratie['versiune_revizuita'] != args.versiune:
     optiuni.error('Manualul nu este revizuit pentru această versiune. Actualizează conținutul și docs/manual/manual.json.')
 valori = {'VERSIUNE': args.versiune, 'COMMIT': args.commit, 'DATA_BUILD': args.data, 'EDITIE': configuratie['editie']}
+catalog_ajutor = json.loads((radacina.parent / 'internal/ajutor/catalog.json').read_text(encoding='utf-8'))
+texte_ajutor = json.loads((radacina.parent / 'internal/i18n/locales/ro.json').read_text(encoding='utf-8'))
+articole_manual = []
+for articol in catalog_ajutor:
+    prefix = 'ajutor.articol.' + articol['id'] + '.'
+    articole_manual.extend(['### ' + texte_ajutor[prefix + 'titlu'] + ' {#ajutor-' + articol['id'] + '}', ''])
+    for indice in range(1, 4):
+        articole_manual.append(str(indice) + '. ' + texte_ajutor[prefix + 'pas' + str(indice)])
+    articole_manual.extend(['', '**' + texte_ajutor['ajutor.rezultat'] + ':** ' + texte_ajutor[prefix + 'rezultat'], '',
+        '**' + texte_ajutor['ajutor.probleme'] + ':** ' + texte_ajutor[prefix + 'probleme'], '',
+        'ID: ' + articol['id'] + ' · ' + args.versiune, ''])
+valori['ARTICOLE_AJUTOR'] = '\n'.join(articole_manual)
 continut = sursa.read_text(encoding='utf-8')
 for cheie, valoare in valori.items():
     marcaj = '{{' + cheie + '}}'
@@ -97,7 +109,11 @@ while i < len(linii):
             sectiune = True
             parti.append(f'<h2 id="{identificator}-titlu">{inline(text)}</h2>')
         else:
-            parti.append(f'<h{nivel}>{inline(text)}</h{nivel}>')
+            ancora = re.fullmatch(r'(.+) \{#(ajutor-[a-z0-9.-]+)\}', text)
+            if ancora:
+                parti.append(f'<h{nivel} id="{ancora[2]}">{inline(ancora[1])}</h{nivel}>')
+            else:
+                parti.append(f'<h{nivel}>{inline(text)}</h{nivel}>')
     elif linie.startswith('|'):
         inchide_paragraf()
         inchide_lista()

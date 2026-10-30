@@ -1,3 +1,4 @@
+import {PanouAjutor} from './Ajutor';
 import {lazy, Suspense, useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {AdaugaDepartament, AdaugaSectie, SeteazaLimbaInterfata, AtribuieCategorieProgramLot, DateInitiale, IncarcaDemo, Informatii, SalveazaAngajat, SalveazaCategorieProgram, SalveazaNormaIntreaga, SchimbaActivAngajat} from '../wailsjs/go/main/App';
@@ -54,6 +55,8 @@ function Simbol({tip}: {tip: Ecran}) {
 
 function App() {
     const {t, i18n} = useTranslation();
+    const [ajutor, setAjutor] = useState<{ecran: string; id?: string; versiune?: string} | null>(null);
+    const [intrebareAjutor, setIntrebareAjutor] = useState<{text: string; id: number}>();
     const [ecran, setEcran] = useState<Ecran>('angajati');
     const [date, setDate] = useState<datebaza.Date | null>(null);
     const [versiune, setVersiune] = useState('');
@@ -165,10 +168,12 @@ function App() {
         return gasit ? denumireDepartament(gasit, i18n.language) : t('ui.fara_departament');
     };
     const esteInSetari = sectiuniSetari.includes(ecran);
-    function schimbaEcran(item: Ecran) {
-        if (item !== ecran && pontajModificat && !window.confirm(t('ui.renunta'))) return;
+    function schimbaEcran(item: Ecran): boolean {
+        if (ocupat || pontajOcupat || (item === 'conturi' && cont?.cont.rol !== 'ADMINISTRATOR')) return false;
+        if (item !== ecran && pontajModificat && !window.confirm(t('ui.renunta'))) return false;
         if (item !== ecran) setPontajModificat(false);
         setEcran(item); setEroare(''); setMesaj('');
+        return true;
     }
 
     return <div className={`aplicatie ${sidebarCompact ? 'sidebar-compact' : ''}`}>
@@ -241,6 +246,7 @@ function App() {
         </aside>
         <main className={`continut ${ecran === 'pontaj' ? 'continut-pontaj' : ''} ${esteInSetari ? 'continut-setari' : ''}`}>
             <header className="antet">
+                <button type="button" className="buton secundar ajutor-antet" onClick={() => setAjutor({ecran})}>{t('ajutor.buton')}</button>
                 <div><p className="fir-navigare">{t('ui.date_baza')} <span aria-hidden="true">/</span> {esteInSetari && ecran !== 'setari' ? <>{t('ui.setari')} <span aria-hidden="true">/</span> </> : null}{t(`ui.${ecran}`)}</p>
                     <h1>{t(`ui.${ecran}`)}</h1><p className="descriere">{t(`ui.${ecran}_descriere`)}</p></div>
                 {ecran === 'angajati' && date && <div className="actiuni-antet">
@@ -262,7 +268,7 @@ function App() {
                 : !date ? <button className="buton secundar" disabled={ocupat} onClick={() => executa(DateInitiale, '')}>{t('ui.reincearca')}</button>
                 : <ErrorBoundary key={ecran} numeModul={ecran}>
                     <Suspense fallback={<div className="asteptare" role="status">{t('ui.incarcare')}</div>}>
-                    {ecran === 'pontaj' ? <Pontaj date={date} context={contextPontaj} onModificari={setPontajModificat} onOcupat={setPontajOcupat} onDeschideAbsente={(an, angajatId) => { setFiltruAbsente({an, angajatId}); setPontajModificat(false); setEcran('absente'); setEroare(''); setMesaj(''); }}/>
+                    {ecran === 'pontaj' ? <Pontaj onAjutor={(id, versiune) => setAjutor({ecran: 'pontaj', id, versiune})} date={date} context={contextPontaj} onModificari={setPontajModificat} onOcupat={setPontajOcupat} onDeschideAbsente={(an, angajatId) => { setFiltruAbsente({an, angajatId}); setPontajModificat(false); setEcran('absente'); setEroare(''); setMesaj(''); }}/>
                     : ecran === 'planificare' ? <Planificare date={date} initial={contextPlanificare} onOcupat={setPontajOcupat} onDeschidePontaj={(an,luna)=>{contextPontaj.current={an,luna,sectie:'',departament:'',categorieProgram:'',cautare:'',filtruRanduri:'',selectie:null,derulareX:0,derulareY:0};setEcran('pontaj');setEroare('');setMesaj('');}}/>
                     : ecran === 'sarbatori' ? <Sarbatori/>
                     : ecran === 'schimburi' ? <Schimburi/>
@@ -273,7 +279,7 @@ function App() {
                     : ecran === 'reguli_pontaj' ? <ReguliPontaj onModificari={setPontajModificat} onOcupat={setPontajOcupat}/>
                     : ecran === 'definire_rapoarte' ? <DefinireRapoarte/>
                     : ecran === 'rapoarte' ? <GenerareRapoarte date={date}/>
-                    : ecran === 'asistent_ai' ? <AsistentAI date={date} perioadaEcran={contextPontaj.current ? {an: contextPontaj.current.an, luna: contextPontaj.current.luna} : contextPlanificare} onDeschideConcediu={c => { setFiltruAbsente({an: Number(c.deLa.slice(0, 4)), angajatId: c.angajatId}); setCerereConcediu(c); setEcran('absente'); setEroare(''); setMesaj(''); }} onDeschidePontaj={(an, luna) => { contextPontaj.current = { an, luna, sectie: '', departament: '', categorieProgram: '', cautare: '', filtruRanduri: '', selectie: null, derulareX: 0, derulareY: 0 }; setEcran('pontaj'); setEroare(''); setMesaj(''); }}/>
+                    : ecran === 'asistent_ai' ? <AsistentAI intrebareAjutor={intrebareAjutor} onAjutor={(id, versiune) => setAjutor({ecran: 'asistent_ai', id, versiune})} date={date} perioadaEcran={contextPontaj.current ? {an: contextPontaj.current.an, luna: contextPontaj.current.luna} : contextPlanificare} onDeschideConcediu={c => { setFiltruAbsente({an: Number(c.deLa.slice(0, 4)), angajatId: c.angajatId}); setCerereConcediu(c); setEcran('absente'); setEroare(''); setMesaj(''); }} onDeschidePontaj={(an, luna) => { contextPontaj.current = { an, luna, sectie: '', departament: '', categorieProgram: '', cautare: '', filtruRanduri: '', selectie: null, derulareX: 0, derulareY: 0 }; setEcran('pontaj'); setEroare(''); setMesaj(''); }}/>
                     : ecran === 'setari' ? <Setari date={date} ocupat={ocupat}
                         salveazaNorma={minute => executa(() => SalveazaNormaIntreaga(minute))}
                         adaugaSectie={denumire => executa(() => AdaugaSectie({[i18n.language]: denumire}))}
@@ -395,6 +401,9 @@ function App() {
         {editare && date && <FormularAngajat key={editare.id || 'nou'} angajat={editare} date={date} ocupat={ocupat} eroare={eroare}
             inchide={() => { setEditare(null); setEroare(''); }}
             salveaza={async a => { if (await executa(() => SalveazaAngajat(a))) setEditare(null); }}/>}
+        {ajutor && <PanouAjutor ecran={ajutor.ecran} articolId={ajutor.id} versiuneCeruta={ajutor.versiune} inchide={() => setAjutor(null)}
+            navigheaza={dest => [...ecranePrincipale, ...sectiuniSetari].includes(dest as Ecran) && schimbaEcran(dest as Ecran)}
+            intreaba={text => {if (!schimbaEcran('asistent_ai')) return false; setIntrebareAjutor({text, id: Date.now()}); return true;}}/>}
         {demo && <DialogDemo ocupat={ocupat} eroare={eroare} inchide={() => { setDemo(false); setEroare(''); }}
             confirma={async () => { if (await executa(IncarcaDemo, 'ui.demo_salvat')) setDemo(false); }}/>}
         {importAngajati && <DialogImportAngajati

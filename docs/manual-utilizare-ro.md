@@ -4,7 +4,7 @@ Ediția {{EDITIE}} · Aplicația {{VERSIUNE}} · Build: {{DATA_BUILD}} · Commit
 
 Pentru operatorii de pontaj și administratorii aplicației. Exemplele sunt fictive. Manualul descrie această versiune; denumirile și pașii pot diferi în versiuni mai vechi.
 
-Versiunea HTML are cuprins navigabil și căutare locală. Versiunea PDF este pentru citire și tipărire. Ajutorul contextual în fiecare meniu și căutarea acestui manual din AI sunt propuneri de integrare, nu funcții instalate prin acest document.
+Versiunile HTML și PDF includ aceleași articole folosite de ajutorul din aplicație. Butonul «Cum să faci» din antet deschide ghidurile secțiunii; căutarea găsește articole din toate secțiunile. În AI, întrebările de utilizare primesc pași și surse fără motorul local pornit.
 
 ## 1. Început rapid: ordinea lucrului
 
@@ -392,10 +392,16 @@ Pentru suport, notează versiunea aplicației, ecranul, anul/luna, pașii și er
 
 ## 19. Despre acest manual
 
-Acoperire: meniurile principale și subsecțiunile din Setări, fluxurile de date și instrumentele AI din versiunea {{VERSIUNE}}. Revizia editorială 1.2 include optimizările UI din Pontaj: meniul contextual clic dreapta, clipboardul avansat, mini-harta de acoperire pe zile și panoul drawer pentru Asistentul AI. Referința exactă a livrării este commitul de pe copertă. Actualizarea versiunii nu înlocuiește revizuirea instrucțiunilor: buildul cere confirmarea versiunii revizuite în sursele manualului.
+Acoperire: meniurile principale și subsecțiunile din Setări, fluxurile de date și instrumentele AI din versiunea {{VERSIUNE}}. Revizia editorială 1.3 include optimizările UI din Pontaj: meniul contextual clic dreapta, clipboardul avansat, mini-harta de acoperire pe zile și panoul drawer pentru Asistentul AI. Include ajutorul contextual pe toate ecranele, 21 de articole comune manualului și AI, sincronizarea Pontaj → Planificare și formatarea cheii de recuperare. Referința exactă a livrării este commitul de pe copertă. Actualizarea versiunii nu înlocuiește revizuirea instrucțiunilor: buildul cere confirmarea versiunii revizuite în sursele manualului.
 
 Manualul nu substituie regulile de salarizare și aprobările organizației. Nu certifică validarea interactivă a fiecărui ecran pe calculatorul utilizatorului. În cazul unei diferențe între instrucțiuni și aplicație, notează versiunea și cere verificarea fluxului înainte de aplicări în lot.
 
 Manualele Markdown, HTML și PDF sunt regenerate pentru fiecare build și salvate lângă executabil, cu versiunea în nume. HTML-ul se deschide în browser fără internet și are căutare locală. PDF-ul este pentru citire și tipărire. Versiunea, ediția, data buildului și commitul identifică documentele; manifestul build.json păstrează și sumele de verificare.
 
-Ajutorul contextual pe secțiuni și integrarea manualului cu AI rămân funcții viitoare, separate de documentele livrate.
+Ajutorul contextual și accesul la articole din AI sunt disponibile din această versiune. Reformularea opțională cu modelul și tururile vizuale automate rămân extensii viitoare. Instrucțiunile nu execută operații și nu înlocuiesc validările sau confirmările.
+
+## 20. Ghiduri interactive comune aplicației și asistentului
+
+Articolele de mai jos sunt generate din catalogul comun RO/EN. Aceleași instrucțiuni sunt afișate în panoul «Cum să faci» și în răspunsurile de utilizare ale asistentului. Identificatorii stabili permit citarea și deschiderea articolului.
+
+{{ARTICOLE_AJUTOR}}

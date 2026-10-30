@@ -1,3 +1,4 @@
+import {simulareAjutor, verificaAjutor} from './ajutor-scenarii.mjs';
 // Verificare UI cu Edge existent și punte Wails simulată. Backendul real este
 // verificat separat prin testele Go; acest script nu deschide date operaționale.
 // Folosire: npm run build în frontend, apoi node verificari/interfata.mjs.
@@ -17,6 +18,7 @@ const browser = ['C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
     'C:/Program Files/Microsoft/Edge/Application/msedge.exe'].find(existsSync);
 assert(browser, 'Microsoft Edge nu este disponibil.');
 assert(existsSync(join(dist, 'index.html')), 'Rulează întâi npm run build în frontend.');
+const catalogAjutor = JSON.parse(readFileSync(join(radacina, 'internal/ajutor/catalog.json'), 'utf8'));
 const demo = JSON.parse(readFileSync(join(radacina, 'internal/datebaza/demo/angajati.json'), 'utf8'));
 const calendarSursa = JSON.parse(readFileSync(join(radacina, 'internal/datebaza/calendare/romania-2026.json'), 'utf8'));
 const schimburiSursa = JSON.parse(readFileSync(join(radacina, 'internal/datebaza/initiale/schimburi.json'), 'utf8'));
@@ -333,7 +335,20 @@ try {
     await cdp('Page.enable'); await cdp('Runtime.enable');
     await cdp('Emulation.setDeviceMetricsOverride', {width: 1440, height: 960, deviceScaleFactor: 1, mobile: false});
     const injectat = await cdp('Page.addScriptToEvaluateOnNewDocument', {source: `(${simulare})(${JSON.stringify(demo)},${JSON.stringify(cataloage)},'ro',${JSON.stringify(calendarSursa)},${JSON.stringify(versiuneAplicatie)},${JSON.stringify(schimburiSursa)},${JSON.stringify(rapoarteSursa)})`});
+    if (process.argv.includes('--ajutor')) {
+        const limba=process.argv.includes('--en')?'en':'ro';
+        await cdp('Emulation.setDeviceMetricsOverride',{width:1024,height:640,deviceScaleFactor:1,mobile:false});
+        await cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(${simulareAjutor})(${JSON.stringify(catalogAjutor)},${JSON.stringify(cataloage)},${JSON.stringify(versiuneAplicatie)},${JSON.stringify(limba)})`});
+    }
     await cdp('Page.navigate', {url});
+    if (process.argv.includes('--ajutor')) {
+        if (process.argv.includes('--en')) await evalueaza("document.documentElement.setAttribute('data-theme','dark')");
+        await verificaAjutor({cdp,evalueaza,asteapta,completeaza,apasa,cataloage,limba:process.argv.includes('--en')?'en':'ro',
+            captura:async nume=>{const r=await cdp('Page.captureScreenshot',{format:'png'});writeFileSync(join(capturi,nume),Buffer.from(r.data,'base64'));}});
+        assert.deepEqual(erori,[],'Erori JavaScript.');
+        console.log('Ajutor UI verificat la 1024x640: cautare, surse, manual, navigare, citari, Escape/focus, ID si versiune necunoscute. '+capturi);
+    } else {
+
     await asteapta(() => evalueaza(`Boolean(document.body?.textContent.includes('Adaugă primii membri'))`), 'Starea goală nu apare.');
     await apasa('Încarcă date demo');
     await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog[open]'))`), 'Dialog demo lipsă.');
@@ -888,6 +903,10 @@ try {
     assert.deepEqual(erori, [], 'Erori JavaScript în interfață.');
     console.log('UI verificată: angajați/departamente, calendar 2026, schimburi și categorii LAB/CUSTOM, concedii/medical/speciale, intervale și sumar, anulare și conflicte, protecție în pontaj, grilă 50×31/TSV; definiții rapoarte, antet/conținut/subsol, RO/EN, duplicare și conflicte, previzualizare PDF, export și tipărire simulate; 1024px și EN.');
     console.log(`Capturi: ${capturi}. Puntea Wails a fost simulată; baza reală este verificată de testele Go.`);
+    }
+} catch (err) {
+    try { console.error(await evalueaza("({text:document.body?.innerText,erori:window.__eroriAjutor})")); } catch {}
+    throw err;
 } finally {
     if (ws?.readyState === WebSocket.OPEN) {
         try { await cdp('Browser.close'); } catch { /* Browserul poate închide conexiunea înaintea răspunsului. */ }

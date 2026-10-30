@@ -92,7 +92,7 @@ const RandPontaj = memo(function RandPontaj({a, r, zile, weekend, sarbatori, sel
         {totaluri.map(c => {const v=valori?.[c],regula=reguli?.find(r=>r.coloana===c),titluTotal=!v?.definita?t('pontaj.necalculat'):regula?.sursa==='ORE_NORMA'?t('pontaj.ore_norm_explicatie'):t(v.unitate==='ZILE'?'pontaj.unitate_zile':'pontaj.unitate_ore');return <td key={c} className={`${!v?.definita?'total-necalculat':''} ${c==='T'?'fix-total-t':''}`.trim()} title={titluTotal}>{calculare?'…':v?valoareText(v):areCalcul&&regula?.sursa!=='NEDEFINITA'?'0':'—'}</td>;})}</tr>;
 });
 
-export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente}: {date: datebaza.Date; context: RefObject<ContextPontaj | null>; onModificari: (modificat: boolean) => void; onOcupat: (ocupat: boolean) => void; onDeschideAbsente?: (an: number, angajatId: string) => void}) {
+export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente, onAjutor}: {date: datebaza.Date; context: RefObject<ContextPontaj | null>; onModificari: (modificat: boolean) => void; onOcupat: (ocupat: boolean) => void; onDeschideAbsente?: (an: number, angajatId: string) => void; onAjutor?: (id: string, versiune?: string) => void}) {
     const {t, i18n} = useTranslation();
     const acum = useRef(new Date());
     const initial = useRef(context.current);
@@ -735,7 +735,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                 <button type="button" className="buton secundar" disabled={ocupat||!randuri.length} onClick={()=>void previzualizeazaCategorii(false)}>{t('program.precompleteaza')}</button>
                 <button type="button" className="buton secundar" title={t('pontaj.export_excel_titlu')} disabled={ocupat||!randuri.length} onClick={exportaExcel}>📊 {t('pontaj.export_excel')}</button>
                 <button type="button" className={`buton secundar buton-drawer-ai ${drawerAI ? 'panou-activ' : ''}`} title={t('pontaj.asistent_drawer_titlu')} onClick={() => setDrawerAI(v => !v)}>
-                    🤖 {t('nav.asistent_ai')}
+                    🤖 {t('ui.asistent_ai')}
                 </button>
                 <div className="grup-zoom-grila" role="group" aria-label={t('ui.densitate_grila')}>
                     <span className="eticheta-zoom">🔎 {t('ui.zoom')}</span>
@@ -846,7 +846,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                     </div>
                 </div>
                 {drawerAI && (
-                    <aside className="drawer-asistent-pontaj" aria-label={t('nav.asistent_ai')}>
+                    <aside className="drawer-asistent-pontaj" aria-label={t('ui.asistent_ai')}>
                         <header className="antet-drawer-ai">
                             <div className="titlu-drawer">
                                 <strong>🤖 {t('pontaj.asistent_local_titlu')}</strong>
@@ -857,6 +857,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                         <div className="continut-drawer-ai">
                             <AsistentAI
                                 date={date}
+                                onAjutor={onAjutor}
                                 perioadaEcran={{an, luna}}
                                 onDeschidePontaj={(a, l) => { setAn(a); setAnText(String(a)); setLuna(l); }}
                                 onDeschideConcediu={onDeschideAbsente ? c => onDeschideAbsente(an, c.angajatId) : undefined}

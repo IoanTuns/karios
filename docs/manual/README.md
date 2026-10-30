@@ -16,7 +16,7 @@ Generatorul folosește biblioteca standard Python și Microsoft Edge existent, �
 ## Previzualizare editorială
 
 ```powershell
-python docs/manual/genereaza.py --versiune 0.88.11 --commit proba --data 2026-10-30 --destinatie build/bin/manual-proba-nou --fara-pdf
+python docs/manual/genereaza.py --versiune 0.88.13 --commit proba --data 2026-10-30 --destinatie build/bin/manual-proba-nou --fara-pdf
 ```
 
 Destinația trebuie să nu conțină deja manuale cu aceleași nume. `--fara-pdf` este numai pentru previzualizare; buildul oficial generează obligatoriu toate cele trei formate. Convențiile Markdown suportate sunt cele folosite în manual: titluri, paragrafe, liste, tabele, citate, text aldin și cod inline.
@@ -25,4 +25,4 @@ Deschide HTML-ul cu `?verificare=1` pentru proba locală de căutare și cuprins
 
 ## Limitări
 
-Regenerarea asigură identitatea documentelor livrate; nu poate revizui automat corectitudinea instrucțiunilor. Revizuirea editorială rămâne obligatorie la fiecare versiune. Ajutorul contextual pe secțiuni și integrarea cu AI sunt lucrări separate, nelivrate de acest task. Manualul nu inventează reguli de salarizare și nu conține date operaționale.
+Regenerarea asigură identitatea documentelor livrate; nu poate revizui automat corectitudinea instrucțiunilor. Revizuirea editorială rămâne obligatorie la fiecare versiune. Din F02-T21, articolele interne sunt comune panoului de ajutor, răspunsurilor AI și capitolului 20 al manualului. Se editează metadatele în internal/ajutor/catalog.json și textele în cataloagele i18n RO/EN. Manualul nu inventează reguli de salarizare și nu conține date operaționale.

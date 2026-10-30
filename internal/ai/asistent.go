@@ -33,10 +33,12 @@ type MesajConversatie struct {
 
 // RaspunsAsistent este rezultatul interogării asistentului AI.
 type RaspunsAsistent struct {
-	Intentie  *IntentiePlan      `json:"intentie,omitempty"`
-	Mesaj     string             `json:"mesaj"`
-	Propuneri []PropunereActiune `json:"propuneri"`
-	Eroare    string             `json:"eroare,omitempty"`
+	VersiuneAjutor string             `json:"versiune_ajutor,omitempty"`
+	ArticoleAjutor []string           `json:"articole_ajutor,omitempty"`
+	Intentie       *IntentiePlan      `json:"intentie,omitempty"`
+	Mesaj          string             `json:"mesaj"`
+	Propuneri      []PropunereActiune `json:"propuneri"`
+	Eroare         string             `json:"eroare,omitempty"`
 }
 
 // ContextPontix oferă asistentului informații despre personal și schimburile definite.
