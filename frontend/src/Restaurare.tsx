@@ -5,6 +5,7 @@ import {useTranslation} from 'react-i18next';
 import {AnuleazaRestaurarea, InchideAplicatia, ListaBackupuri, ProgrameazaRestaurare, VerificaBackup} from '../wailsjs/go/main/App';
 import {audit, main, stocare} from '../wailsjs/go/models';
 import {Dialog} from './Formulare';
+import {formatData} from './formatare';
 
 function dimensiune(octeti: number): string {
     return octeti >= 1048576 ? `${(octeti / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(octeti / 1024))} KB`;
@@ -30,7 +31,7 @@ export function RestaurareBackup({reimprospatare, ocupat: ocupatExtern}: {reimpr
         try { await f(); } catch { setEroare(t('date.eroare')); } finally { setOcupat(false); }
     }
 
-    const format = new Intl.DateTimeFormat(i18n.language, {dateStyle: 'short', timeStyle: 'short'});
+    const format = formatData(i18n.language, {dateStyle: 'short', timeStyle: 'short'});
     const blocat = ocupat || ocupatExtern;
     return <div className="restaurare-backup">
         <h3>{t('restaurare.titlu')}</h3>

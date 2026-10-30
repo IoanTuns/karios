@@ -4,6 +4,7 @@ import {CitesteCalendar, CompleteazaSarbatori2026, CompleteazaSarbatoriAn, Salve
 import {datebaza, main} from '../wailsjs/go/models';
 import {Dialog} from './Formulare';
 import {DialogImportSarbatori} from './ImportDialogs';
+import {formatData} from './formatare';
 
 function denumire(s: datebaza.Sarbatoare, limba: string) {
     return s.denumire[limba] || s.denumire.ro || Object.values(s.denumire).find(Boolean) || '';
@@ -83,8 +84,8 @@ export function Sarbatori() {
             </div>
             {calendar?.import_disponibil && <p className="nota-calendar">{t('sarbatori.precizare')}</p>}
             <div className="panou tabel-derulant"><table className="tabel-sarbatori"><thead><tr><th>{t('sarbatori.data')}</th><th>{t('sarbatori.zi')}</th><th>{t('sarbatori.denumire')}</th><th>{t('ui.actiuni')}</th></tr></thead>
-                <tbody>{zile.map(s => <tr key={s.data}><td>{new Intl.DateTimeFormat(i18n.language).format(new Date(`${s.data}T12:00:00Z`))}</td>
-                    <td>{new Intl.DateTimeFormat(i18n.language, {weekday: 'long', timeZone: 'UTC'}).format(new Date(`${s.data}T12:00:00Z`))}</td>
+                <tbody>{zile.map(s => <tr key={s.data}><td>{formatData(i18n.language).format(new Date(`${s.data}T12:00:00Z`))}</td>
+                    <td>{formatData(i18n.language, {weekday: 'long', timeZone: 'UTC'}).format(new Date(`${s.data}T12:00:00Z`))}</td>
                     <td>{denumire(s, i18n.language)}</td><td><button className="legatura" disabled={ocupat} aria-label={t('sarbatori.editeaza_data', {data: s.data})} onClick={() => { setEroare(''); setEditare(s); }}>{t('ui.editeaza')}</button></td></tr>)}</tbody>
             </table>{zile.length === 0 && <p className="fara-rezultate">{t('sarbatori.gol')}</p>}</div>
         </>}

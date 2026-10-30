@@ -4,6 +4,16 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.88.7 · 2026-10-30
+
+Formatterele de dată refolosite (F16-T14, PERF-2).
+
+- `formatData` (`frontend/src/formatare.ts`) păstrează câte un `Intl.DateTimeFormat` pentru fiecare limbă și set de opțiuni; cele 14 locuri care creau unul la fiecare randare îl folosesc. Antetele grilelor de pontaj și planificare creau câte unul pentru fiecare zi la fiecare pas de selecție.
+- Măsurat cu `verificari/masurare-grila.mjs`: pas de selecție la 50 de angajați ~27 ms → ~11–17 ms; la 300 de angajați ~61–70 ms → 27–53 ms (trei rulări, procesorul încărcat de alte programe). Afișarea grilei nu se schimbă măsurabil (2,2–3,1 s la 300).
+- Sărbătorile din grila de pontaj erau deja memorate din F06-T12.
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.88.6 · 2026-10-30
 
 Tema urmează setarea din Windows (F16-T13, UI-1).

@@ -4,6 +4,7 @@ import {ConfirmaPlanAI, ExportaPlanAICSV, ListaSchimburi, PrevizualizeazaPlanAI,
 import {ai, datebaza} from '../wailsjs/go/models';
 import {SabloaneAsistentAI} from './SabloaneAsistentAI';
 import {AnalizaPlanAI} from './AnalizaPlanAI';
+import {formatData} from './formatare';
 
 export function PlanAsistentAI({intentie, date, rezultat, blocat, onSchimba, onAplicat, onOcupat, onDeschidePontaj}: {
     intentie: ai.IntentiePlan;
@@ -58,7 +59,7 @@ export function PlanAsistentAI({intentie, date, rezultat, blocat, onSchimba, onA
 
     const dataAfisata = (valoare: string) => {
         const data = new Date(`${valoare}T12:00:00Z`);
-        return Number.isNaN(data.getTime()) ? valoare || t('ai.plan_alege') : new Intl.DateTimeFormat(i18n.language, {dateStyle: 'medium', timeZone: 'UTC'}).format(data);
+        return Number.isNaN(data.getTime()) ? valoare || t('ai.plan_alege') : formatData(i18n.language, {dateStyle: 'medium', timeZone: 'UTC'}).format(data);
     };
     const grupAfisat = selectie.tip === 'persoane'
         ? t('ai.plan_selectate_scurt', {numar: selectie.marci.length})

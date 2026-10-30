@@ -6,6 +6,7 @@ import type {CerereConcediu} from './cerereConcediu';
 import {AplicaPropunereAI, EsteAutoPornireAI, OpresteAI, PornesteAI, SeteazaAutoPornireAI, StareAI} from '../wailsjs/go/main/App';
 import {ai, datebaza, main} from '../wailsjs/go/models';
 import {marcheazaVizibil, opresteSarcina, pornesteSarcina, reseteazaConversatie as reseteazaSesiunea, seteazaConversatie, seteazaEroare, seteazaPerioada, useSesiuneAI, type MesajUI} from './asistentSesiune';
+import {formatData} from './formatare';
 
 function curataText(str: string): string {
     return (str || '')
@@ -379,7 +380,7 @@ export function AsistentAI({
             <div className="perioada-asistent" hidden={vizualizare !== 'conversatie'}>
                 <label>{t('ai.luna_de_lucru')}
                     <select value={lunaCurenta} disabled={blocat} onChange={e => seteazaPerioada({an: anCurent, luna: Number(e.target.value)})}>
-                        {Array.from({length: 12}, (_, i) => <option key={i} value={i + 1}>{new Intl.DateTimeFormat(i18n.language, {month: 'long', timeZone: 'UTC'}).format(new Date(Date.UTC(2026, i, 15)))}</option>)}
+                        {Array.from({length: 12}, (_, i) => <option key={i} value={i + 1}>{formatData(i18n.language, {month: 'long', timeZone: 'UTC'}).format(new Date(Date.UTC(2026, i, 15)))}</option>)}
                     </select>
                 </label>
                 <input type="number" aria-label={t('sarbatori.an')} min={2000} max={2100} value={anCurent} disabled={blocat}

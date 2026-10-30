@@ -21,6 +21,7 @@ import {datebaza, calcul, main, rapoarte} from '../wailsjs/go/models';
 import {Dialog, denumireSectie, denumireDepartament, durata} from './Formulare';
 import {oraText} from './Schimburi';
 import {notifica} from './Toast';
+import {formatData} from './formatare';
 
 export function programPlanificat(p:datebaza.Schimb) {
     return p.tip==='GARDA'||p.tip==='NOAPTE'||p.regim==='NELUCRATOARE'||p.regim==='INTRARE_ZI_LIBERA'||(p.ora_start>=720&&p.ora_start<1320);
@@ -405,7 +406,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
                 <button className="buton secundar" disabled={ocupat}>{t('sarbatori.arata')}</button>
                 <button type="button" className="buton secundar buton-luna-nav" aria-label={t('planificare.luna_precedenta')} disabled={ocupat} onClick={()=>schimbaLunaRelativ(-1)}>◀</button>
                 <label>{t('pontaj.luna')}<select name="luna_planificare" value={luna} disabled={ocupat} onChange={e=>setLuna(Number(e.target.value))}>
-                    {Array.from({length:12},(_,i)=><option key={i} value={i+1}>{new Intl.DateTimeFormat(i18n.language,{month:'long',timeZone:'UTC'}).format(new Date(Date.UTC(2026,i,1)))}</option>)}
+                    {Array.from({length:12},(_,i)=><option key={i} value={i+1}>{formatData(i18n.language,{month:'long',timeZone:'UTC'}).format(new Date(Date.UTC(2026,i,1)))}</option>)}
                 </select></label>
                 <button type="button" className="buton secundar buton-luna-nav" aria-label={t('planificare.luna_urmatoare')} disabled={ocupat} onClick={()=>schimbaLunaRelativ(1)}>▶</button>
             </form>
@@ -511,7 +512,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
                             {zile.map((data,z)=>{
                                 const d=new Date(`${data}T12:00:00Z`),weekend=[0,6].includes(d.getUTCDay());
                                 return <th key={data} className={sarbatori.has(data)?'zi-sarbatoare':weekend?'zi-weekend':''} title={sarbatori.get(data)||''} scope="col">
-                                    <strong>{z+1}</strong><small>{new Intl.DateTimeFormat(i18n.language,{weekday:'short',timeZone:'UTC'}).format(d)}</small>
+                                    <strong>{z+1}</strong><small>{formatData(i18n.language,{weekday:'short',timeZone:'UTC'}).format(d)}</small>
                                 </th>;
                             })}
                             <th className="fix-total-ture">{t('planificare.total_ture')}</th>
@@ -637,7 +638,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
                                 return <tr key={z.data} className={!z.complet?'rand-lipsa':''}>
                                     <td><strong>{z.data}</strong></td>
                                     <td>
-                                        {z.este_sarbatoare?<span className="eticheta-intrare">{z.denumire_sarbatoare}</span>:<span className="text-discret">{new Intl.DateTimeFormat(i18n.language,{weekday:'long',timeZone:'UTC'}).format(new Date(`${z.data}T12:00:00Z`))}</span>}
+                                        {z.este_sarbatoare?<span className="eticheta-intrare">{z.denumire_sarbatoare}</span>:<span className="text-discret">{formatData(i18n.language,{weekday:'long',timeZone:'UTC'}).format(new Date(`${z.data}T12:00:00Z`))}</span>}
                                     </td>
                                     {['G24','Z12','N12','IN9'].map(cod=>{
                                         const angajatiAlocati=z.posturi?z.posturi[cod]:undefined;
@@ -691,7 +692,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
                             <th scope="row">{nume(p.angajat_id)}</th>
                             <td>{p.data}{sarbatori.has(p.data)&&<small>{sarbatori.get(p.data)}</small>}</td>
                             <td>{textSchimb(p.schimb_id)}</td>
-                            <td><span className={`stare-plan stare-plan-${p.stare}`}>{t(`planificare.stare_${p.stare}`)}</span>{p.publicat_la&&<small>{new Intl.DateTimeFormat(i18n.language,{dateStyle:'short',timeStyle:'short'}).format(new Date(p.publicat_la))}</small>}</td>
+                            <td><span className={`stare-plan stare-plan-${p.stare}`}>{t(`planificare.stare_${p.stare}`)}</span>{p.publicat_la&&<small>{formatData(i18n.language,{dateStyle:'short',timeStyle:'short'}).format(new Date(p.publicat_la))}</small>}</td>
                             <td><div className="actiuni-rand"><button className="legatura" disabled={ocupat||!p.activ} onClick={()=>{setEroare('');setEditare(p);}}>{t('ui.editeaza')}</button><button className="legatura discreta" disabled={ocupat} onClick={()=>{if(window.confirm(t(p.activ?'planificare.confirma_retragerea':'planificare.confirma_reactivarea')))void salveazaPozitiiLista([new datebaza.PozitiePlanificare({...p,activ:!p.activ})]);}}>{t(p.activ?'planificare.retrage':'ui.reactiveaza')}</button></div></td>
                         </tr>)}
                     </tbody>
@@ -920,7 +921,7 @@ function PanouSumarAngajat({
 
                         return <tr key={d} className={sarb?'plan-zi-libera':esteWeekend?'plan-weekend':''}>
                             <td><strong>{d}</strong></td>
-                            <td>{new Intl.DateTimeFormat(i18n.language,{weekday:'short',timeZone:'UTC'}).format(dt)}</td>
+                            <td>{formatData(i18n.language,{weekday:'short',timeZone:'UTC'}).format(dt)}</td>
                             <td>{sarb?<span className="eticheta-intrare">{sarb}</span>:esteWeekend?t('ui.tooltip_weekend'):t('planificare.lucratoare')}</td>
                             <td>
                                 {absenta?<span className="eticheta-contract">{absenta.cod} ({t(`absente.${absenta.cod}`)||absenta.cod})</span>:<select disabled={ocupat} value={schimbId} onChange={e=>setModificariLocale(m=>new Map(m).set(d,e.target.value))}>

@@ -8,6 +8,7 @@ import {AmprentaLuna} from './Audit';
 import {Dialog, denumireSectie, denumireDepartament} from './Formulare';
 import {programPlanificat} from './Planificare';
 import {notifica} from './Toast';
+import {formatData} from './formatare';
 
 type Pozitie = {rand: number; zi: number};
 type Selectie = {inceput: Pozitie; sfarsit: Pozitie};
@@ -561,7 +562,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
             <button className="buton secundar" disabled={ocupat}>{t('sarbatori.arata')}</button>
             <button type="button" className="buton secundar buton-luna-nav" aria-label={t('pontaj.luna_precedenta')} disabled={ocupat} onClick={() => schimbaLunaRelativ(-1)}>◀</button>
             <label>{t('pontaj.luna')}<select aria-label={t('pontaj.luna')} value={luna} disabled={ocupat} onChange={e => { if (poateAbandona()) setLuna(Number(e.target.value)); }}>
-                {Array.from({length: 12}, (_, i) => <option key={i} value={i + 1}>{new Intl.DateTimeFormat(i18n.language, {month: 'long', timeZone: 'UTC'}).format(new Date(`2026-${String(i + 1).padStart(2, '0')}-01T12:00:00Z`))}</option>)}
+                {Array.from({length: 12}, (_, i) => <option key={i} value={i + 1}>{formatData(i18n.language, {month: 'long', timeZone: 'UTC'}).format(new Date(`2026-${String(i + 1).padStart(2, '0')}-01T12:00:00Z`))}</option>)}
             </select></label>
             <button type="button" className="buton secundar buton-luna-nav" aria-label={t('pontaj.luna_urmatoare')} disabled={ocupat} onClick={() => schimbaLunaRelativ(1)}>▶</button></form>
             <button className="buton primar" disabled={ocupat || incarcare || !modificari.size || lunaBlocata} onClick={salveaza}>{t(ocupat ? 'ui.salvare' : 'pontaj.salveaza')}</button>
@@ -665,7 +666,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                 if (stareCurenta.current) { stareCurenta.current.derulareX = e.currentTarget.scrollLeft; stareCurenta.current.derulareY = e.currentTarget.scrollTop; }
             }} onPaste={lipeste} onCopy={e => { e.preventDefault(); e.clipboardData.setData('text/plain', textSelectat()); }}>
                 <table className="grila-pontaj" aria-label={t('pontaj.grila', {an, luna})}><thead><tr><th className="fix-nume">{t('ui.angajat')}</th><th className="fix-marca">{t('ui.marca')}</th>
-                    {zile.map((data, z) => { const d = new Date(`${data}T12:00:00Z`); return <th key={data} className={sarbatori.has(data) ? 'zi-sarbatoare' : weekend[z] ? 'zi-weekend' : ''} title={sarbatori.get(data) || ''} scope="col"><strong>{z + 1}</strong><small>{new Intl.DateTimeFormat(i18n.language, {weekday: 'short', timeZone: 'UTC'}).format(d)}</small></th>; })}
+                    {zile.map((data, z) => { const d = new Date(`${data}T12:00:00Z`); return <th key={data} className={sarbatori.has(data) ? 'zi-sarbatoare' : weekend[z] ? 'zi-weekend' : ''} title={sarbatori.get(data) || ''} scope="col"><strong>{z + 1}</strong><small>{formatData(i18n.language, {weekday: 'short', timeZone: 'UTC'}).format(d)}</small></th>; })}
                     {totaluri.map(c => <th key={c} className={c === 'T' ? 'fix-total-t' : ''}>{t(`pontaj.total_${c}`)}</th>)}</tr></thead><tbody>
                     {randuri.map((a, r) => <RandPontaj key={a.id} a={a} r={r} zile={zile} weekend={weekend} sarbatori={sarbatori}
                         selDe={r >= inceputRand && r <= sfarsitRand ? inceputZi : -1} selPana={r >= inceputRand && r <= sfarsitRand ? sfarsitZi : -1}

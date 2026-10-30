@@ -6,6 +6,7 @@ import {audit, datebaza} from '../wailsjs/go/models';
 import {notifica} from './Toast';
 import {autorJurnal} from './autorJurnal';
 import {diferente, rezumatNou} from './jurnalDiferente';
+import {formatData} from './formatare';
 
 const PE_PAGINA = 100;
 export function Jurnal({date}: {date: datebaza.Date}) {
@@ -70,7 +71,7 @@ export function Jurnal({date}: {date: datebaza.Date}) {
         }
     }
 
-    const format = new Intl.DateTimeFormat(i18n.language, {dateStyle: 'short', timeStyle: 'medium'});
+    const format = formatData(i18n.language, {dateStyle: 'short', timeStyle: 'medium'});
     const total = pagina?.total ?? 0;
     return <section className="panou ecran-jurnal">
         {stareAudit && stareAudit.stare !== 'inactiv' && <p className={`stare-jurnal ${stareAudit.stare}`}>
