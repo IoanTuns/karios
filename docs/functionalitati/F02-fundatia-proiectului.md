@@ -37,4 +37,4 @@ Proiectul are structura, uneltele și regulile de lucru pe care se construiește
 | F02-T09 | Regula „mereu ultima versiune stabilă” și prima aplicare: Go 1.27.0 → 1.27.3 | gata | Claude | [D007](../decizii/D007-versiuni-stabile.md), `go.mod` cu `toolchain go1.27.3`, 2026-10-24 |
 | F02-T10 | Versionarea aplicației: `internal/versiune`, `docs/versiuni.md`, hook-ul `.githooks/pre-commit`; prima versiune 0.1.0 | gata | Claude | [D009](../decizii/D009-versionare.md), 2026-10-24 |
 
-| F02-T22 | Pachet ZIP, acceptanta operator, note de versiune si verificari traduceri/legaturi | in lucru | Codex | Livrare pe lista explicita de fisiere, validare automata, documentatie operator. |
+| F02-T22 | Pachet ZIP, acceptanta operator, note de versiune si verificari traduceri/legaturi | gata | Codex | 0.88.16, cod 4bd9d7f; ZIP explicit 10 fisiere/11.9 MiB, manual 1.5/PDF 20 pagini, documente operator si SHA256. Go/vet, frontend 13 teste, 3 probe manual, 7 probe livrare si regresia buildului trecute. CI extins. Pas urmator: review si integrare impreuna cu munca celuilalt agent; fara push. |
