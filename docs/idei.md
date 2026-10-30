@@ -6,6 +6,9 @@ Stări: `nouă`, `în analiză`, `transformată` (în task sau decizie), `amâna
 
 | ID | Data | Idee | Cine | Stare | Legături / motiv |
 | --- | --- | --- | --- | --- | --- |
+| I098 | 2026-10-30 | Panou lateral retractabil (Drawer) pentru Asistentul AI integrat direct în ecranul de Pontaj | Utilizator, Antigravity | transformată | F16-T19 |
+| I097 | 2026-10-30 | Mini-hartă de acoperire pe zile (Heatmap deficit/necesar gărzi în antetul grilei de pontaj) | Utilizator, Antigravity | transformată | F16-T18 |
+| I096 | 2026-10-30 | Meniu contextual desktop la clic dreapta pe celulă și copiere/lipire pe blocuri de celule (Clipboard) | Utilizator, Antigravity | transformată | F16-T17 |
 | I095 | 2026-10-30 | Textele panoului de eroare al componentelor (`ErrorBoundary.tsx`) scrise direct în cod, contrar regulii 8: mutate în cataloagele i18n | Claude | nouă | Observat în F16-T16 |
 | I094 | 2026-10-30 | Formatarea datelor din interfață să nu cadă la o dată goală sau invalidă (`format(new Date(''))` aruncă RangeError și închide ecranul) | Claude | nouă | Observat în F16-T16 pe „Jurnal modificări”, cu date simulate; aplicația completează mereu `verificat_la` |
 | I093 | 2026-10-30 | Buton „Raportează o problemă / Părerea ta”: raport anonimizat (versiune, pași, jurnal curățat) și issue GitHub precompletat; fără cont GitHub, raportul se salvează ca fișier de trimis pe email | Ioan Tuns, Claude | transformată | Varianta aleasă de Ioan Tuns: formular → fișier + link, fără token în aplicație (repo public). F16-T15 |

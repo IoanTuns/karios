@@ -11,6 +11,7 @@ export function simulareAjutor(catalog, texte, versiune, limba) {
     api.StareRecuperare = async () => ({necesara:false});
     api.SeteazaLimbaInterfata = async () => {};
     api.SeteazaModificariNesalvate = async () => {};
+    api.UltimaModificareCelula = async () => ({intrare:null});
     api.SarcinaAIActiva = async () => '';
     api.StareAI = async () => ({stare:{activ:false,instalat:false}});
     api.EsteAutoPornireAI = async () => false;
@@ -72,5 +73,14 @@ export async function verificaAjutor({cdp,evalueaza,asteapta,completeaza,apasa,c
     await apasa(t('ajutor.intreaba'));
     await asteapta(()=>evalueaza("!document.querySelector('dialog[open]') && Boolean(document.querySelector('.formular-intrare-ai input')?.value.trim())"),'Intrebarea nu a ajuns in campul AI.');
     assert(await evalueaza("document.querySelectorAll('.bula-mesaj').length===3"),'Intrebarea a fost trimisa automat.');
+    await apasa(t('ui.pontaj'));
+    await asteapta(()=>evalueaza("Boolean(document.querySelector('.buton-drawer-ai'))"),'Buton AI Pontaj lipsa.');
+    await evalueaza("document.querySelector('.buton-drawer-ai').click()");
+    await asteapta(()=>evalueaza("document.querySelectorAll('.continut-drawer-ai .bula-mesaj .legatura').length>=3"),'Citari drawer lipsa.');
+    await apasa(t('ajutor.citire').replace('{{id}}','absente.inregistreaza'));
+    await asteapta(()=>evalueaza("Boolean(document.querySelector('.ajutor-articol h3'))"),'Citarea din drawer nu deschide ghidul.');
+    assert(await evalueaza("document.querySelector('.ajutor-articol').textContent.includes('absente.inregistreaza')"),'Articol gresit din drawer.');
+    await captura('ajutor-drawer-'+limba+'.png');
+    await cdp('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});
     assert.deepEqual(await evalueaza("window.__eroriAjutor"),[],'Erori UI raportate.');
 }

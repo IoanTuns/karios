@@ -4,9 +4,17 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.88.14 · 2026-10-30
+
+F02-T21: ghiduri locale «Cum să faci» pe toate ecranele și la acces, catalog comun de 21 articole RO/EN, căutare fără diacritice, pași, rezultat și probleme frecvente. Întrebările de utilizare din AI sunt rezolvate determinist înainte de citirea datelor sau pornirea modelului, cu articol și versiune și legături către ghid. Navigarea păstrează protecția modificărilor nesalvate și a conturilor. Manualele ediția 1.3 includ articolele din același catalog și ancore stabile. Fără reguli noi de salarizare sau modificări ale datelor.
+
 ## 0.88.13 · 2026-10-30
 
-F02-T21: ghiduri locale «Cum să faci» pe toate ecranele și la acces, catalog comun de 21 articole RO/EN, căutare fără diacritice, pași, rezultat și probleme frecvente. Întrebările de utilizare din AI sunt rezolvate determinist înainte de citirea datelor sau pornirea modelului, cu articol și versiune și legături către ghid. Navigarea păstrează protecția modificărilor nesalvate și a conturilor. Manualele ediția 1.2 includ articolele din același catalog și ancore stabile. Fără reguli noi de salarizare sau modificări ale datelor.
+F16-T17..T19: pachet de optimizări ergonomice și UI/UX pentru grila de Pontaj:
+- Meniu contextual desktop la clic dreapta pe celulă sau pe selecția de celule, cu acces rapid la atribuirea schimburilor frecvente, ștergere/eliberare, comenzi de copiere/lipire și salt direct la ecranul de Concedii și absențe.
+- Copiere și lipire avansată din clipboard (Ctrl+C / Ctrl+V): suport pentru matrice tabelară compatibilă cu Excel, interpretarea atât a orelor zecimale cât și a codurilor de schimb (G24, 12, etc.), respectând protecția celulelor cu absențe aprobate și oferind notificări tip toast.
+- Mini-hartă vizuală de acoperire pe zile (Heatmap acoperire / deficit în antetul grilei): afișează numărul de angajați prezenți pe fiecare zi, evidențiind deficitele din zilele lucrătoare și acoperirea din weekend/sărbători legale.
+- Panou lateral retractabil (Drawer) pentru Asistentul AI integrat direct în ecranul de Pontaj: permite conversația cu asistentul și aplicarea modificărilor pe grilă fără părăsirea contextului de lucru.
 
 ## 0.88.12 · 2026-10-30
 
