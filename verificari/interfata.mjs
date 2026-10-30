@@ -6,7 +6,7 @@ import {readFileSync, existsSync, mkdtempSync, rmSync, mkdirSync, writeFileSync}
 import {resolve, dirname, join, basename, extname, sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {tmpdir} from 'node:os';
-import {spawn} from 'node:child_process';
+import {spawn, spawnSync} from 'node:child_process';
 import assert from 'node:assert/strict';
 
 const radacina = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -54,6 +54,15 @@ const asteptari = new Map();
 const erori = [];
 const masuratoriUI = [];
 const pauza = ms => new Promise(resolve => setTimeout(resolve, ms));
+// Edge lasă procese copil după oprirea celui principal (136 rămase pe 2026-10-30), iar taskkill /T
+// nu le găsește pe toate. Se opresc toate procesele Edge care folosesc profilul temporar al rulării:
+// profilul e unic, deci alte ferestre Edge nu sunt atinse.
+const opresteBrowserul = (p, profil) => {
+    p.kill();
+    if (process.platform !== 'win32') return;
+    const filtru = profil.replace(/'/g, "''");
+    spawnSync('powershell', ['-NoProfile', '-Command', `Get-CimInstance Win32_Process -Filter "Name='msedge.exe'" | Where-Object { $_.CommandLine -like '*${filtru}*' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }`], {stdio: 'ignore'});
+};
 
 async function asteapta(conditie, mesaj, limita = 15000) {
     const sfarsit = Date.now() + limita;
@@ -884,7 +893,7 @@ try {
         try { await cdp('Browser.close'); } catch { /* Browserul poate închide conexiunea înaintea răspunsului. */ }
         ws.close();
     }
-    proces.kill();
+    opresteBrowserul(proces, profil);
     await new Promise(resolve => server.close(resolve));
     // Profil creat exclusiv de acest test; verificăm ținta înainte de ștergere.
     if (dirname(resolve(profil)) === resolve(tmpdir()) && basename(profil).startsWith('pontix-ui-')) {

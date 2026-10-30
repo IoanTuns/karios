@@ -6,7 +6,7 @@ import {readFileSync, existsSync, mkdtempSync, rmSync} from 'node:fs';
 import {resolve, dirname, join, extname, sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {tmpdir} from 'node:os';
-import {spawn} from 'node:child_process';
+import {spawn, spawnSync} from 'node:child_process';
 import assert from 'node:assert/strict';
 
 const radacina = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -32,6 +32,15 @@ const server = createServer((cerere, raspuns) => {
 await new Promise(r => server.listen(0, '127.0.0.1', r));
 const url = `http://127.0.0.1:${server.address().port}`;
 const pauza = ms => new Promise(r => setTimeout(r, ms));
+// Edge lasă procese copil după oprirea celui principal (136 rămase pe 2026-10-30), iar taskkill /T
+// nu le găsește pe toate. Se opresc toate procesele Edge care folosesc profilul temporar al rulării:
+// profilul e unic, deci alte ferestre Edge nu sunt atinse.
+const opresteBrowserul = (p, profil) => {
+    p.kill();
+    if (process.platform !== 'win32') return;
+    const filtru = profil.replace(/'/g, "''");
+    spawnSync('powershell', ['-NoProfile', '-Command', `Get-CimInstance Win32_Process -Filter "Name='msedge.exe'" | Where-Object { $_.CommandLine -like '*${filtru}*' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }`], {stdio: 'ignore'});
+};
 
 // Puntea simulată: doar metodele folosite de autentificare, aplicație și pontaj; restul întorc {}.
 function punte(numar, cataloage, schimburi) {
@@ -128,7 +137,7 @@ for (const numar of numere) {
         for (let i = 0; i < 25; i++) { const t0 = performance.now(); document.activeElement.dispatchEvent(new KeyboardEvent('keydown', {key: 'ArrowRight', bubbles: true})); await cadru(); timpi.push(performance.now() - t0); }`);
     rezultate.push({angajati: numar, celule: numar * 31, randare_ms: Math.round(randare), tragere_ms: tragere, sageata_ms: taste, erori: erori.length});
     ws.close();
-    proces.kill();
+    opresteBrowserul(proces, profil);
     await pauza(300);
     try { rmSync(profil, {recursive: true, force: true}); } catch { /* Edge poate ține fișiere câteva clipe */ }
 }
