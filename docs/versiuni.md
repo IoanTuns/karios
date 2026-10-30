@@ -4,6 +4,15 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.86.2 · 2026-10-30
+
+Salvarea pontajului în bloc cu mai puține interogări (F06-T11, I066).
+
+- `SalveazaSchita` citește o singură dată pe lună absențele active și valorile existente, iar programele permise o dată pe categorie, în loc de câteva interogări pentru fiecare celulă. Validările, conflictele de revizie și jurnalul rămân identice.
+- Măsurat pe 300 de angajați (o lună de 6.300 de celule): fără audit 3,48 s → 2,85 s; cu trigger-ele auditului, diferența se pierde în variația măsurării (6,1–6,9 s). Costul rămas e al auditului (HMAC pe fiecare rând scris și în jurnal).
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.86.1 · 2026-10-30
 
 Teste automate pentru interfață (F02-T16, [D053](decizii/D053-teste-interfata-vitest.md)).

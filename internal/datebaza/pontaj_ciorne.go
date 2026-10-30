@@ -3,7 +3,6 @@ package datebaza
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -115,12 +114,34 @@ func (s *Serviciu) SalveazaSchita(ctx context.Context, an, luna int, celule []Ce
 		for _, p := range schimburi {
 			programe[strings.ToUpper(p.Cod)] = p.ID
 		}
-		for _, c := range celule {
-			absenta, err := q.CitesteZiAbsenta(ctx, acces.CitesteZiAbsentaParams{AngajatID: c.AngajatID, Data: c.Data})
-			if err != nil && !errors.Is(err, sql.ErrNoRows) {
-				return err
+		// Absențele și valorile existente ale lunii se citesc o singură dată, nu pe celulă (I066):
+		// o lună întreagă are mii de celule.
+		absenteActive := map[string]bool{}
+		absente, err := q.ListaAbsenteInterval(ctx, acces.ListaAbsenteIntervalParams{DeLa: deLa, PanaLa: panaLa})
+		if err != nil {
+			return err
+		}
+		for _, z := range absente {
+			if z.Activ == 1 {
+				absenteActive[z.AngajatID+"/"+z.Data] = true
 			}
-			if err == nil && absenta.Activ == 1 {
+		}
+		existente := map[string]acces.CitesteCiornaRow{}
+		ciorne, err := q.ListaCiorneLuna(ctx, acces.ListaCiorneLunaParams{DataDeLa: deLa, DataPanaLa: panaLa})
+		if err != nil {
+			return err
+		}
+		for _, x := range ciorne {
+			existente[x.AngajatID+"/"+x.Data] = acces.CitesteCiornaRow{Valoare: x.Valoare, ModificatLa: x.ModificatLa, Revizie: x.Revizie}
+		}
+		// Programele permise ale unei categorii se citesc o dată pe categorie.
+		type permisiuni struct {
+			activa   bool
+			programe map[string]bool
+		}
+		categoriiCitite := map[string]permisiuni{}
+		for _, c := range celule {
+			if absenteActive[c.AngajatID+"/"+c.Data] {
 				return eroare("absente.celula_protejata")
 			}
 			if !angajati[c.AngajatID] {
@@ -131,11 +152,7 @@ func (s *Serviciu) SalveazaSchita(ctx context.Context, an, luna int, celule []Ce
 				categorii[c.AngajatID] = textSauGol(a.CategorieProgramID)
 				angajati[c.AngajatID] = true
 			}
-			veche, err := q.CitesteCiorna(ctx, acces.CitesteCiornaParams{AngajatID: c.AngajatID, Data: c.Data})
-			exista := err == nil
-			if err != nil && !errors.Is(err, sql.ErrNoRows) {
-				return err
-			}
+			veche, exista := existente[c.AngajatID+"/"+c.Data]
 			if (exista && c.Revizie != strconv.FormatInt(veche.Revizie, 10)) || (!exista && c.Revizie != "") {
 				return eroare("pontaj.conflict")
 			}
@@ -144,22 +161,24 @@ func (s *Serviciu) SalveazaSchita(ctx context.Context, an, luna int, celule []Ce
 				continue
 			}
 			if categorieID := categorii[c.AngajatID]; categorieID != "" {
-				categorie, err := q.CitesteCategorieProgram(ctx, categorieID)
-				if err != nil {
-					return err
-				}
-				if programID, programCunoscut := programe[strings.ToUpper(c.Valoare)]; programCunoscut && categorie.Activ == 1 {
-					permise, err := q.ListaSchimburiCategorieProgram(ctx, categorieID)
+				perm, citita := categoriiCitite[categorieID]
+				if !citita {
+					categorie, err := q.CitesteCategorieProgram(ctx, categorieID)
 					if err != nil {
 						return err
 					}
-					gasit := false
-					for _, id := range permise {
-						gasit = gasit || id == programID
+					ids, err := q.ListaSchimburiCategorieProgram(ctx, categorieID)
+					if err != nil {
+						return err
 					}
-					if !gasit {
-						return eroare("program.program_nepermis")
+					perm = permisiuni{activa: categorie.Activ == 1, programe: map[string]bool{}}
+					for _, id := range ids {
+						perm.programe[id] = true
 					}
+					categoriiCitite[categorieID] = perm
+				}
+				if programID, programCunoscut := programe[strings.ToUpper(c.Valoare)]; programCunoscut && perm.activa && !perm.programe[programID] {
+					return eroare("program.program_nepermis")
 				}
 			}
 			revizie, err := q.SalveazaCiorna(ctx, acces.SalveazaCiornaParams{AngajatID: c.AngajatID, Data: c.Data, Valoare: c.Valoare, ModificatLa: moment()})
