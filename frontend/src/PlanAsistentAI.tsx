@@ -27,6 +27,7 @@ export function PlanAsistentAI({intentie, date, rezultat, blocat, onSchimba, onA
     const [filtruStare, setFiltruStare] = useState('');
     const [filtruLuna, setFiltruLuna] = useState('');
     const [cautarePersoane, setCautarePersoane] = useState('');
+    const [doarSelectatePersoane, setDoarSelectatePersoane] = useState(false);
     const [verificare, setVerificare] = useState<datebaza.VerificarePontajAI>();
     const [paginaVerificare, setPaginaVerificare] = useState(0);
     const [mesajExport, setMesajExport] = useState('');
@@ -48,8 +49,22 @@ export function PlanAsistentAI({intentie, date, rezultat, blocat, onSchimba, onA
     const verificabil = selectieValida && perioadaValida && !intentie.an_de_confirmat && !!intentie.filtru_zile;
     const complet = verificabil && !!(intentie.cod_schimb && intentie.mod_existente);
     const normal = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase();
-    const persoaneFiltrate = date.angajati.filter(a => a.activ && normal(`${a.nume} ${a.prenume} ${a.marca}`).includes(normal(cautarePersoane)));
-    const randuriFiltrate = (afisat?.randuri ?? []).filter(r => (!filtruStare || r.stare === filtruStare) && (!filtruLuna || r.data.startsWith(filtruLuna)) && normal(`${r.nume} ${r.marca}`).includes(normal(cautare)));
+    const persoaneFiltrate = date.angajati.filter(a =>
+        a.activ &&
+        (!doarSelectatePersoane || selectie.marci.includes(a.marca)) &&
+        normal(`${a.nume} ${a.prenume} ${a.marca}`).includes(normal(cautarePersoane))
+    );
+    const esteExceptie = (stare: string) => stare === 'ocupata' || stare === 'blocata' || stare === 'identica';
+    const randuriFiltrate = (afisat?.randuri ?? []).filter(r =>
+        (!filtruStare || (filtruStare === 'exceptii' ? esteExceptie(r.stare) : r.stare === filtruStare)) &&
+        (!filtruLuna || r.data.startsWith(filtruLuna)) &&
+        normal(`${r.nume} ${r.marca}`).includes(normal(cautare))
+    );
+    const persoaneAfectate = new Set(
+        (afisat?.randuri ?? [])
+            .filter(r => r.stare === 'noua' || r.stare === 'inlocuire')
+            .map(r => r.angajat_id)
+    ).size;
 
     useEffect(() => {
         // Schimbarea etapei este explicită; editarea câmpurilor nu mută focusul.
@@ -177,7 +192,10 @@ export function PlanAsistentAI({intentie, date, rezultat, blocat, onSchimba, onA
             {intentie.an_de_confirmat && <label className="optiune-plan-ai"><input type="checkbox" checked={false} onChange={() => schimba({an_de_confirmat: false})}/>{t('ai.confirma_an', {de_la: dataAfisata(intentie.de_la), pana_la: dataAfisata(intentie.pana_la)})}</label>}
             {selectie.tip === 'persoane' && <details className="persoane-plan-ai" open>
                 <summary>{t('ai.plan_selectate', {numar: selectie.marci.length})}</summary>
-                <label>{t('ai.cauta_persoana')}<input value={cautarePersoane} onChange={e => setCautarePersoane(e.target.value)}/></label>
+                <div className="filtre-detalii-ai">
+                    <label>{t('ai.cauta_persoana')}<input value={cautarePersoane} onChange={e => setCautarePersoane(e.target.value)}/></label>
+                    <label className="optiune-plan-ai"><input type="checkbox" checked={doarSelectatePersoane} onChange={e => setDoarSelectatePersoane(e.target.checked)}/>{t('ai.plan_doar_selectati')}</label>
+                </div>
                 <div className="actiuni-plan-ai"><button type="button" className="buton secundar mic" onClick={() => schimbaSelectia({marci: [...new Set([...selectie.marci, ...persoaneFiltrate.map(a => a.marca)])]})}>{t('ai.selecteaza_filtrate', {numar: persoaneFiltrate.length})}</button>
                 <button type="button" className="buton secundar mic" onClick={() => schimbaSelectia({marci: selectie.marci.filter(m => !persoaneFiltrate.some(a => a.marca === m))})}>{t('ai.deselecteaza_filtrate')}</button></div>
                 <div>{persoaneFiltrate.map(a => <label key={a.id}>
@@ -204,14 +222,18 @@ export function PlanAsistentAI({intentie, date, rezultat, blocat, onSchimba, onA
         </section>
         </>}
         {afisat && <div className="previzualizare-plan-ai">
-            <p>{t('ai.plan_rezumat', {persoane: afisat.persoane.length, luni: afisat.luni.join(', '), noi: afisat.noi, inlocuiri: afisat.inlocuiri, identice: afisat.identice, ocupate: afisat.ocupate, blocate: afisat.blocate})}</p>
+            <p>{t('ai.plan_rezumat', {persoane: afisat.persoane.length, afectate: persoaneAfectate, luni: afisat.luni.join(', '), noi: afisat.noi, inlocuiri: afisat.inlocuiri, identice: afisat.identice, ocupate: afisat.ocupate, blocate: afisat.blocate})}</p>
             <details><summary>{t('ai.plan_lista_persoane')}</summary><ul>{afisat.persoane.map(a => <li key={a.id}>{a.nume} ({a.marca})</li>)}</ul></details>
             <AnalizaPlanAI plan={afisat}/>
             <button type="button" className="buton secundar mic" disabled={blocat || ocupat} onClick={() => void exporta()}>{t('ai.export_titlu')}</button>
             {mesajExport && <p role="status">{mesajExport}</p>}
             <div className="filtre-detalii-ai">
                 <label>{t('ai.cauta_persoana')}<input value={cautare} onChange={e => {setCautare(e.target.value);setPagina(0);}}/></label>
-                <label>{t('ai.filtru_stare')}<select value={filtruStare} onChange={e => {setFiltruStare(e.target.value);setPagina(0);}}><option value="">{t('ai.filtru_toate')}</option>{['noua','inlocuire','ocupata','blocata','identica'].map(s => <option key={s} value={s}>{t(`ai.plan_stare_${s}`)}</option>)}</select></label>
+                <label>{t('ai.filtru_stare')}<select value={filtruStare} onChange={e => {setFiltruStare(e.target.value);setPagina(0);}}>
+                    <option value="">{t('ai.filtru_toate')}</option>
+                    <option value="exceptii">{t('ai.filtru_doar_exceptii')}</option>
+                    {['noua','inlocuire','ocupata','blocata','identica'].map(s => <option key={s} value={s}>{t(`ai.plan_stare_${s}`)}</option>)}
+                </select></label>
                 <label>{t('ai.filtru_luna')}<select value={filtruLuna} onChange={e => {setFiltruLuna(e.target.value);setPagina(0);}}><option value="">{t('ai.filtru_toate')}</option>{afisat.luni.map(l => <option key={l}>{l}</option>)}</select></label>
             </div>
             <p role="status">{t('ai.rezultate_numar', {numar: randuriFiltrate.length})}</p>

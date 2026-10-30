@@ -41,3 +41,4 @@ Utilizatorul poate da comenzi în limbaj natural („pune-l pe Ion de noapte joi
 | F14-T17 | Istoricul trimis modelului fără text de imitat | gata | Claude | 0.79.0: `actiuni` în cerere, secțiune în promptul de sistem; neverificat cu modelul real |
 | F14-T18 | Detectarea răspunsurilor care pretind o planificare fără nicio acțiune | gata | Claude | 0.80.0: listă de expresii de confirmare; răspunsurile analitice din cod nu trec prin verificare |
 | F14-T19 | Propunerile identice cu unele deja aplicate se arată, cu „deja aplicată, aplică din nou?” | gata | Claude | 0.81.0: în `asistentSesiune.ts`; fără test automat (frontend fără teste unitare) |
+| F14-T32 | Rafinări ergonomice plan AI: filtru excepții, contor persoane afectate și vedere doar selectați | Antigravity | gata | I075, I076, D049 | `PlanAsistentAI.tsx`, `planAsistent.test.ts` |

@@ -4,6 +4,15 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.89.3 · 2026-10-30
+
+F14-T32: rafinări ergonomice în planul Asistentului AI (I075, I076):
+- Filtru rapid „Doar excepții” în tabelul de previzualizare a planului propus de asistent, permițând izolarea imediată a celulelor ocupate, blocate sau identice.
+- Contor distinct pentru persoanele efectiv afectate de modificări în rezumatul planului (`ai.plan_rezumat`).
+- Comutator „Arată doar selectați” în selecția nominală a persoanelor din editorul de plan, facilitând verificarea rapidă a persoanelor alese dintr-un efectiv mare.
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.89.2 · 2026-10-30
 
 F16-T22: internaționalizare panou de eroare și formatare defensivă a datelor în interfață:
