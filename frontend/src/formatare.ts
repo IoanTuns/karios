@@ -12,3 +12,25 @@ export function formatData(limba: string, optiuni?: Intl.DateTimeFormatOptions):
     }
     return f;
 }
+
+// formateazaDataSigura (I094): formatează defensiv o dată fără a arunca excepții (precum
+// RangeError la date vide sau invalide), returnând valoarea de fallback (implicit '—').
+export function formateazaDataSigura(
+    valoare: string | number | Date | null | undefined,
+    limba: string,
+    optiuni?: Intl.DateTimeFormatOptions,
+    fallback: string = '—'
+): string {
+    if (valoare === null || valoare === undefined || valoare === '') {
+        return fallback;
+    }
+    const d = valoare instanceof Date ? valoare : new Date(valoare);
+    if (Number.isNaN(d.getTime())) {
+        return fallback;
+    }
+    try {
+        return formatData(limba, optiuni).format(d);
+    } catch {
+        return fallback;
+    }
+}

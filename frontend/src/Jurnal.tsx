@@ -6,7 +6,7 @@ import {audit, datebaza} from '../wailsjs/go/models';
 import {notifica} from './Toast';
 import {autorJurnal} from './autorJurnal';
 import {diferente, rezumatNou} from './jurnalDiferente';
-import {formatData} from './formatare';
+import {formatData, formateazaDataSigura} from './formatare';
 
 const PE_PAGINA = 100;
 export function Jurnal({date}: {date: datebaza.Date}) {
@@ -75,7 +75,7 @@ export function Jurnal({date}: {date: datebaza.Date}) {
     const total = pagina?.total ?? 0;
     return <section className="panou ecran-jurnal">
         {stareAudit && stareAudit.stare !== 'inactiv' && <p className={`stare-jurnal ${stareAudit.stare}`}>
-            {t(stareAudit.stare === 'ok' ? 'jurnal.sigilat' : 'jurnal.incident', {moment: format.format(new Date(stareAudit.verificat_la))})}
+            {t(stareAudit.stare === 'ok' ? 'jurnal.sigilat' : 'jurnal.incident', {moment: formateazaDataSigura(stareAudit.verificat_la, i18n.language, {dateStyle: 'short', timeStyle: 'medium'})})}
         </p>}
         <div className="filtre-jurnal">
             <label>{t('jurnal.filtru_tabel')}<select value={filtru.tabel} onChange={e => schimba('tabel', e.target.value)}>
@@ -102,7 +102,7 @@ export function Jurnal({date}: {date: datebaza.Date}) {
                 </tr></thead>
                 <tbody>
                     {(pagina?.intrari ?? []).map(i => <tr key={i.id}>
-                        <td>{format.format(new Date(i.cand))}</td>
+                        <td>{formateazaDataSigura(i.cand, i18n.language, {dateStyle: 'short', timeStyle: 'medium'})}</td>
                         <td>{autor(i.cine)}</td>
                         <td>{eticheta(i.tabel)}</td>
                         <td>{rand(i)}</td>
