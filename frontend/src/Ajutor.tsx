@@ -27,8 +27,11 @@ export function PanouAjutor({ecran, articolId, versiuneCeruta, inchide, navighea
         return () => {activ = false;};
     }, [i18n.language]);
     const vizibile = articole.filter(a => (toate || a.ecran === ecran) && normalizat(a.titlu + ' ' + a.termeni.join(' ') + ' ' + a.pasi.join(' ')).includes(normalizat(cautare.trim())));
-    const articol = articole.find(a => a.id === ales && (versiuneConfirmata || !versiuneCeruta || a.versiune === versiuneCeruta));
-    const invalid = !!ales && !articol && !incarcare;
+    const cautareActiva = cautare.trim().length > 0;
+    const idVizibil = cautareActiva ? (vizibile.find(a => a.id === ales)?.id ?? vizibile[0]?.id ?? '') : ales;
+    const articol = articole.find(a => a.id === idVizibil && (cautareActiva || versiuneConfirmata || !versiuneCeruta || a.versiune === versiuneCeruta));
+    const invalid = !cautareActiva && !!ales && !articol && !incarcare;
+    function articolesursa() { return articole.some(a => a.id === ales); }
     const titluEcran = t('ui.' + ecran);
     return <Dialog titlu={t('ajutor.titlu')} ocupat={false} inchide={inchide} clasa="dialog-ajutor" permiteMaximizare>
         <div className="corp-dialog ajutor-corp">
@@ -38,16 +41,16 @@ export function PanouAjutor({ecran, articolId, versiuneCeruta, inchide, navighea
             </div>
             {incarcare && <p role="status">{t('ui.incarcare')}</p>}
             {eroare && <p role="alert">{eroare}</p>}
-            {invalid && <p role="alert">{t('ajutor.articol_lipsa')}</p>}
+            {invalid && <p role="alert">{t(articolesursa() ? 'ajutor.versiune_diferita' : 'ajutor.articol_lipsa')}{articolesursa() && <button type="button" className="legatura" onClick={() => setVersiuneConfirmata(true)}>{t('ajutor.versiune_curenta')}</button>}</p>}
             <div className="ajutor-coloane">
                 <nav aria-label={t('ajutor.titlu')} className="ajutor-lista">
                     {!incarcare && !vizibile.length && <p role="status">{t('ajutor.fara_rezultate')}</p>}
-                    {vizibile.map(a => <button type="button" key={a.id} className="buton secundar" aria-pressed={ales === a.id} onClick={() => {setAles(a.id); setVersiuneConfirmata(true); setEroare('');}}>{a.titlu}</button>)}
+                    {vizibile.map(a => <button type="button" key={a.id} className="buton secundar" aria-pressed={idVizibil === a.id} onClick={() => {setAles(a.id); setVersiuneConfirmata(true); setEroare('');}}>{a.titlu}</button>)}
                 </nav>
                 <div className="ajutor-articol" aria-live="polite">
                     {articol ? <article key={articol.id}>
                         <h3>{articol.titlu}</h3>
-                        <p className="text-discret">{t('ajutor.sursa', {id: articol.id, versiune: articol.versiune})}</p>
+                        <details className="text-discret"><summary>{t('ajutor.detalii_sursa')}</summary>{t('ajutor.sursa', {id: articol.id, versiune: articol.versiune})}</details>
                         <ol>{articol.pasi.map((pas, i) => <li key={i}>{pas}</li>)}</ol>
                         <h4>{t('ajutor.rezultat')}</h4><p>{articol.rezultat}</p>
                         <h4>{t('ajutor.probleme')}</h4><p>{articol.probleme}</p>
@@ -56,7 +59,7 @@ export function PanouAjutor({ecran, articolId, versiuneCeruta, inchide, navighea
                             {intreaba && <button type="button" className="buton secundar" onClick={() => {if (intreaba(t('ajutor.intrebare', {titlu: articol.titlu}))) inchide();}}>{t('ajutor.intreaba')}</button>}
                             <button type="button" className="legatura" onClick={() => void DeschideManualAjutor(articol.id).then(e => {if (e) setEroare(t(e.cod));}).catch(() => setEroare(t('date.eroare')))}>{t('ajutor.manual')}</button>
                         </div>
-                    </article> : !invalid && <p>{toate ? t('ajutor.titlu') : titluEcran}</p>}
+                    </article> : !invalid && <p>{cautareActiva && !vizibile.length ? t('ajutor.fara_rezultate') : toate ? t('ajutor.titlu') : titluEcran}</p>}
                 </div>
             </div>
         </div>

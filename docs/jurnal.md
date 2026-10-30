@@ -4,6 +4,7 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 
 | Data | Acțiune | Cine | Legături |
 | --- | --- | --- | --- |
+| 2026-10-30 | F16-T21: implementare UX01-UX08 autorizata; navigare AI protejata, indicator neutru, ghiduri fara model, drawer adaptiv, cautare/surse si tastatura. Frontend/13 teste, manual/3 probe si UI RO/EN trecute. Test nou de copiere completa a datelor fictive; gofmt/vet/suita Go completa trecute. | Codex | rezultate-ux-F16-T21.md |
 | 2026-10-30 | F16-T20: analiza UX 0.88.14 ceruta de utilizator; audit cod, manual si captura recenta Edge 1024x640. Opt constatari cu prioritati si criterii de acceptare; diferentele dintre observatie, risc dedus si validare ramasa sunt explicite. Fara modificari de cod sau teste noi; pas urmator: alocare lot UX pentru pilot. | Codex | analiza-ux-release-0.88.14.md; I099 |
 | 2026-10-30 | F02-T21: ramura F02-T21-ajutor-pr publicata si PR draft #3 creat catre main; fara merge in main. Predare: review PR si proba operator WebView2; executabilul si manualele 0.88.14 sunt generate din commitul de cod 5438776. | Codex | [PR #3](https://github.com/IoanTuns/karios/pull/3) |
 | 2026-10-30 | F02-T21: build oficial curat 5438776, 0.88.14 complet; manual 1.3 MD/HTML/PDF langa exe, hashuri verificate, PDF valid 19 pagini. Ultimul main ramane f15e623 si este inclus. Pregatire publicare ramura F02-T21-ajutor-pr si PR draft conform solicitarii utilizatorului. | Codex | F02-T21; review-F02-T21-inainte-pr.md |

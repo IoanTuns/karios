@@ -6,7 +6,7 @@ Stări: `nouă`, `în analiză`, `transformată` (în task sau decizie), `amâna
 
 | ID | Data | Idee | Cine | Stare | Legături / motiv |
 | --- | --- | --- | --- | --- | --- |
-| I099 | 2026-10-30 | Lot UX pentru pilot: protectie context AI, indicator neutru de prezenta, ajutor fara model, drawer compact si validare actualizare/recuperare | Codex | nouă | F16-T20; analiza-ux-release-0.88.14.md; propuneri UX01-UX08, implementari de alocat separat |
+| I099 | 2026-10-30 | Lot UX pentru pilot: protectie context AI, indicator neutru de prezenta, ajutor fara model, drawer compact si validare actualizare/recuperare | Codex | transformată | F16-T21; rezultate-ux-F16-T21.md |
 | I098 | 2026-10-30 | Panou lateral retractabil (Drawer) pentru Asistentul AI integrat direct în ecranul de Pontaj | Utilizator, Antigravity | transformată | F16-T19 |
 | I097 | 2026-10-30 | Mini-hartă de acoperire pe zile (Heatmap deficit/necesar gărzi în antetul grilei de pontaj) | Utilizator, Antigravity | transformată | F16-T18 |
 | I096 | 2026-10-30 | Meniu contextual desktop la clic dreapta pe celulă și copiere/lipire pe blocuri de celule (Clipboard) | Utilizator, Antigravity | transformată | F16-T17 |

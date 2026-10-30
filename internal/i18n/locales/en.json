@@ -1133,8 +1133,8 @@
   "pontaj.copiaza_scurtatura": "Copy selection (Ctrl+C)",
   "pontaj.lipeste_scurtatura": "Paste from clipboard (Ctrl+V)",
   "pontaj.celule_lipite": "{{numar}} cells were pasted from the clipboard.",
-  "pontaj.acoperire": "Coverage / day",
-  "pontaj.tooltip_heat": "Date {{data}}: {{lucratori}} staff present · Total hours: {{ore}}",
+  "pontaj.acoperire": "People with entries",
+  "pontaj.tooltip_heat": "{{data}}: {{lucratori}} people with entries, {{ore}} hours, in the filtered list. This is not a staffing requirement.",
   "pontaj.asistent_drawer_titlu": "Open AI Assistant side panel",
   "pontaj.asistent_local_titlu": "Pontix AI Assistant",
   "pontaj.asistent_drawer_subtitlu": "Direct commands for grid",
@@ -1458,5 +1458,11 @@
   "ajutor.articol.conturi.mele.pas2": "Choose password or recovery-question changes and enter the required data.",
   "ajutor.articol.conturi.mele.pas3": "Confirm saving and keep recovery information separately.",
   "ajutor.articol.conturi.mele.rezultat": "Your account details update after validation.",
-  "ajutor.articol.conturi.mele.probleme": "Managing other accounts is separate and requires the administrator role."
+  "ajutor.articol.conturi.mele.probleme": "Managing other accounts is separate and requires the administrator role.",
+  "pontaj.persoane_afisate": "{{numar}} shown",
+  "ai.ghiduri_fara_model": "Usage guides are available without a model. Commands that use the model require a configured local engine.",
+  "ai.configurare_model": "Configure the local engine",
+  "ajutor.versiune_diferita": "The cited guide belongs to another version. ",
+  "ajutor.versiune_curenta": "Open the current version of the guide",
+  "ajutor.detalii_sursa": "Source details"
 }

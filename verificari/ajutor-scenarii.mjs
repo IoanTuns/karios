@@ -26,7 +26,7 @@ export function simulareAjutor(catalog, texte, versiune, limba) {
     });
     api.DeschideManualAjutor = async id => {window.__manualAjutor=id;return null;};
     sessionStorage.setItem('pontix_asistent_conversatie',JSON.stringify([
-        {id:'ghid-test',rol:'assistant',text:'Ghid fictiv',articoleAjutor:['absente.inregistreaza'],versiuneAjutor:versiune},
+        {id:'ghid-test',rol:'assistant',text:'Ghid fictiv',propuneri:[{id:'navigare-test',tip:'planifica_schimb',descriere:'Proba perioada',parametri:{data:'2027-02-01'}},{id:'concediu-test',tip:'deschide_concediu',descriere:'Proba concediu',parametri:{angajat_id:'fictiv',cod:'CO',data_inceput:'2027-02-01',data_sfarsit:'2027-02-02'}}],propuneriAplicata:{'navigare-test':true},articoleAjutor:['absente.inregistreaza'],versiuneAjutor:versiune},
         {id:'ghid-invalid',rol:'assistant',text:'ID fictiv inexistent',articoleAjutor:['necunoscut.fictiv'],versiuneAjutor:versiune},
         {id:'ghid-vechi',rol:'assistant',text:'Versiune fictiva veche',articoleAjutor:['pontaj.completeaza'],versiuneAjutor:'0.0.0'}
     ]));
@@ -75,12 +75,36 @@ export async function verificaAjutor({cdp,evalueaza,asteapta,completeaza,apasa,c
     assert(await evalueaza("document.querySelectorAll('.bula-mesaj').length===3"),'Intrebarea a fost trimisa automat.');
     await apasa(t('ui.pontaj'));
     await asteapta(()=>evalueaza("Boolean(document.querySelector('.buton-drawer-ai'))"),'Buton AI Pontaj lipsa.');
+    await evalueaza("document.querySelector('.grila-pontaj tbody input').focus()");
+    await apasa(t('pontaj.panou_completare'));
+    await completeaza('input[name="ore_manuale"]','7');
+    await apasa(t('pontaj.completeaza_selectia'));
+    await asteapta(()=>evalueaza("document.querySelector('.grila-pontaj tbody input').value==='7'"),'Celula fictiva nu a fost modificata.');
     await evalueaza("document.querySelector('.buton-drawer-ai').click()");
     await asteapta(()=>evalueaza("document.querySelectorAll('.continut-drawer-ai .bula-mesaj .legatura').length>=3"),'Citari drawer lipsa.');
+    const perioadaInainte = await evalueaza("document.querySelector('.grila-pontaj').getAttribute('aria-label')");
+    await evalueaza("window.__confirmOriginal=window.confirm;window.__confirmari=0;window.confirm=()=>{window.__confirmari++;return false}");
+    await evalueaza("document.querySelector('.buton-deschide-pontaj').click()");
+    assert.equal(await evalueaza("document.querySelector('.grila-pontaj').getAttribute('aria-label')"),perioadaInainte,'Refuzul a schimbat perioada.');
+    await evalueaza("[...document.querySelectorAll('.continut-drawer-ai button')].find(b=>b.textContent.includes("+JSON.stringify(t('ai.deschide_formular_concediu'))+")).click()");
+    assert(await evalueaza("Boolean(document.querySelector('.grila-pontaj'))"),'Refuzul a parasit Pontajul.');
+    assert.equal(await evalueaza("window.__confirmari"),2,'Navigarea AI ocoleste confirmarile.');
+    assert.equal(await evalueaza("document.querySelector('.grila-pontaj tbody input').value"),'7','Navigarea a pierdut modificarea.');
+    await evalueaza("window.confirm=window.__confirmOriginal");
     await apasa(t('ajutor.citire').replace('{{id}}','absente.inregistreaza'));
     await asteapta(()=>evalueaza("Boolean(document.querySelector('.ajutor-articol h3'))"),'Citarea din drawer nu deschide ghidul.');
     assert(await evalueaza("document.querySelector('.ajutor-articol').textContent.includes('absente.inregistreaza')"),'Articol gresit din drawer.');
     await captura('ajutor-drawer-'+limba+'.png');
     await cdp('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});
+    await asteapta(()=>evalueaza("!document.querySelector('dialog[open]')"),'Dialog ramas deschis.');
+    await evalueaza("document.querySelector('.buton-inchide-drawer').click()");
+    await evalueaza("document.querySelector('.grila-pontaj tbody input').focus()");
+    await cdp('Input.dispatchKeyEvent',{type:'keyDown',key:'F10',code:'F10',shiftKey:true,modifiers:8,windowsVirtualKeyCode:121});
+    await asteapta(()=>evalueaza("Boolean(document.querySelector('.meniu-contextual-grila'))"),'Shift+F10 nu deschide meniul.');
+    assert(await evalueaza("Boolean(document.activeElement.closest('.meniu-contextual-grila'))"),'Meniul nu primeste focus.');
+    await cdp('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});
+    await asteapta(()=>evalueaza("!document.querySelector('.meniu-contextual-grila')"),'Escape nu inchide meniul.');
+    assert(await evalueaza("document.activeElement.matches('.grila-pontaj tbody input')"),'Focusul nu revine la celula.');
+    assert(await evalueaza("!document.querySelector('.rand-heatmap .heat-deficit,.rand-heatmap .heat-optim,.rand-heatmap .heat-redus')"),'Indicatorul inca emite verdict de personal.');
     assert.deepEqual(await evalueaza("window.__eroriAjutor"),[],'Erori UI raportate.');
 }

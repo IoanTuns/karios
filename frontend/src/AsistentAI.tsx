@@ -418,12 +418,12 @@ export function AsistentAI({
             }}>
                 {stare && !stare.instalat && <div className="card-lipsa-fisiere-ai">
                     <h3>📁 {t('ai.lipsa_fisiere_titlu')}</h3>
-                    <p>{t('ai.lipsa_fisiere_detalii')}</p>
+                    <p>{t('ai.ghiduri_fara_model')}</p><details><summary>{t('ai.configurare_model')}</summary><p>{t('ai.lipsa_fisiere_detalii')}</p>
                     <div className="cutie-cale-folder"><code>{stare.cale_folder}</code></div>
                     <ul className="instructiuni-fisiere-ai">
                         <li><strong>{stare.cale_binar ? '✓' : '1.'} llama-server.exe</strong> ({t('ai.binar_descriere')})</li>
                         <li><strong>{stare.cale_model ? '✓' : '2.'} model.gguf</strong> ({t('ai.model_recomandat')})</li>
-                    </ul>
+                    </ul></details>
                 </div>}
                 {conversatie.map(m => (
                     <div key={m.id} className={`bula-mesaj ${m.rol}`}>
