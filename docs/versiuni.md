@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.88.10 · 2026-10-30
+
+F05-T28: câmpurile de confirmare și deblocare cu cheia de recuperare adaugă automat cratime între grupurile de câte cinci caractere și transformă literele în majuscule. Corectarea în mijloc păstrează poziția cursorului. Confirmarea păstrează retastarea obligatorie, fără lipire. Formatul și validarea cheii din seif rămân cele existente.
+
 ## 0.88.9 ? 2026-10-30
 
 F07-T21: actualizare separat? i18next 26.5.11 ? 26.5.12, versiune patch stabil? fixat? exact ?n manifest ?i lockfile; f?r? biblioteci noi. Include sincronizarea Pontaj ? Planificare din 0.88.8.

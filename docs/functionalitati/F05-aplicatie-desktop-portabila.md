@@ -15,6 +15,7 @@ Un singur `.exe` care pornește pe orice Windows, fără instalare și fără dr
 
 | ID | Task | Stare | Responsabil | Note |
 | --- | --- | --- | --- | --- |
+| F05-T28 | Cratime automate la introducerea cheii de recuperare | gata | Codex | Implementat în 0.88.10 pe F05-T28-formatare-cheie: grupare câte cinci la confirmare și deblocare, majuscule, poziția cursorului păstrată. npm test 13/13, build frontend, gofmt, vet și toate testele Go trecute. Integrare locală în main conform cererii anterioare a utilizatorului; fără push. Pas următor: probă vizuală a tastării în aplicația Windows. |
 | F05-T19 | Ergonomia pontajului și salvarea formularelor lungi, primul lot după audit | gata | Codex | 0.28.0 pe F05-T19-ergonomie-pontaj, din 7350a70; I045–I048, D035 acceptată explicit. Grupare Filtre/Completare/Ajutor, legendă și contrast, eliminarea avertismentului T/Ore norm, context de sesiune cu selecție/derulare și confirmarea abandonării, dialoguri cu corp derulant și salvare persistentă la reguli. Edge 1024×640: 7 rânduri complete, fără derularea paginii; scenarii de conflict/renunțare/RO-EN și verificările Go trecute. Fără schimbarea calculelor sau datelor operaționale. [Rezultate](../rezultate-ui-F05-T19.md), [lista UI](../lista-lucru-ui.md). Pas următor: F05-T20 și probă cu operator. |
 | F05-T20 | Motive pentru valori necalculate și validarea câmpurilor de configurare | de făcut | | I049; [lista UI](../lista-lucru-ui.md). |
 | F05-T21 | Ergonomia listei de absențe și a cererilor | de făcut | | I050; [lista UI](../lista-lucru-ui.md). |

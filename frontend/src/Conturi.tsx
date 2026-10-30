@@ -1,6 +1,6 @@
 // Conturile aplicației (F15, D008 punctul 3, D045): primul administrator, autentificarea,
 // recuperarea parolei, „Contul meu” și administrarea conturilor.
-import {createContext, useContext, useEffect, useState, type FormEvent, type ReactNode} from 'react';
+import {createContext, useContext, useEffect, useLayoutEffect, useRef, useState, type FormEvent, type ReactNode} from 'react';
 import {useTranslation} from 'react-i18next';
 import {parolaValida} from './parola';
 import {Autentifica, ConfirmaCheiaRecuperare, CreeazaCont, CreeazaPrimulAdministrator, DeblocheazaCuParola, DeblocheazaCuRecuperare, GenereazaCheieRecuperareNoua, IesireDinCont, IntrebariRecuperare, ListaConturi, ModificaCont, RecupereazaCont, ReseteazaParolaCont, SchimbaIntrebarileMele, SchimbaParolaMea, StareCont, StareRecuperare, StareSeif} from '../wailsjs/go/main/App';
@@ -178,6 +178,31 @@ function EcranAutentificare({ultimulNume, gata}: {ultimulNume: string; gata: (r:
     </form></div>;
 }
 
+function CampCheieRecuperare({valoare, schimba, ocupat, confirma = false}: {
+    valoare: string; schimba: (valoare: string) => void; ocupat: boolean; confirma?: boolean;
+}) {
+    const camp = useRef<HTMLInputElement>(null);
+    const selectie = useRef<{inceput: number; sfarsit: number} | null>(null);
+    const [, actualizeazaSelectia] = useState(0);
+    const formateaza = (text: string) => text.toUpperCase().replace(/[^A-Z0-9]/g, '').match(/.{1,5}/g)?.join('-') ?? '';
+    useLayoutEffect(() => {
+        if (selectie.current && camp.current === document.activeElement) {
+            camp.current?.setSelectionRange(selectie.current.inceput, selectie.current.sfarsit);
+        }
+        selectie.current = null;
+    });
+    return <input ref={camp} type="text" value={valoare} disabled={ocupat} autoComplete="off" spellCheck={false}
+        onPaste={confirma ? e => e.preventDefault() : undefined}
+        onChange={e => {
+            const text = e.currentTarget.value;
+            const pozitie = (index: number) => formateaza(text.slice(0, index)).length;
+            selectie.current = {inceput: pozitie(e.currentTarget.selectionStart ?? text.length), sfarsit: pozitie(e.currentTarget.selectionEnd ?? text.length)};
+            schimba(formateaza(text));
+            // Refacem selecția și când o cratimă introdusă manual nu schimbă valoarea.
+            actualizeazaSelectia(n => n + 1);
+        }}/>;
+}
+
 // EcranDeblocare: seiful nu are copia acestui utilizator Windows (alt calculator, alt cont
 // Windows sau Windows reinstalat). Datele se deschid cu parola unui cont sau cu cheia de
 // recuperare (D054); după aceea, pornirile următoare nu mai cer nimic.
@@ -204,7 +229,7 @@ function EcranDeblocare({gata}: {gata: (r: main.RaspunsStareCont) => void}) {
         <p className="text-discret">{t('seif.deblocare_descriere')}</p>
         {cuCheie
             ? <label>{t('seif.cheie_recuperare')}
-                <input type="text" value={cheie} disabled={ocupat} autoComplete="off" spellCheck={false} placeholder="XXXXX-XXXXX-XXXXX-XXXXX-XXXXX" onChange={e => setCheie(e.target.value)}/>
+                <CampCheieRecuperare valoare={cheie} schimba={setCheie} ocupat={ocupat}/>
             </label>
             : <>
                 <label>{t('cont.nume')}<input type="text" value={nume} disabled={ocupat} autoComplete="username" onChange={e => setNume(e.target.value)}/></label>
@@ -252,7 +277,7 @@ function EcranCheieRecuperare({stare, gata, iesire}: {stare: main.RaspunsRecuper
         <p className="cheie-recuperare" aria-label={t('seif.cheie_recuperare')}><code>{stare.cod}</code></p>
         <p className="text-discret">{t('seif.recuperare_pastrare')}</p>
         <label>{t('seif.recuperare_retasteaza')}
-            <input type="text" value={cheie} disabled={ocupat} autoComplete="off" spellCheck={false} onPaste={e => e.preventDefault()} onChange={e => setCheie(e.target.value)}/>
+            <CampCheieRecuperare valoare={cheie} schimba={setCheie} ocupat={ocupat} confirma/>
         </label>
         {eroare && <div className="mesaj eroare" role="alert">{eroare}</div>}
         <div className="actiuni-cont">
