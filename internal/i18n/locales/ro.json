@@ -1300,5 +1300,6 @@
   "seif.recuperare_asteapta_admin": "Un administrator trebuie să noteze și să confirme cheia de recuperare a datelor înainte ca aplicația să poată fi folosită. Cere-i administratorului să se autentifice.",
   "seif.cheie_noua": "Generează o cheie de recuperare nouă",
   "seif.cheie_noua_descriere": "Dacă hârtia cu cheia de recuperare s-a pierdut, generează alta. Cheia veche nu va mai funcționa.",
-  "seif.cheie_noua_confirmare": "Cheia de recuperare actuală nu va mai funcționa. Continui?"
+  "seif.cheie_noua_confirmare": "Cheia de recuperare actuală nu va mai funcționa. Continui?",
+  "ai.server_necunoscut": "Motorul AI din folderul karios\\ai nu este cel livrat cu aplicația și nu a fost pornit. Înlocuiește llama-server.exe cu fișierul din pachetul oficial."
 }

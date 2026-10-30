@@ -4,6 +4,15 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.88.3 · 2026-10-30
+
+Aplicația pornește doar motorul AI livrat cu ea (F14-T31, SEC-5, [D056](decizii/D056-motorul-ai-verificat.md), propusă).
+
+- Înainte de lansare, suma SHA-256 a `karios/ai/llama-server.exe` se compară cu lista din aplicație. Un binar necunoscut nu pornește, iar asistentul afișează `ai.server_necunoscut`. Lista conține binarul livrat cu 0.87.2.
+- `build.ps1 -CuCompilareAI` compilează motorul înaintea aplicației și îi pune suma în executabil (`-ldflags -X pontix/internal/ai.HashServerCompilat=…`).
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.88.2 · 2026-10-30
 
 Ștergerile simple și mesajele de politețe primesc răspuns din cod (F14-T30).

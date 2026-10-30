@@ -170,6 +170,11 @@ func (m *Manager) Porneste(ctx context.Context, numeModel string) error {
 		"--api-key", m.cheieAPI,
 	}
 
+	// Doar un server livrat cu aplicația (D056). Rămâne intervalul mic dintre verificare și
+	// lansare; cine îl poate folosi poate oricum rula programe ca utilizatorul curent.
+	if err := verificaServer(stare.CaleBinar); err != nil {
+		return err
+	}
 	cmd := exec.Command(stare.CaleBinar, args...)
 	ascundeConsola(cmd)
 

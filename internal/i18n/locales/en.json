@@ -1300,5 +1300,6 @@
   "seif.recuperare_asteapta_admin": "An administrator must write down and confirm the data recovery key before the application can be used. Ask an administrator to sign in.",
   "seif.cheie_noua": "Generate a new recovery key",
   "seif.cheie_noua_descriere": "If the paper with the recovery key is lost, generate a new one. The old key will stop working.",
-  "seif.cheie_noua_confirmare": "The current recovery key will stop working. Continue?"
+  "seif.cheie_noua_confirmare": "The current recovery key will stop working. Continue?",
+  "ai.server_necunoscut": "The AI engine in the karios\\ai folder is not the one shipped with the application and was not started. Replace llama-server.exe with the file from the official package."
 }

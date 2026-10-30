@@ -54,9 +54,19 @@ try {
         [IO.File]::WriteAllText($caleManifest, (($manifest | ConvertTo-Json) -replace "`r`n", "`n") + "`n", [Text.UTF8Encoding]::new($false))
     }
     Scrie-ManifestBuild
+    # Motorul AI compilat nativ se face inaintea aplicatiei: suma lui intra in executabil, care
+    # porneste doar servere cunoscute (D056).
+    $flagi = "-X pontix/internal/versiune.Commit=$commit"
+    $rezAI = $null
+    if ($CuCompilareAI) {
+        Write-Host "Compilare nativa llama-server pentru livrare..." -ForegroundColor Cyan
+        $rezAI = & (Join-Path $PSScriptRoot 'scripts/compileaza-llama.ps1')
+        if ($rezAI.SHA256 -notmatch '^[0-9A-Fa-f]{64}$') { throw 'Suma llama-server compilat este invalida.' }
+        $flagi += " -X pontix/internal/ai.HashServerCompilat=$($rezAI.SHA256)"
+    }
     # -m/-nosyncgomod pastreaza dependentele fixate. Nu folosim -clean sau nivelul verbose 2.
     $iesireWails = $numeDirector + '/' + $NumeExecutabil
-    wails build -o $iesireWails -m -nosyncgomod -trimpath -ldflags "-X pontix/internal/versiune.Commit=$commit" | Out-Host
+    wails build -o $iesireWails -m -nosyncgomod -trimpath -ldflags $flagi | Out-Host
     $codBuild = $LASTEXITCODE
     # Generatorul adauga spatii la sfarsit de linie; pastram formatul fisierului urmarit in Git.
     $caleModele = Join-Path $PSScriptRoot 'frontend/wailsjs/go/models.ts'
@@ -77,9 +87,7 @@ try {
     $manifest.stare = 'complet'
     $manifest.sha256 = (Get-FileHash -LiteralPath $caleExecutabil -Algorithm SHA256).Hash
 
-    if ($CuCompilareAI) {
-        Write-Host "Compilare nativa llama-server pentru livrare..." -ForegroundColor Cyan
-        $rezAI = & (Join-Path $PSScriptRoot 'scripts/compileaza-llama.ps1')
+    if ($null -ne $rezAI) {
         $destAiDir = Join-Path $directorBuild 'karios/ai'
         New-Item -ItemType Directory -Path $destAiDir -Force | Out-Null
         Copy-Item -LiteralPath $rezAI.Executabil -Destination (Join-Path $destAiDir 'llama-server.exe') -Force
