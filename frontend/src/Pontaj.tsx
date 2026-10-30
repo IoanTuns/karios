@@ -9,6 +9,7 @@ import {Dialog, denumireSectie, denumireDepartament} from './Formulare';
 import {programPlanificat} from './Planificare';
 import {notifica} from './Toast';
 import {formatData} from './formatare';
+import {AsistentAI} from './AsistentAI';
 
 type Pozitie = {rand: number; zi: number};
 type Selectie = {inceput: Pozitie; sfarsit: Pozitie};
@@ -37,6 +38,7 @@ type ActiuniCelula = {
     mouseEnter: (e: MouseEvent<HTMLInputElement>, r: number, z: number) => void;
     keyDown: (e: KeyboardEvent<HTMLInputElement>, r: number, z: number) => void;
     dublu: () => void;
+    contextMenu: (e: MouseEvent<HTMLInputElement>, r: number, z: number) => void;
 };
 
 type PropsRand = {
@@ -84,7 +86,8 @@ const RandPontaj = memo(function RandPontaj({a, r, zile, weekend, sarbatori, sel
                 onFocus={() => actiuni.current.focus(r, z)}
                 onMouseDown={e => actiuni.current.mouseDown(e, r, z)}
                 onMouseEnter={e => actiuni.current.mouseEnter(e, r, z)}
-                onKeyDown={e => actiuni.current.keyDown(e, r, z)} onDoubleClick={() => actiuni.current.dublu()}/></td>;
+                onKeyDown={e => actiuni.current.keyDown(e, r, z)} onDoubleClick={() => actiuni.current.dublu()}
+                onContextMenu={e => actiuni.current.contextMenu(e, r, z)}/></td>;
         })}
         {totaluri.map(c => {const v=valori?.[c],regula=reguli?.find(r=>r.coloana===c),titluTotal=!v?.definita?t('pontaj.necalculat'):regula?.sursa==='ORE_NORMA'?t('pontaj.ore_norm_explicatie'):t(v.unitate==='ZILE'?'pontaj.unitate_zile':'pontaj.unitate_ore');return <td key={c} className={`${!v?.definita?'total-necalculat':''} ${c==='T'?'fix-total-t':''}`.trim()} title={titluTotal}>{calculare?'…':v?valoareText(v):areCalcul&&regula?.sursa!=='NEDEFINITA'?'0':'—'}</td>;})}</tr>;
 });
@@ -134,6 +137,20 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
     const grila = useRef<HTMLDivElement>(null);
     const ignoraFocus = useRef(false);
     const blocat = useRef(false);
+    const [meniuCtx, setMeniuCtx] = useState<{x: number; y: number; rand: number; zi: number} | null>(null);
+    const [drawerAI, setDrawerAI] = useState(false);
+
+    useEffect(() => {
+        if (!meniuCtx) return;
+        const inchide = () => setMeniuCtx(null);
+        const laTasta = (e: globalThis.KeyboardEvent) => { if (e.key === 'Escape') setMeniuCtx(null); };
+        window.addEventListener('pointerdown', inchide);
+        window.addEventListener('keydown', laTasta);
+        return () => {
+            window.removeEventListener('pointerdown', inchide);
+            window.removeEventListener('keydown', laTasta);
+        };
+    }, [meniuCtx]);
 
     // Numai contextul de navigare rămâne în sesiune; schița se reîncarcă din baza de date.
     useEffect(() => () => { context.current = stareCurenta.current; }, [context]);
@@ -218,6 +235,47 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
         });
     }, [date.angajati, schita, calculat, sectie, departament, categorieProgram, cautare, filtruRanduri, modificari, inlocuiri, totaluriCalculate, oreCalculate, absente, originale, zile]);
     const sarbatori = useMemo(() => new Map((calendar?.sarbatori ?? []).map(s => [s.data, s.denumire[i18n.language] || s.denumire.ro || Object.values(s.denumire).find(Boolean) || ''])), [calendar, i18n.language]);
+    const acoperireZile = useMemo(() => {
+        return zile.map((data, z) => {
+            let lucratori = 0;
+            let minuteTotal = 0;
+            let areGarda = false;
+            randuri.forEach(a => {
+                const k = cheie(a.id, data);
+                if (absente.has(k)) return;
+                const val = modificari.get(k)?.valoare ?? originale.get(k)?.valoare ?? '';
+                const calc = oreCalculate.get(k);
+                const min = calc?.minute ?? 0;
+                if (val.trim() !== '' || min > 0) {
+                    lucratori++;
+                    minuteTotal += min;
+                    if (val.toUpperCase().startsWith('G') || val.toUpperCase() === 'N12') {
+                        areGarda = true;
+                    }
+                }
+            });
+            const esteWeekend = weekend[z];
+            const esteSarbatoare = sarbatori.has(data);
+            let clasaStare = 'heat-optim';
+            if (esteWeekend || esteSarbatoare) {
+                clasaStare = lucratori > 0 ? 'heat-acoperit' : 'heat-liber';
+            } else {
+                if (lucratori === 0) clasaStare = 'heat-deficit';
+                else if (lucratori < Math.max(1, Math.floor(randuri.length * 0.25))) clasaStare = 'heat-redus';
+                else clasaStare = 'heat-optim';
+            }
+            return {
+                data,
+                zi: z,
+                lucratori,
+                minuteTotal,
+                areGarda,
+                clasaStare,
+                esteWeekend,
+                esteSarbatoare
+            };
+        });
+    }, [zile, randuri, modificari, originale, absente, oreCalculate, weekend, sarbatori]);
     const numeSectie = (id: string) => { const s = date.sectii.find(s => s.id === id); return s ? denumireSectie(s, i18n.language) : t('ui.fara_sectie'); };
     const inceputRand = Math.min(selectie.inceput.rand, selectie.sfarsit.rand), sfarsitRand = Math.max(selectie.inceput.rand, selectie.sfarsit.rand);
     const inceputZi = Math.min(selectie.inceput.zi, selectie.sfarsit.zi), sfarsitZi = Math.max(selectie.inceput.zi, selectie.sfarsit.zi);
@@ -252,10 +310,24 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
     const actiuni = useRef<ActiuniCelula>(null!);
     actiuni.current = {
         focus: (r, z) => { if (ignoraFocus.current) ignoraFocus.current = false; else setSelectie({inceput: {rand: r, zi: z}, sfarsit: {rand: r, zi: z}}); },
-        mouseDown: (e, r, z) => { if (e.shiftKey) { e.preventDefault(); focalizeaza({rand: r, zi: z}, true); } },
+        mouseDown: (e, r, z) => {
+            if (meniuCtx) setMeniuCtx(null);
+            if (e.shiftKey) { e.preventDefault(); focalizeaza({rand: r, zi: z}, true); }
+            else if (e.button === 0) setSelectie({inceput: {rand: r, zi: z}, sfarsit: {rand: r, zi: z}});
+        },
         mouseEnter: (e, r, z) => { if (e.buttons === 1 && !ocupat) setSelectie(s => ({...s, sfarsit: {rand: r, zi: z}})); },
         keyDown: (e, r, z) => taste(e, r, z),
         dublu: () => deschideOreManuale(),
+        contextMenu: (e, r, z) => {
+            e.preventDefault();
+            const inSel = r >= inceputRand && r <= sfarsitRand && z >= inceputZi && z <= sfarsitZi;
+            if (!inSel) {
+                setSelectie({inceput: {rand: r, zi: z}, sfarsit: {rand: r, zi: z}});
+            }
+            const x = Math.min(e.clientX, window.innerWidth - 240);
+            const y = Math.min(e.clientY, window.innerHeight - 340);
+            setMeniuCtx({x, y, rand: r, zi: z});
+        },
     };
 
     function deschideOreManuale() {
@@ -367,15 +439,71 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
         }).join('\t')).join('\n');
     }
 
+    function interpreteazaValoare(text: string): string | null {
+        const tCurat = text.trim();
+        if (!tCurat) return '';
+        const codGasit = schimburi.find(s => s.cod.toUpperCase() === tCurat.toUpperCase());
+        if (codGasit) return codGasit.cod;
+        if (tCurat.startsWith('@M')) return tCurat;
+        const valManual = manual(tCurat);
+        if (valManual !== null) return valManual;
+        return null;
+    }
+
+    function proceseazaTextMatrice(text: string) {
+        if (ocupat || lunaBlocata || !randuri.length) return;
+        const linii = text.replace(/\r\n?/g, '\n').replace(/\n$/, '').split('\n').map(linie => linie.split('\t'));
+        if (linii.flat().some(t => interpreteazaValoare(t) === null)) {
+            setEroare(t('pontaj.ore_invalide'));
+            return;
+        }
+        if (linii.length === 1 && linii[0].length === 1) {
+            completeaza(interpreteazaValoare(linii[0][0])!);
+            return;
+        }
+        const celule: {rand: number; zi: number; text: string}[] = [];
+        for (let dr = 0; dr < linii.length; dr++) {
+            const r = inceputRand + dr;
+            if (r >= randuri.length) break;
+            for (let dz = 0; dz < linii[dr].length; dz++) {
+                const z = inceputZi + dz;
+                if (z >= numarZile) break;
+                const k = cheie(randuri[r].id, zile[z]);
+                if (absente.has(k)) continue;
+                celule.push({rand: r, zi: z, text: interpreteazaValoare(linii[dr][dz])!});
+            }
+        }
+        if (celule.length) {
+            aplicaCelule(celule);
+            notifica(t('pontaj.celule_lipite', {numar: celule.length}), 'succes');
+        }
+    }
+
     function lipeste(e: ClipboardEvent) {
         e.preventDefault();
-        if (ocupat || !randuri.length) return;
-        const text = e.clipboardData.getData('text/plain').replace(/\r\n?/g, '\n').replace(/\n$/, '');
-        const matrice = text.split('\n').map(linie => linie.split('\t'));
-        if(matrice.flat().some(text=>manual(text)===null)){setEroare(t('pontaj.ore_invalide'));return;}
-        if (matrice.length === 1 && matrice[0].length === 1) { completeaza(manual(matrice[0][0])!); return; }
-        const celule = matrice.flatMap((linie, r) => linie.map((text, z) => ({rand: inceputRand + r, zi: inceputZi + z, text:manual(text)!})));
-        aplicaCelule(celule);
+        proceseazaTextMatrice(e.clipboardData.getData('text/plain'));
+    }
+
+    async function lipesteDinClipboard() {
+        if (ocupat || lunaBlocata || !randuri.length) return;
+        try {
+            const text = await navigator.clipboard.readText();
+            if (text) proceseazaTextMatrice(text);
+        } catch {
+            setEroare(t('pontaj.clipboard'));
+        }
+    }
+
+    async function copiazaSelectia() {
+        if (!randuri.length) return;
+        const text = textSelectat();
+        if (!text) return;
+        try {
+            await navigator.clipboard.writeText(text);
+            notifica(t('pontaj.selectie_copiata'), 'info');
+        } catch {
+            setEroare(t('pontaj.clipboard'));
+        }
     }
 
     function focalizeaza(p: Pozitie, extinde: boolean) {
@@ -399,6 +527,8 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
     function taste(e: KeyboardEvent<HTMLInputElement>, r: number, z: number) {
         if ((e.ctrlKey || e.metaKey) && !e.altKey && e.key.toLowerCase() === 'z') { e.preventDefault(); if (e.shiftKey) refaPas(); else anuleazaPas(); return; }
         if ((e.ctrlKey || e.metaKey) && !e.altKey && e.key.toLowerCase() === 'y') { e.preventDefault(); refaPas(); return; }
+        if ((e.ctrlKey || e.metaKey) && !e.altKey && e.key.toLowerCase() === 'c') { e.preventDefault(); void copiazaSelectia(); return; }
+        if ((e.ctrlKey || e.metaKey) && !e.altKey && e.key.toLowerCase() === 'v') { e.preventDefault(); void lipesteDinClipboard(); return; }
         const directii: Record<string, [number, number]> = {ArrowLeft: [0, -1], ArrowRight: [0, 1], ArrowUp: [-1, 0], ArrowDown: [1, 0], Enter: [e.shiftKey ? -1 : 1, 0]};
         if (directii[e.key]) { e.preventDefault(); const [dr, dz] = directii[e.key]; focalizeaza({rand: r + dr, zi: z + dz}, e.shiftKey && e.key !== 'Enter'); }
         else if (e.key === 'Home') { e.preventDefault(); focalizeaza({rand: r, zi: 0}, e.shiftKey); }
@@ -604,6 +734,9 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                 <button type="button" className="buton secundar" title={t('program.completare_program_indiciu')} disabled={ocupat||!randuri.length||!programCompletare} onClick={precompleteazaLV}>{t('pontaj.precompleteaza_lv')}</button>
                 <button type="button" className="buton secundar" disabled={ocupat||!randuri.length} onClick={()=>void previzualizeazaCategorii(false)}>{t('program.precompleteaza')}</button>
                 <button type="button" className="buton secundar" title={t('pontaj.export_excel_titlu')} disabled={ocupat||!randuri.length} onClick={exportaExcel}>📊 {t('pontaj.export_excel')}</button>
+                <button type="button" className={`buton secundar buton-drawer-ai ${drawerAI ? 'panou-activ' : ''}`} title={t('pontaj.asistent_drawer_titlu')} onClick={() => setDrawerAI(v => !v)}>
+                    🤖 {t('nav.asistent_ai')}
+                </button>
                 <div className="grup-zoom-grila" role="group" aria-label={t('ui.densitate_grila')}>
                     <span className="eticheta-zoom">🔎 {t('ui.zoom')}</span>
                     <button type="button" className={`buton-zoom ${zoomGrila === 'compact' ? 'activ' : ''}`} title={t('ui.zoom_compact')} onClick={() => schimbaZoom('compact')}>S</button>
@@ -666,32 +799,70 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
             <div className="legenda-grila" aria-label={t('pontaj.legenda')}>
                 {['weekend', 'sarbatoare', 'selectie', 'modificat', 'avertisment', 'inlocuire'].map(stare => <span key={stare}><i aria-hidden="true" className={`mostra-${stare}`}/>{t(`pontaj.legenda_${stare}`)}</span>)}
             </div>
-            <div className={`panou grila-container zoom-${zoomGrila}`} ref={grila} onScroll={e => {
-                if (stareCurenta.current) { stareCurenta.current.derulareX = e.currentTarget.scrollLeft; stareCurenta.current.derulareY = e.currentTarget.scrollTop; }
-            }} onPaste={lipeste} onCopy={e => { e.preventDefault(); e.clipboardData.setData('text/plain', textSelectat()); }}>
-                <table className="grila-pontaj" aria-label={t('pontaj.grila', {an, luna})}><thead><tr><th className="fix-nume">{t('ui.angajat')}</th><th className="fix-marca">{t('ui.marca')}</th>
-                    {zile.map((data, z) => { const d = new Date(`${data}T12:00:00Z`); return <th key={data} className={sarbatori.has(data) ? 'zi-sarbatoare' : weekend[z] ? 'zi-weekend' : ''} title={sarbatori.get(data) || ''} scope="col"><strong>{z + 1}</strong><small>{formatData(i18n.language, {weekday: 'short', timeZone: 'UTC'}).format(d)}</small></th>; })}
-                    {totaluri.map(c => <th key={c} className={c === 'T' ? 'fix-total-t' : ''}>{t(`pontaj.total_${c}`)}</th>)}</tr></thead><tbody>
-                    {randuri.map((a, r) => <RandPontaj key={a.id} a={a} r={r} zile={zile} weekend={weekend} sarbatori={sarbatori}
-                        selDe={r >= inceputRand && r <= sfarsitRand ? inceputZi : -1} selPana={r >= inceputRand && r <= sfarsitRand ? sfarsitZi : -1}
-                        modificari={modificari} originale={originale} absente={absente} inlocuiri={inlocuiri} oreCalculate={oreCalculate}
-                        valori={totaluriCalculate.get(a.id)} reguli={schita?.configuratie.reguli} angajati={date.angajati}
-                        ocupat={ocupat} calculare={calculare} areCalcul={Boolean(calculat)} actiuni={actiuni}/>)}
-                </tbody></table>
-                {randuri.length === 0 && (
-                    <div className="card-onboarding-gol" role="region" aria-label={t('ui.ghid_pornire')}>
-                        <div className="simbol-gol">📋</div>
-                        <h3>{t('pontaj.gol_titlu')}</h3>
-                        <p>{t('pontaj.gol_descriere')}</p>
-                        <div className="actiuni-onboarding-rapide">
-                            <button type="button" className="buton secundar" onClick={() => setReincarcare(x => x + 1)}>
-                                🔄 {t('ui.reincarca_datele')}
-                            </button>
-                            <button type="button" className="buton secundar" onClick={() => { setSectie(''); setDepartament(''); setCautare(''); setFiltruRanduri(''); setCategorieProgram(''); }}>
-                                {t('ui.reseteaza_filtrele')}
-                            </button>
-                        </div>
+            <div className={`panou-pontaj-layout ${drawerAI ? 'cu-drawer-ai' : ''}`}>
+                <div className="zona-grila-principala">
+                    <div className={`panou grila-container zoom-${zoomGrila}`} ref={grila} onScroll={e => {
+                        if (stareCurenta.current) { stareCurenta.current.derulareX = e.currentTarget.scrollLeft; stareCurenta.current.derulareY = e.currentTarget.scrollTop; }
+                    }} onPaste={lipeste} onCopy={e => { e.preventDefault(); e.clipboardData.setData('text/plain', textSelectat()); }}>
+                        <table className="grila-pontaj" aria-label={t('pontaj.grila', {an, luna})}><thead>
+                            <tr><th className="fix-nume">{t('ui.angajat')}</th><th className="fix-marca">{t('ui.marca')}</th>
+                            {zile.map((data, z) => { const d = new Date(`${data}T12:00:00Z`); return <th key={data} className={sarbatori.has(data) ? 'zi-sarbatoare' : weekend[z] ? 'zi-weekend' : ''} title={sarbatori.get(data) || ''} scope="col"><strong>{z + 1}</strong><small>{formatData(i18n.language, {weekday: 'short', timeZone: 'UTC'}).format(d)}</small></th>; })}
+                            {totaluri.map(c => <th key={c} className={c === 'T' ? 'fix-total-t' : ''}>{t(`pontaj.total_${c}`)}</th>)}</tr>
+                            <tr className="rand-heatmap" aria-label={t('pontaj.acoperire')}>
+                                <th className="fix-nume titlu-heat" scope="row"><strong>{t('pontaj.acoperire')}</strong></th>
+                                <th className="fix-marca titlu-heat-marca"><small>{randuri.length ? `${Math.round(acoperireZile.reduce((s, z) => s + z.lucratori, 0) / (numarZile || 1))}/zi` : '—'}</small></th>
+                                {acoperireZile.map(az => (
+                                    <th key={`heat-${az.data}`} className={`celula-heat ${az.clasaStare} ${az.esteWeekend ? 'heat-weekend' : ''} ${az.esteSarbatoare ? 'heat-sarbatoare' : ''}`}
+                                        title={t('pontaj.tooltip_heat', {data: az.data, lucratori: az.lucratori, ore: oreText(az.minuteTotal)})}>
+                                        <div className="heat-bara">
+                                            <span className="heat-cifra">{az.lucratori > 0 ? az.lucratori : '—'}</span>
+                                        </div>
+                                    </th>
+                                ))}
+                                {totaluri.map(c => <th key={`heat-tot-${c}`} className={`celula-heat-total ${c === 'T' ? 'fix-total-t' : ''}`} />)}
+                            </tr>
+                        </thead><tbody>
+                            {randuri.map((a, r) => <RandPontaj key={a.id} a={a} r={r} zile={zile} weekend={weekend} sarbatori={sarbatori}
+                                selDe={r >= inceputRand && r <= sfarsitRand ? inceputZi : -1} selPana={r >= inceputRand && r <= sfarsitRand ? sfarsitZi : -1}
+                                modificari={modificari} originale={originale} absente={absente} inlocuiri={inlocuiri} oreCalculate={oreCalculate}
+                                valori={totaluriCalculate.get(a.id)} reguli={schita?.configuratie.reguli} angajati={date.angajati}
+                                ocupat={ocupat} calculare={calculare} areCalcul={Boolean(calculat)} actiuni={actiuni}/>)}
+                        </tbody></table>
+                        {randuri.length === 0 && (
+                            <div className="card-onboarding-gol" role="region" aria-label={t('ui.ghid_pornire')}>
+                                <div className="simbol-gol">📋</div>
+                                <h3>{t('pontaj.gol_titlu')}</h3>
+                                <p>{t('pontaj.gol_descriere')}</p>
+                                <div className="actiuni-onboarding-rapide">
+                                    <button type="button" className="buton secundar" onClick={() => setReincarcare(x => x + 1)}>
+                                        🔄 {t('ui.reincarca_datele')}
+                                    </button>
+                                    <button type="button" className="buton secundar" onClick={() => { setSectie(''); setDepartament(''); setCautare(''); setFiltruRanduri(''); setCategorieProgram(''); }}>
+                                        {t('ui.reseteaza_filtrele')}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
+                </div>
+                {drawerAI && (
+                    <aside className="drawer-asistent-pontaj" aria-label={t('nav.asistent_ai')}>
+                        <header className="antet-drawer-ai">
+                            <div className="titlu-drawer">
+                                <strong>🤖 {t('pontaj.asistent_local_titlu')}</strong>
+                                <small>{t('pontaj.asistent_drawer_subtitlu')}</small>
+                            </div>
+                            <button type="button" className="buton-inchide-drawer" aria-label={t('ui.inchide')} onClick={() => setDrawerAI(false)}>✕</button>
+                        </header>
+                        <div className="continut-drawer-ai">
+                            <AsistentAI
+                                date={date}
+                                perioadaEcran={{an, luna}}
+                                onDeschidePontaj={(a, l) => { setAn(a); setAnText(String(a)); setLuna(l); }}
+                                onDeschideConcediu={onDeschideAbsente ? c => onDeschideAbsente(an, c.angajatId) : undefined}
+                            />
+                        </div>
+                    </aside>
                 )}
             </div>
             <p className="indiciu-grila">{t('pontaj.dimensiuni', {randuri: randuri.length, zile: numarZile})} · {t('pontaj.inactivi_indiciu')}</p>
@@ -703,5 +874,44 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
             <ul>{Object.entries(plan.omise).sort(([a],[b])=>a.localeCompare(b)).map(([motiv,numar])=><li key={motiv}>{t(`program.omise_${motiv}`,{numar})}</li>)}</ul>
             {plan.celule.length>0&&<div className="tabel-derulant"><table><thead><tr><th>{t('ui.angajat')}</th><th>{t('program.data')}</th><th>{t('program.program')}</th></tr></thead><tbody>{plan.celule.slice(0,100).map(c=><tr key={`${c.angajat_id}/${c.data}`}><td>{date.angajati.find(a=>a.id===c.angajat_id)?.nume} {date.angajati.find(a=>a.id===c.angajat_id)?.prenume}</td><td>{c.data}</td><td>{schimburi.find(s=>s.cod===c.valoare)?.denumire[i18n.language]||c.valoare}</td></tr>)}</tbody></table>{plan.celule.length>100&&<p>{t('program.primele_propuneri')}</p>}</div>}
         </div><footer className="subsol-dialog"><button className="buton secundar" disabled={ocupat} onClick={()=>setPlan(null)}>{t('ui.anuleaza')}</button><button className="buton primar" disabled={ocupat||!plan.celule.length} onClick={aplicaPlan}>{t('program.aplica_plan')}</button></footer></Dialog>}
+        {meniuCtx && (
+            <div className="meniu-contextual-grila" style={{top: meniuCtx.y, left: meniuCtx.x}} role="menu" aria-label={t('pontaj.meniu_contextual')} onPointerDown={e => e.stopPropagation()}>
+                <div className="antet-meniu-ctx">
+                    <strong>{randuri[meniuCtx.rand]?.nume} {randuri[meniuCtx.rand]?.prenume}</strong>
+                    <small>{zile[meniuCtx.zi] ? `${zile[meniuCtx.zi]} (ziua ${meniuCtx.zi + 1})` : ''}</small>
+                </div>
+                <div className="separator-meniu-ctx" />
+                <div className="sectiune-titlu-ctx">{t('pontaj.schimburi_frecvente')}</div>
+                <div className="grup-cipuri-ctx">
+                    {schimburi.filter(s => s.activ).slice(0, 6).map(s => (
+                        <button key={s.id} type="button" className="cip-schimb-ctx" disabled={ocupat || lunaBlocata} onClick={() => { completeaza(s.cod); setMeniuCtx(null); }}>
+                            {s.cod}
+                        </button>
+                    ))}
+                    <button type="button" className="cip-schimb-ctx cip-sterge-ctx" disabled={ocupat || lunaBlocata} onClick={() => { completeaza(''); setMeniuCtx(null); }}>
+                        {t('pontaj.sterge_celule')}
+                    </button>
+                </div>
+                <div className="separator-meniu-ctx" />
+                <button type="button" className="element-meniu-ctx" onClick={() => { void copiazaSelectia(); setMeniuCtx(null); }}>
+                    <span>📋</span> {t('pontaj.copiaza_scurtatura')}
+                </button>
+                <button type="button" className="element-meniu-ctx" disabled={ocupat || lunaBlocata} onClick={() => { void lipesteDinClipboard(); setMeniuCtx(null); }}>
+                    <span>📥</span> {t('pontaj.lipeste_scurtatura')}
+                </button>
+                {onDeschideAbsente && randuri[meniuCtx.rand] && (
+                    <>
+                        <div className="separator-meniu-ctx" />
+                        <button type="button" className="element-meniu-ctx" onClick={() => {
+                            const ang = randuri[meniuCtx.rand];
+                            setMeniuCtx(null);
+                            if (poateAbandona()) onDeschideAbsente(an, ang.id);
+                        }}>
+                            <span>🗓️</span> {t('pontaj.deschide_absente')}
+                        </button>
+                    </>
+                )}
+            </div>
+        )}
     </section>;
 }

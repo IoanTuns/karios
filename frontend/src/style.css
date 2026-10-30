@@ -988,3 +988,261 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .panou-eroare-componenta h3 { margin: 0 0 10px; display: flex; align-items: center; gap: 8px; }
 .panou-eroare-componenta > p { margin: 0 0 14px; font-size: 13px; color: var(--eroare-text-2); }
 .panou-eroare-componenta .detalii-eroare { background: var(--eroare-cod-fond); border: 1px solid var(--eroare-contur); padding: 10px 14px; border-radius: 6px; font-family: monospace; font-size: 12px; margin-bottom: 16px; overflow-x: auto; white-space: pre-wrap; }
+
+/* F16-T17: Meniu contextual la clic dreapta pe celula din grilă */
+.meniu-contextual-grila {
+    position: fixed;
+    z-index: 1200;
+    background: var(--panou);
+    color: var(--text);
+    border: 1px solid var(--linie);
+    border-radius: 8px;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
+    min-width: 220px;
+    max-width: 280px;
+    padding: 6px 0;
+    font-size: 13px;
+    user-select: none;
+    animation: fadeInCtx 0.12s ease-out;
+}
+@keyframes fadeInCtx {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
+}
+.antet-meniu-ctx {
+    padding: 6px 12px 4px;
+    display: flex;
+    flex-direction: column;
+}
+.antet-meniu-ctx strong {
+    font-size: 13px;
+    color: var(--text);
+}
+.antet-meniu-ctx small {
+    font-size: 11px;
+    color: var(--discret);
+}
+.separator-meniu-ctx {
+    height: 1px;
+    background: var(--linie);
+    margin: 4px 0;
+}
+.sectiune-titlu-ctx {
+    padding: 4px 12px 2px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--discret);
+    font-weight: 600;
+}
+.grup-cipuri-ctx {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 4px 12px 6px;
+}
+.cip-schimb-ctx {
+    border: 1px solid var(--linie);
+    background: var(--fundal);
+    color: var(--text);
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 3px 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.cip-schimb-ctx:hover:not(:disabled) {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+}
+.cip-sterge-ctx {
+    color: #e53935;
+    border-color: rgba(229, 57, 53, 0.3);
+}
+.cip-sterge-ctx:hover:not(:disabled) {
+    background: #e53935;
+    color: #ffffff;
+}
+.element-meniu-ctx {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    border: none;
+    background: transparent;
+    color: var(--text);
+    font-size: 12.5px;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.12s;
+}
+.element-meniu-ctx:hover:not(:disabled) {
+    background: var(--hover, rgba(0, 100, 80, 0.08));
+    color: var(--accent);
+}
+.element-meniu-ctx:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+/* F16-T16: Mini-hartă de acoperire pe zile (Heatmap în antetul grilei) */
+.rand-heatmap th {
+    padding: 2px 3px !important;
+    height: 28px;
+    border-bottom: 2px solid var(--linie) !important;
+    background: var(--fundal);
+    font-weight: 500;
+}
+.titlu-heat {
+    font-size: 11px;
+    color: var(--discret);
+    text-align: left !important;
+    padding-left: 8px !important;
+}
+.titlu-heat-marca {
+    font-size: 11px;
+    color: var(--discret);
+    text-align: center !important;
+}
+.celula-heat {
+    text-align: center;
+    transition: background-color 0.2s ease;
+}
+.heat-bara {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 20px;
+    border-radius: 3px;
+}
+.heat-cifra {
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+}
+.heat-optim {
+    background-color: rgba(46, 125, 50, 0.12) !important;
+    color: #2e7d32;
+}
+.heat-deficit {
+    background-color: rgba(211, 47, 47, 0.18) !important;
+    color: #d32f2f;
+}
+.heat-redus {
+    background-color: rgba(245, 124, 0, 0.15) !important;
+    color: #f57c00;
+}
+.heat-acoperit {
+    background-color: rgba(56, 142, 60, 0.18) !important;
+    color: #2e7d32;
+}
+.heat-liber {
+    background-color: transparent !important;
+    color: var(--discret);
+}
+[data-theme="dark"] .heat-optim {
+    background-color: rgba(76, 175, 80, 0.18) !important;
+    color: #81c784;
+}
+[data-theme="dark"] .heat-deficit {
+    background-color: rgba(244, 67, 54, 0.22) !important;
+    color: #e57373;
+}
+[data-theme="dark"] .heat-redus {
+    background-color: rgba(255, 152, 0, 0.2) !important;
+    color: #ffb74d;
+}
+[data-theme="dark"] .heat-acoperit {
+    background-color: rgba(129, 199, 132, 0.2) !important;
+    color: #a5d6a7;
+}
+
+/* F16-T17: Drawer retractabil pentru Asistentul AI integrat în Pontaj */
+.panou-pontaj-layout {
+    display: flex;
+    gap: 12px;
+    align-items: stretch;
+    width: 100%;
+    position: relative;
+}
+.zona-grila-principala {
+    flex: 1;
+    min-width: 0;
+    transition: all 0.2s ease;
+}
+.drawer-asistent-pontaj {
+    width: 420px;
+    max-width: 45vw;
+    background: var(--panou);
+    border: 1px solid var(--linie);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: -4px 6px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    animation: slideInDrawer 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes slideInDrawer {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+.antet-drawer-ai {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--linie);
+    background: var(--fundal);
+}
+.titlu-drawer {
+    display: flex;
+    flex-direction: column;
+}
+.titlu-drawer strong {
+    font-size: 13.5px;
+    color: var(--text);
+}
+.titlu-drawer small {
+    font-size: 11px;
+    color: var(--discret);
+}
+.buton-inchide-drawer {
+    border: none;
+    background: transparent;
+    color: var(--discret);
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.buton-inchide-drawer:hover {
+    background: var(--hover, rgba(0, 0, 0, 0.05));
+    color: var(--text);
+}
+.continut-drawer-ai {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+}
+.continut-drawer-ai .ecran-asistent-ai {
+    padding: 0;
+    max-width: 100%;
+}
+.continut-drawer-ai .zona-istoric-ai {
+    max-height: 52vh;
+}
+.buton-drawer-ai {
+    font-weight: 600;
+}
+.buton-drawer-ai.panou-activ {
+    background: var(--accent) !important;
+    color: #ffffff !important;
+    border-color: var(--accent) !important;
+}

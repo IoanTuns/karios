@@ -4,6 +4,14 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.88.13 · 2026-10-30
+
+F16-T17..T19: pachet de optimizări ergonomice și UI/UX pentru grila de Pontaj:
+- Meniu contextual desktop la clic dreapta pe celulă sau pe selecția de celule, cu acces rapid la atribuirea schimburilor frecvente, ștergere/eliberare, comenzi de copiere/lipire și salt direct la ecranul de Concedii și absențe.
+- Copiere și lipire avansată din clipboard (Ctrl+C / Ctrl+V): suport pentru matrice tabelară compatibilă cu Excel, interpretarea atât a orelor zecimale cât și a codurilor de schimb (G24, 12, etc.), respectând protecția celulelor cu absențe aprobate și oferind notificări tip toast.
+- Mini-hartă vizuală de acoperire pe zile (Heatmap acoperire / deficit în antetul grilei): afișează numărul de angajați prezenți pe fiecare zi, evidențiind deficitele din zilele lucrătoare și acoperirea din weekend/sărbători legale.
+- Panou lateral retractabil (Drawer) pentru Asistentul AI integrat direct în ecranul de Pontaj: permite conversația cu asistentul și aplicarea modificărilor pe grilă fără părăsirea contextului de lucru.
+
 ## 0.88.12 · 2026-10-30
 
 Tema întunecată corectă pe toate ecranele (F16-T16, restul UI-2).
