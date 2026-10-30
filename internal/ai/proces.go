@@ -205,6 +205,9 @@ func (m *Manager) Porneste(ctx context.Context, numeModel string) error {
 		case <-ticker.C:
 			if VerificaSanatate(m.port) {
 				m.activ = true
+				// Instrucțiunile intră în cache în fundal; o întrebare pusă între timp așteaptă
+				// în același slot și pornește apoi de la cache (F14-T29).
+				go func(c *Client) { _ = c.Incalzeste(context.Background()) }(NouClient(m.port).CuCheie(m.cheieAPI))
 				return nil
 			}
 		}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"strings"
 	"testing"
 )
 
@@ -23,7 +24,7 @@ func TestReluareContextDepasit(t *testing.T) {
 				if err := json.NewDecoder(r.Body).Decode(&cerere); err != nil {
 					t.Fatal(err)
 				}
-				if apeluri == 2 && (len(cerere.Mesaje) != 2 || cerere.Mesaje[0].Rol != "system" || cerere.Mesaje[1].Continut != "cererea curenta") {
+				if apeluri == 2 && (len(cerere.Mesaje) != 3 || cerere.Mesaje[0].Rol != "system" || !strings.HasPrefix(cerere.Mesaje[1].Continut, "DATE DE LUCRU") || cerere.Mesaje[2].Continut != "cererea curenta") {
 					t.Fatalf("mesaje la reluare: %+v", cerere.Mesaje)
 				}
 				w.WriteHeader(http.StatusBadRequest)

@@ -4,6 +4,18 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.88.1 · 2026-10-30
+
+Asistentul AI răspunde mai repede (F14-T29).
+
+- Măsurat pe calculatorul de dezvoltare (i5-8265U, 4 nuclee): la fiecare cerere, serverul citea din nou ~2.500 de tokeni de prompt (104 s), iar generarea răspunsului lua doar ~9 s. Datele variabile stăteau în promptul de sistem, înaintea instrucțiunilor și uneltelor, deci cache-ul serverului nu se putea folosi.
+- Promptul de sistem are acum doar instrucțiunile fixe; datele de lucru (anul, luna, schimburile, personalul, absențele, turele) vin într-un mesaj de sistem separat, chiar înaintea ultimei cereri. Începutul cererii e identic de la un mesaj la altul și serverul îl reia din cache (`cache_prompt`).
+- La pornirea motorului AI, instrucțiunile și uneltele se încarcă în cache în fundal, înaintea primei întrebări.
+- Limita de generare scade de la 1.024 la 512 tokeni, iar așteptarea clientului crește de la 180 s la 300 s (prima întrebare poate aștepta încălzirea).
+- Evaluarea (`TestEvaluareModele`, Qwen2.5-3B): 8/8 corecte, ca înainte; comenzile după prima: 19–33 s (înainte 69–124 s); prima comandă, cu încălzirea: 165 s.
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.88.0 · 2026-10-30
 
 Copia seifului lângă backup-uri (F05-T27, [D055](decizii/D055-seiful-in-backup.md)).

@@ -116,7 +116,7 @@ func NouClient(port int) *Client {
 	return &Client{
 		baseURL: fmt.Sprintf("http://127.0.0.1:%d", port),
 		httpClient: &http.Client{
-			Timeout: 180 * time.Second,
+			Timeout: 300 * time.Second, // prima cerere poate aștepta încălzirea cache-ului (F14-T29)
 		},
 	}
 }
@@ -306,25 +306,13 @@ func (c *Client) Interogheaza(ctx context.Context, istoric []MesajConversatie, i
 	// Rutele rezolvate din cod (concediu, planificare, întrebări) sunt alese înainte, de Ruteaza
 	// (F14-T27); clientul trimite la model doar ce a rămas.
 
-	// Construiește promptul de sistem cu instrucțiuni și contextul disponibil
-	promptSistem := construiestePromptSistem(info)
-
-	mesaje := []map[string]any{
-		{"role": "system", "content": promptSistem},
-	}
-	for _, m := range istoric {
-		mesaje = append(mesaje, map[string]any{
-			"role":    m.Rol,
-			"content": m.Continut,
-		})
-	}
-
 	corpCerere := map[string]any{
-		"max_tokens":  1024,
-		"messages":    mesaje,
-		"tools":       definitiiUnelte,
-		"tool_choice": "auto",
-		"temperature": 0.1, // Răspunsuri deterministe și precise
+		"max_tokens":   512, // un apel de unealtă are ~40 de tokeni; pe CPU se generează ~4 tokeni/s
+		"messages":     mesajeCerere(istoric, info),
+		"cache_prompt": true, // llama.cpp: reia din cache începutul identic al cererii (F14-T29)
+		"tools":        definitiiUnelte,
+		"tool_choice":  "auto",
+		"temperature":  0.1, // Răspunsuri deterministe și precise
 	}
 
 	dateJSON, err := json.Marshal(corpCerere)
@@ -858,14 +846,40 @@ func corecteazaSchimbDacaEroare(args map[string]any, istoric []MesajConversatie,
 	return args
 }
 
-func construiestePromptSistem(info ContextPontix) string {
+// Incalzeste trimite o dată instrucțiunile și uneltele, fără date, ca serverul să le aibă în cache
+// înainte de prima întrebare a utilizatorului (F14-T29). Răspunsul nu se folosește.
+func (c *Client) Incalzeste(ctx context.Context) error {
+	corp, err := json.Marshal(map[string]any{
+		"max_tokens":   1,
+		"messages":     []map[string]any{{"role": "system", "content": promptInstructiuni()}, {"role": "user", "content": "."}},
+		"tools":        definitiiUnelte,
+		"tool_choice":  "auto",
+		"cache_prompt": true,
+	})
+	if err != nil {
+		return err
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+"/v1/chat/completions", bytes.NewReader(corp))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	if c.cheieAPI != "" {
+		req.Header.Set("Authorization", "Bearer "+c.cheieAPI)
+	}
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return err
+	}
+	_, _ = io.Copy(io.Discard, resp.Body)
+	return resp.Body.Close()
+}
+
+// promptInstructiuni e partea fixă a promptului de sistem: nu depinde de cerere, deci serverul
+// o citește o singură dată și o păstrează în cache între cereri (F14-T29). Pe CPU, citirea celor
+// ~2.000 de tokeni de instrucțiuni și unelte dura peste 100 s la fiecare mesaj.
+func promptInstructiuni() string {
 	var sb strings.Builder
-	if info.Domeniu != "" {
-		sb.WriteString("Context specific cererii: " + info.Domeniu + ". Selecțiile de grup și modificările sunt verificate ulterior de aplicație.\n")
-	}
-	if info.ContextIncomplet {
-		sb.WriteString("CONTEXT PARȚIAL: lipsa unei persoane sau înregistrări din acest context NU înseamnă că ea nu există. Nu enumera și nu număra echipa din acest extras. Nu afirma rezultate exacte din date incomplete; cere precizări.\n")
-	}
 	sb.WriteString("Ești Asistentul inteligent al aplicației Pontix pentru pontaj și planificare de gărzi/ture.\n")
 	sb.WriteString("Răspunde întotdeauna concis, politicos și în limba română (sau engleză dacă ți se cere).\n")
 	sb.WriteString("NU inventa date și NU calcula formule salariale pe cont propriu.\n")
@@ -883,7 +897,20 @@ func construiestePromptSistem(info ContextPontix) string {
 	sb.WriteString("  * 'gardă', '24 ore' -> codul este G24.\n")
 	sb.WriteString("- REGULĂ STRICTĂ: Orice planificare cerută de utilizator se execută EXCLUSIV prin apel de unelte (tool calls). NU genera niciodată în text confirmări simulate sau 'Acțiuni propuse' fără tool call!\n")
 	sb.WriteString("- Răspunde doar la ultima cerere a utilizatorului. NU scrie în text că ai planificat sau aplicat ceva: orice modificare se face doar prin apel de unealtă, iar utilizatorul o confirmă.\n")
-	sb.WriteString("- Folosește EXACT numărul de marcă așa cum este indicat în lista de personal de mai jos (ex: 'DEMO-008', NU prescurta și nu elimina cratima).\n")
+	sb.WriteString("- Folosește EXACT numărul de marcă așa cum este indicat în lista de personal din datele de lucru (ex: 'DEMO-008', NU prescurta și nu elimina cratima).\n")
+	sb.WriteString("Datele de lucru (anul, luna, schimburile, personalul, absențele și turele) vin într-un mesaj de sistem separat, chiar înaintea ultimei cereri a utilizatorului. Acționează doar dacă acea cerere o cere explicit.\n")
+	return sb.String()
+}
+
+// promptDate e partea variabilă: datele relevante pentru cererea curentă (ContextPentruCerere).
+func promptDate(info ContextPontix) string {
+	var sb strings.Builder
+	if info.Domeniu != "" {
+		sb.WriteString("Context specific cererii: " + info.Domeniu + ". Selecțiile de grup și modificările sunt verificate ulterior de aplicație.\n")
+	}
+	if info.ContextIncomplet {
+		sb.WriteString("CONTEXT PARȚIAL: lipsa unei persoane sau înregistrări din acest context NU înseamnă că ea nu există. Nu enumera și nu număra echipa din acest extras. Nu afirma rezultate exacte din date incomplete; cere precizări.\n")
+	}
 	sb.WriteString(fmt.Sprintf("Anul curent de lucru: %d, Luna: %d.\n", info.An, info.Luna))
 
 	if len(info.Schimburi) > 0 {
@@ -926,6 +953,21 @@ func construiestePromptSistem(info ContextPontix) string {
 	}
 
 	return sb.String()
+}
+
+// mesajeCerere pune instrucțiunile fixe primele, apoi istoricul, iar datele de lucru într-un mesaj de
+// sistem chiar înaintea ultimei cereri: așa, începutul cererii (instrucțiuni, unelte, istoric) e
+// identic de la un mesaj la altul și serverul reia din cache tot ce nu s-a schimbat, iar cererea
+// utilizatorului rămâne curată (lipită de date, modelul le trata ca parte din cerere).
+func mesajeCerere(istoric []MesajConversatie, info ContextPontix) []map[string]any {
+	mesaje := []map[string]any{{"role": "system", "content": promptInstructiuni()}}
+	for x, m := range istoric {
+		if x == len(istoric)-1 && m.Rol == "user" {
+			mesaje = append(mesaje, map[string]any{"role": "system", "content": "DATE DE LUCRU:\n" + promptDate(info)})
+		}
+		mesaje = append(mesaje, map[string]any{"role": m.Rol, "content": m.Continut})
+	}
+	return mesaje
 }
 
 func construiesteDescrierePropunere(numeFunctie string, args map[string]any, info ContextPontix) string {

@@ -109,7 +109,7 @@ func TestContextSpecificNuTrimiteEchipa(t *testing.T) {
 				t.Fatalf("persoană nerelevantă: %+v", a)
 			}
 		}
-		if !strings.Contains(construiestePromptSistem(r), "CONTEXT PARȚIAL") {
+		if !strings.Contains(promptDate(r), "CONTEXT PARȚIAL") {
 			t.Fatal("nu semnalează contextul parțial")
 		}
 	}
