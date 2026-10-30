@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// cazEvaluare e o comandă care ajunge la model (nu e rezolvată de Ruteaza) și ce trebuie să propună.
+// cazEvaluare e o comandă trimisă direct modelului și ce trebuie să propună.
 type cazEvaluare struct {
 	mesaj  string
 	tip    string
@@ -78,12 +78,9 @@ func TestEvaluareModele(t *testing.T) {
 	if server == "" || modele == "" {
 		t.Skip("evaluare la cerere: PONTIX_EVAL_SERVER și PONTIX_EVAL_MODELE")
 	}
+	// Ștergerile simple și politețea se rezolvă din cod de Ruteaza (F14-T30); cazurile se trimit
+	// totuși direct modelului, care rămâne rezerva pentru formulările pe care codul nu le recunoaște.
 	info := contextEvaluare()
-	for _, c := range cazuriEvaluare {
-		if d := Ruteaza(c.mesaj, info); d.Ruta != RutaModel {
-			t.Fatalf("%q nu ajunge la model (ruta %s); cazul nu evaluează modelul", c.mesaj, d.Ruta)
-		}
-	}
 	for _, model := range strings.Split(modele, ";") {
 		model = strings.TrimSpace(model)
 		nume := strings.TrimSuffix(filepath.Base(model), filepath.Ext(model))
@@ -106,7 +103,7 @@ func TestEvaluareModele(t *testing.T) {
 		corecte, total := 0, time.Duration(0)
 		var linii []string
 		for _, c := range cazuriEvaluare {
-			ctx, anuleaza := context.WithTimeout(context.Background(), 3*time.Minute)
+			ctx, anuleaza := context.WithTimeout(context.Background(), 5*time.Minute)
 			start := time.Now()
 			r, err := m.Client().Interogheaza(ctx, []MesajConversatie{{Rol: "user", Continut: c.mesaj}}, ContextPentruCerere(c.mesaj, info))
 			d := time.Since(start)

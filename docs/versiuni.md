@@ -4,6 +4,16 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.88.2 · 2026-10-30
+
+Ștergerile simple și mesajele de politețe primesc răspuns din cod (F14-T30).
+
+- „Șterge garda lui Pop Ana din 15”, „Anulează tura lui Ion Dan de pe 20 octombrie”, „Șterge programul lui Rus Ema între 10 și 12 octombrie”: propunerea de ștergere apare imediat, cu aceeași confirmare ca la propunerile modelului. Persoana se recunoaște și cu greșeli de tastare (ca la concediu); fără persoană, fără zi clară, pentru un grup sau pentru concedii, mesajul merge mai departe la model.
+- Mesajele care sunt doar o mulțumire, un salut sau o confirmare („Mulțumesc!”, „Salut”, „Ok”) primesc răspuns imediat; înainte, modelul avea nevoie de peste 2 minute pentru „Mulțumesc!”.
+- Setul de comenzi reale are 39 de comenzi (înainte 30), inclusiv cazuri care nu trebuie tratate ca ștergeri.
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.88.1 · 2026-10-30
 
 Asistentul AI răspunde mai repede (F14-T29).

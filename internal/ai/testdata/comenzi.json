@@ -75,11 +75,13 @@
   },
   {
     "mesaj": "Sterge garda lui Pop Ana din 15",
-    "ruta": "model"
+    "ruta": "stergere",
+    "sursa": "F14-T30: din cod"
   },
   {
     "mesaj": "Hey",
-    "ruta": "model"
+    "ruta": "politete",
+    "sursa": "F14-T30: din cod"
   },
   {
     "mesaj": "Pati sa aplici in pontaj",
@@ -116,7 +118,8 @@
   },
   {
     "mesaj": "Multumesc!",
-    "ruta": "model"
+    "ruta": "politete",
+    "sursa": "F14-T30: din cod"
   },
   {
     "mesaj": "Ce poti face?",
@@ -126,5 +129,50 @@
     "mesaj": "Cine lipseste pe 15 octombrie?",
     "ruta": "sinteza",
     "sursa": "F14-T28: răspuns din cod pentru o zi anume"
+  },
+  {
+    "mesaj": "Anuleaza tura lui Ion Dan de pe 20 octombrie",
+    "ruta": "stergere",
+    "sursa": "F14-T30, din evaluarea modelelor"
+  },
+  {
+    "mesaj": "Sterge programul lui Rus Ema intre 10 si 12 octombrie",
+    "ruta": "stergere",
+    "sursa": "F14-T30, interval"
+  },
+  {
+    "mesaj": "Șterge gărzile lui Pop Ana din 15",
+    "ruta": "stergere",
+    "sursa": "F14-T30, diacritice și plural"
+  },
+  {
+    "mesaj": "Sterge concediul lui Pop Ana din 15",
+    "ruta": "model",
+    "sursa": "F14-T30: concediile nu se șterg ca ture"
+  },
+  {
+    "mesaj": "Sterge garda din 15",
+    "ruta": "model",
+    "sursa": "F14-T30: fără persoană"
+  },
+  {
+    "mesaj": "Sterge toate turile din 15",
+    "ruta": "model",
+    "sursa": "F14-T30: grupul nu e o ștergere simplă"
+  },
+  {
+    "mesaj": "Mersi frumos",
+    "ruta": "politete",
+    "sursa": "F14-T30"
+  },
+  {
+    "mesaj": "Ok",
+    "ruta": "politete",
+    "sursa": "F14-T30"
+  },
+  {
+    "mesaj": "Ok, acum pune-o pe Pop Ana de garda pe 22",
+    "ruta": "planificare",
+    "sursa": "F14-T30: politețea doar ca mesaj întreg"
   }
 ]
