@@ -17,4 +17,4 @@ Validare: frontend build si 13 teste Vitest trecute; 3 probe manual trecute; UI 
 
 Limite: fara studiu cu operatori, zoom 200% complet, Windows curat sau imprimare fizica. In Setari exista deja locatia copiei create; nu se adauga API sau stocare pentru o alta evidenta a backupurilor. Actualizarile Go tranzitive raman in F14-T21; Go 1.27.3 si npm sunt curente la verificare. Nu se schimba dependente sau reguli de plata.
 
-Pas urmator: build oficial, apoi review si proba operator pe copie fictiva in Windows separat. Fara push sau merge in main pentru acest task.
+Build oficial complet: commit aa4eb4d, director build/bin/pontix-0.88.15-20261030-193735-575d9ef37f5e446d9f2b6165832ba8bc; executabil verificat, manuale MD/HTML/PDF cu hashuri verificate si PDF valid. Pas urmator: review si proba operator pe copie fictiva in Windows separat. Fara push sau merge in main pentru acest task.
