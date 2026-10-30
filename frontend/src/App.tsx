@@ -11,6 +11,7 @@ import type {CerereConcediu} from './cerereConcediu';
 import {initializeazaSesiuneAI, useSesiuneAI} from './asistentSesiune';
 import {ToastContainer} from './Toast';
 import type {ContextPontaj} from './Pontaj';
+import {cheieTema, temaInitiala, type Tema} from './tema';
 
 const Pontaj = lazy(() => import('./Pontaj').then(m => ({ default: m.Pontaj })));
 const Planificare = lazy(() => import('./Planificare').then(m => ({ default: m.Planificare })));
@@ -77,7 +78,9 @@ function App() {
     const [filtruAbsente, setFiltruAbsente] = useState<{an: number; angajatId: string} | null>(null);
     const [cerereConcediu, setCerereConcediu] = useState<CerereConcediu | null>(null);
     const [sidebarCompact, setSidebarCompact] = useState(() => localStorage.getItem('pontix_sidebar_compact') === 'true');
-    const [tema, setTema] = useState<'light' | 'dark'>(() => (localStorage.getItem('pontix_tema') as any) || 'light');
+    const sistemIntunecat = () => window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false;
+    const [temaAleasa, setTemaAleasa] = useState(() => { try { return localStorage.getItem(cheieTema) !== null; } catch { return false; } });
+    const [tema, setTema] = useState<Tema>(() => { try { return temaInitiala(localStorage.getItem(cheieTema), sistemIntunecat()); } catch { return temaInitiala(null, sistemIntunecat()); } });
 
     const sesiuneAI = useSesiuneAI();
     const cont = useCont();
@@ -86,12 +89,23 @@ function App() {
     const sectiuniVizibile = sectiuniSetari.filter(s => s !== 'conturi' || cont?.cont.rol === 'ADMINISTRATOR');
     useEffect(() => { initializeazaSesiuneAI(); SeteazaLimbaInterfata(i18n.language).catch(() => {}); }, []);
 
+    useEffect(() => { document.documentElement.setAttribute('data-theme', tema); }, [tema]);
+    // Fără o alegere salvată, tema se schimbă odată cu cea din Windows (UI-1).
     useEffect(() => {
-        document.documentElement.setAttribute('data-theme', tema);
-        localStorage.setItem('pontix_tema', tema);
-    }, [tema]);
+        if (temaAleasa || !window.matchMedia) return;
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        const schimba = () => setTema(mq.matches ? 'dark' : 'light');
+        mq.addEventListener('change', schimba);
+        return () => mq.removeEventListener('change', schimba);
+    }, [temaAleasa]);
 
-    const comutaTema = () => setTema(t => (t === 'light' ? 'dark' : 'light'));
+    // Comutatorul salvează alegerea; de atunci tema nu mai urmează sistemul.
+    const comutaTema = () => {
+        const noua: Tema = tema === 'light' ? 'dark' : 'light';
+        setTema(noua);
+        setTemaAleasa(true);
+        try { localStorage.setItem(cheieTema, noua); } catch { /* fără stocare: alegerea ține până la închidere */ }
+    };
 
     const comutaSidebar = () => {
         setSidebarCompact(prev => {

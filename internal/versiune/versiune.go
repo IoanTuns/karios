@@ -3,7 +3,7 @@
 package versiune
 
 // Aplicatie este versiunea aplicației, în format MAJOR.MINOR.PATCH.
-const Aplicatie = "0.88.5"
+const Aplicatie = "0.88.6"
 
 // Commit este commit-ul din care s-a construit .exe; se completează la build:
 // -ldflags "-X pontix/internal/versiune.Commit=<hash>".

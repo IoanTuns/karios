@@ -4,6 +4,16 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.88.6 · 2026-10-30
+
+Tema urmează setarea din Windows (F16-T13, UI-1).
+
+- La prima pornire, tema interfeței e cea a aplicațiilor din Windows (`prefers-color-scheme`), nu mereu cea luminoasă, și se schimbă odată cu ea cât timp utilizatorul nu a ales alta.
+- Comutatorul de temă salvează alegerea; de atunci tema rămâne cea aleasă. Înainte, tema se salva la fiecare pornire, deci prima valoare (luminoasă) devenea permanentă.
+- Funcția `temaInitiala` (`frontend/src/tema.ts`) are 3 teste Vitest.
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.88.5 · 2026-10-30
 
 Contrastul grilelor de pontaj și planificare, pe ambele teme (F16-T12, UI-3; UI-2 pentru grile).
