@@ -5,6 +5,7 @@ Orice idee, decizie și acțiune a proiectului se documentează aici, în acela�
 | Ce | Unde | Se actualizează când |
 | --- | --- | --- |
 | Manual utilizator | [sursa română](manual-utilizare-ro.md), [generare și versiuni](manual/README.md) | la fiecare versiune, înainte de build; documentele generate se livrează lângă executabil |
+| Ajutor contextual și AI | [propunere de integrare](ajutor-contextual-propunere.md), [D057](decizii/D057-manual-ajutor-contextual.md) | se proiectează articolele comune și accesul din fiecare meniu |
 | Idei | [idei.md](idei.md) | apare orice idee, chiar dacă nu se face acum |
 | Roadmap | [roadmap.md](roadmap.md) | apare o funcționalitate nouă sau își schimbă starea |
 | Funcționalități și taskuri | [functionalitati/](functionalitati/) | un task începe, se termină, se blochează sau apare unul nou |
@@ -18,7 +19,7 @@ Orice idee, decizie și acțiune a proiectului se documentează aici, în acela�
 | Rezultate UI asistent | [primul lot P1, versiunea 0.83.0](rezultate-ui-F14-T24.md) | se implementează și verifică remedierea priorităților din review |
 | Instrumente asistent | [cele opt funcționalități din 0.84.0](implementare-asistent-F14-T25.md) | se schimbă anularea, explicațiile, șabloanele, verificarea și exportul AI |
 | Configurare pontaj | [ore, ture peste miezul nopții și totaluri](ghid-configurare-pontaj.md) | se schimbă regulile orelor sau completarea grilei |
-| Sincronizare Pontaj | [salvare ?i repararea celulelor speciale](ghid-sincronizare-pontaj.md) | se schimb? sincronizarea cu Planificarea |
+| Sincronizare Pontaj | [salvare și repararea celulelor speciale](ghid-sincronizare-pontaj.md) | se schimbă sincronizarea cu Planificarea |
 | Categorii de program | [atribuire pe angajat și precompletare](ghid-categorii-program.md) | se schimbă programele permise, implicitele sau completarea după categorii |
 | Construire și livrare | [directoare separate pentru fiecare build](ghid-build.md) | se schimbă scriptul de build sau organizarea artefactelor |
 | Analiză UI/UX | [auditul versiunii 0.27.0](analiza-ui-2026-10-26.md) | observații și propuneri privind ergonomia, lizibilitatea și fluxurile |

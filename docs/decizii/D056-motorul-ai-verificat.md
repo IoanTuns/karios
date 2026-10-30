@@ -1,6 +1,6 @@
 # D056 · Doar motoare AI cunoscute: suma llama-server fixată în aplicație
 
-Stare: propusă · Data: 2026-10-30 · Taskuri: F14-T31
+Stare: acceptată · Data: 2026-10-30 · Decisă de: Ioan Tuns (2026-10-30) · Taskuri: F14-T31
 
 ## Context
 

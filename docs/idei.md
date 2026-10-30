@@ -6,6 +6,10 @@ Stări: `nouă`, `în analiză`, `transformată` (în task sau decizie), `amâna
 
 | ID | Data | Idee | Cine | Stare | Legături / motiv |
 | --- | --- | --- | --- | --- | --- |
+| I093 | 2026-10-30 | Buton „Raportează o problemă / Părerea ta”: raport anonimizat (versiune, pași, jurnal curățat) și issue GitHub precompletat; fără cont GitHub, raportul se salvează ca fișier de trimis pe email | Ioan Tuns, Claude | transformată | Varianta aleasă de Ioan Tuns: formular → fișier + link, fără token în aplicație (repo public). F16-T15 |
+| I087 | 2026-10-30 | Manual de utilizare în română, editabil, HTML local cu căutare și PDF pentru tipărire | Ioan Tuns, Codex | transformată | F02-T17, ediția 1.0 pentru 0.88.7; din F02-T18 manualul se generează la fiecare build (D058) |
+| I088 | 2026-10-30 | Articole comune pentru „Cum să faci” în fiecare meniu și căutare locală din AI, cu extrase și surse | Ioan Tuns, Codex | în analiză | F02-T17, D057 propusă; proiectare pregătită, neintegrată în aplicație |
+| I089 | 2026-10-30 | Actualizarea i18next 26.5.11 → 26.5.12 detectată la recompilarea main | Codex | transformată | F14-T21; build-ul cerut păstrează exact dependențele din main, fără actualizare în taskul documentar; 2026-10-30: actualizarea făcută în F07-T21 (61ad9e0) |
 | I092 | 2026-10-30 | Manuale regenerate pentru fiecare versiune, marcate și salvate lângă executabil | Utilizator, Codex | transformată | F02-T18; sursă editabilă, versiune revizuită, generare MD/HTML/PDF, manifest și hashuri; D058 propusă |
 | I091 | 2026-10-30 | Inserarea automată a cratimelor când utilizatorul introduce cheia de recuperare | Utilizator, Codex | transformată | F05-T28; formatul existent XXXXX-XXXXX-XXXXX-XXXXX-XXXXX |
 | I090 | 2026-10-30 | Sincronizare la salvarea manual? a programelor speciale din Pontaj ?i reparare explicit? pentru celule salvate anterior | Ioan Tuns, Codex | transformat? | F07-T21, D051 propus?; f?r? modificarea datelor la citire |
