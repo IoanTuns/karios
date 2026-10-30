@@ -4,6 +4,15 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.87.1 · 2026-10-30
+
+Evaluarea modelelor locale ale asistentului (F14-T03).
+
+- Test nou `TestEvaluareModele` (`internal/ai/evaluare_model_test.go`): pornește `llama-server` cu fiecare model dat în `PONTIX_EVAL_MODELE` și verifică 8 comenzi care ajung la model (ștergeri, planificări, un mesaj fără acțiune), cu timpul fiecărui răspuns. Fără variabilele `PONTIX_EVAL_SERVER` și `PONTIX_EVAL_MODELE` testul e sărit, deci nu încetinește `go test ./...` și CI.
+- Rezultat pe calculatorul de dezvoltare (CPU): Qwen2.5-3B Q4_K_M (modelul livrat) 8/8 corecte, ~95 s pe comandă; Qwen3-4B Q4_K_M 0/8, toate peste limita de 180 s. Modelul livrat rămâne Qwen2.5-3B.
+
+Baza de date și rapoarte: nicio schimbare.
+
 ## 0.87.0 · 2026-10-30
 
 Cheile datelor fără secret în cod, cu cheie de recuperare (F15-T10 … F15-T13, [D054](decizii/D054-chei-fara-cod-recuperare.md)).
