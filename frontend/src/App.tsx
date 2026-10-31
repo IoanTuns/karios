@@ -275,7 +275,7 @@ function App() {
                     {ecran === 'pontaj' ? <Pontaj onAjutor={(id, versiune) => setAjutor({ecran: 'pontaj', id, versiune})} date={date} context={contextPontaj} onModificari={setPontajModificat} onOcupat={setPontajOcupat} onDeschideAbsente={(an, angajatId) => { setFiltruAbsente({an, angajatId}); setPontajModificat(false); setEcran('absente'); setEroare(''); setMesaj(''); }}/>
                     : ecran === 'planificare' ? <Planificare date={date} initial={contextPlanificare} onOcupat={setPontajOcupat} onDeschidePontaj={(an,luna)=>{contextPontaj.current={an,luna,sectie:'',departament:'',categorieProgram:'',cautare:'',filtruRanduri:'',selectie:null,derulareX:0,derulareY:0};setEcran('pontaj');setEroare('');setMesaj('');}}/>
                     : ecran === 'sarbatori' ? <Sarbatori/>
-                    : ecran === 'schimburi' ? <Schimburi/>
+                    : ecran === 'schimburi' ? <Schimburi date={date} onDate={setDate}/>
                     : ecran === 'categorii_program' ? <CategoriiProgram date={date} ocupat={ocupat} eroare={eroare} salveaza={c=>executa(()=>SalveazaCategorieProgram(c))} reincarca={()=>executa(DateInitiale,'')} curataEroare={()=>setEroare('')}/>
                     : ecran === 'absente' ? <Absente date={date} filtruInitial={filtruAbsente} cerereConcediu={cerereConcediu} onCerereDeschisa={() => setCerereConcediu(null)}/>
                     : ecran === 'jurnal_modificari' ? <Jurnal date={date}/>
@@ -284,7 +284,7 @@ function App() {
                     : ecran === 'definire_rapoarte' ? <DefinireRapoarte/>
                     : ecran === 'rapoarte' ? <GenerareRapoarte date={date}/>
                     : ecran === 'asistent_ai' ? <AsistentAI intrebareAjutor={intrebareAjutor} onAjutor={(id, versiune) => setAjutor({ecran: 'asistent_ai', id, versiune})} date={date} perioadaEcran={contextPontaj.current ? {an: contextPontaj.current.an, luna: contextPontaj.current.luna} : contextPlanificare} onDeschideConcediu={c => { setFiltruAbsente({an: Number(c.deLa.slice(0, 4)), angajatId: c.angajatId}); setCerereConcediu(c); setEcran('absente'); setEroare(''); setMesaj(''); }} onDeschidePontaj={(an, luna) => { contextPontaj.current = { an, luna, sectie: '', departament: '', categorieProgram: '', cautare: '', filtruRanduri: '', selectie: null, derulareX: 0, derulareY: 0 }; setEcran('pontaj'); setEroare(''); setMesaj(''); }}/>
-                    : ecran === 'setari' ? <Setari date={date} ocupat={ocupat}
+                    : ecran === 'setari' ? <Setari onDate={setDate} date={date} ocupat={ocupat}
                         salveazaNorma={minute => executa(() => SalveazaNormaIntreaga(minute))}
                         adaugaSectie={denumire => executa(() => AdaugaSectie({[i18n.language]: denumire}))}
                         adaugaDepartament={(sectieID, denumire) => executa(() => AdaugaDepartament(sectieID, {[i18n.language]: denumire}))}/>

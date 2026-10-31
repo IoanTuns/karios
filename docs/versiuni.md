@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.90.0 · 2026-10-31
+
+F07-T24: categorii configurabile in Schimburi cu programe asociate, nomenclator de functii in Setari, selectie functie la angajat si afisare in Pontaj. Migrare 0024 pastreaza categoriile LAB/CUSTOM si preia functiile existente; editare/dezactivare cu revizie si jurnal. Functia este asocierea curenta, nu istoric contractual. Manual 1.8.
+
 ## 0.89.4 · 2026-10-31
 
 F16-T23: dialogurile nu se mai redeschid la fiecare tastare; focusul si cursorul sunt pastrate. Marirea/restaurarea este disponibila implicit in dialoguri, iar controalele S/M/L nu se comprima. Importul recunoaste coloanele oficiale Zile_Concediu_An si Norma_Ore_Zi din sabloanele CSV/XLSX. Manual 1.7.

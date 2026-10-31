@@ -41,7 +41,14 @@ func (s *Serviciu) CompleteazaSchimburiInitiale(ctx context.Context, categorie .
 		return 0, traduceEroare(err)
 	}
 	var adaugate int64
-	err := s.modifica(ctx, func(q *acces.Queries) error {
+	err := s.modificaTx(ctx, func(tx *sql.Tx, q *acces.Queries) error {
+		var activ int
+		if err := tx.QueryRowContext(ctx, "SELECT activ FROM categorii_schimburi WHERE id=?", cat).Scan(&activ); err != nil {
+			return err
+		}
+		if activ != 1 {
+			return eroare("nomenclator.inactiv")
+		}
 		for _, schimb := range initiale {
 			if schimb.Categorie == "" {
 				schimb.Categorie = "LAB"
@@ -116,7 +123,7 @@ func (s *Serviciu) SalveazaSchimb(ctx context.Context, schimb Schimb) error {
 	default:
 		return eroare("schimburi.tip_invalid")
 	}
-	return s.modifica(ctx, func(q *acces.Queries) error {
+	return s.modificaTx(ctx, func(tx *sql.Tx, q *acces.Queries) error {
 		if _, err := q.CautaCodAbsenta(ctx, schimb.Cod); err == nil {
 			return eroare("absente.cod_duplicat")
 		} else if !errors.Is(err, sql.ErrNoRows) {
@@ -134,11 +141,17 @@ func (s *Serviciu) SalveazaSchimb(ctx context.Context, schimb Schimb) error {
 		if schimb.Categorie == "" {
 			schimb.Categorie = "CUSTOM"
 		}
-		switch schimb.Categorie {
-		case "LAB", "CUSTOM":
-		default:
+		var activ int
+		if err := tx.QueryRowContext(ctx, "SELECT activ FROM categorii_schimburi WHERE id=?", schimb.Categorie).Scan(&activ); err != nil {
 			return eroare("schimburi.categorie_invalida")
 		}
+		if activ != 1 {
+			vechi, err := q.CitesteSchimb(ctx, schimb.ID)
+			if err != nil || vechi.Categorie != schimb.Categorie {
+				return eroare("nomenclator.inactiv")
+			}
+		}
+
 		idExistent, err := q.CitesteCodSchimb(ctx, schimb.Cod)
 		if err != nil && !errors.Is(err, sql.ErrNoRows) {
 			return err

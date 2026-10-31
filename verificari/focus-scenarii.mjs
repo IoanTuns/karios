@@ -20,7 +20,7 @@ export async function verificaFocus({cdp,evalueaza,asteapta,apasa,cataloage,limb
  assert.deepEqual(await evalueaza("[window.__campuri[1].value,window.__campuri[1].selectionStart]"),['AXna',2],'Cursorul nu ramane in mijlocul textului.');
  assert(await evalueaza("Boolean(document.querySelector('dialog.dialog-maximizat'))"),'Marirea se pierde dupa tastare.');
  await evalueaza("document.querySelector('dialog .buton-marire').click()");
- for(const index of [0,2,3]){
+ for(const index of [0,2]){
   await evalueaza(`window.__campuri[${index}].focus();window.__campuri[${index}].setSelectionRange(0,0)`);
   await cdp('Input.insertText',{text:'Q'});
   await new Promise(r=>setTimeout(r,40));

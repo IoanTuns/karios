@@ -49,15 +49,15 @@ type PropsRand = {
     modificari: Map<string, datebaza.CelulaSchita>; originale: Map<string, datebaza.CelulaSchita>;
     absente: Map<string, datebaza.ZiAbsenta>; inlocuiri: Map<string, datebaza.ZiAbsenta[]>;
     oreCalculate: Map<string, calcul.OreZi>; valori?: Record<string, calcul.ValoarePontaj>;
-    reguli?: calcul.RegulaColoana[]; angajati: datebaza.Angajat[];
+    functie:string; reguli?: calcul.RegulaColoana[]; angajati: datebaza.Angajat[];
     ocupat: boolean; calculare: boolean; areCalcul: boolean; actiuni: RefObject<ActiuniCelula>;
 };
 
-const RandPontaj = memo(function RandPontaj({a, r, zile, weekend, sarbatori, selDe, selPana, modificari, originale, absente, inlocuiri, oreCalculate, valori, reguli, angajati, ocupat, calculare, areCalcul, actiuni}: PropsRand) {
+const RandPontaj = memo(function RandPontaj({a, r, zile, weekend, sarbatori, selDe, selPana, modificari, originale, absente, inlocuiri, oreCalculate, valori, reguli, angajati, functie, ocupat, calculare, areCalcul, actiuni}: PropsRand) {
     const {t} = useTranslation();
     const numeColeg = (id: string) => { const coleg = angajati.find(x => x.id === id); return coleg ? `${coleg.nume} ${coleg.prenume}` : id; };
     const valoareBruta = (z: number) => { const k = cheie(a.id, zile[z]); return modificari.get(k)?.valoare ?? originale.get(k)?.valoare ?? ''; };
-    return <tr><th scope="row" className="fix-nume"><strong>{a.nume} {a.prenume}</strong>{!a.activ && <small>{t('ui.inactiv')}</small>}</th><td className="fix-marca">{a.marca}</td>
+    return <tr><th scope="row" className="fix-nume"><strong>{a.nume} {a.prenume}</strong>{functie&&<small>{functie}</small>}{!a.activ && <small>{t('ui.inactiv')}</small>}</th><td className="fix-marca">{a.marca}</td>
         {zile.map((data, z) => {
             const selectata = z >= selDe && z <= selPana;
             const k = cheie(a.id, data);
@@ -827,7 +827,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                                 {totaluri.map(c => <th key={`heat-tot-${c}`} className={`celula-heat-total ${c === 'T' ? 'fix-total-t' : ''}`} />)}
                             </tr>
                         </thead><tbody>
-                            {randuri.map((a, r) => <RandPontaj key={a.id} a={a} r={r} zile={zile} weekend={weekend} sarbatori={sarbatori}
+                            {randuri.map((a, r) => <RandPontaj key={a.id} functie={date.functii?.find(f=>f.id===a.functie_id)?.denumire[i18n.language]||a.functie} a={a} r={r} zile={zile} weekend={weekend} sarbatori={sarbatori}
                                 selDe={r >= inceputRand && r <= sfarsitRand ? inceputZi : -1} selPana={r >= inceputRand && r <= sfarsitRand ? sfarsitZi : -1}
                                 modificari={modificari} originale={originale} absente={absente} inlocuiri={inlocuiri} oreCalculate={oreCalculate}
                                 valori={totaluriCalculate.get(a.id)} reguli={schita?.configuratie.reguli} angajati={date.angajati}

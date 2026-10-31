@@ -396,7 +396,7 @@ Pentru suport, notează versiunea aplicației, ecranul, anul/luna, pașii și er
 
 ## 19. Despre acest manual
 
-Acoperire: meniurile principale și subsecțiunile din Setări, fluxurile de date și instrumentele AI din versiunea {{VERSIUNE}}. Revizia editorială 1.7 include optimizările UI din Pontaj: meniul contextual clic dreapta, clipboardul avansat, mini-harta de acoperire pe zile și panoul drawer pentru Asistentul AI. Include ajutorul contextual pe toate ecranele, 21 de articole comune manualului și AI, sincronizarea Pontaj → Planificare și formatarea cheii de recuperare. Referința exactă a livrării este commitul de pe copertă. Actualizarea versiunii nu înlocuiește revizuirea instrucțiunilor: buildul cere confirmarea versiunii revizuite în sursele manualului.
+Acoperire: meniurile principale și subsecțiunile din Setări, fluxurile de date și instrumentele AI din versiunea {{VERSIUNE}}. Revizia editorială 1.8 include optimizările UI din Pontaj: meniul contextual clic dreapta, clipboardul avansat, mini-harta de acoperire pe zile și panoul drawer pentru Asistentul AI. Include ajutorul contextual pe toate ecranele, 21 de articole comune manualului și AI, sincronizarea Pontaj → Planificare și formatarea cheii de recuperare. Referința exactă a livrării este commitul de pe copertă. Actualizarea versiunii nu înlocuiește revizuirea instrucțiunilor: buildul cere confirmarea versiunii revizuite în sursele manualului.
 
 Manualul nu substituie regulile de salarizare și aprobările organizației. Nu certifică validarea interactivă a fiecărui ecran pe calculatorul utilizatorului. În cazul unei diferențe între instrucțiuni și aplicație, notează versiunea și cere verificarea fluxului înainte de aplicări în lot.
 
@@ -429,3 +429,11 @@ Panoul de eroare urmeaza limba interfetei. O data absenta sau invalida nu trebui
 ### Introducere, import si vizualizare (0.89.4)
 
 Dialogurile pastreaza focusul si cursorul la tastare. Butonul din antet permite marire/restaurare; S/M/L schimba densitatea grilelor Pontaj si Planificare (mod grila). Importul angajatilor recunoaste Zile_Concediu_An ca numar anual de zile si Norma_Ore_Zi din sablonul oficial CSV/XLSX. Acest camp nu creeaza cereri de concediu cu date calendaristice: acestea se inregistreaza in Concedii si absente.
+
+### Categorii de schimburi si functii predefinite (0.90.0)
+
+In Setari -> Schimburi, zona Categorii de schimburi permite adaugarea si editarea denumirilor RO/EN si a starii active. Apoi editeaza sau adauga programul si alege categoria lui. O categorie poate contine mai multe programe. LAB si CUSTOM sunt pastrate la actualizare. Precompletarea cu sabloane ramane pentru LAB; o categorie noua nu primeste automat programe.
+
+In Setari (pagina generala), zona Functii permite predefinirea listei. La adaugarea sau editarea angajatului, alege Functie din selector; functia aleasa apare si sub nume in Pontaj. Functiile existente sunt preluate automat la migrare. O valoare text importata care nu are inca o asociere in nomenclator este pastrata la angajat; pentru standardizare, defineste functia si selecteaz-o explicit.
+
+Dezactivarea nu sterge datele sau asocierile curente, dar impiedica noi asocieri. Redenumirea functiei actualizeaza eticheta curenta a angajatilor asociati, cu jurnal; asocierea este curenta si nu reprezinta istoricul contractual pe luni. Un conflict de revizie cere reincarcarea sectiunii inainte de o noua editare. Verifica inainte modificarile nesalvate: formularul listei este local sectiunii.

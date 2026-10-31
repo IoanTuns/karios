@@ -16,6 +16,8 @@ Planul AI include filtrele Doar exceptii si Arata doar selectati, plus numarul p
 
 Corectii 0.89.4: cursorul ramane la locul editarii in formulare, dialogurile au marire/restaurare, iar importul recunoaste zilele anuale de concediu si norma din sabloanele oficiale. Concediul este vizibil in previzualizare; zero zile ramane distinct de un camp necompletat.
 
+Noutati 0.90.0: categorii configurabile pentru programele din Schimburi si lista de Functii in Setari. Functia se alege la angajat si apare in Pontaj. Categoriile LAB/CUSTOM si functiile existente sunt pastrate prin migrare.
+
 ## Inainte de actualizare
 
 Urmati ACTUALIZARE.md. Pastrati copia completa a datelor si cheia de recuperare; nu copiati numai baza. Nu folositi un executabil vechi pe datele migrate de o versiune noua.

@@ -25,6 +25,7 @@ type Angajat struct {
 	Prenume             string `json:"prenume"`
 	Marca               string `json:"marca"`
 	Functie             string `json:"functie"`
+	FunctieID           string `json:"functie_id"`
 	SectieID            string `json:"sectie_id"`
 	DepartamentID       string `json:"departament_id"`
 	CategorieProgramID  string `json:"categorie_program_id"`
@@ -47,12 +48,14 @@ type Departament struct {
 }
 
 type Date struct {
-	Angajati            []Angajat          `json:"angajati"`
-	Sectii              []Sectie           `json:"sectii"`
-	Departamente        []Departament      `json:"departamente"`
-	CategoriiProgram    []CategorieProgram `json:"categorii_program"`
-	NormaIntreagaMinute int64              `json:"norma_intreaga_minute"`
-	DemoDisponibil      bool               `json:"demo_disponibil"`
+	CategoriiSchimburi  []ElementNomenclator `json:"categorii_schimburi"`
+	Functii             []ElementNomenclator `json:"functii"`
+	Angajati            []Angajat            `json:"angajati"`
+	Sectii              []Sectie             `json:"sectii"`
+	Departamente        []Departament        `json:"departamente"`
+	CategoriiProgram    []CategorieProgram   `json:"categorii_program"`
+	NormaIntreagaMinute int64                `json:"norma_intreaga_minute"`
+	DemoDisponibil      bool                 `json:"demo_disponibil"`
 }
 
 type Serviciu struct{ db *sql.DB }
@@ -117,6 +120,40 @@ func (s *Serviciu) Citeste(ctx context.Context) (Date, error) {
 	if err != nil {
 		return Date{}, traduceEroare(err)
 	}
+	rez.CategoriiSchimburi, err = citesteNomenclator(ctx, tx, "categorii")
+	if err != nil {
+		return Date{}, traduceEroare(err)
+	}
+	rez.Functii, err = citesteNomenclator(ctx, tx, "functii")
+	if err != nil {
+		return Date{}, traduceEroare(err)
+	}
+	legaturi, err := tx.QueryContext(ctx, "SELECT angajat_id,functie_id FROM angajati_functii")
+	if err != nil {
+		return Date{}, traduceEroare(err)
+	}
+	asocieri := map[string]string{}
+	for legaturi.Next() {
+		var a, f string
+		if err := legaturi.Scan(&a, &f); err != nil {
+			legaturi.Close()
+			return Date{}, traduceEroare(err)
+		}
+		asocieri[a] = f
+	}
+	err = legaturi.Err()
+	legaturi.Close()
+	if err != nil {
+		return Date{}, traduceEroare(err)
+	}
+	for i := range rez.Angajati {
+		rez.Angajati[i].FunctieID = asocieri[rez.Angajati[i].ID]
+		for _, f := range rez.Functii {
+			if f.ID == rez.Angajati[i].FunctieID {
+				rez.Angajati[i].Functie = numeElement(f)
+			}
+		}
+	}
 	n, err := q.NumaraAngajati(ctx)
 	if err != nil {
 		return Date{}, traduceEroare(err)
@@ -149,7 +186,28 @@ func (s *Serviciu) SalveazaAngajat(ctx context.Context, a Angajat) error {
 	if a.ConcediuZileAn != nil && *a.ConcediuZileAn < 0 {
 		return eroare("date.concediu_invalid")
 	}
-	return s.modifica(ctx, func(q *acces.Queries) error {
+	return s.modificaTx(ctx, func(tx *sql.Tx, q *acces.Queries) error {
+		if a.FunctieID != "" {
+			lista, err := citesteNomenclator(ctx, tx, "functii")
+			if err != nil {
+				return err
+			}
+			gasit := false
+			for _, f := range lista {
+				if f.ID == a.FunctieID {
+					gasit = true
+					var vechiID string
+					_ = tx.QueryRowContext(ctx, "SELECT functie_id FROM angajati_functii WHERE angajat_id=?", a.ID).Scan(&vechiID)
+					if !f.Activ && vechiID != f.ID {
+						return eroare("nomenclator.inactiv")
+					}
+					a.Functie = numeElement(f)
+				}
+			}
+			if !gasit {
+				return eroare("nomenclator.invalid")
+			}
+		}
 		if a.CategorieProgramID != "" {
 			c, err := q.CitesteCategorieProgram(ctx, a.CategorieProgramID)
 			if err != nil {
@@ -200,6 +258,14 @@ func (s *Serviciu) SalveazaAngajat(ctx context.Context, a Angajat) error {
 			}
 			if n != 1 {
 				return sql.ErrNoRows
+			}
+		}
+		if _, err := tx.ExecContext(ctx, "DELETE FROM angajati_functii WHERE angajat_id=?", a.ID); err != nil {
+			return err
+		}
+		if a.FunctieID != "" {
+			if _, err := tx.ExecContext(ctx, "INSERT INTO angajati_functii VALUES(?,?)", a.ID, a.FunctieID); err != nil {
+				return err
 			}
 		}
 		nou, err := q.CitesteAngajat(ctx, a.ID)

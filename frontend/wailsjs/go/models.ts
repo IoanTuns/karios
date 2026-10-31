@@ -844,6 +844,7 @@ export namespace datebaza {
 	    prenume: string;
 	    marca: string;
 	    functie: string;
+	    functie_id: string;
 	    sectie_id: string;
 	    departament_id: string;
 	    categorie_program_id: string;
@@ -864,6 +865,7 @@ export namespace datebaza {
 	        this.prenume = source["prenume"];
 	        this.marca = source["marca"];
 	        this.functie = source["functie"];
+	        this.functie_id = source["functie_id"];
 	        this.sectie_id = source["sectie_id"];
 	        this.departament_id = source["departament_id"];
 	        this.categorie_program_id = source["categorie_program_id"];
@@ -1200,7 +1202,27 @@ export namespace datebaza {
 	        this.denumire = source["denumire"];
 	    }
 	}
+	export class ElementNomenclator {
+	    id: string;
+	    denumire: Record<string, string>;
+	    activ: boolean;
+	    revizie: string;
+
+	    static createFrom(source: any = {}) {
+	        return new ElementNomenclator(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.denumire = source["denumire"];
+	        this.activ = source["activ"];
+	        this.revizie = source["revizie"];
+	    }
+	}
 	export class Date {
+	    categorii_schimburi: ElementNomenclator[];
+	    functii: ElementNomenclator[];
 	    angajati: Angajat[];
 	    sectii: Sectie[];
 	    departamente: Departament[];
@@ -1214,6 +1236,8 @@ export namespace datebaza {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.categorii_schimburi = this.convertValues(source["categorii_schimburi"], ElementNomenclator);
+	        this.functii = this.convertValues(source["functii"], ElementNomenclator);
 	        this.angajati = this.convertValues(source["angajati"], Angajat);
 	        this.sectii = this.convertValues(source["sectii"], Sectie);
 	        this.departamente = this.convertValues(source["departamente"], Departament);
@@ -1259,6 +1283,7 @@ export namespace datebaza {
 	        this.continut_b64 = source["continut_b64"];
 	    }
 	}
+
 	export class ExplicatieSelectieAI {
 	    id: string;
 	    marca: string;

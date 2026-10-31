@@ -1,3 +1,4 @@
+import {simulareNomenclatoare,verificaNomenclatoare} from './nomenclatoare-scenarii.mjs';
 import {verificaFocus} from './focus-scenarii.mjs';
 import {simulareAjutor, verificaAjutor} from './ajutor-scenarii.mjs';
 // Verificare UI cu Edge existent și punte Wails simulată. Backendul real este
@@ -336,13 +337,15 @@ try {
     await cdp('Page.enable'); await cdp('Runtime.enable');
     await cdp('Emulation.setDeviceMetricsOverride', {width: 1440, height: 960, deviceScaleFactor: 1, mobile: false});
     const injectat = await cdp('Page.addScriptToEvaluateOnNewDocument', {source: `(${simulare})(${JSON.stringify(demo)},${JSON.stringify(cataloage)},'ro',${JSON.stringify(calendarSursa)},${JSON.stringify(versiuneAplicatie)},${JSON.stringify(schimburiSursa)},${JSON.stringify(rapoarteSursa)})`});
-    if (process.argv.includes('--ajutor') || process.argv.includes('--focus')) {
+    if (process.argv.includes('--ajutor') || process.argv.includes('--focus') || process.argv.includes('--nomenclatoare')) {
         const limba=process.argv.includes('--en')?'en':'ro';
         await cdp('Emulation.setDeviceMetricsOverride',{width:1024,height:640,deviceScaleFactor:1,mobile:false});
         await cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(${simulareAjutor})(${JSON.stringify(catalogAjutor)},${JSON.stringify(cataloage)},${JSON.stringify(versiuneAplicatie)},${JSON.stringify(limba)})`});
     }
+    if(process.argv.includes('--nomenclatoare')) await cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(${simulareNomenclatoare})()`});
     await cdp('Page.navigate', {url});
-    if (process.argv.includes('--focus')) {
+    if(process.argv.includes('--nomenclatoare')){await verificaNomenclatoare({cdp,evalueaza,asteapta,apasa,completeaza,cataloage,limba:process.argv.includes('--en')?'en':'ro',captura:async nume=>{const r=await cdp('Page.captureScreenshot',{format:'png'});writeFileSync(join(capturi,nume),Buffer.from(r.data,'base64'));}});assert.deepEqual(erori,[],'Erori JS');console.log('Nomenclatoare UI verificate: '+capturi);}
+    else if (process.argv.includes('--focus')) {
         await verificaFocus({cdp,evalueaza,asteapta,apasa,cataloage,limba:process.argv.includes('--en')?'en':'ro',captura:async nume=>{const r=await cdp('Page.captureScreenshot',{format:'png'});writeFileSync(join(capturi,nume),Buffer.from(r.data,'base64'));}});
         assert.deepEqual(erori,[],'Erori JavaScript.');
         console.log('Focus/cursor si zoom verificate: '+capturi);

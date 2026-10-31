@@ -175,6 +175,8 @@ export function SalveazaCategorieProgram(arg1:datebaza.CategorieProgram):Promise
 
 export function SalveazaConfiguratiePontaj(arg1:calcul.ConfiguratiePontaj):Promise<main.RaspunsConfiguratiePontaj>;
 
+export function SalveazaElementNomenclator(arg1:string,arg2:datebaza.ElementNomenclator):Promise<main.RaspunsDate>;
+
 export function SalveazaModelRaport(arg1:rapoarte.Definitie):Promise<main.RaspunsModeleRapoarte>;
 
 export function SalveazaNormaIntreaga(arg1:number):Promise<main.RaspunsDate>;

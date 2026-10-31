@@ -54,3 +54,7 @@ SELECT data, denumire FROM sarbatori WHERE an = 2027 ORDER BY data;
 Compatibilitate: `norma_minute_anterioara` păstrează vechea valoare exclusiv pentru verificare; este `NULL` pentru angajații noi și nu se folosește în noile calcule. Tipul `INTREAGA` al înregistrărilor migrate este valoarea implicită, nu o clasificare contractuală dedusă. Înaintea folosirii operative se verifică manual tipul, prenumele, norma parțială și concediul.
 
 Pasul următor: F06-T03 pentru accesul la date și F07-T01/F07-T03 pentru formulare; istoricul contractual este înregistrat ca I010, înainte de F12. Nu se modifică motorul de calcul sau regulile de plată în acest task.
+
+| F07-T24 | Categorii configurabile de schimburi si nomenclator functii asociate angajatilor/Pontajului | gata | Codex | Pastrare LAB/CUSTOM si functii existente, migrare noua, CRUD cu dezactivare si revizie, selectare functie si afisare in Pontaj. |
+
+F07-T24: verificari finale gofmt/vet/suita Go, 18 teste frontend, UI nomenclatoare RO/EN, focus si ajutor trecute. Pas urmator: livrare cumulativa cu F09-T11, fara push sau merge.

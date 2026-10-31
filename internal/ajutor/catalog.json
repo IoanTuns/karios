@@ -133,7 +133,10 @@
       "sectii",
       "departamente",
       "settings",
-      "department"
+      "department",
+      "functii",
+      "functie",
+      "job functions"
     ]
   },
   {
@@ -146,7 +149,9 @@
       "interval",
       "durata",
       "shift code",
-      "schedule code"
+      "schedule code",
+      "categorii schimburi",
+      "shift categories"
     ]
   },
   {

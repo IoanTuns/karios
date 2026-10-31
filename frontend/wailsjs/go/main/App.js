@@ -330,6 +330,10 @@ export function SalveazaConfiguratiePontaj(arg1) {
   return window['go']['main']['App']['SalveazaConfiguratiePontaj'](arg1);
 }
 
+export function SalveazaElementNomenclator(arg1, arg2) {
+  return window['go']['main']['App']['SalveazaElementNomenclator'](arg1, arg2);
+}
+
 export function SalveazaModelRaport(arg1) {
   return window['go']['main']['App']['SalveazaModelRaport'](arg1);
 }
