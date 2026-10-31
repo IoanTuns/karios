@@ -36,3 +36,5 @@ Primele probe au identificat selectoare de test legate de vechea pozitie a campu
 Aplicatie 0.92.19, manual 1.30. Rapoarte: pontaj 10, detaliat 11, individual 10, absente 7, garzi 7. Export complet Excel 1.2.0. Fara migrari sau dependente noi. Dependente verificate: Go stabil 1.27.3, npm fara actualizari, 62 actualizari tranzitive Go raman urmarite separat in F14-T21. Nicio baza reala accesata.
 
 Pas urmator: build oficial si verificarea integritatii pachetului, apoi proba operator; Excel ramane amanat. Fara push/merge.
+
+Livrare verificata: `build/bin/pontix-0.92.19-20261031-210831-9f92eaecbda146c1a8101c64c3510452`, executabil `pontix.exe`, aplicatie 0.92.19, commit c98109b, manual 1.30 in MD/HTML/PDF. Manifest complet; SHA256 executabil/manuale si ZIP/CRC verificate. Excel ramane amanat la cererea utilizatorului. Pas urmator: proba operator; fara push/merge.

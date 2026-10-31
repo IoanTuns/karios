@@ -371,3 +371,5 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 | 2026-10-24 | Chestionarul pentru contabilitate creat | Claude | F01-T01, [document](https://claude.ai/artifact/E8SLB7zT2WAzKTyFSchmK6) |
 | 2026-10-24 | Revizuirea documentului de design: probleme de portabilitate, modelul de sporuri, alegerea bibliotecilor | Claude | [D002](decizii/D002-portabilitate.md), F04-T03 … T06, F08-T01, F09-T01 |
 | 2026-10-23 | Documentul de design „Aplicația de pontaj — tehnologii și decizii” | Ioan Tuns | [PDF](Aplicația%20de%20pontaj%20—%20tehnologii%20și%20decizii.pdf), [D001](decizii/D001-stack-tehnologic.md) |
+
+| 2026-10-31 | Codex | F16-T29: build oficial 0.92.19/c98109b si manual 1.30 generate impreuna in `build/bin/pontix-0.92.19-20261031-210831-9f92eaecbda146c1a8101c64c3510452`; manifest complet, SHA256 si arhiva ZIP verificate. Problema deschiderii Excel amanata explicit de utilizator. Fara push/merge. |
