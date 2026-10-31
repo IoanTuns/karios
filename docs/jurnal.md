@@ -4,6 +4,9 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 
 | Data | Acțiune | Cine | Legături |
 | --- | --- | --- | --- |
+| 2026-10-31 | F16-T26 verificat: gofmt/vet si Go complet trecute, 21 teste frontend si TypeScript/Vite, Edge RO/EN cu ore valide/invalide, focus/zoom, manual/livrare/documentatie trecute. Pregatire build 0.92.11 si manual 1.22. | Codex | [Rezultate](rezultate-F16-T26.md) |
+| 2026-10-31 | F16-T26 implementat: formatter h23 comun si eliminare afisari dependente de sistem; camp Schimburi HH:MM validat in locul controlului nativ cu AM/PM. Teste 21 frontend, Edge RO/EN validari ore si focus/zoom trecute; suite Go/documentatie verificate, control final in curs. | Codex | [Rezultate](rezultate-F16-T26.md) |
+| 2026-10-31 | F16-T26 inceput: inventariate formatterele date/ore si afisarile directe dependente de sistem. Rapoartele Go folosesc deja 15:04; se uniformizeaza frontendul la 00-23. | Codex | F16-T26 |
 | 2026-10-31 | F07-T34: build oficial 0.92.10 din 2eb7fdf, manual 1.21 si ZIP; identitate, hashuri si integritate verificate. Proba desktop la operator. Fara push/merge. | Codex | [Livrare](rezultate-F07-T34.md) |
 | 2026-10-31 | F07-T34 verificat: gofmt, vet, suita Go completa, frontend 18 teste, Edge RO/EN, manual/livrare si documentatie trecute. Pregatire executabil 0.92.10 si manual 1.21. | Codex | [Rezultate](rezultate-F07-T34.md) |
 | 2026-10-31 | F07-T34 implementat: corectia explicita CM in CO permisa cu revizie curenta; cererile fara revizie si conflictele raman protejate. Teste backend si Edge RO/EN pentru corectare/anulare trecute. Manual 1.21 si indiciu in interfata; verificari complete in curs. | Codex | [Rezultate](rezultate-F07-T34.md) |

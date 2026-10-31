@@ -4,10 +4,11 @@
 const cache = new Map<string, Intl.DateTimeFormat>();
 
 export function formatData(limba: string, optiuni?: Intl.DateTimeFormatOptions): Intl.DateTimeFormat {
-    const cheie = limba + '|' + JSON.stringify(optiuni ?? {});
+    const configuratie: Intl.DateTimeFormatOptions = {...optiuni, hour12: undefined, hourCycle: 'h23'};
+    const cheie = limba + '|' + JSON.stringify(configuratie);
     let f = cache.get(cheie);
     if (!f) {
-        f = new Intl.DateTimeFormat(limba, optiuni);
+        f = new Intl.DateTimeFormat(limba, configuratie);
         cache.set(cheie, f);
     }
     return f;

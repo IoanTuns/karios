@@ -40,7 +40,11 @@ export async function verificaNomenclatoare({cdp,evalueaza,asteapta,apasa,comple
  await captura('functie-pontaj-'+limba+'.png');
  await apasa(t('ui.setari'));await apasa(t('ui.schimburi'));await adauga('categorii','Ambulatoriu UI','Outpatient UI');
  await apasa(t('schimburi.adauga'));await asteapta(()=>evalueaza("Boolean(document.querySelector('dialog[open]'))"),'Formular program lipsa');
- await completeaza('dialog .campuri label:nth-child(1) input','UI7');await completeaza('dialog .campuri label:nth-child(3) input','Program UI');await completeaza('dialog .campuri label:nth-child(4) input','UI schedule');await completeaza('dialog input[type=time]','07:00');await completeaza('dialog input[type=number]','420');
+ for (const [ora,valid] of [['00:00',true],['07:00',true],['19:00',true],['23:59',true],['24:00',false],['7:00',false],['19:60',false],['7 PM',false]]) {
+  await completeaza('dialog input[name="ora_inceput"]',ora);
+  assert.equal(await evalueaza(`document.querySelector('dialog input[name="ora_inceput"]').checkValidity()`),valid,'Validare 24h: '+ora);
+ }
+ await completeaza('dialog .campuri label:nth-child(1) input','UI7');await completeaza('dialog .campuri label:nth-child(3) input','Program UI');await completeaza('dialog .campuri label:nth-child(4) input','UI schedule');await completeaza('dialog input[name="ora_inceput"]','07:00');await completeaza('dialog input[type=number]','420');
  const cat=await evalueaza("[...document.querySelectorAll('dialog select[name=categorie] option')].find(o=>o.textContent.includes('UI')).value");await completeaza('dialog select[name="categorie"]',cat);await apasa(t('ui.salveaza'));
  await asteapta(()=>evalueaza("!document.querySelector('dialog[open]')"),'Program nesalvat');
  assert(await evalueaza("[...document.querySelectorAll('.tabel-schimburi tbody tr')].some(r=>r.textContent.includes('UI7')&&r.querySelector('td:nth-child(3)').textContent.includes("+JSON.stringify(limba==='en'?'Outpatient UI':'Ambulatoriu UI')+"))"),'Categoria nu este asociata programului');

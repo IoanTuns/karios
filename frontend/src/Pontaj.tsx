@@ -842,7 +842,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                     {inlocuiriActive?.length ? <span className="insigna-inlocuitor">{t('pontaj.inlocuieste_pe', {persoane: inlocuiriActive.map(z => { const coleg = date.angajati.find(x => x.id === z.angajat_id); return `${coleg ? `${numeAngajat(coleg)}` : z.angajat_id} (${z.cod})`; }).join(', ')})}</span> : null}
                     {avertismentActiv && <span className="avertisment-text">{avertismentActiv}</span>}
                     {ultimaModificare?.cheie === cheieActiva && ultimaModificare.intrare && <span className="ultima-modificare" title={t('pontaj.ultima_modificare_indiciu')}>
-                        {t('pontaj.ultima_modificare', {cine: autorJurnal(t, ultimaModificare.intrare.cine), cand: new Date(ultimaModificare.intrare.cand).toLocaleString(i18n.language)})}
+                        {t('pontaj.ultima_modificare', {cine: autorJurnal(t, ultimaModificare.intrare.cine), cand: formatData(i18n.language, {dateStyle: 'short', timeStyle: 'medium'}).format(new Date(ultimaModificare.intrare.cand))})}
                     </span>}
                     {onDeschideAbsente && <button type="button" className="legatura" disabled={ocupat} onClick={() => { if (poateAbandona()) onDeschideAbsente(an, randActiv.id); }}>{t('pontaj.deschide_absente')}</button>}
                 </div>

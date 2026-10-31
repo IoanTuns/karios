@@ -498,7 +498,7 @@ try {
     await completeaza('dialog .campuri label:nth-child(1) input', 'test_n12');
     await completeaza('dialog .campuri label:nth-child(2) select', 'NOAPTE');
     await completeaza('dialog .campuri label:nth-child(3) input', 'Tură de test');
-    await completeaza('dialog input[type="time"]', '19:00');
+    await completeaza('dialog input[name="ora_inceput"]', '19:00');
     await completeaza('dialog .campuri label:nth-child(6) input', '720');
     await completeaza('dialog .campuri label:nth-child(7) input', '30'); await apasa('Salvează');
     await asteapta(() => evalueaza(`!document.querySelector('dialog') && document.querySelector('.tabel-schimburi').textContent.includes('TEST_N12')`), 'Schimb nesalvat.');
@@ -514,7 +514,7 @@ try {
     await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog[open]'))`), 'Formular duplicat lipsă.');
     await completeaza('dialog .campuri label:nth-child(1) input', 'TEST_N12');
     await completeaza('dialog .campuri label:nth-child(3) input', 'Duplicat');
-    await completeaza('dialog input[type="time"]', '20:00');
+    await completeaza('dialog input[name="ora_inceput"]', '20:00');
     await completeaza('dialog .campuri label:nth-child(6) input', '720'); await apasa('Salvează');
     await asteapta(() => evalueaza(`document.querySelector('dialog [role="alert"]')?.textContent.includes('acest cod')`), 'Codul duplicat nu este semnalat.');
     await apasa('Anulează');

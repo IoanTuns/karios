@@ -94,7 +94,7 @@ function FormularSchimb({categorii, schimb, ocupat, eroare, inchide, salveaza}: 
                     <label>{t('schimburi.tip')}<select value={campuri.tip} onChange={e => seteaza('tip', e.target.value)}>{['NORMAL', 'TURA', 'NOAPTE', 'GARDA'].map(tip => <option key={tip} value={tip}>{t(`schimburi.tip_${tip}`)}</option>)}</select></label>
                     <label className="latime-completa">{t('sarbatori.denumire_ro')}<input value={campuri.ro} onChange={e => seteaza('ro', e.target.value)}/></label>
                     <label className="latime-completa">{t('sarbatori.denumire_en')}<input value={campuri.en} onChange={e => seteaza('en', e.target.value)}/></label>
-                    <label>{t('schimburi.inceput')} *<input type="time" required value={campuri.ora} onChange={e => seteaza('ora', e.target.value)}/></label>
+                    <label>{t('schimburi.inceput')} *<input type="text" name="ora_inceput" required pattern="([01][0-9]|2[0-3]):[0-5][0-9]" maxLength={5} title={t('schimburi.format_ora')} value={campuri.ora} onChange={e => seteaza('ora', e.target.value)}/></label>
                     <label>{t('schimburi.durata_minute')} *<input type="number" required min="1" max="2880" step="1" value={campuri.durata} onChange={e => seteaza('durata', e.target.value)}/></label>
                     <label>{t('schimburi.pauza_minute')}<input type="number" required min="0" max={campuri.durata || '2880'} step="1" value={campuri.pauza} onChange={e => seteaza('pauza', e.target.value)}/></label>
                     <label className="bifa"><input type="checkbox" checked={campuri.activ} onChange={e => seteaza('activ', e.target.checked)}/>{t('ui.activ_indiciu')}</label>

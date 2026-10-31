@@ -1,3 +1,5 @@
+import i18next from 'i18next';
+import {formateazaDataSigura} from './formatare';
 import {ButonAjutor} from './Ajutor';
 // Conturile aplicației (F15, D008 punctul 3, D045): primul administrator, autentificarea,
 // recuperarea parolei, „Contul meu” și administrarea conturilor.
@@ -26,7 +28,7 @@ export function useCont(): StareContext | null {
 function textEroare(t: (k: string, p?: Record<string, string>) => string, e?: main.MesajEroare): string {
     if (!e) return '';
     const p = {...(e.param ?? {})};
-    if (p.pana_la) p.pana_la = new Date(p.pana_la).toLocaleTimeString();
+    if (p.pana_la) p.pana_la = formateazaDataSigura(p.pana_la, i18next.language, {hour: '2-digit', minute: '2-digit', second: '2-digit'});
     return t(e.cod, p);
 }
 
@@ -424,7 +426,7 @@ export function EcranConturi() {
                     onChange={e => void ruleaza(() => ModificaCont(new conturi.Cont({...c, rol: e.target.value})), 'ui.salvat')}>
                     <option value="ADMINISTRATOR">{t('cont.rol_ADMINISTRATOR')}</option><option value="OPERATOR">{t('cont.rol_OPERATOR')}</option>
                 </select></td>
-                <td>{!c.activ ? t('cont.inactiv') : c.blocat_pana_la && new Date(c.blocat_pana_la) > new Date() ? t('cont.blocat_pana', {ora: new Date(c.blocat_pana_la).toLocaleTimeString()}) : t('cont.activ')}</td>
+                <td>{!c.activ ? t('cont.inactiv') : c.blocat_pana_la && new Date(c.blocat_pana_la) > new Date() ? t('cont.blocat_pana', {ora: formateazaDataSigura(c.blocat_pana_la, i18next.language, {hour: '2-digit', minute: '2-digit', second: '2-digit'})}) : t('cont.activ')}</td>
                 <td className="actiuni-rand">
                     <button type="button" className="buton secundar mic" disabled={ocupat} onClick={() => setResetare({cont: c, parola: ''})}>{t('cont.reseteaza_parola')}</button>
                     <button type="button" className="buton secundar mic" disabled={ocupat}

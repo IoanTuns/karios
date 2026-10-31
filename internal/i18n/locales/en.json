@@ -1607,5 +1607,6 @@
   "pontaj.absenta_pontaj_efectiv": "Actual attendance is recorded for one of these days. Correct it before changing the day type.",
   "absente.zi_nelucratoare": "All leave, including sick leave, can only be recorded on working days, excluding weekends and public holidays.",
   "absente.medical_prioritar": "Active medical leave exists. Use Edit on the current record to correct it explicitly.",
-  "absente.corectare_indiciu": "Leave, including medical leave, can be edited individually or in batches. Cancel removes the active absence while retaining its history; earlier schedules are not restored automatically."
+  "absente.corectare_indiciu": "Leave, including medical leave, can be edited individually or in batches. Cancel removes the active absence while retaining its history; earlier schedules are not restored automatically.",
+  "schimburi.format_ora": "24-hour format: HH:MM, from 00:00 to 23:59."
 }

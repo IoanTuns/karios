@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.11 - 2026-10-31
+
+F16-T26: orele sunt afisate unitar in format 24h (00-23), inclusiv jurnal, restaurare, audit, conturi si ultima modificare Pontaj, in romana si engleza. Manual 1.22.
+
 ## 0.92.10 - 2026-10-31
 
 F07-T34: concediul medical poate fi corectat explicit in alt tip, cu verificarea reviziei. Anularea individuala si in lot pastreaza jurnalul. Prioritatea ramane pentru suprascrierile fara revizie. Manual 1.21.

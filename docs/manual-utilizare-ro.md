@@ -541,3 +541,10 @@ In Concedii si absente, folositi Editeaza pe rand pentru schimbarea tipului si a
 Pentru eliminare, folositi Anuleaza ziua sau Anuleaza zilele selectate si confirmati. Absenta devine inactiva si nu mai blocheaza programul; istoricul ramane disponibil. Anularea medicalului nu reface automat programele pe care le-a anulat. Pentru revenire la lucru aplicati din nou programul corect.
 
 O corectie facuta intre timp de alt operator produce un conflict: reincarcati datele inainte de a repeta. Lunile inchise trebuie redeschise prin fluxul autorizat. Prioritatea medicalului protejeaza fata de suprascrieri automate, fara sa impiedice corectarea explicita a unei inregistrari curente.
+
+
+## Formatul orelor
+
+Aplicatia afiseaza orele in format de 24 de ore: 00:00, 07:00, 19:00, 23:59. Nu se foloseste AM/PM, indiferent de limba interfetei sau a sistemului. Regula se aplica si jurnalului, auditului, restaurarii, blocarii conturilor si ultimei modificari din Pontaj. Datele raman localizate; fusul orar si duratele/totalurile de ore nu se modifica. Rapoartele folosesc deja formatul 24h.
+
+La definirea unui schimb, introduceti ora de inceput ca HH:MM, de exemplu 07:00 sau 19:00; sunt acceptate ore de la 00:00 la 23:59.
