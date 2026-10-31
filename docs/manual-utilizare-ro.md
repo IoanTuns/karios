@@ -634,3 +634,7 @@ La adaugarea sau editarea concediilor/absentelor, completeaza formularul si apas
 Grilele arata marcile si intervalul selectat langa comenzi. La schimbarea lunii sau navigarea dintr-o grila cu modificari, poti alege Ramai aici, Renunta la modificari sau Salveaza si continua. O salvare esuata nu continua navigarea. Salvarea Planificarii ramane separata de publicarea in Pontaj. Protectia nativa la inchiderea ferestrei Windows ramane cea existenta. Alte formulare isi pastreaza propriile validari si confirmari de abandon.
 
 Filtrele profesionale active au eticheta si valoare si se pot elimina individual din butonul lor; celelalte criterii si perioada raman neschimbate. In Rapoarte, daca persoana selectata nu mai corespunde filtrelor, selectia se goleste cu mesaj explicativ. Compact/Normal/Aerisit controleaza densitatea grilei; procentul din antet controleaza zoomul intregii aplicatii. Regiunile de tabel au denumiri specifice pentru accesul prin tastatura; Alt+Home/End deruleaza la capetele tabelului cand regiunea are focus. Aceste facilitati nu reprezinta certificare de accesibilitate cu cititor de ecran.
+
+## Anexa finala a rapoartelor PDF (0.92.21)
+
+Modul de calcul, semnificatia coloanelor si istoricul tehnic de generare/revizii apar dupa tabel, intr-o anexa care incepe pe pagina noua. Nu se mai repeta in subsolul fiecarei pagini de pontaj. Numerotarea continua pana la final. Daca explicatiile depasesc o pagina, anexa continua fara trunchiere; istoricul de generare este la sfarsit. Istoricul nominal al operatiunilor ramane in Jurnal modificari.

@@ -1,3 +1,3 @@
 package garzi
 
-const Versiune = 7
+const Versiune = 8

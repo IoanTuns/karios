@@ -4,10 +4,12 @@ import (
 	"bytes"
 	"context"
 	"math"
+	"pontix/internal/i18n"
 
 	"github.com/johnfercher/maroto/v2"
 	"github.com/johnfercher/maroto/v2/pkg/components/col"
 	imaginePDF "github.com/johnfercher/maroto/v2/pkg/components/image"
+	"github.com/johnfercher/maroto/v2/pkg/components/page"
 	"github.com/johnfercher/maroto/v2/pkg/components/row"
 	"github.com/johnfercher/maroto/v2/pkg/components/text"
 	"github.com/johnfercher/maroto/v2/pkg/config"
@@ -201,14 +203,7 @@ func ConstruiestePDF(d Document) (core.Maroto, error) {
 	if err := m.RegisterHeader(antet...); err != nil {
 		return nil, eroare("rapoarte.aspect_prea_mare")
 	}
-	subsol := []core.Row{bloc(d.Subsol, float64(d.Pagina.FontPT), fontstyle.Normal), text.NewAutoRow(d.Metadate, props.Text{Family: "Go", Size: 6, Top: 2, Bottom: 2})}
-	if len(d.Legenda) > 0 {
-		legenda := make([]core.Row, 0, len(d.Legenda))
-		for _, explicatie := range d.Legenda {
-			legenda = append(legenda, text.NewAutoRow(explicatie, props.Text{Family: "Go", Size: 7, Bottom: 1}))
-		}
-		subsol = append(legenda, subsol...)
-	}
+	subsol := []core.Row{bloc(d.Subsol, float64(d.Pagina.FontPT), fontstyle.Normal)}
 	imaginiSubsol, err := randImagini(d.Pagina, d.SubsolImagini)
 	if err != nil {
 		return nil, err
@@ -224,6 +219,31 @@ func ConstruiestePDF(d Document) (core.Maroto, error) {
 	}
 	if len(d.Randuri) == 0 {
 		m.AddRows(text.NewAutoRow(d.FaraDate, props.Text{Family: "Go", Size: float64(d.Pagina.FontPT), Top: 4, Bottom: 4}))
+	}
+
+	// Anexa incepe pe o pagina noua; antetul de coloane nu se repeta aici.
+	if len(d.Legenda) > 0 || d.Metadate != "" {
+		if err := m.RegisterHeader(); err != nil {
+			return nil, eroare("rapoarte.aspect_prea_mare")
+		}
+		anexa := []core.Row{}
+		if imaginiAntet != nil {
+			anexa = append(anexa, imaginiAntet)
+		}
+		anexa = append(anexa, bloc(d.Antet, float64(d.Pagina.FontPT)+2, fontstyle.Bold))
+		titlu := func(cheie string) core.Row {
+			return text.NewAutoRow(i18n.T(d.Limba, "rapoarte."+cheie, nil), props.Text{Family: "Go", Size: 10, Style: fontstyle.Bold, Top: 3, Bottom: 2})
+		}
+		if len(d.Legenda) > 0 {
+			anexa = append(anexa, titlu("anexa_calcul"))
+			for _, explicatie := range d.Legenda {
+				anexa = append(anexa, text.NewAutoRow(explicatie, props.Text{Family: "Go", Size: 8, Bottom: 1}))
+			}
+		}
+		if d.Metadate != "" {
+			anexa = append(anexa, titlu("anexa_istoric"), text.NewAutoRow(d.Metadate, props.Text{Family: "Go", Size: 7, Top: 1, Bottom: 2}))
+		}
+		m.AddPages(page.New().Add(anexa...))
 	}
 	return m, nil
 }

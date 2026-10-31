@@ -34,7 +34,7 @@ func TestRaportCacheTokenSiPDF(t *testing.T) {
 	if prima.Eroare != nil || prima.Document == nil || prima.Token == "" {
 		t.Fatalf("generare: %+v", prima.Eroare)
 	}
-	if prima.Pagini != 1 {
+	if prima.Pagini != 2 {
 		t.Fatalf("numar pagini in interfata: %d", prima.Pagini)
 	}
 	pdf, err := base64.StdEncoding.DecodeString(prima.PDF)

@@ -52,6 +52,7 @@ type Rand struct {
 	Culori []string `json:"culori"`
 }
 type Document struct {
+	Limba          i18n.Limba         `json:"-"`
 	Legenda        []string           `json:"legenda,omitempty"`
 	Titlu          string             `json:"titlu"`
 	Sursa          string             `json:"sursa"`
@@ -351,7 +352,7 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 	bloc := func(b Bloc) []string {
 		return []string{inlocuieste(b.Stanga.In(limba)), inlocuieste(b.Centru.In(limba)), inlocuieste(b.Dreapta.In(limba))}
 	}
-	doc := Document{Titlu: d.Denumire.In(limba), Sursa: d.Continut.Sursa, RevizieModel: d.Revizie, Pagina: d.Pagina, Antet: bloc(d.Antet), Introducere: inlocuieste(d.Continut.Text.In(limba)), Subsol: bloc(d.Subsol), Coloane: []Coloana{}, Randuri: []Rand{}, Nota: t("nota_schita"), FaraDate: t("fara_date"), Paginare: t("paginare"), GeneratLa: acum}
+	doc := Document{Limba: limba, Titlu: d.Denumire.In(limba), Sursa: d.Continut.Sursa, RevizieModel: d.Revizie, Pagina: d.Pagina, Antet: bloc(d.Antet), Introducere: inlocuieste(d.Continut.Text.In(limba)), Subsol: bloc(d.Subsol), Coloane: []Coloana{}, Randuri: []Rand{}, Nota: t("nota_schita"), FaraDate: t("fara_date"), Paginare: t("paginare"), GeneratLa: acum}
 	if len(garziRaport) > 0 {
 		doc.Nota += " " + t("nota_garzi")
 	}

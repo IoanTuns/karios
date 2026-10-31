@@ -1750,5 +1750,7 @@
   "ux30.aerisit": "Spacious",
   "ux30.tabel_navigare": "{{nume}}. Use arrow keys to scroll and Alt+Home / Alt+End to reach the table edges.",
   "ux30.fara_rezultate": "No results match the current filters. Remove a filter or reset the criteria.",
-  "ux30.absenta_schimbata": "The form has changed. Generate the preview again."
+  "ux30.absenta_schimbata": "The form has changed. Generate the preview again.",
+  "rapoarte.anexa_calcul": "Calculation method and column definitions",
+  "rapoarte.anexa_istoric": "Generation history and revisions"
 }

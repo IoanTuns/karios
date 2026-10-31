@@ -1750,5 +1750,7 @@
   "ux30.aerisit": "Aerisit",
   "ux30.tabel_navigare": "{{nume}}. Foloseste sagetile pentru derulare si Alt+Home / Alt+End pentru capetele tabelului.",
   "ux30.fara_rezultate": "Nu exista rezultate pentru filtrele curente. Elimina un filtru sau reseteaza criteriile.",
-  "ux30.absenta_schimbata": "Formularul a fost modificat. Genereaza din nou previzualizarea."
+  "ux30.absenta_schimbata": "Formularul a fost modificat. Genereaza din nou previzualizarea.",
+  "rapoarte.anexa_calcul": "Mod de calcul si semnificatia coloanelor",
+  "rapoarte.anexa_istoric": "Istoric de generare si revizii"
 }

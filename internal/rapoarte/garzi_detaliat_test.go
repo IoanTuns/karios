@@ -157,7 +157,7 @@ func TestReferintaDetaliatCuMarciGarda(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	cale := filepath.Join("testdata", "pontaj-detaliat-marci-garda-v11.json")
+	cale := filepath.Join("testdata", "pontaj-detaliat-marci-garda-v12.json")
 	if *actualizeazaReferinte {
 		if err := os.WriteFile(cale, date, 0600); err != nil {
 			t.Fatal(err)

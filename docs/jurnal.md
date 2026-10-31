@@ -381,3 +381,7 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 | 2026-10-31 | F16-T31: verificari finale trecute: gofmt, go vet, suita Go, TypeScript/Vite, 24 teste frontend, UI UX30 RO/EN, absente RO/EN, nomenclatoare, focus/zoom, contrast ambele teme; 3 teste manuale, 7 livrare si documentatie fara erori. Nicio baza reala accesata, nicio regula contabila schimbata. Pregatire build 0.92.20. | Codex | [Rezultate](plan-F16-T31.md) |
 
 | 2026-10-31 | F16-T31: build oficial 0.92.20/df65f2b, manual 1.31 si arhiva livrate impreuna in `build/bin/pontix-0.92.20-20261031-215300-2656e9076776447f96f598d52fbf0654`; manifest complet si integritate SHA256/CRC verificate. Reordonarea generata a claselor Wails normalizata dupa comparatie semantica. Excel ramane amanat; fara push/merge. | Codex | [Livrare](plan-F16-T31.md) |
+
+| 2026-10-31 | F16-T32: mutare legenda/metadate din subsolul repetat in anexa PDF finala, cu numerotare continua; rapoarte versionate si referinte tehnice noi, cele vechi pastrate. Teste de separare tabel/anexa, istoric numai la final, volum lung, RO/EN si imagini. Aplicatie 0.92.21/manual 1.32. | Codex | [Plan](plan-F16-T32.md) |
+
+| 2026-10-31 | F16-T32: gofmt, go vet si intreaga suita Go trecute; raportul detaliat RO/EN are toate explicatiile si istoricul pe ultima pagina; randare Windows inspectata. Probe cu explicatii lungi fara trunchiere. Pregatire livrare 0.92.21/manual 1.32. | Codex | [Rezultate](plan-F16-T32.md) |

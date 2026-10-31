@@ -53,3 +53,5 @@ F16-T24: [rezultate si limite](../rezultate-F16-T24.md). Pas urmator: build ofic
 | F16-T30 | Analiza UX dupa remediile 0.92.19 | Codex | gata | [Audit si prioritati](../analiza-ux-0.92.19.md). 12 recomandari, limite explicite; pas urmator: lot de implementare, fara push/merge. |
 
 | F16-T31 | Implementarea celor sase recomandari UX30 | Codex | gata | 0.92.20/manual 1.31. [Implementare si verificari](../plan-F16-T31.md). Urmeaza build/proba operator; fara push/merge, Excel amanat. |
+
+| F16-T32 | Istoric si mod de calcul la sfarsitul rapoartelor | Codex | gata | 0.92.21: anexa finala PDF verificata RO/EN, rapoarte versionate, manual 1.32. [Rezultate](../plan-F16-T32.md). Urmeaza build/proba operator; fara push/merge. |

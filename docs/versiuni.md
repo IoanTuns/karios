@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.21 - 2026-10-31
+
+F16-T32: modul de calcul si istoricul tehnic de generare/revizii sunt intr-o anexa finala PDF, nu repetate in subsolul tabelului. Numerotare continua, fara trunchierea explicatiilor. Rapoarte: pontaj 11, detaliat 12, individual 11, absente 8, garzi 8. Manual 1.32.
+
 ## 0.92.20 - 2026-10-31
 
 F16-T31: cele sase recomandari UX: erori traduse/selectie coerenta in rapoarte, verificari cu liste filtrate si eligibilitate explicata, simulare inainte/dupa pentru absente, selectie vizibila si salvare la navigarea grilelor, panou lunar si filtre eliminabile/accesibile. Manual 1.31. Fara schimbari de calcul, migrari sau versiuni de raport. Excel ramane amanat.

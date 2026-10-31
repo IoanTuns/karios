@@ -199,7 +199,7 @@ func TestPDFImaginiPeFiecarePagina(t *testing.T) {
 				t.Fatal(err)
 			}
 			pagini, err := NumaraPaginiPDF(context.Background(), pdf)
-			if err != nil || (!lung && pagini != 1) || (lung && pagini < 2) {
+			if err != nil || (!lung && pagini != 2) || (lung && pagini < 3) {
 				t.Fatalf("paginare: %d %v", pagini, err)
 			}
 			imagini, err := api.ExtractImagesRaw(context.Background(), bytes.NewReader(pdf), nil, nil)
