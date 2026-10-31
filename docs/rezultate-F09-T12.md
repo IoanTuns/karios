@@ -10,7 +10,7 @@ Rapoartele pontaj/detaliat/individual sunt v6, absente/garzi v4. Referintele ant
 
 ## Verificari
 
-Testele pachetului rapoarte au trecut: referinte, PDF, paginare, imagini, grupare, marci distincte, legenda RO/EN si Excel redeschis. PDF-ul detaliat fictiv a fost randat cu motorul Windows si inspectat: legenda nu se suprapune cu tabelul sau semnaturile. TypeScript/Vite si 18 teste frontend trecute; 3 teste manual, 7 teste livrare si control documentatie trecute. Verificarea diff nu raporteaza spatii finale. gofmt, go vet ./... si suita completa go test -p 1 -timeout 120s ./... au trecut. Build-ul oficial se consemneaza dupa finalizare.
+Testele pachetului rapoarte au trecut: referinte, PDF, paginare, imagini, grupare, marci distincte, legenda RO/EN si Excel redeschis. PDF-ul detaliat fictiv a fost randat cu motorul Windows si inspectat: legenda nu se suprapune cu tabelul sau semnaturile. TypeScript/Vite si 18 teste frontend trecute; 3 teste manual, 7 teste livrare si control documentatie trecute. Verificarea diff nu raporteaza spatii finale. gofmt, go vet ./... si suita completa go test -p 1 -timeout 120s ./... au trecut. Build oficial complet din b50555a: `build/bin/pontix-0.92.3-20261031-140414-7c8084c7219d4b7fb049e54a88653dde/pontix.exe`. Manual 1.14 MD/HTML/PDF alaturi si ZIP separat; manifest, versiune/commit, hashurile executabilului si manualelor, integritatea ZIP, SHA256SUMS din arhiva si hashul arhivei verificate.
 
 Dependente: Go 1.27.3 si npm actuale; 62 actualizari tranzitive Go raman urmarite in F14-T21. Fara biblioteci noi.
 
