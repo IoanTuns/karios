@@ -25,4 +25,4 @@ F09-T08 extinde modelele cu imagini locale în antet și subsol și verifică ra
 | F09-T07 | Definiții de rapoarte cu antet/conținut/subsol, meniu separat, previzualizare și tipărire PDF | gata | Codex | 0.20.0 include F07-T11 (bacd37b) în ramura izolată. Antet/conținut/subsol independente, trei modele, RO/EN, A4/A3, revizii și export local; verificate Go/vet, TypeScript/Vite, Edge și PDF cu patru pagini. Dialogurile native și tipărirea fizică nu au fost probate interactiv. Pas următor: probă la imprimanta utilizatorului, apoi specificațiile contabilității pentru centralizatorul final F09-T02; editorul și modelele de lucru sunt disponibile. [D025](../decizii/D025-definitii-rapoarte.md), [ghid](../ghid-rapoarte.md) |
 
 
-F09-T11: implementare si verificari in [rezultate](../rezultate-F09-T11.md). Pas urmator: build oficial 0.91.0, proba operator si review pentru integrare; fara push sau merge.
+F09-T11: implementare si verificari in [rezultate](../rezultate-F09-T11.md). Build oficial 0.91.0 finalizat. Pas urmator: proba operator si review pentru integrare; fara push sau merge.

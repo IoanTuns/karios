@@ -19,4 +19,4 @@ Pontaj detaliat: randuri distincte, grupate principal apoi garzi, fiecare cu mar
 
 ## Predare
 
-Build oficial urmeaza dupa commit, pentru identificator curat in manifest. Nu s-au deschis datele reale. Ramane proba operator in aplicatia desktop/WebView2 si tiparirea fizica; legaturile dintre marcile existente trebuie selectate de operator. Nicio publicare sau integrare in main efectuata.
+Build oficial curat 3bb9190 finalizat: `build/bin/pontix-0.91.0-20261031-113058-331667dcd4db4a71b97b030b9e707d89/pontix.exe`. Manual 1.9 in MD/HTML/PDF si ZIP alaturi; manifest, identitate si toate hashurile verificate. Nu s-au deschis datele reale. Ramane proba operator in aplicatia desktop/WebView2 si tiparirea fizica; legaturile dintre marcile existente trebuie selectate de operator. Nicio publicare sau integrare in main efectuata.
