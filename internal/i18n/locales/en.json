@@ -1650,5 +1650,6 @@
   "stergere.sursa.absente_zile": "leave and absences",
   "stergere.sursa.setari": "application rules and settings",
   "stergere.sursa.sabloane_ai": "AI templates",
-  "stergere.sursa.operatii_ai": "AI operation history"
+  "stergere.sursa.operatii_ai": "AI operation history",
+  "planificare.prioritate_publicare": "Publishing replaces existing schedules and hours in Timesheet. Leave and days off take priority; medical leave has the highest priority."
 }

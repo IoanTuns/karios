@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.16 - 2026-10-31
+
+F11-T20: publicarea planificarii inlocuieste implicit programele si orele din schita Pontaj; concediile si medicalul raman prioritare. Reviziile si previzualizarea sunt pastrate.
+
 ## 0.92.15 - 2026-10-31
 
 F07-T37: administratorul poate sterge definitiv configurari inactive/nefolosite, cu confirmare, revizie si verificarea referintelor. Datele operationale si jurnalul se pastreaza. Manual 1.26.

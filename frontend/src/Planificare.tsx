@@ -313,7 +313,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
         return (plan?.pozitii??[]).filter(p=>p.activ&&(sectiune==='TOATE'||p.sectiune===sectiune));
     },[plan,sectiune]);
 
-    async function previzualizeazaPublicare(inlocuieste=false) {
+    async function previzualizeazaPublicare(inlocuieste=true) {
         if(modificari.size>0){
             if(!window.confirm(t('planificare.salveaza_inainte_publicare')))return;
             await salveazaPlanGrila();
@@ -730,7 +730,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
             <div className="corp-dialog previzualizare-publicare">
                 <p>{t('planificare.publicare_indiciu')}</p>
                 {eroare&&<p role="alert" className="mesaj eroare">{eroare}</p>}
-                <label className="bifa"><input type="checkbox" name="inlocuieste_pontaj" checked={publicare.cerere.inlocuieste} disabled={ocupat} onChange={e=>void previzualizeazaPublicare(e.target.checked)}/>{t('planificare.permite_inlocuire')}</label>
+                <p>{t('planificare.prioritate_publicare')}</p>
                 <p><strong>{t('planificare.rezumat_publicare',{publicabile:publicare.rezultat.publicabile,identice:publicare.rezultat.identice,blocate:publicare.rezultat.blocate})}</strong></p>
                 <div className="tabel-derulant">
                     <table>

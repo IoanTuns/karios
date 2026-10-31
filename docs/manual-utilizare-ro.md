@@ -584,3 +584,9 @@ Autentificati-va ca administrator. In lista configurarii alegeti Stare > Inactiv
 Disponibil pentru programe, categorii de program, tipuri de absenta, functii, grupuri, tipuri de contract, categorii de schimb, tipuri/regimuri de lucru si modele de raport. Definitii de baza necesare compatibilitatii raman protejate. O configurare folosita de pontaj, planificare, concedii, angajati, reguli, sabloane sau operatii AI nu poate fi stearsa; mesajul indica sursa utilizarii. Modificati configurarea care o refera sau pastrati-o inactiva daca exista istoric.
 
 Stergerea unei categorii neatribuite elimina numai lista ei proprie de programe permise; programele nu sunt sterse. Stergerea unui program nefolosit elimina numai metadatele sale de clasificare. Nu se elimina asocieri din alte configurari pentru a forta stergerea. Pontajele, concediile, planificarile, angajatii si conturile nu se sterg prin aceasta actiune. Jurnalul pastreaza snapshotul configurarii eliminate. Stergerea este definitiva; nu exista buton de restaurare pentru configurarea stearsa.
+
+### Prioritatea Planificarii, concediilor si medicalului
+
+La publicarea Planificarii, programele si orele manuale existente in schita Pontaj sunt inlocuite implicit; nu mai trebuie bifata o permisiune de inlocuire. Previzualizarea arata valoarea veche si cea noua. Daca datele se modifica intre previzualizare si confirmare, repetati previzualizarea.
+
+Concediile si zilele libere au prioritate fata de program si anuleaza planificarea aferenta. Medicalul are prioritate maxima si anuleaza intreaga tura de noapte intersectata pe toate marcile asociate. Absentele se inregistreaza numai in zile lucratoare, fara weekend si sarbatori legale. Lunile inchise raman protejate.

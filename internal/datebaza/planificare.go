@@ -429,12 +429,7 @@ func pregatestePublicare(ctx context.Context, q *acces.Queries, c CererePublicar
 		} else if strings.EqualFold(strings.TrimSpace(veche.Valoare), program.Cod) {
 			r.Stare = "IDENTIC"
 		} else if strings.TrimSpace(veche.Valoare) != "" {
-			if c.Inlocuieste {
-				r.Stare = "INLOCUIRE"
-			} else {
-				r.Stare = "BLOCATA"
-				r.Motiv = "celula_ocupata"
-			}
+			r.Stare = "INLOCUIRE"
 		}
 		switch r.Stare {
 		case "IDENTIC":

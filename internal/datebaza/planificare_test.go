@@ -97,7 +97,7 @@ func TestPlanificareSeparataPublicareIdempotentaSiRetragere(t *testing.T) {
 		t.Fatal("retragerea planului a sters pontajul", valoare, err)
 	}
 }
-func TestPublicareInlocuireExplicitaSiConflictPontaj(t *testing.T) {
+func TestPublicareInlocuireImplicitaSiConflictPontaj(t *testing.T) {
 	m, id, schimburi := mediuPlanificare(t)
 	ctx := context.Background()
 	if err := m.serviciu.SalveazaSchita(ctx, 2026, 10, []CelulaSchita{{AngajatID: id, Data: "2026-10-01", Valoare: "Z7"}}); err != nil {
@@ -106,11 +106,6 @@ func TestPublicareInlocuireExplicitaSiConflictPontaj(t *testing.T) {
 	p := planTest(t, m, 2026, 10, PozitiePlanificare{AngajatID: id, Data: "2026-10-01", SchimbID: schimburi["S7"], Sectiune: "DUPA_AMIAZA", Activ: true})
 	c := cerereTest(p, "DUPA_AMIAZA")
 	r := previzualizareTest(t, m, &c)
-	if r.Blocate != 1 || r.Randuri[0].Motiv != "celula_ocupata" {
-		t.Fatalf("protectie: %+v", r)
-	}
-	c.Inlocuieste = true
-	r = previzualizareTest(t, m, &c)
 	if r.Publicabile != 1 || r.Randuri[0].Stare != "INLOCUIRE" || r.Randuri[0].Inainte != "Z7" {
 		t.Fatalf("inlocuire: %+v", r)
 	}
