@@ -470,6 +470,16 @@ func (s *Serviciu) salveazaAbsente(ctx context.Context, zile []ZiAbsenta, conver
 			if err != nil {
 				return err
 			}
+			if z.Activ && tip.Categorie == "ODIHNA" {
+				init, e := q.ListaInitializariPontaj(ctx)
+				if e != nil {
+					return e
+				}
+				v, ok := init[z.AngajatID]
+				if ok && v.COZile > 0 && z.Data >= v.Luna[:4]+"-01-01" && z.Data < v.Luna+"-01" {
+					return eroare("sold.co_dublat")
+				}
+			}
 			suprascrie := z.Activ && z.StareAprobare != "RESPINSA"
 			categorieVeche := ""
 			if exista && veche.Activ == 1 && veche.StareAprobare != "RESPINSA" {

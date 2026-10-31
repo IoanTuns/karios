@@ -52,6 +52,15 @@ export async function verificaFocus({cdp,evalueaza,asteapta,apasa,cataloage,limb
   await new Promise(r=>setTimeout(r,40));
   assert(await evalueaza(`document.activeElement===window.__campuri[${index}] && window.__campuri[${index}].selectionStart===1`),'Focus pierdut in campul '+index);
  }
+ // F07-T27: initializarea pastreaza solduri negative si CO in formular.
+ assert(await evalueaza("Boolean(document.querySelector('input[name=initializare_luna][type=month]'))"),'Luna de initializare lipsa');
+ await evalueaza("document.querySelector('input[name=initializare_ore]').focus();document.querySelector('input[name=initializare_ore]').select()");
+ await cdp('Input.insertText',{text:'-2.5'});
+ await asteapta(()=>evalueaza("document.querySelector('input[name=initializare_ore]').value==='-2.5'"),'Soldul negativ nu se pastreaza');
+ await evalueaza("document.querySelector('input[name=initializare_co]').focus();document.querySelector('input[name=initializare_co]').select()");
+ await cdp('Input.insertText',{text:'8'});
+ await asteapta(()=>evalueaza("document.querySelector('input[name=initializare_co]').value==='8' && document.querySelector('input[name=initializare_ore]').value==='-2.5'"),'CO initial pierde soldul de ore');
+ await captura('initializare-solduri-'+limba+'.png');
  await evalueaza("window.__confirmInitial=window.confirm;window.__confirmRefuz=0;window.confirm=()=>{window.__confirmRefuz++;return false}");
  await cdp('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});
  await new Promise(r=>setTimeout(r,40));

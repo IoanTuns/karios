@@ -594,3 +594,13 @@ Concediile si zilele libere au prioritate fata de program si anuleaza planificar
 #### Suprascrierea pontajelor efective
 
 La publicarea Planificarii sunt inlocuite si pontajele efective ale aceleiasi marci si date. Previzualizarea indica numarul lor. Inregistrarile vechi sunt retrase din calcul si pastrate in audit; nu se sterg fizic. Concediile retrag pontajele efective intersectate, iar medicalul aplica regula tuturor marcilor asociate si intregii ture intersectate. O luna inchisa sau blocata impiedica operatia, inclusiv pentru o tura inceputa in luna precedenta. Anularea concediului nu restaureaza automat programul retras: programul dorit trebuie reaplicat explicit.
+
+### Solduri lunare si initializarea pontajului
+
+In Angajati > Editeaza completati Luna de initializare, L Inceput initial (ore cu semn) si CO efectuat anterior (zile). Soldul orelor este valabil la inceputul lunii alese. Zilele CO initiale reprezinta consumul din acelasi an, anterior acelei luni; nu le mai introduceti ca absente datate. Dreptul anual contractual ramane separat. Pentru corectie editati valorile; pentru anularea valorilor initiale introduceti zero. Modificarile care ar afecta luni inchise/blocate sunt refuzate.
+
+Ore lucratoare = (zile luni-vineri fara sarbatori legale - zile CO/CEV/CFS/CM aprobate) x norma zilnica. CEV/CFS folosesc codurile atribuite in regulile de pontaj; celelalte tipuri speciale nu se scad automat. Formarea profesionala si delegatiile nu reduc norma prin simpla incadrare la Special.
+
+Raportul detaliat afiseaza L Inceput imediat dupa Marca. L Fin = L Inceput + total ore efectiv lucrate - Ore lucratoare. L Inceput al lunii urmatoare este L Fin al lunii precedente, inclusiv la trecerea dintre ani. Sunt acceptate solduri negative. Daca exista ore neinterpretabile, soldul final ramane nedefinit pana la corectarea lor. Marcile de garda raman fara norma prestabilita si fara sold de norma calculat. Formulele sunt explicate si in subsolul raportului.
+
+Fara initializare explicita, calculul incepe cu sold zero in prima luna cu date a marcii. Soldurile se recalculeaza din datele existente; pentru un istoric anterior folosirii aplicatiei, introduceti soldul la luna de referinta. Norma contractuala folosita este cea configurata curent; nu se presupun modificari contractuale istorice neinregistrate.

@@ -95,12 +95,15 @@ export function FormularAngajat({angajat, date, ocupat, eroare, inchide, salveaz
     const [contract, setContract] = useState(angajat.contract_id||angajat.tip_contract);
     const [ore, setOre] = useState(angajat.norma_partiala_minute == null ? '' : String(angajat.norma_partiala_minute / 60));
     const [concediu, setConcediu] = useState(angajat.concediu_zile_an == null ? '' : String(angajat.concediu_zile_an));
+    const [lunaSold,setLunaSold]=useState(angajat.initializare?.luna||'');
+    const [oreSold,setOreSold]=useState(String((angajat.initializare?.minute||0)/60));
+    const [coInitial,setCoInitial]=useState(String(angajat.initializare?.co_zile||0));
     const [activ, setActiv] = useState(angajat.activ);
     const [validare, setValidare] = useState('');
-    const initial = useRef(JSON.stringify([nume, prenume, marca, functie, functieId, principalId, sectie, departament, categorieProgram, contract, ore, concediu, activ]));
+    const initial = useRef(JSON.stringify([nume, prenume, marca, functie, functieId, principalId, sectie, departament, categorieProgram, contract, ore, concediu, activ,lunaSold,oreSold,coInitial]));
 
     function inchideCuVerificare() {
-        const modificat = initial.current !== JSON.stringify([nume, prenume, marca, functie, functieId, principalId, sectie, departament, categorieProgram, contract, ore, concediu, activ]);
+        const modificat = initial.current !== JSON.stringify([nume, prenume, marca, functie, functieId, principalId, sectie, departament, categorieProgram, contract, ore, concediu, activ,lunaSold,oreSold,coInitial]);
         if (!ocupat && (!modificat || window.confirm(t('ui.renunta')))) inchide();
     }
 
@@ -112,8 +115,10 @@ export function FormularAngajat({angajat, date, ocupat, eroare, inchide, salveaz
         if (modNormare === 'INDIVIDUALA' && minute === null) { setValidare(t('date.norma_invalida')); return; }
         const zile = concediu === '' ? null : Number(concediu);
         if (zile !== null && (!Number.isSafeInteger(zile) || zile < 0)) { setValidare(t('date.concediu_invalid')); return; }
+        const minuteSold=Math.round(Number(oreSold.replace(',','.'))*60),zileInitiale=Number(coInitial);
+        if((!lunaSold&&(!!angajat.initializare||Number(oreSold.replace(',','.'))!==0||zileInitiale!==0))||(lunaSold&&(!Number.isSafeInteger(minuteSold)||!Number.isSafeInteger(zileInitiale)||zileInitiale<0))){setValidare(t('sold.initializare_invalida'));return;}
         await salveaza(new datebaza.Angajat({...angajat, nume, prenume, marca, functie, functie_id:functieId, angajat_principal_id:principalId, sectie_id: sectie, departament_id: departament,
-            categorie_program_id:categorieProgram, contract_id:contract, tip_contract: modNormare==='INDIVIDUALA'?'PARTIALA':'INTREAGA', norma_partiala_minute: minute, concediu_zile_an: zile, activ}));
+            categorie_program_id:categorieProgram, contract_id:contract, tip_contract: modNormare==='INDIVIDUALA'?'PARTIALA':'INTREAGA', norma_partiala_minute: minute, concediu_zile_an: zile, activ,initializare:lunaSold?{luna:lunaSold,minute:minuteSold,co_zile:zileInitiale,revizie:angajat.initializare?.revizie||0}:undefined}));
     }
 
     return <Dialog titlu={t(angajat.id ? 'ui.editare_angajat' : 'ui.adauga_angajat')} ocupat={ocupat} inchide={inchideCuVerificare}>
@@ -144,6 +149,10 @@ export function FormularAngajat({angajat, date, ocupat, eroare, inchide, salveaz
                     <label className="latime-completa">{t('program.categorie')}<select name="angajat_categorie_program" value={categorieProgram} onChange={e=>setCategorieProgram(e.target.value)}><option value="">{t('program.fara_categorie')}</option>{(date.categorii_program??[]).filter(c=>c.activ||c.id===categorieProgram).map(c=><option key={c.id} value={c.id}>{c.denumire[i18n.language]||c.denumire.ro}{!c.activ?` · ${t('ui.inactiv')}`:''}</option>)}</select><small>{t('program.atribuire_indiciu')}</small></label>
                     <label className="latime-completa">{t('ui.concediu')}<input type="number" min="0" step="1" value={concediu} onChange={e => setConcediu(e.target.value)} aria-describedby="indiciu-concediu"/>
                         <small id="indiciu-concediu">{t('ui.concediu_indiciu')}</small></label>
+                    <label>{t('sold.luna')}<input type="month" name="initializare_luna" min="2000-01" max="2100-12" value={lunaSold} onChange={e=>setLunaSold(e.target.value)}/></label>
+                    <label>{t('sold.ore')}<input name="initializare_ore" inputMode="decimal" value={oreSold} onChange={e=>setOreSold(e.target.value)}/></label>
+                    <label>{t('sold.co')}<input name="initializare_co" type="number" min="0" max="366" step="1" value={coInitial} onChange={e=>setCoInitial(e.target.value)}/></label>
+                    <p className="latime-completa">{t('sold.indiciu')}</p>
                     <label className="bifa latime-completa"><input type="checkbox" checked={activ} onChange={e => setActiv(e.target.checked)}/>{t('ui.activ_indiciu')}</label>
                 </fieldset>
             </div>

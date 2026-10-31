@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.18 - 2026-10-31
+
+F07-T27: ore lucratoare dupa norma si concedii aprobate, sold L Inceput/L Fin reportat lunar, initializare ore si CO in formularul angajatului. Migrare 0028; raport detaliat v10.
+
 ## 0.92.17 - 2026-10-31
 
 F11-T20: prioritatea include pontajele efective, retrase logic din calcul la publicare/concediu/medical, cu audit integral. Medicalul afecteaza toate marcile asociate si intreaga tura intersectata.

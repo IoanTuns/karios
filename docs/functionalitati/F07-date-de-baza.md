@@ -79,3 +79,7 @@ Predare F07-T25: [rezultate si limite](../rezultate-F07-T25.md), toate verificar
 F07-T27: calculul pur al normei zilnice pe calendar L-V implementat si testat (fara dubla scadere, numai CO/CEV/CFS/CM aprobate, fara libere compensatorii presupuse). Integrarea in raport si restul rubricilor raman in lucru, pana la clarificarile T/solduri si zile programate pentru ture.
 
 Predare calcul F07-T27: gofmt/vet/suita Go completa si testele manualului trecute. Codul de baza este documentat in D063; nu s-a generat un executabil nou si nu s-a schimbat raportul. Pas urmator: clasificarea configurabila a absentelor (F07-T28), apoi conectarea normei si soldurilor dupa clarificarea T si a zilelor programate pentru ture.
+
+Continuare F07-T27 (2026-10-31): utilizatorul cere Ore lucratoare = zile lucratoare din luna x norma zilnica, L Fin ca diferenta fata de orele efective, L Inceput dupa Marca din L Fin anterior, initializare ore si CO efectuat anterior. Responsabil Codex, in lucru pe F07-T27-solduri-initializare. Sunt cerute explicit clarificari pentru schimbarea regulii de scadere a concediilor, sensul diferentei si includerea soldului initial in L Fin. [Plan](../plan-F07-T27-solduri.md).
+
+Predare F07-T27, cerinta solduri: implementata in 0.92.18, raport detaliat v10 si manual 1.29; [rezultate si limite](../plan-F07-T27-solduri.md), [D077](../decizii/D077-solduri-lunare-initializare.md). Formula confirmata L Fin=L Inceput+efectiv-ore lucratoare. T=ture ramane separat, neimplementat in acest lot. Urmeaza build si proba operator, fara push/merge.

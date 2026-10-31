@@ -372,11 +372,17 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 	for _, cod := range d.Continut.Coloane {
 		if cod == "totaluri" {
 			for _, col := range calcul.ColoanePontaj() {
+				if col == "ore_lucrate" && d.Continut.Sursa == "PONTAJ_DETALIAT" {
+					col = "ore_lucratoare"
+				}
 				if col == "ore_norma" {
 					continue
 				}
 				titlu := i18n.T(limba, "pontaj.total_"+col, nil)
 				unitate := calcul.UnitateColoana(col)
+				if col == "ore_lucratoare" || col == "L_FIN" {
+					unitate = "ORE"
+				}
 				for _, r := range configuratie.Reguli {
 					if r.Coloana == col && r.Sursa != "NEDEFINITA" {
 						if r.Sursa == "ZILE_ABSENTA" {
@@ -405,6 +411,9 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 			}
 		} else {
 			doc.Coloane = append(doc.Coloane, Coloana{Cod: cod, Titlu: t("coloana_" + cod), Pondere: ponderi[cod]})
+			if cod == "marca" && d.Continut.Sursa == "PONTAJ_DETALIAT" {
+				doc.Coloane = append(doc.Coloane, Coloana{Cod: "total_L_INCEPUT", Titlu: i18n.T(limba, "pontaj.total_L_INCEPUT", nil), Pondere: 6})
+			}
 		}
 	}
 	familie := func(id string) string {

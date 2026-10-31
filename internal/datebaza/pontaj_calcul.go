@@ -21,6 +21,15 @@ func CalculeazaPontajCuGarzi(ctx context.Context, q *acces.Queries, an, luna int
 	return calculeazaPontaj(ctx, q, an, luna, nil, garzi)
 }
 func calculeazaPontaj(ctx context.Context, q *acces.Queries, an, luna int, modificari []CelulaSchita, garzi []acces.Planificare) (calcul.RezultatPontaj, calcul.ConfiguratiePontaj, error) {
+	rez, c, err := calculeazaPontajBaza(ctx, q, an, luna, modificari, garzi)
+	if err != nil {
+		return rez, c, err
+	}
+	err = completeazaSolduri(ctx, q, an, luna, &rez)
+	return rez, c, err
+}
+
+func calculeazaPontajBaza(ctx context.Context, q *acces.Queries, an, luna int, modificari []CelulaSchita, garzi []acces.Planificare) (calcul.RezultatPontaj, calcul.ConfiguratiePontaj, error) {
 	var gol calcul.RezultatPontaj
 	c, err := citesteConfiguratiePontaj(ctx, q)
 	if err != nil {

@@ -111,7 +111,7 @@ func TestDetaliatFolosesteAceleasiOreSiReguliCaGrila(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(doc.Coloane) != 44 {
+	if len(doc.Coloane) != 45 {
 		t.Fatal(len(doc.Coloane))
 	}
 	rez, _, err := datebaza.CalculeazaPontaj(ctx, acces.New(m.db), 2026, 10, nil)
@@ -131,7 +131,7 @@ func TestDetaliatFolosesteAceleasiOreSiReguliCaGrila(t *testing.T) {
 	for _, r := range rez.Totaluri {
 		if r.AngajatID == "a" {
 			for cod, v := range r.Valori {
-				if cod == "ore_norma" {
+				if cod == "ore_norma" || cod == "ore_lucrate" {
 					continue
 				}
 				if valori["total_"+cod] != calcul.TextValoarePontaj(v) {

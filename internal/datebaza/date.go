@@ -20,26 +20,27 @@ import (
 )
 
 type Angajat struct {
-	ContractID          string `json:"contract_id"`
-	GrupID              string `json:"grup_id"`
-	Conducere           bool   `json:"conducere"`
-	Garda               bool   `json:"garda"`
-	NormaDefinita       bool   `json:"norma_definita"`
-	ID                  string `json:"id"`
-	Nume                string `json:"nume"`
-	Prenume             string `json:"prenume"`
-	Marca               string `json:"marca"`
-	Functie             string `json:"functie"`
-	FunctieID           string `json:"functie_id"`
-	AngajatPrincipalID  string `json:"angajat_principal_id"`
-	SectieID            string `json:"sectie_id"`
-	DepartamentID       string `json:"departament_id"`
-	CategorieProgramID  string `json:"categorie_program_id"`
-	TipContract         string `json:"tip_contract"`
-	NormaPartialaMinute *int64 `json:"norma_partiala_minute"`
-	NormaMinute         int64  `json:"norma_minute"`
-	ConcediuZileAn      *int64 `json:"concediu_zile_an"`
-	Activ               bool   `json:"activ"`
+	Initializare        *acces.InitializarePontaj `json:"initializare,omitempty"`
+	ContractID          string                    `json:"contract_id"`
+	GrupID              string                    `json:"grup_id"`
+	Conducere           bool                      `json:"conducere"`
+	Garda               bool                      `json:"garda"`
+	NormaDefinita       bool                      `json:"norma_definita"`
+	ID                  string                    `json:"id"`
+	Nume                string                    `json:"nume"`
+	Prenume             string                    `json:"prenume"`
+	Marca               string                    `json:"marca"`
+	Functie             string                    `json:"functie"`
+	FunctieID           string                    `json:"functie_id"`
+	AngajatPrincipalID  string                    `json:"angajat_principal_id"`
+	SectieID            string                    `json:"sectie_id"`
+	DepartamentID       string                    `json:"departament_id"`
+	CategorieProgramID  string                    `json:"categorie_program_id"`
+	TipContract         string                    `json:"tip_contract"`
+	NormaPartialaMinute *int64                    `json:"norma_partiala_minute"`
+	NormaMinute         int64                     `json:"norma_minute"`
+	ConcediuZileAn      *int64                    `json:"concediu_zile_an"`
+	Activ               bool                      `json:"activ"`
 }
 
 type Sectie struct {
@@ -92,12 +93,16 @@ func (s *Serviciu) Citeste(ctx context.Context) (Date, error) {
 	if err != nil {
 		return Date{}, traduceEroare(err)
 	}
+	initializari, err := q.ListaInitializariPontaj(ctx)
+	if err != nil {
+		return Date{}, traduceEroare(err)
+	}
 	for _, a := range angajati {
 		norma := rez.NormaIntreagaMinute
 		if a.TipContract == "PARTIALA" && a.NormaPartialaMinute != nil {
 			norma = *a.NormaPartialaMinute
 		}
-		rez.Angajati = append(rez.Angajati, Angajat{ID: a.ID, Nume: a.Nume, Prenume: a.Prenume,
+		rez.Angajati = append(rez.Angajati, Angajat{Initializare: initializarePentru(initializari, a.ID), ID: a.ID, Nume: a.Nume, Prenume: a.Prenume,
 			Marca: a.Marca, Functie: textSauGol(a.Functie), SectieID: textSauGol(a.SectieID),
 			DepartamentID:      textSauGol(a.DepartamentID),
 			CategorieProgramID: textSauGol(a.CategorieProgramID),
@@ -424,6 +429,11 @@ func (s *Serviciu) SalveazaAngajat(ctx context.Context, a Angajat) error {
 		}
 		if principalVechi != a.AngajatPrincipalID {
 			if err := jurnal(ctx, q, "angajati_garzi", a.ID, principalVechi, a.AngajatPrincipalID); err != nil {
+				return err
+			}
+		}
+		if a.Initializare != nil {
+			if err := salveazaInitializare(ctx, q, a.ID, *a.Initializare); err != nil {
 				return err
 			}
 		}

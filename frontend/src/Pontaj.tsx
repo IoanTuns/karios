@@ -23,7 +23,7 @@ export type ContextPontaj = {
     selectie: {inceput: {angajatId: string; data: string}; sfarsit: {angajatId: string; data: string}} | null;
     derulareX: number; derulareY: number;
 };
-const totaluri = ['ore_lucrate', 'T', 'ZNL', 'CO', 'CEV', 'CFS', 'ore_norma', 'form_prof', 'CM', 'L_FIN', 'deleg', 'ore_garda'];
+const totaluri = ['ore_lucratoare', 'T', 'ZNL', 'CO', 'CEV', 'CFS', 'ore_norma', 'form_prof', 'CM', 'L_FIN', 'deleg', 'ore_garda'];
 const cheie = (id: string, data: string) => JSON.stringify([id, data]);
 const oreText = (minute: number) => String(Number((minute/60).toFixed(4)));
 const valoareText = (v?: calcul.ValoarePontaj) => v?.definita ? String(Number((v.sutimi/(v.unitate==='ORE'?6000:100)).toFixed(4))) : '—';

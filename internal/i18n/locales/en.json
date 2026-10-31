@@ -1652,5 +1652,16 @@
   "stergere.sursa.sabloane_ai": "AI templates",
   "stergere.sursa.operatii_ai": "AI operation history",
   "planificare.prioritate_publicare": "Publishing replaces existing schedules and hours in Timesheet. Leave and days off take priority; medical leave has the highest priority.",
-  "planificare.efective_retrase": "Actual attendance records removed from calculation: {{numar}}. Previous values remain in the audit log."
+  "planificare.efective_retrase": "Actual attendance records removed from calculation: {{numar}}. Previous values remain in the audit log.",
+  "sold.luna": "Opening balance month",
+  "sold.ore": "Initial opening balance (signed hours)",
+  "sold.co": "Annual leave already taken (days)",
+  "sold.indiciu": "Hours apply at the beginning of the selected month. Initial annual leave covers the same year before that month; do not enter it again as dated leave. Enter zero to clear balances.",
+  "sold.initializare_invalida": "Enter a reference month, valid signed hours and 0-366 annual leave days.",
+  "sold.co_dublat": "Annual leave already exists before the reference month. Do not count it again in the opening balance.",
+  "pontaj.total_ore_lucratoare": "Required working hours",
+  "pontaj.total_L_INCEPUT": "Opening balance",
+  "sold.legenda_ore_lucratoare": "Weekdays excluding public holidays and approved CO/CEV/CFS/CM leave, multiplied by the daily contract hours. On-call has no fixed daily obligation.",
+  "sold.legenda_L_INCEPUT": "Previous month closing balance, or the initial balance entered for this employment number.",
+  "sold.legenda_L_FIN": "Opening balance + actual worked hours - required working hours. The balance may be negative."
 }

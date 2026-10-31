@@ -48,6 +48,10 @@ func legendaColoane(d Document, c calcul.ConfiguratiePontaj, limba i18n.Limba, e
 				explicatie = t("zile_ore")
 			}
 		}
+		if d.Sursa == "PONTAJ_DETALIAT" && (cod == "total_L_INCEPUT" || cod == "total_L_FIN" || cod == "total_ore_lucratoare") {
+			rez = append(rez, label+": "+i18n.T(limba, "sold.legenda_"+strings.TrimPrefix(cod, "total_"), nil))
+			continue
+		}
 		if strings.HasPrefix(cod, "total_") && d.Sursa == "PONTAJ_DETALIAT" {
 			id := strings.TrimPrefix(cod, "total_")
 			explicatie = t(id)

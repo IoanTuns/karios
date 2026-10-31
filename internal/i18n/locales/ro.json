@@ -1652,5 +1652,16 @@
   "stergere.sursa.sabloane_ai": "sabloane AI",
   "stergere.sursa.operatii_ai": "istoricul operatiilor AI",
   "planificare.prioritate_publicare": "Publicarea inlocuieste programele si orele existente in Pontaj. Concediile si zilele libere au prioritate, iar concediul medical are prioritate maxima.",
-  "planificare.efective_retrase": "Pontaje efective retrase din calcul: {{numar}}. Valorile vechi se pastreaza in audit."
+  "planificare.efective_retrase": "Pontaje efective retrase din calcul: {{numar}}. Valorile vechi se pastreaza in audit.",
+  "sold.luna": "Luna de initializare",
+  "sold.ore": "L Inceput initial (ore, cu semn)",
+  "sold.co": "CO efectuat anterior (zile)",
+  "sold.indiciu": "Soldul orelor se aplica la inceputul lunii alese. CO initial reprezinta zilele efectuate in acelasi an, inaintea lunii alese; nu le introduceti din nou ca absente. Pentru eliminarea soldului introduceti zero.",
+  "sold.initializare_invalida": "Completati luna de referinta, un sold valid de ore si 0-366 zile CO.",
+  "sold.co_dublat": "Exista deja CO inaintea lunii de initializare. Nu dublati zilele prin soldul initial.",
+  "pontaj.total_ore_lucratoare": "Ore lucratoare",
+  "pontaj.total_L_INCEPUT": "L Inceput",
+  "sold.legenda_ore_lucratoare": "Zile lucratoare luni-vineri, fara sarbatori legale, minus CO/CEV/CFS/CM aprobate, inmultite cu norma zilnica. Garda nu are norma prestabilita.",
+  "sold.legenda_L_INCEPUT": "Soldul L Fin din luna precedenta; in luna de initializare se foloseste soldul introdus pe marca.",
+  "sold.legenda_L_FIN": "L Inceput + totalul orelor efectiv lucrate - ore lucratoare. Soldul poate fi negativ."
 }
