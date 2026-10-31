@@ -4,6 +4,7 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 
 | Data | Acțiune | Cine | Legături |
 | --- | --- | --- | --- |
+| 2026-10-31 | F11-T20: build oficial 0.92.17 (94565a4), manual 1.28 si ZIP/SHA256 generate; identitate, hashuri si integritate arhiva verificate. Predare pentru proba operator, fara push/merge. | Codex | [Livrare](plan-F11-T20.md) |
 | 2026-10-31 | F11-T20: finalizata prioritatea inclusiv pontaj efectiv prin retragere logica auditata. Previzualizare cu numar efective si token cu snapshot, luni inchise protejate. Gofmt/vet/suita Go si teste suplimentare, 22 frontend, TypeScript/Vite, UI absente RO/EN, manual/livrare/documentatie trecute. Urmeaza build 0.92.17 cu manual 1.28. | Codex | [Rezultate](plan-F11-T20.md) |
 | 2026-10-31 | F11-T20: utilizatorul confirma explicit retragerea din calcul inclusiv a pontajelor efective, cu pastrarea inregistrarilor si auditului; medicalul pe toate marcile si intreaga tura intersectata. Continuata implementarea in acelasi task. | Codex | [Plan](plan-F11-T20.md) |
 | 2026-10-31 | F11-T20: partea independenta pentru schite verificata cu gofmt/vet/suita Go, 22 teste frontend, TypeScript/Vite, Edge focus/zoom, manual/livrare/documentatie. Salvare locala pentru review; fara build oficial sau push/merge. Task in lucru, urmatorul pas depinde de raspunsul despre pontajele efective. | Codex | [Predare](plan-F11-T20.md) |
