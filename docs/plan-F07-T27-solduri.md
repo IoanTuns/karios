@@ -39,3 +39,5 @@ Verificari trecute: gofmt, go vet ./..., go test -p 1 -timeout 120s ./..., 22 te
 Testele noi acopera norma partiala, garda fara norma, concedii neaprobate, report intre ani, semnul soldurilor, minute, revizii concurente, CO initial si dubla numarare, blocarea lunilor inchise. La primele rulari au fost identificate numai actualizarile necesare ale contoarelor tehnice si referintelor raportului schimbat. Dependente verificate: Go stabil 1.27.3, npm fara actualizari; 62 actualizari tranzitive Go sunt urmarite separat in F14-T21. Fara instalari sau biblioteci noi.
 
 Manual editie 1.29, raport detaliat v10. Pas urmator: build oficial, integritate pachet si proba operator WebView2. Nicio baza reala accesata, fara push/merge.
+
+Livrare verificata: `build/bin/pontix-0.92.18-20261031-195715-408119edf3ec47288b225d697f4a9e58/pontix.exe`, commit defcd8e, manual editie 1.29 MD/HTML/PDF alaturi; ZIP/SHA256. Identitate, hashuri si integritate ZIP verificate. Pas urmator: proba operator si review PR. Fara push sau merge.

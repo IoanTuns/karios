@@ -4,6 +4,7 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 
 | Data | Acțiune | Cine | Legături |
 | --- | --- | --- | --- |
+| 2026-10-31 | F07-T27: livrare locala 0.92.18 (defcd8e), raport v10, manual 1.29 MD/HTML/PDF si ZIP/SHA256. Identitate, hashuri si integritate verificate. Urmeaza proba operator si review; fara push/merge. | Codex | [Livrare](plan-F07-T27-solduri.md) |
 | 2026-10-31 | F07-T27: formule confirmate, implementate ore lucratoare, report L Inceput/L Fin si initializare ore/CO cu revizie/audit, migrare 0028. Raport v10, manual 1.29. Gofmt/vet/suita Go, 22 frontend, TypeScript/Vite, UI campuri/focus si absente RO/EN, manual/livrare/documentatie trecute. Referinte noi v10 pastrand vechile fisiere; contoare tehnice migrari actualizate. Urmeaza build 0.92.18 si verificarea pachetului. | Codex | [Rezultate](plan-F07-T27-solduri.md), [D077](decizii/D077-solduri-lunare-initializare.md) |
 | 2026-10-31 | F07-T27: inventariate calculul comun, raportul detaliat si formularul angajatului pentru ore lucratoare, L Inceput/L Fin si initializare CO. Cerute clarificari pentru formulele schimbate fata de regula anterioara. Documentat planul; formulele si codul nemodificate pana la raspuns. | Codex | [Plan](plan-F07-T27-solduri.md) |
 | 2026-10-31 | F11-T20: build oficial 0.92.17 (94565a4), manual 1.28 si ZIP/SHA256 generate; identitate, hashuri si integritate arhiva verificate. Predare pentru proba operator, fara push/merge. | Codex | [Livrare](plan-F11-T20.md) |
