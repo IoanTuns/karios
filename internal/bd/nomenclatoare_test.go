@@ -64,3 +64,42 @@ func TestMigrareNomenclatoarePastreazaDatele(t *testing.T) {
 		t.Fatal("referinte rupte dupa migrare")
 	}
 }
+
+func TestMigrareMarciGardaNuAsociazaOmonimi(t *testing.T) {
+	ctx := context.Background()
+	db, err := Deschide(filepath.Join(t.TempDir(), "marci.db"), make([]byte, LungimeCheie))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	vechi := fstest.MapFS{}
+	entries, err := fs.ReadDir(Migrari, ".")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, e := range entries {
+		if strings.HasSuffix(e.Name(), ".sql") && e.Name() < "0025" {
+			b, err := fs.ReadFile(Migrari, e.Name())
+			if err != nil {
+				t.Fatal(err)
+			}
+			vechi[e.Name()] = &fstest.MapFile{Data: b}
+		}
+	}
+	if _, err := Migreaza(ctx, db, vechi); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.Exec(`INSERT INTO angajati(id,nume,prenume,marca,creat_la,modificat_la) VALUES('n','Exemplu','Ana','N','x','x'),('g','Exemplu','Ana','G','x','x')`); err != nil {
+		t.Fatal(err)
+	}
+	if n, err := Migreaza(ctx, db, Migrari); err != nil || n != 1 {
+		t.Fatal(n, err)
+	}
+	var n int
+	if err := db.QueryRow("SELECT count(*) FROM angajati_garzi").Scan(&n); err != nil || n != 0 {
+		t.Fatal("asociere automata", n, err)
+	}
+	if err := db.QueryRow("SELECT count(*) FROM angajati WHERE marca IN('N','G')").Scan(&n); err != nil || n != 2 {
+		t.Fatal("marci pierdute", n, err)
+	}
+}

@@ -28,3 +28,5 @@ Urmati ACTUALIZARE.md. Pastrati copia completa a datelor si cheia de recuperare;
 - Regulile de salarizare neconfirmate si formatul pentru programul de salarizare necesita validarea contabilitatii.
 - AI generativ necesita motor si model compatibile, distribuite separat in pachetul standard.
 - Checklistul inclus nu este o certificare a testarii pe calculatorul utilizatorului. Pentru pilot raman proba pe Windows curat si validarea operatorului.
+
+Din 0.91.0, marca distincta de garda se leaga de angajatul principal din formularul Angajati. Raportul detaliat v4 grupeaza cele doua marci pe randuri separate si include planificarea GARZI pentru intrarile lipsa din Pontaj, fara dublarea orelor publicate.

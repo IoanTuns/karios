@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.91.0 ? 2026-10-31
+
+F09-T11: marca de garda legata explicit de angajatul principal; pontaj detaliat v4 cu randuri distincte si planificare GARZI ca sursa pentru zilele lipsa din Pontaj. Migrare 0025. Manual 1.9.
+
 ## 0.90.0 · 2026-10-31
 
 F07-T24: categorii configurabile in Schimburi cu programe asociate, nomenclator de functii in Setari, selectie functie la angajat si afisare in Pontaj. Migrare 0024 pastreaza categoriile LAB/CUSTOM si preia functiile existente; editare/dezactivare cu revizie si jurnal. Functia este asocierea curenta, nu istoric contractual. Manual 1.8.

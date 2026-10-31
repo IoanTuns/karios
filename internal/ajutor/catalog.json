@@ -22,7 +22,10 @@
       "personal",
       "import",
       "employee",
-      "staff"
+      "staff",
+      "marca garda",
+      "marca principala",
+      "on-call number"
     ]
   },
   {
@@ -106,7 +109,10 @@
       "tipar",
       "report",
       "export",
-      "print"
+      "print",
+      "marca garda",
+      "marca principala",
+      "on-call number"
     ]
   },
   {

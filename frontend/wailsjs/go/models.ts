@@ -845,6 +845,7 @@ export namespace datebaza {
 	    marca: string;
 	    functie: string;
 	    functie_id: string;
+	    angajat_principal_id: string;
 	    sectie_id: string;
 	    departament_id: string;
 	    categorie_program_id: string;
@@ -866,6 +867,7 @@ export namespace datebaza {
 	        this.marca = source["marca"];
 	        this.functie = source["functie"];
 	        this.functie_id = source["functie_id"];
+	        this.angajat_principal_id = source["angajat_principal_id"];
 	        this.sectie_id = source["sectie_id"];
 	        this.departament_id = source["departament_id"];
 	        this.categorie_program_id = source["categorie_program_id"];

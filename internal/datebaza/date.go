@@ -26,6 +26,7 @@ type Angajat struct {
 	Marca               string `json:"marca"`
 	Functie             string `json:"functie"`
 	FunctieID           string `json:"functie_id"`
+	AngajatPrincipalID  string `json:"angajat_principal_id"`
 	SectieID            string `json:"sectie_id"`
 	DepartamentID       string `json:"departament_id"`
 	CategorieProgramID  string `json:"categorie_program_id"`
@@ -154,6 +155,13 @@ func (s *Serviciu) Citeste(ctx context.Context) (Date, error) {
 			}
 		}
 	}
+	garzi, err := citesteLegaturiGarzi(ctx, tx)
+	if err != nil {
+		return Date{}, traduceEroare(err)
+	}
+	for i := range rez.Angajati {
+		rez.Angajati[i].AngajatPrincipalID = garzi[rez.Angajati[i].ID]
+	}
 	n, err := q.NumaraAngajati(ctx)
 	if err != nil {
 		return Date{}, traduceEroare(err)
@@ -187,6 +195,9 @@ func (s *Serviciu) SalveazaAngajat(ctx context.Context, a Angajat) error {
 		return eroare("date.concediu_invalid")
 	}
 	return s.modificaTx(ctx, func(tx *sql.Tx, q *acces.Queries) error {
+		if err := valideazaLegaturaGarda(ctx, tx, a); err != nil {
+			return err
+		}
 		if a.FunctieID != "" {
 			lista, err := citesteNomenclator(ctx, tx, "functii")
 			if err != nil {
@@ -265,6 +276,24 @@ func (s *Serviciu) SalveazaAngajat(ctx context.Context, a Angajat) error {
 		}
 		if a.FunctieID != "" {
 			if _, err := tx.ExecContext(ctx, "INSERT INTO angajati_functii VALUES(?,?)", a.ID, a.FunctieID); err != nil {
+				return err
+			}
+		}
+		var principalVechi string
+		errLegatura := tx.QueryRowContext(ctx, "SELECT principal_id FROM angajati_garzi WHERE angajat_id=?", a.ID).Scan(&principalVechi)
+		if errLegatura != nil && errLegatura != sql.ErrNoRows {
+			return errLegatura
+		}
+		if _, err := tx.ExecContext(ctx, "DELETE FROM angajati_garzi WHERE angajat_id=?", a.ID); err != nil {
+			return err
+		}
+		if a.AngajatPrincipalID != "" {
+			if _, err := tx.ExecContext(ctx, "INSERT INTO angajati_garzi VALUES(?,?)", a.ID, a.AngajatPrincipalID); err != nil {
+				return err
+			}
+		}
+		if principalVechi != a.AngajatPrincipalID {
+			if err := jurnal(ctx, q, "angajati_garzi", a.ID, principalVechi, a.AngajatPrincipalID); err != nil {
 				return err
 			}
 		}

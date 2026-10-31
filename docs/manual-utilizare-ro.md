@@ -437,3 +437,12 @@ In Setari -> Schimburi, zona Categorii de schimburi permite adaugarea si editare
 In Setari (pagina generala), zona Functii permite predefinirea listei. La adaugarea sau editarea angajatului, alege Functie din selector; functia aleasa apare si sub nume in Pontaj. Functiile existente sunt preluate automat la migrare. O valoare text importata care nu are inca o asociere in nomenclator este pastrata la angajat; pentru standardizare, defineste functia si selecteaz-o explicit.
 
 Dezactivarea nu sterge datele sau asocierile curente, dar impiedica noi asocieri. Redenumirea functiei actualizeaza eticheta curenta a angajatilor asociati, cu jurnal; asocierea este curenta si nu reprezinta istoricul contractual pe luni. Un conflict de revizie cere reincarcarea sectiunii inainte de o noua editare. Verifica inainte modificarile nesalvate: formularul listei este local sectiunii.
+
+## Marca de garda si raportul detaliat
+
+1. In Angajati, pastrati inregistrarea principala cu marca de program normal.
+2. Adaugati sau editati inregistrarea cu marca distincta de garda. La Angajat principal selectati inregistrarea de program normal, identificata si prin marca. Nu se face asociere automata dupa nume.
+3. In Planificare introduceti garzile pe marca de garda, in sectiunea GARZI.
+4. Generati Pontaj detaliat cu totaluri. Marca principala si marca de garda apar pe randuri separate, grupate. Selectarea unei persoane include si marcile asociate, cu respectarea filtrelor de sectie/departament.
+
+Planificarea GARZI activa completeaza numai intrarile lipsa din Pontaj. O inregistrare Pontaj existenta (inclusiv goala) si absentele au prioritate; publicarea nu dubleaza orele. Raportul nu modifica Pontajul. Orele si trecerea intre zile folosesc configuratia de calcul existenta; nu se deduc sporuri sau procente. Legatura marcilor este curenta, nu istoric contractual.

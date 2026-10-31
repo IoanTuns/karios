@@ -386,7 +386,7 @@ function App() {
                                         />
                                     </td>
                                     <td><div className="identitate"><span className="avatar" aria-hidden="true">{a.prenume.charAt(0)}{a.nume.charAt(0)}</span>
-                                        <span><strong>{a.nume} {a.prenume}</strong>{a.functie && <small>{a.functie}</small>}</span></div></td>
+                                        <span><strong>{a.nume} {a.prenume}</strong>{a.functie && <small>{a.functie}</small>}{a.angajat_principal_id && <small>{t('rapoarte.subtip_garda')} · {date?.angajati.find(p=>p.id===a.angajat_principal_id)?.marca}</small>}</span></div></td>
                                     <td className="marca-angajat">{a.marca}</td><td>{sectiePentru(a.sectie_id)}</td><td>{departamentPentru(a.departament_id)}</td>
                                     <td><span className={`eticheta-contract ${a.tip_contract === 'PARTIALA' ? 'partial' : ''}`}>{t(a.tip_contract === 'PARTIALA' ? 'ui.partiala' : 'ui.intreaga')}</span>{a.categorie_program_id&&<small className="categorie-angajat">{date.categorii_program?.find(c=>c.id===a.categorie_program_id)?.denumire[i18n.language]||date.categorii_program?.find(c=>c.id===a.categorie_program_id)?.denumire.ro}</small>}</td>
                                     <td className="durata">{durata(a.norma_minute, t)}</td><td>{a.concediu_zile_an == null ? <span className="text-discret">{t('ui.necompletat')}</span> : t('ui.zile', {numar: a.concediu_zile_an})}</td>

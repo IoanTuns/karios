@@ -1344,7 +1344,7 @@
   "ajutor.articol.angajati.adauga.titlu": "Add or import employees",
   "ajutor.articol.angajati.adauga.pas1": "In Employees select Add or Import and check the selected file.",
   "ajutor.articol.angajati.adauga.pas2": "Enter the employee ID, name, contract, hours and schedule category; select a job function predefined in Settings.",
-  "ajutor.articol.angajati.adauga.pas3": "Save and check the rows, including activity and department filters.",
+  "ajutor.articol.angajati.adauga.pas3": "For a separate on-call employee number, select the primary employee. Save and verify employee numbers and filters.",
   "ajutor.articol.angajati.adauga.rezultat": "Saved employees are available in the timesheet.",
   "ajutor.articol.angajati.adauga.probleme": "Resolve duplicate employee numbers or unsuitable categories before entering shifts.",
   "ajutor.articol.pontaj.completeaza.titlu": "Fill in and save a timesheet",
@@ -1379,7 +1379,7 @@
   "ajutor.articol.absente.aproba.probleme": "Check registration number, employee and dates before confirming.",
   "ajutor.articol.rapoarte.genereaza.titlu": "Generate and export reports",
   "ajutor.articol.rapoarte.genereaza.pas1": "In Reports choose the template, year, month and filters.",
-  "ajutor.articol.rapoarte.genereaza.pas2": "Generate a preview and verify people, hours and header.",
+  "ajutor.articol.rapoarte.genereaza.pas2": "Check people, hours and header. The detailed timesheet groups normal and on-call numbers on separate rows; GARZI planning fills missing Timesheet entries.",
   "ajutor.articol.rapoarte.genereaza.pas3": "Export PDF or Excel; check printer and pages in your PDF reader before printing.",
   "ajutor.articol.rapoarte.genereaza.rezultat": "An exported report reflects the data at generation time.",
   "ajutor.articol.rapoarte.genereaza.probleme": "Regenerate after changing data or filters.",
@@ -1510,5 +1510,14 @@
   "nomenclator.invalid": "The selected item does not exist. Reload the data.",
   "nomenclator.inactiv": "The item is inactive and cannot receive new assignments.",
   "nomenclator.duplicat": "An item with this name already exists.",
-  "nomenclator.conflict": "The list has changed. Reload this section before saving."
+  "nomenclator.conflict": "The list has changed. Reload this section before saving.",
+  "ui.garda_principal": "Primary employee (for on-call employee number)",
+  "ui.garda_fara_principal": "Normal schedule / primary employee number",
+  "ui.garda_principal_indiciu": "For a separate on-call employee number, select the employee with the normal schedule number. Both numbers appear separately in the detailed timesheet.",
+  "date.garda_legatura_invalida": "Invalid on-call link: choose a primary employee without self-links or links to other on-call numbers.",
+  "rapoarte.subtip_garda": "On-call",
+  "rapoarte.nota_garzi": "On-call employee numbers include GARZI planning where Timesheet entries are missing; existing Timesheet entries and absences take priority.",
+  "jurnal.tabel_angajati_garzi": "On-call number links",
+  "jurnal.tabel_functii": "Job functions",
+  "jurnal.tabel_categorii_schimburi": "Shift categories"
 }

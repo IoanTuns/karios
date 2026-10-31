@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -217,11 +218,70 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 			cuDate[v.AngajatID] = true
 		}
 	}
+	legaturiGarzi := map[string]string{}
+	var garziRaport []acces.Planificare
+	if d.Continut.Sursa == "PONTAJ_DETALIAT" {
+		rows, err := tx.QueryContext(ctx, "SELECT angajat_id,principal_id FROM angajati_garzi")
+		if err != nil {
+			return Document{}, traduce(err)
+		}
+		for rows.Next() {
+			var id, principal string
+			if err := rows.Scan(&id, &principal); err != nil {
+				rows.Close()
+				return Document{}, traduce(err)
+			}
+			legaturiGarzi[id] = principal
+		}
+		err = rows.Err()
+		rows.Close()
+		if err != nil {
+			return Document{}, traduce(err)
+		}
+		inceput, _ := time.Parse(time.DateOnly, deLa)
+		plan, err := q.ListaPlanificare(ctx, acces.ListaPlanificareParams{DataDeLa: inceput.AddDate(0, 0, -2).Format(time.DateOnly), DataPanaLa: panaLa})
+		if err != nil {
+			return Document{}, traduce(err)
+		}
+		for _, g := range plan {
+			if legaturiGarzi[g.AngajatID] != "" && g.Sectiune == "GARZI" && g.Activ == 1 {
+				garziRaport = append(garziRaport, g)
+			}
+		}
+		// Ordinea initiala a persoanelor principale ramane stabila; subtipurile urmeaza imediat dupa ele.
+		pozitie := map[string]int{}
+		for i, a := range oameni {
+			pozitie[a.ID] = i
+		}
+		sort.SliceStable(oameni, func(i, j int) bool {
+			a, b := oameni[i].ID, oameni[j].ID
+			if a == b {
+				return false
+			}
+			pa, pb := a, b
+			if legaturiGarzi[a] != "" {
+				pa = legaturiGarzi[a]
+			}
+			if legaturiGarzi[b] != "" {
+				pb = legaturiGarzi[b]
+			}
+			if pa != pb {
+				return pozitie[pa] < pozitie[pb]
+			}
+			if a == pa {
+				return true
+			}
+			if b == pb {
+				return false
+			}
+			return pozitie[a] < pozitie[b]
+		})
+	}
 	ore := map[string]string{}
 	totaluri := map[string]map[string]calcul.ValoarePontaj{}
 	var configuratie calcul.ConfiguratiePontaj
 	if d.Continut.Sursa != "ABSENTE_ANUALE" && d.Continut.Sursa != "GRAFIC_GARZI" {
-		rezultat, cfg, err := datebaza.CalculeazaPontaj(ctx, q, c.An, c.Luna, nil)
+		rezultat, cfg, err := datebaza.CalculeazaPontajCuGarzi(ctx, q, c.An, c.Luna, garziRaport)
 		if err != nil {
 			return Document{}, traduce(err)
 		}
@@ -270,6 +330,9 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 		return []string{inlocuieste(b.Stanga.In(limba)), inlocuieste(b.Centru.In(limba)), inlocuieste(b.Dreapta.In(limba))}
 	}
 	doc := Document{Titlu: d.Denumire.In(limba), Sursa: d.Continut.Sursa, RevizieModel: d.Revizie, Pagina: d.Pagina, Antet: bloc(d.Antet), Introducere: inlocuieste(d.Continut.Text.In(limba)), Subsol: bloc(d.Subsol), Coloane: []Coloana{}, Randuri: []Rand{}, Nota: t("nota_schita"), FaraDate: t("fara_date"), Paginare: t("paginare"), GeneratLa: acum}
+	if len(garziRaport) > 0 {
+		doc.Nota += " " + t("nota_garzi")
+	}
 	doc.AntetImagini, doc.SubsolImagini = d.Antet.Imagini, d.Subsol.Imagini
 	switch d.Continut.Sursa {
 	case "PONTAJ_LUNAR":
@@ -319,8 +382,15 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 			doc.Coloane = append(doc.Coloane, Coloana{Cod: cod, Titlu: t("coloana_" + cod), Pondere: ponderi[cod]})
 		}
 	}
+	familie := func(id string) string {
+		if p := legaturiGarzi[id]; p != "" {
+			return p
+		}
+		return id
+	}
 	for _, a := range oameni {
-		if (c.SectieID != "" && optional(a.SectieID) != c.SectieID) || (c.DepartamentID != "" && optional(a.DepartamentID) != c.DepartamentID) || (c.AngajatID != "" && a.ID != c.AngajatID) {
+		selectat := c.AngajatID == "" || a.ID == c.AngajatID || (d.Continut.Sursa == "PONTAJ_DETALIAT" && familie(a.ID) == familie(c.AngajatID))
+		if (c.SectieID != "" && optional(a.SectieID) != c.SectieID) || (c.DepartamentID != "" && optional(a.DepartamentID) != c.DepartamentID) || !selectat {
 			continue
 		}
 		if (d.Continut.Sursa == "PONTAJ_LUNAR" || d.Continut.Sursa == "PONTAJ_DETALIAT") && a.Activ == 0 && !cuDate[a.ID] {
@@ -330,6 +400,9 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 			continue
 		}
 		identitate := map[string]string{"angajat": a.Nume + " " + a.Prenume, "marca": a.Marca, "sectie": numeSectii[optional(a.SectieID)], "departament": numeDepartamente[optional(a.DepartamentID)], "functie": optional(a.Functie)}
+		if legaturiGarzi[a.ID] != "" {
+			identitate["angajat"] += " (" + t("subtip_garda") + ")"
+		}
 		if totaluri[a.ID] == nil && d.Continut.Sursa == "PONTAJ_DETALIAT" {
 			gol, err := calcul.CalculeazaPontaj(deLa, panaLa, configuratie, nil, []calcul.IntrarePontaj{{AngajatID: a.ID, Data: deLa, Valoare: "@M0"}}, nil)
 			if err != nil {

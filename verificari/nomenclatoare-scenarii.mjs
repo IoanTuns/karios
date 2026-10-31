@@ -40,4 +40,13 @@ export async function verificaNomenclatoare({cdp,evalueaza,asteapta,apasa,comple
  await asteapta(()=>evalueaza("!document.querySelector('dialog[open]')"),'Program nesalvat');
  assert(await evalueaza("[...document.querySelectorAll('.tabel-schimburi tbody tr')].some(r=>r.textContent.includes('UI7')&&r.querySelector('td:nth-child(3)').textContent.includes("+JSON.stringify(limba==='en'?'Outpatient UI':'Ambulatoriu UI')+"))"),'Categoria nu este asociata programului');
  await captura('categorii-schimburi-'+limba+'.png');
+ await apasa(t('ui.angajati'));await apasa(t('ui.adauga_angajat'));
+ await asteapta(()=>evalueaza("Boolean(document.querySelector('select[name=angajat_principal]'))"),'Selector principal lipsa');
+ await completeaza('dialog .campuri label:nth-child(1) input','Exemplu');await completeaza('dialog .campuri label:nth-child(2) input','Fictiv');await completeaza('dialog .campuri label:nth-child(3) input','GARDA-UI');
+ const principal=await evalueaza("[...document.querySelectorAll('select[name=angajat_principal] option')].find(o=>o.textContent.includes('FUNC-UI')).value");
+ await completeaza('select[name=angajat_principal]',principal);await captura('marca-garda-formular-'+limba+'.png');await apasa(t('ui.salveaza'));
+ await asteapta(()=>evalueaza("!document.querySelector('dialog[open]')"),'Marca garda nesalvata');
+ assert(await evalueaza("[...document.querySelectorAll('tr')].some(r=>r.textContent.includes('GARDA-UI')&&r.textContent.includes('FUNC-UI')&&r.textContent.includes("+JSON.stringify(t('rapoarte.subtip_garda'))+"))"),'Subtipul si marca principala lipsesc din lista');
+ await captura('marca-garda-lista-'+limba+'.png');
+
 }

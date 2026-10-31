@@ -13,6 +13,14 @@ import (
 
 // Adaptor comun grilei și rapoartelor; toate citirile pot folosi aceeași tranzacție.
 func CalculeazaPontaj(ctx context.Context, q *acces.Queries, an, luna int, modificari []CelulaSchita) (calcul.RezultatPontaj, calcul.ConfiguratiePontaj, error) {
+	return calculeazaPontaj(ctx, q, an, luna, modificari, nil)
+}
+
+// CalculeazaPontajCuGarzi completeaza doar intrarile lipsa, fara sa scrie in baza.
+func CalculeazaPontajCuGarzi(ctx context.Context, q *acces.Queries, an, luna int, garzi []acces.Planificare) (calcul.RezultatPontaj, calcul.ConfiguratiePontaj, error) {
+	return calculeazaPontaj(ctx, q, an, luna, nil, garzi)
+}
+func calculeazaPontaj(ctx context.Context, q *acces.Queries, an, luna int, modificari []CelulaSchita, garzi []acces.Planificare) (calcul.RezultatPontaj, calcul.ConfiguratiePontaj, error) {
 	var gol calcul.RezultatPontaj
 	c, err := citesteConfiguratiePontaj(ctx, q)
 	if err != nil {
@@ -32,6 +40,21 @@ func CalculeazaPontaj(ctx context.Context, q *acces.Queries, an, luna int, modif
 		return gol, c, err
 	}
 	intrari := map[string]calcul.IntrarePontaj{}
+	if len(garzi) > 0 {
+		schimburi, err := q.ListaSchimburi(ctx)
+		if err != nil {
+			return gol, c, err
+		}
+		coduri := map[string]string{}
+		for _, s := range schimburi {
+			coduri[s.ID] = s.Cod
+		}
+		for _, g := range garzi {
+			if g.Activ == 1 && g.Sectiune == "GARZI" && g.Data >= extins && g.Data <= panaLa {
+				intrari[g.AngajatID+"/"+g.Data] = calcul.IntrarePontaj{AngajatID: g.AngajatID, Data: g.Data, Valoare: coduri[g.SchimbID]}
+			}
+		}
+	}
 	for _, r := range randuri {
 		intrari[r.AngajatID+"/"+r.Data] = calcul.IntrarePontaj{AngajatID: r.AngajatID, Data: r.Data, Valoare: r.Valoare}
 	}

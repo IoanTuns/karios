@@ -1344,7 +1344,7 @@
   "ajutor.articol.angajati.adauga.titlu": "Adaugă sau importă angajați",
   "ajutor.articol.angajati.adauga.pas1": "În Angajați apasă Adaugă sau Importă și verifică fișierul ales.",
   "ajutor.articol.angajati.adauga.pas2": "Completează marca, numele, contractul, norma și categoria de program; selectează funcția predefinită în Setări.",
-  "ajutor.articol.angajati.adauga.pas3": "Salvează și verifică rândurile, inclusiv filtrele de activitate și departament.",
+  "ajutor.articol.angajati.adauga.pas3": "Pentru marca distinctă de gardă selectează angajatul principal. Salvează și verifică mărcile și filtrele.",
   "ajutor.articol.angajati.adauga.rezultat": "Angajații salvați sunt disponibili pentru pontaj.",
   "ajutor.articol.angajati.adauga.probleme": "O marcă duplicată sau o categorie nepotrivită trebuie corectată înainte de completare.",
   "ajutor.articol.pontaj.completeaza.titlu": "Completează și salvează pontajul",
@@ -1379,7 +1379,7 @@
   "ajutor.articol.absente.aproba.probleme": "Verifică numărul de înregistrare, persoana și perioada înainte de confirmare.",
   "ajutor.articol.rapoarte.genereaza.titlu": "Generează și exportă rapoarte",
   "ajutor.articol.rapoarte.genereaza.pas1": "În Rapoarte alege modelul, anul, luna și filtrele.",
-  "ajutor.articol.rapoarte.genereaza.pas2": "Generează previzualizarea și verifică persoanele, orele și antetul.",
+  "ajutor.articol.rapoarte.genereaza.pas2": "Verifică persoanele, orele și antetul. Pontajul detaliat grupează marca normală și marca de gardă pe rânduri distincte; planificarea GARZI completează intrările lipsă din Pontaj.",
   "ajutor.articol.rapoarte.genereaza.pas3": "Exportă PDF sau Excel; pentru tipărire verifică imprimanta și paginile în cititorul PDF.",
   "ajutor.articol.rapoarte.genereaza.rezultat": "Raportul exportat reflectă datele de la generare.",
   "ajutor.articol.rapoarte.genereaza.probleme": "După modificarea datelor sau filtrelor generează din nou raportul.",
@@ -1510,5 +1510,14 @@
   "nomenclator.invalid": "Elementul selectat nu există. Reîncarcă datele.",
   "nomenclator.inactiv": "Elementul este inactiv și nu poate primi asocieri noi.",
   "nomenclator.duplicat": "Există deja un element cu această denumire.",
-  "nomenclator.conflict": "Lista a fost modificată între timp. Reîncarcă secțiunea înainte de a salva."
+  "nomenclator.conflict": "Lista a fost modificată între timp. Reîncarcă secțiunea înainte de a salva.",
+  "ui.garda_principal": "Angajat principal (pentru marca de gardă)",
+  "ui.garda_fara_principal": "Program normal / marcă principală",
+  "ui.garda_principal_indiciu": "Pentru o marcă distinctă de gardă, selectați angajatul cu marca de program normal. Cele două mărci apar separat în raportul detaliat.",
+  "date.garda_legatura_invalida": "Legătură de gardă invalidă: alegeți un angajat principal, fără legături către sine sau alte mărci de gardă.",
+  "rapoarte.subtip_garda": "Gardă",
+  "rapoarte.nota_garzi": "Mărcile de gardă includ planificarea GARZI pentru intrările lipsă din Pontaj; Pontajul existent și absențele au prioritate.",
+  "jurnal.tabel_angajati_garzi": "Asocieri mărci de gardă",
+  "jurnal.tabel_functii": "Funcții",
+  "jurnal.tabel_categorii_schimburi": "Categorii de schimburi"
 }

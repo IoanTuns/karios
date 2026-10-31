@@ -87,6 +87,7 @@ export function FormularAngajat({angajat, date, ocupat, eroare, inchide, salveaz
     const [marca, setMarca] = useState(angajat.marca);
     const [functie, setFunctie] = useState(angajat.functie);
     const [functieId,setFunctieId]=useState(angajat.functie_id||'');
+    const [principalId,setPrincipalId]=useState(angajat.angajat_principal_id||'');
     const [sectie, setSectie] = useState(angajat.sectie_id);
     const [departament, setDepartament] = useState(angajat.departament_id || '');
     const [categorieProgram,setCategorieProgram]=useState(angajat.categorie_program_id||'');
@@ -95,10 +96,10 @@ export function FormularAngajat({angajat, date, ocupat, eroare, inchide, salveaz
     const [concediu, setConcediu] = useState(angajat.concediu_zile_an == null ? '' : String(angajat.concediu_zile_an));
     const [activ, setActiv] = useState(angajat.activ);
     const [validare, setValidare] = useState('');
-    const initial = useRef(JSON.stringify([nume, prenume, marca, functie, functieId, sectie, departament, categorieProgram, contract, ore, concediu, activ]));
+    const initial = useRef(JSON.stringify([nume, prenume, marca, functie, functieId, principalId, sectie, departament, categorieProgram, contract, ore, concediu, activ]));
 
     function inchideCuVerificare() {
-        const modificat = initial.current !== JSON.stringify([nume, prenume, marca, functie, functieId, sectie, departament, categorieProgram, contract, ore, concediu, activ]);
+        const modificat = initial.current !== JSON.stringify([nume, prenume, marca, functie, functieId, principalId, sectie, departament, categorieProgram, contract, ore, concediu, activ]);
         if (!ocupat && (!modificat || window.confirm(t('ui.renunta')))) inchide();
     }
 
@@ -109,7 +110,7 @@ export function FormularAngajat({angajat, date, ocupat, eroare, inchide, salveaz
         if (contract === 'PARTIALA' && minute === null) { setValidare(t('date.norma_invalida')); return; }
         const zile = concediu === '' ? null : Number(concediu);
         if (zile !== null && (!Number.isSafeInteger(zile) || zile < 0)) { setValidare(t('date.concediu_invalid')); return; }
-        await salveaza(new datebaza.Angajat({...angajat, nume, prenume, marca, functie, functie_id:functieId, sectie_id: sectie, departament_id: departament,
+        await salveaza(new datebaza.Angajat({...angajat, nume, prenume, marca, functie, functie_id:functieId, angajat_principal_id:principalId, sectie_id: sectie, departament_id: departament,
             categorie_program_id:categorieProgram, tip_contract: contract, norma_partiala_minute: minute, concediu_zile_an: zile, activ}));
     }
 
@@ -126,6 +127,7 @@ export function FormularAngajat({angajat, date, ocupat, eroare, inchide, salveaz
                     <label>{t('ui.nume')} *<input autoFocus required value={nume} onChange={e => setNume(e.target.value)}/></label>
                     <label>{t('ui.prenume')} *<input required value={prenume} onChange={e => setPrenume(e.target.value)}/></label>
                     <label>{t('ui.marca')} *<input required value={marca} onChange={e => setMarca(e.target.value)}/></label>
+                    <label className="latime-completa">{t('ui.garda_principal')}<select name="angajat_principal" value={principalId} onChange={e=>setPrincipalId(e.target.value)}><option value="">{t('ui.garda_fara_principal')}</option>{date.angajati.filter(a=>a.id!==angajat.id&&!a.angajat_principal_id&&(a.activ||a.id===principalId)).map(a=><option key={a.id} value={a.id}>{a.nume} {a.prenume} · {a.marca}</option>)}</select><small>{t('ui.garda_principal_indiciu')}</small></label>
                     <label>{t('ui.functie')}<select name="angajat_functie" value={functieId|| (functie?'__anterioara':'')} onChange={e=>{const id=e.target.value;if(id==='__anterioara')return;setFunctieId(id);setFunctie('');}}><option value="">{t('nomenclator.fara_functie')}</option>{!functieId&&functie&&<option value="__anterioara">{functie}</option>}{(date.functii??[]).filter(f=>f.activ||f.id===functieId).map(f=><option key={f.id} value={f.id}>{f.denumire[i18n.language]||f.denumire.ro||f.denumire.en}{!f.activ?` (${t('ui.inactiv')})`:''}</option>)}</select><small>{t('nomenclator.functii_indiciu')}</small></label>
                     <label>{t('ui.sectie')}<select value={sectie} onChange={e => { setSectie(e.target.value); setDepartament(''); }}>
                         <option value="">{t('ui.fara_sectie')}</option>{date.sectii.map(s => <option value={s.id} key={s.id}>{denumireSectie(s, i18n.language)}</option>)}
