@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.4 · 2026-10-31
+
+F07-T29: denumirea Departament devine Compartiment in interfata romana, ajutor, rapoarte si manual. Datele existente si cheile API raman compatibile. Rapoarte pontaj/detaliat/fisa v7, absente/garzi v5; manual 1.15.
+
 ## 0.92.3 · 2026-10-31
 
 F09-T12: Ore norma eliminata din raportul detaliat, legenda pentru coloanele vizibile in subsolul PDF si Excel, cu surse/factori/coduri/aprobari/reguli conditionate reale. Rapoarte pontaj/detaliat/fisa v6, absente/garzi v4. Manual 1.14. Fara schimbarea formulelor de calcul.

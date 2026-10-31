@@ -26,6 +26,7 @@ func TestIntentiePlanRegresii(t *testing.T) {
 		{"sectia Chirurgie S7", "sectie", "S7", "2026-10-01", "2026-10-31", "", "", true},
 		{"toti din sectia ATI pe Z7", "sectie", "Z7", "2026-10-01", "2026-10-31", "", "", true},
 		{"categoria dimineață Z7", "categorie", "Z7", "2026-10-01", "2026-10-31", "", "", true},
+		{"compartimentul Bloc operator Z7", "departament", "Z7", "2026-10-01", "2026-10-31", "", "", true},
 		{"departamentul Bloc operator Z7", "departament", "Z7", "2026-10-01", "2026-10-31", "", "", true},
 		{"Pop Ana Z7", "persoane", "Z7", "2026-10-01", "2026-10-31", "", "", true},
 		{"Ana Pop S7", "persoane", "S7", "2026-10-01", "2026-10-31", "", "", true},

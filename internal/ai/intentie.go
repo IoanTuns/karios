@@ -77,6 +77,7 @@ func InterpreteazaPlan(mesaj string, info ContextPontix) (IntentiePlan, bool) {
 	}{
 		{"sectie", "sectia", func(a InfoAngajat) string { return a.Sectie }},
 		{"departament", "departamentul", func(a InfoAngajat) string { return a.Departament }},
+		{"departament", "compartimentul", func(a InfoAngajat) string { return a.Departament }},
 		{"categorie", "categoria", func(a InfoAngajat) string { return a.Categorie }},
 	} {
 		if !strings.Contains(m, camp.prefix+" ") {
@@ -96,7 +97,7 @@ func InterpreteazaPlan(mesaj string, info ContextPontix) (IntentiePlan, bool) {
 		i.Selectie.Tip = "toti"
 	}
 	grupuriNumite := 0
-	for _, prefix := range []string{"sectia ", "departamentul ", "categoria "} {
+	for _, prefix := range []string{"sectia ", "departamentul ", "compartimentul ", "categoria "} {
 		if strings.Contains(m, prefix) {
 			grupuriNumite++
 		}

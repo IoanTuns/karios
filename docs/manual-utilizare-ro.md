@@ -65,7 +65,7 @@ La avertizarea despre modificări nesalvate, salvează sau confirmă abandonarea
 1. Deschide **Angajați** și apasă butonul pentru adăugare.
 2. Introdu numele, prenumele și marca. Folosește o marcă unică.
 3. Alege tipul contractului. Pentru normă parțială completează orele zilnice; pentru normă întreagă verifică norma globală din Setări.
-4. Alege secția, departamentul și categoria de program corespunzătoare.
+4. Alege secția, compartimentul și categoria de program corespunzătoare.
 5. Completează celelalte informații necesare, inclusiv dreptul anual de concediu dacă este cunoscut.
 6. Salvează și verifică în listă persoana și marca.
 
@@ -84,9 +84,9 @@ Datele demonstrative sunt pentru testare. Încarcă-le doar într-o copie separa
 
 ## 5. Pregătirea programelor și calendarului
 
-### Secții, departamente și categorii
+### Secții, compartimente și categorii
 
-În **Setări**, pregătește secțiile și departamentele. Atribuie angajatului categoria de program potrivită. Categoria stabilește programele permise și, dacă este definit, programul implicit folosit la completare. O categorie nu este o regulă salarială.
+În **Setări**, pregătește secțiile și compartimentele. Atribuie angajatului categoria de program potrivită. Categoria stabilește programele permise și, dacă este definit, programul implicit folosit la completare. O categorie nu este o regulă salarială.
 
 Pentru schimbarea categoriei mai multor angajați, folosește selecția și atribuirea în lot din lista angajaților, verificând persoanele bifate înainte de aplicare.
 
@@ -443,7 +443,7 @@ Dezactivarea nu sterge datele sau asocierile curente, dar impiedica noi asocieri
 1. In Angajati, pastrati inregistrarea principala cu marca de program normal.
 2. Adaugati sau editati inregistrarea cu marca distincta de garda. La Angajat principal selectati inregistrarea de program normal, identificata si prin marca. Nu se face asociere automata dupa nume.
 3. In Planificare introduceti garzile pe marca de garda, in sectiunea GARZI.
-4. Generati Pontaj detaliat cu totaluri. Marca principala si marca de garda apar pe randuri separate, grupate. Selectarea unei persoane include si marcile asociate, cu respectarea filtrelor de sectie/departament.
+4. Generati Pontaj detaliat cu totaluri. Marca principala si marca de garda apar pe randuri separate, grupate. Selectarea unei persoane include si marcile asociate, cu respectarea filtrelor de sectie/compartiment.
 
 Planificarea GARZI activa completeaza numai intrarile lipsa din Pontaj. O inregistrare Pontaj existenta (inclusiv goala) si absentele au prioritate; publicarea nu dubleaza orele. Raportul nu modifica Pontajul. Orele si trecerea intre zile folosesc configuratia de calcul existenta; nu se deduc sporuri sau procente. Legatura marcilor este curenta, nu istoric contractual.
 
@@ -453,13 +453,13 @@ Dimensiunea initiala se adapteaza zonei de lucru a monitorului principal si scal
 
 ## Grupuri profesionale, pozitii si contracte (0.92.0)
 
-In Setari configurati Grupuri profesionale (ex. Medici, Asistenti), cu ordinea numerica de afisare; numerele mici apar primele. In Functii atribuiti grupul si bifati Conducere/sef pentru functiile de conducere. In Angajati selectati functia. Sectia si departamentul delimiteaza echipa; in rapoartele filtrate sefii acelei echipe apar primii, urmati alfabetic de personal. La egalitate de nume se foloseste marca. Marcile normale si de garda ale aceleiasi persoane raman impreuna. In lipsa unei functii proprii, marca de garda foloseste functia principala pentru filtrare/incadrare, prin legatura explicita.
+In Setari configurati Grupuri profesionale (ex. Medici, Asistenti), cu ordinea numerica de afisare; numerele mici apar primele. In Functii atribuiti grupul si bifati Conducere/sef pentru functiile de conducere. In Angajati selectati functia. Sectia si compartimentul delimiteaza echipa; in rapoartele filtrate sefii acelei echipe apar primii, urmati alfabetic de personal. La egalitate de nume se foloseste marca. Marcile normale si de garda ale aceleiasi persoane raman impreuna. In lipsa unei functii proprii, marca de garda foloseste functia principala pentru filtrare/incadrare, prin legatura explicita.
 
 Tipuri de contract: norma globala, individuala, zilnica fixa, lunara sau fara norma prestabilita. Norma fixa se introduce in minute (420 = 7 ore, 300 = 5 ore). Garda este un tip predefinit fara norma. Selectati contractul fiecarei marci. Asocierea unei marci de garda in formular selecteaza contractul GARDA daca acesta este activ. Migrarea actualizeaza numai marcile deja legate explicit ca garzi; nu identifica persoane dupa nume. Contractele si functiile pot fi dezactivate fara stergerea istoricului de modificari.
 
 Categoria de programe a contractului, daca este stabilita, are prioritate fata de categoria angajatului si limiteaza programele permise la salvarea Pontajului si Planificarii. Precompletarea dupa categorii nu completeaza norme lunare sau contracte fara norma cu ore zilnice presupuse. In Definire rapoarte puteti adauga coloanele Tip de contract si Norma contractuala. Coloana existenta Ore norm isi pastreaza semnificatia de ore lucrate in zile normale, nu devine norma contractuala.
 
-Angajati, Pontaj, Planificare si Rapoarte au filtre pentru grup, functie, pozitie conducere/executie, contract si garda. Garda inseamna incadrarea marcii/contractului, nu existenta unei ture in luna aleasa. Butonul Reseteaza filtrele elimina doar aceste filtre profesionale. Filtrele de sectie/departament si perioada raman independente.
+Angajati, Pontaj, Planificare si Rapoarte au filtre pentru grup, functie, pozitie conducere/executie, contract si garda. Garda inseamna incadrarea marcii/contractului, nu existenta unei ture in luna aleasa. Butonul Reseteaza filtrele elimina doar aceste filtre profesionale. Filtrele de sectie/compartiment si perioada raman independente.
 
 ## Reguli conditionate si plata totala 200%
 

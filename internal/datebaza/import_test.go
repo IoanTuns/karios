@@ -15,7 +15,7 @@ func TestSabloaneImport(t *testing.T) {
 	if !strings.HasSuffix(numeCsvAng, ".csv") || len(csvAng) == 0 {
 		t.Fatalf("sablon csv angajati invalid: nume=%s, lungime=%d", numeCsvAng, len(csvAng))
 	}
-	if !strings.Contains(string(csvAng), "Popescu") || !strings.Contains(string(csvAng), "Marca") {
+	if !strings.Contains(string(csvAng), "Popescu") || !strings.Contains(string(csvAng), "Marca") || !strings.Contains(string(csvAng), "Compartiment") {
 		t.Fatalf("continut csv angajati incomplet: %s", string(csvAng))
 	}
 

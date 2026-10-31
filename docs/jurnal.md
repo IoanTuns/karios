@@ -4,6 +4,8 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 
 | Data | Acțiune | Cine | Legături |
 | --- | --- | --- | --- |
+| 2026-10-31 | F07-T29 implementat si verificat: Compartiment in UI/ajutor/rapoarte/manual si sabloane CSV/XLSX; importul si AI pastreaza aliasul vechi. Go complet/vet, teste afectate, frontend si manual trecute. Versiune 0.92.4, manual 1.15. | Codex | [Rezultate](rezultate-F07-T29.md) |
+| 2026-10-31 | F07-T29 inceput: terminologie Compartiment in textele romanesti si manual; fara redenumirea campurilor bazei de date sau a cheilor API. | Codex | F07-T29 |
 | 2026-10-31 | F09-T12: build oficial 0.92.3 din b50555a complet, manual 1.14 MD/HTML/PDF si ZIP. Toate hashurile si integritatea arhivei verificate. Prima verificare a arhivei a folosit o extensie de cale gresita; corectata si reluata cu succes. Pas urmator: proba operator; fara push/merge. | Codex | [Livrare](rezultate-F09-T12.md) |
 | 2026-10-31 | F09-T12 finalizat: gofmt, go vet si suita Go completa trecute; documentatie fara erori. Pregatire build oficial 0.92.3 cu manual 1.14. | Codex | [Rezultate](rezultate-F09-T12.md) |
 | 2026-10-31 | F09-T12: legenda pe rand separat pentru fiecare coloana vizibila, PDF/Excel RO/EN; eliminare Ore norma numai din raportul detaliat. Teste rapoarte, frontend/manual/livrare si randare Windows trecute; prima compilare dupa rearanjarea subsolului a identificat un import neutilizat, eliminat inaintea retestarii. | Codex | [Rezultate](rezultate-F09-T12.md) |

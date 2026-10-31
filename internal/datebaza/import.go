@@ -145,7 +145,7 @@ func (s *Serviciu) AnalizeazaImportAngajati(ctx context.Context, continut []byte
 			colFunctie = i
 		case c == "sectie" || c == "sectia" || c == "unit":
 			colSectie = i
-		case c == "departament" || c == "subdepartament" || c == "department" || c == "birou":
+		case c == "compartiment" || c == "departament" || c == "subdepartament" || c == "department" || c == "birou":
 			colDepartament = i
 		case c == "contract" || c == "tipcontract":
 			colContract = i
@@ -663,7 +663,7 @@ func GenereazaSablonAngajati(format string) ([]byte, string, error) {
 		defer f.Close()
 		sheet := "Angajati"
 		f.SetSheetName("Sheet1", sheet)
-		headers := []string{"Nume", "Prenume", "Marca", "Functie", "Sectie", "Departament", "Tip_Contract", "Norma_Ore_Zi", "Zile_Concediu_An"}
+		headers := []string{"Nume", "Prenume", "Marca", "Functie", "Sectie", i18n.T(i18n.Romana, "ui.departament", nil), "Tip_Contract", "Norma_Ore_Zi", "Zile_Concediu_An"}
 		for colIdx, h := range headers {
 			cell, _ := excelize.CoordinatesToCellName(colIdx+1, 1)
 			_ = f.SetCellValue(sheet, cell, h)
@@ -691,7 +691,7 @@ func GenereazaSablonAngajati(format string) ([]byte, string, error) {
 	buf.Write([]byte("\xef\xbb\xbf")) // BOM
 	w := csv.NewWriter(&buf)
 	w.Comma = ';'
-	_ = w.Write([]string{"Nume", "Prenume", "Marca", "Functie", "Sectie", "Departament", "Tip_Contract", "Norma_Ore_Zi", "Zile_Concediu_An"})
+	_ = w.Write([]string{"Nume", "Prenume", "Marca", "Functie", "Sectie", i18n.T(i18n.Romana, "ui.departament", nil), "Tip_Contract", "Norma_Ore_Zi", "Zile_Concediu_An"})
 	_ = w.Write([]string{"Popescu", "Ion", "M001", "Medic specialist", "Laborator", "Biochimie", "INTREAGA", "7", "22"})
 	_ = w.Write([]string{"Ionescu", "Maria", "M002", "Asistent medical", "Laborator", "Hematologie", "INTREAGA", "7", "21"})
 	_ = w.Write([]string{"Radu", "Elena", "M003", "Biolog", "Radiologie", "Imagistică", "PARTIALA", "4", "21"})
