@@ -21,4 +21,4 @@ Ordinea din rapoarte nu determina drepturi salariale. Configurarea este curenta;
 
 ## Stare la predare
 
-Punctele 1-11 si 13 sunt implementate pentru configurare, filtrare, grupare si calcul in ore/ore echivalente. La punctul 12 exista sursa ZNL si reguli conditionate, dar conversia si acordarea efectiva a timpului liber raman in F07-T26 (blocat, formule lipsa). Punctul 14: verificari automate si manual actualizat; build oficial dupa commit. Calculul in lei este tot in F07-T26. Instructiunile detaliate sunt in manualul 0.92.0 si in rezultate-F07-T25.md.
+Punctele 1-11 si 13 sunt implementate pentru configurare, filtrare, grupare si calcul in ore/ore echivalente. La punctul 12 exista sursa ZNL si reguli conditionate, dar conversia si acordarea efectiva a timpului liber raman in F07-T26 (blocat, formule lipsa). Punctul 14: verificari automate si manual actualizat; build oficial dupa commit. Calculul in lei este tot in F07-T26. Instructiunile detaliate sunt in manualul 0.92.1 si in rezultate-F07-T25.md.

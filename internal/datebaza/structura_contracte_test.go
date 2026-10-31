@@ -116,3 +116,29 @@ func TestRevizieNomenclatorMonotona(t *testing.T) {
 		t.Fatal(r)
 	}
 }
+
+func TestSalvareGardaPastreazaFunctiaMostenitaInactiva(t *testing.T) {
+	m := pregateste(t)
+	ctx := context.Background()
+	f := ElementNomenclator{ID: "f", Denumire: i18n.Text{"ro": "Functie inactiva"}, Activ: false}
+	if _, err := m.db.Exec(`INSERT INTO functii(id,denumire,activ,modificat_la) VALUES('f','{"ro":"Functie inactiva"}',0,'x');INSERT INTO angajati(id,nume,prenume,marca,creat_la,modificat_la) VALUES('p','Exemplu','Ana','P','x','x'),('g','Exemplu','Ana','G','x','x');INSERT INTO angajati_functii VALUES('p','f');INSERT INTO angajati_garzi VALUES('g','p');INSERT INTO angajati_contracte VALUES('p','INTREAGA'),('g','GARDA')`); err != nil {
+		t.Fatal(err)
+	}
+	var g Angajat
+	for _, a := range citeste(t, m.serviciu).Angajati {
+		if a.ID == "g" {
+			g = a
+		}
+	}
+	if g.FunctieID != f.ID {
+		t.Fatal("functie nemostenita", g)
+	}
+	g.ConcediuZileAn = nil
+	if err := m.serviciu.SalveazaAngajat(ctx, g); err != nil {
+		t.Fatal("editarea neutra a garzii refuzata", err)
+	}
+	var n int
+	if err := m.db.QueryRow("SELECT count(*) FROM angajati_functii WHERE angajat_id='g'").Scan(&n); err != nil || n != 0 {
+		t.Fatal("functie mostenita fixata accidental", n, err)
+	}
+}

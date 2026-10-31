@@ -1,6 +1,6 @@
 # F07-T25 - Structura profesionala, contracte si reguli conditionate
 
-Responsabil Codex. Ramura F07-T25-structura-contracte. Aplicatie 0.92.0, manual 1.11, migrare 0026. Cerintele si lista initiala sunt in plan-F07-T25.md; arhitectura este propusa in D062.
+Responsabil Codex. Ramura F07-T25-structura-contracte. Aplicatie 0.92.1, manual 1.12, migrare 0026. Cerintele si lista initiala sunt in plan-F07-T25.md; arhitectura este propusa in D062.
 
 ## Implementat
 
@@ -27,3 +27,5 @@ Nu exista calcul in lei fara baza orara. Conversia ZNL in zile compensatorii, ac
 Configurarea este curenta, fara istoric contractual pe intervale; modificarile pot afecta regenerarea lunilor vechi. Exportul clasic din grila Pontaj ramane registrul lunar complet; exportul filtrat/grupat se face din Rapoarte dupa previzualizare. Proba interactiva desktop/WebView2 si tiparirea fizica raman la operator. Datele reale nu au fost deschise. Buildul oficial urmeaza dupa commit; fara push sau merge.
 
 Verificare suplimentara: ceas egal sau regresat produce o revizie strict noua; functia proprie fara grup nu mosteneste grupul principal in profilul de calcul. Graficul de garzi exclude programul DUPA_AMIAZA, cu totaluri corecte dupa filtrare.
+
+Corectie finala 0.92.1: functia mostenita a marcii de garda ramane mostenita la salvare neutra, inclusiv daca functia principala este inactiva; test dedicat pentru lipsa asocierii proprii accidentale.

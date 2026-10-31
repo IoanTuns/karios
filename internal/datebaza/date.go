@@ -290,6 +290,17 @@ func (s *Serviciu) SalveazaAngajat(ctx context.Context, a Angajat) error {
 		if err := valideazaLegaturaGarda(ctx, tx, a); err != nil {
 			return err
 		}
+		// Profilul returnat UI poate include functia mostenita; o salvare neutra nu o fixeaza separat.
+		if a.AngajatPrincipalID != "" && a.FunctieID != "" {
+			var proprie, principala sql.NullString
+			if err := tx.QueryRowContext(ctx, "SELECT (SELECT functie_id FROM angajati_functii WHERE angajat_id=?),(SELECT functie_id FROM angajati_functii WHERE angajat_id=?)", a.ID, a.AngajatPrincipalID).Scan(&proprie, &principala); err != nil {
+				return err
+			}
+			if !proprie.Valid && principala.Valid && principala.String == a.FunctieID {
+				a.FunctieID = ""
+				a.Functie = ""
+			}
+		}
 		if a.FunctieID != "" {
 			lista, err := citesteNomenclator(ctx, tx, "functii")
 			if err != nil {

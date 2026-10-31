@@ -10,6 +10,8 @@ Utilizatorul poate gestiona angajații și listele de care depinde pontajul.
 
 | ID | Task | Stare | Responsabil | Note |
 | --- | --- | --- | --- | --- |
+| F07-T25 | Grupuri profesionale, pozitii, contracte configurabile, filtre si reguli conditionate | gata | Codex | Cerinte si etape in plan-F07-T25.md; pastrare date, fara formule monetare presupuse. |
+| F07-T26 | Baza valorica in lei si conversia ZNL in timp liber acordat | blocat | Codex | Lipsesc baza de calcul a orei si formula de conversie/acordare. Intrebari la F01. Nu este blocata configurarea si echivalarea in ore confirmata pentru F07-T25. |
 | F07-T21 | Sincronizare atomică Pontaj → Planificare pentru programele speciale | gata | Codex | Versiunea 0.88.9, salvare manuală și reparare explicită a celulelor speciale deja salvate. Testele Go complete, vet, 13 teste frontend și build Windows trecute. Integrarea în main autorizată explicit de utilizator la 30 octombrie; fără push. D051 rămâne propusă. Pas următor: probă vizuală cu operatorul și actualizarea manualului pentru noua versiune. |
 | F07-T14 | Categorii de program atribuite angajaților și precompletare cu protecția absențelor | gata | Codex | 0.29.0 pe F07-T14-categorii-program-angajati, din 7880029. D036 acceptată: buton L–V vizibil, programe permise + implicit, gărzile explicite. Migrare 0016, șase categorii editabile, atribuire individuală și filtru în pontaj; previzualizare pentru rânduri vizibile/selectate cu absențe, calendar, norme și suprapuneri, aplicare în schiță/Undo/Redo/salvare explicită. TypeScript/Vite, gofmt, vet, toate testele Go și Edge trecute. Referințele rapoartelor păstrate. [Ghid](../ghid-categorii-program.md), [rezultate](../rezultate-F07-T14.md). Pas următor: probă cu operator; F04-T09 pentru anomalia preexistentă a calendarului în totaluri, I055 pentru atribuire în lot. |
 | F07-T01 | Administrarea angajaților: nume, prenume, marcă, tip contract, normă parțială, concediu anual, funcție, secție, activ | gata | Codex | 2026-10-25, 0.10.0: interfață, metode Wails și serviciu Go peste sqlc; listare/căutare/filtre, creare/editare, dezactivare/reactivare, secții și norma globală. Teste Go pe baza criptată, UI în Edge cu punte simulată și build Windows trecute; [ghid](../ghid-primele-functionalitati.md). Urmează F07-T03 și prototipul F08-T01; [D013](../decizii/D013-primele-functionalitati-demo.md) rămâne propusă |
@@ -59,8 +61,6 @@ Pasul următor: F06-T03 pentru accesul la date și F07-T01/F07-T03 pentru formul
 
 F07-T24: verificari finale gofmt/vet/suita Go, 18 teste frontend, UI nomenclatoare RO/EN, focus si ajutor trecute. Pas urmator: livrare cumulativa cu F09-T11, fara push sau merge.
 
-| F07-T25 | Grupuri profesionale, pozitii, contracte configurabile, filtre si reguli conditionate | gata | Codex | Cerinte si etape in plan-F07-T25.md; pastrare date, fara formule monetare presupuse. |
 
-| F07-T26 | Baza valorica in lei si conversia ZNL in timp liber acordat | blocat | Codex | Lipsesc baza de calcul a orei si formula de conversie/acordare. Intrebari la F01. Nu este blocata configurarea si echivalarea in ore confirmata pentru F07-T25. |
 
 Predare F07-T25: [rezultate si limite](../rezultate-F07-T25.md), toate verificarile automate trecute. Build oficial dupa commit, apoi proba operator si review. F07-T26 ramane blocat pentru formulele neprecizate.

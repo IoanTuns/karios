@@ -474,3 +474,5 @@ Clasificarea weekend/sarbatoare se face pe fragmente calendaristice 00-24, inclu
 Regulile si incadrarile sunt curente. Modificarea lor poate schimba regenerarea rapoartelor vechi; pastrati exporturile validate. Nu este implementat un istoric contractual cu perioade de valabilitate.
 
 In Rapoarte generati mai intai previzualizarea, apoi exportati PDF sau Excel. Excel-ul foloseste exact documentul previzualizat, cu aceleasi filtre, grupuri si randuri. Exportul clasic din grila Pontaj ramane registrul lunar complet.
+
+Din 0.92.1, salvarea unei marci de garda care foloseste functia principala pastreaza mostenirea. O functie principala dezactivata nu impiedica editarea celorlalte date ale marcii de garda. Atribuirea unei functii proprii diferite ramane explicita.
