@@ -1,0 +1,45 @@
+import assert from 'node:assert/strict';
+
+export async function verificaAbsentePontaj({evalueaza,asteapta,apasa,completeaza,cataloage,limba,captura}) {
+ const t=k=>cataloage[limba][k];
+ await asteapta(()=>evalueaza("Boolean(document.querySelector('.actiuni-antet'))"),'Aplicatie lipsa');
+ await apasa(t('ui.pontaj'));
+ const celula=i=>`input[data-rand="0"][data-zi="${i}"]`;
+ await asteapta(()=>evalueaza(`Boolean(document.querySelector('${celula(0)}'))`),'Grila lipsa');
+ await evalueaza(`(()=>{const e=document.querySelector('${celula(0)}');e.dispatchEvent(new MouseEvent('mousedown',{bubbles:true,button:0}));e.focus()})()`);
+ await completeaza('select[aria-label="'+t('pontaj.program_completare')+'"]','Z7');await apasa(t('pontaj.aplica_program'));
+ await apasa(t('pontaj.salveaza'));
+ await asteapta(()=>evalueaza("JSON.parse(localStorage.getItem('pontix-test')).ciorne.some(c=>c.valoare==='Z7')"),'Program nesalvat');
+ await asteapta(()=>evalueaza(`!document.querySelector('${celula(0)}').disabled && !document.querySelector('${celula(0)}').closest('td').classList.contains('celula-modificata')`),'Salvare inca ocupata');
+ await evalueaza(`(()=>{const e=document.querySelector('${celula(1)}');e.dispatchEvent(new MouseEvent('mousedown',{bubbles:true,button:0}));e.focus()})()`);
+ await asteapta(()=>evalueaza(`document.querySelector('${celula(1)}').closest('td').classList.contains('celula-selectata')`),'Selectia zilei a doua lipsa');
+ await apasa(t('pontaj.aplica_program')); 
+ await asteapta(()=>evalueaza(`document.querySelector('${celula(1)}').closest('td').classList.contains('celula-modificata')`),'Ziua din afara selectiei nu a fost modificata');
+ await evalueaza(`(()=>{const e=document.querySelector('${celula(0)}');e.dispatchEvent(new MouseEvent('mousedown',{bubbles:true,button:0}));e.focus()})()`);
+ await asteapta(()=>evalueaza(`document.querySelector('${celula(0)}').closest('td').classList.contains('celula-selectata')`),'Selectia primei zile lipsa');
+ await apasa(t('pontaj.absenta_titlu'));
+ await asteapta(()=>evalueaza("Boolean(document.querySelector('dialog select[name=tip]'))"),'Formular absenta lipsa');
+ await apasa(t('ui.anuleaza'));
+ await asteapta(()=>evalueaza(`document.querySelector('${celula(0)}').value==='7'`),'Anularea a modificat programul');
+ await apasa(t('pontaj.absenta_titlu'));
+ await asteapta(()=>evalueaza("Boolean(document.querySelector('dialog select[name=tip]'))"),'Formular lipsa');
+ await completeaza('dialog select[name=tip]','CO');await completeaza('dialog select[name=stare_aprobare]','APROBATA');
+ await completeaza('dialog input[name=nr_inregistrare]','TEST-CO');
+ await evalueaza('window.__refuzaConversie=true');await apasa(t('ui.salveaza'));
+ await asteapta(()=>evalueaza("Boolean(document.querySelector('dialog .mesaj.eroare'))"),'Eroare nesemnalata');
+ await asteapta(()=>evalueaza(`document.querySelector('${celula(0)}').value==='7'`),'Eroarea a modificat programul');
+ await evalueaza('window.__refuzaConversie=false');await captura('concediu-din-pontaj-'+limba+'.png');await apasa(t('ui.salveaza'));
+ await asteapta(()=>evalueaza(`document.querySelector('${celula(0)}').value==='CO'`),'CO nu apare in Pontaj');
+ await asteapta(()=>evalueaza(`document.querySelector('${celula(1)}').value==='7'`),'Modificarea nesalvata din afara selectiei s-a pierdut');
+ assert(await evalueaza("JSON.parse(localStorage.getItem('pontix-test')).absente.some(z=>z.cod==='CO'&&z.stare_aprobare==='APROBATA'&&z.nr_inregistrare==='TEST-CO')"),'Aprobarea/metadatele lipsesc');
+ await evalueaza(`(()=>{const e=document.querySelector('${celula(0)}');e.dispatchEvent(new MouseEvent('mousedown',{bubbles:true,button:0}));e.focus()})()`);await apasa(t('pontaj.absenta_titlu'));
+ await asteapta(()=>evalueaza("Boolean(document.querySelector('dialog select[name=tip]'))"),'Editarea absentei lipsa');
+ await completeaza('dialog select[name=tip]','CM');await apasa(t('ui.salveaza'));
+ await asteapta(()=>evalueaza(`document.querySelector('${celula(0)}').value==='CM'`),'Schimbarea CO-CM nu s-a aplicat');
+ await apasa(t('pontaj.salveaza'));
+ await asteapta(()=>evalueaza(`!document.querySelector('${celula(1)}').disabled&&!document.querySelector('${celula(1)}').closest('td').classList.contains('celula-modificata')`),'Salvarea celeilalte zile nu s-a terminat');
+ await apasa(t('ui.absente'));
+ await asteapta(()=>evalueaza("Boolean(document.querySelector('.tabel-absente, .lista-absente')) || document.body.textContent.includes('TEST-CO')"),'Absenta lipseste din evidenta');
+ assert(await evalueaza("document.body.textContent.includes('TEST-CO')"),'Metadatele nu sunt vizibile in Absente');
+ await captura('absenta-pontaj-salvata-'+limba+'.png');
+}

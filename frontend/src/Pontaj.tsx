@@ -1,3 +1,4 @@
+import {FormularAbsente} from './Absente';
 import {numeAngajat} from './numeAngajat';
 import {factorZoomInterfata} from './ZoomInterfata';
 import {FiltreProfesionale,filtruProfesionalGol,corespundeProfesional} from './FiltreProfesionale';
@@ -5,7 +6,7 @@ import {memo, useEffect, useLayoutEffect, useMemo, useRef, useState, type Clipbo
 import {useTranslation} from 'react-i18next';
 import {autorJurnal} from './autorJurnal';
 import {semnaleazaModificari} from './modificariNesalvate';
-import {UltimaModificareCelula, CitesteCalendar, CitesteSchita, ListaSchimburi, SalveazaSchita, PrevizualizeazaSchita, PrevizualizeazaPrecompletare, ExportaPontajExcel, CitesteStareLuna, SeteazaStareLuna} from '../wailsjs/go/main/App';
+import {CitesteAbsente, InlocuiestePontajCuAbsente, UltimaModificareCelula, CitesteCalendar, CitesteSchita, ListaSchimburi, SalveazaSchita, PrevizualizeazaSchita, PrevizualizeazaPrecompletare, ExportaPontajExcel, CitesteStareLuna, SeteazaStareLuna} from '../wailsjs/go/main/App';
 import {calcul, datebaza} from '../wailsjs/go/models';
 import {AmprentaLuna} from './Audit';
 import {Dialog, denumireSectie, denumireDepartament} from './Formulare';
@@ -75,7 +76,7 @@ const RandPontaj = memo(function RandPontaj({a, r, zile, weekend, sarbatori, sel
             const dupaG24 = z > 0 && valoareBruta(z - 1).trim().toUpperCase() === 'G24' && areLucruZi;
             const peste24h = minuteZi > 1440;
             const titluAvertisment = [dupaG24 ? t('pontaj.avertisment_dupa_g24') : '', peste24h ? t('pontaj.avertisment_peste_24h', {ore: oreText(minuteZi)}) : ''].filter(Boolean).join(' · ');
-            const valoare = calculare ? '…' : calc ? (calc.calculabil ? oreText(calc.minute) : '—') : areCalcul ? '' : '—';
+            const valoare = absenta ? absenta.cod : calculare ? '…' : calc ? (calc.calculabil ? oreText(calc.minute) : '—') : areCalcul ? '' : '—';
             return <td key={data} className={`${sarbatori.has(data) ? 'zi-sarbatoare' : weekend[z] ? 'zi-weekend' : ''} ${selectata ? 'celula-selectata' : ''} ${modificari.has(k) ? 'celula-modificata' : ''} ${colegiInlocuiti?.length ? 'celula-inlocuitor' : ''} ${titluAvertisment ? 'celula-avertisment' : ''}`}>
             <input data-rand={r} data-zi={z} aria-label={t('pontaj.celula', {nume: `${numeAngajat(a)}`, data})} title={[
                 t('ui.tooltip_marca', {nume: `${numeAngajat(a)}`, marca: a.marca || '—'}),
@@ -117,6 +118,8 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
     const unelte = useRef<HTMLDivElement>(null);
     const butoanePanouri = useRef<Record<string, HTMLButtonElement | null>>({});
     const [schita, setSchita] = useState<datebaza.SchitaLuna | null>(null);
+    const [conversieAbsenta,setConversieAbsenta] = useState<{date:datebaza.AbsenteAn; zile:datebaza.ZiAbsenta[]; celule:datebaza.CelulaSchita[]}|null>(null);
+    const [eroareAbsenta,setEroareAbsenta] = useState('');
     const [calendar, setCalendar] = useState<datebaza.CalendarAn | null>(null);
     const [schimburi, setSchimburi] = useState<datebaza.Schimb[]>([]);
     const [modificari, setModificari] = useState<Map<string, datebaza.CelulaSchita>>(new Map());
@@ -608,6 +611,41 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
         }
     }
 
+    async function deschideAbsentaSelectie() {
+        if (ocupat || lunaBlocata || !randuri.length) return;
+        const celule:datebaza.CelulaSchita[]=[];
+        for(let r=inceputRand;r<=sfarsitRand;r++)for(let z=inceputZi;z<=sfarsitZi;z++) {
+            if(!randuri[r]||!zile[z])continue;
+            const id=randuri[r].id,data=zile[z];
+            celule.push(new datebaza.CelulaSchita(originale.get(cheie(id,data))||{angajat_id:id,data,valoare:'',revizie:''}));
+        }
+        if(!celule.length)return;
+        setOcupat(true);onOcupat(true);setEroare('');setEroareAbsenta('');
+        try {
+            const r=await CitesteAbsente(an);
+            if(r.eroare){setEroare(t(r.eroare.cod,r.eroare.param||{}));return;}
+            if(!r.absente){setEroare(t('date.eroare'));return;}
+            const existente=new Map(r.absente.zile.map(z=>[cheie(z.angajat_id,z.data),z]));
+            setConversieAbsenta({date:r.absente,celule,zile:celule.map(c=>new datebaza.ZiAbsenta(existente.get(cheie(c.angajat_id,c.data))||{angajat_id:c.angajat_id,data:c.data,cod:'',activ:true,revizie:'',stare_aprobare:'IN_ASTEPTARE'}))});
+        } catch {setEroare(t('date.eroare'));}
+        finally {setOcupat(false);onOcupat(false);}
+    }
+
+    async function salveazaAbsentaSelectie(zileAbsenta:datebaza.ZiAbsenta[]) {
+        if(!conversieAbsenta||blocat.current)return;
+        blocat.current=true;setOcupat(true);onOcupat(true);setEroareAbsenta('');
+        try {
+            const r=await InlocuiestePontajCuAbsente(an,luna,zileAbsenta,conversieAbsenta.celule);
+            if(r.eroare){setEroareAbsenta(t(r.eroare.cod,r.eroare.param||{}));return;}
+            if(!r.schita){setEroareAbsenta(t('date.eroare'));return;}
+            const inlocuite=new Set(conversieAbsenta.celule.map(c=>cheie(c.angajat_id,c.data)));
+            setModificari(vechi=>new Map([...vechi].filter(([k])=>!inlocuite.has(k))));
+            setSchita(r.schita);setCalculat(r.schita.calcul);setIstoricInapoi([]);setIstoricInainte([]);setConversieAbsenta(null);
+            setMesaj(t('pontaj.absenta_salvata'));notifica(t('pontaj.absenta_salvata'),'succes');
+        }catch {setEroareAbsenta(t('date.eroare'));}
+        finally {blocat.current=false;setOcupat(false);onOcupat(false);}
+    }
+
     async function salveaza(celulaPlan?: datebaza.CelulaSchita) {
         if (lunaBlocata) { setEroare(t('pontaj.luna_inchisa')); return; }
         if (blocat.current) return;
@@ -774,6 +812,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                 <button type="button" className="buton secundar" disabled={ocupat || !randuri.length || !programCompletare} onClick={precompleteazaSelectieLV}>{t('pontaj.precompleteaza_rand_lv')}</button>
                 <input name="ore_manuale" ref={manualInput} aria-label={t('pontaj.valoare_completare')} placeholder={t('pontaj.valoare_completare')} inputMode="decimal" maxLength={16} value={valoareCompletare} disabled={ocupat} onChange={e => setValoareCompletare(e.target.value)}/>
                 <button className="buton secundar" disabled={ocupat || !randuri.length} onClick={() => {const v=manual(valoareCompletare);if(v===null)setEroare(t('pontaj.ore_invalide'));else completeaza(v);}}>{t('pontaj.completeaza_selectia')}</button>
+                <button type="button" className="buton secundar" data-absenta-selectie disabled={ocupat||lunaBlocata||!randuri.length} onClick={()=>void deschideAbsentaSelectie()}>{t('pontaj.absenta_titlu')}</button>
                 <div className="paleta-schimburi">
                     <span className="text-discret">{t('pontaj.paleta_rapida')}</span>
                     {schimburi.filter(s => s.activ).map(s => <button key={s.id} type="button" className="cip-schimb" disabled={ocupat || !randuri.length} onClick={() => completeaza(s.cod)}>{s.cod}</button>)}
@@ -878,6 +917,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
             </div>
             <p className="indiciu-grila">{t('pontaj.dimensiuni', {randuri: randuri.length, zile: numarZile})} · {t('pontaj.inactivi_indiciu')}</p>
         </>}
+        {conversieAbsenta&&<FormularAbsente dinPontaj zi={null} lot={conversieAbsenta.zile} date={date} absente={conversieAbsenta.date} angajatImplicit="" ocupat={ocupat} eroare={eroareAbsenta} inchide={()=>setConversieAbsenta(null)} salveaza={salveazaAbsentaSelectie}/>}
         {plan&&<Dialog titlu={t('program.previzualizare')} ocupat={ocupat} inchide={()=>setPlan(null)}><div className="corp-dialog plan-precompletare">
             <p>{t('program.plan_indiciu')}</p>
             <label className="bifa"><input type="checkbox" checked={numaiSelectiaPlan} disabled={ocupat} onChange={e=>void previzualizeazaCategorii(e.target.checked)}/>{t('program.numai_selectia')}</label>

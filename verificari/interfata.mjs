@@ -1,3 +1,4 @@
+import {verificaAbsentePontaj} from './pontaj-absente-scenarii.mjs';
 import {simulareNomenclatoare,verificaNomenclatoare} from './nomenclatoare-scenarii.mjs';
 import {verificaFocus} from './focus-scenarii.mjs';
 import {simulareAjutor, verificaAjutor} from './ajutor-scenarii.mjs';
@@ -300,6 +301,18 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
             const d = stare.documenteAbsenta.find(x => x.id === id);
             return d ? {document: structuredClone(d), eroare: null} : {document: null, eroare: {cod: 'absente.document_inexistent'}};
         },
+        InlocuiestePontajCuAbsente: async (an,luna,zile,celule) => {
+            if(window.__refuzaConversie) return {schita:null,eroare:{cod:'absente.tip_invalid'}};
+            const vechi=structuredClone(stare.ciorne),absenteVechi=structuredClone(stare.absente);
+            for(const c of celule) {
+                const v=stare.ciorne.find(v=>v.angajat_id===c.angajat_id&&v.data===c.data);
+                if((v?.revizie||'')!==c.revizie||(v?.valoare||'')!==c.valoare) return {schita:null,eroare:{cod:'pontaj.conflict'}};
+            }
+            for(const c of celule) {const v=stare.ciorne.find(v=>v.angajat_id===c.angajat_id&&v.data===c.data);if(v){v.valoare='';v.revizie=String(Number(v.revizie)+1);}}
+            const r=await window.go.main.App.SalveazaAbsente(zile,an);
+            if(r.eroare){stare.ciorne=vechi;stare.absente=absenteVechi;raspuns();return {schita:null,eroare:r.eroare};}
+            raspuns();return schita(an,luna);
+        },
         CitesteSchita: async (an,luna)=>schita(an,luna),
         SalveazaSchita: async (an, luna, celule) => {
             if (celule.some(c => stare.absente.some(z => z.activ && z.angajat_id === c.angajat_id && z.data === c.data))) return {schita:null,eroare:{cod:'absente.celula_protejata'}};
@@ -337,14 +350,15 @@ try {
     await cdp('Page.enable'); await cdp('Runtime.enable');
     await cdp('Emulation.setDeviceMetricsOverride', {width: 1440, height: 960, deviceScaleFactor: 1, mobile: false});
     const injectat = await cdp('Page.addScriptToEvaluateOnNewDocument', {source: `(${simulare})(${JSON.stringify(demo)},${JSON.stringify(cataloage)},'ro',${JSON.stringify(calendarSursa)},${JSON.stringify(versiuneAplicatie)},${JSON.stringify(schimburiSursa)},${JSON.stringify(rapoarteSursa)})`});
-    if (process.argv.includes('--ajutor') || process.argv.includes('--focus') || process.argv.includes('--nomenclatoare')) {
+    if (process.argv.includes('--pontaj-absente') || process.argv.includes('--ajutor') || process.argv.includes('--focus') || process.argv.includes('--nomenclatoare')) {
         const limba=process.argv.includes('--en')?'en':'ro';
         await cdp('Emulation.setDeviceMetricsOverride',{width:1024,height:640,deviceScaleFactor:1,mobile:false});
         await cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(${simulareAjutor})(${JSON.stringify(catalogAjutor)},${JSON.stringify(cataloage)},${JSON.stringify(versiuneAplicatie)},${JSON.stringify(limba)})`});
     }
     if(process.argv.includes('--nomenclatoare')) await cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(${simulareNomenclatoare})()`});
     await cdp('Page.navigate', {url});
-    if(process.argv.includes('--nomenclatoare')){await verificaNomenclatoare({cdp,evalueaza,asteapta,apasa,completeaza,cataloage,limba:process.argv.includes('--en')?'en':'ro',captura:async nume=>{const r=await cdp('Page.captureScreenshot',{format:'png'});writeFileSync(join(capturi,nume),Buffer.from(r.data,'base64'));}});assert.deepEqual(erori,[],'Erori JS');console.log('Nomenclatoare UI verificate: '+capturi);}
+    if(process.argv.includes('--pontaj-absente')) {await verificaAbsentePontaj({cdp,evalueaza,asteapta,apasa,completeaza,cataloage,limba:process.argv.includes('--en')?'en':'ro',captura:async nume=>{const r=await cdp('Page.captureScreenshot',{format:'png'});writeFileSync(join(capturi,nume),Buffer.from(r.data,'base64'));}});assert.deepEqual(erori,[],'Erori JS');console.log('Absente din Pontaj verificate: '+capturi);}
+    else if(process.argv.includes('--nomenclatoare')){await verificaNomenclatoare({cdp,evalueaza,asteapta,apasa,completeaza,cataloage,limba:process.argv.includes('--en')?'en':'ro',captura:async nume=>{const r=await cdp('Page.captureScreenshot',{format:'png'});writeFileSync(join(capturi,nume),Buffer.from(r.data,'base64'));}});assert.deepEqual(erori,[],'Erori JS');console.log('Nomenclatoare UI verificate: '+capturi);}
     else if (process.argv.includes('--focus')) {
         await verificaFocus({cdp,evalueaza,asteapta,apasa,cataloage,limba:process.argv.includes('--en')?'en':'ro',captura:async nume=>{const r=await cdp('Page.captureScreenshot',{format:'png'});writeFileSync(join(capturi,nume),Buffer.from(r.data,'base64'));}});
         assert.deepEqual(erori,[],'Erori JavaScript.');

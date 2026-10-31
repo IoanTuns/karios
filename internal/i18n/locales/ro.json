@@ -1598,5 +1598,11 @@
   "ui.zoom_micsoreaza": "Micsoreaza interfata (Ctrl+-)",
   "ui.zoom_mareste": "Mareste interfata (Ctrl++)",
   "ui.zoom_reseteaza": "Revino la 100% (Ctrl+0)",
-  "ui.nume_subordonat": "{{nume}} ({{tip}})"
+  "ui.nume_subordonat": "{{nume}} ({{tip}})",
+  "pontaj.absenta_titlu": "Concediu / alt tip de absenta",
+  "pontaj.absenta_indiciu": "Se aplica exact zilelor si persoanelor selectate. Inlocuieste programul din schita si se salveaza imediat in evidenta absentelor. Celelalte modificari nesalvate se pastreaza.",
+  "pontaj.absenta_selectie": "Verifica selectia: {{numar}} zile-angajat",
+  "pontaj.absenta_lista_limitata": "Sunt afisate primele 50 de pozitii; salvarea se aplica intregii selectii.",
+  "pontaj.absenta_salvata": "Tipul zilelor selectate a fost actualizat in Pontaj si Absente.",
+  "pontaj.absenta_pontaj_efectiv": "Exista pontaj efectiv inregistrat pentru una dintre zile. Acesta trebuie corectat inainte de schimbarea tipului zilei."
 }

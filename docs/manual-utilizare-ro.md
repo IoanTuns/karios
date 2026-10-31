@@ -510,3 +510,16 @@ Weekend inseamna strict sambata-duminica; o sarbatoare de marti nu este inclusa 
 Pentru contractul normal, norma exclude aceste zile. Pentru garzi si ture se folosesc incadrarea si regulile lor specifice; programul normal nu se aplica automat. Interpretarea 200%, ZNL si timpul liber compensatoriu sunt tratate prin regulile confirmate separat; aceasta corectie de calendar nu defineste noi procente sau conversii in zile. Regula compensatoriilor ramane neprecizata.
 
 Schimbarea calendarului impune regenerarea previzualizarii AI. Exporturile deja salvate raman neschimbate; regenerarea rapoartelor foloseste calendarul curent.
+
+## Concediu sau alt tip de absenta direct din Pontaj
+
+1. Selectati celula sau intervalul de zile si persoane in grila Pontaj.
+2. Deschideti Completare si alegeti Concediu / alt tip de absenta.
+3. Alegeti unul dintre tipurile configurate (de exemplu CO sau CM), completati aprobarea, numarul de inregistrare, inlocuitorul si documentul, dupa caz.
+4. Verificati selectia din formular, apoi Salvati. Se folosesc exact zilele selectate, inclusiv weekend/sarbatoare daca le-ati inclus.
+
+Operatia inlocuieste programul din schita si salveaza imediat absenta. Nu mai este necesara salvarea schitei pentru aceste zile. Codul concediului este afisat in celula; aceeasi inregistrare apare in Concedii si absente. Puteti redeschide meniul pentru a schimba tipul unei absente existente. Aprobarea nu este acordata automat: pentru o absenta noua starea initiala este In asteptare.
+
+Modificarile nesalvate din afara selectiei se pastreaza. Istoricul local Anuleaza/Refa se reinitializeaza dupa conversia salvata; corectiile ulterioare se fac prin formularul de absente. Planificarea ramane evidenta programului planificat, distincta de absenta efectiva. Lunile inchise si pontajul efectiv inregistrat sunt protejate. O eroare de validare sau un conflict de revizie anuleaza intregul lot si pastreaza schita initiala.
+
+Pentru revenire de la absenta la program de lucru, anulati absenta din evidenta Concedii si absente si apoi aplicati programul dorit in Pontaj; simpla aplicare a unui program nu suprascrie o absenta activa.

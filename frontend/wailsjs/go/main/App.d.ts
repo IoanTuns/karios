@@ -115,6 +115,8 @@ export function InchideAplicatia():Promise<void>;
 
 export function Informatii():Promise<main.Informatii>;
 
+export function InlocuiestePontajCuAbsente(arg1:number,arg2:number,arg3:Array<datebaza.ZiAbsenta>,arg4:Array<datebaza.CelulaSchita>):Promise<main.RaspunsSchita>;
+
 export function InregistreazaEroareFrontend(arg1:string,arg2:string,arg3:string):Promise<void>;
 
 export function InterogheazaAI(arg1:main.CerereInterogareAI):Promise<main.RaspunsInterogareAI>;

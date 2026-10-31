@@ -27,6 +27,14 @@ func (a *App) SalveazaAbsente(zile []datebaza.ZiAbsenta, an int) RaspunsAbsente 
 	return a.raspunsAbsente(an, datebaza.Nou(a.db).SalveazaAbsente(a.contextLucru(), zile))
 }
 
+func (a *App) InlocuiestePontajCuAbsente(an, luna int, zile []datebaza.ZiAbsenta, celule []datebaza.CelulaSchita) RaspunsSchita {
+	err := datebaza.Nou(a.db).InlocuiestePontajCuAbsente(a.contextLucru(), an, luna, zile, celule)
+	if err != nil {
+		return RaspunsSchita{Eroare: eroareInterfata(err)}
+	}
+	return a.CitesteSchita(an, luna)
+}
+
 func (a *App) CitesteDocumentAbsenta(id string) RaspunsDocumentAbsenta {
 	doc, err := datebaza.Nou(a.db).CitesteDocumentAbsenta(a.contextLucru(), id)
 	if err != nil {

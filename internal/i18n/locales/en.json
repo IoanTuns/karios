@@ -1598,5 +1598,11 @@
   "ui.zoom_micsoreaza": "Zoom out (Ctrl+-)",
   "ui.zoom_mareste": "Zoom in (Ctrl++)",
   "ui.zoom_reseteaza": "Reset to 100% (Ctrl+0)",
-  "ui.nume_subordonat": "{{nume}} ({{tip}})"
+  "ui.nume_subordonat": "{{nume}} ({{tip}})",
+  "pontaj.absenta_titlu": "Leave / other absence type",
+  "pontaj.absenta_indiciu": "Applies to the exact selected dates and employees. Replaces the draft schedule and saves immediately to absence records. Other unsaved changes are retained.",
+  "pontaj.absenta_selectie": "Review selection: {{numar}} employee-days",
+  "pontaj.absenta_lista_limitata": "The first 50 entries are shown; saving applies to the entire selection.",
+  "pontaj.absenta_salvata": "Selected days were updated in Timesheet and Absences.",
+  "pontaj.absenta_pontaj_efectiv": "Actual attendance is recorded for one of these days. Correct it before changing the day type."
 }
