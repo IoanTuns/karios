@@ -4066,6 +4066,7 @@ export namespace rapoarte {
 	    }
 	}
 	export class Document {
+	    legenda?: string[];
 	    titlu: string;
 	    sursa: string;
 	    versiune_raport: number;
@@ -4089,6 +4090,7 @@ export namespace rapoarte {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.legenda = source["legenda"];
 	        this.titlu = source["titlu"];
 	        this.sursa = source["sursa"];
 	        this.versiune_raport = source["versiune_raport"];

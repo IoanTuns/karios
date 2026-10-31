@@ -46,7 +46,12 @@ func GenereazaExcel(d Document) ([]byte, error) {
 			return nil, err
 		}
 	}
-	if err := scrie(len(d.Randuri)+6, []string{d.Metadate}, false); err != nil {
+	for i, l := range d.Legenda {
+		if err := scrie(len(d.Randuri)+6+i, []string{l}, false); err != nil {
+			return nil, err
+		}
+	}
+	if err := scrie(len(d.Randuri)+6+len(d.Legenda), []string{d.Metadate}, false); err != nil {
 		return nil, err
 	}
 	b, err := f.WriteToBuffer()

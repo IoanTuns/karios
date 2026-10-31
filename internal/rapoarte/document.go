@@ -51,6 +51,7 @@ type Rand struct {
 	Culori []string `json:"culori"`
 }
 type Document struct {
+	Legenda        []string           `json:"legenda,omitempty"`
 	Titlu          string             `json:"titlu"`
 	Sursa          string             `json:"sursa"`
 	VersiuneRaport int                `json:"versiune_raport"`
@@ -370,6 +371,9 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 	for _, cod := range d.Continut.Coloane {
 		if cod == "totaluri" {
 			for _, col := range calcul.ColoanePontaj() {
+				if col == "ore_norma" {
+					continue
+				}
 				titlu := i18n.T(limba, "pontaj.total_"+col, nil)
 				unitate := calcul.UnitateColoana(col)
 				for _, r := range configuratie.Reguli {
@@ -624,6 +628,40 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 			doc.Metadate += " · " + amprenta
 		}
 	}
+	configLegenda := configuratie
+	configLegenda.Conditionate = nil
+	for _, r := range configuratie.Conditionate {
+		if !r.Activ {
+			continue
+		}
+		for id := range inclusi {
+			if profile[id].corespunde(Cerere{GrupID: r.GrupID, FunctieID: r.FunctieID, ContractID: r.ContractID, Pozitie: r.Pozitie, Garda: r.Garda}) {
+				configLegenda.Conditionate = append(configLegenda.Conditionate, r)
+				break
+			}
+		}
+	}
+	etichete := map[string]string{}
+	if len(configLegenda.Conditionate) > 0 {
+		rows, err := tx.QueryContext(ctx, `SELECT 'grup/'||id,denumire FROM grupuri_profesionale UNION ALL SELECT 'functie/'||id,denumire FROM functii UNION ALL SELECT 'contract/'||id,denumire FROM tipuri_contract`)
+		if err != nil {
+			return Document{}, traduce(err)
+		}
+		for rows.Next() {
+			var k, n string
+			if err := rows.Scan(&k, &n); err != nil {
+				rows.Close()
+				return Document{}, traduce(err)
+			}
+			etichete[k] = textJSON(n, limba)
+		}
+		err = rows.Err()
+		rows.Close()
+		if err != nil {
+			return Document{}, traduce(err)
+		}
+	}
+	doc.Legenda = legendaColoane(doc, configLegenda, limba, etichete)
 	if err := tx.Commit(); err != nil {
 		return Document{}, traduce(err)
 	}

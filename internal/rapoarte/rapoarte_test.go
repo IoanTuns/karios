@@ -111,7 +111,7 @@ func TestDetaliatFolosesteAceleasiOreSiReguliCaGrila(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(doc.Coloane) != 45 {
+	if len(doc.Coloane) != 44 {
 		t.Fatal(len(doc.Coloane))
 	}
 	rez, _, err := datebaza.CalculeazaPontaj(ctx, acces.New(m.db), 2026, 10, nil)
@@ -125,12 +125,15 @@ func TestDetaliatFolosesteAceleasiOreSiReguliCaGrila(t *testing.T) {
 		}
 		valori[col.Cod] = doc.Randuri[0].Valori[i]
 	}
-	if valori["2026-10-23"] != "2" || valori["2026-10-24"] != "7" || valori["total_T"] != "9" || valori["total_ZNL"] != "7" || valori["total_ore_norma"] != "2" || valori["total_CO"] != "1" || valori["total_ore_garda"] != "—" {
+	if valori["2026-10-23"] != "2" || valori["2026-10-24"] != "7" || valori["total_T"] != "9" || valori["total_ZNL"] != "7" || valori["total_CO"] != "1" || valori["total_ore_garda"] != "—" {
 		t.Fatal(valori)
 	}
 	for _, r := range rez.Totaluri {
 		if r.AngajatID == "a" {
 			for cod, v := range r.Valori {
+				if cod == "ore_norma" {
+					continue
+				}
 				if valori["total_"+cod] != calcul.TextValoarePontaj(v) {
 					t.Fatal(cod, v, valori)
 				}

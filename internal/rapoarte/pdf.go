@@ -202,6 +202,13 @@ func ConstruiestePDF(d Document) (core.Maroto, error) {
 		return nil, eroare("rapoarte.aspect_prea_mare")
 	}
 	subsol := []core.Row{bloc(d.Subsol, float64(d.Pagina.FontPT), fontstyle.Normal), text.NewAutoRow(d.Metadate, props.Text{Family: "Go", Size: 6, Top: 2, Bottom: 2})}
+	if len(d.Legenda) > 0 {
+		legenda := make([]core.Row, 0, len(d.Legenda))
+		for _, explicatie := range d.Legenda {
+			legenda = append(legenda, text.NewAutoRow(explicatie, props.Text{Family: "Go", Size: 7, Bottom: 1}))
+		}
+		subsol = append(legenda, subsol...)
+	}
 	imaginiSubsol, err := randImagini(d.Pagina, d.SubsolImagini)
 	if err != nil {
 		return nil, err

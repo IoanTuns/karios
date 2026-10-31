@@ -482,3 +482,11 @@ Din 0.92.1, salvarea unei marci de garda care foloseste functia principala pastr
 CO, CEV, CFS si CM aprobate sunt reducerile confirmate ale normei. Formarea profesionala si delegatia nu sunt in aceasta lista. Zilele libere compensatorii nu sunt scazute automat, deoarece regula lor nu este stabilita.
 
 Motorul de baza pentru contracte cu norma zilnica si calendar luni-vineri exclude zilele libere calendaristice si concediile aprobate fara scadere dubla. Norma zilnica absenta ramane nedefinita, distincta de o norma calculata de zero ore. Acest calcul nu este inca legat de coloanele raportului: semnificatia finala a T si a soldurilor L FIN/L Inceput, respectiv identificarea zilelor programate pentru ture sunt in clarificare. Raportul existent nu trebuie considerat modificat doar pe baza acestei precizari.
+
+## Legenda coloanelor in rapoarte (0.92.3)
+
+Raportul detaliat nu mai afiseaza coloana Ore norma. Eliminarea este numai de prezentare; nu modifica sursele motorului sau grila Pontaj.
+
+Subsolul PDF explica fiecare coloana vizibila, pe rand separat: semnificatie, sursa de calcul activa, coduri selectate, factor si filtrul de aprobare, unde sunt aplicabile. Zilele lunii au o explicatie comuna. Regulile conditionate sunt prezentate cu profilurile carora li se aplica. Legenda se repeta pe fiecare pagina; exportul Excel din Rapoarte o include sub tabel.
+
+O regula neconfigurata produce liniuta, nu zero. Legenda descrie configuratia executata, inclusiv limitarile existente: norma datorata, marcajul T, noua separare a orelor de garda si soldurile lunare nu sunt inca integrate in acest raport. Explicatiile nu confirma automat o regula de plata.
