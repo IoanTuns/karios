@@ -4,6 +4,7 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 
 | Data | Acțiune | Cine | Legături |
 | --- | --- | --- | --- |
+| 2026-10-31 | F07-T32: build oficial 0.92.8 complet din 5afeb8f, manual 1.19 si ZIP; identitate si hashuri verificate. Pas urmator: proba operator. Fara push/merge. | Codex | [Livrare](rezultate-F07-T32.md) |
 | 2026-10-31 | F07-T32 verificat integral: gofmt/vet si suita Go completa trecute; TypeScript/Vite, Edge RO/EN conversie/anulare/eroare/pastrare modificari/CO-CM, focus/zoom, 18 teste frontend, manual/livrare/documentatie trecute. Pregatire build 0.92.8 si manual 1.19. | Codex | [Rezultate](rezultate-F07-T32.md) |
 | 2026-10-31 | F07-T32 implementat: formular comun din Completare, conversie atomica si pastrarea modificarilor nesalvate din afara selectiei. Backend rollback/protectii si Edge RO/EN trecute. Testele UI au dus la afisarea codului absentei in celula si la sincronizarea scenariilor cu selectia/salvarea/recalcularea; corectata si filtrarea TypeScript in afara formularului. | Codex | [Rezultate](rezultate-F07-T32.md) |
 | 2026-10-31 | F07-T32 inceput: alegere concediu/absenta din Completare Pontaj, inclusiv peste program existent. Refolosire formular si validari de absente; necesara conversie atomica pentru a nu sterge programul daca absenta este refuzata. | Codex | F07-T32 |
