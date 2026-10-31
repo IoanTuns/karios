@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.5 · 2026-10-31
+
+F16-T25: zoom global 75-200%, butoane minus/plus si resetare 100%, Ctrl+-/Ctrl++/Ctrl+0 si memorare locala. Dimensiunile dialogurilor se raporteaza la ecranul disponibil. Manual 1.16.
+
 ## 0.92.4 · 2026-10-31
 
 F07-T29: denumirea Departament devine Compartiment in interfata romana, ajutor, rapoarte si manual. Datele existente si cheile API raman compatibile. Rapoarte pontaj/detaliat/fisa v7, absente/garzi v5; manual 1.15.

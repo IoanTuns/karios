@@ -1593,5 +1593,9 @@
   "rapoarte.legenda_profil_configurat": "configured profile",
   "rapoarte.legenda_toate_profilele": "all profiles",
   "rapoarte.legenda_garda": "on-call",
-  "rapoarte.legenda_nu_garda": "not on-call"
+  "rapoarte.legenda_nu_garda": "not on-call",
+  "ui.zoom_interfata": "Interface zoom",
+  "ui.zoom_micsoreaza": "Zoom out (Ctrl+-)",
+  "ui.zoom_mareste": "Zoom in (Ctrl++)",
+  "ui.zoom_reseteaza": "Reset to 100% (Ctrl+0)"
 }

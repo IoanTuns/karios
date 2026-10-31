@@ -490,3 +490,7 @@ Raportul detaliat nu mai afiseaza coloana Ore norma. Eliminarea este numai de pr
 Subsolul PDF explica fiecare coloana vizibila, pe rand separat: semnificatie, sursa de calcul activa, coduri selectate, factor si filtrul de aprobare, unde sunt aplicabile. Zilele lunii au o explicatie comuna. Regulile conditionate sunt prezentate cu profilurile carora li se aplica. Legenda se repeta pe fiecare pagina; exportul Excel din Rapoarte o include sub tabel.
 
 O regula neconfigurata produce liniuta, nu zero. Legenda descrie configuratia executata, inclusiv limitarile existente: norma datorata, marcajul T, noua separare a orelor de garda si soldurile lunare nu sunt inca integrate in acest raport. Explicatiile nu confirma automat o regula de plata.
+
+## Zoom pentru intreaga interfata
+
+In antetul fiecarui ecran folositi minus pentru micsorare, plus pentru marire si butonul procentual pentru revenire la 100%. Sunt disponibile niveluri intre 75% si 200%; alegerea este pastrata local. Scurtaturi: Ctrl+- (micsorare), Ctrl++ (marire), Ctrl+0 (resetare), inclusiv in dialoguri. Zoomul global este independent de densitatea S/M/L din Pontaj si Planificare. PDF-urile si Excel-urile exportate isi pastreaza dimensiunile.

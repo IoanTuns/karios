@@ -10,6 +10,7 @@ Sistem integrat de diagnoză locală, captare robustă a erorilor pe frontend ș
 
 | ID | Task | Responsabil | Stare | Legături | Note |
 | --- | --- | --- | --- | --- | --- |
+| F16-T25 | Zoom global cu butoane minus/plus, resetare, tastatura si memorare locala | Codex | gata | [D065](../decizii/D065-zoom-interfata.md) | [Rezultate](../rezultate-F16-T25.md); proba operator pe monitorul propriu. |
 | F16-T01 | Backend diagnoză, rotire jurnale și profilare interogări | Antigravity | gata | D043 | `internal/diagnoza` |
 | F16-T02 | Frontend ErrorBoundary și captare globală a excepțiilor | Antigravity | gata | D043 | `ErrorBoundary.tsx` |
 | F16-T03 | Afișare metrici diagnoză și export jurnale în Setări | Antigravity | gata | D043 | `Formulare.tsx` |

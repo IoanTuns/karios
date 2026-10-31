@@ -1,3 +1,4 @@
+import {factorZoomInterfata} from './ZoomInterfata';
 import {useEffect, useLayoutEffect, useRef, useState, type FormEvent} from 'react';
 import {PlanAsistentAI} from './PlanAsistentAI';
 import {InstrumenteAsistentAI} from './InstrumenteAsistentAI';
@@ -115,7 +116,7 @@ export function AsistentAI({
         const dimensioneaza = () => {
             const parinte = panou.closest('main');
             const subsol = parinte ? parseFloat(getComputedStyle(parinte).paddingBottom) || 0 : 0;
-            const inaltime = Math.max(260, window.innerHeight - (panou.getBoundingClientRect().top + window.scrollY) - subsol - 12);
+            const inaltime = Math.max(260, (window.innerHeight - (panou.getBoundingClientRect().top + window.scrollY)) / factorZoomInterfata() - subsol - 12);
             panou.style.setProperty('--inaltime-asistent', `${inaltime}px`);
         };
         dimensioneaza();

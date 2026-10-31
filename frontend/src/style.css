@@ -73,7 +73,7 @@ button { cursor: pointer; }
 button:disabled { cursor: wait; opacity: .55; }
 button, input, select { transition: border-color .15s, background-color .15s; }
 :focus-visible { outline: 3px solid #61ab9c; outline-offset: 3px; }
-.aplicatie { display: flex; min-height: 100vh; }
+.aplicatie { display: flex; min-height: calc(100vh / var(--zoom-interfata, 1)); }
 .bara-laterala { width: 206px; flex-shrink: 0; position: fixed; inset: 0 auto 0 0; background: var(--suprafata); border-right: 1px solid var(--linie); padding: 30px 18px 22px; display: flex; flex-direction: column; }
 .marca-aplicatie { display: flex; gap: 11px; align-items: center; padding-left: 9px; }
 .marca-aplicatie strong { font-size: 25px; letter-spacing: -.9px; font-weight: 650; }
@@ -160,7 +160,7 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .mesaj { margin: 0 0 18px; border-radius: 7px; padding: 12px 15px; font-size: 12px; line-height: 1.6; }
 .eroare { background: var(--eroare-fond); color: var(--eroare-text); border: 1px solid var(--eroare-contur); }
 .succes { background: #eaf5ee; color: #276d4b; border: 1px solid #cce4d4; }
-.dialog { color: #243c3a; border: 1px solid #d8e3dc; padding: 0; border-radius: 13px; width: 570px; max-width: calc(100vw - 48px); max-height: calc(100vh - 48px); box-shadow: 0 24px 100px #103b2b33; }
+.dialog { color: #243c3a; border: 1px solid #d8e3dc; padding: 0; border-radius: 13px; width: 570px; max-width: calc(calc(100vw / var(--zoom-interfata, 1)) - 48px); max-height: calc(calc(100vh / var(--zoom-interfata, 1)) - 48px); box-shadow: 0 24px 100px #103b2b33; }
 .dialog::backdrop { background: #182f2966; backdrop-filter: blur(2px); }
 .antet-dialog { display: flex; justify-content: space-between; align-items: center; padding: 22px 25px; border-bottom: 1px solid var(--linie); }
 .antet-dialog h2 { margin: 0; }
@@ -208,7 +208,7 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .unelte-grila > input { width: 180px; }
 .indiciu-grila { font-size: 11px; color: var(--discret); line-height: 1.8; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
 .indiciu-grila > span { color: var(--verde); font-weight: 600; }
-.grila-container { max-width: 100%; max-height: calc(100vh - 350px); min-height: 260px; overflow: auto; border-radius: 7px; }
+.grila-container { max-width: 100%; max-height: calc(calc(100vh / var(--zoom-interfata, 1)) - 350px); min-height: 260px; overflow: auto; border-radius: 7px; }
 .grila-pontaj { width: max-content; table-layout: fixed; border-collapse: separate; border-spacing: 0; }
 .grila-pontaj th, .grila-pontaj td { padding: 0; border-right: 1px solid #d7ded9; border-bottom: 1px solid #d7ded9; min-width: 52px; width: 52px; text-align: center; }
 .grila-pontaj thead th { position: sticky; top: 0; height: 48px; z-index: 3; background: #f2f6f1; font-size: 11px; font-weight: 600; }
@@ -226,7 +226,7 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .grila-pontaj .celula-selectata { background: var(--grila-selectie); box-shadow: inset 0 0 0 1px var(--grila-selectie-contur); }
 .grila-pontaj .celula-modificata { background-image: linear-gradient(135deg, #c5983a 5px, transparent 5px); }
 .grila-pontaj .total-necalculat { min-width: 65px; width: 65px; max-width: 65px; padding: 5px; white-space: normal; background: var(--total-necalculat-fond); color: var(--total-necalculat-text); font-size: 10px; }
-.continut-pontaj { height: 100vh; display: flex; flex-direction: column; padding-bottom: 16px; }
+.continut-pontaj { height: calc(100vh / var(--zoom-interfata, 1)); display: flex; flex-direction: column; padding-bottom: 16px; }
 .continut-pontaj .antet { flex-shrink: 0; margin-bottom: 16px; }
 .continut-pontaj .fir-navigare { margin-bottom: 12px; }
 .pontaj-lunar { display: flex; flex-direction: column; min-height: 0; flex: 1; }
@@ -235,7 +235,7 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .pontaj-lunar .unelte-calendar { margin-bottom: 12px; }
 .pontaj-lunar .nota-calendar { margin-bottom: 12px; padding-block: 9px; font-size: 11px; }
 .pontaj-lunar .indiciu-grila { margin-block: 7px; }
-.pontaj-lunar .mesaj.succes { position: fixed; right: 24px; bottom: 16px; z-index: 5; max-width: min(420px, 70vw); margin: 0; box-shadow: 0 4px 20px #163f2514; }
+.pontaj-lunar .mesaj.succes { position: fixed; right: 24px; bottom: 16px; z-index: 5; max-width: min(420px, calc(70vw / var(--zoom-interfata, 1))); margin: 0; box-shadow: 0 4px 20px #163f2514; }
 .card-departamente, .card-backup { grid-column: 1 / -1; }
 .organizare-departamente { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
 .organizare-departamente form { margin-top: 0; }
@@ -259,7 +259,7 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .grila-pontaj input.celula-absenta { background: var(--absenta-fond); color: var(--absenta-text); font-weight: 700; cursor: default; }
 .eticheta-intrare { display: inline-block; background: var(--absenta-asteptare-fond); color: var(--absenta-asteptare-text); border-radius: 5px; padding: 4px 7px; font-weight: 600; }
 .bara-laterala nav { overflow-y: auto; min-height: 0; }
-.dialog:has(.formular-model-raport) { width: min(1000px, calc(100vw - 36px)); max-width: 1000px; }
+.dialog:has(.formular-model-raport) { width: min(1000px, calc(calc(100vw / var(--zoom-interfata, 1)) - 36px)); max-width: 1000px; }
 .componenta-raport { border: 1px solid var(--linie); border-radius: 7px; margin: 18px 0; padding: 14px; }
 .componenta-raport legend { color: var(--verde); padding: 0 7px; font-weight: 650; }
 .componenta-raport label, .zone-raport label { display: grid; gap: 6px; font-size: 12px; }
@@ -315,7 +315,7 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .sold-concediu.depasit, .avertisment-text { color: #8c271e; font-weight: 600; }
 .mesaj.avertisment { background: #fff2cf; color: #735014; border-color: #e6c875; }
 .grila-pontaj td.celula-inlocuitor { box-shadow: inset 0 -3px 0 #2d6699; }
-.dialog:has(.previzualizare-cerere-corp) { width: min(920px, calc(100vw - 36px)); max-width: 920px; }
+.dialog:has(.previzualizare-cerere-corp) { width: min(920px, calc(calc(100vw / var(--zoom-interfata, 1)) - 36px)); max-width: 920px; }
 .previzualizare-cerere-corp { display: flex; justify-content: center; align-items: center; min-height: 420px; background: #edf1ee; border-radius: 6px; padding: 12px; }
 .cadru-previzualizare-cerere { width: 100%; height: 620px; border: 1px solid var(--linie); border-radius: 5px; background: var(--suprafata); }
 .imagine-previzualizare-cerere { max-width: 100%; max-height: 620px; object-fit: contain; border-radius: 5px; background: var(--suprafata); }
@@ -371,7 +371,7 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .stare-plan-PUBLICATA { color: #22543a; background: #dcefe5; }
 .stare-plan-MODIFICATA { color: #735014; background: #fff2cf; }
 .stare-plan-ANULATA { color: #6b5050; background: #f7e9e7; }
-.dialog:has(.previzualizare-publicare) { width: min(1000px,calc(100vw - 36px)); max-width: 1000px; }
+.dialog:has(.previzualizare-publicare) { width: min(1000px,calc(calc(100vw / var(--zoom-interfata, 1)) - 36px)); max-width: 1000px; }
 
 /* F05-T19: grila ocupă spațiul principal; comenzile detaliate se deschid la cerere. */
 .continut-pontaj .antet { margin-bottom: 12px; }
@@ -385,7 +385,7 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .pontaj-lunar .unelte-grila > input { width: 205px; }
 .panou-activ { box-shadow: inset 0 -2px var(--verde); }
 .stare-modificari { margin-left: auto; color: var(--verde); font-size: 11px; font-weight: 600; }
-.panou-unelte { position: absolute; top: calc(100% + 5px); left: 0; width: min(620px, 100%); max-height: min(420px, 65vh); overflow: auto; z-index: 10; padding: 14px; display: flex; align-items: center; flex-wrap: wrap; gap: 10px; background: var(--suprafata); border: 1px solid #b9cdc2; border-radius: 7px; box-shadow: 0 10px 30px #163f2526; }
+.panou-unelte { position: absolute; top: calc(100% + 5px); left: 0; width: min(620px, 100%); max-height: min(420px, calc(65vh / var(--zoom-interfata, 1))); overflow: auto; z-index: 10; padding: 14px; display: flex; align-items: center; flex-wrap: wrap; gap: 10px; background: var(--suprafata); border: 1px solid #b9cdc2; border-radius: 7px; box-shadow: 0 10px 30px #163f2526; }
 .panou-unelte[hidden] { display: none; }
 .panou-unelte select { max-width: 100%; }
 .panou-unelte input { width: 170px; }
@@ -410,8 +410,8 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .dialog > form { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
 .dialog .corp-dialog { min-height: 0; overflow: auto; overscroll-behavior: contain; }
 .dialog .previzualizare-cerere-corp { min-height: 0; }
-.dialog .imagine-previzualizare-cerere { max-height: calc(100vh - 240px); }
-.dialog .cadru-previzualizare-cerere { height: min(620px, calc(100vh - 240px)); }
+.dialog .imagine-previzualizare-cerere { max-height: calc(calc(100vh / var(--zoom-interfata, 1)) - 240px); }
+.dialog .cadru-previzualizare-cerere { height: min(620px, calc(calc(100vh / var(--zoom-interfata, 1)) - 240px)); }
 .reguli-pontaj .unelte-calendar { position: sticky; top: 0; z-index: 5; padding: 10px; background: var(--suprafata-usoara); border: 1px solid var(--linie); border-radius: 7px; box-shadow: 0 3px 8px #163f2510; }
 @media (max-width: 1150px) {
     .continut-pontaj { padding-top: 16px; }
@@ -496,8 +496,8 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .badge-post-lipsa { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 4px; background: #fae4e2; color: #9c2720; font-size: 11px; font-weight: 700; border: 1px solid #f0beba; }
 
 /* Sumar Angajat */
-.dialog:has(.panou-sumar-angajat) { width: min(880px, calc(100vw - 36px)); max-width: 880px; }
-.dialog.dialog-maximizat { width: calc(100vw - 32px) !important; max-width: calc(100vw - 32px) !important; height: calc(100vh - 32px) !important; max-height: calc(100vh - 32px) !important; border-radius: 8px; }
+.dialog:has(.panou-sumar-angajat) { width: min(880px, calc(calc(100vw / var(--zoom-interfata, 1)) - 36px)); max-width: 880px; }
+.dialog.dialog-maximizat { width: calc(calc(100vw / var(--zoom-interfata, 1)) - 32px) !important; max-width: calc(calc(100vw / var(--zoom-interfata, 1)) - 32px) !important; height: calc(calc(100vh / var(--zoom-interfata, 1)) - 32px) !important; max-height: calc(calc(100vh / var(--zoom-interfata, 1)) - 32px) !important; border-radius: 8px; }
 .actiuni-antet-dialog { display: flex; align-items: center; gap: 8px; }
 .buton-marire { background: none; border: none; color: var(--discret); font-size: 15px; line-height: 1; padding: 4px 6px; cursor: pointer; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; }
 .buton-marire:hover:not(:disabled) { background: #eef2ef; color: var(--text); }
@@ -509,7 +509,7 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .statistica-sumar-item strong { display: block; font-size: 15px; color: var(--text); margin-top: 2px; }
 .caseta-avertismente-sumar { display: flex; flex-direction: column; gap: 6px; background: #fff9ea; border: 1px solid #ffd591; border-radius: 6px; padding: 10px 14px; font-size: 12px; color: #873800; flex-shrink: 0; }
 .caseta-avertismente-sumar ul { margin: 4px 0 0 16px; padding: 0; }
-.panou-sumar-angajat .tabel-derulant { max-height: min(480px, calc(100vh - 280px)); overflow-y: scroll; overflow-x: auto; border: 1px solid var(--linie); border-radius: 6px; scrollbar-gutter: stable; scrollbar-width: thin; scrollbar-color: #a8beb0 #f0f4f1; }
+.panou-sumar-angajat .tabel-derulant { max-height: min(480px, calc(calc(100vh / var(--zoom-interfata, 1)) - 280px)); overflow-y: scroll; overflow-x: auto; border: 1px solid var(--linie); border-radius: 6px; scrollbar-gutter: stable; scrollbar-width: thin; scrollbar-color: #a8beb0 #f0f4f1; }
 .dialog-maximizat .panou-sumar-angajat .tabel-derulant { max-height: none; flex: 1; }
 .tabel-sumar-angajat { width: 100%; min-width: 680px; border-collapse: collapse; }
 .tabel-sumar-angajat th, .tabel-sumar-angajat td { padding: 7px 10px; border-bottom: 1px solid var(--linie); font-size: 12px; vertical-align: middle; }
@@ -529,7 +529,7 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .card-despre .drepturi-autor { color: var(--discret); font-size: 12px; }
 
 /* Dialoguri de import */
-.fereastra-import { width: min(920px, calc(100vw - 36px)); max-height: calc(100vh - 40px); background: var(--suprafata); border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+.fereastra-import { width: min(920px, calc(calc(100vw / var(--zoom-interfata, 1)) - 36px)); max-height: calc(calc(100vh / var(--zoom-interfata, 1)) - 40px); background: var(--suprafata); border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
 .antet-import { display: flex; justify-content: space-between; align-items: flex-start; padding: 20px 24px 14px; border-bottom: 1px solid var(--linie); background: #fafcfa; }
 .antet-import h2 { margin: 0 0 4px; font-size: 19px; font-weight: 650; }
 .antet-import .descriere { margin: 0; font-size: 12px; color: var(--discret); }
@@ -556,7 +556,7 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .actiuni-calendar { display: flex; align-items: center; gap: 8px; }
 
 /* Asistent AI Local */
-.panou-asistent-ai { display: flex; flex-direction: column; gap: 8px; height: var(--inaltime-asistent, calc(100dvh - 200px)); min-height: 260px; }
+.panou-asistent-ai { display: flex; flex-direction: column; gap: 8px; height: var(--inaltime-asistent, calc(calc(100dvh / var(--zoom-interfata, 1)) - 200px)); min-height: 260px; }
 .panou-asistent-ai [hidden] { display: none !important; }
 .panou-asistent-ai > * { flex-shrink: 0; }
 .panou-asistent-ai > .zona-plan-ai, .panou-asistent-ai > .zona-conversatie-ai { flex: 1 1 0; min-height: 0; min-width: 0; }
@@ -748,7 +748,7 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 /* ==========================================================================
    Toast Notifications Unificate (F16-T07)
    ========================================================================== */
-.container-toasturi { position: fixed; right: 24px; bottom: 24px; z-index: 10000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; max-width: 420px; width: calc(100vw - 48px); }
+.container-toasturi { position: fixed; right: 24px; bottom: 24px; z-index: 10000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; max-width: 420px; width: calc(calc(100vw / var(--zoom-interfata, 1)) - 48px); }
 .toast-card { pointer-events: auto; display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; font-size: 13px; font-weight: 550; box-shadow: 0 10px 30px rgba(0,0,0,0.18); animation: toast-intrare 0.25s ease-out; border: 1px solid transparent; }
 @keyframes toast-intrare { from { opacity: 0; transform: translateY(14px) scale(0.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
 .toast-succes { background: #eaf5ee; color: #1e5e3d; border-color: #b8dec8; }
@@ -888,7 +888,7 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 [data-theme="dark"] .jurnal-diferente .vechi { color: #ff7875; }
 [data-theme="dark"] .jurnal-diferente .nou { color: #95de64; }
 .paginare-jurnal { display: flex; gap: 10px; align-items: center; justify-content: flex-end; margin-top: 10px; font-size: 12px; }
-.ecran-cont { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px 16px; background: var(--fundal); }
+.ecran-cont { min-height: calc(100vh / var(--zoom-interfata, 1)); display: flex; align-items: center; justify-content: center; padding: 24px 16px; background: var(--fundal); }
 .card-cont { width: 100%; max-width: 460px; display: flex; flex-direction: column; gap: 12px; background: var(--suprafata); border: 1px solid #d9e0da; border-radius: 10px; padding: 28px; }
 .card-cont h1 { margin: 0; font-size: 20px; }
 .card-cont label, .formular-cont label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; }
@@ -989,7 +989,7 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .panou-eroare-componenta > p { margin: 0 0 14px; font-size: 13px; color: var(--eroare-text-2); }
 .panou-eroare-componenta .detalii-eroare { background: var(--eroare-cod-fond); border: 1px solid var(--eroare-contur); padding: 10px 14px; border-radius: 6px; font-family: monospace; font-size: 12px; margin-bottom: 16px; overflow-x: auto; white-space: pre-wrap; }
 /* F02-T21: ajutor local, accesibil in ambele teme. */
-.ajutor-antet{order:2;flex-shrink:0}.dialog-ajutor{width:min(920px,96vw);max-height:94dvh}.ajutor-corp{overflow:auto}.ajutor-filtre{display:flex;gap:16px;align-items:end;flex-wrap:wrap}.ajutor-filtre>label:first-child{flex:1;min-width:180px}.ajutor-coloane{display:grid;grid-template-columns:minmax(180px,1fr) minmax(0,2fr);gap:20px;margin-top:18px}.ajutor-lista{display:flex;flex-direction:column;gap:8px;max-height:50dvh;overflow:auto}.ajutor-lista .buton{white-space:normal;text-align:left;min-height:44px}.ajutor-lista [aria-pressed="true"]{outline:2px solid var(--verde);outline-offset:-2px}.ajutor-articol{overflow-wrap:anywhere}.ajutor-articol h3{margin-top:0}.ajutor-articol li{margin:10px 0}.ajutor-actiuni{display:flex;flex-wrap:wrap;gap:10px}.ajutor-acces{position:fixed;top:14px;right:14px;z-index:5}@media(max-width:650px){.ajutor-coloane{grid-template-columns:1fr}.ajutor-lista{max-height:22dvh}}
+.ajutor-antet{order:2;flex-shrink:0}.dialog-ajutor{width:min(920px,calc(96vw / var(--zoom-interfata, 1)));max-height:calc(94dvh / var(--zoom-interfata, 1))}.ajutor-corp{overflow:auto}.ajutor-filtre{display:flex;gap:16px;align-items:end;flex-wrap:wrap}.ajutor-filtre>label:first-child{flex:1;min-width:180px}.ajutor-coloane{display:grid;grid-template-columns:minmax(180px,1fr) minmax(0,2fr);gap:20px;margin-top:18px}.ajutor-lista{display:flex;flex-direction:column;gap:8px;max-height:calc(50dvh / var(--zoom-interfata, 1));overflow:auto}.ajutor-lista .buton{white-space:normal;text-align:left;min-height:44px}.ajutor-lista [aria-pressed="true"]{outline:2px solid var(--verde);outline-offset:-2px}.ajutor-articol{overflow-wrap:anywhere}.ajutor-articol h3{margin-top:0}.ajutor-articol li{margin:10px 0}.ajutor-actiuni{display:flex;flex-wrap:wrap;gap:10px}.ajutor-acces{position:fixed;top:14px;right:14px;z-index:5}@media(max-width:650px){.ajutor-coloane{grid-template-columns:1fr}.ajutor-lista{max-height:calc(22dvh / var(--zoom-interfata, 1))}}
 /* F16-T17: Meniu contextual la clic dreapta pe celula din grilă */
 .meniu-contextual-grila {
     position: fixed;
@@ -1176,7 +1176,7 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 }
 .drawer-asistent-pontaj {
     width: 420px;
-    max-width: 45vw;
+    max-width: calc(45vw / var(--zoom-interfata, 1));
     background: var(--panou);
     border: 1px solid var(--linie);
     border-radius: 10px;
@@ -1237,7 +1237,7 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
     max-width: 100%;
 }
 .continut-drawer-ai .zona-istoric-ai {
-    max-height: 52vh;
+    max-height: calc(52vh / var(--zoom-interfata, 1));
 }
 .buton-drawer-ai {
     font-weight: 600;
@@ -1253,9 +1253,9 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .ajutor-actiuni{position:sticky;bottom:0;background:var(--panou);padding:12px 0;z-index:1}
 .drawer-asistent-pontaj .card-lipsa-fisiere-ai{padding:10px}
 .drawer-asistent-pontaj .panou-motor-ai{padding:10px}
-@media(max-width:1200px){.drawer-asistent-pontaj{position:fixed;right:12px;top:12px;bottom:12px;width:min(480px,calc(100vw - 24px));max-width:calc(100vw - 24px);z-index:1000}.continut-drawer-ai{min-height:0;overflow:auto}.drawer-asistent-pontaj .formular-intrare-ai{flex-wrap:wrap}.drawer-asistent-pontaj .formular-intrare-ai input{min-width:0}}
+@media(max-width:1200px){.drawer-asistent-pontaj{position:fixed;right:12px;top:12px;bottom:12px;width:min(480px,calc(calc(100vw / var(--zoom-interfata, 1)) - 24px));max-width:calc(calc(100vw / var(--zoom-interfata, 1)) - 24px);z-index:1000}.continut-drawer-ai{min-height:0;overflow:auto}.drawer-asistent-pontaj .formular-intrare-ai{flex-wrap:wrap}.drawer-asistent-pontaj .formular-intrare-ai input{min-width:0}}
 /* Raportează o problemă (F16-T15). */
-.formular-raportare { display: flex; flex-direction: column; gap: 12px; min-width: min(560px, 80vw); }
+.formular-raportare { display: flex; flex-direction: column; gap: 12px; min-width: min(560px, calc(80vw / var(--zoom-interfata, 1))); }
 .formular-raportare label:not(.bifa) { display: flex; flex-direction: column; gap: 4px; font-size: 12px; }
 .formular-raportare textarea { width: 100%; resize: vertical; font: inherit; }
 .formular-raportare .text-raport { font-family: Consolas, monospace; font-size: 12px; }
@@ -1271,3 +1271,15 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .filtre-profesionale{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin:10px 0}.filtre-profesionale label{display:flex;flex-direction:column;gap:4px;font-size:12px}.filtre-profesionale select{max-width:220px;min-height:34px}
 
 fieldset.filtre-profesionale{border:0;padding:0;min-width:0}
+
+/* F16-T25: zoom global, inclusiv dialoguri, cu limite raportate la ecran. */
+:root { zoom: var(--zoom-interfata, 1); }
+.zoom-interfata { display: flex; gap: 4px; align-items: center; flex-shrink: 0; order: 2; flex-wrap: nowrap; }
+.zoom-interfata .buton { min-width: 34px; padding: 6px 9px; }
+@media print { :root { --zoom-interfata: 1 !important; } .zoom-interfata { display: none; } }
+
+.antet { flex-wrap: wrap; }
+
+.bara-laterala { overflow-y: auto; }
+.bara-laterala nav { flex-shrink: 0; }
+.actiuni-antet { flex-wrap: wrap; }

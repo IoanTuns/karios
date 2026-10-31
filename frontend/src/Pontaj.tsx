@@ -1,3 +1,4 @@
+import {factorZoomInterfata} from './ZoomInterfata';
 import {FiltreProfesionale,filtruProfesionalGol,corespundeProfesional} from './FiltreProfesionale';
 import {memo, useEffect, useLayoutEffect, useMemo, useRef, useState, type ClipboardEvent, type KeyboardEvent, type MouseEvent, type RefObject} from 'react';
 import {useTranslation} from 'react-i18next';
@@ -324,8 +325,8 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
             if (!inSel) {
                 setSelectie({inceput: {rand: r, zi: z}, sfarsit: {rand: r, zi: z}});
             }
-            const x = Math.min(e.clientX, window.innerWidth - 240);
-            const y = Math.min(e.clientY, window.innerHeight - 340);
+            const x = Math.max(0, Math.min(e.clientX / factorZoomInterfata(), window.innerWidth / factorZoomInterfata() - 240));
+            const y = Math.max(0, Math.min(e.clientY / factorZoomInterfata(), window.innerHeight / factorZoomInterfata() - 340));
             setMeniuCtx({x, y, rand: r, zi: z});
         },
     };
@@ -530,7 +531,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
             origineMeniu.current = e.currentTarget;
             const rect = e.currentTarget.getBoundingClientRect();
             setSelectie({inceput: {rand:r, zi:z}, sfarsit: {rand:r, zi:z}});
-            setMeniuCtx({x:Math.max(0, Math.min(rect.left, innerWidth - 280)), y:Math.max(0, Math.min(rect.bottom, innerHeight - 340)), rand:r, zi:z});
+            setMeniuCtx({x:Math.max(0, Math.min(rect.left / factorZoomInterfata(), innerWidth / factorZoomInterfata() - 280)), y:Math.max(0, Math.min(rect.bottom / factorZoomInterfata(), innerHeight / factorZoomInterfata() - 340)), rand:r, zi:z});
             return;
         }
         if ((e.ctrlKey || e.metaKey) && !e.altKey && e.key.toLowerCase() === 'z') { e.preventDefault(); if (e.shiftKey) refaPas(); else anuleazaPas(); return; }

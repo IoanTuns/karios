@@ -3,6 +3,32 @@ import assert from 'node:assert/strict';
 export async function verificaFocus({cdp,evalueaza,asteapta,apasa,cataloage,limba,captura}) {
  const t=k=>cataloage[limba][k];
  await asteapta(()=>evalueaza("Boolean(document.querySelector('.actiuni-antet'))"),'Antet lipsa');
+ // F16-T25: butoane globale, limite, tastatura si memorare.
+ await asteapta(()=>evalueaza("Boolean(document.querySelector('.zoom-interfata'))"),'Zoom global lipsa');
+ for (let i=0;i<12;i++) await evalueaza("document.querySelector('.zoom-interfata button:last-child').click()");
+ await asteapta(()=>evalueaza("document.querySelector('.zoom-interfata').textContent.includes('200%')"),'Limita maxima zoom');
+ assert(await evalueaza("document.querySelector('.zoom-interfata button:last-child').disabled"));
+ assert.equal(await evalueaza("getComputedStyle(document.documentElement).zoom"),'2');
+ await cdp('Emulation.setDeviceMetricsOverride',{width:1024,height:768,deviceScaleFactor:1,mobile:false});
+ await evalueaza("document.querySelector('.zoom-interfata').scrollIntoView({block:'nearest'})");
+ assert(await evalueaza("(()=>{const r=document.querySelector('.zoom-interfata').getBoundingClientRect();return r.left>=0 && r.right<=innerWidth})()"),'Controalele globale ies din ecran la 200%');
+ await apasa(t('ui.adauga_angajat'));
+ await asteapta(()=>evalueaza("Boolean(document.querySelector('dialog[open]'))"),'Dialog la 200% lipsa');
+ assert(await evalueaza("(()=>{const r=document.querySelector('dialog[open]').getBoundingClientRect();return r.left>=0&&r.right<=innerWidth+1&&r.top>=0&&r.bottom<=innerHeight+1})()"),'Dialogul depaseste ecranul la zoom 200%');
+ await captura('zoom-global-dialog-200-'+limba+'.png');
+ await cdp('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});
+ await asteapta(()=>evalueaza("!document.querySelector('dialog[open]')"),'Dialog la 200% ramas deschis');
+ await captura('zoom-global-200-'+limba+'.png');
+ await cdp('Emulation.setDeviceMetricsOverride',{width:1440,height:960,deviceScaleFactor:1,mobile:false});
+
+ for (let i=0;i<12;i++) await evalueaza("document.querySelector('.zoom-interfata button:first-child').click()");
+ await asteapta(()=>evalueaza("document.querySelector('.zoom-interfata').textContent.includes('75%')"),'Limita minima zoom');
+ assert(await evalueaza("document.querySelector('.zoom-interfata button:first-child').disabled"));
+ await cdp('Input.dispatchKeyEvent',{type:'keyDown',key:'0',code:'Digit0',modifiers:2,windowsVirtualKeyCode:48});
+ await asteapta(()=>evalueaza("document.querySelector('.zoom-interfata').textContent.includes('100%')"),'Resetare tastatura zoom');
+ await cdp('Input.dispatchKeyEvent',{type:'keyDown',key:'+',code:'Equal',modifiers:2,windowsVirtualKeyCode:187});
+ await asteapta(()=>evalueaza("localStorage.getItem('pontix_zoom_interfata')==='110'"),'Preferinta zoom nesalvata');
+ await evalueaza("document.querySelector('.zoom-interfata button:nth-child(2)').click()");
  await apasa(t('ui.adauga_angajat'));
  await asteapta(()=>evalueaza("Boolean(document.querySelector('dialog[open] input'))"),'Formular lipsa');
  assert(await evalueaza("Boolean(document.querySelector('dialog .buton-marire'))"),'Butonul de marire lipseste.');

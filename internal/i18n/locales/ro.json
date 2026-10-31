@@ -1593,5 +1593,9 @@
   "rapoarte.legenda_profil_configurat": "profil configurat",
   "rapoarte.legenda_toate_profilele": "toate profilurile",
   "rapoarte.legenda_garda": "garda",
-  "rapoarte.legenda_nu_garda": "fara garda"
+  "rapoarte.legenda_nu_garda": "fara garda",
+  "ui.zoom_interfata": "Zoom interfata",
+  "ui.zoom_micsoreaza": "Micsoreaza interfata (Ctrl+-)",
+  "ui.zoom_mareste": "Mareste interfata (Ctrl++)",
+  "ui.zoom_reseteaza": "Revino la 100% (Ctrl+0)"
 }

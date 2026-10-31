@@ -1,3 +1,4 @@
+import {ZoomInterfata} from './ZoomInterfata';
 import {FiltreProfesionale,filtruProfesionalGol,corespundeProfesional} from './FiltreProfesionale';
 import {PanouAjutor} from './Ajutor';
 import {lazy, Suspense, useEffect, useRef, useState} from 'react';
@@ -252,6 +253,7 @@ function App() {
         </aside>
         <main className={`continut ${ecran === 'pontaj' ? 'continut-pontaj' : ''} ${esteInSetari ? 'continut-setari' : ''}`}>
             <header className="antet">
+                <ZoomInterfata/>
                 <button type="button" className="buton secundar ajutor-antet" onClick={() => setAjutor({ecran})}>{t('ajutor.buton')}</button>
                 <div><p className="fir-navigare">{t('ui.date_baza')} <span aria-hidden="true">/</span> {esteInSetari && ecran !== 'setari' ? <>{t('ui.setari')} <span aria-hidden="true">/</span> </> : null}{t(`ui.${ecran}`)}</p>
                     <h1>{t(`ui.${ecran}`)}</h1><p className="descriere">{t(`ui.${ecran}_descriere`)}</p></div>
