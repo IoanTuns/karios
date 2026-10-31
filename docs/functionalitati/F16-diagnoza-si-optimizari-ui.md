@@ -38,3 +38,7 @@ Sistem integrat de diagnoză locală, captare robustă a erorilor pe frontend ș
 | F16-T23 | Corectarea focusului/cursorului din formulare si verificarea controalelor zoom | Codex | gata | Formulare.tsx; verificari UI | Reproducere tastare reala si modificare in mijlocul textului, controale vizibile la rezolutii mici si mari. Cerere suplimentara: importul zilelor anuale de concediu; antetul oficial nu era recunoscut, nici Norma_Ore_Zi. Probe CSV/XLSX si previzualizare cu concediu. |
 
 Predare F16-T23: cod 6f046a2, build complet 0.89.4 in build/bin/pontix-0.89.4-20261031-103113-d2f322809c2845d185e2bd69d4b8abb0, manual 1.7 si ZIP verificate. Pas urmator: proba operator si review PR daca se solicita. Fara push.
+
+| F16-T24 | Dimensiunea initiala a ferestrei adaptata ecranului si DPI | gata | Codex | Limite dinamice dupa zona de lucru Windows, fara acoperirea barei de activitati. |
+
+F16-T24: [rezultate si limite](../rezultate-F16-T24.md). Pas urmator: build oficial si proba utilizator la rezolutia/scalarea sa.

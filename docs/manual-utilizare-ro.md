@@ -446,3 +446,7 @@ Dezactivarea nu sterge datele sau asocierile curente, dar impiedica noi asocieri
 4. Generati Pontaj detaliat cu totaluri. Marca principala si marca de garda apar pe randuri separate, grupate. Selectarea unei persoane include si marcile asociate, cu respectarea filtrelor de sectie/departament.
 
 Planificarea GARZI activa completeaza numai intrarile lipsa din Pontaj. O inregistrare Pontaj existenta (inclusiv goala) si absentele au prioritate; publicarea nu dubleaza orele. Raportul nu modifica Pontajul. Orele si trecerea intre zile folosesc configuratia de calcul existenta; nu se deduc sporuri sau procente. Legatura marcilor este curenta, nu istoric contractual.
+
+## Fereastra la pornire
+
+Dimensiunea initiala se adapteaza zonei de lucru a monitorului principal si scalarii Windows. Pe ecrane mici se reduce si limita minima, astfel incat fereastra sa poata incapea. Puteti redimensiona sau maximiza manual. Adaptarea se recalculeaza la fiecare pornire.

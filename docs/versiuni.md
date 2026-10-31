@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.91.1 ? 2026-10-31
+
+F16-T24: dimensiuni initiale si minime adaptate zonei utile Windows si scalarii DPI; maxim initial 1280x800. Fara modificari de baza sau rapoarte. Manual 1.10.
+
 ## 0.91.0 ? 2026-10-31
 
 F09-T11: marca de garda legata explicit de angajatul principal; pontaj detaliat v4 cu randuri distincte si planificare GARZI ca sursa pentru zilele lipsa din Pontaj. Migrare 0025. Manual 1.9.
