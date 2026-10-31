@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.2 ? 2026-10-31
+
+F07-T27: motor de baza pentru norma datorata a contractelor zilnice: calendar lucrator minus CO/CEV/CFS/CM aprobate, fara dubla scadere si fara libere compensatorii presupuse. Calcul pur si teste, inca neconectat coloanelor de raport; T si soldurile asteapta clarificari.
+
 ## 0.92.1 ? 2026-10-31
 
 F07-T25: salvarea neutra a marcii de garda pastreaza functia mostenita, inclusiv dezactivata, fara asociere proprie accidentala. Test dedicat. Manual 1.12.

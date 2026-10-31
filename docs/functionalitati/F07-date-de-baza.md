@@ -10,6 +10,8 @@ Utilizatorul poate gestiona angajații și listele de care depinde pontajul.
 
 | ID | Task | Stare | Responsabil | Note |
 | --- | --- | --- | --- | --- |
+| F07-T28 | Clasificare explicita absente remunerate/neplatite si coloane CEV/CFS/FP/CM/Deleg/Ore nem | in lucru | Codex | Confirmate zilele programate, numai absente aprobate si introducere explicita ore/minute nemotivate. Mai necesita confirmarea sursei programului (ture/normal). Definitii si optiuni lipsa la F01. |
+| F07-T27 | Norma lunara datorata, T ture si solduri L FIN/L Inceput | in lucru | Codex | Norma contractuala, T=ture, L FIN=efectiv-minus-norma, report luna urmatoare in L Inceput dupa Marca. Clarificari privind valoarea T, solduri negative si absente. Fara schimbarea formulelor pana la raspuns. |
 | F07-T25 | Grupuri profesionale, pozitii, contracte configurabile, filtre si reguli conditionate | gata | Codex | Cerinte si etape in plan-F07-T25.md; pastrare date, fara formule monetare presupuse. |
 | F07-T26 | Baza valorica in lei si conversia ZNL in timp liber acordat | blocat | Codex | Lipsesc baza de calcul a orei si formula de conversie/acordare. Intrebari la F01. Nu este blocata configurarea si echivalarea in ore confirmata pentru F07-T25. |
 | F07-T21 | Sincronizare atomică Pontaj → Planificare pentru programele speciale | gata | Codex | Versiunea 0.88.9, salvare manuală și reparare explicită a celulelor speciale deja salvate. Testele Go complete, vet, 13 teste frontend și build Windows trecute. Integrarea în main autorizată explicit de utilizator la 30 octombrie; fără push. D051 rămâne propusă. Pas următor: probă vizuală cu operatorul și actualizarea manualului pentru noua versiune. |
@@ -64,3 +66,7 @@ F07-T24: verificari finale gofmt/vet/suita Go, 18 teste frontend, UI nomenclatoa
 
 
 Predare F07-T25: [rezultate si limite](../rezultate-F07-T25.md), toate verificarile automate trecute. Build oficial dupa commit, apoi proba operator si review. F07-T26 ramane blocat pentru formulele neprecizate.
+
+F07-T27: calculul pur al normei zilnice pe calendar L-V implementat si testat (fara dubla scadere, numai CO/CEV/CFS/CM aprobate, fara libere compensatorii presupuse). Integrarea in raport si restul rubricilor raman in lucru, pana la clarificarile T/solduri si zile programate pentru ture.
+
+Predare calcul F07-T27: gofmt/vet/suita Go completa si testele manualului trecute. Codul de baza este documentat in D063; nu s-a generat un executabil nou si nu s-a schimbat raportul. Pas urmator: clasificarea configurabila a absentelor (F07-T28), apoi conectarea normei si soldurilor dupa clarificarea T si a zilelor programate pentru ture.

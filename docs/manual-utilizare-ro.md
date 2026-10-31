@@ -476,3 +476,9 @@ Regulile si incadrarile sunt curente. Modificarea lor poate schimba regenerarea 
 In Rapoarte generati mai intai previzualizarea, apoi exportati PDF sau Excel. Excel-ul foloseste exact documentul previzualizat, cu aceleasi filtre, grupuri si randuri. Exportul clasic din grila Pontaj ramane registrul lunar complet.
 
 Din 0.92.1, salvarea unei marci de garda care foloseste functia principala pastreaza mostenirea. O functie principala dezactivata nu impiedica editarea celorlalte date ale marcii de garda. Atribuirea unei functii proprii diferite ramane explicita.
+
+## Precizari pentru norma datorata (implementare in curs)
+
+CO, CEV, CFS si CM aprobate sunt reducerile confirmate ale normei. Formarea profesionala si delegatia nu sunt in aceasta lista. Zilele libere compensatorii nu sunt scazute automat, deoarece regula lor nu este stabilita.
+
+Motorul de baza pentru contracte cu norma zilnica si calendar luni-vineri exclude zilele libere calendaristice si concediile aprobate fara scadere dubla. Norma zilnica absenta ramane nedefinita, distincta de o norma calculata de zero ore. Acest calcul nu este inca legat de coloanele raportului: semnificatia finala a T si a soldurilor L FIN/L Inceput, respectiv identificarea zilelor programate pentru ture sunt in clarificare. Raportul existent nu trebuie considerat modificat doar pe baza acestei precizari.
