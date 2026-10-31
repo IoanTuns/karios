@@ -33,6 +33,7 @@ export function Absente({date, filtruInitial, cerereConcediu, onCerereDeschisa}:
     const [categorie, setCategorie] = useState('');
     const [filtruAprobare, setFiltruAprobare] = useState('');
     const [cautareAbsente, setCautareAbsente] = useState('');
+    const [arataAnulate,setArataAnulate]=useState(false);
     const [sectiuneActiva, setSectiuneActiva] = useState<'toate' | 'gantt' | 'zile' | 'sumar' | 'tipuri'>('toate');
     const [incarcare, setIncarcare] = useState(true);
     const [ocupat, setOcupat] = useState(false);
@@ -131,7 +132,8 @@ export function Absente({date, filtruInitial, cerereConcediu, onCerereDeschisa}:
     const tipPentru = (cod: string) => tipuri.find(tip => tip.cod === cod);
     const persoane = date.angajati.filter(a => !angajat || a.id === angajat);
     const textCautat = normalizat(cautareAbsente.trim());
-    const vizibile = zile.filter(z => {
+    const vizibile = (dateAbsente?.zile??[]).filter(z => {
+        if(!z.activ&&!arataAnulate)return false;
         if (angajat && z.angajat_id !== angajat) return false;
         const tip = tipPentru(z.cod);
         if (categorie && tip?.categorie !== categorie) return false;
@@ -147,8 +149,8 @@ export function Absente({date, filtruInitial, cerereConcediu, onCerereDeschisa}:
     const alese = vizibile.filter(z => selectate.has(cheieZi(z)));
     function schimbaFiltru(actiune: () => void) { actiune(); setSelectate(new Set()); }
     function anuleaza(lista: datebaza.ZiAbsenta[]) {
-        if (!lista.length || !window.confirm(t('absente.confirma_anulare', {numar: lista.length}))) return;
-        executa(() => SalveazaAbsente(lista.map(z => new datebaza.ZiAbsenta({...z, activ: false})), an));
+        if (!lista.filter(z=>z.activ).length || !window.confirm(t('absente.confirma_anulare', {numar: lista.length}))) return;
+        executa(() => SalveazaAbsente(lista.filter(z=>z.activ).map(z => new datebaza.ZiAbsenta({...z, activ: false})), an));
     }
 
     return <section className="modul-absente">
@@ -190,10 +192,10 @@ export function Absente({date, filtruInitial, cerereConcediu, onCerereDeschisa}:
             {(sectiuneActiva === 'toate' || sectiuneActiva === 'zile') && <>
             <h2>{t('absente.evidenta')}</h2>
             <div className="unelte-calendar">
-                <p className="nota-calendar">{t('absente.zile_inregistrate', {numar:vizibile.length})}</p>
+                <p className="nota-calendar">{t('absente.zile_inregistrate', {numar:vizibile.length})}</p><label className="bifa"><input name="arata_anulate" type="checkbox" checked={arataAnulate} onChange={e=>{setArataAnulate(e.target.checked);setSelectate(new Set());}}/>{t('absente.arata_anulate')}</label>
                 <div className="actiuni-calendar">
                     <button className="buton secundar" disabled={ocupat || !alese.length} onClick={() => { setEroare(''); setZiEditata(undefined); setLotEditat(alese); }}>{t('absente.editeaza_selectate', {numar:alese.length})}</button>
-                    <button className="buton secundar" disabled={ocupat || !alese.length} onClick={() => anuleaza(alese)}>{t('absente.anuleaza_selectate', {numar:alese.length})}</button>
+                    <button className="buton secundar" disabled={ocupat || !alese.some(z=>z.activ)} onClick={() => anuleaza(alese)}>{t('absente.anuleaza_selectate', {numar:alese.length})}</button>
                 </div>
             </div>
             <div className="panou tabel-derulant"><table className="tabel-absente"><thead><tr><th><input type="checkbox" aria-label={t('absente.selecteaza_toate')} disabled={ocupat || !vizibile.length} checked={vizibile.length > 0 && alese.length === vizibile.length} onChange={e => setSelectate(new Set(e.target.checked ? vizibile.map(cheieZi) : []))}/></th>{['ui.angajat','absente.data','absente.tip','absente.categorie','absente.nr_inregistrare','absente.inlocuitor','absente.aprobare','absente.cerere_atasata','ui.actiuni'].map(c => <th key={c}>{t(c)}</th>)}</tr></thead><tbody>
@@ -210,20 +212,20 @@ export function Absente({date, filtruInitial, cerereConcediu, onCerereDeschisa}:
                     return <tr key={k}>
                         <td><input type="checkbox" aria-label={t('absente.selecteaza_zi', {data:z.data, nume:`${numeAngajat(a)}`})} disabled={ocupat} checked={selectate.has(k)} onChange={e => setSelectate(vechi => { const noi = new Set(vechi); if (e.target.checked) noi.add(k); else noi.delete(k); return noi; })}/></td>
                         <td>{numeAngajat(a)}<small className="text-discret"> · {a?.marca}</small></td>
-                        <td>{z.data}</td>
+                        <td>{z.data}{!z.activ&&<small className="zi-urmatoare">{t('ui.inactiv')}</small>}</td>
                         <td><strong>{z.cod}</strong> · {tip ? numeTip(tip, i18n.language) : z.cod}</td>
                         <td>{tip && t(`absente.${tip.categorie}`)}</td>
                         <td>{z.nr_inregistrare || '—'}</td>
                         <td>{inlocuitor ? <>{numeAngajat(inlocuitor)}<small className="text-discret"> · {inlocuitor.marca}</small>{dublaInlocuire && <small className="zi-urmatoare avertisment-text">{t('absente.dubla_inlocuire_eticheta')}</small>}</> : '—'}</td>
                         <td><span className={`eticheta-aprobare aprobare-${stare}`}>{t(`absente.aprobare_${stare}`)}</span>{z.aprobat_de && <small className="zi-urmatoare">{z.aprobat_de}</small>}</td>
                         <td>{z.document_id ? <div className="actiuni-rand"><a href="#previzualizare" className="legatura" aria-label={t('absente.previzualizeaza_cerere', {nume: z.document_nume || z.data})} onClick={e => { e.preventDefault(); previzualizeazaDocument(z.document_id); }}>{z.document_nume}</a><a href="#cerere" className="legatura discreta" aria-label={t('absente.descarca_cerere', {nume: z.document_nume || z.data})} onClick={e => { e.preventDefault(); descarcaDocument(z.document_id); }}>{t('absente.descarca_scurt')}</a></div> : <span className="text-discret">{t('absente.fara_atasament')}</span>}</td>
-                        <td><div className="actiuni-rand"><button className="legatura" disabled={ocupat} onClick={() => { setEroare(''); setLotEditat(null); setZiEditata(z); }}>{t('ui.editeaza')}</button><button className="legatura discreta" disabled={ocupat} onClick={() => anuleaza([z])}>{t('absente.anuleaza')}</button>{zileCerere.length > 1 && <button type="button" className="legatura discreta buton-selecteaza-cererea" disabled={ocupat} onClick={() => setSelectate(new Set(zileCerere.map(cheieZi)))}>{t('absente.selecteaza_cererea')}</button>}</div></td>
+                        <td><div className="actiuni-rand"><button className="legatura" disabled={ocupat} onClick={() => { setEroare(''); setLotEditat(null); setZiEditata(z); }}>{t('ui.editeaza')}</button>{z.activ?<button className="legatura discreta" disabled={ocupat} onClick={() => anuleaza([z])}>{t('absente.sterge_zi')}</button>:<button className="legatura discreta" disabled={ocupat} onClick={()=>executa(()=>SalveazaAbsente([new datebaza.ZiAbsenta({...z,activ:true})],an))}>{t('ui.reactiveaza')}</button>}{zileCerere.length > 1 && <button type="button" className="legatura discreta buton-selecteaza-cererea" disabled={ocupat} onClick={() => setSelectate(new Set(zileCerere.map(cheieZi)))}>{t('absente.selecteaza_cererea')}</button>}</div></td>
                     </tr>;
                 })}
             </tbody></table>{!vizibile.length && <p className="fara-rezultate">{t('absente.gol')}</p>}</div>
             </>}
             {(sectiuneActiva === 'toate' || sectiuneActiva === 'tipuri') && <>
-            <h2>{t('absente.tipuri')}</h2><p className="nota-calendar">{t('absente.tipuri_indiciu')}</p><div className="panou tabel-derulant"><table className="tabel-tipuri-absenta"><thead><tr>{['schimburi.cod','schimburi.denumire','absente.categorie','ui.stare','ui.actiuni'].map(c => <th key={c}>{t(c)}</th>)}</tr></thead><tbody>{tipuri.map(tip => <tr key={tip.cod}><td><strong>{tip.cod}</strong></td><td>{numeTip(tip, i18n.language)}</td><td>{t(`absente.${tip.categorie}`)}</td><td>{t(tip.activ ? 'ui.activ' : 'ui.inactiv')}</td><td><button className="legatura" disabled={ocupat} onClick={() => { setEroare(''); setTipEditat(tip); }}>{t('ui.editeaza')}</button></td></tr>)}</tbody></table></div>
+            <h2>{t('absente.tipuri')}</h2><p className="nota-calendar">{t('absente.tipuri_indiciu')}</p><div className="panou tabel-derulant"><table className="tabel-tipuri-absenta"><thead><tr>{['schimburi.cod','schimburi.denumire','absente.categorie','ui.stare','ui.actiuni'].map(c => <th key={c}>{t(c)}</th>)}</tr></thead><tbody>{tipuri.map(tip => <tr key={tip.cod}><td><strong>{tip.cod}</strong></td><td>{numeTip(tip, i18n.language)}</td><td>{t(`absente.${tip.categorie}`)}</td><td>{t(tip.activ ? 'ui.activ' : 'ui.inactiv')}</td><td><button className="legatura" disabled={ocupat} onClick={() => { setEroare(''); setTipEditat(tip); }}>{t('ui.editeaza')}</button><button className="legatura discreta" disabled={ocupat} onClick={()=>executa(()=>SalveazaTipAbsenta(tip.cod,new datebaza.TipAbsenta({...tip,activ:!tip.activ}),an))}>{t(tip.activ?'ui.dezactiveaza':'ui.reactiveaza')}</button></td></tr>)}</tbody></table></div>
             </>}
         </>}
         {tipEditat && <FormularTip key={tipEditat.cod || 'nou'} tip={tipEditat} ocupat={ocupat} eroare={eroare} inchide={() => { setTipEditat(null); setEroare(''); }} salveaza={tip => executa(() => SalveazaTipAbsenta(tipEditat.cod, tip, an))}/>}
@@ -278,6 +280,7 @@ export function FormularAbsente({dinPontaj = false, zi, lot, date, absente, anga
     const acelasiAngajatLot = !lot || new Set(lot.map(z => z.angajat_id)).size === 1;
     const azi = new Date(), dataImplicita = absente.an === azi.getFullYear() ? `${absente.an}-${String(azi.getMonth()+1).padStart(2,'0')}-${String(azi.getDate()).padStart(2,'0')}` : `${String(absente.an).padStart(4,'0')}-01-01`;
     const initial = {
+        activ:sursa?.activ??true,
         angajat: sursa?.angajat_id || precompletare?.angajatId || angajatImplicit,
         cod: sursa?.cod || (precompletare && absente.tipuri.some(tip => tip.activ && tip.cod === precompletare.cod) ? precompletare.cod : '') || absente.tipuri.find(tip => tip.activ && tip.categorie === 'ODIHNA')?.cod || absente.tipuri.find(tip => tip.activ)?.cod || '',
         deLa: zi?.data || (lot ? lot[0].data : precompletare?.deLa || dataImplicita),
@@ -315,6 +318,8 @@ export function FormularAbsente({dinPontaj = false, zi, lot, date, absente, anga
     function seteaza<K extends keyof typeof campuri>(k: K, v: string) {
         setCampuri(c => {
             const nou = {...c, [k]: v};
+            if(zi&&k==='deLa')nou.panaLa=String(v);
+            if(zi&&k==='panaLa')nou.deLa=String(v);
             if (k === 'angajat' && nou.inlocuitor === v) nou.inlocuitor = '';
             return nou;
         });
@@ -359,7 +364,7 @@ export function FormularAbsente({dinPontaj = false, zi, lot, date, absente, anga
             salveaza(lot.filter(z=>alese.includes(z.data)).map(z => new datebaza.ZiAbsenta({
                 ...z,
                 cod: campuri.cod || z.cod,
-                activ: true,
+                activ: campuri.activ,
                 nr_inregistrare: campuri.nrInregistrare,
                 inlocuitor_id: campuri.inlocuitor,
                 stare_aprobare: campuri.stareAprobare,
@@ -372,12 +377,13 @@ export function FormularAbsente({dinPontaj = false, zi, lot, date, absente, anga
             return;
         }
         const existente = absente.zile.filter(z => z.angajat_id === campuri.angajat);
-        if (!zi && alese.some(data => existente.some(z => z.data === data && z.activ))) { setValidare(t('absente.zi_ocupata')); return; }
-        salveaza(alese.map(data => new datebaza.ZiAbsenta({
+        if (alese.some(data => existente.some(z => z.data === data && z.activ && z.data!==zi?.data))) { setValidare(t('absente.zi_ocupata')); return; }
+        if(zi&&!alese.includes(zi.data)&&!campuri.activ){setValidare(t('absente.mutare_activa'));return;}
+        const noi=alese.map(data => new datebaza.ZiAbsenta({
             angajat_id: campuri.angajat,
             data,
             cod: campuri.cod,
-            activ: true,
+            activ: campuri.activ,
             revizie: existente.find(z => z.data === data)?.revizie || '',
             nr_inregistrare: campuri.nrInregistrare,
             inlocuitor_id: campuri.inlocuitor,
@@ -387,17 +393,21 @@ export function FormularAbsente({dinPontaj = false, zi, lot, date, absente, anga
             document_nume: campuri.documentNume,
             document_mime: campuri.documentMime,
             document_continut_b64: campuri.documentContinutB64 || undefined
-        })));
+        }));
+        // Mutarea si anularea vechii date se salveaza impreuna, cu reviziile originale.
+        if(zi&&!alese.includes(zi.data))noi.unshift(new datebaza.ZiAbsenta({...zi,activ:false}));
+        salveaza(noi);
     }}><div className="corp-dialog">{(validare || eroare) && <p className="mesaj eroare" role="alert">{validare || eroare}</p>}
         {zileDublaInlocuire.length > 0 && <p className="mesaj avertisment" role="status">{t('absente.avertisment_dubla_inlocuire', {zile: zileDublaInlocuire.join(', ')})}</p>}
         <fieldset className="campuri" disabled={ocupat}>
             {acelasiAngajatLot && <label className="latime-completa">{t('ui.angajat')} *<select name="angajat" required disabled={modEditare} value={campuri.angajat} onChange={e => seteaza('angajat',e.target.value)}><option value="">{t('absente.alege_angajat')}</option>{date.angajati.map(a => <option key={a.id} value={a.id}>{numeAngajat(a)} · {a.marca}{!a.activ ? ` · ${t('ui.inactiv')}` : ''}</option>)}</select></label>}
             <label className="latime-completa">{t('absente.tip')}<select name="tip" required value={campuri.cod} onChange={e => seteaza('cod',e.target.value)}>{absente.tipuri.filter(tip => tip.activ || tip.cod === sursa?.cod).map(tip => <option key={tip.cod} value={tip.cod}>{tip.cod} · {numeTip(tip,i18n.language)}{!tip.activ ? ` · ${t('ui.inactiv')}` : ''}</option>)}</select></label>
-            {!lot && <><label>{t('absente.de_la')} *<input name="de_la" type="date" min="0001-01-01" max="9999-12-31" required readOnly={!!zi} value={campuri.deLa} onChange={e => seteaza('deLa',e.target.value)}/></label><label>{t('absente.pana_la')} *<input name="pana_la" type="date" min="0001-01-01" max="9999-12-31" required readOnly={!!zi} value={campuri.panaLa} onChange={e => seteaza('panaLa',e.target.value)}/></label></>}
+            {!lot && <><label>{t('absente.de_la')} *<input name="de_la" type="date" min="0001-01-01" max="9999-12-31" required value={campuri.deLa} onChange={e => seteaza('deLa',e.target.value)}/></label><label>{t('absente.pana_la')} *<input name="pana_la" type="date" min="0001-01-01" max="9999-12-31" required value={campuri.panaLa} onChange={e => seteaza('panaLa',e.target.value)}/></label></>}
             <label>{t('absente.nr_inregistrare')}{precompletare ? ' *' : ''}<input name="nr_inregistrare" maxLength={64} required={Boolean(precompletare)} autoFocus={Boolean(precompletare)} value={campuri.nrInregistrare} onChange={e => seteaza('nrInregistrare',e.target.value)}/></label>
             <label>{t('absente.inlocuitor')}<select name="inlocuitor" value={campuri.inlocuitor} onChange={e => seteaza('inlocuitor',e.target.value)}><option value="">{t('absente.fara_inlocuitor')}</option>{inlocuitoriDisponibili.map(a => <option key={a.id} value={a.id}>{numeAngajat(a)} · {a.marca}{!a.activ ? ` · ${t('ui.inactiv')}` : ''}</option>)}</select></label>
             <label>{t('absente.aprobare')}<select name="stare_aprobare" value={campuri.stareAprobare} onChange={e => seteaza('stareAprobare',e.target.value)}>{stariAprobare.filter(s => !dinPontaj || s !== 'RESPINSA').map(s => <option key={s} value={s}>{t(`absente.aprobare_${s}`)}</option>)}</select></label>
             <label>{t('absente.aprobat_de')}<input name="aprobat_de" maxLength={120} value={campuri.aprobatDe} onChange={e => seteaza('aprobatDe',e.target.value)}/></label>
+            {!dinPontaj&&modEditare&&<label className="bifa"><input name="zi_activa" type="checkbox" checked={campuri.activ} onChange={e=>setCampuri(c=>({...c,activ:e.target.checked}))}/>{t('ui.activ_indiciu')}</label>}
             <label className="latime-completa">{t('absente.cerere_atasata')}<input name="cerere_fisier" type="file" accept=".pdf,application/pdf,image/png,image/jpeg" onChange={incarcaFisier}/><small className="text-discret">{t('absente.fisier_indiciu')}</small></label>
             {(campuri.documentNume || campuri.documentId) && <div className="latime-completa atasament-curent"><span>{campuri.documentNume}</span><button type="button" className="legatura discreta" onClick={() => setCampuri(c => ({...c, documentId: '', documentNume: '', documentMime: '', documentContinutB64: ''}))}>{t('absente.elimina_atasament')}</button></div>}
         </fieldset>

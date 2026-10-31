@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.13 - 2026-10-31
+
+F07-T36: data unei absente poate fi schimbata atomic; zilele anulate pot fi afisate si reactivate. Stergere explicita prin anulare cu istoric si stare editabila. Actiuni directe activare/dezactivare tip absenta. Manual 1.24.
+
 ## 0.92.12 - 2026-10-31
 
 F07-T35: General/anterior migrat la regim Normal. Tipuri si regimuri configurabile, cu referinte stabile in programe si comportament explicit folosit de motorul existent. Manual 1.23. Migrare 0027.

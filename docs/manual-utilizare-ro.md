@@ -559,3 +559,10 @@ Regimul General/anterior este convertit automat la Normal la actualizarea bazei.
 In Adauga/Editeaza program selectati tipul si regimul din listele configurate. Acelasi program este folosit in categoriile de program, contractele asociate acelor categorii, pontaj, planificare, precompletare si calcul. Denumirea personalizata nu determina singura comportamentul; se foloseste comportamentul selectat explicit. Noapte/Garda si regimurile speciale raman gestionate conform motorului existent. Configuratia nu stabileste automat procente noi de spor.
 
 Puteti redenumi o definitie deja folosita. Pentru schimbarea comportamentului creati o definitie noua si alegeti-o explicit in program; comportamentul unei definitii deja folosite este protejat pentru a evita reclasificarea retroactiva implicita. Dezactivarea ascunde definitia din alegerile noi; programele existente isi pastreaza asocierea si pot fi editate. Listele se anuleaza prin dezactivare, pastrand referintele si istoricul.
+
+
+## Schimbarea datei si reactivarea unei absente
+
+In Concedii si absente, pe randul zilei alegeti Editeaza. Puteti schimba data; cele doua campuri de data raman sincronizate pentru editarea unei singure zile. La salvare vechea zi se anuleaza si noua zi se inregistreaza atomic. Daca noua zi este ocupata, nelucratoare, intr-o luna inchisa sau apare un conflict, operatia intreaga este refuzata. Pastrati Activ bifat pentru mutare.
+
+Sterge ziua elimina ziua din evidenta activa prin anulare cu istoric. Bifati Arata si zilele anulate pentru a o vedea din nou si folositi Reactiveaza. In formular puteti debifa Activ pentru dezactivare sau bifa pentru reactivare. Reaparitia programelor anulate anterior de concediu nu este automata. In lista Tipuri de absenta sunt disponibile butoane Dezactiveaza/Reactiveaza, precum si starea Activ din editor. Dezactivarea unui tip nu anuleaza zilele existente.

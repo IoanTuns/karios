@@ -1615,5 +1615,8 @@
   "nomenclator.regimuri_program_indiciu": "Define selectable schedule regimes. The same schedules connect categories, contracts, planning and calculations.",
   "clasificari.comportament": "Application behaviour",
   "clasificari.utilizat": "Existing schedules use this behaviour. Create a new definition for different behaviour. Names and status remain editable.",
-  "nomenclator.comportament_utilizat": "This behaviour is already used. Create a new definition for different behaviour."
+  "nomenclator.comportament_utilizat": "This behaviour is already used. Create a new definition for different behaviour.",
+  "absente.arata_anulate": "Show cancelled days too",
+  "absente.sterge_zi": "Delete day",
+  "absente.mutare_activa": "The day must be active to change its date. To cancel it, keep the date and uncheck Active."
 }

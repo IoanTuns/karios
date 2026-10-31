@@ -49,8 +49,26 @@ export async function verificaAbsentePontaj({evalueaza,asteapta,apasa,completeaz
  await asteapta(()=>evalueaza("Boolean(document.querySelector('.tabel-absente, .lista-absente')) || document.body.textContent.includes('TEST-CO')"),'Absenta lipseste din evidenta');
  assert(await evalueaza("document.body.textContent.includes('TEST-CO')"),'Metadatele nu sunt vizibile in Absente');
  await captura('absenta-pontaj-salvata-'+limba+'.png');
+ await apasa(t('ui.editeaza'));
+ await asteapta(()=>evalueaza("Boolean(document.querySelector('dialog input[name=de_la]'))"),'Editare zi lipsa');
+ const dataNoua=await evalueaza("(()=>{const s=JSON.parse(localStorage.getItem('pontix-test'));const d=new Date(s.absente.find(z=>z.activ).data+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+7);return d.toISOString().slice(0,10)})()");
+ await completeaza('dialog input[name=de_la]',dataNoua);
+ assert.equal(await evalueaza("document.querySelector('dialog input[name=pana_la]').value"),dataNoua,'Datele editarii nu sunt sincronizate');
+ await apasa(t('ui.salveaza'));
+ await asteapta(()=>evalueaza("!document.querySelector('dialog[open]')"),'Mutarea nu s-a salvat');
+ assert(await evalueaza(`JSON.parse(localStorage.getItem('pontix-test')).absente.some(z=>z.data==='${dataNoua}'&&z.activ)`),'Ziua nu a fost mutata');
  await evalueaza('window.confirm=()=>true');
- await apasa(t('absente.anuleaza'));
+ await apasa(t('absente.sterge_zi'));
  await asteapta(()=>evalueaza("JSON.parse(localStorage.getItem('pontix-test')).absente.every(z=>!z.activ)"),'Medicalul nu a fost anulat');
+ await evalueaza("document.querySelector('input[name=arata_anulate]').click()");
+ await asteapta(()=>evalueaza("document.querySelectorAll('.tabel-absente tbody tr').length>=2"),'Zilele anulate sunt inaccesibile');
+ await apasa(t('ui.reactiveaza'));
+ await asteapta(()=>evalueaza("JSON.parse(localStorage.getItem('pontix-test')).absente.some(z=>z.activ)"),'Reactivarea nu s-a salvat');
+ for (const activa of [false,true]) {
+  await evalueaza("document.querySelector('.tabel-tipuri-absenta tbody tr td:last-child button:nth-child(2)').click()");
+  await asteapta(()=>evalueaza(`JSON.parse(localStorage.getItem('pontix-test')).tipuriAbsenta[0].activ===${activa}`),'Starea tipului nu s-a schimbat');
+ }
+
+
 
 }
