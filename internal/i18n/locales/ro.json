@@ -547,8 +547,8 @@
   "schimburi.categorie_invalida": "Alege o categorie de schimb validă.",
   "schimburi.regim": "Regim de lucru",
   "schimburi.toate_regimurile": "Toate regimurile",
-  "schimburi.regim_GENERAL": "General / anterior",
-  "schimburi.regim_LUCRATOARE": "Program obișnuit",
+  "schimburi.regim_GENERAL": "Normal",
+  "schimburi.regim_LUCRATOARE": "Normal",
   "schimburi.regim_NELUCRATOARE": "Weekend / sărbătoare",
   "schimburi.regim_INTRARE_ZI_LIBERA": "Intrare specială în zi liberă",
   "schimburi.regim_invalid": "Alege un regim de lucru valid.",
@@ -1608,5 +1608,12 @@
   "absente.zi_nelucratoare": "Concediile, inclusiv medicale, se inregistreaza numai in zile lucratoare, fara weekend si sarbatori legale.",
   "absente.medical_prioritar": "Exista concediu medical activ. Foloseste Editeaza pe inregistrarea curenta pentru o corectie explicita.",
   "absente.corectare_indiciu": "Concediile, inclusiv medicale, se pot edita individual sau in lot. Anuleaza elimina absenta activa si pastreaza istoricul; programele anterioare nu se restaureaza automat.",
-  "schimburi.format_ora": "Format 24h: HH:MM, de la 00:00 la 23:59."
+  "schimburi.format_ora": "Format 24h: HH:MM, de la 00:00 la 23:59.",
+  "nomenclator.tipuri_program": "Tipuri de schimb",
+  "nomenclator.tipuri_program_indiciu": "Defineste denumirile si comportamentul tipurilor folosite de programele de lucru.",
+  "nomenclator.regimuri_program": "Regimuri de lucru",
+  "nomenclator.regimuri_program_indiciu": "Defineste regimurile selectabile in programe. Acestea se folosesc prin aceleasi programe in categorii, contracte, planificare si calcule.",
+  "clasificari.comportament": "Comportament in aplicatie",
+  "clasificari.utilizat": "Comportamentul este folosit de programe existente. Pentru alt comportament creeaza o definitie noua. Numele si starea se pot modifica.",
+  "nomenclator.comportament_utilizat": "Comportamentul este deja folosit. Creeaza o definitie noua pentru un comportament diferit."
 }

@@ -12,6 +12,8 @@ import (
 )
 
 type ElementNomenclator struct {
+	Comportament       string    `json:"comportament"`
+	Utilizari          int       `json:"utilizari"`
 	GrupID             string    `json:"grup_id"`
 	Ordine             int       `json:"ordine"`
 	Conducere          bool      `json:"conducere"`
@@ -27,6 +29,10 @@ type ElementNomenclator struct {
 
 func tabelaNomenclator(tip string) string {
 	switch tip {
+	case "tipuri_program":
+		return "tipuri_program"
+	case "regimuri_program":
+		return "regimuri_program"
 	case "categorii":
 		return "categorii_schimburi"
 	case "grupuri":
@@ -58,7 +64,15 @@ func citesteNomenclator(ctx context.Context, tx *sql.Tx, tip string) ([]ElementN
 	case "contracte":
 		extra = ",NULL,0,0,normare,norma_minute,categorie_program_id,garda"
 	}
-	rows, err := tx.QueryContext(ctx, "SELECT id,denumire,activ,modificat_la"+extra+" FROM "+tabela+" ORDER BY denumire,id")
+	clasificare := ", '', 0"
+	if tip == "tipuri_program" || tip == "regimuri_program" {
+		camp, baza := "tip_id", "tip"
+		if tip == "regimuri_program" {
+			camp, baza = "regim_id", "regim"
+		}
+		clasificare = ",comportament,(SELECT count(*) FROM tipuri_schimb s LEFT JOIN clasificari_schimburi c ON c.schimb_id=s.id WHERE COALESCE(c." + camp + ",s." + baza + ")=" + tabela + ".id)"
+	}
+	rows, err := tx.QueryContext(ctx, "SELECT id,denumire,activ,modificat_la"+extra+clasificare+" FROM "+tabela+" ORDER BY denumire,id")
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +83,7 @@ func citesteNomenclator(ctx context.Context, tx *sql.Tx, tip string) ([]ElementN
 		var text string
 		var activ, conducere, garda int
 		var grup, categorie sql.NullString
-		if err := rows.Scan(&e.ID, &text, &activ, &e.Revizie, &grup, &e.Ordine, &conducere, &e.Normare, &e.NormaMinute, &categorie, &garda); err != nil {
+		if err := rows.Scan(&e.ID, &text, &activ, &e.Revizie, &grup, &e.Ordine, &conducere, &e.Normare, &e.NormaMinute, &categorie, &garda, &e.Comportament, &e.Utilizari); err != nil {
 			return nil, err
 		}
 		if err := json.Unmarshal([]byte(text), &e.Denumire); err != nil {
@@ -112,6 +126,18 @@ func (s *Serviciu) SalveazaElementNomenclator(ctx context.Context, tip string, e
 			if lista[i].ID == e.ID {
 				copie := lista[i]
 				vechi = &copie
+			}
+		}
+		if tip == "tipuri_program" || tip == "regimuri_program" {
+			permis := e.Comportament == "NORMAL" || e.Comportament == "TURA" || e.Comportament == "NOAPTE" || e.Comportament == "GARDA"
+			if tip == "regimuri_program" {
+				permis = e.Comportament == "LUCRATOARE" || e.Comportament == "NELUCRATOARE" || e.Comportament == "INTRARE_ZI_LIBERA"
+			}
+			if !permis {
+				return eroare("nomenclator.invalid")
+			}
+			if vechi != nil && vechi.Utilizari > 0 && vechi.Comportament != e.Comportament {
+				return eroare("nomenclator.comportament_utilizat")
 			}
 		}
 		for _, element := range lista {
@@ -194,6 +220,8 @@ func (s *Serviciu) SalveazaElementNomenclator(ctx context.Context, tip string, e
 			return err
 		}
 		switch tip {
+		case "tipuri_program", "regimuri_program":
+			_, err = tx.ExecContext(ctx, "UPDATE "+tabela+" SET comportament=? WHERE id=?", e.Comportament, e.ID)
 		case "grupuri":
 			_, err = tx.ExecContext(ctx, "UPDATE grupuri_profesionale SET ordine=? WHERE id=?", e.Ordine, e.ID)
 		case "functii":

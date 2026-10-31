@@ -548,3 +548,14 @@ O corectie facuta intre timp de alt operator produce un conflict: reincarcati da
 Aplicatia afiseaza orele in format de 24 de ore: 00:00, 07:00, 19:00, 23:59. Nu se foloseste AM/PM, indiferent de limba interfetei sau a sistemului. Regula se aplica si jurnalului, auditului, restaurarii, blocarii conturilor si ultimei modificari din Pontaj. Datele raman localizate; fusul orar si duratele/totalurile de ore nu se modifica. Rapoartele folosesc deja formatul 24h.
 
 La definirea unui schimb, introduceti ora de inceput ca HH:MM, de exemplu 07:00 sau 19:00; sunt acceptate ore de la 00:00 la 23:59.
+
+
+## Tipuri de schimb si regimuri configurabile
+
+In Setari > Schimburi sunt disponibile listele Tipuri de schimb si Regimuri de lucru. Puteti adauga definitii, edita denumirile in romana/engleza si dezactiva intrarile. La adaugare selectati comportamentul in aplicatie. Tipurile folosesc Normal, Tura, Noapte sau Garda; regimurile folosesc Normal, Weekend/sarbatoare sau Intrare speciala in zi libera.
+
+Regimul General/anterior este convertit automat la Normal la actualizarea bazei. Tipul schimbului ramane distinct: un schimb Noapte sau Garda nu devine Normal prin aceasta conversie. Intervalele, duratele, identitatile si legaturile existente se pastreaza.
+
+In Adauga/Editeaza program selectati tipul si regimul din listele configurate. Acelasi program este folosit in categoriile de program, contractele asociate acelor categorii, pontaj, planificare, precompletare si calcul. Denumirea personalizata nu determina singura comportamentul; se foloseste comportamentul selectat explicit. Noapte/Garda si regimurile speciale raman gestionate conform motorului existent. Configuratia nu stabileste automat procente noi de spor.
+
+Puteti redenumi o definitie deja folosita. Pentru schimbarea comportamentului creati o definitie noua si alegeti-o explicit in program; comportamentul unei definitii deja folosite este protejat pentru a evita reclasificarea retroactiva implicita. Dezactivarea ascunde definitia din alegerile noi; programele existente isi pastreaza asocierea si pot fi editate. Listele se anuleaza prin dezactivare, pastrand referintele si istoricul.

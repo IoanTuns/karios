@@ -4,8 +4,10 @@ export function simulareNomenclatoare(){
  const api=window.go.main.App;
  api.ListaBackupuri=async()=>({backupuri:[],programata:''});
  const liste={categorii:[{id:'LAB',denumire:{ro:'Laborator',en:'Laboratory'},activ:true,revizie:'1'},{id:'CUSTOM',denumire:{ro:'Personalizate',en:'Custom'},activ:true,revizie:'1'}],functii:[],grupuri:[],contracte:[{id:'INTREAGA',denumire:{ro:'Norma intreaga',en:'Full time'},activ:true,normare:'GLOBALA',garda:false},{id:'PARTIALA',denumire:{ro:'Norma partiala',en:'Part time'},activ:true,normare:'INDIVIDUALA',garda:false},{id:'GARDA',denumire:{ro:'Garda',en:'On-call'},activ:true,normare:'FARA',garda:true}]};
+ liste.tipuri_program=['NORMAL','TURA','NOAPTE','GARDA'].map(c=>({id:c,denumire:{ro:c,en:c},comportament:c,activ:true,revizie:'1',utilizari:0}));
+ liste.regimuri_program=['LUCRATOARE','NELUCRATOARE','INTRARE_ZI_LIBERA'].map(c=>({id:c,denumire:{ro:c==='LUCRATOARE'?'Normal':c,en:c==='LUCRATOARE'?'Normal':c},comportament:c,activ:true,revizie:'1',utilizari:0}));
  const citeste=api.DateInitiale;
- api.DateInitiale=async()=>{const r=await citeste();r.date.categorii_schimburi=structuredClone(liste.categorii);r.date.functii=structuredClone(liste.functii);r.date.grupuri_profesionale=structuredClone(liste.grupuri);r.date.tipuri_contract=structuredClone(liste.contracte);return r};
+ api.DateInitiale=async()=>{const r=await citeste();r.date.tipuri_program=structuredClone(liste.tipuri_program);r.date.regimuri_program=structuredClone(liste.regimuri_program);r.date.categorii_schimburi=structuredClone(liste.categorii);r.date.functii=structuredClone(liste.functii);r.date.grupuri_profesionale=structuredClone(liste.grupuri);r.date.tipuri_contract=structuredClone(liste.contracte);return r};
  api.SalveazaElementNomenclator=async(tip,e)=>{const lista=liste[tip],index=lista.findIndex(x=>x.id===e.id);const nou={...structuredClone(e),id:e.id||crypto.randomUUID().toUpperCase(),revizie:String(Date.now())};if(index<0)lista.push(nou);else lista[index]=nou;return api.DateInitiale()};
  const salveaza=api.SalveazaAngajat;
  api.SalveazaAngajat=async a=>{const f=liste.functii.find(f=>f.id===a.functie_id);a.grup_id=f?.grup_id||'';a.conducere=f?.conducere||false;a.garda=Boolean(a.angajat_principal_id||a.contract_id==='GARDA');a.norma_definita=a.contract_id!=='GARDA';a.functie=liste.functii.find(f=>f.id===a.functie_id)?.denumire.ro||a.functie;const r=await salveaza(a);if(r.eroare)return r;return api.DateInitiale()};
@@ -39,14 +41,23 @@ export async function verificaNomenclatoare({cdp,evalueaza,asteapta,apasa,comple
  await evalueaza("[...document.querySelectorAll('.grila-pontaj tbody tr')].find(r=>r.textContent.includes('FUNC-UI')).scrollIntoView({block:'center'})");
  await captura('functie-pontaj-'+limba+'.png');
  await apasa(t('ui.setari'));await apasa(t('ui.schimburi'));await adauga('categorii','Ambulatoriu UI','Outpatient UI');
+ await adauga('tipuri_program','Tip normal UI','Normal type UI');
+ await adauga('regimuri_program','Regim normal UI','Normal regime UI');
+ assert(!await evalueaza("document.querySelector('.schimburi').textContent.includes('General / anterior')"),'General/anterior inca vizibil');
+
  await apasa(t('schimburi.adauga'));await asteapta(()=>evalueaza("Boolean(document.querySelector('dialog[open]'))"),'Formular program lipsa');
  for (const [ora,valid] of [['00:00',true],['07:00',true],['19:00',true],['23:59',true],['24:00',false],['7:00',false],['19:60',false],['7 PM',false]]) {
   await completeaza('dialog input[name="ora_inceput"]',ora);
   assert.equal(await evalueaza(`document.querySelector('dialog input[name="ora_inceput"]').checkValidity()`),valid,'Validare 24h: '+ora);
  }
  await completeaza('dialog .campuri label:nth-child(1) input','UI7');await completeaza('dialog .campuri label:nth-child(3) input','Program UI');await completeaza('dialog .campuri label:nth-child(4) input','UI schedule');await completeaza('dialog input[name="ora_inceput"]','07:00');await completeaza('dialog input[type=number]','420');
+ const tipCustom=await evalueaza("[...document.querySelectorAll('dialog select')][0].querySelector('option:last-child').value");
+ await completeaza('dialog .campuri label:nth-child(2) select',tipCustom);
+ const regimCustom=await evalueaza("[...document.querySelectorAll('dialog select[name=regim] option')].find(o=>o.textContent.includes('UI')).value");await completeaza('dialog select[name=regim]',regimCustom);
+
  const cat=await evalueaza("[...document.querySelectorAll('dialog select[name=categorie] option')].find(o=>o.textContent.includes('UI')).value");await completeaza('dialog select[name="categorie"]',cat);await apasa(t('ui.salveaza'));
  await asteapta(()=>evalueaza("!document.querySelector('dialog[open]')"),'Program nesalvat');
+ assert(await evalueaza("[...document.querySelectorAll('.tabel-schimburi tbody tr')].find(r=>r.textContent.includes('UI7')).textContent.includes('UI')"),'Clasificarile personalizate nu apar');
  assert(await evalueaza("[...document.querySelectorAll('.tabel-schimburi tbody tr')].some(r=>r.textContent.includes('UI7')&&r.querySelector('td:nth-child(3)').textContent.includes("+JSON.stringify(limba==='en'?'Outpatient UI':'Ambulatoriu UI')+"))"),'Categoria nu este asociata programului');
  await captura('categorii-schimburi-'+limba+'.png');
  await apasa(t('ui.angajati'));await apasa(t('ui.adauga_angajat'));

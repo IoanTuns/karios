@@ -119,6 +119,10 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
     let stare = JSON.parse(localStorage.getItem('pontix-test') || 'null') || {angajati: [], sectii: [], norma_intreaga_minute: 420, demo_disponibil: true};
     stare.sarbatori ??= structuredClone(calendarSursa);
     stare.schimburi ??= structuredClone(schimburiSursa);
+    stare.tipuri_program ??= ['NORMAL','TURA','NOAPTE','GARDA'].map(c=>({id:c,denumire:{ro:c,en:c},comportament:c,activ:true,revizie:'1',utilizari:0}));
+    stare.regimuri_program ??= ['LUCRATOARE','NELUCRATOARE','INTRARE_ZI_LIBERA'].map(c=>({id:c,denumire:{ro:c==='LUCRATOARE'?'Normal':c,en:c==='LUCRATOARE'?'Normal':c},comportament:c,activ:true,revizie:'1',utilizari:0}));
+    stare.schimburi=stare.schimburi.map(s=>({...s,regim:s.regim==='GENERAL'?'LUCRATOARE':s.regim,tip_id:s.tip_id||s.tip,regim_id:s.regim_id||(s.regim==='GENERAL'?'LUCRATOARE':s.regim)}));
+
     stare.categorii_program ??= [
         ['program-dimineata','Dimineață','Morning',['Z7'],'Z7'],
         ['program-dupa-amiaza','După-amiază','Afternoon',['S7'],'S7'],

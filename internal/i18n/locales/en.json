@@ -547,8 +547,8 @@
   "schimburi.categorie_invalida": "Select a valid shift category.",
   "schimburi.regim": "Work regime",
   "schimburi.toate_regimurile": "All regimes",
-  "schimburi.regim_GENERAL": "General / previous",
-  "schimburi.regim_LUCRATOARE": "Regular schedule",
+  "schimburi.regim_GENERAL": "Normal",
+  "schimburi.regim_LUCRATOARE": "Normal",
   "schimburi.regim_NELUCRATOARE": "Weekend / holiday",
   "schimburi.regim_INTRARE_ZI_LIBERA": "Special entry into day off",
   "schimburi.regim_invalid": "Select a valid work regime.",
@@ -1608,5 +1608,12 @@
   "absente.zi_nelucratoare": "All leave, including sick leave, can only be recorded on working days, excluding weekends and public holidays.",
   "absente.medical_prioritar": "Active medical leave exists. Use Edit on the current record to correct it explicitly.",
   "absente.corectare_indiciu": "Leave, including medical leave, can be edited individually or in batches. Cancel removes the active absence while retaining its history; earlier schedules are not restored automatically.",
-  "schimburi.format_ora": "24-hour format: HH:MM, from 00:00 to 23:59."
+  "schimburi.format_ora": "24-hour format: HH:MM, from 00:00 to 23:59.",
+  "nomenclator.tipuri_program": "Shift types",
+  "nomenclator.tipuri_program_indiciu": "Define the names and behaviour of types used by work schedules.",
+  "nomenclator.regimuri_program": "Work regimes",
+  "nomenclator.regimuri_program_indiciu": "Define selectable schedule regimes. The same schedules connect categories, contracts, planning and calculations.",
+  "clasificari.comportament": "Application behaviour",
+  "clasificari.utilizat": "Existing schedules use this behaviour. Create a new definition for different behaviour. Names and status remain editable.",
+  "nomenclator.comportament_utilizat": "This behaviour is already used. Create a new definition for different behaviour."
 }

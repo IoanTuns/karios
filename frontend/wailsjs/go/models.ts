@@ -1280,6 +1280,8 @@ export namespace datebaza {
 	    }
 	}
 	export class ElementNomenclator {
+	    comportament: string;
+	    utilizari: number;
 	    grup_id: string;
 	    ordine: number;
 	    conducere: boolean;
@@ -1298,6 +1300,8 @@ export namespace datebaza {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.comportament = source["comportament"];
+	        this.utilizari = source["utilizari"];
 	        this.grup_id = source["grup_id"];
 	        this.ordine = source["ordine"];
 	        this.conducere = source["conducere"];
@@ -1312,6 +1316,8 @@ export namespace datebaza {
 	    }
 	}
 	export class Date {
+	    tipuri_program: ElementNomenclator[];
+	    regimuri_program: ElementNomenclator[];
 	    grupuri_profesionale: ElementNomenclator[];
 	    tipuri_contract: ElementNomenclator[];
 	    categorii_schimburi: ElementNomenclator[];
@@ -1329,6 +1335,8 @@ export namespace datebaza {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.tipuri_program = this.convertValues(source["tipuri_program"], ElementNomenclator);
+	        this.regimuri_program = this.convertValues(source["regimuri_program"], ElementNomenclator);
 	        this.grupuri_profesionale = this.convertValues(source["grupuri_profesionale"], ElementNomenclator);
 	        this.tipuri_contract = this.convertValues(source["tipuri_contract"], ElementNomenclator);
 	        this.categorii_schimburi = this.convertValues(source["categorii_schimburi"], ElementNomenclator);
@@ -1893,6 +1901,8 @@ export namespace datebaza {
 	}
 
 	export class Schimb {
+	    tip_id: string;
+	    regim_id: string;
 	    id: string;
 	    cod: string;
 	    denumire: Record<string, string>;
@@ -1910,6 +1920,8 @@ export namespace datebaza {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.tip_id = source["tip_id"];
+	        this.regim_id = source["regim_id"];
 	        this.id = source["id"];
 	        this.cod = source["cod"];
 	        this.denumire = source["denumire"];

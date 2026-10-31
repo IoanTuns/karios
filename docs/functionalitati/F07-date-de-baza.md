@@ -10,6 +10,7 @@ Utilizatorul poate gestiona angajații și listele de care depinde pontajul.
 
 | ID | Task | Stare | Responsabil | Note |
 | --- | --- | --- | --- | --- |
+| F07-T35 | Tipuri si regimuri editabile, eliminare General/anterior si legaturi coerente | gata | Codex | Nomenclatoare si migrare 0027, referinte stabile si comportament explicit. [Rezultate](../rezultate-F07-T35.md); pas urmator: proba operator. |
 | F07-T34 | Corectare explicita si anulare concedii, inclusiv medicale | gata | Codex | Corectie cu revizie curenta, anulare cu istoric. [Rezultate](../rezultate-F07-T34.md); pas urmator: proba operator. |
 | F07-T33 | Absente numai in zile lucratoare si prioritate medical > alte concedii > program | gata | Codex | Medicalul anuleaza intreaga tura si programele marcilor asociate, cu jurnal si protectie la reintroducere. [Rezultate](../rezultate-F07-T33.md); pas urmator: proba operator. |
 | F07-T32 | Concedii si schimbarea tipului zilei din meniul Completare Pontaj | gata | Codex | Selectie exacta, formular comun de absente si conversie atomica a schitei de lucru. [Rezultate](../rezultate-F07-T32.md); pas urmator: proba operator. |

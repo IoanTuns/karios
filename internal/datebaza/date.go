@@ -54,6 +54,8 @@ type Departament struct {
 }
 
 type Date struct {
+	TipuriProgram       []ElementNomenclator `json:"tipuri_program"`
+	RegimuriProgram     []ElementNomenclator `json:"regimuri_program"`
 	GrupuriProfesionale []ElementNomenclator `json:"grupuri_profesionale"`
 	TipuriContract      []ElementNomenclator `json:"tipuri_contract"`
 	CategoriiSchimburi  []ElementNomenclator `json:"categorii_schimburi"`
@@ -125,6 +127,14 @@ func (s *Serviciu) Citeste(ctx context.Context) (Date, error) {
 		rez.Departamente = append(rez.Departamente, Departament{ID: r.ID, SectieID: r.SectieID, Denumire: denumire})
 	}
 	rez.CategoriiProgram, err = citesteCategoriiProgram(ctx, q)
+	if err != nil {
+		return Date{}, traduceEroare(err)
+	}
+	rez.TipuriProgram, err = citesteNomenclator(ctx, tx, "tipuri_program")
+	if err != nil {
+		return Date{}, traduceEroare(err)
+	}
+	rez.RegimuriProgram, err = citesteNomenclator(ctx, tx, "regimuri_program")
 	if err != nil {
 		return Date{}, traduceEroare(err)
 	}
