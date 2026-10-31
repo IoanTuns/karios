@@ -15,3 +15,5 @@ Prima rulare completa a identificat testul tehnic al interfetei care astepta o s
 Aplicatie 0.92.21, manual 1.32. Rapoarte pontaj 11, detaliat 12, individual 11, absente 8, garzi 8. Go stabil 1.27.3/npm curente; actualizarile tranzitive Go raman in F14-T21. Documentatie 0 erori, 3 teste manual si 7 teste livrare trecute. Fara date reale, migrari, dependente sau reguli de calcul noi. Urmeaza finalizarea verificarilor si build oficial, fara push/merge.
 
 Verificari finale: gofmt -l -w ., go vet ./... si go test -p 1 -timeout 120s ./... trecute integral. Stare implementare: gata.
+
+Livrare verificata: `build/bin/pontix-0.92.21-20261031-220250-ac81729610974bbdaa9f3eae2f7fd571`, commit 698295d, executabil 0.92.21, manual 1.32 MD/HTML/PDF alaturi. Manifest complet; SHA256 exe/manuale si ZIP/CRC verificate. Reordonarea claselor generate Wails normalizata dupa egalitate semantica. Pas urmator: proba operator, fara push/merge.

@@ -385,3 +385,5 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 | 2026-10-31 | F16-T32: mutare legenda/metadate din subsolul repetat in anexa PDF finala, cu numerotare continua; rapoarte versionate si referinte tehnice noi, cele vechi pastrate. Teste de separare tabel/anexa, istoric numai la final, volum lung, RO/EN si imagini. Aplicatie 0.92.21/manual 1.32. | Codex | [Plan](plan-F16-T32.md) |
 
 | 2026-10-31 | F16-T32: gofmt, go vet si intreaga suita Go trecute; raportul detaliat RO/EN are toate explicatiile si istoricul pe ultima pagina; randare Windows inspectata. Probe cu explicatii lungi fara trunchiere. Pregatire livrare 0.92.21/manual 1.32. | Codex | [Rezultate](plan-F16-T32.md) |
+
+| 2026-10-31 | F16-T32: build 0.92.21/698295d si manual 1.32 finalizate in `build/bin/pontix-0.92.21-20261031-220250-ac81729610974bbdaa9f3eae2f7fd571`; integritate exe/manuale/ZIP verificata. Fara push/merge. | Codex | [Livrare](plan-F16-T32.md) |
