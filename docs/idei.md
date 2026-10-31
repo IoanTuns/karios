@@ -114,3 +114,5 @@ Stări: `nouă`, `în analiză`, `transformată` (în task sau decizie), `amâna
 | I086 | 2026-10-29 | Export local al propunerii și rezultatului AI, verificat de backend, fără transmitere automată | Codex, cerere Ioan Tuns | transformată | F14-T25, D050 propusă |
 
 F14-T25 implementează sumarul și filtrele din I075 și detaliile model/context din I080, fără măsurători inventate de utilizare. Din I076 sunt implementate căutarea și selectarea rezultatelor; vederea exclusiv pentru cei selectați rămâne posibilă ulterior. Din I077 sunt implementate validarea selecției/perioadei și recuperarea la token expirat; validarea detaliată a fiecărui câmp rămâne separată. I078 privind păstrarea previzualizării între planuri nu este înlocuită de anularea operațiilor aplicate; I079 beneficiază de noile rezumate.
+
+| I102 | 2026-10-31 | UX dupa 0.92.19: configurare cu rezultate filtrate, eligibilitate vizibila, erori inteligibile, selectie coerenta in rapoarte, comparatie inainte/dupa, flux lunar si accesibilitate | Codex | noua | F16-T30; [UX30-01...12](analiza-ux-0.92.19.md), propuneri fara implementare; Excel ramane amanat |

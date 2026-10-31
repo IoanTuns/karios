@@ -373,3 +373,5 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 | 2026-10-23 | Documentul de design „Aplicația de pontaj — tehnologii și decizii” | Ioan Tuns | [PDF](Aplicația%20de%20pontaj%20—%20tehnologii%20și%20decizii.pdf), [D001](decizii/D001-stack-tehnologic.md) |
 
 | 2026-10-31 | Codex | F16-T29: build oficial 0.92.19/c98109b si manual 1.30 generate impreuna in `build/bin/pontix-0.92.19-20261031-210831-9f92eaecbda146c1a8101c64c3510452`; manifest complet, SHA256 si arhiva ZIP verificate. Problema deschiderii Excel amanata explicit de utilizator. Fara push/merge. |
+
+| 2026-10-31 | F16-T30: analiza euristica UX 0.92.19, inspectie configurare/grile/absente/rapoarte; avantaje, 12 recomandari si criterii de acceptare, cu distinctie intre constatare statica si risc. Fara teste UI noi sau cod modificat; Excel amanat. | Codex | [Audit](analiza-ux-0.92.19.md) |

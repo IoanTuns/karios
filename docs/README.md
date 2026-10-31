@@ -37,3 +37,5 @@ Orice idee, decizie și acțiune a proiectului se documentează aici, în acela�
 - **Legături.** Fiecare task trimite la deciziile și fișierele lui; fiecare decizie trimite la taskurile care o aplică.
 - **Șabloane:** [funcționalitate](functionalitati/_sablon.md), [decizie](decizii/_sablon.md).
 - **Limba documentației:** română.
+
+Analiza UX dupa remediile 0.92.19: [avantaje, riscuri si prioritati UX30](analiza-ux-0.92.19.md), F16-T30.
