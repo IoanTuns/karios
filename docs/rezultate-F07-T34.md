@@ -10,4 +10,4 @@ Teste backend: CM-CO-CM, anulare medical, conflict de revizie; existentele teste
 
 TypeScript/Vite, 18 teste frontend, 3 teste manual, 7 teste livrare si control documentatie trecute. gofmt, go vet ./... si go test -p 1 -timeout 120s ./... trecute. Go 1.27.3 si npm actuale; cele 62 actualizari tranzitive Go sunt urmarite separat in F14-T21. Fara migrari, dependente noi sau schimbarea formulelor/cazurilor contabile de referinta.
 
-Pas urmator: build oficial; proba operator pentru aplicatia desktop. Verificarea curenta acopera concediile si controalele existente de corectare, nu certifica toate fluxurile aplicatiei. Fara acces la date reale, fara push/merge.
+Build oficial complet din 2eb7fdf: `build/bin/pontix-0.92.10-20261031-151925-9698ab5921f147b0bd379b1d6f2444dc/pontix.exe`. Manual 1.21 MD/HTML/PDF alaturi si ZIP; identitate, hashuri executabil/manuale/arhiva si integritate ZIP verificate. Pas urmator: proba operator pentru aplicatia desktop. Verificarea curenta acopera concediile si controalele existente de corectare, nu certifica toate fluxurile aplicatiei. Fara acces la date reale, fara push/merge.

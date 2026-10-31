@@ -4,6 +4,7 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 
 | Data | Acțiune | Cine | Legături |
 | --- | --- | --- | --- |
+| 2026-10-31 | F07-T34: build oficial 0.92.10 din 2eb7fdf, manual 1.21 si ZIP; identitate, hashuri si integritate verificate. Proba desktop la operator. Fara push/merge. | Codex | [Livrare](rezultate-F07-T34.md) |
 | 2026-10-31 | F07-T34 verificat: gofmt, vet, suita Go completa, frontend 18 teste, Edge RO/EN, manual/livrare si documentatie trecute. Pregatire executabil 0.92.10 si manual 1.21. | Codex | [Rezultate](rezultate-F07-T34.md) |
 | 2026-10-31 | F07-T34 implementat: corectia explicita CM in CO permisa cu revizie curenta; cererile fara revizie si conflictele raman protejate. Teste backend si Edge RO/EN pentru corectare/anulare trecute. Manual 1.21 si indiciu in interfata; verificari complete in curs. | Codex | [Rezultate](rezultate-F07-T34.md) |
 | 2026-10-31 | F07-T34 inceput: verificata editarea/anularea individuala si in lot a concediilor. Identificata restrictia medicalului la corectia explicita; se pastreaza protectia fata de suprascrieri fara revizie. | Codex | F07-T34 |
