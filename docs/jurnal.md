@@ -4,6 +4,7 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 
 | Data | Acțiune | Cine | Legături |
 | --- | --- | --- | --- |
+| 2026-10-31 | F16-T27: build oficial 0.92.14 complet din 9700f08, manual 1.25 si ZIP; identitate, hashuri si integritate verificate. Pas urmator: proba operator a filtrelor. Fara push/merge. | Codex | [Livrare](rezultate-F16-T27.md) |
 | 2026-10-31 | F16-T27 verificat: gofmt/vet si Go complet trecute, integrare frontend final si i18n reverificate; TypeScript/Vite, 22 teste frontend, Edge RO/EN nomenclatoare/absente/Pontaj, focus/zoom, manual/livrare/documentatie trecute. Pregatire build 0.92.14 si manual 1.25. | Codex | [Rezultate](rezultate-F16-T27.md) |
 | 2026-10-31 | F16-T27 implementat: filtre comune in listele cu stare si implicit Active; selectie resetata la schimbarea filtrului, fara stergerea istoricului/modificarilor nesalvate. 22 teste frontend, Edge RO/EN nomenclatoare si absente, manual/livrare/documentatie trecute. Scripturi de aplicare oprite la doi markeri, corectate; verificari complete in curs. | Codex | [Rezultate](rezultate-F16-T27.md) |
 | 2026-10-31 | F16-T27 inceput: inventariate listele cu activ/inactiv; filtru comun Active/Inactive/Toate implicit Active pentru angajati, nomenclatoare, programe, categorii, absente, conturi, modele, reguli si planificare. | Codex | F16-T27 |

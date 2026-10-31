@@ -10,4 +10,4 @@ Ecranele fara camp activ (jurnal, backupuri, sarbatori) nu primesc stari artific
 
 Un script de aplicare s-a oprit la un marker diferit in Rapoarte, dupa primele module; continuarea a fost aplicata si compilata cu succes. O extindere a scenariului UI s-a oprit la numele capturii, corectat ulterior; scenariul final a trecut in ambele limbi. Fara modificari de calcul, migrari, dependente noi sau referinte contabile. Go stabil 1.27.3 si npm actuale; actualizarile tranzitive Go sunt urmarite separat prin F14-T21.
 
-Pas urmator: build oficial, apoi proba operator WebView2. Datele reale nu au fost accesate; fara push/merge in main.
+Build oficial complet din 9700f08: `build/bin/pontix-0.92.14-20261031-164154-5aa70960df5b4e979c18b96c92cc92b1/pontix.exe`. Manual 1.25 MD/HTML/PDF alaturi si ZIP; identitate, hashuri executabil/manuale/arhiva si integritate ZIP verificate. Pas urmator: proba operator WebView2. Datele reale nu au fost accesate; fara push/merge in main.
