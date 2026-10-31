@@ -14,6 +14,8 @@ Din meniul lateral puteti raporta o problema sau trimite o parere: verificati ra
 
 Planul AI include filtrele Doar exceptii si Arata doar selectati, plus numarul persoanelor efectiv afectate. Mesajele panoului de eroare sunt traduse; datele absente sau invalide sunt tratate defensiv in Jurnal, Restaurare si Planificare.
 
+Corectii 0.89.4: cursorul ramane la locul editarii in formulare, dialogurile au marire/restaurare, iar importul recunoaste zilele anuale de concediu si norma din sabloanele oficiale. Concediul este vizibil in previzualizare; zero zile ramane distinct de un camp necompletat.
+
 ## Inainte de actualizare
 
 Urmati ACTUALIZARE.md. Pastrati copia completa a datelor si cheia de recuperare; nu copiati numai baza. Nu folositi un executabil vechi pe datele migrate de o versiune noua.

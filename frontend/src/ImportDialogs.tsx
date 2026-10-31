@@ -1,6 +1,7 @@
 import React, {useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {AnalizeazaImportAngajati, AnalizeazaImportSarbatori, DescarcaSablon, ExecutaImportAngajati, ExecutaImportSarbatori} from '../wailsjs/go/main/App';
+import {durata} from './Formulare';
 import {datebaza, main} from '../wailsjs/go/models';
 
 export function descarcaFisierDinBase64(continutBase64: string, numeFisier: string) {
@@ -191,6 +192,7 @@ export function DialogImportAngajati({
                                             <th>{t('ui.departament')}</th>
                                             <th>{t('ui.contract')}</th>
                                             <th>{t('ui.norma')}</th>
+                                            <th>{t('ui.concediu')}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -229,7 +231,8 @@ export function DialogImportAngajati({
                                                     <td>{r.sectie || '—'}</td>
                                                     <td>{r.departament || '—'}</td>
                                                     <td>{r.tip_contract}</td>
-                                                    <td>{Math.round(r.norma_minute / 60)}h</td>
+                                                    <td>{durata(r.norma_minute, t)}</td>
+                                                    <td>{r.concediu_zile_an ?? '—'}</td>
                                                 </tr>
                                             );
                                         })}

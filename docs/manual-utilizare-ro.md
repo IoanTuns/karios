@@ -396,7 +396,7 @@ Pentru suport, notează versiunea aplicației, ecranul, anul/luna, pașii și er
 
 ## 19. Despre acest manual
 
-Acoperire: meniurile principale și subsecțiunile din Setări, fluxurile de date și instrumentele AI din versiunea {{VERSIUNE}}. Revizia editorială 1.6 include optimizările UI din Pontaj: meniul contextual clic dreapta, clipboardul avansat, mini-harta de acoperire pe zile și panoul drawer pentru Asistentul AI. Include ajutorul contextual pe toate ecranele, 21 de articole comune manualului și AI, sincronizarea Pontaj → Planificare și formatarea cheii de recuperare. Referința exactă a livrării este commitul de pe copertă. Actualizarea versiunii nu înlocuiește revizuirea instrucțiunilor: buildul cere confirmarea versiunii revizuite în sursele manualului.
+Acoperire: meniurile principale și subsecțiunile din Setări, fluxurile de date și instrumentele AI din versiunea {{VERSIUNE}}. Revizia editorială 1.7 include optimizările UI din Pontaj: meniul contextual clic dreapta, clipboardul avansat, mini-harta de acoperire pe zile și panoul drawer pentru Asistentul AI. Include ajutorul contextual pe toate ecranele, 21 de articole comune manualului și AI, sincronizarea Pontaj → Planificare și formatarea cheii de recuperare. Referința exactă a livrării este commitul de pe copertă. Actualizarea versiunii nu înlocuiește revizuirea instrucțiunilor: buildul cere confirmarea versiunii revizuite în sursele manualului.
 
 Manualul nu substituie regulile de salarizare și aprobările organizației. Nu certifică validarea interactivă a fiecărui ecran pe calculatorul utilizatorului. În cazul unei diferențe între instrucțiuni și aplicație, notează versiunea și cere verificarea fluxului înainte de aplicări în lot.
 
@@ -425,3 +425,7 @@ Din meniul lateral alege Raporteaza o problema. Selecteaza tipul, descrie situat
 ### Mesaje de eroare si date indisponibile
 
 Panoul de eroare urmeaza limba interfetei. O data absenta sau invalida nu trebuie interpretata ca o data calendaristica valida; verifica inregistrarea sursa in Jurnal, Restaurare sau Planificare. Daca apare o eroare, pastreaza contextul si foloseste raportarea problemei, fara date personale.
+
+### Introducere, import si vizualizare (0.89.4)
+
+Dialogurile pastreaza focusul si cursorul la tastare. Butonul din antet permite marire/restaurare; S/M/L schimba densitatea grilelor Pontaj si Planificare (mod grila). Importul angajatilor recunoaste Zile_Concediu_An ca numar anual de zile si Norma_Ore_Zi din sablonul oficial CSV/XLSX. Acest camp nu creeaza cereri de concediu cu date calendaristice: acestea se inregistreaza in Concedii si absente.

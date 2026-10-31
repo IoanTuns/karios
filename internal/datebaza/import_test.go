@@ -172,3 +172,68 @@ func TestAnalizaSiExecutieImportSarbatori(t *testing.T) {
 		t.Fatal("sarbatoarea importata 2026-08-15 nu apare in calendar")
 	}
 }
+
+// Sablonul oferit utilizatorului trebuie sa poata fi reimportat fara pierderi.
+func TestImportSablonPastreazaConcediuSiNorma(t *testing.T) {
+	for _, format := range []string{"csv", "xlsx"} {
+		t.Run(format, func(t *testing.T) {
+			m := pregateste(t)
+			continut, nume, err := GenereazaSablonAngajati(format)
+			if err != nil {
+				t.Fatal(err)
+			}
+			analiza, err := m.serviciu.AnalizeazaImportAngajati(context.Background(), continut, nume)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if len(analiza.Randuri) == 0 {
+				t.Fatal("sablon fara randuri")
+			}
+			for _, r := range analiza.Randuri {
+				if r.Marca == "M003" && r.NormaMinute != 240 {
+					t.Fatalf("norma partiala ignorata: %d", r.NormaMinute)
+				}
+				if r.ConcediuZileAn == nil {
+					t.Fatal("coloana oficiala de concediu este ignorata")
+				}
+			}
+			if _, err := m.serviciu.ExecutaImportAngajati(context.Background(), analiza.Randuri, false); err != nil {
+				t.Fatal(err)
+			}
+			date, err := m.serviciu.Citeste(context.Background())
+			if err != nil {
+				t.Fatal(err)
+			}
+			for _, r := range analiza.Randuri {
+				gasit := false
+				for _, a := range date.Angajati {
+					if a.Marca == r.Marca {
+						gasit = true
+						if a.ConcediuZileAn == nil || *a.ConcediuZileAn != *r.ConcediuZileAn {
+							t.Fatal("concediu pierdut la salvare")
+						}
+					}
+				}
+				if !gasit {
+					t.Fatal("angajat importat lipsa")
+				}
+			}
+			actualizare := analiza.Randuri
+			zero := int64(0)
+			actualizare[0].ConcediuZileAn = &zero
+			if _, err := m.serviciu.ExecutaImportAngajati(context.Background(), actualizare, true); err != nil {
+				t.Fatal(err)
+			}
+			date, err = m.serviciu.Citeste(context.Background())
+			if err != nil {
+				t.Fatal(err)
+			}
+			for _, a := range date.Angajati {
+				if a.Marca == actualizare[0].Marca && (a.ConcediuZileAn == nil || *a.ConcediuZileAn != 0) {
+					t.Fatal("valoarea zero este pierduta la actualizarea angajatului existent")
+				}
+			}
+
+		})
+	}
+}

@@ -149,9 +149,9 @@ func (s *Serviciu) AnalizeazaImportAngajati(ctx context.Context, continut []byte
 			colDepartament = i
 		case c == "contract" || c == "tipcontract":
 			colContract = i
-		case c == "norma" || c == "normaore" || c == "normaminute" || c == "orezi" || c == "hours":
+		case c == "norma" || c == "normaore" || c == "normaorezi" || c == "normaminute" || c == "orezi" || c == "hours":
 			colNorma = i
-		case c == "concediu" || c == "concediuan" || c == "concediuzile" || c == "leave" || c == "co":
+		case c == "concediu" || c == "concediuan" || c == "zileconcediuan" || c == "concediuzilean" || c == "concediuzile" || c == "leave" || c == "co":
 			colConcediu = i
 		}
 	}

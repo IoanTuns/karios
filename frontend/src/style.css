@@ -1261,3 +1261,6 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .formular-raportare .text-raport { font-family: Consolas, monospace; font-size: 12px; }
 .formular-raportare .tip-raport { display: flex; gap: 16px; border: 0; padding: 0; margin: 0; }
 .buton-raportare { display: block; margin: 4px 0; }
+
+/* F16-T23: controalele de densitate raman vizibile fara comprimare. */
+.grup-zoom-grila{flex-shrink:0;min-width:max-content;max-width:100%}.buton-zoom{flex-shrink:0;min-width:32px}.buton-marire{min-width:32px;min-height:32px}

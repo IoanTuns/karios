@@ -25,7 +25,7 @@ function minuteDinOre(valoare: string): number | null {
     return valoare.trim() && Number.isFinite(minute) && Math.abs(minute - intreg) < 0.00001 && intreg >= 1 && intreg <= 1440 ? intreg : null;
 }
 
-export function Dialog({titlu, ocupat, inchide, children, permiteMaximizare, clasa}: {
+export function Dialog({titlu, ocupat, inchide, children, permiteMaximizare = true, clasa}: {
     titlu: string;
     ocupat: boolean;
     inchide: () => void;
@@ -35,14 +35,16 @@ export function Dialog({titlu, ocupat, inchide, children, permiteMaximizare, cla
 }) {
     const ref = useRef<HTMLDialogElement>(null);
     const [maximizat, setMaximizat] = useState(false);
+    const stareCurenta = useRef({ocupat, inchide});
+    useEffect(() => { stareCurenta.current = {ocupat, inchide}; }, [ocupat, inchide]);
     const {t} = useTranslation();
     useEffect(() => {
         const dialog = ref.current;
         dialog?.showModal();
         const laTasta = (e: KeyboardEvent) => {
-            if (e.key === 'Escape' && !ocupat) {
+            if (e.key === 'Escape' && !stareCurenta.current.ocupat) {
                 e.preventDefault();
-                inchide();
+                stareCurenta.current.inchide();
             }
         };
         window.addEventListener('keydown', laTasta);
@@ -50,7 +52,7 @@ export function Dialog({titlu, ocupat, inchide, children, permiteMaximizare, cla
             dialog?.close();
             window.removeEventListener('keydown', laTasta);
         };
-    }, [ocupat, inchide]);
+    }, []);
     return <dialog ref={ref} className={`dialog ${clasa||''} ${maximizat?'dialog-maximizat':''}`} aria-labelledby="titlu-dialog"
         onCancel={e => { e.preventDefault(); if (!ocupat) inchide(); }}>
         <div className="antet-dialog">

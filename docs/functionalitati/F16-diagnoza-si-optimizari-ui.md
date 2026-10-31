@@ -34,3 +34,5 @@ Sistem integrat de diagnoză locală, captare robustă a erorilor pe frontend ș
 
 | F16-T21 | Remedieri UX01-UX08 din auditul release pilot | Codex | gata | analiza-ux-release-0.88.14.md | Protectie navigare AI, indicator neutru, ajutor fara model, drawer, cautare si tastatura; validare recuperare pe date fictive. |
 | F16-T22 | Internaționalizare panou eroare (ErrorBoundary, I095) și formatare defensivă a datelor în UI (I094) | Antigravity | gata | D004, I094, I095 | `ErrorBoundary.tsx`, `formatare.ts`, `Jurnal.tsx`, `Restaurare.tsx` |
+
+| F16-T23 | Corectarea focusului/cursorului din formulare si verificarea controalelor zoom | Codex | in lucru | Formulare.tsx; verificari UI | Reproducere tastare reala si modificare in mijlocul textului, controale vizibile la rezolutii mici si mari. Cerere suplimentara: importul zilelor anuale de concediu; antetul oficial nu era recunoscut, nici Norma_Ore_Zi. Probe CSV/XLSX si previzualizare cu concediu. |

@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.89.4 · 2026-10-31
+
+F16-T23: dialogurile nu se mai redeschid la fiecare tastare; focusul si cursorul sunt pastrate. Marirea/restaurarea este disponibila implicit in dialoguri, iar controalele S/M/L nu se comprima. Importul recunoaste coloanele oficiale Zile_Concediu_An si Norma_Ore_Zi din sabloanele CSV/XLSX. Manual 1.7.
+
 ## 0.89.3 · 2026-10-30
 
 F14-T32: rafinări ergonomice în planul Asistentului AI (I075, I076):
