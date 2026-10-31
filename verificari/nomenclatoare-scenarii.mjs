@@ -53,6 +53,20 @@ export async function verificaNomenclatoare({cdp,evalueaza,asteapta,apasa,comple
  await asteapta(()=>evalueaza("!document.querySelector('dialog[open]')"),'Marca garda nesalvata');
  assert(await evalueaza("[...document.querySelectorAll('tr')].some(r=>r.textContent.includes('GARDA-UI')&&r.textContent.includes('FUNC-UI')&&r.textContent.includes("+JSON.stringify(t('rapoarte.subtip_garda'))+"))"),'Subtipul si marca principala lipsesc din lista');
  await captura('marca-garda-lista-'+limba+'.png');
+ // F07-T30: marcajul face parte din numele afisat in toate modulele.
+ const marcaj=JSON.stringify('('+t('rapoarte.subtip_garda')+')');
+ assert(await evalueaza("[...document.querySelectorAll('.lista-angajati tbody tr')].some(r=>r.textContent.includes('GARDA-UI')&&r.querySelector('strong')?.textContent.includes("+marcaj+"))"),'Numele subordonat nu este marcat');
+ for(const ecran of ['pontaj','planificare']) {
+  await apasa(t('ui.'+ecran));
+  await asteapta(()=>evalueaza("[...document.querySelectorAll('tr')].some(r=>r.textContent.includes('GARDA-UI')&&r.querySelector('strong')?.textContent.includes("+marcaj+"))"),'Marcaj lipsa in '+ecran);
+  await captura('ierarhie-'+ecran+'-'+limba+'.png');
+ }
+ for(const ecran of ['absente','rapoarte']) {
+  await apasa(t('ui.'+ecran));
+  await asteapta(()=>evalueaza("[...document.querySelectorAll('option')].some(o=>o.textContent.includes('GARDA-UI')&&o.textContent.includes("+marcaj+"))"),'Marcaj lipsa in selectia '+ecran);
+ }
+ await apasa(t('ui.angajati'));
+
  await completeaza('select[name=filtru_garda]','DA');assert(await evalueaza("[...document.querySelectorAll('.lista-angajati tbody tr')].filter(r=>r.querySelector('.marca-angajat')).length===1"),'Filtru garda nu restrange lista');
  await completeaza('select[name=filtru_garda]','');await completeaza('select[name=filtru_pozitie]','CONDUCERE');assert(await evalueaza("[...document.querySelectorAll('.lista-angajati tbody tr')].some(r=>r.textContent.includes('FUNC-UI'))"),'Filtru pozitie pierde seful');
  await captura('filtre-profesionale-'+limba+'.png');

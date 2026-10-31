@@ -1597,5 +1597,6 @@
   "ui.zoom_interfata": "Zoom interfata",
   "ui.zoom_micsoreaza": "Micsoreaza interfata (Ctrl+-)",
   "ui.zoom_mareste": "Mareste interfata (Ctrl++)",
-  "ui.zoom_reseteaza": "Revino la 100% (Ctrl+0)"
+  "ui.zoom_reseteaza": "Revino la 100% (Ctrl+0)",
+  "ui.nume_subordonat": "{{nume}} ({{tip}})"
 }

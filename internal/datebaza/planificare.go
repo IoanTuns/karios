@@ -63,14 +63,15 @@ type PublicarePlan struct {
 	Blocate     int                 `json:"blocate"`
 }
 type sursePlanificare struct {
-	pozitii   []acces.Planificare
-	oameni    map[string]acces.ListaAngajatiRow
-	schimburi map[string]calcul.ProgramPrecompletare
-	coduri    map[string]calcul.ProgramPrecompletare
-	categorii map[string]CategorieProgram
-	absente   map[string]bool
-	ciorne    map[string]acces.PontajCiorne
-	intervale []calcul.IntervalPlanificare
+	principali map[string]string
+	pozitii    []acces.Planificare
+	oameni     map[string]acces.ListaAngajatiRow
+	schimburi  map[string]calcul.ProgramPrecompletare
+	coduri     map[string]calcul.ProgramPrecompletare
+	categorii  map[string]CategorieProgram
+	absente    map[string]bool
+	ciorne     map[string]acces.PontajCiorne
+	intervale  []calcul.IntervalPlanificare
 }
 
 func sursePentruPlanificare(ctx context.Context, q *acces.Queries, deLa, panaLa string) (sursePlanificare, error) {
@@ -79,6 +80,10 @@ func sursePentruPlanificare(ctx context.Context, q *acces.Queries, deLa, panaLa 
 	ultima, _ := time.Parse(time.DateOnly, panaLa)
 	extDeLa, extPanaLa := prima.AddDate(0, 0, -2).Format(time.DateOnly), ultima.AddDate(0, 0, 2).Format(time.DateOnly)
 	var err error
+	s.principali, err = q.ListaLegaturiIerarhice(ctx)
+	if err != nil {
+		return s, err
+	}
 	s.pozitii, err = q.ListaPlanificare(ctx, acces.ListaPlanificareParams{DataDeLa: extDeLa, DataPanaLa: extPanaLa})
 	if err != nil {
 		return s, err

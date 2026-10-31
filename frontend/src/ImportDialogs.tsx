@@ -1,3 +1,4 @@
+import {numeAngajat} from './numeAngajat';
 import React, {useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {AnalizeazaImportAngajati, AnalizeazaImportSarbatori, DescarcaSablon, ExecutaImportAngajati, ExecutaImportSarbatori} from '../wailsjs/go/main/App';
@@ -38,9 +39,11 @@ function citesteFisierBase64(file: File): Promise<string> {
 }
 
 export function DialogImportAngajati({
+    angajati = [],
     inchide,
     laSucces,
 }: {
+    angajati?: datebaza.Angajat[];
     inchide: () => void;
     laSucces: (dateNoi: datebaza.Date, mesaj: string) => void;
 }) {
@@ -226,7 +229,7 @@ export function DialogImportAngajati({
                                                         )}
                                                     </td>
                                                     <td><strong>{r.marca || '—'}</strong></td>
-                                                    <td>{r.nume} {r.prenume}</td>
+                                                    <td>{numeAngajat({...r, angajat_principal_id: r.exista_deja ? angajati.find(a=>a.marca===r.marca)?.angajat_principal_id : undefined})}</td>
                                                     <td>{r.functie || '—'}</td>
                                                     <td>{r.sectie || '—'}</td>
                                                     <td>{r.departament || '—'}</td>

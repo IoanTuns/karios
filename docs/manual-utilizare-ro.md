@@ -494,3 +494,9 @@ O regula neconfigurata produce liniuta, nu zero. Legenda descrie configuratia ex
 ## Zoom pentru intreaga interfata
 
 In antetul fiecarui ecran folositi minus pentru micsorare, plus pentru marire si butonul procentual pentru revenire la 100%. Sunt disponibile niveluri intre 75% si 200%; alegerea este pastrata local. Scurtaturi: Ctrl+- (micsorare), Ctrl++ (marire), Ctrl+0 (resetare), inclusiv in dialoguri. Zoomul global este independent de densitatea S/M/L din Pontaj si Planificare. PDF-urile si Excel-urile exportate isi pastreaza dimensiunile.
+
+## Marcarea automata a marcilor subordonate
+
+O marca de garda asociata explicit unei persoane principale este afisata ca Nume Prenume (Garda), cu marcaj tradus in limba aleasa. Marcajul apare in liste, selectii, Pontaj, Planificare, absente/Gantt, AI si rapoarte PDF/Excel. Numele si prenumele editabile nu se modifica; nu adaugati manual sufixul. Marca principala si persoanele cu acelasi nume, fara legatura, nu primesc marcajul. Un contract de garda independent nu este considerat automat marca subordonata.
+
+La schimbarea sau eliminarea asocierii, afisarea curenta se actualizeaza dupa salvare. Fisierele deja exportate si instantaneele AI salvate pastreaza continutul istoric; o noua generare foloseste incadrarea curenta. In prezent, singurul subtip ierarhic disponibil este marca de garda.

@@ -1,3 +1,4 @@
+import {numeAngajat} from './numeAngajat';
 import {factorZoomInterfata} from './ZoomInterfata';
 import {useEffect, useLayoutEffect, useRef, useState, type FormEvent} from 'react';
 import {PlanAsistentAI} from './PlanAsistentAI';
@@ -398,7 +399,7 @@ export function AsistentAI({
             {mesaj && <div className="mesaj succes" role="status">{mesaj}</div>}
 
             <div className="zona-plan-ai" hidden={vizualizare !== 'instrumente'}>
-                {vizualizare === 'instrumente' && <InstrumenteAsistentAI blocat={blocat} onOcupat={setOcupat} onIncarca={incarcaPlan} onAnulat={id => seteazaConversatie(prev => prev.map(m => m.rezultatPlan?.operatie_id === id ? {...m, rezultatPlan: new datebaza.PlanAI({...m.rezultatPlan, anulat: true})} : m))}/>}
+                {vizualizare === 'instrumente' && <InstrumenteAsistentAI date={date} blocat={blocat} onOcupat={setOcupat} onIncarca={incarcaPlan} onAnulat={id => seteazaConversatie(prev => prev.map(m => m.rezultatPlan?.operatie_id === id ? {...m, rezultatPlan: new datebaza.PlanAI({...m.rezultatPlan, anulat: true})} : m))}/>}
             </div>
 
             <div className="zona-plan-ai" hidden={vizualizare !== 'plan'}>
@@ -466,7 +467,7 @@ export function AsistentAI({
                                                         👤 {(() => {
                                                             const ang = gasesteAngajat(String(p.parametri.marca), date.angajati);
                                                             if (ang) {
-                                                                return `${ang.nume} ${ang.prenume} (${ang.marca})`;
+                                                                return `${numeAngajat(ang)} (${ang.marca})`;
                                                             }
                                                             return t('ai.eticheta_marca', {marca: String(p.parametri.marca)});
                                                         })()}

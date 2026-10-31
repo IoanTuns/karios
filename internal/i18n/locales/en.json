@@ -1597,5 +1597,6 @@
   "ui.zoom_interfata": "Interface zoom",
   "ui.zoom_micsoreaza": "Zoom out (Ctrl+-)",
   "ui.zoom_mareste": "Zoom in (Ctrl++)",
-  "ui.zoom_reseteaza": "Reset to 100% (Ctrl+0)"
+  "ui.zoom_reseteaza": "Reset to 100% (Ctrl+0)",
+  "ui.nume_subordonat": "{{nume}} ({{tip}})"
 }

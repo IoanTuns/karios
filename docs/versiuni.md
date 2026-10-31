@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.6 · 2026-10-31
+
+F07-T30: nume marcat automat pentru marcile de garda legate de o persoana principala, in interfata si exporturi, fara modificarea identitatii salvate. Rapoarte pontaj/detaliat/fisa v8, absente/garzi v6; Excel clasic 1.1.0. Manual 1.17.
+
 ## 0.92.5 · 2026-10-31
 
 F16-T25: zoom global 75-200%, butoane minus/plus si resetare 100%, Ctrl+-/Ctrl++/Ctrl+0 si memorare locala. Dimensiunile dialogurilor se raporteaza la ecranul disponibil. Manual 1.16.

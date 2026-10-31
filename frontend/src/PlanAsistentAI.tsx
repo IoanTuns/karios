@@ -1,3 +1,4 @@
+import {numeAngajat} from './numeAngajat';
 import {useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {ConfirmaPlanAI, ExportaPlanAICSV, ListaSchimburi, PrevizualizeazaPlanAI, VerificaPontajAI} from '../wailsjs/go/main/App';
@@ -52,7 +53,7 @@ export function PlanAsistentAI({intentie, date, rezultat, blocat, onSchimba, onA
     const persoaneFiltrate = date.angajati.filter(a =>
         a.activ &&
         (!doarSelectatePersoane || selectie.marci.includes(a.marca)) &&
-        normal(`${a.nume} ${a.prenume} ${a.marca}`).includes(normal(cautarePersoane))
+        normal(`${numeAngajat(a)} ${a.marca}`).includes(normal(cautarePersoane))
     );
     const esteExceptie = (stare: string) => stare === 'ocupata' || stare === 'blocata' || stare === 'identica';
     const randuriFiltrate = (afisat?.randuri ?? []).filter(r =>
@@ -200,7 +201,7 @@ export function PlanAsistentAI({intentie, date, rezultat, blocat, onSchimba, onA
                 <button type="button" className="buton secundar mic" onClick={() => schimbaSelectia({marci: selectie.marci.filter(m => !persoaneFiltrate.some(a => a.marca === m))})}>{t('ai.deselecteaza_filtrate')}</button></div>
                 <div>{persoaneFiltrate.map(a => <label key={a.id}>
                     <input type="checkbox" checked={selectie.marci.includes(a.marca)} onChange={e => schimbaSelectia({marci: e.target.checked ? [...selectie.marci, a.marca] : selectie.marci.filter(m => m !== a.marca)})}/>
-                    {a.nume} {a.prenume} ({a.marca})
+                    {numeAngajat(a)} ({a.marca})
                 </label>)}</div>
             </details>}
             <label className="optiune-plan-ai"><input type="checkbox" checked={selectie.fara_pontaj} onChange={e => schimbaSelectia({fara_pontaj: e.target.checked})}/>{t('ai.plan_fara_pontaj')}</label>
@@ -216,15 +217,15 @@ export function PlanAsistentAI({intentie, date, rezultat, blocat, onSchimba, onA
         <section className="verificare-pontaj-ai"><h4>{t('ai.verificare_titlu')}</h4><p className="text-discret">{t('ai.verificare_indiciu')}</p>
             <button type="button" className="buton secundar" disabled={blocat || ocupat || !verificabil} onClick={() => void verifica()}>{t('ai.verificare_porneste')}</button>
             {verificare && <><p role="status">{t('ai.verificare_rezumat', {celule: verificare.celule, numar: verificare.semnale.length})}</p>
-                <ul>{verificare.semnale.slice(paginaVerificare * 50, (paginaVerificare + 1) * 50).map((s, index) => <li key={`${s.angajat_id}/${s.data}/${index}`}>{s.nume} ({s.marca}) · {s.data} · {s.valoare || '—'} · {s.motiv === 'regula' ? t('ai.verificare_regula', {cod:s.regula_cod, nume:s.regula_nume, severitate:t(`ai.severitate_${s.severitate}`)}) : t(`ai.verificare_${s.motiv}`)}</li>)}</ul>
+                <ul>{verificare.semnale.slice(paginaVerificare * 50, (paginaVerificare + 1) * 50).map((s, index) => <li key={`${s.angajat_id}/${s.data}/${index}`}>{numeAngajat(date.angajati.find(a=>a.id===s.angajat_id)) || s.nume} ({s.marca}) · {s.data} · {s.valoare || '—'} · {s.motiv === 'regula' ? t('ai.verificare_regula', {cod:s.regula_cod, nume:s.regula_nume, severitate:t(`ai.severitate_${s.severitate}`)}) : t(`ai.verificare_${s.motiv}`)}</li>)}</ul>
                 {verificare.semnale.length > 50 && <nav className="actiuni-plan-ai" aria-label={t('ai.plan_pagini')}><button type="button" className="buton secundar mic" disabled={paginaVerificare === 0} onClick={() => setPaginaVerificare(p => p - 1)}>{t('ai.plan_anterior')}</button><span>{paginaVerificare + 1} / {Math.ceil(verificare.semnale.length / 50)}</span><button type="button" className="buton secundar mic" disabled={(paginaVerificare + 1) * 50 >= verificare.semnale.length} onClick={() => setPaginaVerificare(p => p + 1)}>{t('ai.plan_urmator')}</button></nav>}
             </>}
         </section>
         </>}
         {afisat && <div className="previzualizare-plan-ai">
             <p>{t('ai.plan_rezumat', {persoane: afisat.persoane.length, afectate: persoaneAfectate, luni: afisat.luni.join(', '), noi: afisat.noi, inlocuiri: afisat.inlocuiri, identice: afisat.identice, ocupate: afisat.ocupate, blocate: afisat.blocate})}</p>
-            <details><summary>{t('ai.plan_lista_persoane')}</summary><ul>{afisat.persoane.map(a => <li key={a.id}>{a.nume} ({a.marca})</li>)}</ul></details>
-            <AnalizaPlanAI plan={afisat}/>
+            <details><summary>{t('ai.plan_lista_persoane')}</summary><ul>{afisat.persoane.map(a => <li key={a.id}>{numeAngajat(date.angajati.find(p=>p.id===a.id)) || a.nume} ({a.marca})</li>)}</ul></details>
+            <AnalizaPlanAI plan={afisat} date={date}/>
             <button type="button" className="buton secundar mic" disabled={blocat || ocupat} onClick={() => void exporta()}>{t('ai.export_titlu')}</button>
             {mesajExport && <p role="status">{mesajExport}</p>}
             <div className="filtre-detalii-ai">
@@ -245,7 +246,7 @@ export function PlanAsistentAI({intentie, date, rezultat, blocat, onSchimba, onA
                     const valoare = aplicat && !salvat ? r.inainte : r.dupa;
                     const stareFinala = salvat ? 'salvat' : r.stare === 'ocupata' ? 'pastrat' : r.stare === 'identica' ? 'identic' : 'neaplicat';
                     return <tr key={`${r.angajat_id}/${r.data}`} data-stare={r.stare}>
-                        <td>{r.nume} ({r.marca})</td><td>{r.data}</td><td>{r.inainte || '—'}</td><td>{valoare || '—'}</td><td>{t(aplicat ? `ai.plan_final_${stareFinala}` : `ai.plan_stare_${r.stare}`)}{r.motiv && <> · {t(`ai.plan_motiv_${r.motiv}`)}</>}</td>
+                        <td>{numeAngajat(date.angajati.find(a=>a.id===r.angajat_id)) || r.nume} ({r.marca})</td><td>{r.data}</td><td>{r.inainte || '—'}</td><td>{valoare || '—'}</td><td>{t(aplicat ? `ai.plan_final_${stareFinala}` : `ai.plan_stare_${r.stare}`)}{r.motiv && <> · {t(`ai.plan_motiv_${r.motiv}`)}</>}</td>
                     </tr>;
                 })}</tbody>
             </table></div>

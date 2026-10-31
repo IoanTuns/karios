@@ -10,6 +10,7 @@ Utilizatorul poate gestiona angajații și listele de care depinde pontajul.
 
 | ID | Task | Stare | Responsabil | Note |
 | --- | --- | --- | --- | --- |
+| F07-T30 | Marcaj automat al numelor pentru marcile subordonate in toate contextele | gata | Codex | Legatura explicita principala/garda, fara modificarea numelui stocat. Liste, selectii, pontaj, planificare, absente, AI si exporturi. [Rezultate](../rezultate-F07-T30.md); pas urmator: proba operator. |
 | F07-T29 | Inlocuire denumire Departament cu Compartiment in interfata, ajutor, rapoarte si manual | gata | Codex | Cerinta utilizatorului; cheile si datele existente raman compatibile. [Rezultate](../rezultate-F07-T29.md); pas urmator: proba operator. |
 | F07-T28 | Clasificare explicita absente remunerate/neplatite si coloane CEV/CFS/FP/CM/Deleg/Ore nem | in lucru | Codex | Confirmate zilele programate, numai absente aprobate si introducere explicita ore/minute nemotivate. Mai necesita confirmarea sursei programului (ture/normal). Definitii si optiuni lipsa la F01. |
 | F07-T27 | Norma lunara datorata, T ture si solduri L FIN/L Inceput | in lucru | Codex | Norma contractuala, T=ture, L FIN=efectiv-minus-norma, report luna urmatoare in L Inceput dupa Marca. Clarificari privind valoarea T, solduri negative si absente. Fara schimbarea formulelor pana la raspuns. |

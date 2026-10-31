@@ -1,11 +1,12 @@
+import {numeAngajat} from './numeAngajat';
 import {useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {AnuleazaUltimaOperatieAI, PrevizualizeazaAnulareAI} from '../wailsjs/go/main/App';
 import {ai, datebaza} from '../wailsjs/go/models';
 import {SabloaneAsistentAI} from './SabloaneAsistentAI';
 
-export function InstrumenteAsistentAI({blocat, onOcupat, onIncarca, onAnulat}: {
-    blocat: boolean; onOcupat: (v: boolean) => void; onIncarca: (i: ai.IntentiePlan) => void; onAnulat: (id: string) => void;
+export function InstrumenteAsistentAI({date, blocat, onOcupat, onIncarca, onAnulat}: {
+    date: datebaza.Date; blocat: boolean; onOcupat: (v: boolean) => void; onIncarca: (i: ai.IntentiePlan) => void; onAnulat: (id: string) => void;
 }) {
     const {t} = useTranslation();
     const [anulare, setAnulare] = useState<datebaza.AnulareAI>();
@@ -34,7 +35,7 @@ export function InstrumenteAsistentAI({blocat, onOcupat, onIncarca, onAnulat}: {
                 <p>{t('ai.anulare_rezumat', {numar: anulare.randuri.length, conflicte: anulare.conflicte, data: anulare.creat_la})}</p>
                 <div className="tabel-plan-ai"><table><caption>{t('ai.anulare_detalii')}</caption>
                     <thead><tr>{['plan_persoane','plan_data','anulare_acum','anulare_restaurat','motiv'].map(c => <th key={c}>{t(`ai.${c}`)}</th>)}</tr></thead>
-                    <tbody>{anulare.randuri.slice(pagina * 50, (pagina + 1) * 50).map(r => <tr key={`${r.angajat_id}/${r.data}`}><td>{r.nume}</td><td>{r.data}</td><td>{r.acum || '—'}<small className="plan-separat-anulare-ai">{t('ai.anulare_plan_separat', {coduri:r.plan_acum?.join(', ') || '—'})}</small></td><td>{r.restaurat || '—'}<small className="plan-separat-anulare-ai">{t('ai.anulare_plan_separat', {coduri:r.plan_restaurat?.join(', ') || '—'})}</small></td><td>{r.motiv ? t(`ai.anulare_motiv_${r.motiv}`) : '—'}</td></tr>)}</tbody>
+                    <tbody>{anulare.randuri.slice(pagina * 50, (pagina + 1) * 50).map(r => <tr key={`${r.angajat_id}/${r.data}`}><td>{numeAngajat(date.angajati.find(a=>a.id===r.angajat_id)) || r.nume}</td><td>{r.data}</td><td>{r.acum || '—'}<small className="plan-separat-anulare-ai">{t('ai.anulare_plan_separat', {coduri:r.plan_acum?.join(', ') || '—'})}</small></td><td>{r.restaurat || '—'}<small className="plan-separat-anulare-ai">{t('ai.anulare_plan_separat', {coduri:r.plan_restaurat?.join(', ') || '—'})}</small></td><td>{r.motiv ? t(`ai.anulare_motiv_${r.motiv}`) : '—'}</td></tr>)}</tbody>
                 </table></div>
                 {anulare.randuri.length > 50 && <nav className="actiuni-plan-ai" aria-label={t('ai.plan_pagini')}>
                     <button type="button" className="buton secundar mic" disabled={pagina === 0} onClick={() => setPagina(p => p - 1)}>{t('ai.plan_anterior')}</button>

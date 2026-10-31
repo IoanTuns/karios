@@ -1,3 +1,4 @@
+import {numeAngajat} from './numeAngajat';
 // Ecranul jurnalului de modificări (F12-T02): cine a schimbat ce și când, cu filtre și export.
 import {useEffect, useMemo, useState} from 'react';
 import {useTranslation} from 'react-i18next';
@@ -54,7 +55,7 @@ export function Jurnal({date}: {date: datebaza.Date}) {
     function rand(i: datebaza.IntrareJurnal): string {
         const [id, zi] = i.rand_id.split('/');
         const a = angajati.get(id);
-        if (a) return `${a.nume} ${a.prenume} (${a.marca})${zi ? ` · ${zi}` : ''}`;
+        if (a) return `${numeAngajat(a)} (${a.marca})${zi ? ` · ${zi}` : ''}`;
         return i.rand_id;
     }
 
@@ -84,8 +85,8 @@ export function Jurnal({date}: {date: datebaza.Date}) {
             </select></label>
             <label>{t('jurnal.filtru_angajat')}<select value={filtru.angajat_id} onChange={e => schimba('angajat_id', e.target.value)}>
                 <option value="">{t('jurnal.toti')}</option>
-                {[...date.angajati].sort((a, b) => `${a.nume} ${a.prenume}`.localeCompare(`${b.nume} ${b.prenume}`, i18n.language))
-                    .map(a => <option key={a.id} value={a.id}>{a.nume} {a.prenume} ({a.marca})</option>)}
+                {[...date.angajati].sort((a, b) => `${numeAngajat(a)}`.localeCompare(`${numeAngajat(b)}`, i18n.language))
+                    .map(a => <option key={a.id} value={a.id}>{numeAngajat(a)} ({a.marca})</option>)}
             </select></label>
             <label>{t('jurnal.filtru_luna')}<input type="month" value={filtru.luna} onChange={e => schimba('luna', e.target.value)}/></label>
             <label>{t('jurnal.filtru_text')}<input type="search" value={filtru.text} placeholder={t('jurnal.filtru_text_indiciu')} onChange={e => schimba('text', e.target.value)}/></label>

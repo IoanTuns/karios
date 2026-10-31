@@ -16,6 +16,7 @@ import (
 	"pontix/internal/calcul"
 	"pontix/internal/datebaza"
 	"pontix/internal/i18n"
+	"pontix/internal/identitate"
 	raportAbsente "pontix/internal/rapoarte/absente"
 	"pontix/internal/rapoarte/detaliat"
 	raportGarzi "pontix/internal/rapoarte/garzi"
@@ -158,7 +159,7 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 	var persoana string
 	for _, a := range oameni {
 		if a.ID == c.AngajatID {
-			persoana = a.Nume + " " + a.Prenume
+			persoana = identitate.Nume(a.Nume, a.Prenume, asocieri[a.ID] != "", limba)
 			if (c.SectieID != "" && optional(a.SectieID) != c.SectieID) || (c.DepartamentID != "" && optional(a.DepartamentID) != c.DepartamentID) {
 				return Document{}, eroare("rapoarte.parametri_invalizi")
 			}
@@ -232,7 +233,7 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 			cuDate[v.AngajatID] = true
 		}
 	}
-	legaturiGarzi := map[string]string{}
+	legaturiGarzi := asocieri
 	var garziRaport []acces.Planificare
 	if d.Continut.Sursa == "PONTAJ_DETALIAT" {
 		rows, err := tx.QueryContext(ctx, "SELECT angajat_id,principal_id FROM angajati_garzi")
@@ -434,10 +435,7 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 		if d.Continut.Sursa == "GRAFIC_GARZI" && a.Activ == 0 && !cuPlanificare[a.ID] {
 			continue
 		}
-		identitate := map[string]string{"angajat": a.Nume + " " + a.Prenume, "marca": a.Marca, "sectie": numeSectii[optional(a.SectieID)], "departament": numeDepartamente[optional(a.DepartamentID)], "functie": optional(a.Functie), "contract": profile[a.ID].NumeContract, "norma_contract": profile[a.ID].NormaContract}
-		if legaturiGarzi[a.ID] != "" {
-			identitate["angajat"] += " (" + t("subtip_garda") + ")"
-		}
+		identitate := map[string]string{"angajat": identitate.Nume(a.Nume, a.Prenume, asocieri[a.ID] != "", limba), "marca": a.Marca, "sectie": numeSectii[optional(a.SectieID)], "departament": numeDepartamente[optional(a.DepartamentID)], "functie": optional(a.Functie), "contract": profile[a.ID].NumeContract, "norma_contract": profile[a.ID].NormaContract}
 		if totaluri[a.ID] == nil && d.Continut.Sursa == "PONTAJ_DETALIAT" {
 			gol, err := calcul.CalculeazaPontaj(deLa, panaLa, configuratie, nil, []calcul.IntrarePontaj{{AngajatID: a.ID, Data: deLa, Valoare: "@M0"}}, nil)
 			if err != nil {

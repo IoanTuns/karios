@@ -1,15 +1,16 @@
+import {numeAngajat} from './numeAngajat';
 import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {datebaza} from '../wailsjs/go/models';
 
-export function AnalizaPlanAI({plan}: {plan: datebaza.PlanAI}) {
+export function AnalizaPlanAI({plan, date}: {plan: datebaza.PlanAI; date: datebaza.Date}) {
     const {t} = useTranslation();
     const [cautare, setCautare] = useState('');
     const [selectie, setSelectie] = useState('');
     const [pagina, setPagina] = useState(0);
     const normal = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase();
     const persoane = (plan.selectie_explicata ?? []).filter(a => normal(`${a.nume} ${a.marca}`).includes(normal(cautare)) && (!selectie || (selectie === 'inclus' ? a.inclus : !a.inclus)));
-    const sumar = (s: datebaza.SumarPlanAI) => <li key={s.cheie}><strong>{s.nume}{s.nume !== s.cheie && <> ({s.cheie})</>}</strong><p>{t('ai.sumar_detalii', {...s})}</p></li>;
+    const sumar = (s: datebaza.SumarPlanAI) => <li key={s.cheie}><strong>{numeAngajat(date.angajati.find(a=>a.marca===s.cheie)) || s.nume}{s.nume !== s.cheie && <> ({s.cheie})</>}</strong><p>{t('ai.sumar_detalii', {...s})}</p></li>;
     return <>
         <details className="sumar-plan-ai" open><summary>{t('ai.sumar_luni')}</summary><ul>{(plan.sumar_luni ?? []).map(sumar)}</ul></details>
         <details className="sumar-plan-ai"><summary>{t('ai.sumar_persoane')}</summary><ul>{(plan.sumar_persoane ?? []).map(sumar)}</ul></details>
@@ -22,7 +23,7 @@ export function AnalizaPlanAI({plan}: {plan: datebaza.PlanAI}) {
                 </select></label>
             </div>
             <p role="status">{t('ai.rezultate_numar', {numar: persoane.length})}</p>
-            <ul>{persoane.slice(pagina * 50, (pagina + 1) * 50).map(a => <li key={a.id}>{a.nume} ({a.marca}) · <strong>{t(a.inclus ? 'ai.selectie_inclus' : 'ai.selectie_exclus')}</strong> · {t(`ai.selectie_motiv_${a.motiv}`)}</li>)}</ul>
+            <ul>{persoane.slice(pagina * 50, (pagina + 1) * 50).map(a => <li key={a.id}>{numeAngajat(date.angajati.find(p=>p.id===a.id)) || a.nume} ({a.marca}) · <strong>{t(a.inclus ? 'ai.selectie_inclus' : 'ai.selectie_exclus')}</strong> · {t(`ai.selectie_motiv_${a.motiv}`)}</li>)}</ul>
             {persoane.length > 50 && <nav className="actiuni-plan-ai" aria-label={t('ai.plan_pagini')}>
                 <button type="button" className="buton secundar mic" disabled={pagina === 0} onClick={() => setPagina(p => p - 1)}>{t('ai.plan_anterior')}</button>
                 <span>{pagina + 1} / {Math.ceil(persoane.length / 50)}</span>

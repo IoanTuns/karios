@@ -1,3 +1,4 @@
+import {numeAngajat} from './numeAngajat';
 import {useMemo, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {datebaza} from '../wailsjs/go/models';
@@ -107,7 +108,7 @@ export function PanouGanttAbsente({
 					const tip = hartaTipuri.get(crtInterval.cod);
 					rez.push({
 						angajatId: angId,
-						nume: `${ang.nume} ${ang.prenume}`,
+						nume: `${numeAngajat(ang)}`,
 						marca: ang.marca,
 						departamentId: ang.departament_id,
 						sectieId: ang.sectie_id,
@@ -126,7 +127,7 @@ export function PanouGanttAbsente({
 				const tip = hartaTipuri.get(crtInterval.cod);
 				rez.push({
 					angajatId: angId,
-					nume: `${ang.nume} ${ang.prenume}`,
+					nume: `${numeAngajat(ang)}`,
 					marca: ang.marca,
 					departamentId: ang.departament_id,
 					sectieId: ang.sectie_id,
@@ -156,7 +157,7 @@ export function PanouGanttAbsente({
 
 			const cheie = `${ang.departament_id}|${z.data}`;
 			const list = hartaZileDept.get(cheie) ?? [];
-			list.push({id: ang.id, nume: `${ang.nume} ${ang.prenume}`, marca: ang.marca, cod: z.cod});
+			list.push({id: ang.id, nume: `${numeAngajat(ang)}`, marca: ang.marca, cod: z.cod});
 			hartaZileDept.set(cheie, list);
 		}
 
@@ -392,7 +393,7 @@ export function PanouGanttAbsente({
 								return (
 									<tr key={a.id}>
 										<td className="coloana-fixa td-angajat">
-											<strong>{a.nume} {a.prenume}</strong>
+											<strong>{numeAngajat(a)}</strong>
 											<small className="text-discret"> · {a.marca}</small>
 										</td>
 										<td className="coloana-fixa td-departament">
@@ -461,7 +462,7 @@ export function PanouGanttAbsente({
 								return (
 									<tr key={a.id}>
 										<td className="coloana-fixa td-angajat">
-											<strong>{a.nume} {a.prenume}</strong>
+											<strong>{numeAngajat(a)}</strong>
 											<small className="text-discret"> · {a.marca}</small>
 										</td>
 										<td className="coloana-fixa td-departament">

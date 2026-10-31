@@ -4,6 +4,8 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 
 | Data | Acțiune | Cine | Legături |
 | --- | --- | --- | --- |
+| 2026-10-31 | F07-T30 finalizat: nume de afisare cu marcaj de garda in module, selectii, AI si exporturi; datele salvate raman curate. Go complet/vet, teste omonim/legatura/AI/rapoarte/Excel, Edge RO/EN si focus/zoom trecute. Corectate importuri/tipul parametrilor formatterului si asteptarile testelor noi pentru spatii/antet; retestate cu succes. Dependente verificate, fara biblioteci noi. | Codex | [Rezultate](rezultate-F07-T30.md) |
+| 2026-10-31 | F07-T30 inceput: nume de afisare marcat automat pentru marca de garda subordonata; identitatea si legatura sunt pastrate, fara deducere dupa nume. | Codex | F07-T30 |
 | 2026-10-31 | F16-T25: build oficial 0.92.5 complet din 221fdb1, manual 1.16 si ZIP; identitate si hashuri verificate. Pas urmator: proba operator pe monitorul propriu. Fara push/merge. | Codex | [Livrare](rezultate-F16-T25.md) |
 | 2026-10-31 | F16-T25 implementat: zoom 75-200%, resetare, tastatura si memorare locala, coordonate/viewport adaptate. Edge RO/EN la 1024x768 si 200%, focus/dialoguri/grile trecute; Go complet/vet, 18 teste frontend, manual/livrare/documentatie trecute. Inspectia vizuala a identificat nevoia derularii meniului lateral, corectata si retestata. | Codex | [Rezultate](rezultate-F16-T25.md) |
 | 2026-10-31 | F16-T25 inceput: zoom global accesibil din antet, resetare 100%, scurtaturi si preferinta locala; fara schimbarea dimensiunilor rapoartelor exportate. | Codex | F16-T25 |

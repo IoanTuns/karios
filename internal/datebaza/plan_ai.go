@@ -15,6 +15,7 @@ import (
 	"pontix/internal/bd/acces"
 	"pontix/internal/calcul"
 	"pontix/internal/i18n"
+	"pontix/internal/identitate"
 )
 
 type PersoanaPlanAI struct {
@@ -160,7 +161,7 @@ func construiestePlanAI(ctx context.Context, tx *sql.Tx, q *acces.Queries, i ai.
 	p.SelectieExplicata = []ExplicatieSelectieAI{}
 	for _, a := range surse.oameni {
 		if a.Activ != 1 {
-			p.SelectieExplicata = append(p.SelectieExplicata, ExplicatieSelectieAI{a.ID, a.Marca, strings.TrimSpace(a.Nume + " " + a.Prenume), false, "inactiv"})
+			p.SelectieExplicata = append(p.SelectieExplicata, ExplicatieSelectieAI{a.ID, a.Marca, identitate.Nume(a.Nume, a.Prenume, surse.principali[a.ID] != "", i18n.Romana), false, "inactiv"})
 			continue
 		}
 		inclus := false
@@ -180,13 +181,13 @@ func construiestePlanAI(ctx context.Context, tx *sql.Tx, q *acces.Queries, i ai.
 			}
 		}
 		if inclus {
-			p.Persoane = append(p.Persoane, PersoanaPlanAI{a.ID, a.Marca, strings.TrimSpace(a.Nume + " " + a.Prenume)})
+			p.Persoane = append(p.Persoane, PersoanaPlanAI{a.ID, a.Marca, identitate.Nume(a.Nume, a.Prenume, surse.principali[a.ID] != "", i18n.Romana)})
 		}
 		motivSelectie := "alt_grup"
 		if inclus {
 			motivSelectie = i.Selectie.Tip
 		}
-		p.SelectieExplicata = append(p.SelectieExplicata, ExplicatieSelectieAI{a.ID, a.Marca, strings.TrimSpace(a.Nume + " " + a.Prenume), inclus, motivSelectie})
+		p.SelectieExplicata = append(p.SelectieExplicata, ExplicatieSelectieAI{a.ID, a.Marca, identitate.Nume(a.Nume, a.Prenume, surse.principali[a.ID] != "", i18n.Romana), inclus, motivSelectie})
 	}
 	if len(p.Persoane) == 0 || (i.Selectie.Tip == "persoane" && gasite != len(marci)) {
 		return p, surse, eroare("ai.plan_selectie_invalida")
@@ -236,7 +237,7 @@ func construiestePlanAI(ctx context.Context, tx *sql.Tx, q *acces.Queries, i ai.
 			data := d.Format(time.DateOnly)
 			cheie := a.ID + "/" + data
 			veche := surse.ciorne[cheie]
-			r := RandPlanAI{AngajatID: a.ID, Marca: a.Marca, Nume: a.Nume, Data: data, Inainte: veche.Valoare, Dupa: program.Cod, Stare: "noua"}
+			r := RandPlanAI{AngajatID: a.ID, Marca: a.Marca, Nume: identitate.Nume(a.Nume, "", surse.principali[a.ID] != "", i18n.Romana), Data: data, Inainte: veche.Valoare, Dupa: program.Cod, Stare: "noua"}
 			if veche.Revizie > 0 {
 				r.Revizie = strconv.FormatInt(veche.Revizie, 10)
 			}
@@ -319,7 +320,7 @@ func construiestePlanAI(ctx context.Context, tx *sql.Tx, q *acces.Queries, i ai.
 		Plan  PlanAI
 		Surse surseAmprentaAI
 		Stari map[string]string
-	}{p, surseAmprentaAI{surse.oameni, surse.categorii, surse.schimburi, surse.absente, surse.ciorne, surse.pozitii, surse.intervale}, stari})
+	}{p, surseAmprentaAI{surse.principali, surse.oameni, surse.categorii, surse.schimburi, surse.absente, surse.ciorne, surse.pozitii, surse.intervale}, stari})
 	if err != nil {
 		return p, surse, err
 	}
@@ -330,13 +331,14 @@ func construiestePlanAI(ctx context.Context, tx *sql.Tx, q *acces.Queries, i ai.
 
 // Câmpuri exportate pentru serializarea completă și stabilă a surselor tokenului.
 type surseAmprentaAI struct {
-	Oameni    map[string]acces.ListaAngajatiRow
-	Categorii map[string]CategorieProgram
-	Programe  map[string]calcul.ProgramPrecompletare
-	Absente   map[string]bool
-	Ciorne    map[string]acces.PontajCiorne
-	Pozitii   []acces.Planificare
-	Intervale []calcul.IntervalPlanificare
+	Principali map[string]string
+	Oameni     map[string]acces.ListaAngajatiRow
+	Categorii  map[string]CategorieProgram
+	Programe   map[string]calcul.ProgramPrecompletare
+	Absente    map[string]bool
+	Ciorne     map[string]acces.PontajCiorne
+	Pozitii    []acces.Planificare
+	Intervale  []calcul.IntervalPlanificare
 }
 
 // AplicaPlanAI reconstruiește planul în tranzacția de scriere. Nu acceptă

@@ -1,3 +1,4 @@
+import {numeAngajat} from './numeAngajat';
 import {ZoomInterfata} from './ZoomInterfata';
 import {FiltreProfesionale,filtruProfesionalGol,corespundeProfesional} from './FiltreProfesionale';
 import {PanouAjutor} from './Ajutor';
@@ -162,7 +163,7 @@ function App() {
     }
 
     const lista = date?.angajati ?? [];
-    const vizibili = lista.filter(a => corespundeProfesional(a,filtruProfesional)&& normalizat(`${a.nume} ${a.prenume} ${a.marca}`).includes(normalizat(cautare.trim()))
+    const vizibili = lista.filter(a => corespundeProfesional(a,filtruProfesional)&& normalizat(`${numeAngajat(a)} ${a.marca}`).includes(normalizat(cautare.trim()))
         && (stare === 'toti' || (stare === 'activi' ? a.activ : !a.activ)) && (!sectie || a.sectie_id === sectie) && (!departament || a.departament_id === departament));
     const sectiePentru = (id: string) => {
         const gasita = date?.sectii.find(s => s.id === id);
@@ -378,7 +379,7 @@ function App() {
                                     <td className="coloana-selectie">
                                         <input
                                             type="checkbox"
-                                            aria-label={t('ui.selecteaza_angajat', {nume: `${a.nume} ${a.prenume}`})}
+                                            aria-label={t('ui.selecteaza_angajat', {nume: `${numeAngajat(a)}`})}
                                             checked={selectati.includes(a.id)}
                                             onChange={e => {
                                                 if (e.target.checked) {
@@ -390,13 +391,13 @@ function App() {
                                         />
                                     </td>
                                     <td><div className="identitate"><span className="avatar" aria-hidden="true">{a.prenume.charAt(0)}{a.nume.charAt(0)}</span>
-                                        <span><strong>{a.nume} {a.prenume}</strong>{a.functie && <small>{a.functie}</small>}{a.angajat_principal_id && <small>{t('rapoarte.subtip_garda')} · {date?.angajati.find(p=>p.id===a.angajat_principal_id)?.marca}</small>}</span></div></td>
+                                        <span><strong>{numeAngajat(a)}</strong>{a.functie && <small>{a.functie}</small>}{a.angajat_principal_id && <small>{t('rapoarte.subtip_garda')} · {date?.angajati.find(p=>p.id===a.angajat_principal_id)?.marca}</small>}</span></div></td>
                                     <td className="marca-angajat">{a.marca}</td><td>{sectiePentru(a.sectie_id)}</td><td>{departamentPentru(a.departament_id)}</td>
                                     <td><span className={`eticheta-contract ${a.tip_contract === 'PARTIALA' ? 'partial' : ''}`}>{(()=>{const c=date.tipuri_contract?.find(c=>c.id===(a.contract_id||a.tip_contract));return c?(c.denumire[i18n.language]||c.denumire.ro):t(a.tip_contract==='PARTIALA'?'ui.partiala':'ui.intreaga')})()}</span>{a.categorie_program_id&&<small className="categorie-angajat">{date.categorii_program?.find(c=>c.id===a.categorie_program_id)?.denumire[i18n.language]||date.categorii_program?.find(c=>c.id===a.categorie_program_id)?.denumire.ro}</small>}</td>
                                     <td className="durata">{a.norma_definita===false?t(date.tipuri_contract?.find(c=>c.id===a.contract_id)?.normare==='LUNARA'?'structura.normare_LUNARA':'structura.normare_FARA'):durata(a.norma_minute, t)}</td><td>{a.concediu_zile_an == null ? <span className="text-discret">{t('ui.necompletat')}</span> : t('ui.zile', {numar: a.concediu_zile_an})}</td>
                                     <td><span className={`stare-angajat ${a.activ ? 'activ' : ''}`}><i/>{t(a.activ ? 'ui.activ' : 'ui.inactiv')}</span></td>
-                                    <td><div className="actiuni-rand"><button className="legatura" disabled={ocupat} aria-label={t('ui.editare_pentru', {nume: `${a.nume} ${a.prenume}`})} onClick={() => deschide(a)}>{t('ui.editeaza')}</button>
-                                        <button className="legatura discreta" disabled={ocupat} aria-label={`${t(a.activ ? 'ui.dezactiveaza' : 'ui.reactiveaza')} ${a.nume} ${a.prenume}`}
+                                    <td><div className="actiuni-rand"><button className="legatura" disabled={ocupat} aria-label={t('ui.editare_pentru', {nume: `${numeAngajat(a)}`})} onClick={() => deschide(a)}>{t('ui.editeaza')}</button>
+                                        <button className="legatura discreta" disabled={ocupat} aria-label={`${t(a.activ ? 'ui.dezactiveaza' : 'ui.reactiveaza')} ${numeAngajat(a)}`}
                                             onClick={() => executa(() => SchimbaActivAngajat(a.id, !a.activ))}>{t(a.activ ? 'ui.dezactiveaza' : 'ui.reactiveaza')}</button></div></td>
                                 </tr>)}</tbody>
                             </table>{vizibili.length === 0 && <p className="fara-rezultate">{t('ui.fara_rezultate')}</p>}</div>}
@@ -414,7 +415,7 @@ function App() {
             intreaba={text => {if (!schimbaEcran('asistent_ai')) return false; setIntrebareAjutor({text, id: Date.now()}); return true;}}/>}
         {demo && <DialogDemo ocupat={ocupat} eroare={eroare} inchide={() => { setDemo(false); setEroare(''); }}
             confirma={async () => { if (await executa(IncarcaDemo, 'ui.demo_salvat')) setDemo(false); }}/>}
-        {importAngajati && <DialogImportAngajati
+        {importAngajati && <DialogImportAngajati angajati={date?.angajati}
             inchide={() => setImportAngajati(false)}
             laSucces={(dateNoi, msg) => {
                 setDate(dateNoi);

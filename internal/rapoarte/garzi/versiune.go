@@ -1,3 +1,3 @@
 package garzi
 
-const Versiune = 5
+const Versiune = 6
