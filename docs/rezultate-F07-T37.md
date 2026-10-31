@@ -17,3 +17,7 @@ Reviziile, referintele FK, codurile din schite si referintele JSON din setari/sa
 - Dependente verificate: Go stabil 1.27.3, npm fara actualizari; actualizarile tranzitive Go identificate raman in taskul separat F14-T21, pentru compatibilitate si verificari dedicate. Nu s-au instalat biblioteci.
 
 Nicio baza reala nu a fost accesata sau modificata. Nu se sterg angajati, conturi, pontaje, planificari, zile de concediu ori jurnal. Urmeaza build oficial cu manual versionat si verificarea integritatii pachetului. Fara push sau merge.
+
+## Livrare verificata
+
+Build oficial complet 0.92.15, commit 996e38e, manual 1.26 MD/HTML/PDF, in `build/bin/pontix-0.92.15-20261031-172343-5234cc39d13b492f98cf1459272aefa4/`. Executabil `pontix.exe`, ZIP si SHA256 alaturi. Identitatea, cele patru hashuri, integritatea ZIP si hashul arhivei verificate. Arbore curat dupa build. Pas urmator: proba operator in WebView2 si review pentru PR; fara push/merge.
