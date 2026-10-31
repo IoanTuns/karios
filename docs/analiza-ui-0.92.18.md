@@ -37,6 +37,11 @@ P0 = interpretare operationala gresita posibila; P1 = eroare ori efort repetat; 
 | UI28-11 | P2 | Confirmat in CSS: unele indicii folosesc 10px; formularele si tabelele sunt dense. Nu s-a masurat lizibilitatea pe dispozitivul utilizatorului. | Textul secundar poate fi greu de citit la scalare ridicata sau in fotografii/ecrane mici. | Verifica un minim practic de 12px pentru indicii si 14px pentru formulare, pastrand densitate reglabila in grile. Probe la 1024x768 si 1366x768, Windows 125/150%, zoom 100/150/200%. Fara actiuni inaccesibile sau text taiat fara alternativa. |
 | UI28-12 | P2 | Confirmat: exista ajutor contextual si configurari distribuite in mai multe sectiuni. | Manualul nu poate explica singur o lista care ascunde optiuni sau o configurare incompleta. | Ajutor contextual pentru campul problematic, linkuri intre contract/categorie/program, verificare de configurare cu probleme explicate si actiuni de reparare. Nu transforma fiecare operatiune intr-un asistent cu pasi inutili. |
 
+| UI28-13 | P1 | Raportat de utilizator: la tabelele care necesita derulare stanga/dreapta, capetele nu raman vizibile. Nu s-a reprodus in acest audit si nu este stabilit daca se refera la antete, coloanele de identificare ori capetele tabelului. | Se pierde asocierea dintre persoana, data si valoarea editata; reveniri repetate pentru orientare. | Verifica toate tabelele derulante. Antetul trebuie sa ramana corelat cu coloanele, iar coloanele de identificare sa ramana vizibile la derulare orizontala. Pentru totaluri/actiuni de la capatul din dreapta, stabileste fixarea sau o alternativa permanent accesibila fara suprapunerea celulelor. Probe la ambele capete ale derularii, pe verticala/orizontala simultan, la zoom 100/150/200% si rezolutii mici. |
+| UI28-14 | P0 | Raportat de utilizator: exporturile Excel nu pot fi deschise. Cauza neconfirmata. Exista doua fluxuri distincte in cod: exportul Pontaj si exportul raportului previzualizat. | Livrabilul nu poate fi folosit sau transmis; blocheaza fluxul de raportare. | Investigheaza separat generarea XLSX, transportul datelor, scrierea completa pe disc, extensia si deschiderea in Excel. Valideaza arhiva OOXML si redeschide fisierul salvat, nu doar continutul generat in memorie. Probe pe export Pontaj si raport detaliat, date goale/complete, cai cu diacritice si nume lungi. Criteriu: fisierul final se deschide in Microsoft Excel fara eroare sau cerere de reparare, cu zile, totaluri si legenda corecte. Un mesaj de succes trebuie afisat numai dupa salvarea completa. |
+
+Completare solicitata de utilizator: UI28-13 si UI28-14 sunt probleme raportate, nu diagnostice confirmate sau remedieri efectuate. Nu se presupune ca fisierul Excel este corupt fara inspectarea exemplarului rezultat ori reproducerea fluxului.
+
 ## Fluxul recomandat de configurare
 
 1. Defineste functiile si contractele, cu norma si atributul de garda.
@@ -52,6 +57,7 @@ Acesta este un flux propus pentru claritate, nu un blocaj care sa impiedice core
 
 ## Ordinea propusa de implementare
 
+- Lot 0: UI28-14 si UI28-13. Deblocarea exporturilor Excel si orientarea in tabelele derulante, inaintea finisajelor vizuale.
 - Lot A: UI28-01, UI28-02, UI28-04. Identitate consecventa, asociere explicita si explicarea programelor lipsa. Beneficiu imediat pentru problemele raportate de utilizator.
 - Lot B: UI28-03 si UI28-07. Clarifica efectele salvarii/publicarii si ale concediilor, cu previzualizare proportionata actiunii.
 - Lot C: UI28-05, UI28-06, UI28-08. Reduce densitatea si separa configurarea initiala de operarea lunara.
@@ -62,6 +68,8 @@ Prioritatile sunt recomandari pentru review. Nu s-au creat automat taskuri de im
 ## Cum se valideaza rezultatul
 
 Scenarii cu date anonime: creare angajat normal; contract Garda independent; doua marci asociate; gasirea unui program activ exclus din lista; programare, salvare si publicare; conversie in concediu si apoi medical cu tura de noapte; initializare sold negativ/CO; consultare Inactive/reactivare; inchidere de luna si incercare de editare.
+
+Scenarii suplimentare: derulare completa stanga/dreapta si sus/jos in fiecare tabel, verificarea corelarii antetelor cu datele; exportarea din Pontaj si Rapoarte si deschiderea fisierului salvat in Microsoft Excel. Validarea bibliotecii XLSX singura nu certifica deschiderea in Excel.
 
 Se masoara finalizarea fara asistenta, erorile de interpretare, pasii inutili si revenirea din eroare. Nu se inventeaza un scor de utilizabilitate sau estimari de imbunatatire procentuala. Probe cu tastatura, ambele teme si dimensiunile mentionate; cititor de ecran si contrast se verifica separat.
 

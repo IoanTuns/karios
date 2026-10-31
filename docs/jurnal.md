@@ -4,6 +4,7 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 
 | Data | Acțiune | Cine | Legături |
 | --- | --- | --- | --- |
+| 2026-10-31 | F16-T28: adaugate la cererea utilizatorului UI28-13 (capete de tabele nevizibile la derulare orizontala) si UI28-14 (exporturi Excel care nu se deschid). Lot 0 prioritizat, criterii pentru tabele si fisiere finale salvate; cauzele raman neconfirmate, fara implementare sau reproducere declarata. | Codex | [Audit](analiza-ui-0.92.18.md) |
 | 2026-10-31 | F16-T28: finalizat audit UI/UX 0.92.18, cu avantaje, 12 constatari prioritizate, dovezi si criterii de acceptare, loturi A-D si scenarii de validare. I101 inregistreaza propunerile. Documentatie verificata: 0 erori; diff --check trecut. Nu s-au rerulat teste aplicatie si nu s-a implementat UI. Pas urmator: prioritizarea loturilor, fara push/merge. | Codex | [Audit](analiza-ui-0.92.18.md) |
 | 2026-10-31 | F16-T28: inceput audit euristic al interfetei 0.92.18 pe capturile utilizatorului si cod; inventariate identitatea de garda, filtrele, formularele, planificarea, Pontajul si operatiile destructive. Fara acces la baza reala si fara capturi cu date personale adaugate in repo. | Codex | [Audit](analiza-ui-0.92.18.md) |
 | 2026-10-31 | F07-T27: livrare locala 0.92.18 (defcd8e), raport v10, manual 1.29 MD/HTML/PDF si ZIP/SHA256. Identitate, hashuri si integritate verificate. Urmeaza proba operator si review; fara push/merge. | Codex | [Livrare](plan-F07-T27-solduri.md) |
