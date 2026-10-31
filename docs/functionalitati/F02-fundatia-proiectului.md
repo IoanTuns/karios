@@ -39,4 +39,4 @@ Proiectul are structura, uneltele și regulile de lucru pe care se construiește
 
 | F02-T22 | Pachet ZIP, acceptanta operator, note de versiune si verificari traduceri/legaturi | gata | Codex | 0.89.1 integrat cu main 8cce680, cod eeba9be; ZIP explicit 10 fisiere/11.9 MiB, manual 1.5/PDF 20 pagini, documente operator si SHA256. Go/vet, frontend 13 teste, 3 probe manual, 7 probe livrare si regresia buildului trecute. CI extins. Pas urmator: review PR si proba operator pe Windows curat. |
 
-| F02-T24 | Build ultima versiune si revizie manual pentru 0.89.3 | in lucru | Codex | Buildul initial refuzat: manual revizuit pentru 0.89.1. Revizuire reala pentru modificarile AI/erori, apoi build oficial si ZIP. |
+| F02-T24 | Build ultima versiune si revizie manual pentru 0.89.3 | gata | Codex | Main e4b6a8f, cod neschimbat; revizie editoriala e2a3dff, manual 1.6. Build oficial complet in build/bin/pontix-0.89.3-20261031-094531-51389da84ed14c8baa11c387e8a36d1f; ZIP/hashuri verificate. Go/vet, 18 teste frontend si 3 probe manual trecute. Pas urmator: review/push al reviziei manualului daca se solicita; fara push. |
