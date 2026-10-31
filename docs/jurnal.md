@@ -4,6 +4,9 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 
 | Data | Acțiune | Cine | Legături |
 | --- | --- | --- | --- |
+| 2026-10-31 | F07-T34 verificat: gofmt, vet, suita Go completa, frontend 18 teste, Edge RO/EN, manual/livrare si documentatie trecute. Pregatire executabil 0.92.10 si manual 1.21. | Codex | [Rezultate](rezultate-F07-T34.md) |
+| 2026-10-31 | F07-T34 implementat: corectia explicita CM in CO permisa cu revizie curenta; cererile fara revizie si conflictele raman protejate. Teste backend si Edge RO/EN pentru corectare/anulare trecute. Manual 1.21 si indiciu in interfata; verificari complete in curs. | Codex | [Rezultate](rezultate-F07-T34.md) |
+| 2026-10-31 | F07-T34 inceput: verificata editarea/anularea individuala si in lot a concediilor. Identificata restrictia medicalului la corectia explicita; se pastreaza protectia fata de suprascrieri fara revizie. | Codex | F07-T34 |
 | 2026-10-31 | F07-T33: build oficial 0.92.9 complet din 730716d, manual 1.20 si ZIP, identitate si hashuri verificate. Prima verificare ZIP a folosit gresit with_suffix pe director cu puncte; corectata concatenarea extensiei si repetata verificarea cu succes. Pas urmator: proba operator; fara push/merge. | Codex | [Livrare](rezultate-F07-T33.md) |
 | 2026-10-31 | F07-T33 verificat: gofmt, vet si suita Go completa trecute; TypeScript/Vite, 18 teste frontend, Edge RO/EN si verificarile manual/livrare/documentatie trecute. Pregatire build 0.92.9 cu manual 1.20. | Codex | [Rezultate](rezultate-F07-T33.md) |
 | 2026-10-31 | F07-T33 implementat: reguli confirmate pentru intreaga tura si toate marcile asociate; protectie la reintroducere, jurnal atomic si zile lucratoare. Testele tehnice adaptate la comportamentul cerut, fara schimbarea referintelor contabile. Verificari complete in curs; manual 1.20. | Codex | [Rezultate](rezultate-F07-T33.md) |

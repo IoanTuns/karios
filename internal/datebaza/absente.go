@@ -478,7 +478,7 @@ func (s *Serviciu) salveazaAbsente(ctx context.Context, zile []ZiAbsenta, conver
 				}
 				categorieVeche = tipVechi.Categorie
 			}
-			if suprascrie && calcul.PrioritateAbsenta(tip.Categorie) < calcul.PrioritateAbsenta(categorieVeche) {
+			if suprascrie && z.Revizie == "" && calcul.PrioritateAbsenta(tip.Categorie) < calcul.PrioritateAbsenta(categorieVeche) {
 				return eroare("absente.medical_prioritar")
 			}
 			medicalPrioritar := suprascrie && categorieVeche != "" && calcul.PrioritateAbsenta(tip.Categorie) > calcul.PrioritateAbsenta(categorieVeche)

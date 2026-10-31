@@ -81,6 +81,7 @@ func TestMedicalAnuleazaIntreagaTuraPeToateMarcile(t *testing.T) {
 	}
 	z := zile[0]
 	z.Cod = "CO"
+	z.Revizie = ""
 	verificaCod(t, m.serviciu.SalveazaAbsente(ctx, []ZiAbsenta{z}), "absente.medical_prioritar")
 }
 
@@ -120,5 +121,37 @@ func TestMedicalNuAnuleazaTuraTerminataLaMiezulNoptii(t *testing.T) {
 	var v string
 	if err := m.db.QueryRow("SELECT valoare FROM pontaj_ciorne WHERE angajat_id=?", a.ID).Scan(&v); err != nil || v != "N12" {
 		t.Fatal("tura fara suprapunere anulata", v, err)
+	}
+}
+
+func TestMedicalEditabilSiAnulabilExplicit(t *testing.T) {
+	m := pregateste(t)
+	ctx := context.Background()
+	a := persoanaAbsente(t, m)
+	if err := m.serviciu.SalveazaAbsente(ctx, []ZiAbsenta{{AngajatID: a.ID, Data: "2026-10-05", Cod: "CM", Activ: true}}); err != nil {
+		t.Fatal(err)
+	}
+	z := absenteTest(t, m, 2026).Zile[0]
+	veche := z
+	z.Cod = "CO"
+	if err := m.serviciu.SalveazaAbsente(ctx, []ZiAbsenta{z}); err != nil {
+		t.Fatal("corectia explicita refuzata", err)
+	}
+	verificaCod(t, m.serviciu.SalveazaAbsente(ctx, []ZiAbsenta{veche}), "absente.conflict")
+	z = absenteTest(t, m, 2026).Zile[0]
+	if z.Cod != "CO" {
+		t.Fatal(z)
+	}
+	z.Cod = "CM"
+	if err := m.serviciu.SalveazaAbsente(ctx, []ZiAbsenta{z}); err != nil {
+		t.Fatal(err)
+	}
+	z = absenteTest(t, m, 2026).Zile[0]
+	z.Activ = false
+	if err := m.serviciu.SalveazaAbsente(ctx, []ZiAbsenta{z}); err != nil {
+		t.Fatal("anularea medicalului refuzata", err)
+	}
+	if absenteTest(t, m, 2026).Zile[0].Activ {
+		t.Fatal("medical ramas activ")
 	}
 }

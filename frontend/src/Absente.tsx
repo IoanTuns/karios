@@ -152,6 +152,7 @@ export function Absente({date, filtruInitial, cerereConcediu, onCerereDeschisa}:
     }
 
     return <section className="modul-absente">
+        <p className="nota-calendar">{t('absente.corectare_indiciu')}</p>
         <div className="unelte-calendar unelte-perioada"><form onSubmit={e => { e.preventDefault(); const nou = Number(anText); if (Number.isInteger(nou) && nou >= 1 && nou <= 9999) setAn(nou); else setEroare(t('sarbatori.an_invalid')); }}>
             <label>{t('sarbatori.an')}<input aria-label={t('sarbatori.an')} type="number" min="1" max="9999" required disabled={ocupat} value={anText} onChange={e => setAnText(e.target.value)}/></label><button className="buton secundar" disabled={ocupat}>{t('sarbatori.arata')}</button></form>
             <div className="actiuni-calendar"><button className="buton secundar" disabled={ocupat || incarcare || !dateAbsente} onClick={() => { setEroare(''); setTipEditat(new datebaza.TipAbsenta({cod:'', denumire:{ro:'',en:''}, categorie:'SPECIAL', activ:true})); }}>{t('absente.adauga_tip')}</button>

@@ -70,7 +70,7 @@ func TestAbsentePersistentaEditareAnulareSiAni(t *testing.T) {
 	if err := m.serviciu.SalveazaAbsente(ctx, []ZiAbsenta{editata}); err != nil {
 		t.Fatal(err)
 	}
-	verificaCod(t, m.serviciu.SalveazaAbsente(ctx, []ZiAbsenta{veche}), "absente.medical_prioritar")
+	verificaCod(t, m.serviciu.SalveazaAbsente(ctx, []ZiAbsenta{veche}), "absente.conflict")
 	actuala := absenteTest(t, m, 2026).Zile[0]
 	actuala.Activ = false
 	if err := m.serviciu.SalveazaAbsente(ctx, []ZiAbsenta{actuala}); err != nil {

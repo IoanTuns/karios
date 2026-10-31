@@ -115,3 +115,5 @@ Programul normal L-V inseamna toate zilele lucratoare, excluzand sarbatorile leg
 Toate concediile/absentele, inclusiv medicalul, se inregistreaza numai in zile lucratoare L-V fara sarbatori legale. Prioritate explicita: MEDICAL peste orice alt concediu, orice concediu peste program. Se suprascriu automat inregistrarile vizate, cu jurnal. Ceruta regula pentru tura de noapte care incepe in ziua precedenta: intreaga tura sau numai orele zilei de CM.
 
 F07-T33: utilizatorul confirma anularea intregii ture de noapte care intra intr-o zi de medical, inclusiv programul inceput in ziua precedenta. Medicalul anuleaza programele tuturor marcilor asociate explicit aceleiasi persoane; inregistrarea absentei ramane pe marca selectata.
+
+F07-T34: utilizatorul confirma ca toate operatiunile, inclusiv concediile, trebuie sa poata fi corectate sau sterse. Pentru absente, corectia explicita cu revizie este permisa inclusiv din medical in alt tip; anularea pastreaza istoricul. Prioritatea automata nu face inregistrarea imuabila.

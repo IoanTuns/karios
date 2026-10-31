@@ -529,6 +529,15 @@ Pentru revenire de la absenta la program de lucru, anulati absenta din evidenta 
 
 Orice concediu, inclusiv medical, se inregistreaza numai luni-vineri, fara sarbatorile din calendarul aplicatiei. Verificati calendarul pentru anul folosit. Formularul exclude automat weekendurile si sarbatorile; serviciul refuza si cererile directe care contin aceste zile.
 
-Concediul inlocuieste programul din schita si planificarea acelei zile. Medicalul are prioritate fata de celelalte concedii si programe. Daca o tura inceputa in ziua precedenta intra in ziua medicalului, se anuleaza intreaga tura. Sunt anulate si programele marcilor asociate explicit aceleiasi persoane, inclusiv garzile. Absenta medicala nu se dubleaza pe aceste marci. Un alt concediu nu poate inlocui direct medicalul: medicalul trebuie mai intai anulat explicit.
+Concediul inlocuieste programul din schita si planificarea acelei zile. Medicalul are prioritate fata de celelalte concedii si programe. Daca o tura inceputa in ziua precedenta intra in ziua medicalului, se anuleaza intreaga tura. Sunt anulate si programele marcilor asociate explicit aceleiasi persoane, inclusiv garzile. Absenta medicala nu se dubleaza pe aceste marci. O cerere noua nu suprascrie automat medicalul. Pentru corectarea explicita folositi Editeaza sau formularul din Pontaj pe absenta existenta; revizia inregistrarii este verificata.
 
 Salvarea este atomica si jurnalizata. O luna inchisa, inclusiv luna precedenta afectata de o tura de noapte, blocheaza operatia intreaga. Pontajele efective cu ore de inceput/sfarsit nu se sterg automat; un conflict trebuie verificat de operator. Programele anulate nu se restaureaza automat la anularea concediului. Inregistrarile istorice din weekend/sarbatori nu sunt migrate automat; verificati-le separat.
+
+
+## Corectarea si anularea concediilor, inclusiv medicale
+
+In Concedii si absente, folositi Editeaza pe rand pentru schimbarea tipului si a detaliilor. Pentru mai multe zile, selectati randurile si alegeti editarea selectiei. Aceste actiuni permit inclusiv corectarea unui medical in alt tip de concediu.
+
+Pentru eliminare, folositi Anuleaza ziua sau Anuleaza zilele selectate si confirmati. Absenta devine inactiva si nu mai blocheaza programul; istoricul ramane disponibil. Anularea medicalului nu reface automat programele pe care le-a anulat. Pentru revenire la lucru aplicati din nou programul corect.
+
+O corectie facuta intre timp de alt operator produce un conflict: reincarcati datele inainte de a repeta. Lunile inchise trebuie redeschise prin fluxul autorizat. Prioritatea medicalului protejeaza fata de suprascrieri automate, fara sa impiedice corectarea explicita a unei inregistrari curente.

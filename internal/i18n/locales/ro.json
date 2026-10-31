@@ -1606,5 +1606,6 @@
   "pontaj.absenta_salvata": "Tipul zilelor selectate a fost actualizat in Pontaj si Absente.",
   "pontaj.absenta_pontaj_efectiv": "Exista pontaj efectiv inregistrat pentru una dintre zile. Acesta trebuie corectat inainte de schimbarea tipului zilei.",
   "absente.zi_nelucratoare": "Concediile, inclusiv medicale, se inregistreaza numai in zile lucratoare, fara weekend si sarbatori legale.",
-  "absente.medical_prioritar": "Ziua are concediu medical activ. Un alt concediu nu poate inlocui concediul medical."
+  "absente.medical_prioritar": "Exista concediu medical activ. Foloseste Editeaza pe inregistrarea curenta pentru o corectie explicita.",
+  "absente.corectare_indiciu": "Concediile, inclusiv medicale, se pot edita individual sau in lot. Anuleaza elimina absenta activa si pastreaza istoricul; programele anterioare nu se restaureaza automat."
 }
