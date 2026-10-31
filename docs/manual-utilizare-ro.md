@@ -566,3 +566,12 @@ Puteti redenumi o definitie deja folosita. Pentru schimbarea comportamentului cr
 In Concedii si absente, pe randul zilei alegeti Editeaza. Puteti schimba data; cele doua campuri de data raman sincronizate pentru editarea unei singure zile. La salvare vechea zi se anuleaza si noua zi se inregistreaza atomic. Daca noua zi este ocupata, nelucratoare, intr-o luna inchisa sau apare un conflict, operatia intreaga este refuzata. Pastrati Activ bifat pentru mutare.
 
 Sterge ziua elimina ziua din evidenta activa prin anulare cu istoric. Bifati Arata si zilele anulate pentru a o vedea din nou si folositi Reactiveaza. In formular puteti debifa Activ pentru dezactivare sau bifa pentru reactivare. Reaparitia programelor anulate anterior de concediu nu este automata. In lista Tipuri de absenta sunt disponibile butoane Dezactiveaza/Reactiveaza, precum si starea Activ din editor. Dezactivarea unui tip nu anuleaza zilele existente.
+
+
+## Filtrarea dupa starea activa
+
+Listele cu stare au filtru Active / Inactive / Toate, implicit Active. Este disponibil pentru nomenclatoare (functii, grupuri, contracte, categorii de schimb, tipuri si regimuri), programe de lucru, categorii de program, zile si tipuri de absenta, conturi, modele de raport si reguli conditionate. Lista Angajati porneste pe activi.
+
+In Pontaj filtrul controleaza angajatii afisati; alegeti Inactive sau Toate pentru istoricul persoanelor dezactivate. In Planificare exista un filtru pentru angajati si, in modul Lista, unul separat pentru pozitiile active/retrase. Filtrarea nu sterge datele si nu modifica totalurile salvate sau formulele rapoartelor. Un program, tip sau model dezactivat se regaseste prin filtrul Inactive; reactivati-l din editorul sau. Regula noua, creata initial inactiva, este afisata prin trecerea explicita la Toate.
+
+In evidenta absentelor, Inactive inlocuieste vechiul filtru Arata si zilele anulate; Toate afiseaza ambele stari. Pentru reactivare folositi butonul de pe rand. Ecranele fara stare activ/inactiv (de exemplu jurnal, backupuri si calendarul sarbatorilor) isi pastreaza filtrele proprii; nu se introduc stari artificiale pentru aceste date. Optiunile din formularele de creare raman active, iar la editare este pastrata si valoarea inactiva deja asociata, pentru a nu pierde referinta.

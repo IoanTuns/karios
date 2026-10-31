@@ -1,3 +1,4 @@
+import {FiltruStare,corespundeStare,type StareLista} from './FiltruStare';
 import {useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {CompleteazaSchimburiInitiale, ListaSchimburi, SalveazaSchimb, SchimbaActivSchimb} from '../wailsjs/go/main/App';
@@ -12,6 +13,7 @@ export function Schimburi({date,onDate}:{date:datebaza.Date;onDate:(date:datebaz
  const categorii=date.categorii_schimburi??[];
  const tipuri=date.tipuri_program??[], regimuri=date.regimuri_program??[];
     const {t, i18n} = useTranslation();
+ const [stareLista,setStareLista]=useState<StareLista>('ACTIVE');
     const [lista, setLista] = useState<datebaza.Schimb[]>([]);
     const [categorie, setCategorie] = useState('');
     const [categoriePrecompletare, setCategoriePrecompletare] = useState('LAB');
@@ -42,13 +44,13 @@ export function Schimburi({date,onDate}:{date:datebaza.Date;onDate:(date:datebaz
     }
 
     const numeCategorie=(id:string)=>{const c=categorii.find(c=>c.id===id);return c?.denumire[i18n.language]||c?.denumire.ro||c?.denumire.en||id;};
-    const filtrate = lista.filter(s => (!categorie || (s.categorie || 'CUSTOM') === categorie) && (!regim || (s.regim_id || s.regim) === regim));
+    const filtrate = lista.filter(s => corespundeStare(s.activ,stareLista) && (!categorie || (s.categorie || 'CUSTOM') === categorie) && (!regim || (s.regim_id || s.regim) === regim));
 
     return <section className="schimburi">
  <EditorNomenclator tip="categorii" lista={categorii} onDate={onDate}/>
  <EditorNomenclator tip="tipuri_program" lista={tipuri} onDate={onDate}/>
  <EditorNomenclator tip="regimuri_program" lista={regimuri} onDate={onDate}/>
-        <div className="unelte-calendar"><p className="nota-calendar">{t('schimburi.indiciu')}</p>
+        <div className="unelte-calendar"><FiltruStare nume="schimburi" valoare={stareLista} schimba={setStareLista} disabled={ocupat}/><p className="nota-calendar">{t('schimburi.indiciu')}</p>
             <div className="actiuni-calendar">
                 <select aria-label={t('schimburi.categorie_precompletare')} value={categoriePrecompletare} disabled={ocupat || incarcare} onChange={e => setCategoriePrecompletare(e.target.value)}>
                     <option value="LAB">{numeCategorie('LAB')}</option>

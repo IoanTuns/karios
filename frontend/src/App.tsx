@@ -70,7 +70,7 @@ function App() {
     const [eroare, setEroare] = useState('');
     const [mesaj, setMesaj] = useState('');
     const [cautare, setCautare] = useState('');
-    const [stare, setStare] = useState('toti');
+    const [stare, setStare] = useState('activi');
     const [filtruProfesional,setFiltruProfesional]=useState({...filtruProfesionalGol});
     const [sectie, setSectie] = useState('');
     const [departament, setDepartament] = useState('');
@@ -304,7 +304,7 @@ function App() {
                                 <label className="cautare"><span className="doar-cititor">{t('ui.cautare')}</span>
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/></svg>
                                     <input value={cautare} onChange={e => setCautare(e.target.value)} placeholder={t('ui.cautare_indiciu')}/></label>
-                                <select aria-label={t('ui.stare')} value={stare} onChange={e => setStare(e.target.value)}>
+                                <select aria-label={t('ui.stare')} value={stare} onChange={e => {setStare(e.target.value);setSelectati([]);}}>
                                     <option value="toti">{t('ui.toti')}</option><option value="activi">{t('ui.doar_activi')}</option><option value="inactivi">{t('ui.doar_inactivi')}</option>
                                 </select>
                                 <select aria-label={t('ui.sectie')} value={sectie} onChange={e => { setSectie(e.target.value); setDepartament(''); }}>

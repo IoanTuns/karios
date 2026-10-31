@@ -6,6 +6,12 @@ export async function verificaAbsentePontaj({evalueaza,asteapta,apasa,completeaz
  await apasa(t('ui.pontaj'));
  const celula=i=>`input[data-rand="0"][data-zi="${i}"]`;
  await asteapta(()=>evalueaza(`Boolean(document.querySelector('${celula(0)}'))`),'Grila lipsa');
+ assert.equal(await evalueaza("document.querySelector('select[name=filtru_stare_angajati_pontaj]').value"),'ACTIVE','Pontaj nu porneste pe activi');
+ await completeaza('select[name=filtru_stare_angajati_pontaj]','INACTIVE');
+ assert.equal(await evalueaza("document.querySelectorAll('.grila-pontaj tbody tr').length"),await evalueaza("JSON.parse(localStorage.getItem('pontix-test')).angajati.filter(a=>!a.activ).length"),'Filtrul Pontaj amesteca starile');
+ await completeaza('select[name=filtru_stare_angajati_pontaj]','ACTIVE');
+ await asteapta(()=>evalueaza(`Boolean(document.querySelector('${celula(0)}'))`),'Revenirea la activi nu reface grila');
+
  await evalueaza(`(()=>{const e=document.querySelector('${celula(0)}');e.dispatchEvent(new MouseEvent('mousedown',{bubbles:true,button:0}));e.focus()})()`);
  await completeaza('select[aria-label="'+t('pontaj.program_completare')+'"]','Z7');await apasa(t('pontaj.aplica_program'));
  await apasa(t('pontaj.salveaza'));
@@ -60,10 +66,11 @@ export async function verificaAbsentePontaj({evalueaza,asteapta,apasa,completeaz
  await evalueaza('window.confirm=()=>true');
  await apasa(t('absente.sterge_zi'));
  await asteapta(()=>evalueaza("JSON.parse(localStorage.getItem('pontix-test')).absente.every(z=>!z.activ)"),'Medicalul nu a fost anulat');
- await evalueaza("document.querySelector('input[name=arata_anulate]').click()");
+ await completeaza('select[name=filtru_stare_zile_absenta]','INACTIVE');
  await asteapta(()=>evalueaza("document.querySelectorAll('.tabel-absente tbody tr').length>=2"),'Zilele anulate sunt inaccesibile');
  await apasa(t('ui.reactiveaza'));
  await asteapta(()=>evalueaza("JSON.parse(localStorage.getItem('pontix-test')).absente.some(z=>z.activ)"),'Reactivarea nu s-a salvat');
+ await completeaza('select[name=filtru_stare_tipuri_absenta]','TOATE');
  for (const activa of [false,true]) {
   await evalueaza("document.querySelector('.tabel-tipuri-absenta tbody tr td:last-child button:nth-child(2)').click()");
   await asteapta(()=>evalueaza(`JSON.parse(localStorage.getItem('pontix-test')).tipuriAbsenta[0].activ===${activa}`),'Starea tipului nu s-a schimbat');

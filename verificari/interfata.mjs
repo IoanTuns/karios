@@ -396,6 +396,7 @@ try {
     await completeaza('dialog input[type="number"]', '4.5');
     await apasa('Salvează');
     await asteapta(() => evalueaza(`!document.querySelector('dialog') && document.querySelector('tbody').textContent.includes('4 h 30 min')`), 'Norma parțială nu se salvează.');
+    await completeaza('select[aria-label="Stare"]','toti');
     await apasa('Dezactivează');
     await asteapta(() => evalueaza(`document.querySelector('tbody').textContent.includes('Inactiv')`), 'Dezactivarea nu se vede.');
     await apasa('Reactivează');
@@ -510,6 +511,7 @@ try {
     assert.deepEqual(await evalueaza(`[...document.querySelectorAll('.tabel-schimburi tbody tr')].map(r => r.cells[0].textContent)`),['TEST_N12'],'Filtrul categoriei Custom nu afișează schimbul nou.');
     await completeaza('.schimburi select[aria-label="Categorie"]','');
     assert(await evalueaza(`document.querySelector('.tabel-schimburi').textContent.includes('19:00') && document.querySelector('.tabel-schimburi').textContent.includes('12 h')`), 'Intervalul schimbului diferă.');
+    await completeaza('select[name=filtru_stare_schimburi]','TOATE');
     await evalueaza(`[...document.querySelectorAll('.tabel-schimburi tbody tr')].find(r => r.cells[0].textContent === 'TEST_N12').querySelectorAll('button')[1].click()`);
     await asteapta(() => evalueaza(`[...document.querySelectorAll('.tabel-schimburi tbody tr')].find(r => r.cells[0].textContent === 'TEST_N12').textContent.includes('Inactiv')`), 'Schimbul nu se dezactivează.');
     await apasa('Reactivează');
@@ -550,6 +552,7 @@ try {
     assert.deepEqual(await evalueaza(`[...document.querySelectorAll('.sumar-absente tbody tr:first-child td')].slice(2).map(c => c.textContent)`),['2','2','1'],'Sumar incorect pe categorii.');
     await completeaza('.filtre-absente select[aria-label="Categorie"]','SPECIAL');
     assert.equal(await evalueaza(`document.querySelectorAll('.tabel-absente tbody tr').length`),1,'Filtrul categoriei nu funcționează.');
+    await completeaza('select[name=filtru_stare_tipuri_absenta]','TOATE');
     await evalueaza(`[...document.querySelectorAll('.tabel-tipuri-absenta tbody tr')].find(r => r.cells[0].textContent === 'EV').querySelector('button').click()`);
     await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog input[name="activ"]'))`),'Editare tip lipsă.');
     await evalueaza(`document.querySelector('dialog input[name="activ"]').click()`); await apasa('Salvează');
@@ -678,6 +681,7 @@ try {
     assert.equal(modeleDupaEditare.find(d=>d.id==='raport-pontaj').subsol.imagini.dreapta.nume,'subsol-demo.jpg','Imaginea din subsol nu este salvata.');
     assert.equal(modeleDupaEditare.find(d=>d.id==='raport-fisa').antet.stanga.ro,'','Editarea unui raport a schimbat alt model.');
     assert(modeleDupaEditare.find(d=>d.id==='raport-pontaj').continut.coloane.includes('functie'),'Coloana configurată s-a pierdut.');
+    await completeaza('select[name=filtru_stare_modele_rapoarte]','TOATE');
     await evalueaza(`[...document.querySelectorAll('.tabel-modele-rapoarte tbody tr')].find(r=>r.cells[0].textContent==='Pontaj lunar').querySelectorAll('button')[1].click()`);
     await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog input[name="denumire_ro"]'))`),'Duplicarea nu deschide editorul.');
     await completeaza('dialog input[name="denumire_ro"]','Raport demo separat');

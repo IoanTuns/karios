@@ -1,3 +1,4 @@
+import {FiltruStare,corespundeStare,type StareLista} from './FiltruStare';
 import {numeAngajat} from './numeAngajat';
 import {FiltreProfesionale,filtruProfesionalGol,corespundeProfesional} from './FiltreProfesionale';
 import {useEffect, useRef, useState} from 'react';
@@ -24,6 +25,7 @@ function useModele() {
 }
 
 export function DefinireRapoarte() {
+ const [stareLista,setStareLista]=useState<StareLista>('ACTIVE');
     const {t,i18n} = useTranslation();
     const {configuratie,incarcare,eroare,setEroare,aplica,reincarca} = useModele();
     const [editare,setEditare] = useState<rapoarte.Definitie | null>(null);
@@ -43,11 +45,11 @@ export function DefinireRapoarte() {
         catch { setEroare(t('rapoarte.eroare')); }
         finally { blocat.current = false; setOcupat(false); }
     }
-    return <section className="definitii-rapoarte">
+    return <section className="definitii-rapoarte"><FiltruStare nume="modele_rapoarte" valoare={stareLista} schimba={setStareLista} disabled={ocupat}/>
         <div className="unelte-calendar"><p className="nota-calendar">{t('rapoarte.modele_indiciu')}</p><div className="actiuni-calendar"><button className="legatura" disabled={ocupat || incarcare} onClick={reincarca}>{t('rapoarte.reincarca')}</button><button className="buton primar" disabled={ocupat || incarcare || !modele.length} onClick={() => nou()}>{t('rapoarte.model_nou')}</button></div></div>
         {mesaj && <p className="mesaj succes" role="status">{mesaj}</p>}{eroare && !editare && <p className="mesaj eroare" role="alert">{eroare}</p>}
         {incarcare ? <p role="status">{t('ui.incarcare')}</p> : <div className="panou tabel-derulant"><table className="tabel-modele-rapoarte"><thead><tr>{['schimburi.denumire','rapoarte.sursa','rapoarte.revizie','rapoarte.pagina','ui.stare','ui.actiuni'].map(k => <th key={k}>{t(k)}</th>)}</tr></thead><tbody>
-            {modele.map(d => <tr key={d.id}><td><strong>{textIn(d.denumire,i18n.language)}</strong></td><td>{t(`rapoarte.sursa_${d.continut.sursa}`)}</td><td>{d.revizie}</td><td>{d.pagina.format} · {t(`rapoarte.${d.pagina.orientare}`)}</td><td>{t(d.activ ? 'ui.activ':'ui.inactiv')}</td><td><div className="actiuni-rand"><button className="legatura" disabled={ocupat} onClick={() => { setEroare(''); setEditare(copiaza(d)); }}>{t('ui.editeaza')}</button><button className="legatura discreta" disabled={ocupat} onClick={() => nou(d)}>{t('rapoarte.duplica')}</button></div></td></tr>)}
+            {modele.filter(d=>corespundeStare(d.activ,stareLista)).map(d => <tr key={d.id}><td><strong>{textIn(d.denumire,i18n.language)}</strong></td><td>{t(`rapoarte.sursa_${d.continut.sursa}`)}</td><td>{d.revizie}</td><td>{d.pagina.format} · {t(`rapoarte.${d.pagina.orientare}`)}</td><td>{t(d.activ ? 'ui.activ':'ui.inactiv')}</td><td><div className="actiuni-rand"><button className="legatura" disabled={ocupat} onClick={() => { setEroare(''); setEditare(copiaza(d)); }}>{t('ui.editeaza')}</button><button className="legatura discreta" disabled={ocupat} onClick={() => nou(d)}>{t('rapoarte.duplica')}</button></div></td></tr>)}
         </tbody></table>{!modele.length && <p className="fara-rezultate">{t('rapoarte.lista_goala')}</p>}</div>}
         {!incarcare && !configuratie && <button className="buton secundar" onClick={reincarca}>{t('ui.reincearca')}</button>}
         {editare && configuratie && <EditorModel key={editare.id || 'nou'} initial={editare} configuratie={configuratie} ocupat={ocupat} eroare={eroare} inchide={() => { setEditare(null);setEroare(''); }} salveaza={salveaza}/>}

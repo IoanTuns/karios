@@ -1,3 +1,4 @@
+import {FiltruStare,corespundeStare,type StareLista} from './FiltruStare';
 import {numeAngajat} from './numeAngajat';
 import {FiltreProfesionale,filtruProfesionalGol,corespundeProfesional} from './FiltreProfesionale';
 import {useEffect, useMemo, useRef, useState, type KeyboardEvent} from 'react';
@@ -48,7 +49,8 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
     const [sectie,setSectie]=useState('');
     const [departament,setDepartament]=useState('');
     const [cautare,setCautare]=useState('');
-    const [inactive,setInactive]=useState(false);
+    const [starePozitii,setStarePozitii]=useState<StareLista>('ACTIVE');
+    const [stareLista,setStareLista]=useState<StareLista>('ACTIVE');
     const [plan,setPlan]=useState<datebaza.PlanificareLuna|null>(null);
     const [schita,setSchita]=useState<datebaza.SchitaLuna|null>(null);
     const [schimburi,setSchimburi]=useState<datebaza.Schimb[]>([]);
@@ -144,15 +146,14 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
     },[avertismenteEchitate]);
 
     const randuri=useMemo(()=>{
-        const cuPlan=new Set((plan?.pozitii??[]).map(p=>p.angajat_id));
         const termen=cautare.trim().toLocaleLowerCase();
         return date.angajati.filter(a=>{
  if(!corespundeProfesional(a,filtruProfesional))return false;
-            if(!(a.activ||cuPlan.has(a.id))||(sectie&&a.sectie_id!==sectie)||(departament&&a.departament_id!==departament))return false;
+            if(!corespundeStare(a.activ,stareLista)||(sectie&&a.sectie_id!==sectie)||(departament&&a.departament_id!==departament))return false;
             if(termen&&!`${numeAngajat(a)} ${a.marca}`.toLocaleLowerCase().includes(termen))return false;
             return true;
         });
-    },[filtruProfesional,date.angajati,plan,sectie,departament,cautare]);
+    },[stareLista,filtruProfesional,date.angajati,plan,sectie,departament,cautare]);
 
     const angajatActivSumar=useMemo(()=>{
         if(angajatSumarId){
@@ -164,7 +165,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
 
     const pozitiiLista=(plan?.pozitii??[]).filter(p=>{
         const a=date.angajati.find(a=>a.id===p.angajat_id),termen=cautare.trim().toLocaleLowerCase();
-        return Boolean(a&&corespundeProfesional(a,filtruProfesional))&&(sectiune==='TOATE'||p.sectiune===sectiune)&&(inactive||p.activ)&&(!sectie||a?.sectie_id===sectie)&&(!departament||a?.departament_id===departament)&&(!termen||`${nume(p.angajat_id)} ${a?.marca??''}`.toLocaleLowerCase().includes(termen));
+        return Boolean(a&&corespundeStare(a.activ,stareLista)&&corespundeProfesional(a,filtruProfesional))&&(sectiune==='TOATE'||p.sectiune===sectiune)&&corespundeStare(p.activ,starePozitii)&&(!sectie||a?.sectie_id===sectie)&&(!departament||a?.departament_id===departament)&&(!termen||`${nume(p.angajat_id)} ${a?.marca??''}`.toLocaleLowerCase().includes(termen));
     });
 
     const inceputRand=Math.min(selectie.inceput.rand,selectie.sfarsit.rand),sfarsitRand=Math.max(selectie.inceput.rand,selectie.sfarsit.rand);
@@ -404,7 +405,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
     const absentaActiva=cheieActiva?absente.get(cheieActiva):undefined;
     const avertismenteActiva=cheieActiva?avertismenteHarta.get(cheieActiva):undefined;
 
-    return <section className="modul-planificare"><FiltreProfesionale disabled={ocupat} date={date} value={filtruProfesional} onChange={f=>{setFiltruProfesional(f);setSelectateLista(new Set());setSelectie({inceput:{rand:0,zi:0},sfarsit:{rand:0,zi:0}});}}/>
+    return <section className="modul-planificare"><FiltruStare nume="angajati_planificare" eticheta="ui.filtru_stare_angajati" valoare={stareLista} schimba={s=>{setStareLista(s);setSelectateLista(new Set());setSelectie({inceput:{rand:0,zi:0},sfarsit:{rand:0,zi:0}});}} disabled={ocupat}/><FiltreProfesionale disabled={ocupat} date={date} value={filtruProfesional} onChange={f=>{setFiltruProfesional(f);setSelectateLista(new Set());setSelectie({inceput:{rand:0,zi:0},sfarsit:{rand:0,zi:0}});}}/>
         <div className="unelte-calendar unelte-perioada">
             <form onSubmit={e=>{e.preventDefault();const a=Number(anText);if(Number.isInteger(a)&&a>=1&&a<=9999)setAn(a);else setEroare(t('sarbatori.an_invalid'));}}>
                 <label>{t('sarbatori.an')}<input name="an_planificare" type="number" min="1" max="9999" required value={anText} disabled={ocupat} onChange={e=>setAnText(e.target.value)}/></label>
@@ -451,7 +452,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
                 <button type="button" className={`buton-zoom ${zoomGrila === 'normal' ? 'activ' : ''}`} title={t('ui.zoom_normal')} onClick={() => schimbaZoom('normal')}>M</button>
                 <button type="button" className={`buton-zoom ${zoomGrila === 'extins' ? 'activ' : ''}`} title={t('ui.zoom_extins')} onClick={() => schimbaZoom('extins')}>L</button>
             </div>}
-            {mod==='lista'&&<label className="bifa"><input type="checkbox" name="planificari_inactive" checked={inactive} disabled={ocupat} onChange={e=>setInactive(e.target.checked)}/>{t('planificare.arata_retrase')}</label>}
+            {mod==='lista'&&<FiltruStare nume="pozitii_planificare" eticheta="ui.filtru_stare_pozitii" valoare={starePozitii} schimba={s=>{setStarePozitii(s);setSelectateLista(new Set());}} disabled={ocupat}/>}
             {mod==='grila'&&modificari.size>0&&<span className="stare-modificari" aria-live="polite">{t('planificare.modificari_nesalvate',{numar:modificari.size})}</span>}
         </div>
 

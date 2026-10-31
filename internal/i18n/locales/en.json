@@ -505,7 +505,7 @@
   "pontaj.necalculat": "Undefined rule or entries without a calculable duration.",
   "pontaj.fara_angajati": "No employees for the current selection. Add employees or change the department.",
   "pontaj.dimensiuni": "{{randuri}} rows × {{zile}} days",
-  "pontaj.inactivi_indiciu": "Inactive employees appear if they have saved drafts this month.",
+  "pontaj.inactivi_indiciu": "Use the Status filter to show active employees, inactive employees or all records.",
   "pontaj.lipire_invalida": "The data does not fit the grid or a value exceeds 16 characters. No changes from this batch were applied.",
   "pontaj.clipboard": "Direct copying is unavailable. Use Ctrl+C in the grid.",
   "pontaj.perioada_invalida": "Choose a year between 1 and 9999 and a month between 1 and 12.",
@@ -1618,5 +1618,11 @@
   "nomenclator.comportament_utilizat": "This behaviour is already used. Create a new definition for different behaviour.",
   "absente.arata_anulate": "Show cancelled days too",
   "absente.sterge_zi": "Delete day",
-  "absente.mutare_activa": "The day must be active to change its date. To cancel it, keep the date and uncheck Active."
+  "absente.mutare_activa": "The day must be active to change its date. To cancel it, keep the date and uncheck Active.",
+  "ui.filtru_stare": "Status",
+  "ui.filtru_stare_ACTIVE": "Active",
+  "ui.filtru_stare_INACTIVE": "Inactive",
+  "ui.filtru_stare_TOATE": "All",
+  "ui.filtru_stare_angajati": "Employee status",
+  "ui.filtru_stare_pozitii": "Planned entry status"
 }

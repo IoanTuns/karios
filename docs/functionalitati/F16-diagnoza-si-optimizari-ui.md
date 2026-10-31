@@ -10,6 +10,7 @@ Sistem integrat de diagnoză locală, captare robustă a erorilor pe frontend ș
 
 | ID | Task | Responsabil | Stare | Legături | Note |
 | --- | --- | --- | --- | --- | --- |
+| F16-T27 | Filtre Active/Inactive/Toate, implicit Active, in listele cu stare | Codex | gata | [D074](../decizii/D074-filtre-stare.md) | [Rezultate](../rezultate-F16-T27.md); proba operator. |
 | F16-T26 | Afisare unitara a orelor in format 24h | Codex | gata | [D071](../decizii/D071-format-ore-24h.md) | [Rezultate](../rezultate-F16-T26.md); proba operator. |
 | F16-T25 | Zoom global cu butoane minus/plus, resetare, tastatura si memorare locala | Codex | gata | [D065](../decizii/D065-zoom-interfata.md) | [Rezultate](../rezultate-F16-T25.md); proba operator pe monitorul propriu. |
 | F16-T01 | Backend diagnoză, rotire jurnale și profilare interogări | Antigravity | gata | D043 | `internal/diagnoza` |

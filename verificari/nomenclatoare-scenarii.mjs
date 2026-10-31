@@ -93,6 +93,17 @@ export async function verificaNomenclatoare({cdp,evalueaza,asteapta,apasa,comple
  await asteapta(()=>evalueaza("Boolean(document.querySelector('.reguli-pontaj .succes'))"),'Regula nesalvata');
  assert(await evalueaza("(async()=>{const r=await window.go.main.App.CitesteConfiguratiePontaj();return r.configuratie.conditionate?.some(c=>c.grup_id==="+JSON.stringify(grup)+"&&c.contract_id==='GARDA'&&c.garda==='DA'&&c.activ&&c.regula.factor_sutimi===200)})()"),'Regula nu pastreaza conditiile/factorul');
  await captura('regula-conditionata-'+limba+'.png');
+ await apasa(t('ui.schimburi'));
+ await asteapta(()=>evalueaza("Boolean(document.querySelector('select[name=filtru_stare_schimburi]'))"),'Filtru programe lipsa');
+ assert.equal(await evalueaza("document.querySelector('select[name=filtru_stare_schimburi]').value"),'ACTIVE','Implicit nu sunt active');
+ await evalueaza("[...document.querySelectorAll('.tabel-schimburi tbody tr')].find(r=>r.cells[0].textContent==='UI7').querySelectorAll('button')[1].click()");
+ await asteapta(()=>evalueaza("![...document.querySelectorAll('.tabel-schimburi tbody tr')].some(r=>r.cells[0].textContent==='UI7')"),'Inactivul a ramas la active');
+ await completeaza('select[name=filtru_stare_schimburi]','INACTIVE');
+ await asteapta(()=>evalueaza("[...document.querySelectorAll('.tabel-schimburi tbody tr')].some(r=>r.cells[0].textContent==='UI7')"),'Inactivul nu se poate regasi');
+ await completeaza('select[name=filtru_stare_schimburi]','TOATE');
+ assert(await evalueaza("document.querySelectorAll('.tabel-schimburi tbody tr').length>1"),'Toate nu reface lista');
+ await captura('filtre-stare-'+limba+'.png');
+
 
 
 

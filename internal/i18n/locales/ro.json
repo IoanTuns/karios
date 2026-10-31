@@ -505,7 +505,7 @@
   "pontaj.necalculat": "Regulă nedefinită sau înregistrări fără durată calculabilă.",
   "pontaj.fara_angajati": "Nu există angajați pentru selecția curentă. Adaugă angajați sau schimbă secția.",
   "pontaj.dimensiuni": "{{randuri}} rânduri × {{zile}} zile",
-  "pontaj.inactivi_indiciu": "Angajații inactivi apar dacă au schițe salvate în această lună.",
+  "pontaj.inactivi_indiciu": "Foloseste filtrul Stare pentru angajatii activi, inactivi sau toate inregistrarile.",
   "pontaj.lipire_invalida": "Datele nu încap în grilă sau o valoare depășește 16 caractere. Nu s-a aplicat nicio modificare din lot.",
   "pontaj.clipboard": "Copierea directă nu este disponibilă. Folosește Ctrl+C în grilă.",
   "pontaj.perioada_invalida": "Alege un an între 1 și 9999 și o lună între 1 și 12.",
@@ -1618,5 +1618,11 @@
   "nomenclator.comportament_utilizat": "Comportamentul este deja folosit. Creeaza o definitie noua pentru un comportament diferit.",
   "absente.arata_anulate": "Arata si zilele anulate",
   "absente.sterge_zi": "Sterge ziua",
-  "absente.mutare_activa": "Pentru schimbarea datei, ziua trebuie sa fie activa. Pentru anulare, pastreaza data si debifeaza Activ."
+  "absente.mutare_activa": "Pentru schimbarea datei, ziua trebuie sa fie activa. Pentru anulare, pastreaza data si debifeaza Activ.",
+  "ui.filtru_stare": "Stare",
+  "ui.filtru_stare_ACTIVE": "Active",
+  "ui.filtru_stare_INACTIVE": "Inactive",
+  "ui.filtru_stare_TOATE": "Toate",
+  "ui.filtru_stare_angajati": "Stare angajati",
+  "ui.filtru_stare_pozitii": "Stare planificari"
 }

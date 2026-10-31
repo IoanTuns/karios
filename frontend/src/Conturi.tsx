@@ -1,3 +1,4 @@
+import {FiltruStare,corespundeStare,type StareLista} from './FiltruStare';
 import i18next from 'i18next';
 import {formateazaDataSigura} from './formatare';
 import {ButonAjutor} from './Ajutor';
@@ -382,6 +383,7 @@ export function DialogContulMeu({inchide}: {inchide: () => void}) {
 
 // EcranConturi: administrarea conturilor (F15-T07), doar pentru administrator.
 export function EcranConturi() {
+ const [stareLista,setStareLista]=useState<StareLista>('ACTIVE');
     const {t} = useTranslation();
     const ctx = useCont();
     const [lista, setLista] = useState<conturi.Cont[]>([]);
@@ -413,13 +415,13 @@ export function EcranConturi() {
 
     if (!ctx?.cont || ctx.cont.rol !== 'ADMINISTRATOR') return <section className="panou"><p>{t('cont.doar_administrator')}</p></section>;
 
-    return <section className="panou ecran-conturi">
+    return <section className="panou ecran-conturi"><FiltruStare nume="conturi" valoare={stareLista} schimba={setStareLista} disabled={ocupat}/>
         <div className="actiuni-antet"><button type="button" className="buton primar" disabled={ocupat}
             onClick={() => setNou({nume: '', nume_afisat: '', rol: 'OPERATOR', parola: '', intrebari: ['', '', ''], raspunsuri: ['', '', '']})}>＋ {t('cont.adauga')}</button></div>
         {eroare && <div className="mesaj eroare" role="alert">{eroare}</div>}
         <table>
             <thead><tr><th scope="col">{t('cont.nume')}</th><th scope="col">{t('cont.nume_afisat')}</th><th scope="col">{t('cont.rol')}</th><th scope="col">{t('cont.stare')}</th><th scope="col"/></tr></thead>
-            <tbody>{lista.map(c => <tr key={c.id}>
+            <tbody>{lista.filter(c=>corespundeStare(c.activ,stareLista)).map(c => <tr key={c.id}>
                 <td>{c.nume}{c.id === ctx.cont.id ? ` (${t('cont.tu')})` : ''}</td>
                 <td>{c.nume_afisat}</td>
                 <td><select aria-label={t('cont.rol')} value={c.rol} disabled={ocupat}
