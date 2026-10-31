@@ -1317,3 +1317,11 @@ fieldset.filtre-profesionale{border:0;padding:0;min-width:0}
 .tabel-angajati>table tr>:nth-child(3){position:sticky;left:220px;min-width:90px;width:90px;background:var(--suprafata);z-index:3;box-shadow:1px 0 var(--linie)}
 .tabel-angajati>table>thead>tr>:nth-child(3){z-index:7}.tabel-angajati{container-type:inline-size}
 @container(max-width:420px){.tabel-angajati>table tr>:nth-child(2){width:100px;min-width:100px;max-width:100px}.tabel-angajati>table tr>:nth-child(3){left:140px;width:65px;min-width:65px}}
+
+/* F16-T31: domeniul operatiilor si actiunile de filtrare raman lizibile. */
+.ux30-selectie {padding:8px 12px;border:1px solid var(--linie);border-radius:6px;overflow-wrap:anywhere;color:var(--text);background:var(--suprafata);}
+.filtre-active button {font:inherit;padding:4px 8px;border:1px solid var(--linie);border-radius:12px;color:var(--text);background:var(--suprafata);cursor:pointer;}
+.ux30-luna-lista li {margin-block:12px;line-height:1.6;}
+.ux30-comparatie {margin-block:16px;}
+.ux30-eligibilitate {grid-column:1/-1;margin-block:8px;}
+[data-tabel-accesibil]:focus-visible,.filtre-active button:focus-visible {outline:3px solid var(--text);outline-offset:2px;}

@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.20 - 2026-10-31
+
+F16-T31: cele sase recomandari UX: erori traduse/selectie coerenta in rapoarte, verificari cu liste filtrate si eligibilitate explicata, simulare inainte/dupa pentru absente, selectie vizibila si salvare la navigarea grilelor, panou lunar si filtre eliminabile/accesibile. Manual 1.31. Fara schimbari de calcul, migrari sau versiuni de raport. Excel ramane amanat.
+
 ## 0.92.19 - 2026-10-31
 
 F16-T29: remedierea auditului UI28: identitate Garda consecventa, formulare grupate, filtre avansate, repere fixe in tabele, explicatii pentru programe excluse, stari de publicare si efectele absentelor, ajutor de configurare si salvare Excel verificata. Manual 1.30.

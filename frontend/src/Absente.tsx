@@ -1,3 +1,5 @@
+import {ComparatieAbsente} from './ComparatieAbsente';
+import {PrevizualizeazaEfecteAbsente} from '../wailsjs/go/main/App';
 import {ButonStergereAdmin} from './ButonStergereAdmin';
 import {FiltruStare,corespundeStare,type StareLista} from './FiltruStare';
 import {numeAngajat} from './numeAngajat';
@@ -223,7 +225,7 @@ export function Absente({date, filtruInitial, cerereConcediu, onCerereDeschisa}:
                         <td>{inlocuitor ? <>{numeAngajat(inlocuitor)}<small className="text-discret"> · {inlocuitor.marca}</small>{dublaInlocuire && <small className="zi-urmatoare avertisment-text">{t('absente.dubla_inlocuire_eticheta')}</small>}</> : '—'}</td>
                         <td><span className={`eticheta-aprobare aprobare-${stare}`}>{t(`absente.aprobare_${stare}`)}</span>{z.aprobat_de && <small className="zi-urmatoare">{z.aprobat_de}</small>}</td>
                         <td>{z.document_id ? <div className="actiuni-rand"><a href="#previzualizare" className="legatura" aria-label={t('absente.previzualizeaza_cerere', {nume: z.document_nume || z.data})} onClick={e => { e.preventDefault(); previzualizeazaDocument(z.document_id); }}>{z.document_nume}</a><a href="#cerere" className="legatura discreta" aria-label={t('absente.descarca_cerere', {nume: z.document_nume || z.data})} onClick={e => { e.preventDefault(); descarcaDocument(z.document_id); }}>{t('absente.descarca_scurt')}</a></div> : <span className="text-discret">{t('absente.fara_atasament')}</span>}</td>
-                        <td><div className="actiuni-rand"><button className="legatura" disabled={ocupat} onClick={() => { setEroare(''); setLotEditat(null); setZiEditata(z); }}>{t('ui.editeaza')}</button>{z.activ?<button className="legatura discreta" disabled={ocupat} onClick={() => anuleaza([z])}>{t('absente.sterge_zi')}</button>:<button className="legatura discreta" disabled={ocupat} onClick={()=>executa(()=>SalveazaAbsente([new datebaza.ZiAbsenta({...z,activ:true})],an))}>{t('ui.reactiveaza')}</button>}{zileCerere.length > 1 && <button type="button" className="legatura discreta buton-selecteaza-cererea" disabled={ocupat} onClick={() => setSelectate(new Set(zileCerere.map(cheieZi)))}>{t('absente.selecteaza_cererea')}</button>}</div></td>
+                        <td><div className="actiuni-rand"><button className="legatura" disabled={ocupat} onClick={() => { setEroare(''); setLotEditat(null); setZiEditata(z); }}>{t('ui.editeaza')}</button>{z.activ?<button className="legatura discreta" disabled={ocupat} onClick={() => anuleaza([z])}>{t('absente.sterge_zi')}</button>:<button className="legatura discreta" disabled={ocupat} onClick={()=>{setEroare('');setLotEditat(null);setZiEditata(new datebaza.ZiAbsenta({...z,activ:true}));}}>{t('ui.reactiveaza')}</button>}{zileCerere.length > 1 && <button type="button" className="legatura discreta buton-selecteaza-cererea" disabled={ocupat} onClick={() => setSelectate(new Set(zileCerere.map(cheieZi)))}>{t('absente.selecteaza_cererea')}</button>}</div></td>
                     </tr>;
                 })}
             </tbody></table>{!vizibile.length && <p className="fara-rezultate">{t('absente.gol')}</p>}</div>
@@ -277,7 +279,7 @@ function FormularTip({tip, ocupat, eroare, inchide, salveaza}: {tip: datebaza.Ti
     </form></Dialog>;
 }
 
-export function FormularAbsente({dinPontaj = false, zi, lot, date, absente, angajatImplicit, precompletare, ocupat, eroare, inchide, salveaza}: {dinPontaj?: boolean; zi: datebaza.ZiAbsenta | null; lot: datebaza.ZiAbsenta[] | null; date: datebaza.Date; absente: datebaza.AbsenteAn; angajatImplicit: string; precompletare?: CerereConcediu | null; ocupat: boolean; eroare: string; inchide: () => void; salveaza: (zile: datebaza.ZiAbsenta[]) => Promise<void>}) {
+export function FormularAbsente({celuleConversie, dinPontaj = false, zi, lot, date, absente, angajatImplicit, precompletare, ocupat, eroare, inchide, salveaza}: {celuleConversie?:datebaza.CelulaSchita[];dinPontaj?: boolean; zi: datebaza.ZiAbsenta | null; lot: datebaza.ZiAbsenta[] | null; date: datebaza.Date; absente: datebaza.AbsenteAn; angajatImplicit: string; precompletare?: CerereConcediu | null; ocupat: boolean; eroare: string; inchide: () => void; salveaza: (zile: datebaza.ZiAbsenta[]) => Promise<void>}) {
     const {t, i18n} = useTranslation();
     const sursa = zi ?? (lot?.[0] ?? null);
     const modEditare = Boolean(zi || lot);
@@ -299,7 +301,14 @@ export function FormularAbsente({dinPontaj = false, zi, lot, date, absente, anga
         documentContinutB64: ''
     };
     const [campuri, setCampuri] = useState(initial);
+    const cererePrevizualizare=useRef(0);
+    const [propunere,setPropunere]=useState<datebaza.ZiAbsenta[]|null>(null);
+    const [efecte,setEfecte]=useState<datebaza.EfectAbsenta[]>([]);
+    const [previzualizareOcupata,setPrevizualizareOcupata]=useState(false);
+    async function pregateste(zile:datebaza.ZiAbsenta[]){if(previzualizareOcupata||ocupat)return;const cerere=++cererePrevizualizare.current;setPropunere(null);setValidare('');setPrevizualizareOcupata(true);try{const celule=(celuleConversie||[]).filter(c=>zile.some(z=>z.angajat_id===c.angajat_id&&z.data===c.data));const r=await PrevizualizeazaEfecteAbsente(zile,absente.an,Number(zile.find(z=>z.activ)?.data.slice(5,7)||1),celule);if(cerere!==cererePrevizualizare.current)return;if(r.eroare)setValidare(t(r.eroare.cod,r.eroare.param||{}));else{setEfecte(r.efecte||[]);setPropunere(zile);}}catch{setValidare(t('date.eroare'));}finally{setPrevizualizareOcupata(false);}}
+
     const [excluse, setExcluse] = useState<Set<string>>(new Set());
+    useEffect(()=>{cererePrevizualizare.current++;setPropunere(null);setEfecte([]);},[JSON.stringify(campuri),JSON.stringify([...excluse])]);
     const [sarbatori, setSarbatori] = useState<Map<string,string>>(new Map());
     const [calendarGata, setCalendarGata] = useState(false);
     const [calendarEroare, setCalendarEroare] = useState('');
@@ -361,7 +370,7 @@ export function FormularAbsente({dinPontaj = false, zi, lot, date, absente, anga
     const zileInlocuitorAbsent = campuri.inlocuitor && campuri.stareAprobare !== 'RESPINSA' ? alese.filter(data => alteZileActive.some(z => z.angajat_id === campuri.inlocuitor && z.data === data)) : [];
     const zileTitularInlocuieste = campuri.stareAprobare !== 'RESPINSA' ? (lot ? lot.filter(l => alteZileActive.some(z => z.inlocuitor_id === l.angajat_id && z.data === l.data)).map(l => l.data) : campuri.angajat ? alese.filter(data => alteZileActive.some(z => z.inlocuitor_id === campuri.angajat && z.data === data)) : []) : [];
     const zileDublaInlocuire = campuri.inlocuitor && campuri.stareAprobare !== 'RESPINSA' ? [...new Set(alese.filter(data => alteZileActive.some(z => z.inlocuitor_id === campuri.inlocuitor && z.data === data)))] : [];
-    return <Dialog titlu={t(dinPontaj ? 'pontaj.absenta_titlu' : modEditare ? 'absente.editeaza' : 'absente.adauga')} ocupat={ocupat} inchide={renunta}><form onSubmit={e => {
+    return <Dialog titlu={t(dinPontaj ? 'pontaj.absenta_titlu' : modEditare ? 'absente.editeaza' : 'absente.adauga')} ocupat={ocupat||previzualizareOcupata} inchide={renunta}><form onSubmit={e => {
         e.preventDefault(); setValidare('');
         if ((!lot && !campuri.angajat) || !alese.length) { setValidare(t('absente.selectie_invalida')); return; }
         // Cererile pornite din asistent au număr de înregistrare obligatoriu (D052).
@@ -370,7 +379,7 @@ export function FormularAbsente({dinPontaj = false, zi, lot, date, absente, anga
         if (zileTitularInlocuieste.length) { setValidare(t('absente.titular_este_inlocuitor')); return; }
         if (lot) {
             if (lot.some(z => campuri.inlocuitor && campuri.inlocuitor === z.angajat_id)) { setValidare(t('absente.inlocuitor_invalid')); return; }
-            salveaza(lot.filter(z=>alese.includes(z.data)).map(z => new datebaza.ZiAbsenta({
+            void pregateste(lot.filter(z=>alese.includes(z.data)).map(z => new datebaza.ZiAbsenta({
                 ...z,
                 cod: campuri.cod || z.cod,
                 activ: campuri.activ,
@@ -405,10 +414,10 @@ export function FormularAbsente({dinPontaj = false, zi, lot, date, absente, anga
         }));
         // Mutarea si anularea vechii date se salveaza impreuna, cu reviziile originale.
         if(zi&&!alese.includes(zi.data))noi.unshift(new datebaza.ZiAbsenta({...zi,activ:false}));
-        salveaza(noi);
+        void pregateste(noi);
     }}><div className="corp-dialog">{(validare || eroare) && <p className="mesaj eroare" role="alert">{validare || eroare}</p>}
         {zileDublaInlocuire.length > 0 && <p className="mesaj avertisment" role="status">{t('absente.avertisment_dubla_inlocuire', {zile: zileDublaInlocuire.join(', ')})}</p>}
-        <fieldset className="campuri" disabled={ocupat}>
+        <fieldset className="campuri" disabled={ocupat||previzualizareOcupata}>
             {acelasiAngajatLot && <label className="latime-completa">{t('ui.angajat')} *<select name="angajat" required disabled={modEditare} value={campuri.angajat} onChange={e => seteaza('angajat',e.target.value)}><option value="">{t('absente.alege_angajat')}</option>{date.angajati.map(a => <option key={a.id} value={a.id}>{numeAngajat(a)} · {a.marca}{!a.activ ? ` · ${t('ui.inactiv')}` : ''}</option>)}</select></label>}
             <label className="latime-completa">{t('absente.tip')}<select name="tip" required value={campuri.cod} onChange={e => seteaza('cod',e.target.value)}>{absente.tipuri.filter(tip => tip.activ || tip.cod === sursa?.cod).map(tip => <option key={tip.cod} value={tip.cod}>{tip.cod} · {numeTip(tip,i18n.language)}{!tip.activ ? ` · ${t('ui.inactiv')}` : ''}</option>)}</select></label>
             {!lot && <><label>{t('absente.de_la')} *<input name="de_la" type="date" min="0001-01-01" max="9999-12-31" required value={campuri.deLa} onChange={e => seteaza('deLa',e.target.value)}/></label><label>{t('absente.pana_la')} *<input name="pana_la" type="date" min="0001-01-01" max="9999-12-31" required value={campuri.panaLa} onChange={e => seteaza('panaLa',e.target.value)}/></label></>}
@@ -428,6 +437,6 @@ export function FormularAbsente({dinPontaj = false, zi, lot, date, absente, anga
             {zile.map(data => { const d = new Date(`${data}T12:00:00Z`), weekend = [0,6].includes(d.getUTCDay()); return <label key={data} className={sarbatori.has(data) ? 'zi-sarbatoare' : weekend ? 'zi-weekend' : ''}><input type="checkbox" disabled={ocupat || !!zi || !calendarGata || !ziLucratoare(data)} checked={calendarGata && ziLucratoare(data) && !excluse.has(data)} onChange={e => setExcluse(vechi => { const noi = new Set(vechi); if (e.target.checked) noi.delete(data); else noi.add(data); return noi; })}/><span>{data} · {formatData(i18n.language,{weekday:'short',timeZone:'UTC'}).format(d)}{sarbatori.has(data) && <small>{sarbatori.get(data)}</small>}</span></label>; })}
         </div></>}
         <section className="ui28-efecte" aria-label={t('ui28.efecte_absenta')}><strong>{t('ui28.efecte_absenta')}</strong><p>{t(!operatieActiva?'ui28.efecte_anulare':esteMedical?'ui28.efecte_medical':'ui28.efecte_concediu',{numar:alese.length})}</p><ul>{marciAfectate.map(a=><li key={a.id}>{numeAngajat(a)} | {a.marca}</li>)}</ul><p>{t('ui28.zile_excluse')}</p><button type="button" className="legatura" onClick={()=>window.dispatchEvent(new CustomEvent('pontix-ajutor-contextual',{detail:'absente'}))}>{t('ajutor.buton')}</button></section>
-        <p className="nota-calendar" role="status">{t('absente.selectate', {numar:alese.length})}</p>
-    </div><footer className="subsol-dialog"><button type="button" className="buton secundar" disabled={ocupat} onClick={renunta}>{t('ui.anuleaza')}</button><button className="buton primar" disabled={ocupat || !alese.length}>{t('ui.salveaza')}</button></footer></form></Dialog>;
+        {propunere&&<ComparatieAbsente efecte={efecte} date={date}/>}<p className="nota-calendar" role="status">{t('absente.selectate', {numar:alese.length})}</p>
+    </div><footer className="subsol-dialog"><button type="button" className="buton secundar" disabled={ocupat||previzualizareOcupata} onClick={renunta}>{t('ui.anuleaza')}</button><button className="buton secundar" disabled={ocupat||previzualizareOcupata||!alese.length}>{t('ux30.previzualizeaza')}</button>{propunere&&<button type="button" className="buton primar" disabled={ocupat||previzualizareOcupata} onClick={()=>void salveaza(propunere)}>{t('ux30.confirma_modificari')}</button>}</footer></form></Dialog>;
 }

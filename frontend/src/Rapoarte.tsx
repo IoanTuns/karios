@@ -115,11 +115,12 @@ function EditorModel({initial,configuratie,ocupat:salvareInCurs,eroare,inchide,s
     </form></Dialog>;
 }
 
-export function GenerareRapoarte({date}: {date: datebaza.Date}) {
+export function GenerareRapoarte({date,initial,onPerioada}: {date: datebaza.Date;initial?:{an:number;luna:number};onPerioada?:(p:{an:number;luna:number})=>void}) {
     const {t,i18n} = useTranslation();
     const {configuratie,incarcare,eroare,setEroare,reincarca} = useModele();
     const [filtruProfesional,setFiltruProfesional]=useState({...filtruProfesionalGol});
-    const [selectie,setSelectie] = useState({model:'',an:new Date().getFullYear(),luna:new Date().getMonth()+1,sectie:'',departament:'',angajat:'',limba:i18n.language==='en'?'en':'ro'});
+    const [selectie,setSelectie] = useState({model:'',an:initial?.an??new Date().getFullYear(),luna:initial?.luna??new Date().getMonth()+1,sectie:'',departament:'',angajat:'',limba:i18n.language==='en'?'en':'ro'});
+    useEffect(()=>onPerioada?.({an:selectie.an,luna:selectie.luna}),[selectie.an,selectie.luna,onPerioada]);
     const [ocupat,setOcupat] = useState(false);
     const blocat = useRef(false);
     const [rezultat,setRezultat] = useState<main.RaspunsRaport | null>(null);
@@ -127,10 +128,13 @@ export function GenerareRapoarte({date}: {date: datebaza.Date}) {
     const [mesaj,setMesaj] = useState('');
     const modele = (configuratie?.modele || []).filter(d => d.activ);
     const model = modele.find(d => d.id===(selectie.model || modele[0]?.id));
+    const persoaneRaport=date.angajati.filter(a=>corespundeProfesional(a,filtruProfesional)&&(!selectie.sectie||a.sectie_id===selectie.sectie)&&(!selectie.departament||a.departament_id===selectie.departament));
+    useEffect(()=>{if(selectie.angajat&&!persoaneRaport.some(a=>a.id===selectie.angajat)){setSelectie(s=>({...s,angajat:''}));setRezultat(null);setMesaj(t('ux30.angajat_resetat'));}},[date,filtruProfesional,selectie.angajat,selectie.sectie,selectie.departament]);
+
     function seteaza<K extends keyof typeof selectie>(k: K,v: typeof selectie[K]) { setSelectie(s => ({...s,[k]:v,...(k==='sectie'?{departament:'',angajat:''}:k==='departament'?{angajat:''}:{})}));setRezultat(null);setEroare('');setMesaj(''); }
     useEffect(() => { if (!rezultat?.pdf) { setURL('');return; } const octeti=Uint8Array.from(atob(rezultat.pdf),c => c.charCodeAt(0)),nou=URL.createObjectURL(new Blob([octeti],{type:'application/pdf'}));setURL(nou);return () => URL.revokeObjectURL(nou); },[rezultat]);
     async function genereaza() {
-        if (!model || blocat.current) return;
+        if (!model || blocat.current || (selectie.angajat&&!persoaneRaport.some(a=>a.id===selectie.angajat))) return;
         blocat.current = true;setOcupat(true);setEroare('');setMesaj('');setRezultat(null);
         try { const r=await PregatesteRaport(new rapoarte.Cerere({model_id:model.id,revizie:model.revizie,an:selectie.an,luna:selectie.luna,sectie_id:selectie.sectie,departament_id:selectie.departament,...filtruProfesional,angajat_id:selectie.angajat,limba:selectie.limba}));if (r.eroare) setEroare(t(r.eroare.cod,r.eroare.param || {}));else setRezultat(r); }
         catch { setEroare(t('rapoarte.eroare')); } finally { blocat.current=false;setOcupat(false); }
@@ -142,7 +146,7 @@ export function GenerareRapoarte({date}: {date: datebaza.Date}) {
         catch { setEroare(t('rapoarte.eroare')); } finally { blocat.current=false;setOcupat(false); }
     }
     async function exportaExcelPontaj(){if(!rezultat||blocat.current)return;blocat.current=true;setOcupat(true);setEroare('');try{const r=await SalveazaExcelRaport(rezultat.token);if(r.eroare)setEroare(t(r.eroare.cod,r.eroare.param||{}));else if(!r.anulat)setMesaj(t('rapoarte.fisier_salvat',{cale:r.cale}));}catch{setEroare(t('rapoarte.eroare'));}finally{blocat.current=false;setOcupat(false);}}
-    return <section className="generare-rapoarte"><FiltreProfesionale disabled={ocupat} date={date} value={filtruProfesional} onChange={f=>{setFiltruProfesional(f);setRezultat(null);}}/>{eroare && <p className="mesaj eroare" role="alert">{eroare}</p>}{mesaj && <p className="mesaj succes" role="status">{mesaj}</p>}
+    return <section className="generare-rapoarte"><FiltreProfesionale numarRezultate={persoaneRaport.length} disabled={ocupat} date={date} value={filtruProfesional} onChange={f=>{setFiltruProfesional(f);setRezultat(null);setMesaj('');setEroare('');}}/>{eroare && <p className="mesaj eroare" role="alert">{eroare}</p>}{mesaj && <p className="mesaj succes" role="status">{mesaj}</p>}
         <p className="nota-calendar">{t('rapoarte.paginare_indiciu')}</p>
         {incarcare ? <p role="status">{t('ui.incarcare')}</p> : <><form className="panou filtre-raport" onSubmit={e => { e.preventDefault();genereaza(); }}><fieldset disabled={ocupat}><label className="alegere-model">{t('rapoarte.model')}<select name="model_raport" required value={model?.id || ''} onChange={e => seteaza('model',e.target.value)}>{!modele.length && <option value="">{t('rapoarte.selecteaza_model')}</option>}{modele.map(d => <option key={d.id} value={d.id}>{textIn(d.denumire,i18n.language)}</option>)}</select></label>
             <label>{t('sarbatori.an')}<input name="an_raport" type="number" min="1" max="9999" required value={selectie.an} onChange={e => seteaza('an',Number(e.target.value))}/></label>
@@ -150,7 +154,7 @@ export function GenerareRapoarte({date}: {date: datebaza.Date}) {
             <label>{t('rapoarte.limba')}<select name="limba_raport" value={selectie.limba} onChange={e => seteaza('limba',e.target.value)}><option value="ro">{t('rapoarte.ro')}</option><option value="en">{t('rapoarte.en')}</option></select></label>
             <label>{t('ui.sectie')}<select name="sectie_raport" value={selectie.sectie} onChange={e => seteaza('sectie',e.target.value)}><option value="">{t('ui.toate_sectiile')}</option>{date.sectii.map(s => <option key={s.id} value={s.id}>{denumireSectie(s,i18n.language)}</option>)}</select></label>
             <label>{t('ui.departament')}<select name="departament_raport" value={selectie.departament} onChange={e => seteaza('departament',e.target.value)}><option value="">{t('ui.toate_departamentele')}</option>{(date.departamente||[]).filter(d => !selectie.sectie || d.sectie_id===selectie.sectie).map(d => <option key={d.id} value={d.id}>{denumireDepartament(d,i18n.language)}</option>)}</select></label>
-            <label>{t('ui.angajat')}<select name="angajat_raport" required={model?.continut.sursa==='FISA_INDIVIDUALA'} value={selectie.angajat} onChange={e => seteaza('angajat',e.target.value)}><option value="">{t(model?.continut.sursa==='FISA_INDIVIDUALA'?'absente.alege_angajat':'absente.toti_angajatii')}</option>{date.angajati.filter(a => corespundeProfesional(a,filtruProfesional)&&(!selectie.sectie||a.sectie_id===selectie.sectie)&&(!selectie.departament||a.departament_id===selectie.departament)).map(a => <option key={a.id} value={a.id}>{numeAngajat(a)} · {a.marca}</option>)}</select></label>
+            <label>{t('ui.angajat')}<select name="angajat_raport" required={model?.continut.sursa==='FISA_INDIVIDUALA'} value={selectie.angajat} onChange={e => seteaza('angajat',e.target.value)}><option value="">{t(model?.continut.sursa==='FISA_INDIVIDUALA'?'absente.alege_angajat':'absente.toti_angajatii')}</option>{persoaneRaport.map(a => <option key={a.id} value={a.id}>{numeAngajat(a)} · {a.marca}</option>)}</select></label>
             <button className="buton primar" disabled={!model}>{t('rapoarte.genereaza')}</button>
             <button type="button" className="buton secundar" title={t('pontaj.export_excel_titlu')} disabled={ocupat||!rezultat} onClick={exportaExcelPontaj}>📊 {t('pontaj.export_excel')}</button></fieldset></form>
             {!modele.length && <p className="fara-rezultate">{t('rapoarte.lista_goala')}</p>}<button className="legatura" disabled={ocupat} onClick={() => { setRezultat(null);reincarca(); }}>{t('rapoarte.reincarca')}</button>

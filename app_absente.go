@@ -63,3 +63,17 @@ func (a *App) raspunsAbsente(an int, err error) RaspunsAbsente {
 	}
 	return RaspunsAbsente{Absente: &absente}
 }
+
+// PrevizualizeazaEfecteAbsente nu persista date sau jurnal.
+func (a *App) PrevizualizeazaEfecteAbsente(zile []datebaza.ZiAbsenta, an, luna int, celule []datebaza.CelulaSchita) RaspunsEfecteAbsente {
+	efecte, err := datebaza.Nou(a.db).PrevizualizeazaAbsente(a.contextLucru(), zile, an, luna, celule)
+	if err != nil {
+		return RaspunsEfecteAbsente{Eroare: eroareInterfata(err)}
+	}
+	return RaspunsEfecteAbsente{Efecte: efecte}
+}
+
+type RaspunsEfecteAbsente struct {
+	Efecte []datebaza.EfectAbsenta `json:"efecte"`
+	Eroare *MesajEroare            `json:"eroare"`
+}

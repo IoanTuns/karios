@@ -1,5 +1,6 @@
+import {EligibilitateProgram} from './PanouEligibilitate';
 import {numeAngajat} from './numeAngajat';
-import {useEffect, useRef, useState, type FormEvent, type ReactNode} from 'react';
+import {useEffect, useRef, useState, useId, type FormEvent, type ReactNode} from 'react';
 import {useTranslation} from 'react-i18next';
 import {EditorNomenclator} from './Nomenclatoare';
 import {notifica} from './Toast';
@@ -36,6 +37,7 @@ export function Dialog({titlu, ocupat, inchide, children, permiteMaximizare = tr
     clasa?: string;
 }) {
     const ref = useRef<HTMLDialogElement>(null);
+    const titluId=useId();
     const [maximizat, setMaximizat] = useState(false);
     const stareCurenta = useRef({ocupat, inchide});
     useEffect(() => { stareCurenta.current = {ocupat, inchide}; }, [ocupat, inchide]);
@@ -44,7 +46,7 @@ export function Dialog({titlu, ocupat, inchide, children, permiteMaximizare = tr
         const dialog = ref.current;
         dialog?.showModal();
         const laTasta = (e: KeyboardEvent) => {
-            if (e.key === 'Escape' && !stareCurenta.current.ocupat) {
+            if (e.key === 'Escape' && !stareCurenta.current.ocupat && document.activeElement?.closest('dialog')===dialog) {
                 e.preventDefault();
                 stareCurenta.current.inchide();
             }
@@ -55,10 +57,10 @@ export function Dialog({titlu, ocupat, inchide, children, permiteMaximizare = tr
             window.removeEventListener('keydown', laTasta);
         };
     }, []);
-    return <dialog ref={ref} className={`dialog ${clasa||''} ${maximizat?'dialog-maximizat':''}`} aria-labelledby="titlu-dialog"
+    return <dialog ref={ref} className={`dialog ${clasa||''} ${maximizat?'dialog-maximizat':''}`} aria-labelledby={titluId}
         onCancel={e => { e.preventDefault(); if (!ocupat) inchide(); }}>
         <div className="antet-dialog">
-            <h2 id="titlu-dialog">{titlu}</h2>
+            <h2 id={titluId}>{titlu}</h2>
             <div className="actiuni-antet-dialog">
                 {permiteMaximizare && (
                     <button
@@ -146,7 +148,7 @@ export function FormularAngajat({angajat, date, ocupat, eroare, inchide, salveaz
                         {(date.tipuri_contract?.length?date.tipuri_contract:[{id:'INTREAGA',denumire:{ro:t('ui.intreaga')},activ:true},{id:'PARTIALA',denumire:{ro:t('ui.partiala')},activ:true}]).filter(c=>c.activ||c.id===contract).map(c=><option key={c.id} value={c.id}>{(c.denumire as Record<string,string>)[i18n.language]||c.denumire.ro}</option>)}</select></label>
                     {(date.tipuri_contract?.find(c=>c.id===contract)?.normare||(contract==='PARTIALA'?'INDIVIDUALA':'GLOBALA')) === 'INDIVIDUALA' ? <label>{t('ui.norma_partiala')}<input type="number" min="0" max="24" step="any" required value={ore} onChange={e => setOre(e.target.value)}/></label>
                         : <div className="norma-preluata"><span>{t('ui.norma')}</span><strong>{(()=>{const c=date.tipuri_contract?.find(c=>c.id===contract);return c?.normare==='FARA'?t('structura.normare_FARA'):c?.normare==='LUNARA'?`${durata(c.norma_minute??0,t)} / ${t('structura.luna')}`:durata(c?.normare==='ZILNICA'?(c.norma_minute??0):date.norma_intreaga_minute,t)})()}</strong><small>{t('ui.norma_globala_indiciu')}</small></div>}
-                    <label className="latime-completa">{t('program.categorie')}<select name="angajat_categorie_program" value={categorieProgram} onChange={e=>setCategorieProgram(e.target.value)}><option value="">{t('program.fara_categorie')}</option>{(date.categorii_program??[]).filter(c=>c.activ||c.id===categorieProgram).map(c=><option key={c.id} value={c.id}>{c.denumire[i18n.language]||c.denumire.ro}{!c.activ?` · ${t('ui.inactiv')}`:''}</option>)}</select><small>{t('program.atribuire_indiciu')}</small></label>
+                    <label className="latime-completa">{t('program.categorie')}<select name="angajat_categorie_program" value={categorieProgram} onChange={e=>setCategorieProgram(e.target.value)}><option value="">{t('program.fara_categorie')}</option>{(date.categorii_program??[]).filter(c=>c.activ||c.id===categorieProgram).map(c=><option key={c.id} value={c.id}>{c.denumire[i18n.language]||c.denumire.ro}{!c.activ?` · ${t('ui.inactiv')}`:''}</option>)}</select><small>{t('program.atribuire_indiciu')}</small></label><EligibilitateProgram categorie={date.categorii_program?.find(c=>c.id===categorieProgram)}/>
                     <label className="latime-completa">{t('ui.concediu')}<input type="number" min="0" step="1" value={concediu} onChange={e => setConcediu(e.target.value)} aria-describedby="indiciu-concediu"/>
                         <small id="indiciu-concediu">{t('ui.concediu_indiciu')}</small></label>
 </fieldset><details className="detalii-configurare solduri-initiale"><summary>{t('ui28.solduri_initiale')} {lunaSold&&t('ui28.sold_rezumat',{luna:lunaSold,ore:oreSold,co:coInitial})}</summary><fieldset disabled={ocupat} className="campuri"><p className="latime-completa">{t('ui28.formula_sold')}</p><label>{t('sold.luna')}<input type="month" name="initializare_luna" min="2000-01" max="2100-12" value={lunaSold} onChange={e=>setLunaSold(e.target.value)}/></label>

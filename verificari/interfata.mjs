@@ -1,3 +1,4 @@
+import {verificaUX30} from './ux30-scenarii.mjs';
 import {simulareStergereConfigurari,verificaStergereConfigurari} from './stergere-configurari-scenarii.mjs';
 import {verificaAbsentePontaj} from './pontaj-absente-scenarii.mjs';
 import {simulareNomenclatoare,verificaNomenclatoare} from './nomenclatoare-scenarii.mjs';
@@ -262,6 +263,8 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
         },
         SchimbaActivSchimb: async (id, activ) => { stare.schimburi.find(s => s.id === id).activ = activ; raspuns(); return {schimburi: structuredClone(stare.schimburi), eroare: null}; },
         CitesteAbsente: async an => absente(an),
+        // F16-T31: simulare UI fara mutatii; rollbackul real este testat in Go.
+        PrevizualizeazaEfecteAbsente: async zile => ({efecte:zile.map(z=>({sursa:'absente_zile',id:z.angajat_id+'/'+z.data,inainte:stare.absente.find(a=>a.angajat_id===z.angajat_id&&a.data===z.data)||{},dupa:z})),eroare:null}),
         SalveazaTipAbsenta: async (initial,tip,an) => {
             tip.cod = tip.cod.trim().toUpperCase();
             if (stare.schimburi.some(s => s.cod === tip.cod) || (!initial && stare.tipuriAbsenta.some(t => t.cod === tip.cod))) return {absente:null,eroare:{cod:'absente.cod_duplicat'}};
@@ -355,15 +358,16 @@ try {
     await cdp('Page.enable'); await cdp('Runtime.enable');
     await cdp('Emulation.setDeviceMetricsOverride', {width: 1440, height: 960, deviceScaleFactor: 1, mobile: false});
     const injectat = await cdp('Page.addScriptToEvaluateOnNewDocument', {source: `(${simulare})(${JSON.stringify(demo)},${JSON.stringify(cataloage)},'ro',${JSON.stringify(calendarSursa)},${JSON.stringify(versiuneAplicatie)},${JSON.stringify(schimburiSursa)},${JSON.stringify(rapoarteSursa)})`});
-    if (process.argv.includes('--stergere-admin') || process.argv.includes('--pontaj-absente') || process.argv.includes('--ajutor') || process.argv.includes('--focus') || process.argv.includes('--nomenclatoare')) {
+    if (process.argv.includes('--ux30') || process.argv.includes('--stergere-admin') || process.argv.includes('--pontaj-absente') || process.argv.includes('--ajutor') || process.argv.includes('--focus') || process.argv.includes('--nomenclatoare')) {
         const limba=process.argv.includes('--en')?'en':'ro';
         await cdp('Emulation.setDeviceMetricsOverride',{width:1024,height:640,deviceScaleFactor:1,mobile:false});
         await cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(${simulareAjutor})(${JSON.stringify(catalogAjutor)},${JSON.stringify(cataloage)},${JSON.stringify(versiuneAplicatie)},${JSON.stringify(limba)})`});
     }
     if(process.argv.includes('--stergere-admin')) await cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(${simulareStergereConfigurari})()`});
-    if(process.argv.includes('--nomenclatoare')) await cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(${simulareNomenclatoare})()`});
+    if(process.argv.includes('--nomenclatoare')||process.argv.includes('--ux30')) await cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(${simulareNomenclatoare})()`});
     await cdp('Page.navigate', {url});
-    if(process.argv.includes('--stergere-admin')) {await verificaStergereConfigurari({cdp,evalueaza,asteapta,apasa,completeaza,cataloage,limba:process.argv.includes('--en')?'en':'ro',captura:async nume=>{const r=await cdp('Page.captureScreenshot',{format:'png'});writeFileSync(join(capturi,nume),Buffer.from(r.data,'base64'));}});assert.deepEqual(erori,[],'Erori JS');console.log('Stergere admin verificata: '+capturi);}
+    if(process.argv.includes('--ux30')) {await verificaUX30({cdp,evalueaza,asteapta,apasa,completeaza,cataloage,limba:process.argv.includes('--en')?'en':'ro'});assert.deepEqual(erori,[],'Erori JS');console.log('UX30 verificat: '+capturi);}
+    else if(process.argv.includes('--stergere-admin')) {await verificaStergereConfigurari({cdp,evalueaza,asteapta,apasa,completeaza,cataloage,limba:process.argv.includes('--en')?'en':'ro',captura:async nume=>{const r=await cdp('Page.captureScreenshot',{format:'png'});writeFileSync(join(capturi,nume),Buffer.from(r.data,'base64'));}});assert.deepEqual(erori,[],'Erori JS');console.log('Stergere admin verificata: '+capturi);}
     else if(process.argv.includes('--pontaj-absente')) {await verificaAbsentePontaj({cdp,evalueaza,asteapta,apasa,completeaza,cataloage,limba:process.argv.includes('--en')?'en':'ro',captura:async nume=>{const r=await cdp('Page.captureScreenshot',{format:'png'});writeFileSync(join(capturi,nume),Buffer.from(r.data,'base64'));}});assert.deepEqual(erori,[],'Erori JS');console.log('Absente din Pontaj verificate: '+capturi);}
     else if(process.argv.includes('--nomenclatoare')){await verificaNomenclatoare({cdp,evalueaza,asteapta,apasa,completeaza,cataloage,limba:process.argv.includes('--en')?'en':'ro',captura:async nume=>{const r=await cdp('Page.captureScreenshot',{format:'png'});writeFileSync(join(capturi,nume),Buffer.from(r.data,'base64'));}});assert.deepEqual(erori,[],'Erori JS');console.log('Nomenclatoare UI verificate: '+capturi);}
     else if (process.argv.includes('--focus')) {

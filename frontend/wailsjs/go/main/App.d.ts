@@ -153,6 +153,8 @@ export function PregatesteRaportProblema(arg1:raportare.Cerere):Promise<main.Ras
 
 export function PrevizualizeazaAnulareAI():Promise<main.RaspunsInstrumenteAI>;
 
+export function PrevizualizeazaEfecteAbsente(arg1:Array<datebaza.ZiAbsenta>,arg2:number,arg3:number,arg4:Array<datebaza.CelulaSchita>):Promise<main.RaspunsEfecteAbsente>;
+
 export function PrevizualizeazaPlanAI(arg1:ai.IntentiePlan):Promise<main.RaspunsPlanAI>;
 
 export function PrevizualizeazaPrecompletare(arg1:number,arg2:number,arg3:Array<string>,arg4:Array<datebaza.CelulaSchita>):Promise<main.RaspunsPrecompletare>;

@@ -51,3 +51,5 @@ F16-T24: [rezultate si limite](../rezultate-F16-T24.md). Pas urmator: build ofic
 | F16-T29 | Implementarea tuturor remediilor UI28-01 ... UI28-14 | gata | Codex | 0.92.19: UI28-01...13 implementate/verificate; investigatia blocajului Excel UI28-14 amanata explicit de utilizator, protectiile de salvare deja implementate pastrate. Urmeaza build/proba operator, fara push/merge. [Plan si verificari](../plan-F16-T29.md). |
 
 | F16-T30 | Analiza UX dupa remediile 0.92.19 | Codex | gata | [Audit si prioritati](../analiza-ux-0.92.19.md). 12 recomandari, limite explicite; pas urmator: lot de implementare, fara push/merge. |
+
+| F16-T31 | Implementarea celor sase recomandari UX30 | Codex | gata | 0.92.20/manual 1.31. [Implementare si verificari](../plan-F16-T31.md). Urmeaza build/proba operator; fara push/merge, Excel amanat. |

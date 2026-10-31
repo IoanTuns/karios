@@ -1,3 +1,5 @@
+import {useSalvareParasire,confirmaParasire} from './Parasire';
+import {SelectieRezumat} from './SelectieRezumat';
 import {FiltruStare,corespundeStare,type StareLista} from './FiltruStare';
 import {FormularAbsente} from './Absente';
 import {numeAngajat} from './numeAngajat';
@@ -519,8 +521,8 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
         input?.scrollIntoView({block: 'nearest', inline: 'nearest'});
     }
 
-    function schimbaLunaRelativ(delta: number) {
-        if (ocupat || !poateAbandona()) return;
+    async function schimbaLunaRelativ(delta: number) {
+        if (ocupat || !await poateAbandona()) return;
         let nouAn = an, nouaLuna = luna + delta;
         if (nouaLuna < 1) { nouAn--; nouaLuna = 12; }
         else if (nouaLuna > 12) { nouAn++; nouaLuna = 1; }
@@ -566,7 +568,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
         }
     }
 
-    function poateAbandona() { return !modificari.size || window.confirm(t('ui.renunta')); }
+    async function poateAbandona() { return !modificari.size || await confirmaParasire(); }
     const lunaBlocata = schita?.stare === 'INCHISA' || schita?.stare === 'BLOCATA';
     const [stareLuna, setStareLuna] = useState<datebaza.StareLuna | null>(null);
     useEffect(() => {
@@ -648,16 +650,17 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
     }
 
     async function salveaza(celulaPlan?: datebaza.CelulaSchita) {
-        if (lunaBlocata) { setEroare(t('pontaj.luna_inchisa')); return; }
-        if (blocat.current) return;
+        if (lunaBlocata) { setEroare(t('pontaj.luna_inchisa')); return false; }
+        if (blocat.current) return false;
         blocat.current = true; setOcupat(true); onOcupat(true); setEroare(''); setMesaj('');
         try {
             const r = await SalveazaSchita(an, luna, celulaPlan ? [celulaPlan] : [...modificari.values()]);
             if (r.eroare) { setEroare(t(r.eroare.cod, r.eroare.param ?? {})); notifica(t(r.eroare.cod, r.eroare.param ?? {}), 'eroare'); }
-            else if (r.schita) { setSchita(r.schita); setCalculat(r.schita.calcul); setModificari(new Map()); setIstoricInapoi([]); setIstoricInainte([]); setMesaj(t(celulaPlan ? 'pontaj.plan_actualizat' : 'pontaj.salvat')); notifica(t(celulaPlan ? 'pontaj.plan_actualizat' : 'pontaj.salvat'), 'succes'); }
+            else if (r.schita) { setSchita(r.schita); setCalculat(r.schita.calcul); setModificari(new Map()); setIstoricInapoi([]); setIstoricInainte([]); setMesaj(t(celulaPlan ? 'pontaj.plan_actualizat' : 'pontaj.salvat')); notifica(t(celulaPlan ? 'pontaj.plan_actualizat' : 'pontaj.salvat'), 'succes'); return true; }
             else setEroare(t('date.eroare'));
         } catch { setEroare(t('date.eroare')); }
         finally { blocat.current = false; setOcupat(false); onOcupat(false); }
+        return false;
     }
 
     async function exportaExcel() {
@@ -735,12 +738,13 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
     };
     const numarFiltre = [sectie, departament, categorieProgram, cautare.trim(), filtruRanduri].filter(Boolean).length;
 
-    return <section className="pontaj-lunar"><FiltruStare nume="angajati_pontaj" valoare={stareLista} schimba={s=>{setStareLista(s);setSelectie({inceput:{rand:0,zi:0},sfarsit:{rand:0,zi:0}});}} disabled={ocupat}/><FiltreProfesionale date={date} value={filtruProfesional} onChange={setFiltruProfesional}/>
-        <div className="unelte-calendar unelte-perioada"><form onSubmit={e => { e.preventDefault(); const nou = Number(anText); if (!Number.isInteger(nou) || nou < 1 || nou > 9999) { setEroare(t('sarbatori.an_invalid')); return; } if (nou !== an) { if (poateAbandona()) setAn(nou); else setAnText(String(an)); } }}>
+    useSalvareParasire('pontaj',modificari.size,()=>salveaza(),()=>{setModificari(new Map());setIstoricInapoi([]);setIstoricInainte([]);});
+    return <section className="pontaj-lunar"><SelectieRezumat persoane={randuri.slice(inceputRand,sfarsitRand+1)} deLa={zile[inceputZi]} panaLa={zile[sfarsitZi]}/><FiltruStare nume="angajati_pontaj" valoare={stareLista} schimba={s=>{setStareLista(s);setSelectie({inceput:{rand:0,zi:0},sfarsit:{rand:0,zi:0}});}} disabled={ocupat}/><FiltreProfesionale numarRezultate={randuri.length} date={date} value={filtruProfesional} onChange={f=>{setFiltruProfesional(f);setSelectie({inceput:{rand:0,zi:0},sfarsit:{rand:0,zi:0}});}}/>
+        <div className="unelte-calendar unelte-perioada"><form onSubmit={async e => { e.preventDefault(); const nou = Number(anText); if (!Number.isInteger(nou) || nou < 1 || nou > 9999) { setEroare(t('sarbatori.an_invalid')); return; } if (nou !== an) { if (await poateAbandona()) setAn(nou); else setAnText(String(an)); } }}>
             <label>{t('sarbatori.an')}<input aria-label={t('sarbatori.an')} type="number" min="1" max="9999" required disabled={ocupat} value={anText} onChange={e => setAnText(e.target.value)}/></label>
             <button className="buton secundar" disabled={ocupat}>{t('sarbatori.arata')}</button>
             <button type="button" className="buton secundar buton-luna-nav" aria-label={t('pontaj.luna_precedenta')} disabled={ocupat} onClick={() => schimbaLunaRelativ(-1)}>◀</button>
-            <label>{t('pontaj.luna')}<select aria-label={t('pontaj.luna')} value={luna} disabled={ocupat} onChange={e => { if (poateAbandona()) setLuna(Number(e.target.value)); }}>
+            <label>{t('pontaj.luna')}<select aria-label={t('pontaj.luna')} value={luna} disabled={ocupat} onChange={async e => { const l=Number(e.target.value);if (await poateAbandona()) setLuna(l); }}>
                 {Array.from({length: 12}, (_, i) => <option key={i} value={i + 1}>{formatData(i18n.language, {month: 'long', timeZone: 'UTC'}).format(new Date(`2026-${String(i + 1).padStart(2, '0')}-01T12:00:00Z`))}</option>)}
             </select></label>
             <button type="button" className="buton secundar buton-luna-nav" aria-label={t('pontaj.luna_urmatoare')} disabled={ocupat} onClick={() => schimbaLunaRelativ(1)}>▶</button></form>
@@ -788,9 +792,9 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                 </button>
                 <div className="grup-zoom-grila" role="group" aria-label={t('ui.densitate_grila')}>
                     <span className="eticheta-zoom">🔎 {t('ui.zoom')}</span>
-                    <button type="button" className={`buton-zoom ${zoomGrila === 'compact' ? 'activ' : ''}`} title={t('ui.zoom_compact')} onClick={() => schimbaZoom('compact')}>S</button>
-                    <button type="button" className={`buton-zoom ${zoomGrila === 'normal' ? 'activ' : ''}`} title={t('ui.zoom_normal')} onClick={() => schimbaZoom('normal')}>M</button>
-                    <button type="button" className={`buton-zoom ${zoomGrila === 'extins' ? 'activ' : ''}`} title={t('ui.zoom_extins')} onClick={() => schimbaZoom('extins')}>L</button>
+                    <button type="button" className={`buton-zoom ${zoomGrila === 'compact' ? 'activ' : ''}`} title={t('ui.zoom_compact')} onClick={() => schimbaZoom('compact')}>{t('ux30.compact')}</button>
+                    <button type="button" className={`buton-zoom ${zoomGrila === 'normal' ? 'activ' : ''}`} title={t('ui.zoom_normal')} onClick={() => schimbaZoom('normal')}>{t('ux30.normal')}</button>
+                    <button type="button" className={`buton-zoom ${zoomGrila === 'extins' ? 'activ' : ''}`} title={t('ui.zoom_extins')} onClick={() => schimbaZoom('extins')}>{t('ux30.aerisit')}</button>
                 </div>
                 <span className="stare-modificari" aria-live="polite">{t('pontaj.modificate', {numar: modificari.size})}</span>
                 <div id="pontaj-panou-filtre" className="panou-unelte" hidden={panou !== 'filtre'}>
@@ -822,7 +826,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                 <button type="button" className="buton secundar" disabled={ocupat || !istoricInapoi.length} onClick={anuleazaPas}>{t('pontaj.anuleaza_pas')}</button>
                 <button type="button" className="buton secundar" disabled={ocupat || !istoricInainte.length} onClick={refaPas}>{t('pontaj.refa_pas')}</button>
                 <button className="buton secundar" disabled={ocupat || calculare || !calculat || !randuri.length} onClick={async () => { try { await navigator.clipboard.writeText(textSelectat()); notifica(t('pontaj.selectie_copiata'), 'info'); } catch { setEroare(t('pontaj.clipboard')); } }}>{t('pontaj.copiaza')}</button>
-                <button className="legatura" disabled={ocupat} onClick={() => { if (poateAbandona()) setReincarcare(x => x + 1); }}>{t('pontaj.reincarca')}</button>
+                <button className="legatura" disabled={ocupat} onClick={async () => { if (await poateAbandona()) setReincarcare(x => x + 1); }}>{t('pontaj.reincarca')}</button>
                 </div>
                 <div id="pontaj-panou-ajutor" className="panou-unelte ajutor-pontaj" hidden={panou !== 'ajutor'}>
                     <p>{t('pontaj.schita_indiciu')}</p><p>{t('pontaj.tastatura')}</p><p>{t('pontaj.ore_norm_explicatie')}</p><p>{t('pontaj.necalculat')}</p>
@@ -843,7 +847,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                     {ultimaModificare?.cheie === cheieActiva && ultimaModificare.intrare && <span className="ultima-modificare" title={t('pontaj.ultima_modificare_indiciu')}>
                         {t('pontaj.ultima_modificare', {cine: autorJurnal(t, ultimaModificare.intrare.cine), cand: formatData(i18n.language, {dateStyle: 'short', timeStyle: 'medium'}).format(new Date(ultimaModificare.intrare.cand))})}
                     </span>}
-                    {onDeschideAbsente && <button type="button" className="legatura" disabled={ocupat} onClick={() => { if (poateAbandona()) onDeschideAbsente(an, randActiv.id); }}>{t('pontaj.deschide_absente')}</button>}
+                    {onDeschideAbsente && <button type="button" className="legatura" disabled={ocupat} onClick={async () => { if (await poateAbandona()) onDeschideAbsente(an, randActiv.id); }}>{t('pontaj.deschide_absente')}</button>}
                 </div>
             </div>}
             <div className="legenda-grila" aria-label={t('pontaj.legenda')}>
@@ -909,8 +913,8 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                                 date={date}
                                 onAjutor={onAjutor}
                                 perioadaEcran={{an, luna}}
-                                onDeschidePontaj={(a, l) => { if (ocupat || ((a !== an || l !== luna) && !poateAbandona())) return; setAn(a); setAnText(String(a)); setLuna(l); }}
-                                onDeschideConcediu={onDeschideAbsente ? c => { if (!ocupat && poateAbandona()) onDeschideAbsente(Number(c.deLa.slice(0, 4)), c.angajatId); } : undefined}
+                                onDeschidePontaj={async (a, l) => { if (ocupat || ((a !== an || l !== luna) && !await poateAbandona())) return; setAn(a); setAnText(String(a)); setLuna(l); }}
+                                onDeschideConcediu={onDeschideAbsente ? async c => { if (!ocupat && await poateAbandona()) onDeschideAbsente(Number(c.deLa.slice(0, 4)), c.angajatId); } : undefined}
                             />
                         </div>
                     </aside>
@@ -918,7 +922,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
             </div>
             <p className="indiciu-grila">{t('pontaj.dimensiuni', {randuri: randuri.length, zile: numarZile})} · {t('pontaj.inactivi_indiciu')}</p>
         </>}
-        {conversieAbsenta&&<FormularAbsente dinPontaj zi={null} lot={conversieAbsenta.zile} date={date} absente={conversieAbsenta.date} angajatImplicit="" ocupat={ocupat} eroare={eroareAbsenta} inchide={()=>setConversieAbsenta(null)} salveaza={salveazaAbsentaSelectie}/>}
+        {conversieAbsenta&&<FormularAbsente celuleConversie={conversieAbsenta.celule} dinPontaj zi={null} lot={conversieAbsenta.zile} date={date} absente={conversieAbsenta.date} angajatImplicit="" ocupat={ocupat} eroare={eroareAbsenta} inchide={()=>setConversieAbsenta(null)} salveaza={salveazaAbsentaSelectie}/>}
         {plan&&<Dialog titlu={t('program.previzualizare')} ocupat={ocupat} inchide={()=>setPlan(null)}><div className="corp-dialog plan-precompletare">
             <p>{t('program.plan_indiciu')}</p>
             <label className="bifa"><input type="checkbox" checked={numaiSelectiaPlan} disabled={ocupat} onChange={e=>void previzualizeazaCategorii(e.target.checked)}/>{t('program.numai_selectia')}</label>
@@ -954,10 +958,10 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                 {onDeschideAbsente && randuri[meniuCtx.rand] && (
                     <>
                         <div className="separator-meniu-ctx" />
-                        <button type="button" className="element-meniu-ctx" onClick={() => {
+                        <button type="button" className="element-meniu-ctx" onClick={async () => {
                             const ang = randuri[meniuCtx.rand];
                             setMeniuCtx(null);
-                            if (poateAbandona()) onDeschideAbsente(an, ang.id);
+                            if (await poateAbandona()) onDeschideAbsente(an, ang.id);
                         }}>
                             <span>🗓️</span> {t('pontaj.deschide_absente')}
                         </button>

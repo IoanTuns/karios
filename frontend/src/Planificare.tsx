@@ -1,3 +1,5 @@
+import {useSalvareParasire,confirmaParasire} from './Parasire';
+import {SelectieRezumat} from './SelectieRezumat';
 import {semnaleazaModificari} from './modificariNesalvate';
 import {programPlanificat,motivProgramExclus} from './eligibilitateProgram';
 import {FiltruStare,corespundeStare,type StareLista} from './FiltruStare';
@@ -38,11 +40,12 @@ type PublicareCurenta={cerere:datebaza.CererePublicarePlan;rezultat:datebaza.Pub
 type Pozitie={rand:number;zi:number};
 type Selectie={inceput:Pozitie;sfarsit:Pozitie};
 
-export function Planificare({date,initial,onOcupat,onDeschidePontaj,onModificari}:{onModificari?:(modificat:boolean)=>void;date:datebaza.Date;initial?:{an:number;luna:number};onOcupat:(v:boolean)=>void;onDeschidePontaj:(an:number,luna:number)=>void}) {
+export function Planificare({date,initial,onOcupat,onDeschidePontaj,onModificari,onPerioada}:{onPerioada?:(p:{an:number;luna:number})=>void;onModificari?:(modificat:boolean)=>void;date:datebaza.Date;initial?:{an:number;luna:number};onOcupat:(v:boolean)=>void;onDeschidePontaj:(an:number,luna:number)=>void}) {
     const {t,i18n}=useTranslation();
     const [an,setAn]=useState(initial?.an??new Date().getFullYear());
     const [luna,setLuna]=useState(initial?.luna??new Date().getMonth()+1);
     const [anText,setAnText]=useState(String(an));
+    useEffect(()=>onPerioada?.({an,luna}),[an,luna,onPerioada]);
     const [mod,setMod]=useState<'grila'|'comparativ'|'sumar'|'acoperire'|'lista'>('grila');
     const [sectiune,setSectiune]=useState('TOATE');
     const [filtruProfesional,setFiltruProfesional]=useState({...filtruProfesionalGol});
@@ -181,8 +184,8 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj,onModificari
         return dinDB&&dinDB.activ?dinDB:null;
     }
 
-    function schimbaLunaRelativ(delta:number) {
-        if(ocupat||(modificari.size>0&&!window.confirm(t('ui.renunta'))))return;
+    async function schimbaLunaRelativ(delta:number) {
+        if(ocupat||(modificari.size>0&&!await confirmaParasire()))return;
         let nouAn=an,nouaLuna=luna+delta;
         if(nouaLuna<1){nouAn--;nouaLuna=12;}
         else if(nouaLuna>12){nouAn++;nouaLuna=1;}
@@ -285,7 +288,8 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj,onModificari
     }
 
     async function salveazaPlanGrila() {
-        if(blocat.current||!modificari.size)return;
+        if(blocat.current)return false;
+        if(!modificari.size)return true;
         blocat.current=true;setOcupat(true);onOcupat(true);setEroare('');setMesaj('');
         try{
             const pozitii=Array.from(modificari.values());
@@ -294,22 +298,24 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj,onModificari
             else if(r.planificare){
                 setPlan(r.planificare);setModificari(new Map());setIstoricInapoi([]);setIstoricInainte([]);setMesaj(t('planificare.salvata'));
                 notifica(t('planificare.salvata'), 'succes');
-                setReincarcare(x=>x+1);
+                setReincarcare(x=>x+1);return true;
             }else setEroare(t('date.eroare'));
         }catch{setEroare(t('date.eroare'));}finally{blocat.current=false;setOcupat(false);onOcupat(false);}
+        return false;
     }
 
     async function salveazaPozitiiLista(pozitii:datebaza.PozitiePlanificare[]) {
-        if(blocat.current)return;blocat.current=true;setOcupat(true);onOcupat(true);setEroare('');setMesaj('');
+        if(blocat.current)return false;blocat.current=true;setOcupat(true);onOcupat(true);setEroare('');setMesaj('');
         try{
             const r=await SalveazaPlanificare(an,luna,pozitii);
             if(r.eroare){setEroare(t(r.eroare.cod,r.eroare.param??{}));notifica(t(r.eroare.cod,r.eroare.param??{}), 'eroare');}
             else if(r.planificare){
                 setPlan(r.planificare);setEditare(null);setDialogSumar(null);setMesaj(t('planificare.salvata'));
                 notifica(t('planificare.salvata'), 'succes');
-                setReincarcare(x=>x+1);
+                setReincarcare(x=>x+1);return true;
             }else setEroare(t('date.eroare'));
         }catch{setEroare(t('date.eroare'));}finally{blocat.current=false;setOcupat(false);onOcupat(false);}
+        return false;
     }
 
     const dePublicatTotal=useMemo(()=>{
@@ -319,14 +325,16 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj,onModificari
     async function previzualizeazaPublicare(inlocuieste=true) {
         if(modificari.size>0){
             if(!window.confirm(t('planificare.salveaza_inainte_publicare')))return;
-            await salveazaPlanGrila();
+            if(!await salveazaPlanGrila())return;
         }
         if(blocat.current)return;
-        const pozitiiActive=(plan?.pozitii??[]).filter(p=>p.activ&&(sectiune==='TOATE'||p.sectiune===sectiune));
-        if(!pozitiiActive.length){setEroare(t('planificare.fara_pozitii'));return;}
         blocat.current=true;setOcupat(true);onOcupat(true);setEroare('');setMesaj('');
-        const cerere=new datebaza.CererePublicarePlan({an,luna,sectiune:sectiune==='TOATE'?'TOATE':sectiune,pozitii_id:pozitiiActive.map(p=>p.id),inlocuieste,token:''});
         try{
+            const planActual=await CitestePlanificare(an,luna);
+            if(planActual.eroare){setEroare(t(planActual.eroare.cod,planActual.eroare.param||{}));return;}
+            const pozitiiActive=(planActual.planificare?.pozitii??[]).filter(p=>p.activ&&(sectiune==='TOATE'||p.sectiune===sectiune));
+            if(!pozitiiActive.length){setEroare(t('planificare.fara_pozitii'));return;}
+            const cerere=new datebaza.CererePublicarePlan({an,luna,sectiune:sectiune==='TOATE'?'TOATE':sectiune,pozitii_id:pozitiiActive.map(p=>p.id),inlocuieste,token:''});
             const r=await PrevizualizeazaPublicarePlan(cerere);
             if(r.eroare)setEroare(t(r.eroare.cod,r.eroare.param??{}));
             else if(r.publicare)setPublicare({cerere:new datebaza.CererePublicarePlan({...cerere,token:r.publicare.token}),rezultat:r.publicare});
@@ -408,13 +416,14 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj,onModificari
     const absentaActiva=cheieActiva?absente.get(cheieActiva):undefined;
     const avertismenteActiva=cheieActiva?avertismenteHarta.get(cheieActiva):undefined;
 
-    return <section className="modul-planificare"><FiltruStare nume="angajati_planificare" eticheta="ui.filtru_stare_angajati" valoare={stareLista} schimba={s=>{setStareLista(s);setSelectateLista(new Set());setSelectie({inceput:{rand:0,zi:0},sfarsit:{rand:0,zi:0}});}} disabled={ocupat}/><FiltreProfesionale disabled={ocupat} date={date} value={filtruProfesional} onChange={f=>{setFiltruProfesional(f);setSelectateLista(new Set());setSelectie({inceput:{rand:0,zi:0},sfarsit:{rand:0,zi:0}});}}/>
+    useSalvareParasire('planificare',modificari.size,salveazaPlanGrila,()=>{setModificari(new Map());setIstoricInapoi([]);setIstoricInainte([]);});
+    return <section className="modul-planificare"><SelectieRezumat persoane={randuri.slice(inceputRand,sfarsitRand+1)} deLa={zile[inceputZi]} panaLa={zile[sfarsitZi]}/><FiltruStare nume="angajati_planificare" eticheta="ui.filtru_stare_angajati" valoare={stareLista} schimba={s=>{setStareLista(s);setSelectateLista(new Set());setSelectie({inceput:{rand:0,zi:0},sfarsit:{rand:0,zi:0}});}} disabled={ocupat}/><FiltreProfesionale numarRezultate={randuri.length} disabled={ocupat} date={date} value={filtruProfesional} onChange={f=>{setFiltruProfesional(f);setSelectateLista(new Set());setSelectie({inceput:{rand:0,zi:0},sfarsit:{rand:0,zi:0}});}}/>
         <div className="unelte-calendar unelte-perioada">
-            <form onSubmit={e=>{e.preventDefault();const a=Number(anText);if(Number.isInteger(a)&&a>=1&&a<=9999)setAn(a);else setEroare(t('sarbatori.an_invalid'));}}>
+            <form onSubmit={async e=>{e.preventDefault();const a=Number(anText);if(Number.isInteger(a)&&a>=1&&a<=9999){if(!modificari.size||await confirmaParasire())setAn(a);}else setEroare(t('sarbatori.an_invalid'));}}>
                 <label>{t('sarbatori.an')}<input name="an_planificare" type="number" min="1" max="9999" required value={anText} disabled={ocupat} onChange={e=>setAnText(e.target.value)}/></label>
                 <button className="buton secundar" disabled={ocupat}>{t('sarbatori.arata')}</button>
                 <button type="button" className="buton secundar buton-luna-nav" aria-label={t('planificare.luna_precedenta')} disabled={ocupat} onClick={()=>schimbaLunaRelativ(-1)}>◀</button>
-                <label>{t('pontaj.luna')}<select name="luna_planificare" value={luna} disabled={ocupat} onChange={e=>setLuna(Number(e.target.value))}>
+                <label>{t('pontaj.luna')}<select name="luna_planificare" value={luna} disabled={ocupat} onChange={async e=>{const l=Number(e.target.value);if(!modificari.size||await confirmaParasire())setLuna(l);}}>
                     {Array.from({length:12},(_,i)=><option key={i} value={i+1}>{formatData(i18n.language,{month:'long',timeZone:'UTC'}).format(new Date(Date.UTC(2026,i,1)))}</option>)}
                 </select></label>
                 <button type="button" className="buton secundar buton-luna-nav" aria-label={t('planificare.luna_urmatoare')} disabled={ocupat} onClick={()=>schimbaLunaRelativ(1)}>▶</button>
@@ -711,7 +720,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj,onModificari
             </div>
         </>:null}
 
-        {dialogSumar&&<Dialog titlu={t('planificare.sumar_angajat_titlu',{nume:`${numeAngajat(dialogSumar)}`})} ocupat={ocupat} permiteMaximizare={true} inchide={()=>{if(!sumarModificat||window.confirm(t('ui.renunta')))setDialogSumar(null);}}>
+        {dialogSumar&&<Dialog titlu={t('planificare.sumar_angajat_titlu',{nume:`${numeAngajat(dialogSumar)}`})} ocupat={ocupat} permiteMaximizare={true} inchide={()=>{if(!sumarModificat) setDialogSumar(null);else void confirmaParasire().then(da=>{if(da)setDialogSumar(null);});}}>
             <div className="corp-dialog corp-dialog-sumar">
                 <PanouSumarAngajat onModificari={setSumarModificat}
                     angajat={dialogSumar}
@@ -743,7 +752,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj,onModificari
                         </thead>
                         <tbody>
                             {publicare.rezultat.randuri.map(r=><tr key={r.pozitie_id}>
-                                <th scope="row">{nume(r.angajat_id)}</th>
+                                <th scope="row">{nume(r.angajat_id)} / {date.angajati.find(a=>a.id===r.angajat_id)?.marca}</th>
                                 <td>{r.data}</td>
                                 <td>{r.inainte||'—'}{r.pontaje_efective>0&&<small>{t('planificare.efective_retrase',{numar:r.pontaje_efective})}</small>}</td>
                                 <td>{textSchimb(r.schimb_id)}</td>
@@ -808,7 +817,7 @@ function PanouSumarAngajat({
     avertismenteEchitate:calcul.AvertismentEchitate[];
     ocupat:boolean;
     onSelectAngajat?:(id:string)=>void;
-    salveazaPozitii:(p:datebaza.PozitiePlanificare[])=>Promise<void>;
+    salveazaPozitii:(p:datebaza.PozitiePlanificare[])=>Promise<boolean>;
     onModificari?:(modificat:boolean)=>void;
 }) {
     const {t,i18n}=useTranslation();
@@ -853,7 +862,8 @@ function PanouSumarAngajat({
     }
 
     async function salveaza() {
-        if(ocupat||!modificariLocale.size)return;
+        if(ocupat)return false;
+        if(!modificariLocale.size)return true;
         const deSalvat:datebaza.PozitiePlanificare[]=[];
         for(const [data,schimbId] of modificariLocale.entries()){
             const existent=pozitiiDB.get(data);
@@ -871,14 +881,15 @@ function PanouSumarAngajat({
                 }
             }
         }
-        await salveazaPozitii(deSalvat);
-        setModificariLocale(new Map());
+        if(!await salveazaPozitii(deSalvat))return false;
+        setModificariLocale(new Map());return true;
     }
 
+    useSalvareParasire('sumar-plan',modificariLocale.size,salveaza,()=>setModificariLocale(new Map()));
     return <div className="panou-sumar-angajat">
         <div className="antet-sumar-angajat">
             <div style={{display:'flex',alignItems:'center',gap:'12px'}}>
-                {angajatiDisponibili&&onSelectAngajat?<select value={angajat.id} onChange={e=>onSelectAngajat(e.target.value)}>
+                {angajatiDisponibili&&onSelectAngajat?<select value={angajat.id} onChange={async e=>{const id=e.target.value;if(!modificariLocale.size||await confirmaParasire())onSelectAngajat(id);}}>
                     {angajatiDisponibili.map(a=><option key={a.id} value={a.id}>{numeAngajat(a)} · {a.marca}</option>)}
                 </select>:<div>
                     <strong>{numeAngajat(angajat)}</strong>
@@ -955,7 +966,7 @@ function PanouSumarAngajat({
     </div>;
 }
 
-function FormularPlanificare({pozitie,an,luna,date,schimburi,sarbatori,ocupat,eroare,inchide,salveaza}:{pozitie:datebaza.PozitiePlanificare;an:number;luna:number;date:datebaza.Date;schimburi:datebaza.Schimb[];sarbatori:Map<string,string>;ocupat:boolean;eroare:string;inchide:()=>void;salveaza:(p:datebaza.PozitiePlanificare[])=>Promise<void>}) {
+function FormularPlanificare({pozitie,an,luna,date,schimburi,sarbatori,ocupat,eroare,inchide,salveaza}:{pozitie:datebaza.PozitiePlanificare;an:number;luna:number;date:datebaza.Date;schimburi:datebaza.Schimb[];sarbatori:Map<string,string>;ocupat:boolean;eroare:string;inchide:()=>void;salveaza:(p:datebaza.PozitiePlanificare[])=>Promise<boolean>}) {
     const {t,i18n}=useTranslation();
     const [angajat,setAngajat]=useState(pozitie.angajat_id);
     const [schimb,setSchimb]=useState(pozitie.schimb_id);
@@ -1290,7 +1301,7 @@ function DialogConfigurareReguli({
         ListaReguliConfigurabile().then(r => {
             if (!activ) return;
             if (r.eroare) {
-                setEroare(r.eroare.cod);
+                setEroare(t(r.eroare.cod,r.eroare.param??{}));
             } else {
                 setReguli(r.reguli ?? []);
             }
@@ -1314,7 +1325,7 @@ function DialogConfigurareReguli({
             for (const r of reguli) {
                 const resp = await SalveazaRegulaConfigurabila(r);
                 if (resp.eroare) {
-                    setEroare(resp.eroare.cod);
+                    setEroare(t(resp.eroare.cod,resp.eroare.param??{}));
                     setSalvand(false);
                     return;
                 }

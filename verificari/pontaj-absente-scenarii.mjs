@@ -31,22 +31,22 @@ export async function verificaAbsentePontaj({evalueaza,asteapta,apasa,completeaz
  await asteapta(()=>evalueaza("Boolean(document.querySelector('dialog select[name=tip]'))"),'Formular lipsa');
  await completeaza('dialog select[name=tip]','CO');await completeaza('dialog select[name=stare_aprobare]','APROBATA');
  await completeaza('dialog input[name=nr_inregistrare]','TEST-CO');
- await evalueaza('window.__refuzaConversie=true');await apasa(t('ui.salveaza'));
+ await evalueaza('window.__refuzaConversie=true');await apasa(t('ux30.previzualizeaza'));await asteapta(()=>evalueaza("Boolean(document.querySelector('.ux30-comparatie'))"),'Comparatie absenta lipsa');await apasa(t('ux30.confirma_modificari'));
  await asteapta(()=>evalueaza("Boolean(document.querySelector('dialog .mesaj.eroare'))"),'Eroare nesemnalata');
  await asteapta(()=>evalueaza(`document.querySelector('${celula(0)}').value==='7'`),'Eroarea a modificat programul');
- await evalueaza('window.__refuzaConversie=false');await captura('concediu-din-pontaj-'+limba+'.png');await apasa(t('ui.salveaza'));
+ await evalueaza('window.__refuzaConversie=false');await captura('concediu-din-pontaj-'+limba+'.png');await apasa(t('ux30.previzualizeaza'));await asteapta(()=>evalueaza("Boolean(document.querySelector('.ux30-comparatie'))"),'Comparatie absenta lipsa');await apasa(t('ux30.confirma_modificari'));
  await asteapta(()=>evalueaza(`document.querySelector('${celula(0)}').value==='CO'`),'CO nu apare in Pontaj');
  await asteapta(()=>evalueaza(`document.querySelector('${celula(1)}').value==='7'`),'Modificarea nesalvata din afara selectiei s-a pierdut');
  assert(await evalueaza("JSON.parse(localStorage.getItem('pontix-test')).absente.some(z=>z.cod==='CO'&&z.stare_aprobare==='APROBATA'&&z.nr_inregistrare==='TEST-CO')"),'Aprobarea/metadatele lipsesc');
  await evalueaza(`(()=>{const e=document.querySelector('${celula(0)}');e.dispatchEvent(new MouseEvent('mousedown',{bubbles:true,button:0}));e.focus()})()`);await apasa(t('pontaj.absenta_titlu'));
  await asteapta(()=>evalueaza("Boolean(document.querySelector('dialog select[name=tip]'))"),'Editarea absentei lipsa');
- await completeaza('dialog select[name=tip]','CM');await apasa(t('ui.salveaza'));
+ await completeaza('dialog select[name=tip]','CM');await apasa(t('ux30.previzualizeaza'));await asteapta(()=>evalueaza("Boolean(document.querySelector('.ux30-comparatie'))"),'Comparatie absenta lipsa');await apasa(t('ux30.confirma_modificari'));
  await asteapta(()=>evalueaza(`document.querySelector('${celula(0)}').value==='CM'`),'Schimbarea CO-CM nu s-a aplicat');
  for (const cod of ['CO','CM']) {
   await evalueaza(`(()=>{const e=document.querySelector('${celula(0)}');e.dispatchEvent(new MouseEvent('mousedown',{bubbles:true,button:0}));e.focus()})()`);
   await apasa(t('pontaj.absenta_titlu'));
   await asteapta(()=>evalueaza("Boolean(document.querySelector('dialog select[name=tip]'))"),'Corectie explicita lipsa');
-  await completeaza('dialog select[name=tip]',cod);await apasa(t('ui.salveaza'));
+  await completeaza('dialog select[name=tip]',cod);await apasa(t('ux30.previzualizeaza'));await asteapta(()=>evalueaza("Boolean(document.querySelector('.ux30-comparatie'))"),'Comparatie absenta lipsa');await apasa(t('ux30.confirma_modificari'));
   await asteapta(()=>evalueaza(`document.querySelector('${celula(0)}').value==='${cod}'`),'Corectie explicita neaplicata: '+cod);
  }
  await apasa(t('pontaj.salveaza'));
@@ -60,7 +60,7 @@ export async function verificaAbsentePontaj({evalueaza,asteapta,apasa,completeaz
  const dataNoua=await evalueaza("(()=>{const s=JSON.parse(localStorage.getItem('pontix-test'));const d=new Date(s.absente.find(z=>z.activ).data+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+7);return d.toISOString().slice(0,10)})()");
  await completeaza('dialog input[name=de_la]',dataNoua);
  assert.equal(await evalueaza("document.querySelector('dialog input[name=pana_la]').value"),dataNoua,'Datele editarii nu sunt sincronizate');
- await apasa(t('ui.salveaza'));
+ await apasa(t('ux30.previzualizeaza'));await asteapta(()=>evalueaza("Boolean(document.querySelector('.ux30-comparatie'))"),'Comparatie absenta lipsa');await apasa(t('ux30.confirma_modificari'));
  await asteapta(()=>evalueaza("!document.querySelector('dialog[open]')"),'Mutarea nu s-a salvat');
  assert(await evalueaza(`JSON.parse(localStorage.getItem('pontix-test')).absente.some(z=>z.data==='${dataNoua}'&&z.activ)`),'Ziua nu a fost mutata');
  await evalueaza('window.confirm=()=>true');
@@ -68,7 +68,7 @@ export async function verificaAbsentePontaj({evalueaza,asteapta,apasa,completeaz
  await asteapta(()=>evalueaza("JSON.parse(localStorage.getItem('pontix-test')).absente.every(z=>!z.activ)"),'Medicalul nu a fost anulat');
  await completeaza('select[name=filtru_stare_zile_absenta]','INACTIVE');
  await asteapta(()=>evalueaza("document.querySelectorAll('.tabel-absente tbody tr').length>=2"),'Zilele anulate sunt inaccesibile');
- await apasa(t('ui.reactiveaza'));
+ await apasa(t('ui.reactiveaza'));await asteapta(()=>evalueaza("Boolean(document.querySelector('dialog select[name=tip]'))"),'Reactivare lipsa');await apasa(t('ux30.previzualizeaza'));await asteapta(()=>evalueaza("Boolean(document.querySelector('.ux30-comparatie'))"),'Comparatie reactivare lipsa');await apasa(t('ux30.confirma_modificari'));
  await asteapta(()=>evalueaza("JSON.parse(localStorage.getItem('pontix-test')).absente.some(z=>z.activ)"),'Reactivarea nu s-a salvat');
  await completeaza('select[name=filtru_stare_tipuri_absenta]','TOATE');
  for (const activa of [false,true]) {

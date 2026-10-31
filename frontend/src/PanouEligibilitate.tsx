@@ -1,0 +1,6 @@
+import {useEffect,useState} from 'react';
+import {useTranslation} from 'react-i18next';
+import {ListaSchimburi} from '../wailsjs/go/main/App';
+import {datebaza} from '../wailsjs/go/models';
+import {motivProgramExclus} from './eligibilitateProgram';
+export function EligibilitateProgram({categorie,schimburi:initial}:{categorie?:datebaza.CategorieProgram;schimburi?:datebaza.Schimb[]}){const {t}=useTranslation();const [schimburi,setSchimburi]=useState(initial);const [eroare,setEroare]=useState('');useEffect(()=>{if(initial){setSchimburi(initial);return;}let activ=true;ListaSchimburi().then(r=>{if(!activ)return;if(r.eroare)setEroare(t(r.eroare.cod,r.eroare.param||{}));else setSchimburi(r.schimburi||[]);}).catch(()=>{if(activ)setEroare(t('date.eroare'));});return()=>{activ=false;};},[initial,t]);return <details className="ux30-eligibilitate"><summary>{t('ux30.eligibilitate')}</summary><p>{t('ux30.eligibilitate_indiciu')}</p>{eroare&&<p role="alert">{eroare}</p>}{!schimburi&&!eroare&&<p role="status">{t('ui.incarcare')}</p>}<ul>{schimburi?.map(s=>{const motiv=motivProgramExclus(s,categorie);return <li key={s.id}><strong>{s.cod}</strong> / {t(motiv?'ui28.exclus_'+motiv:'ux30.permis')}</li>;})}</ul></details>;}

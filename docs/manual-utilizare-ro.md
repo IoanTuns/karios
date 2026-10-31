@@ -620,3 +620,17 @@ Formularul de absente afiseaza zilele selectate, marcile afectate si prioritatea
 Setari contine o verificare ghidata a configurarilor, cu legaturi catre angajati, schimburi, categorii si regulile de pontaj. Aceasta semnaleaza puncte de verificat, nu declara automat gresite contractele independente sau lipsa unei categorii. Stergerea definitiva este o actiune rara pentru administratori, disponibila la configurari inactive in Alte actiuni. Referintele blocante ofera, unde este posibil, acces spre sursa folosirii.
 
 Salvarea Excel verifica registrul si continutul scris temporar inainte de a inlocui destinatia; erorile nu mai sunt mascate printr-o descarcare alternativa. Investigarea blocajului de deschidere raportat de utilizator este amanata la cererea lui; nu se declara remediata cauza acelui blocaj.
+
+## Activitatile lunii si configurarea asistata (0.92.20)
+
+Butonul Activitatile lunii din antet deschide situatia datelor salvate pentru anul si luna alese: configurari lipsa, pozitii nepublicate, zile de absenta in asteptare si acces la verificarea Pontajului, raport si inchiderea lunii. Contoarele nu includ modificarile nesalvate si nu reprezinta o validare contabila. Legaturile pastreaza perioada aleasa; inchiderea se face in continuare din Pontaj, cu motiv si verificarile existente.
+
+In Setari, Verificarea configurarii deschide Angajati cu criteriul selectat, de exemplu lipsa categoriei. Poti elimina criteriul sau reveni la verificari. Garda independenta este informatie de revizuit, nu eroare. In formularul angajatului si al categoriei, deschide Programe disponibile in Planificare pentru lista programelor permise si motivele de excludere. Lista explica eligibilitatea pentru Planificare, nu publica si nu completeaza automat programul normal.
+
+## Revizuirea modificarilor si navigarea (0.92.20)
+
+La adaugarea sau editarea concediilor/absentelor, completeaza formularul si apasa Previzualizeaza modificarile. Simularea foloseste aceeasi operatie ca salvarea, intr-o tranzactie anulata: arata schita, programul planificat, absenta si pontajul efectiv afectate. Pentru medical se includ marcile asociate si intreaga tura intersectata, dupa regulile existente. Confirmarea revalideaza datele; daca intre timp se schimba datele sau apare un blocaj, poate fi necesara o noua previzualizare. Modificarea formularului invalideaza comparatia. Apasa Confirma si salveaza pentru aplicare; inchiderea previzualizarii nu salveaza. Anularea unei absente nu restaureaza automat programele retrase.
+
+Grilele arata marcile si intervalul selectat langa comenzi. La schimbarea lunii sau navigarea dintr-o grila cu modificari, poti alege Ramai aici, Renunta la modificari sau Salveaza si continua. O salvare esuata nu continua navigarea. Salvarea Planificarii ramane separata de publicarea in Pontaj. Protectia nativa la inchiderea ferestrei Windows ramane cea existenta. Alte formulare isi pastreaza propriile validari si confirmari de abandon.
+
+Filtrele profesionale active au eticheta si valoare si se pot elimina individual din butonul lor; celelalte criterii si perioada raman neschimbate. In Rapoarte, daca persoana selectata nu mai corespunde filtrelor, selectia se goleste cu mesaj explicativ. Compact/Normal/Aerisit controleaza densitatea grilei; procentul din antet controleaza zoomul intregii aplicatii. Regiunile de tabel au denumiri specifice pentru accesul prin tastatura; Alt+Home/End deruleaza la capetele tabelului cand regiunea are focus. Aceste facilitati nu reprezinta certificare de accesibilitate cu cititor de ecran.

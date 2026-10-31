@@ -627,10 +627,20 @@ func (s *Serviciu) modificaTx(ctx context.Context, actiune func(*sql.Tx, *acces.
 	if err := actiune(tx, acces.New(tx)); err != nil {
 		return traduceEroare(err)
 	}
+	if ctx.Value(cheieSimulareAbsente{}) != nil {
+		return traduceEroare(tx.Rollback())
+	}
 	return traduceEroare(tx.Commit())
 }
 
 func jurnal(ctx context.Context, q *acces.Queries, tabel, id string, vechi, nou any) error {
+	if colector, ok := ctx.Value(cheieSimulareAbsente{}).(*[]EfectAbsenta); ok {
+		switch tabel {
+		case "pontaj_ciorne", "planificare", "absente_zile", "pontaj":
+			*colector = append(*colector, EfectAbsenta{tabel, id, campuriEfect(vechi), campuriEfect(nou)})
+		}
+		return nil
+	}
 	var inainte *string
 	if vechi != nil {
 		text, err := json.Marshal(vechi)

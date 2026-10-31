@@ -837,6 +837,26 @@ export namespace conturi {
 }
 
 export namespace datebaza {
+	export class EfectAbsenta {
+	    sursa: string;
+	    id: string;
+	    inainte: Record<string, any>;
+	    dupa: Record<string, any>;
+
+	    static createFrom(source: any = {}) {
+	        return new EfectAbsenta(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.sursa = source["sursa"];
+	        this.id = source["id"];
+	        this.inainte = source["inainte"];
+	        this.dupa = source["dupa"];
+	    }
+	}
+
+
 
 	export class ZiAbsenta {
 	    angajat_id: string;
@@ -2157,6 +2177,39 @@ export namespace diagnoza {
 }
 
 export namespace main {
+	export class RaspunsEfecteAbsente {
+	    efecte: datebaza.EfectAbsenta[];
+	    eroare?: MesajEroare;
+
+	    static createFrom(source: any = {}) {
+	        return new RaspunsEfecteAbsente(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.efecte = this.convertValues(source["efecte"], datebaza.EfectAbsenta);
+	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+
 
 	export class CerereAplicaPropunereAI {
 	    an: number;

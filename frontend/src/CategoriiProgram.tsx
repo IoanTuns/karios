@@ -1,3 +1,4 @@
+import {EligibilitateProgram} from './PanouEligibilitate';
 import {ButonStergereAdmin} from './ButonStergereAdmin';
 import {FiltruStare,corespundeStare,type StareLista} from './FiltruStare';
 import {useEffect, useState} from 'react';
@@ -56,7 +57,7 @@ function FormularCategorie({categorie,schimburi,ocupat,eroare,inchide,salveaza}:
         {(validare||eroare)&&<p role="alert" className="mesaj eroare">{validare||eroare}</p>}
         <fieldset disabled={ocupat} className="campuri">
             {['ro','en'].map(l=><label key={l}>{t(`program.denumire_${l}`)}<input name={`categorie_denumire_${l}`} autoFocus={l==='ro'} value={c.denumire[l]??''} onChange={e=>setC(new datebaza.CategorieProgram({...c,denumire:{...c.denumire,[l]:e.target.value}}))}/></label>)}
-            <fieldset className="latime-completa selectie-programe"><legend>{t('program.programe')}</legend>
+            <EligibilitateProgram categorie={c} schimburi={schimburi}/><fieldset className="latime-completa selectie-programe"><legend>{t('program.programe')}</legend>
                 {schimburi.map(s=><label key={s.id} className="bifa"><input type="checkbox" name={`categorie_schimb_${s.cod}`} checked={c.schimburi_id.includes(s.id)} disabled={!s.activ&&!c.schimburi_id.includes(s.id)} onChange={e=>setC(new datebaza.CategorieProgram({...c,schimburi_id:e.target.checked?[...c.schimburi_id,s.id]:c.schimburi_id.filter(id=>id!==s.id),schimb_implicit_id:!e.target.checked&&c.schimb_implicit_id===s.id?'':c.schimb_implicit_id}))}/><span>{textSchimb(s)}<small>{s.denumire[i18n.language]||s.denumire.ro}</small></span></label>)}
             </fieldset>
             <label className="latime-completa">{t('program.implicit')}<select name="categorie_implicit" value={c.schimb_implicit_id} onChange={e=>setC(new datebaza.CategorieProgram({...c,schimb_implicit_id:e.target.value}))}>
