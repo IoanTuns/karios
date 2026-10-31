@@ -38,3 +38,5 @@ Proiectul are structura, uneltele și regulile de lucru pe care se construiește
 | F02-T10 | Versionarea aplicației: `internal/versiune`, `docs/versiuni.md`, hook-ul `.githooks/pre-commit`; prima versiune 0.1.0 | gata | Claude | [D009](../decizii/D009-versionare.md), 2026-10-24 |
 
 | F02-T22 | Pachet ZIP, acceptanta operator, note de versiune si verificari traduceri/legaturi | gata | Codex | 0.89.1 integrat cu main 8cce680, cod eeba9be; ZIP explicit 10 fisiere/11.9 MiB, manual 1.5/PDF 20 pagini, documente operator si SHA256. Go/vet, frontend 13 teste, 3 probe manual, 7 probe livrare si regresia buildului trecute. CI extins. Pas urmator: review PR si proba operator pe Windows curat. |
+
+| F02-T24 | Build ultima versiune si revizie manual pentru 0.89.3 | in lucru | Codex | Buildul initial refuzat: manual revizuit pentru 0.89.1. Revizuire reala pentru modificarile AI/erori, apoi build oficial si ZIP. |

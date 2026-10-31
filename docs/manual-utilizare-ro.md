@@ -254,6 +254,8 @@ Exemplu fictiv de planificare:
 4. Alege zilele și păstrarea ori înlocuirea celulelor existente.
 5. Apasă **Arată modificările** și verifică rezumatele și tabelul.
 6. Bifează verificarea și confirmă aplicarea.
+
+În editorul persoanelor, folosește **Arată doar selectați** pentru a verifica lista aleasă. În previzualizare, **Doar excepții** izolează celulele ocupate, blocate sau identice; dezactivează filtrul pentru a revedea toate rândurile. Rezumatul arată distinct persoanele efectiv afectate de modificări; numărul nu este neapărat egal cu numărul persoanelor selectate. Verifică aceste diferențe înainte de confirmare.
 7. Verifică rezultatul și deschide pontajul lunii indicate.
 
 **Salvat**, **Păstrat**, **Neaplicat** și **Deja identic** descriu rezultate diferite. Cererea „toți angajații” nu garantează modificarea tuturor celulelor: pot exista absențe, programe nepermise, celule păstrate sau luni închise. Verifică explicațiile de selecție și motivele pe zile.
@@ -394,7 +396,7 @@ Pentru suport, notează versiunea aplicației, ecranul, anul/luna, pașii și er
 
 ## 19. Despre acest manual
 
-Acoperire: meniurile principale și subsecțiunile din Setări, fluxurile de date și instrumentele AI din versiunea {{VERSIUNE}}. Revizia editorială 1.5 include optimizările UI din Pontaj: meniul contextual clic dreapta, clipboardul avansat, mini-harta de acoperire pe zile și panoul drawer pentru Asistentul AI. Include ajutorul contextual pe toate ecranele, 21 de articole comune manualului și AI, sincronizarea Pontaj → Planificare și formatarea cheii de recuperare. Referința exactă a livrării este commitul de pe copertă. Actualizarea versiunii nu înlocuiește revizuirea instrucțiunilor: buildul cere confirmarea versiunii revizuite în sursele manualului.
+Acoperire: meniurile principale și subsecțiunile din Setări, fluxurile de date și instrumentele AI din versiunea {{VERSIUNE}}. Revizia editorială 1.6 include optimizările UI din Pontaj: meniul contextual clic dreapta, clipboardul avansat, mini-harta de acoperire pe zile și panoul drawer pentru Asistentul AI. Include ajutorul contextual pe toate ecranele, 21 de articole comune manualului și AI, sincronizarea Pontaj → Planificare și formatarea cheii de recuperare. Referința exactă a livrării este commitul de pe copertă. Actualizarea versiunii nu înlocuiește revizuirea instrucțiunilor: buildul cere confirmarea versiunii revizuite în sursele manualului.
 
 Manualul nu substituie regulile de salarizare și aprobările organizației. Nu certifică validarea interactivă a fiecărui ecran pe calculatorul utilizatorului. În cazul unei diferențe între instrucțiuni și aplicație, notează versiunea și cere verificarea fluxului înainte de aplicări în lot.
 
@@ -419,3 +421,7 @@ Buildul include o arhiva ZIP cu executabilul, manualele, manifestul, LICENSE, in
 ### Raporteaza o problema sau trimite o parere
 
 Din meniul lateral alege Raporteaza o problema. Selecteaza tipul, descrie situatia si adauga pasii de reproducere. Jurnalul de diagnoza este optional. Genereaza raportul si verifica textul inainte de a-l trimite; elimina orice date personale ramase. Salveaza fisierul pentru trimitere pe canalul organizatiei sau deschide formularul GitHub precompletat. Publicarea pe GitHub este confirmata de tine in browser si necesita contul tau; aplicatia nu trimite automat raportul. Pentru descrieri lungi, pastreaza fisierul complet, deoarece formularul GitHub poate contine text scurtat.
+
+### Mesaje de eroare si date indisponibile
+
+Panoul de eroare urmeaza limba interfetei. O data absenta sau invalida nu trebuie interpretata ca o data calendaristica valida; verifica inregistrarea sursa in Jurnal, Restaurare sau Planificare. Daca apare o eroare, pastreaza contextul si foloseste raportarea problemei, fara date personale.

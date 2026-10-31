@@ -12,6 +12,8 @@ Sunt disponibile si remediile UX din 0.88.15: confirmare la navigarea AI cu modi
 
 Din meniul lateral puteti raporta o problema sau trimite o parere: verificati raportul, salvati fisierul sau deschideti GitHub pentru confirmarea trimiterii. Jurnalul este optional; eliminati datele personale inainte de publicare.
 
+Planul AI include filtrele Doar exceptii si Arata doar selectati, plus numarul persoanelor efectiv afectate. Mesajele panoului de eroare sunt traduse; datele absente sau invalide sunt tratate defensiv in Jurnal, Restaurare si Planificare.
+
 ## Inainte de actualizare
 
 Urmati ACTUALIZARE.md. Pastrati copia completa a datelor si cheia de recuperare; nu copiati numai baza. Nu folositi un executabil vechi pe datele migrate de o versiune noua.
