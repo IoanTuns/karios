@@ -12,6 +12,6 @@ Teste: migrare din schema 26 cu program Noapte personalizat/inactiv, conversie r
 
 TypeScript/Vite si Edge nomenclatoare RO/EN trecute: adaugare tip/regim si asociere program. 21 teste frontend, 3 teste manual, 7 teste livrare, control documentatie si Edge focus/zoom trecute. gofmt, go vet ./... si go test -p 1 -timeout 120s ./... trecute integral dupa actualizarea contoarelor tehnice. Go stabil 1.27.3, npm actual; actualizarile tranzitive Go sunt urmarite separat in F14-T21. Fara biblioteca noua.
 
-Pas urmator: build oficial si proba operator in WebView2. Datele reale nu au fost accesate. Niciun push sau merge in main.
+Build oficial complet din 2fad3be: `build/bin/pontix-0.92.12-20261031-161348-de9ec5a4dbe24556b1d6ec82598ec993/pontix.exe`. Manual 1.23 MD/HTML/PDF alaturi si ZIP; identitate, hashuri executabil/manuale/arhiva si integritate ZIP verificate. Pas urmator: proba operator in WebView2. Datele reale nu au fost accesate. Niciun push sau merge in main.
 
 Prima suita Go completa a identificat inca doua contoare de migrari in testele de actualizare a rapoartelor; au fost crescute pentru migrarea 0027. Verificarile de continut ale rapoartelor au ramas intacte. Spatiile finale regenerate de Wails au fost normalizate, fara modificarea logicii bindingurilor.
