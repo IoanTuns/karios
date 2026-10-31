@@ -5,6 +5,7 @@ Orice idee, decizie și acțiune a proiectului se documentează aici, în acela�
 | Ce | Unde | Se actualizează când |
 | --- | --- | --- |
 | Manual utilizator | [sursa română](manual-utilizare-ro.md), [generare și versiuni](manual/README.md) | la fiecare versiune, înainte de build; documentele generate se livrează lângă executabil |
+| Control lunar | [procedura si fise printabile](control-lunar/README.md) | verificari inceput/parcurs/final de luna, corecturi si actualizare; document de completat de operator |
 | Ajutor contextual și AI | [propunere de integrare](ajutor-contextual-propunere.md), [D057](decizii/D057-manual-ajutor-contextual.md) | se proiectează articolele comune și accesul din fiecare meniu |
 | Idei | [idei.md](idei.md) | apare orice idee, chiar dacă nu se face acum |
 | Roadmap | [roadmap.md](roadmap.md) | apare o funcționalitate nouă sau își schimbă starea |

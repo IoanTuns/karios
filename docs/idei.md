@@ -6,6 +6,7 @@ Stări: `nouă`, `în analiză`, `transformată` (în task sau decizie), `amâna
 
 | ID | Data | Idee | Cine | Stare | Legături / motiv |
 | --- | --- | --- | --- | --- | --- |
+| I128 | 2026-10-31 | Procedura completa de control lunar si fise printabile pentru inceput/parcurs/final de luna, corecturi si actualizare | Utilizator, Codex | transformată | F02-T23; control-lunar/README.md; 79 verificari in sase fise A4 |
 | I127 | 2026-11-09 | Culorile programelor (D097) si in rapoartele SQL personalizate: coloana `culoare` in tabelele `garzi`/`planificare` din setul de date si o optiune „Fundal din coloana” in formular, ca rapoartele de garzi facute in SQL sa aiba aceleasi culori ca grila | Claude | nouă | Discutat la F07-T42 (2026-11-08); rapoartele SQL nu primesc culori automat |
 | I126 | 2026-11-09 | Mesaj de eroare precis pentru rapoartele SQL: „Coloana ascunsa «rand» nu exista in rezultatul SQL” sau „Coloana calculata «x» are acelasi nume ca o coloana SQL”, in locul mesajului general despre aliasuri (rapoarte.sql_coloane) | Claude | nouă | Gasit cand Ioan Tuns a primit mesajul despre aliasuri din cauza coloanei ascunse `rand` (2026-11-07) |
 | I125 | 2026-11-09 | Fonturile Windows gasite indiferent de majuscule (`arial` = `Arial`) la „Adauga fontul” in editorul vizual | Claude | nouă | Gasit la F09-T33 (2026-11-07): cautarea dupa nume e exacta |
