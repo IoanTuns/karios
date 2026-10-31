@@ -8,4 +8,4 @@ Nu se schimba rezolutia, scalarea Windows sau dimensiunea fonturilor. Nu sunt af
 
 Verificari: teste pentru 800, 1024, 1280, 1366, 1920 si 3840 pixeli, scalari 100/150/200%, limite minime si rezerva pentru decoratiuni; gofmt si vet trecute. Suita Go completa (`go test -p 1 -timeout 120s ./...`) trecuta. Trei teste de generare manual si control documentatie trecute. API-urile Wails au fost verificate in sursa locala; manifestul executabilului declara permonitorv2. Dependente verificate: Go 1.27.3 si npm actuale; actualizarile tranzitive Go raman urmarite in F14-T21, fara dependente noi.
 
-Pas urmator: build oficial si proba vizuala de pornire la rezolutia/scalarea utilizatorului. Nu s-au deschis datele reale. Fara push sau merge.
+Build oficial 7084fc3 complet: `build/bin/pontix-0.91.1-20261031-114557-b515fe2547ba49f6a8b80fc0707f434b/pontix.exe`, manual 1.10 MD/HTML/PDF si ZIP. Manifest si hashuri verificate. Pas urmator: proba vizuala de pornire la rezolutia/scalarea utilizatorului. Nu s-au deschis datele reale. Fara push sau merge.
