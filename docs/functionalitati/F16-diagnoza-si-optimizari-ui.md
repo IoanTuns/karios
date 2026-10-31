@@ -47,3 +47,5 @@ Predare F16-T23: cod 6f046a2, build complet 0.89.4 in build/bin/pontix-0.89.4-20
 F16-T24: [rezultate si limite](../rezultate-F16-T24.md). Pas urmator: build oficial si proba utilizator la rezolutia/scalarea sa.
 
 | F16-T28 | Audit UI/UX 0.92.18: avantaje, probleme si recomandari | gata | Codex | Capturi utilizator si inspectie cod; completat cu UI28-13 capete tabele la derulare si UI28-14 exporturi Excel care nu se deschid, raportate de utilizator si inca nereproduse. Fara modificari de interfata. [Audit](../analiza-ui-0.92.18.md). |
+
+| F16-T29 | Implementarea tuturor remediilor UI28-01 ... UI28-14 | gata | Codex | 0.92.19: UI28-01...13 implementate/verificate; investigatia blocajului Excel UI28-14 amanata explicit de utilizator, protectiile de salvare deja implementate pastrate. Urmeaza build/proba operator, fara push/merge. [Plan si verificari](../plan-F16-T29.md). |

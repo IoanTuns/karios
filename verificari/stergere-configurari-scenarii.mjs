@@ -31,6 +31,7 @@ export async function verificaStergereConfigurari({cdp,evalueaza,asteapta,apasa,
  await asteapta(()=>evalueaza("!document.querySelector('[data-nomenclator=grupuri] form')"),'Salvare lipsa');
  await completeaza('select[name=filtru_stare_grupuri]','INACTIVE');
  await asteapta(()=>evalueaza("Boolean(document.querySelector('[data-nomenclator=grupuri] [data-stergere-admin]'))"),'Buton admin lipsa');
+ await evalueaza("document.querySelector('[data-nomenclator=grupuri] details.actiune-stergere-admin').open=true");
  await evalueaza('window.confirm=()=>false');
  await evalueaza("document.querySelector('[data-nomenclator=grupuri] [data-stergere-admin]').click()");
  assert.equal(await evalueaza('window.__stergeri'),0,'Renuntarea a trimis stergere');

@@ -32,7 +32,7 @@ export async function verificaNomenclatoare({cdp,evalueaza,asteapta,apasa,comple
  await captura('functii-'+limba+'.png');
  await apasa(t('ui.angajati'));await apasa(t('ui.adauga_angajat'));
  await asteapta(()=>evalueaza("Boolean(document.querySelector('dialog[open] input'))"),'Formular lipsa');
- await completeaza('dialog .campuri label:nth-child(1) input','Exemplu');await completeaza('dialog .campuri label:nth-child(2) input','Fictiv');await completeaza('dialog .campuri label:nth-child(3) input','FUNC-UI');
+ await completeaza('dialog input[name=angajat_nume]','Exemplu');await completeaza('dialog input[name=angajat_prenume]','Fictiv');await completeaza('dialog input[name=angajat_marca]','FUNC-UI');
  const functie=await evalueaza("[...document.querySelectorAll('select[name=angajat_functie] option')].find(o=>o.textContent.includes('UI')).value");
  await completeaza('select[name="angajat_functie"]',functie);await apasa(t('ui.salveaza'));
  await asteapta(()=>evalueaza("!document.querySelector('dialog[open]')"),'Angajat nesalvat');
@@ -62,7 +62,7 @@ export async function verificaNomenclatoare({cdp,evalueaza,asteapta,apasa,comple
  await captura('categorii-schimburi-'+limba+'.png');
  await apasa(t('ui.angajati'));await apasa(t('ui.adauga_angajat'));
  await asteapta(()=>evalueaza("Boolean(document.querySelector('select[name=angajat_principal]'))"),'Selector principal lipsa');
- await completeaza('dialog .campuri label:nth-child(1) input','Exemplu');await completeaza('dialog .campuri label:nth-child(2) input','Fictiv');await completeaza('dialog .campuri label:nth-child(3) input','GARDA-UI');
+ await completeaza('dialog input[name=angajat_nume]','Exemplu');await completeaza('dialog input[name=angajat_prenume]','Fictiv');await completeaza('dialog input[name=angajat_marca]','GARDA-UI');
  const principal=await evalueaza("[...document.querySelectorAll('select[name=angajat_principal] option')].find(o=>o.textContent.includes('FUNC-UI')).value");
  await completeaza('select[name=angajat_principal]',principal);await captura('marca-garda-formular-'+limba+'.png');await apasa(t('ui.salveaza'));
  await asteapta(()=>evalueaza("!document.querySelector('dialog[open]')"),'Marca garda nesalvata');

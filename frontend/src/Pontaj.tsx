@@ -683,7 +683,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
-                URL.revokeObjectURL(url);
+                setTimeout(()=>URL.revokeObjectURL(url),30000);
                 setMesaj(t('pontaj.export_excel_succes'));
             }
         } catch {

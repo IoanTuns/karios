@@ -3,6 +3,15 @@ import assert from 'node:assert/strict';
 export async function verificaFocus({cdp,evalueaza,asteapta,apasa,cataloage,limba,captura}) {
  const t=k=>cataloage[limba][k];
  await asteapta(()=>evalueaza("Boolean(document.querySelector('.actiuni-antet'))"),'Antet lipsa');
+ // F16-T29: identificarea si antetul raman vizibile si in tabelele obisnuite.
+ await asteapta(()=>evalueaza("Boolean(document.querySelector('.tabel-angajati[data-tabel-accesibil]'))"),'Tabel angajati lipsa');
+ await evalueaza("(()=>{const g=document.querySelector('.tabel-angajati');g.scrollLeft=100000;g.scrollTop=100;g.scrollIntoView({block:'center'})})()");
+ await new Promise(r=>setTimeout(r,80));
+ const identitate=await evalueaza("(()=>{const g=document.querySelector('.tabel-angajati'),r=g.getBoundingClientRect(),c=[...g.querySelectorAll('thead th')].slice(0,3).map(e=>{const b=e.getBoundingClientRect();return {left:b.left,right:b.right,top:b.top}});return {left:r.left,right:r.right,top:r.top,c}})()");
+ assert(identitate.c[1].left>=identitate.c[0].right-2 && identitate.c[2].left>=identitate.c[1].right-2 && identitate.c[2].right<=identitate.right,'Identitatea sau marca se suprapun in lista '+JSON.stringify(identitate));
+ assert(identitate.c.every(c=>c.top>=identitate.top-2 && c.top<=identitate.top+4),'Antetul listei nu ramane la derulare');
+ await captura('tabel-angajati-derulat-'+limba+'.png');
+ await evalueaza("(()=>{const g=document.querySelector('.tabel-angajati');g.scrollLeft=0;g.scrollTop=0})()");
  // F16-T25: butoane globale, limite, tastatura si memorare.
  await asteapta(()=>evalueaza("Boolean(document.querySelector('.zoom-interfata'))"),'Zoom global lipsa');
  for (let i=0;i<12;i++) await evalueaza("document.querySelector('.zoom-interfata button:last-child').click()");
@@ -52,6 +61,7 @@ export async function verificaFocus({cdp,evalueaza,asteapta,apasa,cataloage,limb
   await new Promise(r=>setTimeout(r,40));
   assert(await evalueaza(`document.activeElement===window.__campuri[${index}] && window.__campuri[${index}].selectionStart===1`),'Focus pierdut in campul '+index);
  }
+ await evalueaza("document.querySelector('details.solduri-initiale').open=true");
  // F07-T27: initializarea pastreaza solduri negative si CO in formular.
  assert(await evalueaza("Boolean(document.querySelector('input[name=initializare_luna][type=month]'))"),'Luna de initializare lipsa');
  await evalueaza("document.querySelector('input[name=initializare_ore]').focus();document.querySelector('input[name=initializare_ore]').select()");
@@ -92,6 +102,29 @@ export async function verificaFocus({cdp,evalueaza,asteapta,apasa,cataloage,limb
    await evalueaza(`document.querySelectorAll('.grup-zoom-grila button')[${index}].click()`);
    await asteapta(()=>evalueaza(`Boolean(document.querySelector('.zoom-${mod}'))`),'Zoom neaplicat '+ecran+' '+mod);
   }
+  for(const tema of ['light','dark']){
+   await evalueaza(`document.documentElement.setAttribute('data-theme','${tema}')`);
+   await evalueaza("document.querySelector('.grila-container').scrollLeft=100000");
+   await new Promise(r=>setTimeout(r,80));
+   const poz=await evalueaza("(()=>{const g=document.querySelector('.grila-container'),r=g.getBoundingClientRect(),n=g.querySelector('thead .fix-nume').getBoundingClientRect(),m=g.querySelector('thead .fix-marca').getBoundingClientRect();return {left:r.left,right:r.right,nLeft:n.left,nRight:n.right,mLeft:m.left,mRight:m.right,scroll:g.scrollLeft,latime:g.clientWidth,role:g.getAttribute('role')}})()");
+   assert(poz.scroll>0,'Grila nu se deruleaza '+ecran);
+   assert(poz.nLeft>=poz.left-2&&poz.nRight<poz.right&&poz.mLeft>=poz.nRight-2&&poz.mRight<=poz.right,'Identificarea nu ramane vizibila sau se suprapune '+ecran+' '+JSON.stringify(poz));
+   assert.equal(poz.role,'region','Tabelul nu are navigare accesibila');
+   await captura('derulare-dreapta-'+ecran+'-'+tema+'-'+limba+'.png');
+   await evalueaza("document.querySelector('.grila-container').focus()");
+   await cdp('Input.dispatchKeyEvent',{type:'keyDown',key:'Home',code:'Home',modifiers:1,windowsVirtualKeyCode:36});
+   await asteapta(()=>evalueaza("document.querySelector('.grila-container').scrollLeft===0"),'Alt+Home nu revine la inceput');
+  }
+  for(const nivel of [150,200]){
+   await evalueaza(`(()=>{const n=Number(localStorage.getItem('pontix_zoom_interfata')||100);const lista=[75,80,90,100,110,125,150,175,200];for(let i=lista.indexOf(n);i<lista.indexOf(${nivel});i++)document.querySelector('.zoom-interfata button:last-child').click();})()`);
+   await asteapta(()=>evalueaza(`localStorage.getItem('pontix_zoom_interfata')==='${nivel}'`),'Zoom global neaplicat');
+   await evalueaza("document.querySelector('.grila-container').scrollLeft=100000;document.querySelector('.grila-container').scrollTop=100");
+   await new Promise(r=>setTimeout(r,100));
+   const p=await evalueaza("(()=>{const g=document.querySelector('.grila-container'),r=g.getBoundingClientRect(),n=g.querySelector('thead .fix-nume').getBoundingClientRect(),m=g.querySelector('thead .fix-marca').getBoundingClientRect();return {left:r.left,right:r.right,nLeft:n.left,nRight:n.right,mLeft:m.left,mRight:m.right}})()");
+   assert(p.nLeft>=p.left-3&&p.mLeft>=p.nRight-3&&p.mRight<=p.right,'Repere suprapuse la zoom '+nivel+' '+ecran+' '+JSON.stringify(p));
+   await captura('tabel-zoom-'+nivel+'-'+ecran+'-'+limba+'.png');
+  }
+  await evalueaza("document.querySelector('.zoom-interfata button:nth-child(2)').click()");
   await captura('zoom-'+ecran+'-'+limba+'.png');
  }
 }

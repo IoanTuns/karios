@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestMarcajAIUrmeazaLegaturaExplicita(t *testing.T) {
+func TestMarcajAIUrmeazaLegaturaSauContractul(t *testing.T) {
 	m, principal, _ := mediuPlanificare(t)
 	ctx := CuAsistentAI(context.Background())
 	a := angajatTest("GARDA-TEST")
@@ -38,7 +38,7 @@ func TestMarcajAIUrmeazaLegaturaExplicita(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	if strings.Contains(nou.Persoane[0].Nume, " (") || p.Token == nou.Token {
+	if !strings.Contains(nou.Persoane[0].Nume, " (") || strings.Count(nou.Randuri[0].Nume, " (") != 1 || p.Token == nou.Token {
 		t.Fatal(nou)
 	}
 	if _, e := m.serviciu.AplicaPlanAI(ctx, i, p.Token); e == nil {

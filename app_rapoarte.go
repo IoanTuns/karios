@@ -10,6 +10,7 @@ import (
 
 	wruntime "github.com/wailsapp/wails/v2/pkg/runtime"
 
+	"pontix/internal/exportexcel"
 	"pontix/internal/i18n"
 	"pontix/internal/portabil"
 	"pontix/internal/rapoarte"
@@ -163,15 +164,15 @@ func (a *App) SalveazaExcelRaport(token string) RaspunsFisierRaport {
 	}
 	continut, err := rapoarte.GenereazaExcel(r.Document)
 	if err != nil {
-		return RaspunsFisierRaport{Eroare: mesajRaport(err)}
+		return RaspunsFisierRaport{Eroare: &MesajEroare{Cod: "excel.salvare_esuata"}}
 	}
 	folder, err := folderRapoarte()
 	if err != nil {
-		return RaspunsFisierRaport{Eroare: mesajRaport(err)}
+		return RaspunsFisierRaport{Eroare: &MesajEroare{Cod: "excel.salvare_esuata"}}
 	}
 	cale, err := wruntime.SaveFileDialog(a.ctx, wruntime.SaveDialogOptions{Title: i18n.T(r.Limba, "pontaj.export_excel", nil), DefaultDirectory: folder, DefaultFilename: strings.TrimSuffix(r.Nume, ".pdf") + ".xlsx", Filters: []wruntime.FileFilter{{DisplayName: i18n.T(r.Limba, "pontaj.export_excel", nil), Pattern: "*.xlsx"}}, CanCreateDirectories: true})
 	if err != nil {
-		return RaspunsFisierRaport{Eroare: mesajRaport(err)}
+		return RaspunsFisierRaport{Eroare: &MesajEroare{Cod: "excel.salvare_esuata"}}
 	}
 	if cale == "" {
 		return RaspunsFisierRaport{Anulat: true}
@@ -179,8 +180,8 @@ func (a *App) SalveazaExcelRaport(token string) RaspunsFisierRaport {
 	if !strings.EqualFold(filepath.Ext(cale), ".xlsx") {
 		cale += ".xlsx"
 	}
-	if err := os.WriteFile(cale, continut, 0600); err != nil {
-		return RaspunsFisierRaport{Eroare: mesajRaport(err)}
+	if err := exportexcel.SalveazaVerificat(cale, continut); err != nil {
+		return RaspunsFisierRaport{Eroare: &MesajEroare{Cod: "excel.salvare_esuata"}}
 	}
 	return RaspunsFisierRaport{Cale: cale}
 }

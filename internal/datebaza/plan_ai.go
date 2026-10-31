@@ -110,6 +110,14 @@ func construiestePlanAI(ctx context.Context, tx *sql.Tx, q *acces.Queries, i ai.
 	if !ok || !program.Activ {
 		return p, surse, eroare("ai.plan_program_invalid")
 	}
+	profileIdentitate, e := q.ListaProfilePontaj(ctx)
+	if e != nil {
+		return p, surse, e
+	}
+	garziIdentitate := map[string]bool{}
+	for _, profil := range profileIdentitate {
+		garziIdentitate[profil.ID] = profil.Garda != 0
+	}
 	// Rezolvăm numele afișat sau ID-ul grupului, fără potriviri parțiale.
 	grupID := i.Selectie.Valoare
 	switch i.Selectie.Tip {
@@ -169,7 +177,7 @@ func construiestePlanAI(ctx context.Context, tx *sql.Tx, q *acces.Queries, i ai.
 	p.SelectieExplicata = []ExplicatieSelectieAI{}
 	for _, a := range surse.oameni {
 		if a.Activ != 1 {
-			p.SelectieExplicata = append(p.SelectieExplicata, ExplicatieSelectieAI{a.ID, a.Marca, identitate.Nume(a.Nume, a.Prenume, surse.principali[a.ID] != "", i18n.Romana), false, "inactiv"})
+			p.SelectieExplicata = append(p.SelectieExplicata, ExplicatieSelectieAI{a.ID, a.Marca, identitate.Nume(a.Nume, a.Prenume, garziIdentitate[a.ID] || surse.principali[a.ID] != "", i18n.Romana), false, "inactiv"})
 			continue
 		}
 		inclus := false
@@ -189,13 +197,13 @@ func construiestePlanAI(ctx context.Context, tx *sql.Tx, q *acces.Queries, i ai.
 			}
 		}
 		if inclus {
-			p.Persoane = append(p.Persoane, PersoanaPlanAI{a.ID, a.Marca, identitate.Nume(a.Nume, a.Prenume, surse.principali[a.ID] != "", i18n.Romana)})
+			p.Persoane = append(p.Persoane, PersoanaPlanAI{a.ID, a.Marca, identitate.Nume(a.Nume, a.Prenume, garziIdentitate[a.ID] || surse.principali[a.ID] != "", i18n.Romana)})
 		}
 		motivSelectie := "alt_grup"
 		if inclus {
 			motivSelectie = i.Selectie.Tip
 		}
-		p.SelectieExplicata = append(p.SelectieExplicata, ExplicatieSelectieAI{a.ID, a.Marca, identitate.Nume(a.Nume, a.Prenume, surse.principali[a.ID] != "", i18n.Romana), inclus, motivSelectie})
+		p.SelectieExplicata = append(p.SelectieExplicata, ExplicatieSelectieAI{a.ID, a.Marca, identitate.Nume(a.Nume, a.Prenume, garziIdentitate[a.ID] || surse.principali[a.ID] != "", i18n.Romana), inclus, motivSelectie})
 	}
 	if len(p.Persoane) == 0 || (i.Selectie.Tip == "persoane" && gasite != len(marci)) {
 		return p, surse, eroare("ai.plan_selectie_invalida")
@@ -245,7 +253,7 @@ func construiestePlanAI(ctx context.Context, tx *sql.Tx, q *acces.Queries, i ai.
 			data := d.Format(time.DateOnly)
 			cheie := a.ID + "/" + data
 			veche := surse.ciorne[cheie]
-			r := RandPlanAI{AngajatID: a.ID, Marca: a.Marca, Nume: identitate.Nume(a.Nume, "", surse.principali[a.ID] != "", i18n.Romana), Data: data, Inainte: veche.Valoare, Dupa: program.Cod, Stare: "noua"}
+			r := RandPlanAI{AngajatID: a.ID, Marca: a.Marca, Nume: a.Nume, Data: data, Inainte: veche.Valoare, Dupa: program.Cod, Stare: "noua"}
 			if veche.Revizie > 0 {
 				r.Revizie = strconv.FormatInt(veche.Revizie, 10)
 			}

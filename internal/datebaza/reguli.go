@@ -141,7 +141,7 @@ func (s *Serviciu) VerificaReguliPlanificare(ctx context.Context, an, luna int) 
 			continue
 		}
 		ang := hartaAngajati[p.AngajatID]
-		numeComplet := identitate.Nume(ang.Nume, ang.Prenume, ang.AngajatPrincipalID != "", i18n.Romana)
+		numeComplet := identitate.Nume(ang.Nume, ang.Prenume, ang.Garda || ang.AngajatPrincipalID != "", i18n.Romana)
 		if numeComplet == "" {
 			numeComplet = p.AngajatID
 		}

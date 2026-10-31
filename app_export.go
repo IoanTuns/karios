@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/base64"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -64,24 +63,20 @@ func (a *App) ExportaPontajExcel(an, luna int) RaspunsExportExcel {
 			},
 			CanCreateDirectories: true,
 		})
-		if err == nil && cale != "" {
-			if !strings.EqualFold(filepath.Ext(cale), ".xlsx") {
-				cale += ".xlsx"
-			}
-			if err := os.WriteFile(cale, bytesXlsx, 0600); err == nil {
-				return RaspunsExportExcel{
-					NumeFisier: numeFisier,
-					Continut:   continutB64,
-					Cale:       cale,
-				}
-			}
-		} else if cale == "" && err == nil {
-			return RaspunsExportExcel{
-				NumeFisier: numeFisier,
-				Continut:   continutB64,
-				Anulat:     true,
-			}
+		if err != nil {
+			return RaspunsExportExcel{Eroare: eroareInterfata(err)}
 		}
+		if cale == "" {
+			return RaspunsExportExcel{Anulat: true}
+		}
+		if !strings.EqualFold(filepath.Ext(cale), ".xlsx") {
+			cale += ".xlsx"
+		}
+		if err := exportexcel.SalveazaVerificat(cale, bytesXlsx); err != nil {
+			return RaspunsExportExcel{Eroare: &MesajEroare{Cod: "excel.salvare_esuata"}}
+		}
+		return RaspunsExportExcel{NumeFisier: numeFisier, Cale: cale}
+
 	}
 
 	return RaspunsExportExcel{

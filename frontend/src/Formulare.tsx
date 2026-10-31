@@ -122,7 +122,7 @@ export function FormularAngajat({angajat, date, ocupat, eroare, inchide, salveaz
     }
 
     return <Dialog titlu={t(angajat.id ? 'ui.editare_angajat' : 'ui.adauga_angajat')} ocupat={ocupat} inchide={inchideCuVerificare}>
-        <form onSubmit={trimite} onKeyDown={e => {
+        <form onSubmit={trimite} onInvalidCapture={e=>(e.target as HTMLElement).closest('details')?.setAttribute('open','')} onKeyDown={e => {
             if (e.ctrlKey && e.key === 'Enter') {
                 e.preventDefault();
                 (e.currentTarget as HTMLFormElement).requestSubmit();
@@ -130,30 +130,30 @@ export function FormularAngajat({angajat, date, ocupat, eroare, inchide, salveaz
         }}>
             <div className="corp-dialog"><p className="text-discret">{t('ui.formular_indiciu')}</p>
                 {(validare || eroare) && <div className="mesaj eroare" role="alert">{validare || eroare}</div>}
-                <fieldset disabled={ocupat} className="campuri">
-                    <label>{t('ui.nume')} *<input autoFocus required value={nume} onChange={e => setNume(e.target.value)}/></label>
-                    <label>{t('ui.prenume')} *<input required value={prenume} onChange={e => setPrenume(e.target.value)}/></label>
-                    <label>{t('ui.marca')} *<input required value={marca} onChange={e => setMarca(e.target.value)}/></label>
-                    <label className="latime-completa">{t('ui.garda_principal')}<select name="angajat_principal" value={principalId} onChange={e=>{setPrincipalId(e.target.value);if(e.target.value&&date.tipuri_contract?.some(c=>c.id==='GARDA'&&c.activ))setContract('GARDA');}}><option value="">{t('ui.garda_fara_principal')}</option>{date.angajati.filter(a=>a.id!==angajat.id&&!a.angajat_principal_id&&(a.activ||a.id===principalId)).map(a=><option key={a.id} value={a.id}>{numeAngajat(a)} · {a.marca}</option>)}</select><small>{t('ui.garda_principal_indiciu')}</small></label>
-                    <label>{t('ui.functie')}<select name="angajat_functie" value={functieId|| (functie?'__anterioara':'')} onChange={e=>{const id=e.target.value;if(id==='__anterioara')return;setFunctieId(id);setFunctie('');}}><option value="">{t('nomenclator.fara_functie')}</option>{!functieId&&functie&&<option value="__anterioara">{functie}</option>}{(date.functii??[]).filter(f=>f.activ||f.id===functieId).map(f=><option key={f.id} value={f.id}>{f.denumire[i18n.language]||f.denumire.ro||f.denumire.en}{!f.activ?` (${t('ui.inactiv')})`:''}</option>)}</select><small>{t('nomenclator.functii_indiciu')}</small></label>
+                <fieldset disabled={ocupat} className="campuri grup-formular"><legend>{t('ui28.identitate')}</legend>
+                    <label>{t('ui.nume')} *<input autoFocus required name="angajat_nume" value={nume} onChange={e => setNume(e.target.value)}/></label>
+                    <label>{t('ui.prenume')} *<input required name="angajat_prenume" value={prenume} onChange={e => setPrenume(e.target.value)}/></label>
+                    <label>{t('ui.marca')} *<input required name="angajat_marca" value={marca} onChange={e => setMarca(e.target.value)}/></label>
+                    <label className="latime-completa">{t('ui.garda_principal')}<select name="angajat_principal" value={principalId} onChange={e=>{setPrincipalId(e.target.value);if(e.target.value&&date.tipuri_contract?.some(c=>c.id==='GARDA'&&c.activ))setContract('GARDA');}}><option value="">{t('ui.garda_fara_principal')}</option>{date.angajati.filter(a=>a.id!==angajat.id&&!a.angajat_principal_id&&(a.activ||a.id===principalId)).map(a=><option key={a.id} value={a.id}>{numeAngajat(a)} · {a.marca}</option>)}</select><small>{t('ui.garda_principal_indiciu')}</small>{(principalId||date.tipuri_contract?.find(c=>c.id===contract)?.garda||contract==='GARDA')&&<small>{t(principalId?'ui28.marca_principala':'ui28.garda_independenta')}</small>}</label>
+</fieldset><fieldset disabled={ocupat} className="campuri grup-formular"><legend>{t('ui28.incadrare')}</legend><label>{t('ui.functie')}<select name="angajat_functie" value={functieId|| (functie?'__anterioara':'')} onChange={e=>{const id=e.target.value;if(id==='__anterioara')return;setFunctieId(id);setFunctie('');}}><option value="">{t('nomenclator.fara_functie')}</option>{!functieId&&functie&&<option value="__anterioara">{functie}</option>}{(date.functii??[]).filter(f=>f.activ||f.id===functieId).map(f=><option key={f.id} value={f.id}>{f.denumire[i18n.language]||f.denumire.ro||f.denumire.en}{!f.activ?` (${t('ui.inactiv')})`:''}</option>)}</select><small>{t('nomenclator.functii_indiciu')}</small></label>
                     <label>{t('ui.sectie')}<select value={sectie} onChange={e => { setSectie(e.target.value); setDepartament(''); }}>
                         <option value="">{t('ui.fara_sectie')}</option>{date.sectii.map(s => <option value={s.id} key={s.id}>{denumireSectie(s, i18n.language)}</option>)}
                     </select></label>
                     <label>{t('ui.departament')}<select aria-label={t('ui.departament')} value={departament} disabled={!sectie} onChange={e => setDepartament(e.target.value)}>
                         <option value="">{t('ui.fara_departament')}</option>{(date.departamente ?? []).filter(d => d.sectie_id === sectie).map(d => <option value={d.id} key={d.id}>{denumireDepartament(d, i18n.language)}</option>)}
                     </select></label>
-                    <label>{t('ui.contract')} *<select value={contract} onChange={e => setContract(e.target.value)}>
+</fieldset><fieldset disabled={ocupat} className="campuri grup-formular"><legend>{t('ui28.program_contract')}</legend><label>{t('ui.contract')} *<select value={contract} onChange={e => setContract(e.target.value)}>
                         {(date.tipuri_contract?.length?date.tipuri_contract:[{id:'INTREAGA',denumire:{ro:t('ui.intreaga')},activ:true},{id:'PARTIALA',denumire:{ro:t('ui.partiala')},activ:true}]).filter(c=>c.activ||c.id===contract).map(c=><option key={c.id} value={c.id}>{(c.denumire as Record<string,string>)[i18n.language]||c.denumire.ro}</option>)}</select></label>
                     {(date.tipuri_contract?.find(c=>c.id===contract)?.normare||(contract==='PARTIALA'?'INDIVIDUALA':'GLOBALA')) === 'INDIVIDUALA' ? <label>{t('ui.norma_partiala')}<input type="number" min="0" max="24" step="any" required value={ore} onChange={e => setOre(e.target.value)}/></label>
                         : <div className="norma-preluata"><span>{t('ui.norma')}</span><strong>{(()=>{const c=date.tipuri_contract?.find(c=>c.id===contract);return c?.normare==='FARA'?t('structura.normare_FARA'):c?.normare==='LUNARA'?`${durata(c.norma_minute??0,t)} / ${t('structura.luna')}`:durata(c?.normare==='ZILNICA'?(c.norma_minute??0):date.norma_intreaga_minute,t)})()}</strong><small>{t('ui.norma_globala_indiciu')}</small></div>}
                     <label className="latime-completa">{t('program.categorie')}<select name="angajat_categorie_program" value={categorieProgram} onChange={e=>setCategorieProgram(e.target.value)}><option value="">{t('program.fara_categorie')}</option>{(date.categorii_program??[]).filter(c=>c.activ||c.id===categorieProgram).map(c=><option key={c.id} value={c.id}>{c.denumire[i18n.language]||c.denumire.ro}{!c.activ?` · ${t('ui.inactiv')}`:''}</option>)}</select><small>{t('program.atribuire_indiciu')}</small></label>
                     <label className="latime-completa">{t('ui.concediu')}<input type="number" min="0" step="1" value={concediu} onChange={e => setConcediu(e.target.value)} aria-describedby="indiciu-concediu"/>
                         <small id="indiciu-concediu">{t('ui.concediu_indiciu')}</small></label>
-                    <label>{t('sold.luna')}<input type="month" name="initializare_luna" min="2000-01" max="2100-12" value={lunaSold} onChange={e=>setLunaSold(e.target.value)}/></label>
+</fieldset><details className="detalii-configurare solduri-initiale"><summary>{t('ui28.solduri_initiale')} {lunaSold&&t('ui28.sold_rezumat',{luna:lunaSold,ore:oreSold,co:coInitial})}</summary><fieldset disabled={ocupat} className="campuri"><p className="latime-completa">{t('ui28.formula_sold')}</p><label>{t('sold.luna')}<input type="month" name="initializare_luna" min="2000-01" max="2100-12" value={lunaSold} onChange={e=>setLunaSold(e.target.value)}/></label>
                     <label>{t('sold.ore')}<input name="initializare_ore" inputMode="decimal" value={oreSold} onChange={e=>setOreSold(e.target.value)}/></label>
                     <label>{t('sold.co')}<input name="initializare_co" type="number" min="0" max="366" step="1" value={coInitial} onChange={e=>setCoInitial(e.target.value)}/></label>
-                    <p className="latime-completa">{t('sold.indiciu')}</p>
-                    <label className="bifa latime-completa"><input type="checkbox" checked={activ} onChange={e => setActiv(e.target.checked)}/>{t('ui.activ_indiciu')}</label>
+                    <p className="latime-completa">{t('sold.indiciu')}</p><button type="button" className="legatura" onClick={()=>window.dispatchEvent(new CustomEvent('pontix-ajutor-contextual',{detail:'angajati'}))}>{t('ajutor.buton')}</button>
+</fieldset></details><fieldset disabled={ocupat} className="campuri grup-formular"><legend>{t('ui.stare')}</legend>                    <label className="bifa latime-completa"><input type="checkbox" checked={activ} onChange={e => setActiv(e.target.checked)}/>{t('ui.activ_indiciu')}</label>
                 </fieldset>
             </div>
             <footer className="subsol-dialog"><button type="button" className="buton secundar" disabled={ocupat} onClick={inchideCuVerificare}>{t('ui.anuleaza')}</button>

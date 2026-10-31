@@ -604,3 +604,19 @@ Ore lucratoare = (zile luni-vineri fara sarbatori legale - zile CO/CEV/CFS/CM ap
 Raportul detaliat afiseaza L Inceput imediat dupa Marca. L Fin = L Inceput + total ore efectiv lucrate - Ore lucratoare. L Inceput al lunii urmatoare este L Fin al lunii precedente, inclusiv la trecerea dintre ani. Sunt acceptate solduri negative. Daca exista ore neinterpretabile, soldul final ramane nedefinit pana la corectarea lor. Marcile de garda raman fara norma prestabilita si fara sold de norma calculat. Formulele sunt explicate si in subsolul raportului.
 
 Fara initializare explicita, calculul incepe cu sold zero in prima luna cu date a marcii. Soldurile se recalculeaza din datele existente; pentru un istoric anterior folosirii aplicatiei, introduceti soldul la luna de referinta. Norma contractuala folosita este cea configurata curent; nu se presupun modificari contractuale istorice neinregistrate.
+
+### Claritate si navigare in interfata (0.92.19)
+
+Marcajul Garda apare in nume atat pentru contractele cu atribut de garda, cat si pentru marcile asociate unui angajat principal. Numele salvat ramane nemodificat. In lista angajatilor sunt distincte asocierea cu marca principala si contractul de garda independent. Un contract independent nu creeaza automat o legatura intre persoane.
+
+Formularul angajatului este grupat in Identitate, Incadrare, Contract/program si Stare. Soldurile initiale se deschid separat; rezumatul arata valorile existente. Filtrele profesionale sunt intr-un panou retractabil; filtrele active raman afisate deasupra lui. Cautarea, perioada si starea activa/inactiva raman disponibile.
+
+Tabelele au repere fixe pentru identificare si antete la derulare. In Angajati raman vizibile numele si marca; grilele isi pastreaza identificarea si totalul fix. Focalizati zona tabelului pentru derulare cu tastatura; Alt+Home revine la inceput, Alt+End merge la capatul din dreapta. La zoom mare reperele grilelor se compacteaza pentru a pastra accesul la date.
+
+In sumarul Planificarii, De ce lipsesc programe explica excluderea prin stare, tip/regim sau categorie si ofera acces spre configurare/ajutor. Programul de noapte trebuie clasificat ca Noapte, nu doar denumit astfel. Etapele Nesalvat, Salvat in plan si Publicat in Pontaj sunt afisate textual; previzualizarea arata si numarul pontajelor efective retrase. Modificarile nesalvate sunt semnalate la navigare si inchidere.
+
+Formularul de absente afiseaza zilele selectate, marcile afectate si prioritatea program/concediu/medical. La anulare sau respingere nu se retrag programe si nu se restaureaza automat orele retrase anterior. Weekendurile si sarbatorile legale sunt excluse din absente.
+
+Setari contine o verificare ghidata a configurarilor, cu legaturi catre angajati, schimburi, categorii si regulile de pontaj. Aceasta semnaleaza puncte de verificat, nu declara automat gresite contractele independente sau lipsa unei categorii. Stergerea definitiva este o actiune rara pentru administratori, disponibila la configurari inactive in Alte actiuni. Referintele blocante ofera, unde este posibil, acces spre sursa folosirii.
+
+Salvarea Excel verifica registrul si continutul scris temporar inainte de a inlocui destinatia; erorile nu mai sunt mascate printr-o descarcare alternativa. Investigarea blocajului de deschidere raportat de utilizator este amanata la cererea lui; nu se declara remediata cauza acelui blocaj.

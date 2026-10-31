@@ -47,7 +47,7 @@ export function Schimburi({date,onDate}:{date:datebaza.Date;onDate:(date:datebaz
     const numeCategorie=(id:string)=>{const c=categorii.find(c=>c.id===id);return c?.denumire[i18n.language]||c?.denumire.ro||c?.denumire.en||id;};
     const filtrate = lista.filter(s => corespundeStare(s.activ,stareLista) && (!categorie || (s.categorie || 'CUSTOM') === categorie) && (!regim || (s.regim_id || s.regim) === regim));
 
-    return <section className="schimburi">
+    return <section className="schimburi"><details className="detalii-configurare"><summary>{t('ui28.program_explica')}</summary><p>{t('ui28.program_indiciu')}</p><button type="button" className="legatura" onClick={()=>window.dispatchEvent(new CustomEvent('pontix-ajutor-contextual',{detail:'schimburi'}))}>{t('ajutor.buton')}</button></details>
  <EditorNomenclator tip="categorii" lista={categorii} onDate={onDate}/>
  <EditorNomenclator tip="tipuri_program" lista={tipuri} onDate={onDate}/>
  <EditorNomenclator tip="regimuri_program" lista={regimuri} onDate={onDate}/>

@@ -319,6 +319,11 @@ export function FormularAbsente({dinPontaj = false, zi, lot, date, absente, anga
         }).catch(() => { if (activ) setCalendarEroare(t('date.eroare')); });
         return () => { activ = false; };
     }, [campuri.deLa,campuri.panaLa,i18n.language,lot]);
+    const operatieActiva=campuri.activ&&campuri.stareAprobare!=='RESPINSA';
+    const esteMedical=absente.tipuri.find(t=>t.cod===campuri.cod)?.categorie==='MEDICAL';
+    const marciSelectate=new Set(lot?lot.map(z=>z.angajat_id):[campuri.angajat]);
+    const radacini=new Set(date.angajati.filter(a=>marciSelectate.has(a.id)).map(a=>a.angajat_principal_id||a.id));
+    const marciAfectate=date.angajati.filter(a=>marciSelectate.has(a.id)||(operatieActiva&&esteMedical&&radacini.has(a.angajat_principal_id||a.id)));
     function seteaza<K extends keyof typeof campuri>(k: K, v: string) {
         setCampuri(c => {
             const nou = {...c, [k]: v};
@@ -422,6 +427,7 @@ export function FormularAbsente({dinPontaj = false, zi, lot, date, absente, anga
         <div className="zile-absenta" role="group" aria-label={t('absente.zile_selectate')}>
             {zile.map(data => { const d = new Date(`${data}T12:00:00Z`), weekend = [0,6].includes(d.getUTCDay()); return <label key={data} className={sarbatori.has(data) ? 'zi-sarbatoare' : weekend ? 'zi-weekend' : ''}><input type="checkbox" disabled={ocupat || !!zi || !calendarGata || !ziLucratoare(data)} checked={calendarGata && ziLucratoare(data) && !excluse.has(data)} onChange={e => setExcluse(vechi => { const noi = new Set(vechi); if (e.target.checked) noi.delete(data); else noi.add(data); return noi; })}/><span>{data} · {formatData(i18n.language,{weekday:'short',timeZone:'UTC'}).format(d)}{sarbatori.has(data) && <small>{sarbatori.get(data)}</small>}</span></label>; })}
         </div></>}
+        <section className="ui28-efecte" aria-label={t('ui28.efecte_absenta')}><strong>{t('ui28.efecte_absenta')}</strong><p>{t(!operatieActiva?'ui28.efecte_anulare':esteMedical?'ui28.efecte_medical':'ui28.efecte_concediu',{numar:alese.length})}</p><ul>{marciAfectate.map(a=><li key={a.id}>{numeAngajat(a)} | {a.marca}</li>)}</ul><p>{t('ui28.zile_excluse')}</p><button type="button" className="legatura" onClick={()=>window.dispatchEvent(new CustomEvent('pontix-ajutor-contextual',{detail:'absente'}))}>{t('ajutor.buton')}</button></section>
         <p className="nota-calendar" role="status">{t('absente.selectate', {numar:alese.length})}</p>
     </div><footer className="subsol-dialog"><button type="button" className="buton secundar" disabled={ocupat} onClick={renunta}>{t('ui.anuleaza')}</button><button className="buton primar" disabled={ocupat || !alese.length}>{t('ui.salveaza')}</button></footer></form></Dialog>;
 }

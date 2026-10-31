@@ -1,3 +1,5 @@
+import {semnaleazaModificari} from './modificariNesalvate';
+import {programPlanificat,motivProgramExclus} from './eligibilitateProgram';
 import {FiltruStare,corespundeStare,type StareLista} from './FiltruStare';
 import {numeAngajat} from './numeAngajat';
 import {FiltreProfesionale,filtruProfesionalGol,corespundeProfesional} from './FiltreProfesionale';
@@ -26,9 +28,7 @@ import {oraText} from './Schimburi';
 import {notifica} from './Toast';
 import {formatData, formateazaDataSigura} from './formatare';
 
-export function programPlanificat(p:datebaza.Schimb) {
-    return p.tip==='GARDA'||p.tip==='NOAPTE'||p.regim==='NELUCRATOARE'||p.regim==='INTRARE_ZI_LIBERA'||(p.ora_start>=720&&p.ora_start<1320);
-}
+export {programPlanificat} from './eligibilitateProgram';
 export function inSectiune(p:datebaza.Schimb,sectiune:string) {
     if(sectiune==='TOATE'||!sectiune)return programPlanificat(p);
     const garda=p.tip==='GARDA'||p.tip==='NOAPTE'||p.regim==='NELUCRATOARE'||p.regim==='INTRARE_ZI_LIBERA';
@@ -38,7 +38,7 @@ type PublicareCurenta={cerere:datebaza.CererePublicarePlan;rezultat:datebaza.Pub
 type Pozitie={rand:number;zi:number};
 type Selectie={inceput:Pozitie;sfarsit:Pozitie};
 
-export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:datebaza.Date;initial?:{an:number;luna:number};onOcupat:(v:boolean)=>void;onDeschidePontaj:(an:number,luna:number)=>void}) {
+export function Planificare({date,initial,onOcupat,onDeschidePontaj,onModificari}:{onModificari?:(modificat:boolean)=>void;date:datebaza.Date;initial?:{an:number;luna:number};onOcupat:(v:boolean)=>void;onDeschidePontaj:(an:number,luna:number)=>void}) {
     const {t,i18n}=useTranslation();
     const [an,setAn]=useState(initial?.an??new Date().getFullYear());
     const [luna,setLuna]=useState(initial?.luna??new Date().getMonth()+1);
@@ -71,6 +71,9 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
     const [incarcare,setIncarcare]=useState(true);
     const [reincarcare,setReincarcare]=useState(0);
     const [modificari,setModificari]=useState<Map<string,datebaza.PozitiePlanificare>>(new Map());
+    const [sumarModificat,setSumarModificat]=useState(false);
+ useEffect(()=>semnaleazaModificari('planificare',modificari.size>0||sumarModificat),[modificari.size,sumarModificat]);
+    useEffect(()=>{onModificari?.(modificari.size>0||sumarModificat);return()=>onModificari?.(false);},[modificari,sumarModificat,onModificari]);
     const [istoricInapoi,setIstoricInapoi]=useState<Map<string,datebaza.PozitiePlanificare>[]>([]);
     const [istoricInainte,setIstoricInainte]=useState<Map<string,datebaza.PozitiePlanificare>[]>([]);
     const [selectie,setSelectie]=useState<Selectie>({inceput:{rand:0,zi:0},sfarsit:{rand:0,zi:0}});
@@ -423,6 +426,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
                 <button type="button" className={mod==='acoperire'?'activ':''} onClick={()=>setMod('acoperire')}>{t('planificare.mod_acoperire')}</button>
                 <button type="button" className={mod==='lista'?'activ':''} onClick={()=>setMod('lista')}>{t('planificare.mod_lista')}</button>
             </div>
+            <div className="ui28-etapes" role="status"><span>{sumarModificat?t('ui28.sumar_nesalvat'):t('ui28.etapa_nesalvata',{numar:modificari.size})}</span><span>{t('ui28.etapa_plan',{numar:dePublicatTotal.length})}</span><span>{t('ui28.etapa_publicata',{numar:plan?.pozitii.filter(p=>p.activ&&p.stare==='PUBLICATA').length||0})}</span></div>
             {mod==='grila'&&<button className="buton primar" disabled={ocupat||!modificari.size} onClick={salveazaPlanGrila}>{t('planificare.salveaza_grila')}</button>}
             <button className="buton secundar" disabled={ocupat||!dePublicatTotal.length} onClick={()=>void previzualizeazaPublicare()}>{t('planificare.previzualizeaza')}</button>
             <button type="button" className="buton secundar" disabled={ocupat} onClick={deschideRaportGarzi}>{t('planificare.raport_garzi')}</button>
@@ -665,7 +669,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
                 </div>
             </div>
         </>:plan&&mod==='sumar'&&angajatActivSumar?<>
-            <PanouSumarAngajat
+            <PanouSumarAngajat onModificari={setSumarModificat}
                 angajat={angajatActivSumar}
                 angajatiDisponibili={randuri}
                 an={an}
@@ -707,9 +711,9 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
             </div>
         </>:null}
 
-        {dialogSumar&&<Dialog titlu={t('planificare.sumar_angajat_titlu',{nume:`${numeAngajat(dialogSumar)}`})} ocupat={ocupat} permiteMaximizare={true} inchide={()=>setDialogSumar(null)}>
+        {dialogSumar&&<Dialog titlu={t('planificare.sumar_angajat_titlu',{nume:`${numeAngajat(dialogSumar)}`})} ocupat={ocupat} permiteMaximizare={true} inchide={()=>{if(!sumarModificat||window.confirm(t('ui.renunta')))setDialogSumar(null);}}>
             <div className="corp-dialog corp-dialog-sumar">
-                <PanouSumarAngajat
+                <PanouSumarAngajat onModificari={setSumarModificat}
                     angajat={dialogSumar}
                     an={an}
                     luna={luna}
@@ -730,7 +734,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
             <div className="corp-dialog previzualizare-publicare">
                 <p>{t('planificare.publicare_indiciu')}</p>
                 {eroare&&<p role="alert" className="mesaj eroare">{eroare}</p>}
-                <p>{t('planificare.prioritate_publicare')}</p>
+                <p>{t('planificare.prioritate_publicare')}</p><p className="ui28-efecte">{t('ui28.total_efective',{numar:publicare.rezultat.randuri.filter(r=>r.stare!=='BLOCATA').reduce((s,r)=>s+(r.pontaje_efective||0),0)})}</p>
                 <p><strong>{t('planificare.rezumat_publicare',{publicabile:publicare.rezultat.publicabile,identice:publicare.rezultat.identice,blocate:publicare.rezultat.blocate})}</strong></p>
                 <div className="tabel-derulant">
                     <table>
@@ -790,7 +794,7 @@ function PanouSumarAngajat({
     avertismenteEchitate,
     ocupat,
     onSelectAngajat,
-    salveazaPozitii
+    salveazaPozitii,onModificari
 }:{
     angajat:datebaza.Angajat;
     angajatiDisponibili?:datebaza.Angajat[];
@@ -805,9 +809,11 @@ function PanouSumarAngajat({
     ocupat:boolean;
     onSelectAngajat?:(id:string)=>void;
     salveazaPozitii:(p:datebaza.PozitiePlanificare[])=>Promise<void>;
+    onModificari?:(modificat:boolean)=>void;
 }) {
     const {t,i18n}=useTranslation();
     const [modificariLocale,setModificariLocale]=useState<Map<string,string>>(new Map());
+ useEffect(()=>{onModificari?.(modificariLocale.size>0);return()=>onModificari?.(false);},[modificariLocale,onModificari]);
     const numarZile=[31,an%400===0||(an%4===0&&an%100!==0)?29:28,31,30,31,30,31,31,30,31,30,31][luna-1];
     const zile=Array.from({length:numarZile},(_,i)=>`${String(an).padStart(4,'0')}-${String(luna).padStart(2,'0')}-${String(i+1).padStart(2,'0')}`);
 
@@ -823,7 +829,7 @@ function PanouSumarAngajat({
 
     const categorie=date.categorii_program?.find(c=>c.id===angajat.categorie_program_id);
     const programePermise=useMemo(()=>{
-        return schimburi.filter(s=>s.activ&&programPlanificat(s)&&(!categorie||(categorie.activ&&categorie.schimburi_id.includes(s.id))));
+        return schimburi.filter(s=>!motivProgramExclus(s,categorie));
     },[schimburi,categorie]);
 
     const avertismenteAngajat=useMemo(()=>{
@@ -893,6 +899,7 @@ function PanouSumarAngajat({
             </div>
         </div>
 
+        <details className="detalii-configurare programe-excluse"><summary>{t('ui28.programe_excluse',{numar:schimburi.filter(p=>motivProgramExclus(p,categorie)).length})}</summary><p>{t('ui28.programe_indiciu')}</p><ul>{schimburi.filter(p=>motivProgramExclus(p,categorie)).map(p=><li key={p.id}><strong>{p.cod}</strong>: {t('ui28.exclus_'+motivProgramExclus(p,categorie))}</li>)}</ul><button type="button" className="legatura" disabled={modificariLocale.size>0} onClick={()=>window.dispatchEvent(new CustomEvent('pontix-configurare',{detail:'schimburi'}))}>{t('ui28.deschide_schimburi')}</button><button type="button" className="legatura" onClick={()=>window.dispatchEvent(new CustomEvent('pontix-ajutor-contextual',{detail:'schimburi'}))}>{t('ajutor.buton')}</button></details>
         {avertismenteAngajat.length>0&&<div className="caseta-avertismente-sumar" role="region" aria-label={t('planificare.avertismente_echitate')}>
             <strong>⚠️ {t('planificare.avertismente_echitate')}:</strong>
             <ul>

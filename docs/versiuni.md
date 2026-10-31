@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.19 - 2026-10-31
+
+F16-T29: remedierea auditului UI28: identitate Garda consecventa, formulare grupate, filtre avansate, repere fixe in tabele, explicatii pentru programe excluse, stari de publicare si efectele absentelor, ajutor de configurare si salvare Excel verificata. Manual 1.30.
+
 ## 0.92.18 - 2026-10-31
 
 F07-T27: ore lucratoare dupa norma si concedii aprobate, sold L Inceput/L Fin reportat lunar, initializare ore si CO in formularul angajatului. Migrare 0028; raport detaliat v10.
