@@ -487,7 +487,7 @@ export function AsistentAI({
                                                 {p.parametri?.data_inceput && p.parametri?.data_sfarsit && (
                                                     <span className="insigna-detaliu data">
                                                         📅 {t('ai.eticheta_interval')} <strong>{String(p.parametri.data_inceput)} → {String(p.parametri.data_sfarsit)}</strong>
-                                                        {p.parametri?.doar_lucratoare ? ' (L–V)' : ''}
+                                                        {p.parametri?.doar_lucratoare ? ` (${t('ai.plan_zile_lucratoare')})` : ''}
                                                     </span>
                                                 )}
                                             </div>

@@ -494,7 +494,7 @@ func (s *Serviciu) AnalizeazaImportSarbatori(ctx context.Context, continut []byt
 	}
 
 	// Citim toate sărbătorile existente
-	existente, err := acces.New(s.db).ListaSarbatori(ctx, nil)
+	existente, err := acces.New(s.db).ListaToateSarbatori(ctx)
 	if err != nil {
 		return RezultatAnalizaImportSarbatori{}, err
 	}
@@ -608,7 +608,7 @@ func (s *Serviciu) ExecutaImportSarbatori(ctx context.Context, randuri []RandImp
 	q := acces.New(tx)
 	acum := moment()
 
-	existente, err := q.ListaSarbatori(ctx, nil)
+	existente, err := q.ListaToateSarbatori(ctx)
 	if err != nil {
 		return 0, traduceEroare(err)
 	}

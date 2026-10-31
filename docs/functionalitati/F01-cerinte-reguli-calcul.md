@@ -105,3 +105,7 @@ Clarificare trimisa: care dintre CO, CEV, CFS, CM, formare profesionala si deleg
 Utilizatorul confirma ca norma lunara se reduce pentru CO, CEV, CFS si CM. In raspuns apare CVE, interpretat ca inversare a literelor din CEV, denumirea definita anterior. Formarea profesionala si delegatia nu fac parte din lista confirmata de reduceri. Pentru zilele compensatorii utilizatorul nu are inca o regula: nu se face reducere automata.
 
 Se pastreaza confirmarea anterioara: numai absente aprobate, numai zile in care trebuia lucrat, fara scadere dubla a aceleiasi date. Formula zilnica poate fi implementata independent de afisarea T si reportul L FIN/L Inceput, care asteapta inca precizarile cerute.
+
+### Clarificare utilizator 2026-10-31 - F07-T31
+
+Programul normal L-V inseamna toate zilele lucratoare, excluzand sarbatorile legale si weekendul. Sarbatorile si weekendul necesita tratare separata pe cazurile specifice. Aceasta clarificare nu stabileste procente noi, reguli de cumulare a sporurilor sau conversia ZNL in timp liber. Regula zilelor compensatorii ramane neprecizata.

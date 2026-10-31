@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"pontix/internal/ai"
+	"pontix/internal/bd/acces"
 	"pontix/internal/calcul"
 	"pontix/internal/datebaza"
 	"pontix/internal/i18n"
@@ -422,7 +423,11 @@ func (a *App) AplicaPropunereAI(cerere CerereAplicaPropunereAI) RaspunsAplicaPro
 			}
 		}
 
-		zile = zileDinInterval(t1, t2, filtruZile, doarLucratoare)
+		calendar, err := a.calendarZileAI()
+		if err != nil {
+			return RaspunsAplicaPropunereAI{Eroare: eroareInterfata(err)}
+		}
+		zile = zileDinInterval(t1, t2, filtruZile, doarLucratoare, calendar)
 	case "planifica_zile", "sterge_zile":
 		if rawZile, ok := p.Parametri["zile"].([]any); ok {
 			for _, rz := range rawZile {
@@ -530,7 +535,11 @@ func (a *App) aplicaPropunereGrup(p ai.PropunereActiune, date datebaza.Date) Ras
 			}
 		}
 	}
-	zile := zileDinInterval(t1, t2, filtru, false)
+	calendar, err := a.calendarZileAI()
+	if err != nil {
+		return RaspunsAplicaPropunereAI{Eroare: eroareInterfata(err)}
+	}
+	zile := zileDinInterval(t1, t2, filtru, false, calendar)
 	// Implicit nu se suprascrie nimic (F14-T16): zilele deja completate în pontaj se sar.
 	ocupate := make(map[string]bool)
 	if doarGoale, ok := p.Parametri["doar_goale"].(bool); !ok || doarGoale {
@@ -563,9 +572,22 @@ func (a *App) aplicaPropunereGrup(p ai.PropunereActiune, date datebaza.Date) Ras
 	return RaspunsAplicaPropunereAI{Succes: true}
 }
 
+// calendarZileAI citeste calendarul configurat, inclusiv pentru intervale intre ani.
+func (a *App) calendarZileAI() (calcul.Calendar, error) {
+	c := calcul.Calendar{Sarbatori: map[string]string{}}
+	zile, err := acces.New(a.db).ListaToateSarbatori(a.contextLucru())
+	if err != nil {
+		return c, err
+	}
+	for _, z := range zile {
+		c.Sarbatori[z.Data] = z.Denumire
+	}
+	return c, nil
+}
+
 // zileDinInterval întoarce zilele dintre t1 și t2 (inclusiv) care trec de filtru:
 // "weekend", "tot_al_doilea_weekend", "lucratoare" (sau doarLucratoare) ori toate.
-func zileDinInterval(t1, t2 time.Time, filtruZile string, doarLucratoare bool) []string {
+func zileDinInterval(t1, t2 time.Time, filtruZile string, doarLucratoare bool, calendar calcul.Calendar) []string {
 	var zile []string
 	// Referința pentru calculul weekendurilor alternate este prima sâmbătă din sau după t1
 	refSambata := t1
@@ -592,7 +614,7 @@ func zileDinInterval(t1, t2 time.Time, filtruZile string, doarLucratoare bool) [
 				zile = append(zile, cur.Format(time.DateOnly))
 			}
 		case doarLucratoare || filtruZile == "lucratoare":
-			if !esteWeekend {
+			if calendar.TipZi(cur) == calcul.Lucratoare {
 				zile = append(zile, cur.Format(time.DateOnly))
 			}
 		default:

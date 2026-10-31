@@ -40,8 +40,14 @@ func TestPlanAIDouaLuniTotiAngajatii(t *testing.T) {
 			activi++
 		}
 	}
-	if len(p.Plan.Persoane) != activi || len(p.Plan.Luni) != 2 || p.Plan.Noi != activi*43 {
+	if len(p.Plan.Persoane) != activi || len(p.Plan.Luni) != 2 || p.Plan.Noi != activi*42 {
 		t.Fatalf("plan: persoane=%d, luni=%v, noi=%d, blocate=%d", len(p.Plan.Persoane), p.Plan.Luni, p.Plan.Noi, p.Plan.Blocate)
+	}
+	// Cerinta F07-T31: 22 zile in octombrie + 20 in noiembrie; 30 noiembrie este exclus din calendarul demo.
+	for _, rand := range p.Plan.Randuri {
+		if rand.Data == "2026-11-30" {
+			t.Fatal("sarbatoare inclusa in programul normal")
+		}
 	}
 	var inainte int
 	if err := a.db.QueryRow(`SELECT count(*) FROM pontaj_ciorne`).Scan(&inainte); err != nil {
@@ -51,7 +57,7 @@ func TestPlanAIDouaLuniTotiAngajatii(t *testing.T) {
 		t.Fatal("previzualizarea a scris date")
 	}
 	rez := a.ConfirmaPlanAI(p.Plan.Intentie, p.Plan.Token)
-	if rez.Eroare != nil || rez.Plan.Aplicate != activi*43 {
+	if rez.Eroare != nil || rez.Plan.Aplicate != activi*42 {
 		t.Fatalf("aplicare: %+v", rez.Eroare)
 	}
 	for _, luna := range []int{10, 11} {

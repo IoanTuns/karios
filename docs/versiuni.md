@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.7 · 2026-10-31
+
+F07-T31: filtrele AI pentru program normal exclud sarbatorile legale din calendar, inclusiv intre ani. Modificarea calendarului invalideaza planul AI previzualizat. Weekendul ramane filtru S-D; nu include automat sarbatori din timpul saptamanii. Citirea calendarului complet pentru Pontaj si import este corectata. Pontaj/detaliat/fisa v9, manual 1.18. Fara procente sau compensari noi.
+
 ## 0.92.6 · 2026-10-31
 
 F07-T30: nume marcat automat pentru marcile de garda legate de o persoana principala, in interfata si exporturi, fara modificarea identitatii salvate. Rapoarte pontaj/detaliat/fisa v8, absente/garzi v6; Excel clasic 1.1.0. Manual 1.17.

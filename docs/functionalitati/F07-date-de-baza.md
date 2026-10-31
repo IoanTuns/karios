@@ -10,6 +10,7 @@ Utilizatorul poate gestiona angajații și listele de care depinde pontajul.
 
 | ID | Task | Stare | Responsabil | Note |
 | --- | --- | --- | --- | --- |
+| F07-T31 | Program normal L-V exclude sarbatorile legale din calendar | gata | Codex | Corectie filtre AI individual/grup; weekend/sarbatoare separate, fara reguli noi de plata. [Rezultate](../rezultate-F07-T31.md); pas urmator: proba operator. |
 | F07-T30 | Marcaj automat al numelor pentru marcile subordonate in toate contextele | gata | Codex | Legatura explicita principala/garda, fara modificarea numelui stocat. Liste, selectii, pontaj, planificare, absente, AI si exporturi. [Rezultate](../rezultate-F07-T30.md); pas urmator: proba operator. |
 | F07-T29 | Inlocuire denumire Departament cu Compartiment in interfata, ajutor, rapoarte si manual | gata | Codex | Cerinta utilizatorului; cheile si datele existente raman compatibile. [Rezultate](../rezultate-F07-T29.md); pas urmator: proba operator. |
 | F07-T28 | Clasificare explicita absente remunerate/neplatite si coloane CEV/CFS/FP/CM/Deleg/Ore nem | in lucru | Codex | Confirmate zilele programate, numai absente aprobate si introducere explicita ore/minute nemotivate. Mai necesita confirmarea sursei programului (ture/normal). Definitii si optiuni lipsa la F01. |

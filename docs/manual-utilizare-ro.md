@@ -500,3 +500,13 @@ In antetul fiecarui ecran folositi minus pentru micsorare, plus pentru marire si
 O marca de garda asociata explicit unei persoane principale este afisata ca Nume Prenume (Garda), cu marcaj tradus in limba aleasa. Marcajul apare in liste, selectii, Pontaj, Planificare, absente/Gantt, AI si rapoarte PDF/Excel. Numele si prenumele editabile nu se modifica; nu adaugati manual sufixul. Marca principala si persoanele cu acelasi nume, fara legatura, nu primesc marcajul. Un contract de garda independent nu este considerat automat marca subordonata.
 
 La schimbarea sau eliminarea asocierii, afisarea curenta se actualizeaza dupa salvare. Fisierele deja exportate si instantaneele AI salvate pastreaza continutul istoric; o noua generare foloseste incadrarea curenta. In prezent, singurul subtip ierarhic disponibil este marca de garda.
+
+## Program normal si calendarul zilelor lucratoare
+
+Programul normal luni-vineri se aplica numai zilelor lucratoare: sambata, duminica si sarbatorile legale din calendar sunt excluse. Filtrul AI Zile lucratoare si precompletarea folosesc aceasta regula. Verificati calendarul de sarbatori pentru fiecare an vizat, inclusiv cand intervalul trece in anul urmator.
+
+Weekend inseamna strict sambata-duminica; o sarbatoare de marti nu este inclusa automat intr-o cerere doar pentru weekend. Optiunea Toate zilele sau o data explicita permite planificarea distincta a unei garzi/ture in acea zi. Munca efectiva in weekend sau sarbatoare nu este stearsa: este clasificata separat conform regulilor configurate, pe fragmente calendaristice 00-24. Suprapunerea sarbatoare-weekend se numara o singura data.
+
+Pentru contractul normal, norma exclude aceste zile. Pentru garzi si ture se folosesc incadrarea si regulile lor specifice; programul normal nu se aplica automat. Interpretarea 200%, ZNL si timpul liber compensatoriu sunt tratate prin regulile confirmate separat; aceasta corectie de calendar nu defineste noi procente sau conversii in zile. Regula compensatoriilor ramane neprecizata.
+
+Schimbarea calendarului impune regenerarea previzualizarii AI. Exporturile deja salvate raman neschimbate; regenerarea rapoartelor foloseste calendarul curent.

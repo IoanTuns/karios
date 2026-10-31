@@ -98,6 +98,14 @@ func construiestePlanAI(ctx context.Context, tx *sql.Tx, q *acces.Queries, i ai.
 	if err != nil {
 		return p, surse, err
 	}
+	sarbatori, err := q.ListaToateSarbatori(ctx)
+	if err != nil {
+		return p, surse, err
+	}
+	calendar := calcul.Calendar{Sarbatori: map[string]string{}}
+	for _, zi := range sarbatori {
+		calendar.Sarbatori[zi.Data] = zi.Denumire
+	}
 	program, ok := surse.coduri[strings.ToUpper(i.CodSchimb)]
 	if !ok || !program.Activ {
 		return p, surse, eroare("ai.plan_program_invalid")
@@ -228,7 +236,7 @@ func construiestePlanAI(ctx context.Context, tx *sql.Tx, q *acces.Queries, i ai.
 	for _, a := range p.Persoane {
 		for d := prima; !d.After(ultima); d = d.AddDate(0, 0, 1) {
 			weekend := d.Weekday() == time.Saturday || d.Weekday() == time.Sunday
-			if (i.FiltruZile == "lucratoare" && weekend) || (i.FiltruZile == "weekend" && !weekend) {
+			if (i.FiltruZile == "lucratoare" && calendar.TipZi(d) != calcul.Lucratoare) || (i.FiltruZile == "weekend" && !weekend) {
 				continue
 			}
 			if len(p.Randuri) >= 10000 {
@@ -320,7 +328,7 @@ func construiestePlanAI(ctx context.Context, tx *sql.Tx, q *acces.Queries, i ai.
 		Plan  PlanAI
 		Surse surseAmprentaAI
 		Stari map[string]string
-	}{p, surseAmprentaAI{surse.principali, surse.oameni, surse.categorii, surse.schimburi, surse.absente, surse.ciorne, surse.pozitii, surse.intervale}, stari})
+	}{p, surseAmprentaAI{calendar.Sarbatori, surse.principali, surse.oameni, surse.categorii, surse.schimburi, surse.absente, surse.ciorne, surse.pozitii, surse.intervale}, stari})
 	if err != nil {
 		return p, surse, err
 	}
@@ -331,6 +339,7 @@ func construiestePlanAI(ctx context.Context, tx *sql.Tx, q *acces.Queries, i ai.
 
 // Câmpuri exportate pentru serializarea completă și stabilă a surselor tokenului.
 type surseAmprentaAI struct {
+	Sarbatori  map[string]string
 	Principali map[string]string
 	Oameni     map[string]acces.ListaAngajatiRow
 	Categorii  map[string]CategorieProgram
