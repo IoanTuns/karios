@@ -45,3 +45,5 @@ Predare F16-T23: cod 6f046a2, build complet 0.89.4 in build/bin/pontix-0.89.4-20
 | F16-T24 | Dimensiunea initiala a ferestrei adaptata ecranului si DPI | gata | Codex | Limite dinamice dupa zona de lucru Windows, fara acoperirea barei de activitati. |
 
 F16-T24: [rezultate si limite](../rezultate-F16-T24.md). Pas urmator: build oficial si proba utilizator la rezolutia/scalarea sa.
+
+| F16-T28 | Audit UI/UX 0.92.18: avantaje, probleme si recomandari | gata | Codex | Capturi utilizator si inspectie cod; fara modificari de interfata. [Audit](../analiza-ui-0.92.18.md). |
