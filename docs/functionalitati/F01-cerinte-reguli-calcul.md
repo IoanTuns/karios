@@ -41,3 +41,7 @@ Precizare ulterioară, 2026-10-25: setările inițiale ale schimburilor vin din 
 Modulul de concedii solicitat ulterior (F07-T04): evidența numără numai zilele selectate explicit. Rămân de confirmat consumul concediului după programul individual, reportările și soldurile istorice, limitele/drepturile pentru evenimente speciale, plata și indemnizațiile medicale. Calculul automat al acestora este blocat până la răspunsul contabilității; nomenclatorul și evidența nu depind de ele.
 
 Programe precizate ulterior (F07-T10, D021): Z7 07–14, S7 15–22, N9 22–07; IN9 distinct începe în seara dinaintea weekendului/sărbătorii, apoi opțiuni Z12 07–19, N12 19–07 și G24 07–07. Aceste cerințe înlocuiesc exemplele PDF pentru noile programe, fără reinterpretarea codurilor istorice. Rămân neprecizate plata specială pentru IN9, coloanele de total și rotația personalului; calculele aferente sunt blocate până la confirmarea contabilității.
+
+## Clarificari F07-T25, 2026-10-31
+
+Utilizatorul confirma plata TOTALA 200% (100% baza + 100% supliment), pentru medic/garda/weekend sau sarbatoare. Baza orara in lei, conversia ZNL in zile libere si urmarirea acordarii lor raman neprecizate; componentele monetare/compensatorii sunt blocate. Nu se presupune ca ZNL inseamna zile libere acordate. Regula nu este considerata confirmare contabila a unei interpretari legale.

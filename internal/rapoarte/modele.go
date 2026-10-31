@@ -61,11 +61,11 @@ type Serviciu struct{ db *sql.DB }
 func Nou(db *sql.DB) *Serviciu { return &Serviciu{db: db} }
 
 var surse = []Sursa{
-	{Cod: "PONTAJ_LUNAR", Coloane: []string{"angajat", "marca", "sectie", "departament", "functie", "zile"}},
-	{Cod: "PONTAJ_DETALIAT", Coloane: []string{"angajat", "marca", "sectie", "departament", "functie", "zile", "totaluri"}},
+	{Cod: "PONTAJ_LUNAR", Coloane: []string{"angajat", "marca", "sectie", "departament", "functie", "contract", "norma_contract", "zile"}},
+	{Cod: "PONTAJ_DETALIAT", Coloane: []string{"angajat", "marca", "sectie", "departament", "functie", "contract", "norma_contract", "zile", "totaluri"}},
 	{Cod: "FISA_INDIVIDUALA", Coloane: []string{"data", "zi", "ore", "descriere", "categorie"}},
-	{Cod: "ABSENTE_ANUALE", Coloane: []string{"data", "angajat", "marca", "sectie", "departament", "cod", "descriere", "categorie"}},
-	{Cod: "GRAFIC_GARZI", Coloane: []string{"angajat", "marca", "sectie", "departament", "functie", "zile", "total_garzi", "total_ore"}},
+	{Cod: "ABSENTE_ANUALE", Coloane: []string{"data", "angajat", "marca", "sectie", "departament", "contract", "norma_contract", "cod", "descriere", "categorie"}},
+	{Cod: "GRAFIC_GARZI", Coloane: []string{"angajat", "marca", "sectie", "departament", "functie", "contract", "norma_contract", "zile", "total_garzi", "total_ore"}},
 }
 var variabile = []string{"titlu", "an", "luna", "perioada", "sectie", "departament", "angajat", "generat_la"}
 var variabila = regexp.MustCompile(`\{\{([^{}]+)\}\}`)

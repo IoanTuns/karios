@@ -165,11 +165,15 @@ func (s *Serviciu) salveazaSchita(ctx context.Context, an, luna int, celule []Ce
 				return eroare("absente.celula_protejata")
 			}
 			if !angajati[c.AngajatID] {
-				a, err := q.CitesteAngajat(ctx, c.AngajatID)
+				_, err := q.CitesteAngajat(ctx, c.AngajatID)
 				if err != nil {
 					return err
 				}
-				categorii[c.AngajatID] = textSauGol(a.CategorieProgramID)
+				categorie, err := q.CategorieContractAngajat(ctx, c.AngajatID)
+				if err != nil {
+					return err
+				}
+				categorii[c.AngajatID] = categorie
 				angajati[c.AngajatID] = true
 			}
 			veche, exista := existente[c.AngajatID+"/"+c.Data]

@@ -91,7 +91,7 @@ export function FormularAngajat({angajat, date, ocupat, eroare, inchide, salveaz
     const [sectie, setSectie] = useState(angajat.sectie_id);
     const [departament, setDepartament] = useState(angajat.departament_id || '');
     const [categorieProgram,setCategorieProgram]=useState(angajat.categorie_program_id||'');
-    const [contract, setContract] = useState(angajat.tip_contract);
+    const [contract, setContract] = useState(angajat.contract_id||angajat.tip_contract);
     const [ore, setOre] = useState(angajat.norma_partiala_minute == null ? '' : String(angajat.norma_partiala_minute / 60));
     const [concediu, setConcediu] = useState(angajat.concediu_zile_an == null ? '' : String(angajat.concediu_zile_an));
     const [activ, setActiv] = useState(angajat.activ);
@@ -106,12 +106,13 @@ export function FormularAngajat({angajat, date, ocupat, eroare, inchide, salveaz
     async function trimite(e: FormEvent) {
         e.preventDefault(); setValidare('');
         if (!nume.trim() || !prenume.trim() || !marca.trim()) { setValidare(t('date.campuri_obligatorii')); return; }
-        const minute = contract === 'PARTIALA' ? minuteDinOre(ore) : null;
-        if (contract === 'PARTIALA' && minute === null) { setValidare(t('date.norma_invalida')); return; }
+        const modNormare=date.tipuri_contract?.find(c=>c.id===contract)?.normare||(contract==='PARTIALA'?'INDIVIDUALA':'GLOBALA');
+        const minute = modNormare === 'INDIVIDUALA' ? minuteDinOre(ore) : null;
+        if (modNormare === 'INDIVIDUALA' && minute === null) { setValidare(t('date.norma_invalida')); return; }
         const zile = concediu === '' ? null : Number(concediu);
         if (zile !== null && (!Number.isSafeInteger(zile) || zile < 0)) { setValidare(t('date.concediu_invalid')); return; }
         await salveaza(new datebaza.Angajat({...angajat, nume, prenume, marca, functie, functie_id:functieId, angajat_principal_id:principalId, sectie_id: sectie, departament_id: departament,
-            categorie_program_id:categorieProgram, tip_contract: contract, norma_partiala_minute: minute, concediu_zile_an: zile, activ}));
+            categorie_program_id:categorieProgram, contract_id:contract, tip_contract: modNormare==='INDIVIDUALA'?'PARTIALA':'INTREAGA', norma_partiala_minute: minute, concediu_zile_an: zile, activ}));
     }
 
     return <Dialog titlu={t(angajat.id ? 'ui.editare_angajat' : 'ui.adauga_angajat')} ocupat={ocupat} inchide={inchideCuVerificare}>
@@ -127,7 +128,7 @@ export function FormularAngajat({angajat, date, ocupat, eroare, inchide, salveaz
                     <label>{t('ui.nume')} *<input autoFocus required value={nume} onChange={e => setNume(e.target.value)}/></label>
                     <label>{t('ui.prenume')} *<input required value={prenume} onChange={e => setPrenume(e.target.value)}/></label>
                     <label>{t('ui.marca')} *<input required value={marca} onChange={e => setMarca(e.target.value)}/></label>
-                    <label className="latime-completa">{t('ui.garda_principal')}<select name="angajat_principal" value={principalId} onChange={e=>setPrincipalId(e.target.value)}><option value="">{t('ui.garda_fara_principal')}</option>{date.angajati.filter(a=>a.id!==angajat.id&&!a.angajat_principal_id&&(a.activ||a.id===principalId)).map(a=><option key={a.id} value={a.id}>{a.nume} {a.prenume} · {a.marca}</option>)}</select><small>{t('ui.garda_principal_indiciu')}</small></label>
+                    <label className="latime-completa">{t('ui.garda_principal')}<select name="angajat_principal" value={principalId} onChange={e=>{setPrincipalId(e.target.value);if(e.target.value&&date.tipuri_contract?.some(c=>c.id==='GARDA'&&c.activ))setContract('GARDA');}}><option value="">{t('ui.garda_fara_principal')}</option>{date.angajati.filter(a=>a.id!==angajat.id&&!a.angajat_principal_id&&(a.activ||a.id===principalId)).map(a=><option key={a.id} value={a.id}>{a.nume} {a.prenume} · {a.marca}</option>)}</select><small>{t('ui.garda_principal_indiciu')}</small></label>
                     <label>{t('ui.functie')}<select name="angajat_functie" value={functieId|| (functie?'__anterioara':'')} onChange={e=>{const id=e.target.value;if(id==='__anterioara')return;setFunctieId(id);setFunctie('');}}><option value="">{t('nomenclator.fara_functie')}</option>{!functieId&&functie&&<option value="__anterioara">{functie}</option>}{(date.functii??[]).filter(f=>f.activ||f.id===functieId).map(f=><option key={f.id} value={f.id}>{f.denumire[i18n.language]||f.denumire.ro||f.denumire.en}{!f.activ?` (${t('ui.inactiv')})`:''}</option>)}</select><small>{t('nomenclator.functii_indiciu')}</small></label>
                     <label>{t('ui.sectie')}<select value={sectie} onChange={e => { setSectie(e.target.value); setDepartament(''); }}>
                         <option value="">{t('ui.fara_sectie')}</option>{date.sectii.map(s => <option value={s.id} key={s.id}>{denumireSectie(s, i18n.language)}</option>)}
@@ -136,9 +137,9 @@ export function FormularAngajat({angajat, date, ocupat, eroare, inchide, salveaz
                         <option value="">{t('ui.fara_departament')}</option>{(date.departamente ?? []).filter(d => d.sectie_id === sectie).map(d => <option value={d.id} key={d.id}>{denumireDepartament(d, i18n.language)}</option>)}
                     </select></label>
                     <label>{t('ui.contract')} *<select value={contract} onChange={e => setContract(e.target.value)}>
-                        <option value="INTREAGA">{t('ui.intreaga')}</option><option value="PARTIALA">{t('ui.partiala')}</option></select></label>
-                    {contract === 'PARTIALA' ? <label>{t('ui.norma_partiala')}<input type="number" min="0" max="24" step="any" required value={ore} onChange={e => setOre(e.target.value)}/></label>
-                        : <div className="norma-preluata"><span>{t('ui.norma')}</span><strong>{durata(date.norma_intreaga_minute, t)}</strong><small>{t('ui.norma_globala_indiciu')}</small></div>}
+                        {(date.tipuri_contract?.length?date.tipuri_contract:[{id:'INTREAGA',denumire:{ro:t('ui.intreaga')},activ:true},{id:'PARTIALA',denumire:{ro:t('ui.partiala')},activ:true}]).filter(c=>c.activ||c.id===contract).map(c=><option key={c.id} value={c.id}>{(c.denumire as Record<string,string>)[i18n.language]||c.denumire.ro}</option>)}</select></label>
+                    {(date.tipuri_contract?.find(c=>c.id===contract)?.normare||(contract==='PARTIALA'?'INDIVIDUALA':'GLOBALA')) === 'INDIVIDUALA' ? <label>{t('ui.norma_partiala')}<input type="number" min="0" max="24" step="any" required value={ore} onChange={e => setOre(e.target.value)}/></label>
+                        : <div className="norma-preluata"><span>{t('ui.norma')}</span><strong>{(()=>{const c=date.tipuri_contract?.find(c=>c.id===contract);return c?.normare==='FARA'?t('structura.normare_FARA'):c?.normare==='LUNARA'?`${durata(c.norma_minute??0,t)} / ${t('structura.luna')}`:durata(c?.normare==='ZILNICA'?(c.norma_minute??0):date.norma_intreaga_minute,t)})()}</strong><small>{t('ui.norma_globala_indiciu')}</small></div>}
                     <label className="latime-completa">{t('program.categorie')}<select name="angajat_categorie_program" value={categorieProgram} onChange={e=>setCategorieProgram(e.target.value)}><option value="">{t('program.fara_categorie')}</option>{(date.categorii_program??[]).filter(c=>c.activ||c.id===categorieProgram).map(c=><option key={c.id} value={c.id}>{c.denumire[i18n.language]||c.denumire.ro}{!c.activ?` · ${t('ui.inactiv')}`:''}</option>)}</select><small>{t('program.atribuire_indiciu')}</small></label>
                     <label className="latime-completa">{t('ui.concediu')}<input type="number" min="0" step="1" value={concediu} onChange={e => setConcediu(e.target.value)} aria-describedby="indiciu-concediu"/>
                         <small id="indiciu-concediu">{t('ui.concediu_indiciu')}</small></label>
@@ -240,7 +241,7 @@ export function Setari({date, onDate, ocupat, salveazaNorma, adaugaSectie, adaug
             <button type="button" className="buton secundar" disabled={ocupat || ocupatBackup} onClick={creeazaBackup}>{t(ocupatBackup ? 'ui.salvare' : 'ui.creeaza_backup')}</button>
             {esteAdministrator && <RestaurareBackup reimprospatare={backupuriCreate} ocupat={ocupat || ocupatBackup}/>}
         </section>
-        <EditorNomenclator tip="functii" lista={date.functii??[]} onDate={onDate}/>
+        <EditorNomenclator tip="grupuri" lista={date.grupuri_profesionale??[]} onDate={onDate} date={date}/><EditorNomenclator tip="functii" lista={date.functii??[]} onDate={onDate} date={date}/><EditorNomenclator tip="contracte" lista={date.tipuri_contract??[]} onDate={onDate} date={date}/>
         <section className="panou card-setari card-despre">
             <h2>{t('ui.despre_titlu')}</h2>
             <p>{t('ui.despre_descriere')}</p>

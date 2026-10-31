@@ -334,6 +334,10 @@ export function SalveazaElementNomenclator(arg1, arg2) {
   return window['go']['main']['App']['SalveazaElementNomenclator'](arg1, arg2);
 }
 
+export function SalveazaExcelRaport(arg1) {
+  return window['go']['main']['App']['SalveazaExcelRaport'](arg1);
+}
+
 export function SalveazaModelRaport(arg1) {
   return window['go']['main']['App']['SalveazaModelRaport'](arg1);
 }

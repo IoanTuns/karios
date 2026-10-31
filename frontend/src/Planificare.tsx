@@ -1,3 +1,4 @@
+import {FiltreProfesionale,filtruProfesionalGol,corespundeProfesional} from './FiltreProfesionale';
 import {useEffect, useMemo, useRef, useState, type KeyboardEvent} from 'react';
 import {useTranslation} from 'react-i18next';
 import {
@@ -42,6 +43,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
     const [anText,setAnText]=useState(String(an));
     const [mod,setMod]=useState<'grila'|'comparativ'|'sumar'|'acoperire'|'lista'>('grila');
     const [sectiune,setSectiune]=useState('TOATE');
+    const [filtruProfesional,setFiltruProfesional]=useState({...filtruProfesionalGol});
     const [sectie,setSectie]=useState('');
     const [departament,setDepartament]=useState('');
     const [cautare,setCautare]=useState('');
@@ -144,11 +146,12 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
         const cuPlan=new Set((plan?.pozitii??[]).map(p=>p.angajat_id));
         const termen=cautare.trim().toLocaleLowerCase();
         return date.angajati.filter(a=>{
+ if(!corespundeProfesional(a,filtruProfesional))return false;
             if(!(a.activ||cuPlan.has(a.id))||(sectie&&a.sectie_id!==sectie)||(departament&&a.departament_id!==departament))return false;
             if(termen&&!`${a.nume} ${a.prenume} ${a.marca}`.toLocaleLowerCase().includes(termen))return false;
             return true;
         });
-    },[date.angajati,plan,sectie,departament,cautare]);
+    },[filtruProfesional,date.angajati,plan,sectie,departament,cautare]);
 
     const angajatActivSumar=useMemo(()=>{
         if(angajatSumarId){
@@ -160,7 +163,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
 
     const pozitiiLista=(plan?.pozitii??[]).filter(p=>{
         const a=date.angajati.find(a=>a.id===p.angajat_id),termen=cautare.trim().toLocaleLowerCase();
-        return (sectiune==='TOATE'||p.sectiune===sectiune)&&(inactive||p.activ)&&(!sectie||a?.sectie_id===sectie)&&(!departament||a?.departament_id===departament)&&(!termen||`${nume(p.angajat_id)} ${a?.marca??''}`.toLocaleLowerCase().includes(termen));
+        return Boolean(a&&corespundeProfesional(a,filtruProfesional))&&(sectiune==='TOATE'||p.sectiune===sectiune)&&(inactive||p.activ)&&(!sectie||a?.sectie_id===sectie)&&(!departament||a?.departament_id===departament)&&(!termen||`${nume(p.angajat_id)} ${a?.marca??''}`.toLocaleLowerCase().includes(termen));
     });
 
     const inceputRand=Math.min(selectie.inceput.rand,selectie.sfarsit.rand),sfarsitRand=Math.max(selectie.inceput.rand,selectie.sfarsit.rand);
@@ -356,6 +359,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
         try {
             const r=await PregatesteRaport(new rapoarte.Cerere({
                 model_id:'raport-garzi',
+ ...filtruProfesional,
                 an,
                 luna,
                 sectie_id:sectie,
@@ -399,7 +403,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
     const absentaActiva=cheieActiva?absente.get(cheieActiva):undefined;
     const avertismenteActiva=cheieActiva?avertismenteHarta.get(cheieActiva):undefined;
 
-    return <section className="modul-planificare">
+    return <section className="modul-planificare"><FiltreProfesionale disabled={ocupat} date={date} value={filtruProfesional} onChange={f=>{setFiltruProfesional(f);setSelectateLista(new Set());setSelectie({inceput:{rand:0,zi:0},sfarsit:{rand:0,zi:0}});}}/>
         <div className="unelte-calendar unelte-perioada">
             <form onSubmit={e=>{e.preventDefault();const a=Number(anText);if(Number.isInteger(a)&&a>=1&&a<=9999)setAn(a);else setEroare(t('sarbatori.an_invalid'));}}>
                 <label>{t('sarbatori.an')}<input name="an_planificare" type="number" min="1" max="9999" required value={anText} disabled={ocupat} onChange={e=>setAnText(e.target.value)}/></label>

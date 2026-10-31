@@ -18,10 +18,30 @@ type RegulaColoana struct {
 	FactorSutimi  int64    `json:"factor_sutimi"`
 	NumaiAprobate bool     `json:"numai_aprobate"`
 }
+type ProfilPontaj struct {
+	GrupID, FunctieID, ContractID string
+	Conducere, Garda              bool
+}
+type RegulaConditionata struct {
+	Regula     RegulaColoana `json:"regula"`
+	GrupID     string        `json:"grup_id"`
+	FunctieID  string        `json:"functie_id"`
+	ContractID string        `json:"contract_id"`
+	Pozitie    string        `json:"pozitie"`
+	Garda      string        `json:"garda"`
+	Activ      bool          `json:"activ"`
+}
+
+func (r RegulaConditionata) corespunde(p ProfilPontaj) bool {
+	return (r.GrupID == "" || r.GrupID == p.GrupID) && (r.FunctieID == "" || r.FunctieID == p.FunctieID) && (r.ContractID == "" || r.ContractID == p.ContractID) && (r.Pozitie == "" || p.Conducere == (r.Pozitie == "CONDUCERE")) && (r.Garda == "" || p.Garda == (r.Garda == "DA"))
+}
+
 type ConfiguratiePontaj struct {
-	Atribuire string          `json:"atribuire"`
-	Reguli    []RegulaColoana `json:"reguli"`
-	Revizie   string          `json:"revizie"`
+	Conditionate []RegulaConditionata    `json:"conditionate,omitempty"`
+	Profile      map[string]ProfilPontaj `json:"-"`
+	Atribuire    string                  `json:"atribuire"`
+	Reguli       []RegulaColoana         `json:"reguli"`
+	Revizie      string                  `json:"revizie"`
 }
 
 func ColoanePontaj() []string {
@@ -60,6 +80,31 @@ func ValideazaConfiguratiePontaj(c ConfiguratiePontaj) error {
 	if c.Atribuire != AtribuireInceput && c.Atribuire != AtribuireCalendar {
 		return gresit()
 	}
+	if len(c.Conditionate) > 100 {
+		return gresit()
+	}
+	for _, r := range c.Conditionate {
+		if (r.Pozitie != "" && r.Pozitie != "CONDUCERE" && r.Pozitie != "EXECUTIE") || (r.Garda != "" && r.Garda != "DA" && r.Garda != "NU") {
+			return gresit()
+		}
+		baza := c
+		baza.Conditionate = nil
+		gasit := false
+		for i, v := range baza.Reguli {
+			if v.Coloana == r.Regula.Coloana {
+				baza.Reguli = append([]RegulaColoana(nil), c.Reguli...)
+				baza.Reguli[i] = r.Regula
+				gasit = true
+				break
+			}
+		}
+		if !gasit {
+			return gresit()
+		}
+		if err := ValideazaConfiguratiePontaj(baza); err != nil {
+			return err
+		}
+	}
 	coloane := ColoanePontaj()
 	if len(c.Reguli) != len(coloane) {
 		return gresit()
@@ -78,7 +123,7 @@ func ValideazaConfiguratiePontaj(c ConfiguratiePontaj) error {
 		switch r.Sursa {
 		case "NEDEFINITA":
 			unitate = ""
-		case "TOTAL_ORE", "ORE_ZNL", "ORE_NORMA", "ORE_SCHIMBURI":
+		case "TOTAL_ORE", "ORE_ZNL", "ORE_NORMA", "ORE_SCHIMBURI", "ORE_SCHIMBURI_ZNL":
 		case "ZILE_ABSENTA":
 			unitate = "ZILE"
 		default:
@@ -90,7 +135,7 @@ func ValideazaConfiguratiePontaj(c ConfiguratiePontaj) error {
 		if r.FactorSutimi < 1 || r.FactorSutimi > 1000 || unitate != "ORE" && r.FactorSutimi != 100 {
 			return gresit()
 		}
-		selectie := r.Sursa == "ZILE_ABSENTA" || r.Sursa == "ORE_SCHIMBURI"
+		selectie := r.Sursa == "ZILE_ABSENTA" || (r.Sursa == "ORE_SCHIMBURI" || r.Sursa == "ORE_SCHIMBURI_ZNL")
 		if selectie != (len(r.Coduri) > 0) || len(r.Coduri) > 200 || r.NumaiAprobate && r.Sursa != "ZILE_ABSENTA" {
 			return gresit()
 		}
@@ -167,6 +212,7 @@ type acumularePontaj struct {
 	total, norma, znl int64
 	complet, calendar bool
 	schimburi         map[string]int64
+	schimburiZNL      map[string]int64
 	absente           []IntrarePontaj
 }
 
@@ -191,7 +237,7 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 	oameni := map[string]*acumularePontaj{}
 	persoana := func(id string) *acumularePontaj {
 		if oameni[id] == nil {
-			oameni[id] = &acumularePontaj{complet: true, calendar: true, schimburi: map[string]int64{}}
+			oameni[id] = &acumularePontaj{complet: true, calendar: true, schimburi: map[string]int64{}, schimburiZNL: map[string]int64{}}
 		}
 		return oameni[id]
 	}
@@ -268,6 +314,9 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 			d := zi.Format(time.DateOnly)
 			if zi.Weekday() == time.Saturday || zi.Weekday() == time.Sunday || libere[d] {
 				a.znl += n
+				if program {
+					a.schimburiZNL[p.Cod] += n
+				}
 			} else {
 				a.norma += n
 			}
@@ -313,7 +362,23 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 	})
 	for id, a := range oameni {
 		t := TotalPontaj{AngajatID: id, Valori: map[string]ValoarePontaj{}}
-		for _, r := range c.Reguli {
+		reguli := append([]RegulaColoana(nil), c.Reguli...)
+		aplicate := map[string]bool{}
+		for _, rc := range c.Conditionate {
+			if !rc.Activ || !rc.corespunde(c.Profile[id]) {
+				continue
+			}
+			if aplicate[rc.Regula.Coloana] {
+				return rez, &Eroare{Cod: "pontaj.reguli_suprapuse"}
+			}
+			aplicate[rc.Regula.Coloana] = true
+			for i, r := range reguli {
+				if r.Coloana == rc.Regula.Coloana {
+					reguli[i] = rc.Regula
+				}
+			}
+		}
+		for _, r := range reguli {
 			v := ValoarePontaj{Unitate: UnitateColoana(r.Coloana), Definita: r.Sursa != "NEDEFINITA"}
 			switch r.Sursa {
 			case "TOTAL_ORE":
@@ -333,6 +398,12 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 				v.Definita = a.complet
 				for _, cod := range r.Coduri {
 					v.Sutimi += a.schimburi[cod] * r.FactorSutimi
+				}
+			case "ORE_SCHIMBURI_ZNL":
+				v.Unitate = "ORE"
+				v.Definita = a.complet && a.calendar
+				for _, cod := range r.Coduri {
+					v.Sutimi += a.schimburiZNL[cod] * r.FactorSutimi
 				}
 			case "ZILE_ABSENTA":
 				v.Unitate = "ZILE"

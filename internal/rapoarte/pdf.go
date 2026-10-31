@@ -213,7 +213,7 @@ func ConstruiestePDF(d Document) (core.Maroto, error) {
 		return nil, eroare("rapoarte.aspect_prea_mare")
 	}
 	for _, r := range d.Randuri {
-		m.AddRows(rand(r.Valori, r.Culori, false))
+		m.AddRows(rand(r.Valori, r.Culori, r.Grup))
 	}
 	if len(d.Randuri) == 0 {
 		m.AddRows(text.NewAutoRow(d.FaraDate, props.Text{Family: "Go", Size: float64(d.Pagina.FontPT), Top: 4, Bottom: 4}))

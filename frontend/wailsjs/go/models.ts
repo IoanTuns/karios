@@ -290,7 +290,50 @@ export namespace calcul {
 	        this.numai_aprobate = source["numai_aprobate"];
 	    }
 	}
+	export class RegulaConditionata {
+	    regula: RegulaColoana;
+	    grup_id: string;
+	    functie_id: string;
+	    contract_id: string;
+	    pozitie: string;
+	    garda: string;
+	    activ: boolean;
+
+	    static createFrom(source: any = {}) {
+	        return new RegulaConditionata(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.regula = this.convertValues(source["regula"], RegulaColoana);
+	        this.grup_id = source["grup_id"];
+	        this.functie_id = source["functie_id"];
+	        this.contract_id = source["contract_id"];
+	        this.pozitie = source["pozitie"];
+	        this.garda = source["garda"];
+	        this.activ = source["activ"];
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 	export class ConfiguratiePontaj {
+	    conditionate?: RegulaConditionata[];
 	    atribuire: string;
 	    reguli: RegulaColoana[];
 	    revizie: string;
@@ -301,6 +344,7 @@ export namespace calcul {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.conditionate = this.convertValues(source["conditionate"], RegulaConditionata);
 	        this.atribuire = source["atribuire"];
 	        this.reguli = this.convertValues(source["reguli"], RegulaColoana);
 	        this.revizie = source["revizie"];
@@ -399,6 +443,26 @@ export namespace calcul {
 		    }
 		    return a;
 		}
+	}
+	export class ProfilPontaj {
+	    GrupID: string;
+	    FunctieID: string;
+	    ContractID: string;
+	    Conducere: boolean;
+	    Garda: boolean;
+
+	    static createFrom(source: any = {}) {
+	        return new ProfilPontaj(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.GrupID = source["GrupID"];
+	        this.FunctieID = source["FunctieID"];
+	        this.ContractID = source["ContractID"];
+	        this.Conducere = source["Conducere"];
+	        this.Garda = source["Garda"];
+	    }
 	}
 	export class ZiComparativ {
 	    data: string;
@@ -582,6 +646,7 @@ export namespace calcul {
 		    return a;
 		}
 	}
+
 
 	export class RegulaConfigurabila {
 	    id: string;
@@ -839,6 +904,11 @@ export namespace datebaza {
 		}
 	}
 	export class Angajat {
+	    contract_id: string;
+	    grup_id: string;
+	    conducere: boolean;
+	    garda: boolean;
+	    norma_definita: boolean;
 	    id: string;
 	    nume: string;
 	    prenume: string;
@@ -861,6 +931,11 @@ export namespace datebaza {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.contract_id = source["contract_id"];
+	        this.grup_id = source["grup_id"];
+	        this.conducere = source["conducere"];
+	        this.garda = source["garda"];
+	        this.norma_definita = source["norma_definita"];
 	        this.id = source["id"];
 	        this.nume = source["nume"];
 	        this.prenume = source["prenume"];
@@ -1205,6 +1280,13 @@ export namespace datebaza {
 	    }
 	}
 	export class ElementNomenclator {
+	    grup_id: string;
+	    ordine: number;
+	    conducere: boolean;
+	    normare: string;
+	    norma_minute?: number;
+	    categorie_program_id: string;
+	    garda: boolean;
 	    id: string;
 	    denumire: Record<string, string>;
 	    activ: boolean;
@@ -1216,6 +1298,13 @@ export namespace datebaza {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.grup_id = source["grup_id"];
+	        this.ordine = source["ordine"];
+	        this.conducere = source["conducere"];
+	        this.normare = source["normare"];
+	        this.norma_minute = source["norma_minute"];
+	        this.categorie_program_id = source["categorie_program_id"];
+	        this.garda = source["garda"];
 	        this.id = source["id"];
 	        this.denumire = source["denumire"];
 	        this.activ = source["activ"];
@@ -1223,6 +1312,8 @@ export namespace datebaza {
 	    }
 	}
 	export class Date {
+	    grupuri_profesionale: ElementNomenclator[];
+	    tipuri_contract: ElementNomenclator[];
 	    categorii_schimburi: ElementNomenclator[];
 	    functii: ElementNomenclator[];
 	    angajati: Angajat[];
@@ -1238,6 +1329,8 @@ export namespace datebaza {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.grupuri_profesionale = this.convertValues(source["grupuri_profesionale"], ElementNomenclator);
+	        this.tipuri_contract = this.convertValues(source["tipuri_contract"], ElementNomenclator);
 	        this.categorii_schimburi = this.convertValues(source["categorii_schimburi"], ElementNomenclator);
 	        this.functii = this.convertValues(source["functii"], ElementNomenclator);
 	        this.angajati = this.convertValues(source["angajati"], Angajat);
@@ -3775,6 +3868,11 @@ export namespace rapoarte {
 		}
 	}
 	export class Cerere {
+	    grup_id: string;
+	    functie_id: string;
+	    contract_id: string;
+	    pozitie: string;
+	    garda: string;
 	    model_id: string;
 	    revizie: string;
 	    an: number;
@@ -3790,6 +3888,11 @@ export namespace rapoarte {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.grup_id = source["grup_id"];
+	        this.functie_id = source["functie_id"];
+	        this.contract_id = source["contract_id"];
+	        this.pozitie = source["pozitie"];
+	        this.garda = source["garda"];
 	        this.model_id = source["model_id"];
 	        this.revizie = source["revizie"];
 	        this.an = source["an"];
@@ -3947,6 +4050,7 @@ export namespace rapoarte {
 
 
 	export class Rand {
+	    grup?: boolean;
 	    valori: string[];
 	    culori: string[];
 
@@ -3956,6 +4060,7 @@ export namespace rapoarte {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.grup = source["grup"];
 	        this.valori = source["valori"];
 	        this.culori = source["culori"];
 	    }

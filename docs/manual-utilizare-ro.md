@@ -450,3 +450,27 @@ Planificarea GARZI activa completeaza numai intrarile lipsa din Pontaj. O inregi
 ## Fereastra la pornire
 
 Dimensiunea initiala se adapteaza zonei de lucru a monitorului principal si scalarii Windows. Pe ecrane mici se reduce si limita minima, astfel incat fereastra sa poata incapea. Puteti redimensiona sau maximiza manual. Adaptarea se recalculeaza la fiecare pornire.
+
+## Grupuri profesionale, pozitii si contracte (0.92.0)
+
+In Setari configurati Grupuri profesionale (ex. Medici, Asistenti), cu ordinea numerica de afisare; numerele mici apar primele. In Functii atribuiti grupul si bifati Conducere/sef pentru functiile de conducere. In Angajati selectati functia. Sectia si departamentul delimiteaza echipa; in rapoartele filtrate sefii acelei echipe apar primii, urmati alfabetic de personal. La egalitate de nume se foloseste marca. Marcile normale si de garda ale aceleiasi persoane raman impreuna. In lipsa unei functii proprii, marca de garda foloseste functia principala pentru filtrare/incadrare, prin legatura explicita.
+
+Tipuri de contract: norma globala, individuala, zilnica fixa, lunara sau fara norma prestabilita. Norma fixa se introduce in minute (420 = 7 ore, 300 = 5 ore). Garda este un tip predefinit fara norma. Selectati contractul fiecarei marci. Asocierea unei marci de garda in formular selecteaza contractul GARDA daca acesta este activ. Migrarea actualizeaza numai marcile deja legate explicit ca garzi; nu identifica persoane dupa nume. Contractele si functiile pot fi dezactivate fara stergerea istoricului de modificari.
+
+Categoria de programe a contractului, daca este stabilita, are prioritate fata de categoria angajatului si limiteaza programele permise la salvarea Pontajului si Planificarii. Precompletarea dupa categorii nu completeaza norme lunare sau contracte fara norma cu ore zilnice presupuse. In Definire rapoarte puteti adauga coloanele Tip de contract si Norma contractuala. Coloana existenta Ore norm isi pastreaza semnificatia de ore lucrate in zile normale, nu devine norma contractuala.
+
+Angajati, Pontaj, Planificare si Rapoarte au filtre pentru grup, functie, pozitie conducere/executie, contract si garda. Garda inseamna incadrarea marcii/contractului, nu existenta unei ture in luna aleasa. Butonul Reseteaza filtrele elimina doar aceste filtre profesionale. Filtrele de sectie/departament si perioada raman independente.
+
+## Reguli conditionate si plata totala 200%
+
+In Configurare pontaj, regulile generale raman baza. Adaugati o regula conditionata si alegeti profilul: grup/functie, contract, pozitie si conditie de garda. Lasarea unui filtru gol inseamna toate valorile. Regula este initial inactiva; activati-o dupa verificarea selectiei si salvati configuratia.
+
+Exemplul confirmat pentru medici: alegeti grupul corespunzator, Garda, contractul relevant, coloana Ore garda, sursa Ore din programele selectate in weekend/sarbatori, codurile eligibile (ex. G24) si factorul total 2. O ora eligibila produce doua ore echivalente; factorul reprezinta plata TOTALA 200%, nu inca 200% adaugat bazei. Orele efectiv lucrate din T nu se dubleaza. Aceasta coloana este o echivalare in ore, nu o suma in lei; baza valorica nu este definita inca.
+
+Pentru asistenti, selectati grupul lor si coloana ZNL cu sursa Ore ZNL si factorul 1. Evidenta arata orele de weekend/sarbatoare; nu scade aceste ore ca zile libere deja efectuate si nu deduce o conversie in zile. Conversia, acumularea dreptului si acordarea timpului liber necesita o regula confirmata separat.
+
+Clasificarea weekend/sarbatoare se face pe fragmente calendaristice 00-24, inclusiv la trecerea peste miezul noptii, fara dubla numarare cand sarbatoarea cade in weekend. Se respecta optiunea existenta de atribuire intre zile/luni. Doua reguli conditionate active care se aplica aceleiasi coloane si aceleiasi persoane sunt refuzate la calcul; nu se alege arbitrar una dintre ele.
+
+Regulile si incadrarile sunt curente. Modificarea lor poate schimba regenerarea rapoartelor vechi; pastrati exporturile validate. Nu este implementat un istoric contractual cu perioade de valabilitate.
+
+In Rapoarte generati mai intai previzualizarea, apoi exportati PDF sau Excel. Excel-ul foloseste exact documentul previzualizat, cu aceleasi filtre, grupuri si randuri. Exportul clasic din grila Pontaj ramane registrul lunar complet.

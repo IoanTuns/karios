@@ -20,6 +20,11 @@ import (
 )
 
 type Angajat struct {
+	ContractID          string `json:"contract_id"`
+	GrupID              string `json:"grup_id"`
+	Conducere           bool   `json:"conducere"`
+	Garda               bool   `json:"garda"`
+	NormaDefinita       bool   `json:"norma_definita"`
 	ID                  string `json:"id"`
 	Nume                string `json:"nume"`
 	Prenume             string `json:"prenume"`
@@ -49,6 +54,8 @@ type Departament struct {
 }
 
 type Date struct {
+	GrupuriProfesionale []ElementNomenclator `json:"grupuri_profesionale"`
+	TipuriContract      []ElementNomenclator `json:"tipuri_contract"`
 	CategoriiSchimburi  []ElementNomenclator `json:"categorii_schimburi"`
 	Functii             []ElementNomenclator `json:"functii"`
 	Angajati            []Angajat            `json:"angajati"`
@@ -162,6 +169,71 @@ func (s *Serviciu) Citeste(ctx context.Context) (Date, error) {
 	for i := range rez.Angajati {
 		rez.Angajati[i].AngajatPrincipalID = garzi[rez.Angajati[i].ID]
 	}
+	rez.GrupuriProfesionale, err = citesteNomenclator(ctx, tx, "grupuri")
+	if err != nil {
+		return Date{}, traduceEroare(err)
+	}
+	rez.TipuriContract, err = citesteNomenclator(ctx, tx, "contracte")
+	if err != nil {
+		return Date{}, traduceEroare(err)
+	}
+	contracte, err := citesteContracteAngajati(ctx, tx)
+	if err != nil {
+		return Date{}, traduceEroare(err)
+	}
+	for i := range rez.Angajati {
+		a := &rez.Angajati[i]
+		a.NormaDefinita = true
+		a.Garda = a.AngajatPrincipalID != ""
+		a.ContractID = contracte[a.ID]
+		if a.ContractID == "" {
+			a.ContractID = a.TipContract
+		}
+		for _, f := range rez.Functii {
+			if f.ID == a.FunctieID {
+				a.GrupID = f.GrupID
+				a.Conducere = f.Conducere
+			}
+		}
+		for _, c := range rez.TipuriContract {
+			if c.ID == a.ContractID {
+				a.Garda = a.Garda || c.Garda
+				if c.CategorieProgramID != "" {
+					a.CategorieProgramID = c.CategorieProgramID
+				}
+				switch c.Normare {
+				case "GLOBALA":
+					a.NormaMinute = rez.NormaIntreagaMinute
+				case "INDIVIDUALA":
+					if a.NormaPartialaMinute == nil {
+						a.NormaDefinita = false
+						a.NormaMinute = 0
+					} else {
+						a.NormaMinute = *a.NormaPartialaMinute
+					}
+				case "FARA", "LUNARA":
+					a.NormaDefinita = false
+					a.NormaMinute = 0
+				case "ZILNICA":
+					a.NormaMinute = *c.NormaMinute
+				}
+			}
+		}
+	}
+	indexAngajati := map[string]Angajat{}
+	for _, a := range rez.Angajati {
+		indexAngajati[a.ID] = a
+	}
+	for i := range rez.Angajati {
+		a := &rez.Angajati[i]
+		if a.AngajatPrincipalID != "" && a.FunctieID == "" {
+			p := indexAngajati[a.AngajatPrincipalID]
+			a.FunctieID = p.FunctieID
+			a.Functie = p.Functie
+			a.GrupID = p.GrupID
+			a.Conducere = p.Conducere
+		}
+	}
 	n, err := q.NumaraAngajati(ctx)
 	if err != nil {
 		return Date{}, traduceEroare(err)
@@ -183,18 +255,38 @@ func (s *Serviciu) SalveazaAngajat(ctx context.Context, a Angajat) error {
 	if a.Nume == "" || a.Prenume == "" || a.Marca == "" {
 		return eroare("date.campuri_obligatorii")
 	}
-	if a.TipContract != "INTREAGA" && a.TipContract != "PARTIALA" {
-		return eroare("date.contract_invalid")
-	}
-	if a.TipContract == "INTREAGA" {
-		a.NormaPartialaMinute = nil
-	} else if a.NormaPartialaMinute == nil || *a.NormaPartialaMinute < 1 || *a.NormaPartialaMinute > 1440 {
-		return eroare("date.norma_invalida")
-	}
-	if a.ConcediuZileAn != nil && *a.ConcediuZileAn < 0 {
-		return eroare("date.concediu_invalid")
-	}
 	return s.modificaTx(ctx, func(tx *sql.Tx, q *acces.Queries) error {
+		if (a.ContractID == "INTREAGA" || a.ContractID == "PARTIALA") && (a.TipContract == "INTREAGA" || a.TipContract == "PARTIALA") && a.TipContract != a.ContractID {
+			a.ContractID = a.TipContract
+		}
+		if a.ContractID != "" {
+			c, err := contractPentruSalvare(ctx, tx, a)
+			if err != nil {
+				return err
+			}
+			if c.Normare == "INDIVIDUALA" {
+				a.TipContract = "PARTIALA"
+			} else {
+				a.TipContract = "INTREAGA"
+			}
+		}
+		if a.TipContract != "INTREAGA" && a.TipContract != "PARTIALA" {
+			return eroare("date.contract_invalid")
+		}
+		if a.TipContract == "INTREAGA" {
+			a.NormaPartialaMinute = nil
+		} else if a.NormaPartialaMinute == nil || *a.NormaPartialaMinute < 1 || *a.NormaPartialaMinute > 1440 {
+			return eroare("date.norma_invalida")
+		}
+		if a.ConcediuZileAn != nil && *a.ConcediuZileAn < 0 {
+			return eroare("date.concediu_invalid")
+		}
+
+		if a.ContractID != "" {
+			if err := valideazaContractActiv(ctx, tx, a); err != nil {
+				return err
+			}
+		}
 		if err := valideazaLegaturaGarda(ctx, tx, a); err != nil {
 			return err
 		}
@@ -276,6 +368,23 @@ func (s *Serviciu) SalveazaAngajat(ctx context.Context, a Angajat) error {
 		}
 		if a.FunctieID != "" {
 			if _, err := tx.ExecContext(ctx, "INSERT INTO angajati_functii VALUES(?,?)", a.ID, a.FunctieID); err != nil {
+				return err
+			}
+		}
+		contractID := a.ContractID
+		if contractID == "" {
+			contractID = a.TipContract
+		}
+		var contractVechi string
+		errContract := tx.QueryRowContext(ctx, "SELECT contract_id FROM angajati_contracte WHERE angajat_id=?", a.ID).Scan(&contractVechi)
+		if errContract != nil && errContract != sql.ErrNoRows {
+			return errContract
+		}
+		if _, err := tx.ExecContext(ctx, "INSERT INTO angajati_contracte VALUES(?,?) ON CONFLICT(angajat_id) DO UPDATE SET contract_id=excluded.contract_id", a.ID, contractID); err != nil {
+			return err
+		}
+		if contractVechi != contractID && a.ContractID != "" {
+			if err := jurnal(ctx, q, "angajati_contracte", a.ID, contractVechi, contractID); err != nil {
 				return err
 			}
 		}

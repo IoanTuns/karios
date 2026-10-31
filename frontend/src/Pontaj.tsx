@@ -1,3 +1,4 @@
+import {FiltreProfesionale,filtruProfesionalGol,corespundeProfesional} from './FiltreProfesionale';
 import {memo, useEffect, useLayoutEffect, useMemo, useRef, useState, type ClipboardEvent, type KeyboardEvent, type MouseEvent, type RefObject} from 'react';
 import {useTranslation} from 'react-i18next';
 import {autorJurnal} from './autorJurnal';
@@ -102,6 +103,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
     const [an, setAn] = useState(initial.current?.an ?? acum.current.getFullYear());
     const [luna, setLuna] = useState(initial.current?.luna ?? acum.current.getMonth() + 1);
     const [anText, setAnText] = useState(String(an));
+    const [filtruProfesional,setFiltruProfesional]=useState({...filtruProfesionalGol});
     const [sectie, setSectie] = useState(initial.current?.sectie ?? '');
     const [departament, setDepartament] = useState(initial.current?.departament ?? '');
     const [categorieProgram,setCategorieProgram]=useState(initial.current?.categorieProgram??'');
@@ -221,6 +223,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
         for (const z of calculat?.celule ?? []) cuSchite.add(z.angajat_id);
         const termen = normalizat(cautare.trim());
         return date.angajati.filter(a => {
+ if(!corespundeProfesional(a,filtruProfesional))return false;
             if (!(a.activ || cuSchite.has(a.id)) || (sectie && a.sectie_id !== sectie) || (departament && a.departament_id !== departament)) return false;
             if(categorieProgram && (categorieProgram==='__fara__'?Boolean(a.categorie_program_id):a.categorie_program_id!==categorieProgram))return false;
             if (termen && !normalizat(`${a.nume} ${a.prenume} ${a.marca}`).includes(termen)) return false;
@@ -236,7 +239,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
             }
             return true;
         });
-    }, [date.angajati, schita, calculat, sectie, departament, categorieProgram, cautare, filtruRanduri, modificari, inlocuiri, totaluriCalculate, oreCalculate, absente, originale, zile]);
+    }, [filtruProfesional,date.angajati, schita, calculat, sectie, departament, categorieProgram, cautare, filtruRanduri, modificari, inlocuiri, totaluriCalculate, oreCalculate, absente, originale, zile]);
     const sarbatori = useMemo(() => new Map((calendar?.sarbatori ?? []).map(s => [s.data, s.denumire[i18n.language] || s.denumire.ro || Object.values(s.denumire).find(Boolean) || ''])), [calendar, i18n.language]);
     const acoperireZile = useMemo(() => {
         return zile.map((data, z) => {
@@ -291,7 +294,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
         if (primulFiltru.current) { primulFiltru.current = false; return; }
         restaurare.current = false;
         setSelectie({inceput: {rand: 0, zi: 0}, sfarsit: {rand: 0, zi: 0}});
-    }, [sectie, departament, categorieProgram, cautare, filtruRanduri, an, luna]);
+    }, [filtruProfesional,sectie, departament, categorieProgram, cautare, filtruRanduri, an, luna]);
     useLayoutEffect(() => {
         if (!schita || !restaurare.current) return;
         restaurare.current = false;
@@ -691,7 +694,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
     };
     const numarFiltre = [sectie, departament, categorieProgram, cautare.trim(), filtruRanduri].filter(Boolean).length;
 
-    return <section className="pontaj-lunar">
+    return <section className="pontaj-lunar"><FiltreProfesionale date={date} value={filtruProfesional} onChange={setFiltruProfesional}/>
         <div className="unelte-calendar unelte-perioada"><form onSubmit={e => { e.preventDefault(); const nou = Number(anText); if (!Number.isInteger(nou) || nou < 1 || nou > 9999) { setEroare(t('sarbatori.an_invalid')); return; } if (nou !== an) { if (poateAbandona()) setAn(nou); else setAnText(String(an)); } }}>
             <label>{t('sarbatori.an')}<input aria-label={t('sarbatori.an')} type="number" min="1" max="9999" required disabled={ocupat} value={anText} onChange={e => setAnText(e.target.value)}/></label>
             <button className="buton secundar" disabled={ocupat}>{t('sarbatori.arata')}</button>

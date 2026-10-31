@@ -34,9 +34,10 @@ type RaspunsFisierRaport struct {
 	Eroare *MesajEroare `json:"eroare"`
 }
 type raportPregatit struct {
-	PDF   []byte
-	Nume  string
-	Limba i18n.Limba
+	Document rapoarte.Document
+	PDF      []byte
+	Nume     string
+	Limba    i18n.Limba
 }
 
 func mesajRaport(err error) *MesajEroare {
@@ -85,7 +86,7 @@ func (a *App) PregatesteRaport(c rapoarte.Cerere) RaspunsRaport {
 	if a.raportCache == nil {
 		a.raportCache = map[string]raportPregatit{}
 	}
-	a.raportCache[token] = raportPregatit{PDF: pdf, Nume: nume, Limba: i18n.Limba(c.Limba)}
+	a.raportCache[token] = raportPregatit{Document: doc, PDF: pdf, Nume: nume, Limba: i18n.Limba(c.Limba)}
 	a.raportOrdine = append(a.raportOrdine, token)
 	if len(a.raportOrdine) > 4 {
 		delete(a.raportCache, a.raportOrdine[0])
@@ -151,6 +152,35 @@ func (a *App) DeschidePDFPentruTiparire(token string) RaspunsFisierRaport {
 	}
 	if err := deschidePDFAplicatie(cale); err != nil {
 		return RaspunsFisierRaport{Eroare: &MesajEroare{Cod: "rapoarte.deschidere_esuata"}}
+	}
+	return RaspunsFisierRaport{Cale: cale}
+}
+
+func (a *App) SalveazaExcelRaport(token string) RaspunsFisierRaport {
+	r, ok := a.raportPentru(token)
+	if !ok {
+		return RaspunsFisierRaport{Eroare: &MesajEroare{Cod: "rapoarte.expirat"}}
+	}
+	continut, err := rapoarte.GenereazaExcel(r.Document)
+	if err != nil {
+		return RaspunsFisierRaport{Eroare: mesajRaport(err)}
+	}
+	folder, err := folderRapoarte()
+	if err != nil {
+		return RaspunsFisierRaport{Eroare: mesajRaport(err)}
+	}
+	cale, err := wruntime.SaveFileDialog(a.ctx, wruntime.SaveDialogOptions{Title: i18n.T(r.Limba, "pontaj.export_excel", nil), DefaultDirectory: folder, DefaultFilename: strings.TrimSuffix(r.Nume, ".pdf") + ".xlsx", Filters: []wruntime.FileFilter{{DisplayName: i18n.T(r.Limba, "pontaj.export_excel", nil), Pattern: "*.xlsx"}}, CanCreateDirectories: true})
+	if err != nil {
+		return RaspunsFisierRaport{Eroare: mesajRaport(err)}
+	}
+	if cale == "" {
+		return RaspunsFisierRaport{Anulat: true}
+	}
+	if !strings.EqualFold(filepath.Ext(cale), ".xlsx") {
+		cale += ".xlsx"
+	}
+	if err := os.WriteFile(cale, continut, 0600); err != nil {
+		return RaspunsFisierRaport{Eroare: mesajRaport(err)}
 	}
 	return RaspunsFisierRaport{Cale: cale}
 }

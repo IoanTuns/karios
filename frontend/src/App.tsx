@@ -1,3 +1,4 @@
+import {FiltreProfesionale,filtruProfesionalGol,corespundeProfesional} from './FiltreProfesionale';
 import {PanouAjutor} from './Ajutor';
 import {lazy, Suspense, useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
@@ -68,6 +69,7 @@ function App() {
     const [mesaj, setMesaj] = useState('');
     const [cautare, setCautare] = useState('');
     const [stare, setStare] = useState('toti');
+    const [filtruProfesional,setFiltruProfesional]=useState({...filtruProfesionalGol});
     const [sectie, setSectie] = useState('');
     const [departament, setDepartament] = useState('');
     const [editare, setEditare] = useState<datebaza.Angajat | null>(null);
@@ -159,7 +161,7 @@ function App() {
     }
 
     const lista = date?.angajati ?? [];
-    const vizibili = lista.filter(a => normalizat(`${a.nume} ${a.prenume} ${a.marca}`).includes(normalizat(cautare.trim()))
+    const vizibili = lista.filter(a => corespundeProfesional(a,filtruProfesional)&& normalizat(`${a.nume} ${a.prenume} ${a.marca}`).includes(normalizat(cautare.trim()))
         && (stare === 'toti' || (stare === 'activi' ? a.activ : !a.activ)) && (!sectie || a.sectie_id === sectie) && (!departament || a.departament_id === departament));
     const sectiePentru = (id: string) => {
         const gasita = date?.sectii.find(s => s.id === id);
@@ -280,7 +282,7 @@ function App() {
                     : ecran === 'absente' ? <Absente date={date} filtruInitial={filtruAbsente} cerereConcediu={cerereConcediu} onCerereDeschisa={() => setCerereConcediu(null)}/>
                     : ecran === 'jurnal_modificari' ? <Jurnal date={date}/>
                     : ecran === 'conturi' ? <EcranConturi/>
-                    : ecran === 'reguli_pontaj' ? <ReguliPontaj onModificari={setPontajModificat} onOcupat={setPontajOcupat}/>
+                    : ecran === 'reguli_pontaj' ? <ReguliPontaj date={date} onModificari={setPontajModificat} onOcupat={setPontajOcupat}/>
                     : ecran === 'definire_rapoarte' ? <DefinireRapoarte/>
                     : ecran === 'rapoarte' ? <GenerareRapoarte date={date}/>
                     : ecran === 'asistent_ai' ? <AsistentAI intrebareAjutor={intrebareAjutor} onAjutor={(id, versiune) => setAjutor({ecran: 'asistent_ai', id, versiune})} date={date} perioadaEcran={contextPontaj.current ? {an: contextPontaj.current.an, luna: contextPontaj.current.luna} : contextPlanificare} onDeschideConcediu={c => { setFiltruAbsente({an: Number(c.deLa.slice(0, 4)), angajatId: c.angajatId}); setCerereConcediu(c); setEcran('absente'); setEroare(''); setMesaj(''); }} onDeschidePontaj={(an, luna) => { contextPontaj.current = { an, luna, sectie: '', departament: '', categorieProgram: '', cautare: '', filtruRanduri: '', selectie: null, derulareX: 0, derulareY: 0 }; setEcran('pontaj'); setEroare(''); setMesaj(''); }}/>
@@ -294,7 +296,7 @@ function App() {
                                 ['ui.partiali', lista.filter(a => a.tip_contract === 'PARTIALA').length]].map(([cheie, numar]) =>
                                 <div className="indicator" key={cheie}><span>{t(String(cheie))}</span><strong>{numar}</strong><span className="accent-indicator"/></div>)}
                         </section>
-                        <section className="panou lista-angajati" aria-label={t('ui.angajati')}>
+                        <section className="panou lista-angajati" aria-label={t('ui.angajati')}><FiltreProfesionale date={date} value={filtruProfesional} onChange={setFiltruProfesional}/>
                             <div className="unelte">
                                 <label className="cautare"><span className="doar-cititor">{t('ui.cautare')}</span>
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/></svg>
@@ -388,8 +390,8 @@ function App() {
                                     <td><div className="identitate"><span className="avatar" aria-hidden="true">{a.prenume.charAt(0)}{a.nume.charAt(0)}</span>
                                         <span><strong>{a.nume} {a.prenume}</strong>{a.functie && <small>{a.functie}</small>}{a.angajat_principal_id && <small>{t('rapoarte.subtip_garda')} · {date?.angajati.find(p=>p.id===a.angajat_principal_id)?.marca}</small>}</span></div></td>
                                     <td className="marca-angajat">{a.marca}</td><td>{sectiePentru(a.sectie_id)}</td><td>{departamentPentru(a.departament_id)}</td>
-                                    <td><span className={`eticheta-contract ${a.tip_contract === 'PARTIALA' ? 'partial' : ''}`}>{t(a.tip_contract === 'PARTIALA' ? 'ui.partiala' : 'ui.intreaga')}</span>{a.categorie_program_id&&<small className="categorie-angajat">{date.categorii_program?.find(c=>c.id===a.categorie_program_id)?.denumire[i18n.language]||date.categorii_program?.find(c=>c.id===a.categorie_program_id)?.denumire.ro}</small>}</td>
-                                    <td className="durata">{durata(a.norma_minute, t)}</td><td>{a.concediu_zile_an == null ? <span className="text-discret">{t('ui.necompletat')}</span> : t('ui.zile', {numar: a.concediu_zile_an})}</td>
+                                    <td><span className={`eticheta-contract ${a.tip_contract === 'PARTIALA' ? 'partial' : ''}`}>{(()=>{const c=date.tipuri_contract?.find(c=>c.id===(a.contract_id||a.tip_contract));return c?(c.denumire[i18n.language]||c.denumire.ro):t(a.tip_contract==='PARTIALA'?'ui.partiala':'ui.intreaga')})()}</span>{a.categorie_program_id&&<small className="categorie-angajat">{date.categorii_program?.find(c=>c.id===a.categorie_program_id)?.denumire[i18n.language]||date.categorii_program?.find(c=>c.id===a.categorie_program_id)?.denumire.ro}</small>}</td>
+                                    <td className="durata">{a.norma_definita===false?t(date.tipuri_contract?.find(c=>c.id===a.contract_id)?.normare==='LUNARA'?'structura.normare_LUNARA':'structura.normare_FARA'):durata(a.norma_minute, t)}</td><td>{a.concediu_zile_an == null ? <span className="text-discret">{t('ui.necompletat')}</span> : t('ui.zile', {numar: a.concediu_zile_an})}</td>
                                     <td><span className={`stare-angajat ${a.activ ? 'activ' : ''}`}><i/>{t(a.activ ? 'ui.activ' : 'ui.inactiv')}</span></td>
                                     <td><div className="actiuni-rand"><button className="legatura" disabled={ocupat} aria-label={t('ui.editare_pentru', {nume: `${a.nume} ${a.prenume}`})} onClick={() => deschide(a)}>{t('ui.editeaza')}</button>
                                         <button className="legatura discreta" disabled={ocupat} aria-label={`${t(a.activ ? 'ui.dezactiveaza' : 'ui.reactiveaza')} ${a.nume} ${a.prenume}`}

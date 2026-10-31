@@ -1267,3 +1267,7 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 
 /* F07-T24: liste configurabile cu spatiu limitat pentru intrari. */
 .nomenclator{padding:18px;margin-bottom:16px}.nomenclator ul{max-height:180px;overflow:auto;padding:0;list-style:none}.nomenclator li{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px solid var(--linie)}.nomenclator form{border-top:1px solid var(--linie);padding-top:12px;margin-top:12px}.nomenclator form>.buton{margin-right:8px}
+
+.filtre-profesionale{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin:10px 0}.filtre-profesionale label{display:flex;flex-direction:column;gap:4px;font-size:12px}.filtre-profesionale select{max-width:220px;min-height:34px}
+
+fieldset.filtre-profesionale{border:0;padding:0;min-width:0}

@@ -3,12 +3,12 @@ import assert from 'node:assert/strict';
 export function simulareNomenclatoare(){
  const api=window.go.main.App;
  api.ListaBackupuri=async()=>({backupuri:[],programata:''});
- const liste={categorii:[{id:'LAB',denumire:{ro:'Laborator',en:'Laboratory'},activ:true,revizie:'1'},{id:'CUSTOM',denumire:{ro:'Personalizate',en:'Custom'},activ:true,revizie:'1'}],functii:[]};
+ const liste={categorii:[{id:'LAB',denumire:{ro:'Laborator',en:'Laboratory'},activ:true,revizie:'1'},{id:'CUSTOM',denumire:{ro:'Personalizate',en:'Custom'},activ:true,revizie:'1'}],functii:[],grupuri:[],contracte:[{id:'INTREAGA',denumire:{ro:'Norma intreaga',en:'Full time'},activ:true,normare:'GLOBALA',garda:false},{id:'PARTIALA',denumire:{ro:'Norma partiala',en:'Part time'},activ:true,normare:'INDIVIDUALA',garda:false},{id:'GARDA',denumire:{ro:'Garda',en:'On-call'},activ:true,normare:'FARA',garda:true}]};
  const citeste=api.DateInitiale;
- api.DateInitiale=async()=>{const r=await citeste();r.date.categorii_schimburi=structuredClone(liste.categorii);r.date.functii=structuredClone(liste.functii);return r};
+ api.DateInitiale=async()=>{const r=await citeste();r.date.categorii_schimburi=structuredClone(liste.categorii);r.date.functii=structuredClone(liste.functii);r.date.grupuri_profesionale=structuredClone(liste.grupuri);r.date.tipuri_contract=structuredClone(liste.contracte);return r};
  api.SalveazaElementNomenclator=async(tip,e)=>{const lista=liste[tip],index=lista.findIndex(x=>x.id===e.id);const nou={...structuredClone(e),id:e.id||crypto.randomUUID().toUpperCase(),revizie:String(Date.now())};if(index<0)lista.push(nou);else lista[index]=nou;return api.DateInitiale()};
  const salveaza=api.SalveazaAngajat;
- api.SalveazaAngajat=async a=>{a.functie=liste.functii.find(f=>f.id===a.functie_id)?.denumire.ro||a.functie;const r=await salveaza(a);if(r.eroare)return r;return api.DateInitiale()};
+ api.SalveazaAngajat=async a=>{const f=liste.functii.find(f=>f.id===a.functie_id);a.grup_id=f?.grup_id||'';a.conducere=f?.conducere||false;a.garda=Boolean(a.angajat_principal_id||a.contract_id==='GARDA');a.norma_definita=a.contract_id!=='GARDA';a.functie=liste.functii.find(f=>f.id===a.functie_id)?.denumire.ro||a.functie;const r=await salveaza(a);if(r.eroare)return r;return api.DateInitiale()};
 }
 
 export async function verificaNomenclatoare({cdp,evalueaza,asteapta,apasa,completeaza,cataloage,limba,captura}){
@@ -21,7 +21,12 @@ export async function verificaNomenclatoare({cdp,evalueaza,asteapta,apasa,comple
   await evalueaza(`document.querySelector('[data-nomenclator="${tip}"] form .buton.primar').click()`);
   await asteapta(()=>evalueaza(`!document.querySelector('[data-nomenclator="${tip}"] form')`),'Lista nu s-a salvat');
  }
- await apasa(t('ui.setari'));await adauga('functii','Medic fictiv UI','Test physician UI');
+ await apasa(t('ui.setari'));await adauga('grupuri','Medici UI','Doctors UI');await adauga('functii','Medic fictiv UI','Test physician UI');
+ await evalueaza(`document.querySelector('[data-nomenclator="functii"] li button').click()`);
+ await asteapta(()=>evalueaza("Boolean(document.querySelector('select[name=grup_functie]'))"),'Grup functie lipsa');
+ const grup=await evalueaza("[...document.querySelectorAll('select[name=grup_functie] option')].find(o=>o.textContent.includes('UI')).value");await completeaza('select[name=grup_functie]',grup);
+ await evalueaza("document.querySelector('input[name=conducere]').click();document.querySelector('[data-nomenclator=functii] form .primar').click()");
+ await asteapta(()=>evalueaza("!document.querySelector('[data-nomenclator=functii] form')"),'Functie neconfigurata');
  await captura('functii-'+limba+'.png');
  await apasa(t('ui.angajati'));await apasa(t('ui.adauga_angajat'));
  await asteapta(()=>evalueaza("Boolean(document.querySelector('dialog[open] input'))"),'Formular lipsa');
@@ -48,5 +53,18 @@ export async function verificaNomenclatoare({cdp,evalueaza,asteapta,apasa,comple
  await asteapta(()=>evalueaza("!document.querySelector('dialog[open]')"),'Marca garda nesalvata');
  assert(await evalueaza("[...document.querySelectorAll('tr')].some(r=>r.textContent.includes('GARDA-UI')&&r.textContent.includes('FUNC-UI')&&r.textContent.includes("+JSON.stringify(t('rapoarte.subtip_garda'))+"))"),'Subtipul si marca principala lipsesc din lista');
  await captura('marca-garda-lista-'+limba+'.png');
+ await completeaza('select[name=filtru_garda]','DA');assert(await evalueaza("[...document.querySelectorAll('.lista-angajati tbody tr')].filter(r=>r.querySelector('.marca-angajat')).length===1"),'Filtru garda nu restrange lista');
+ await completeaza('select[name=filtru_garda]','');await completeaza('select[name=filtru_pozitie]','CONDUCERE');assert(await evalueaza("[...document.querySelectorAll('.lista-angajati tbody tr')].some(r=>r.textContent.includes('FUNC-UI'))"),'Filtru pozitie pierde seful');
+ await captura('filtre-profesionale-'+limba+'.png');
+ await apasa(t('ui.setari'));await apasa(t('ui.reguli_pontaj'));await asteapta(()=>evalueaza("Boolean(document.querySelector('[data-reguli-conditionate] > button'))"),'Editor reguli lipsa');
+ await apasa(t('structura.adauga_regula'));
+ await completeaza('[data-reguli-conditionate] select[name=filtru_grup_id]',grup);await completeaza('[data-reguli-conditionate] select[name=filtru_contract_id]','GARDA');await completeaza('[data-reguli-conditionate] select[name=filtru_garda]','DA');
+ await evalueaza("document.querySelector('[data-reguli-conditionate] input[type=checkbox]').click()");
+ await apasa(t('ui.salveaza'));
+ await asteapta(()=>evalueaza("Boolean(document.querySelector('.reguli-pontaj .succes'))"),'Regula nesalvata');
+ assert(await evalueaza("(async()=>{const r=await window.go.main.App.CitesteConfiguratiePontaj();return r.configuratie.conditionate?.some(c=>c.grup_id==="+JSON.stringify(grup)+"&&c.contract_id==='GARDA'&&c.garda==='DA'&&c.activ&&c.regula.factor_sutimi===200)})()"),'Regula nu pastreaza conditiile/factorul');
+ await captura('regula-conditionata-'+limba+'.png');
+
+
 
 }

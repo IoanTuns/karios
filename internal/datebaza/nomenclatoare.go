@@ -6,20 +6,33 @@ import (
 	"encoding/json"
 	"pontix/internal/bd/acces"
 	"pontix/internal/i18n"
+	"sort"
 	"strings"
+	"time"
 )
 
 type ElementNomenclator struct {
-	ID       string    `json:"id"`
-	Denumire i18n.Text `json:"denumire"`
-	Activ    bool      `json:"activ"`
-	Revizie  string    `json:"revizie"`
+	GrupID             string    `json:"grup_id"`
+	Ordine             int       `json:"ordine"`
+	Conducere          bool      `json:"conducere"`
+	Normare            string    `json:"normare"`
+	NormaMinute        *int64    `json:"norma_minute"`
+	CategorieProgramID string    `json:"categorie_program_id"`
+	Garda              bool      `json:"garda"`
+	ID                 string    `json:"id"`
+	Denumire           i18n.Text `json:"denumire"`
+	Activ              bool      `json:"activ"`
+	Revizie            string    `json:"revizie"`
 }
 
 func tabelaNomenclator(tip string) string {
 	switch tip {
 	case "categorii":
 		return "categorii_schimburi"
+	case "grupuri":
+		return "grupuri_profesionale"
+	case "contracte":
+		return "tipuri_contract"
 	case "functii":
 		return "functii"
 	}
@@ -36,7 +49,16 @@ func citesteNomenclator(ctx context.Context, tx *sql.Tx, tip string) ([]ElementN
 	if tabela == "" {
 		return nil, eroare("nomenclator.invalid")
 	}
-	rows, err := tx.QueryContext(ctx, "SELECT id,denumire,activ,modificat_la FROM "+tabela+" ORDER BY denumire,id")
+	extra := ",NULL,0,0,'',NULL,NULL,0"
+	switch tip {
+	case "grupuri":
+		extra = ",NULL,ordine,0,'',NULL,NULL,0"
+	case "functii":
+		extra = ",grup_id,ordine,conducere,'',NULL,NULL,0"
+	case "contracte":
+		extra = ",NULL,0,0,normare,norma_minute,categorie_program_id,garda"
+	}
+	rows, err := tx.QueryContext(ctx, "SELECT id,denumire,activ,modificat_la"+extra+" FROM "+tabela+" ORDER BY denumire,id")
 	if err != nil {
 		return nil, err
 	}
@@ -45,16 +67,27 @@ func citesteNomenclator(ctx context.Context, tx *sql.Tx, tip string) ([]ElementN
 	for rows.Next() {
 		var e ElementNomenclator
 		var text string
-		var activ int
-		if err := rows.Scan(&e.ID, &text, &activ, &e.Revizie); err != nil {
+		var activ, conducere, garda int
+		var grup, categorie sql.NullString
+		if err := rows.Scan(&e.ID, &text, &activ, &e.Revizie, &grup, &e.Ordine, &conducere, &e.Normare, &e.NormaMinute, &categorie, &garda); err != nil {
 			return nil, err
 		}
 		if err := json.Unmarshal([]byte(text), &e.Denumire); err != nil {
 			return nil, err
 		}
 		e.Activ = activ == 1
+		e.GrupID = grup.String
+		e.CategorieProgramID = categorie.String
+		e.Conducere = conducere == 1
+		e.Garda = garda == 1
 		lista = append(lista, e)
 	}
+	sort.SliceStable(lista, func(i, j int) bool {
+		if lista[i].Ordine != lista[j].Ordine {
+			return lista[i].Ordine < lista[j].Ordine
+		}
+		return numeElement(lista[i]) < numeElement(lista[j])
+	})
 	return lista, rows.Err()
 }
 func (s *Serviciu) SalveazaElementNomenclator(ctx context.Context, tip string, e ElementNomenclator) error {
@@ -63,6 +96,9 @@ func (s *Serviciu) SalveazaElementNomenclator(ctx context.Context, tip string, e
 		return eroare("nomenclator.invalid")
 	}
 	e.Denumire = i18n.Text{"ro": strings.TrimSpace(e.Denumire["ro"]), "en": strings.TrimSpace(e.Denumire["en"])}
+	if e.Ordine < 0 || e.Ordine > 100000 {
+		return eroare("nomenclator.invalid")
+	}
 	if numeElement(e) == "" {
 		return eroare("sarbatori.denumire_obligatorie")
 	}
@@ -83,11 +119,55 @@ func (s *Serviciu) SalveazaElementNomenclator(ctx context.Context, tip string, e
 				return eroare("nomenclator.duplicat")
 			}
 		}
+		if tip == "functii" && e.GrupID != "" {
+			var activ int
+			if err := tx.QueryRowContext(ctx, "SELECT activ FROM grupuri_profesionale WHERE id=?", e.GrupID).Scan(&activ); err != nil {
+				return eroare("nomenclator.invalid")
+			}
+			if activ != 1 && (vechi == nil || vechi.GrupID != e.GrupID) {
+				return eroare("nomenclator.inactiv")
+			}
+		}
+		if tip == "contracte" {
+			if e.Normare == "INDIVIDUALA" && vechi != nil && vechi.Normare != "INDIVIDUALA" {
+				var n int
+				if err := tx.QueryRowContext(ctx, "SELECT count(*) FROM angajati_contracte ac JOIN angajati a ON a.id=ac.angajat_id WHERE ac.contract_id=? AND a.norma_partiala_minute IS NULL", e.ID).Scan(&n); err != nil {
+					return err
+				}
+				if n > 0 {
+					return eroare("date.norma_invalida")
+				}
+			}
+			switch e.Normare {
+			case "GLOBALA", "INDIVIDUALA", "FARA":
+				if e.NormaMinute != nil {
+					return eroare("nomenclator.invalid")
+				}
+			case "ZILNICA", "LUNARA":
+				if e.NormaMinute == nil || *e.NormaMinute <= 0 || *e.NormaMinute > 44640 || (e.Normare == "ZILNICA" && *e.NormaMinute > 1440) {
+					return eroare("date.norma_invalida")
+				}
+			default:
+				return eroare("nomenclator.invalid")
+			}
+			if e.CategorieProgramID != "" {
+				c, err := q.CitesteCategorieProgram(ctx, e.CategorieProgramID)
+				if err != nil {
+					return eroare("program.categorie_invalida")
+				}
+				if c.Activ != 1 && (vechi == nil || vechi.CategorieProgramID != e.CategorieProgramID) {
+					return eroare("program.categorie_inactiva")
+				}
+			}
+		}
 		text, err := json.Marshal(e.Denumire)
 		if err != nil {
 			return err
 		}
 		acum := moment()
+		if vechi != nil {
+			acum = revizieNomenclatorDupa(vechi.Revizie, acum)
+		}
 		if e.ID == "" {
 			e.ID = idNou()
 			if tip == "categorii" {
@@ -109,6 +189,17 @@ func (s *Serviciu) SalveazaElementNomenclator(ctx context.Context, tip string, e
 					return eroare("nomenclator.conflict")
 				}
 			}
+		}
+		if err != nil {
+			return err
+		}
+		switch tip {
+		case "grupuri":
+			_, err = tx.ExecContext(ctx, "UPDATE grupuri_profesionale SET ordine=? WHERE id=?", e.Ordine, e.ID)
+		case "functii":
+			_, err = tx.ExecContext(ctx, "UPDATE functii SET grup_id=?,ordine=?,conducere=? WHERE id=?", textOptional(e.GrupID), e.Ordine, numarBool(e.Conducere), e.ID)
+		case "contracte":
+			_, err = tx.ExecContext(ctx, "UPDATE tipuri_contract SET normare=?,norma_minute=?,categorie_program_id=?,garda=? WHERE id=?", e.Normare, e.NormaMinute, textOptional(e.CategorieProgramID), numarBool(e.Garda), e.ID)
 		}
 		if err != nil {
 			return err
@@ -155,4 +246,14 @@ func (s *Serviciu) SalveazaElementNomenclator(ctx context.Context, tip string, e
 		e.Revizie = acum
 		return jurnal(ctx, q, tabela, e.ID, vechi, e)
 	})
+}
+
+// Ceasul Windows poate intoarce aceeasi valoare pentru doua scrieri rapide.
+func revizieNomenclatorDupa(veche, curenta string) string {
+	v, e1 := time.Parse(time.RFC3339Nano, veche)
+	c, e2 := time.Parse(time.RFC3339Nano, curenta)
+	if e1 == nil && e2 == nil && !c.After(v) {
+		return v.Add(time.Nanosecond).Format(time.RFC3339Nano)
+	}
+	return curenta
 }

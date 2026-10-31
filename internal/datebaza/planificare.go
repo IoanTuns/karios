@@ -88,6 +88,11 @@ func sursePentruPlanificare(ctx context.Context, q *acces.Queries, deLa, panaLa 
 		return s, err
 	}
 	for _, a := range oameni {
+		categorie, err := q.CategorieContractAngajat(ctx, a.ID)
+		if err != nil {
+			return s, err
+		}
+		a.CategorieProgramID = textOptional(categorie)
 		s.oameni[a.ID] = a
 	}
 	categorii, err := citesteCategoriiProgram(ctx, q)

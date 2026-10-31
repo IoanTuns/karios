@@ -58,3 +58,9 @@ Pasul următor: F06-T03 pentru accesul la date și F07-T01/F07-T03 pentru formul
 | F07-T24 | Categorii configurabile de schimburi si nomenclator functii asociate angajatilor/Pontajului | gata | Codex | Pastrare LAB/CUSTOM si functii existente, migrare noua, CRUD cu dezactivare si revizie, selectare functie si afisare in Pontaj. |
 
 F07-T24: verificari finale gofmt/vet/suita Go, 18 teste frontend, UI nomenclatoare RO/EN, focus si ajutor trecute. Pas urmator: livrare cumulativa cu F09-T11, fara push sau merge.
+
+| F07-T25 | Grupuri profesionale, pozitii, contracte configurabile, filtre si reguli conditionate | gata | Codex | Cerinte si etape in plan-F07-T25.md; pastrare date, fara formule monetare presupuse. |
+
+| F07-T26 | Baza valorica in lei si conversia ZNL in timp liber acordat | blocat | Codex | Lipsesc baza de calcul a orei si formula de conversie/acordare. Intrebari la F01. Nu este blocata configurarea si echivalarea in ore confirmata pentru F07-T25. |
+
+Predare F07-T25: [rezultate si limite](../rezultate-F07-T25.md), toate verificarile automate trecute. Build oficial dupa commit, apoi proba operator si review. F07-T26 ramane blocat pentru formulele neprecizate.

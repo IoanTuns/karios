@@ -29,6 +29,24 @@ func calculeazaPontaj(ctx context.Context, q *acces.Queries, an, luna int, modif
 	if err := ValideazaCoduriReguli(ctx, q, c); err != nil {
 		return gol, c, err
 	}
+	if len(c.Conditionate) > 0 {
+		oameni, err := q.ListaAngajati(ctx)
+		if err != nil {
+			return gol, c, err
+		}
+		// Citirea profilului este furnizata prin aceeasi interogare sqlc/tranzactie.
+		profile, err := q.ListaProfilePontaj(ctx)
+		if err != nil {
+			return gol, c, err
+		}
+		c.Profile = map[string]calcul.ProfilPontaj{}
+		for _, a := range oameni {
+			c.Profile[a.ID] = calcul.ProfilPontaj{ContractID: a.TipContract}
+		}
+		for _, p := range profile {
+			c.Profile[p.ID] = calcul.ProfilPontaj{GrupID: p.GrupID, FunctieID: p.FunctieID, ContractID: p.ContractID, Conducere: p.Conducere != 0, Garda: p.Garda != 0}
+		}
+	}
 	deLa, panaLa, err := limiteLuna(an, luna)
 	if err != nil {
 		return gol, c, err

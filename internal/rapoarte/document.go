@@ -25,6 +25,11 @@ import (
 )
 
 type Cerere struct {
+	GrupID        string `json:"grup_id"`
+	FunctieID     string `json:"functie_id"`
+	ContractID    string `json:"contract_id"`
+	Pozitie       string `json:"pozitie"`
+	Garda         string `json:"garda"`
 	ModelID       string `json:"model_id"`
 	Revizie       string `json:"revizie"`
 	An            int    `json:"an"`
@@ -41,6 +46,7 @@ type Coloana struct {
 	Culoare string `json:"culoare"`
 }
 type Rand struct {
+	Grup   bool     `json:"grup,omitempty"`
 	Valori []string `json:"valori"`
 	Culori []string `json:"culori"`
 }
@@ -140,6 +146,13 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 	}
 	if (c.SectieID != "" && numeSectii[c.SectieID] == "") || (c.DepartamentID != "" && numeDepartamente[c.DepartamentID] == "") {
 		return Document{}, eroare("rapoarte.parametri_invalizi")
+	}
+	if (c.Pozitie != "" && c.Pozitie != "CONDUCERE" && c.Pozitie != "EXECUTIE") || (c.Garda != "" && c.Garda != "DA" && c.Garda != "NU") {
+		return Document{}, eroare("rapoarte.parametri_invalizi")
+	}
+	profile, asocieri, err := profileRapoarte(ctx, tx, limba)
+	if err != nil {
+		return Document{}, traduce(err)
 	}
 	var persoana string
 	for _, a := range oameni {
@@ -277,6 +290,10 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 			return pozitie[a] < pozitie[b]
 		})
 	}
+	if d.Continut.Sursa != "FISA_INDIVIDUALA" {
+		legaturiGarzi = asocieri
+		ordoneazaProfesional(oameni, profile, asocieri)
+	}
 	ore := map[string]string{}
 	totaluri := map[string]map[string]calcul.ValoarePontaj{}
 	var configuratie calcul.ConfiguratiePontaj
@@ -310,6 +327,9 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 	totaluriAngajatMinute := map[string]int64{}
 	prezenteZi := map[string]int{}
 	for _, p := range planificari {
+		if d.Continut.Sursa == "GRAFIC_GARZI" && p.Sectiune != "GARZI" {
+			continue
+		}
 		if p.Activ == 1 {
 			if planificariAngajat[p.AngajatID] == nil {
 				planificariAngajat[p.AngajatID] = map[string]acces.Planificare{}
@@ -346,7 +366,7 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 	case "GRAFIC_GARZI":
 		doc.VersiuneRaport = raportGarzi.Versiune
 	}
-	ponderi := map[string]int{"angajat": 28, "marca": 10, "sectie": 18, "departament": 18, "functie": 22, "data": 14, "zi": 10, "cod": 10, "ore": 10, "descriere": 40, "categorie": 22, "total_garzi": 10, "total_ore": 10}
+	ponderi := map[string]int{"angajat": 28, "marca": 10, "sectie": 18, "departament": 18, "functie": 22, "contract": 22, "norma_contract": 18, "data": 14, "zi": 10, "cod": 10, "ore": 10, "descriere": 40, "categorie": 22, "total_garzi": 10, "total_ore": 10}
 	for _, cod := range d.Continut.Coloane {
 		if cod == "totaluri" {
 			for _, col := range calcul.ColoanePontaj() {
@@ -388,7 +408,18 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 		}
 		return id
 	}
+	inclusi := map[string]bool{}
+	grupCurent := "__initial"
+	areGrupuri := false
+	for _, p := range profile {
+		if p.Grup != "" {
+			areGrupuri = true
+		}
+	}
 	for _, a := range oameni {
+		if !profile[a.ID].corespunde(c) {
+			continue
+		}
 		selectat := c.AngajatID == "" || a.ID == c.AngajatID || (d.Continut.Sursa == "PONTAJ_DETALIAT" && familie(a.ID) == familie(c.AngajatID))
 		if (c.SectieID != "" && optional(a.SectieID) != c.SectieID) || (c.DepartamentID != "" && optional(a.DepartamentID) != c.DepartamentID) || !selectat {
 			continue
@@ -399,7 +430,7 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 		if d.Continut.Sursa == "GRAFIC_GARZI" && a.Activ == 0 && !cuPlanificare[a.ID] {
 			continue
 		}
-		identitate := map[string]string{"angajat": a.Nume + " " + a.Prenume, "marca": a.Marca, "sectie": numeSectii[optional(a.SectieID)], "departament": numeDepartamente[optional(a.DepartamentID)], "functie": optional(a.Functie)}
+		identitate := map[string]string{"angajat": a.Nume + " " + a.Prenume, "marca": a.Marca, "sectie": numeSectii[optional(a.SectieID)], "departament": numeDepartamente[optional(a.DepartamentID)], "functie": optional(a.Functie), "contract": profile[a.ID].NumeContract, "norma_contract": profile[a.ID].NormaContract}
 		if legaturiGarzi[a.ID] != "" {
 			identitate["angajat"] += " (" + t("subtip_garda") + ")"
 		}
@@ -411,6 +442,26 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 			totaluri[a.ID] = gol.Totaluri[0].Valori
 		}
 		adauga := func(data, cod string) {
+			inclusi[a.ID] = true
+			if areGrupuri && d.Continut.Sursa != "FISA_INDIVIDUALA" {
+				id := a.ID
+				if asocieri[id] != "" {
+					id = asocieri[id]
+				}
+				p := profile[id]
+				if grupCurent != p.Grup {
+					grupCurent = p.Grup
+					nume := p.NumeGrup
+					if nume == "" {
+						nume = i18n.T(limba, "structura.fara_grup", nil)
+					}
+					v := make([]string, len(doc.Coloane))
+					cul := make([]string, len(doc.Coloane))
+					v[0] = nume
+					doc.Randuri = append(doc.Randuri, Rand{Grup: true, Valori: v, Culori: cul})
+				}
+			}
+
 			rand := Rand{Valori: []string{}, Culori: []string{}}
 			for _, col := range doc.Coloane {
 				v, culoare := identitate[col.Cod], ""
@@ -499,13 +550,27 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 		}
 	}
 	if d.Continut.Sursa == "GRAFIC_GARZI" && len(doc.Randuri) > 0 {
+		prezenteZi = map[string]int{}
+		for id, zile := range planificariAngajat {
+			if inclusi[id] {
+				for data := range zile {
+					prezenteZi[data]++
+				}
+			}
+		}
 		randTotal := Rand{Valori: []string{}, Culori: []string{}}
 		totalToateGarzi := 0
 		totalToateMinute := int64(0)
-		for _, g := range totaluriAngajatGarzi {
+		for id, g := range totaluriAngajatGarzi {
+			if !inclusi[id] {
+				continue
+			}
 			totalToateGarzi += g
 		}
-		for _, m := range totaluriAngajatMinute {
+		for id, m := range totaluriAngajatMinute {
+			if !inclusi[id] {
+				continue
+			}
 			totalToateMinute += m
 		}
 		for _, col := range doc.Coloane {
