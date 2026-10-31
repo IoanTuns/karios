@@ -1651,5 +1651,6 @@
   "stergere.sursa.setari": "application rules and settings",
   "stergere.sursa.sabloane_ai": "AI templates",
   "stergere.sursa.operatii_ai": "AI operation history",
-  "planificare.prioritate_publicare": "Publishing replaces existing schedules and hours in Timesheet. Leave and days off take priority; medical leave has the highest priority."
+  "planificare.prioritate_publicare": "Publishing replaces existing schedules and hours in Timesheet. Leave and days off take priority; medical leave has the highest priority.",
+  "planificare.efective_retrase": "Actual attendance records removed from calculation: {{numar}}. Previous values remain in the audit log."
 }

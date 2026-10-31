@@ -17,4 +17,4 @@ Graficul planificat se face separat de ce s-a lucrat efectiv, iar diferențele s
 | F11-T06 | Verificare echitate sărbători (Crăciun/Revelion/Paști) și marcaje ture consecutive | gata | Antigravity | Cerință confirmată prin I060 și D039. Corelare rotație Crăciun/Revelion/Paști între ani și marcaje vizuale neblocante (celula-atentie, tooltip, inspecție poziție) pentru ture consecutive. Versiunea 0.32.0. |
 | F11-T02 | Raportul planificat vs. realizat | de făcut | | |
 
-| F11-T20 | Prioritate Planificare - concedii - medical in Pontaj | in lucru | Codex | Cerinta confirmata explicit. Planificarea publicata inlocuieste valorile de pontaj; absentele si medicalul raman prioritare. [Plan](../plan-F11-T20.md). |
+| F11-T20 | Prioritate Planificare - concedii - medical in Pontaj | gata | Codex | Cerinta confirmata explicit. Planificarea publicata inlocuieste valorile de pontaj; absentele si medicalul raman prioritare. [Plan](../plan-F11-T20.md). |

@@ -580,15 +580,28 @@ func (s *Serviciu) salveazaAbsente(ctx context.Context, zile []ZiAbsenta, conver
 				if err != nil {
 					return err
 				}
-				if pontaj {
-					if conversie != nil {
-						return eroare("pontaj.absenta_pontaj_efectiv")
-					}
+				if pontaj && !suprascrie {
 					return eroare("absente.pontaj_existent")
 				}
+
 			}
 			if suprascrie {
 				medical := tip.Categorie == "MEDICAL"
+				d, _ := time.Parse(time.DateOnly, z.Data)
+				efective, err := q.ListaPontajePrioritate(ctx, d.AddDate(0, 0, -2).Format(time.DateOnly), d.AddDate(0, 0, 1).Format(time.DateOnly))
+				if err != nil {
+					return err
+				}
+				for _, p := range efective {
+					aceeasi := p.AngajatID == z.AngajatID || (medical && principal(p.AngajatID) == principal(z.AngajatID))
+					afectat := pontajIntersecteazaZi(p, z.Data)
+					if aceeasi && afectat {
+						if err := retragePontajPrioritar(ctx, q, p); err != nil {
+							return err
+						}
+					}
+				}
+
 				if medical {
 					for _, c := range ciorne {
 						if principal(c.AngajatID) == principal(z.AngajatID) && (c.Data == z.Data || suprapuneMedical(c.Data, peCod[strings.ToUpper(strings.TrimSpace(c.Valoare))], z.Data)) {

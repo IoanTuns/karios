@@ -741,7 +741,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
                             {publicare.rezultat.randuri.map(r=><tr key={r.pozitie_id}>
                                 <th scope="row">{nume(r.angajat_id)}</th>
                                 <td>{r.data}</td>
-                                <td>{r.inainte||'—'}</td>
+                                <td>{r.inainte||'—'}{r.pontaje_efective>0&&<small>{t('planificare.efective_retrase',{numar:r.pontaje_efective})}</small>}</td>
                                 <td>{textSchimb(r.schimb_id)}</td>
                                 <td>{t(`planificare.publicare_${r.stare}`)}{r.motiv&&<small>{t(`planificare.motiv_${r.motiv}`)}</small>}</td>
                             </tr>)}

@@ -1707,6 +1707,7 @@ export namespace datebaza {
 	}
 
 	export class RandPublicarePlan {
+	    pontaje_efective: number;
 	    pozitie_id: string;
 	    angajat_id: string;
 	    data: string;
@@ -1726,6 +1727,7 @@ export namespace datebaza {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.pontaje_efective = source["pontaje_efective"];
 	        this.pozitie_id = source["pozitie_id"];
 	        this.angajat_id = source["angajat_id"];
 	        this.data = source["data"];

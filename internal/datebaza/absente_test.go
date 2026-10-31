@@ -164,18 +164,18 @@ func TestAbsenteConflicteAtomiceSiPontaj(t *testing.T) {
 	if !absenteTest(t, m, 2026).Zile[0].Activ {
 		t.Fatal("anulare parțială la conflict")
 	}
-	// Pontajul efectiv din noaptea precedenta ramane protejat; CM este intr-o zi lucratoare.
+	// Pontajul efectiv din noaptea precedenta este retras integral; CM este intr-o zi lucratoare.
 	if _, err := m.db.Exec(`INSERT INTO pontaj (id,angajat_id,data,start,sfarsit,creat_la,modificat_la) VALUES ('noapte',?,'2026-10-25','2026-10-25T20:00:00Z','2026-10-26T05:00:00Z','x','x')`, a.ID); err != nil {
-		t.Fatal(err)
-	}
-	verificaCod(t, m.serviciu.SalveazaAbsente(ctx, []ZiAbsenta{{AngajatID: a.ID, Data: "2026-10-26", Cod: "CM", Activ: true}}), "absente.pontaj_existent")
-	// Terminarea exact la miezul nopții locale nu ocupă ziua următoare.
-	if _, err := m.db.Exec(`UPDATE pontaj SET sfarsit='2026-10-25T22:00:00Z' WHERE id='noapte'`); err != nil {
 		t.Fatal(err)
 	}
 	if err := m.serviciu.SalveazaAbsente(ctx, []ZiAbsenta{{AngajatID: a.ID, Data: "2026-10-26", Cod: "CM", Activ: true}}); err != nil {
 		t.Fatal(err)
 	}
+	var retras int
+	if err := m.db.QueryRow("SELECT count(*) FROM pontaj WHERE id='noapte' AND sters_la IS NOT NULL").Scan(&retras); err != nil || retras != 1 {
+		t.Fatal(retras, err)
+	}
+
 }
 
 func TestAbsenteValidariSiRollbackJurnal(t *testing.T) {

@@ -43,6 +43,10 @@ func TestMedicalAnuleazaIntreagaTuraPeToateMarcile(t *testing.T) {
 		}
 	}
 	for _, id := range append(append([]string{}, ids...), alt) {
+		if _, err := m.db.Exec(`INSERT INTO pontaj(id,angajat_id,data,start,sfarsit,creat_la,modificat_la) VALUES(?,?,'2026-10-04','2026-10-04T19:00:00Z','2026-10-05T05:00:00Z','x','x')`, "ef-"+id, id); err != nil {
+			t.Fatal(err)
+		}
+
 		if _, err := m.db.Exec(`INSERT INTO pontaj_ciorne(angajat_id,data,valoare,modificat_la) VALUES(?,'2026-10-04','N12','x'),(?,'2026-10-05','Z7','x')`, id, id); err != nil {
 			t.Fatal(err)
 		}
@@ -59,6 +63,10 @@ func TestMedicalAnuleazaIntreagaTuraPeToateMarcile(t *testing.T) {
 	}
 	for _, id := range ids {
 		var n int
+		if err := m.db.QueryRow("SELECT count(*) FROM pontaj WHERE angajat_id=? AND sters_la IS NULL", id).Scan(&n); err != nil || n != 0 {
+			t.Fatal("efectiv ramas", n, err)
+		}
+
 		if err := m.db.QueryRow("SELECT count(*) FROM pontaj_ciorne WHERE angajat_id=? AND valoare<>''", id).Scan(&n); err != nil || n != 0 {
 			t.Fatalf("schita %s: %d %v", id, n, err)
 		}

@@ -154,7 +154,7 @@ func TestPlanificareSuprapunereSiCategorie(t *testing.T) {
 	err = m.serviciu.SalveazaPlanificare(ctx, 2026, 10, []PozitiePlanificare{{AngajatID: id, Data: "2026-10-05", SchimbID: schimburi["S7"], Sectiune: "DUPA_AMIAZA", Activ: true}})
 	verificaCod(t, err, "planificare.motiv_program_nepermis")
 }
-func TestPublicareLotAtomicSiPontajEfectivProtejat(t *testing.T) {
+func TestPublicareLotAtomicSiPontajEfectivInlocuit(t *testing.T) {
 	m, id, schimburi := mediuPlanificare(t)
 	ctx := context.Background()
 	p := planTest(t, m, 2026, 10, PozitiePlanificare{AngajatID: id, Data: "2026-10-01", SchimbID: schimburi["S7"], Sectiune: "DUPA_AMIAZA", Activ: true}, PozitiePlanificare{AngajatID: id, Data: "2026-10-02", SchimbID: schimburi["S7"], Sectiune: "DUPA_AMIAZA", Activ: true})
@@ -178,8 +178,19 @@ func TestPublicareLotAtomicSiPontajEfectivProtejat(t *testing.T) {
 	}
 	c.Inlocuieste = true
 	r := previzualizareTest(t, m, &c)
-	if r.Blocate != 1 || r.Publicabile != 1 {
+	if r.Blocate != 0 || r.Publicabile != 2 {
 		t.Fatalf("efectiv: %+v", r)
+	}
+
+	if _, err := m.db.Exec("DROP TRIGGER publicare_blocata"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := m.serviciu.PublicaPlanificare(ctx, c); err != nil {
+		t.Fatal(err)
+	}
+	var retras int
+	if err := m.db.QueryRow("SELECT count(*) FROM pontaj WHERE id='ef' AND sters_la IS NOT NULL").Scan(&retras); err != nil || retras != 1 {
+		t.Fatal(retras, err)
 	}
 }
 func TestPublicareUnificataToateSectiunile(t *testing.T) {

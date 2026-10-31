@@ -42,18 +42,19 @@ type CererePublicarePlan struct {
 	Token       string   `json:"token"`
 }
 type RandPublicarePlan struct {
-	PozitieID     string `json:"pozitie_id"`
-	AngajatID     string `json:"angajat_id"`
-	Data          string `json:"data"`
-	SchimbID      string `json:"schimb_id"`
-	Valoare       string `json:"valoare"`
-	Inainte       string `json:"inainte"`
-	ReviziePlan   string `json:"revizie_plan"`
-	ReviziePontaj string `json:"revizie_pontaj"`
-	OraStart      int64  `json:"ora_start"`
-	DurataMinute  int64  `json:"durata_minute"`
-	Stare         string `json:"stare"`
-	Motiv         string `json:"motiv"`
+	PontajeEfective int    `json:"pontaje_efective"`
+	PozitieID       string `json:"pozitie_id"`
+	AngajatID       string `json:"angajat_id"`
+	Data            string `json:"data"`
+	SchimbID        string `json:"schimb_id"`
+	Valoare         string `json:"valoare"`
+	Inainte         string `json:"inainte"`
+	ReviziePlan     string `json:"revizie_plan"`
+	ReviziePontaj   string `json:"revizie_pontaj"`
+	OraStart        int64  `json:"ora_start"`
+	DurataMinute    int64  `json:"durata_minute"`
+	Stare           string `json:"stare"`
+	Motiv           string `json:"motiv"`
 }
 type PublicarePlan struct {
 	Randuri     []RandPublicarePlan `json:"randuri"`
@@ -63,15 +64,17 @@ type PublicarePlan struct {
 	Blocate     int                 `json:"blocate"`
 }
 type sursePlanificare struct {
-	principali map[string]string
-	pozitii    []acces.Planificare
-	oameni     map[string]acces.ListaAngajatiRow
-	schimburi  map[string]calcul.ProgramPrecompletare
-	coduri     map[string]calcul.ProgramPrecompletare
-	categorii  map[string]CategorieProgram
-	absente    map[string]bool
-	ciorne     map[string]acces.PontajCiorne
-	intervale  []calcul.IntervalPlanificare
+	cheiEfective map[string]string
+	efective     []acces.PontajPrioritate
+	principali   map[string]string
+	pozitii      []acces.Planificare
+	oameni       map[string]acces.ListaAngajatiRow
+	schimburi    map[string]calcul.ProgramPrecompletare
+	coduri       map[string]calcul.ProgramPrecompletare
+	categorii    map[string]CategorieProgram
+	absente      map[string]bool
+	ciorne       map[string]acces.PontajCiorne
+	intervale    []calcul.IntervalPlanificare
 }
 
 func sursePentruPlanificare(ctx context.Context, q *acces.Queries, deLa, panaLa string) (sursePlanificare, error) {
@@ -152,11 +155,18 @@ func sursePentruPlanificare(ctx context.Context, q *acces.Queries, deLa, panaLa 
 		}
 		s.intervale = append(s.intervale, calcul.IntervalPlanificare{AngajatID: c.AngajatID, Cheie: "c/" + k, Inceput: start, Sfarsit: stop})
 	}
+	s.efective, err = q.ListaPontajePrioritate(ctx, extDeLa, extPanaLa)
+	if err != nil {
+		return s, err
+	}
 	efective, err := q.ListaPontajePrecompletare(ctx, acces.ListaPontajePrecompletareParams{DataDeLa: extDeLa, DataPanaLa: extPanaLa})
 	if err != nil {
 		return s, err
 	}
+	s.cheiEfective = map[string]string{}
 	for i, p := range efective {
+		s.cheiEfective["e/"+strconv.Itoa(i)] = p.AngajatID + "/" + p.Data
+		s.cheiEfective["e/zi/"+strconv.Itoa(i)] = p.AngajatID + "/" + p.Data
 		d, _ := time.Parse(time.DateOnly, p.Data)
 		start, stop := d, d.AddDate(0, 0, 1)
 		if p.Start != nil && p.Sfarsit != nil {
@@ -222,6 +232,7 @@ func (s sursePlanificare) verifica(p acces.Planificare, cuPontaj bool, ignoraCel
 	ignora := map[string]bool{}
 	if ignoraCelula {
 		ignora["c/"+p.AngajatID+"/"+p.Data] = true
+
 	}
 	return calcul.VerificaTuraPlanificata(p.AngajatID, p.Data, program, s.absente, intervale, ignora)
 }
@@ -423,9 +434,23 @@ func pregatestePublicare(ctx context.Context, q *acces.Queries, c CererePublicar
 		if veche.Revizie > 0 {
 			r.ReviziePontaj = strconv.FormatInt(veche.Revizie, 10)
 		}
-		r.Motiv = surse.verifica(p, true, true)
+		for _, ef := range surse.efective {
+			if ef.AngajatID == p.AngajatID && ef.Data == p.Data {
+				r.PontajeEfective++
+			}
+		}
+		validare := surse
+		validare.intervale = nil
+		for _, interval := range surse.intervale {
+			if surse.cheiEfective[interval.Cheie] != p.AngajatID+"/"+p.Data {
+				validare.intervale = append(validare.intervale, interval)
+			}
+		}
+		r.Motiv = validare.verifica(p, true, true)
 		if r.Motiv != "" {
 			r.Stare = "BLOCATA"
+		} else if r.PontajeEfective > 0 {
+			r.Stare = "INLOCUIRE"
 		} else if strings.EqualFold(strings.TrimSpace(veche.Valoare), program.Cod) {
 			r.Stare = "IDENTIC"
 		} else if strings.TrimSpace(veche.Valoare) != "" {
@@ -450,7 +475,8 @@ func pregatestePublicare(ctx context.Context, q *acces.Queries, c CererePublicar
 		Sectiune    string
 		Inlocuieste bool
 		Randuri     []RandPublicarePlan
-	}{c.An, c.Luna, c.Sectiune, c.Inlocuieste, rez.Randuri})
+		Efective    []acces.PontajPrioritate
+	}{c.An, c.Luna, c.Sectiune, c.Inlocuieste, rez.Randuri, surse.efective})
 	if err != nil {
 		return rez, err
 	}
@@ -481,9 +507,21 @@ func (s *Serviciu) PublicaPlanificare(ctx context.Context, c CererePublicarePlan
 		if c.Token == "" || c.Token != rez.Token {
 			return eroare("planificare.conflict_publicare")
 		}
+		deLa, panaLa, _ := limiteLuna(c.An, c.Luna)
+		efective, err := q.ListaPontajePrioritate(ctx, deLa, panaLa)
+		if err != nil {
+			return err
+		}
 		for _, r := range rez.Randuri {
 			if r.Stare == "BLOCATA" {
 				continue
+			}
+			for _, p := range efective {
+				if p.AngajatID == r.AngajatID && p.Data == r.Data {
+					if err := retragePontajPrioritar(ctx, q, p); err != nil {
+						return err
+					}
+				}
 			}
 			revizie, _ := strconv.ParseInt(r.ReviziePontaj, 10, 64)
 			if r.Stare != "IDENTIC" {

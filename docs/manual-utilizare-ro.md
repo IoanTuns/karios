@@ -590,3 +590,7 @@ Stergerea unei categorii neatribuite elimina numai lista ei proprie de programe 
 La publicarea Planificarii, programele si orele manuale existente in schita Pontaj sunt inlocuite implicit; nu mai trebuie bifata o permisiune de inlocuire. Previzualizarea arata valoarea veche si cea noua. Daca datele se modifica intre previzualizare si confirmare, repetati previzualizarea.
 
 Concediile si zilele libere au prioritate fata de program si anuleaza planificarea aferenta. Medicalul are prioritate maxima si anuleaza intreaga tura de noapte intersectata pe toate marcile asociate. Absentele se inregistreaza numai in zile lucratoare, fara weekend si sarbatori legale. Lunile inchise raman protejate.
+
+#### Suprascrierea pontajelor efective
+
+La publicarea Planificarii sunt inlocuite si pontajele efective ale aceleiasi marci si date. Previzualizarea indica numarul lor. Inregistrarile vechi sunt retrase din calcul si pastrate in audit; nu se sterg fizic. Concediile retrag pontajele efective intersectate, iar medicalul aplica regula tuturor marcilor asociate si intregii ture intersectate. O luna inchisa sau blocata impiedica operatia, inclusiv pentru o tura inceputa in luna precedenta. Anularea concediului nu restaureaza automat programul retras: programul dorit trebuie reaplicat explicit.

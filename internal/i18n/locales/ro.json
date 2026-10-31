@@ -1651,5 +1651,6 @@
   "stergere.sursa.setari": "regulile si setarile aplicatiei",
   "stergere.sursa.sabloane_ai": "sabloane AI",
   "stergere.sursa.operatii_ai": "istoricul operatiilor AI",
-  "planificare.prioritate_publicare": "Publicarea inlocuieste programele si orele existente in Pontaj. Concediile si zilele libere au prioritate, iar concediul medical are prioritate maxima."
+  "planificare.prioritate_publicare": "Publicarea inlocuieste programele si orele existente in Pontaj. Concediile si zilele libere au prioritate, iar concediul medical are prioritate maxima.",
+  "planificare.efective_retrase": "Pontaje efective retrase din calcul: {{numar}}. Valorile vechi se pastreaza in audit."
 }

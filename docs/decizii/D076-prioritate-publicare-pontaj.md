@@ -10,7 +10,7 @@ Utilizatorul confirma prioritatea: Planificare, concedii/zile libere, concediu m
 
 Publicarea inlocuieste implicit valorile de program/ore din pontaj_ciorne. Se elimina bifa optionala din interfata si se explica prioritatea. Campul Inlocuieste ramane in API pentru compatibilitate cu apelurile vechi, fara a mai limita inlocuirea. Tokenul, reviziile, auditul, protectia absentelor si lunilor inchise se pastreaza. Salvarea planului pregateste programul; publicarea confirma scrierea in Pontaj.
 
-Retragerea pontajelor efective nu se implementeaza pana la raspunsul explicit la intrebarea de confirmare solicitata dupa respingerea automata. Aceasta limita nu inseamna ca intreaga cerinta este finalizata.
+Utilizatorul a confirmat explicit si retragerea pontajelor efective. Inregistrarile raman in tabela cu marcaj logic de retragere, iar auditul pastreaza snapshotul integral inainte/dupa. Publicarea inlocuieste efectivele aceleiasi date/marci; concediile inlocuiesc efectivele intersectate ale marcii, medicalul ale tuturor marcilor asociate. Sunt verificate toate lunile intersectate de o tura. Tokenul include snapshoturile efective, astfel incat modificarea orelor dupa previzualizare sa ceara o previzualizare noua. Editarea manuala si verificarile AI pastreaza protectia suprapunerilor.
 
 ## Alternative
 

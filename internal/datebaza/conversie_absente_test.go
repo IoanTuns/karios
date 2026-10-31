@@ -45,7 +45,7 @@ func TestConversiePontajAbsenteSiSchimbareTip(t *testing.T) {
 }
 
 func TestConversieAbsenteRollbackProtectii(t *testing.T) {
-	for _, caz := range []string{"tip_invalid", "conflict", "luna_inchisa", "pontaj_efectiv", "selectie_invalida", "respinsa"} {
+	for _, caz := range []string{"tip_invalid", "conflict", "luna_inchisa", "selectie_invalida", "respinsa"} {
 		t.Run(caz, func(t *testing.T) {
 			m := pregateste(t)
 			a := persoanaAbsente(t, m)
@@ -64,11 +64,6 @@ func TestConversieAbsenteRollbackProtectii(t *testing.T) {
 					t.Fatal(e)
 				}
 				cod = "pontaj.luna_inchisa"
-			case "pontaj_efectiv":
-				if _, e := m.db.Exec(`INSERT INTO pontaj(id,angajat_id,data,start,sfarsit,creat_la,modificat_la) VALUES('efectiv',?,'2026-10-06','2026-10-06T04:00:00Z','2026-10-06T11:00:00Z','x','x')`, a.ID); e != nil {
-					t.Fatal(e)
-				}
-				cod = "pontaj.absenta_pontaj_efectiv"
 			case "selectie_invalida":
 				celule[1].Data = "2026-10-07"
 				cod = "absente.lot_invalid"
