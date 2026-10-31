@@ -125,6 +125,13 @@ func sursePentruPlanificare(ctx context.Context, q *acces.Queries, deLa, panaLa 
 			s.absente[a.AngajatID+"/"+a.Data] = true
 		}
 	}
+	medical, err := zileMedicalFamilie(ctx, q, extDeLa, extPanaLa)
+	if err != nil {
+		return s, err
+	}
+	for cheie := range medical {
+		s.absente[cheie] = true
+	}
 	ciorne, err := q.ListaCiorneLuna(ctx, acces.ListaCiorneLunaParams{DataDeLa: extDeLa, DataPanaLa: extPanaLa})
 	if err != nil {
 		return s, err

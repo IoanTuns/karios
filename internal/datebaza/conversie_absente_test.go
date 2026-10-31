@@ -24,7 +24,6 @@ func TestConversiePontajAbsenteSiSchimbareTip(t *testing.T) {
 	ctx := context.Background()
 	celule := schitaConversieTest(t, m, a.ID)
 	z := ZiAbsenta{AngajatID: a.ID, Data: "2026-10-05", Cod: "CO", Activ: true, StareAprobare: "APROBATA", AprobatDe: "Operator test"}
-	verificaCod(t, m.serviciu.SalveazaAbsente(ctx, []ZiAbsenta{z}), "absente.pontaj_existent")
 	if e := m.serviciu.InlocuiestePontajCuAbsente(ctx, 2026, 10, []ZiAbsenta{z}, celule[:1]); e != nil {
 		t.Fatal(e)
 	}

@@ -329,8 +329,8 @@
   "absente.selecteaza_zi": "Selectează {{data}} pentru {{nume}}",
   "absente.zile_selectate": "Zilele din interval",
   "absente.selectate": "{{numar}} zile selectate pentru salvare",
-  "absente.selectie_indiciu": "Selectează explicit zilele de înregistrat. Implicit sunt bifate toate datele din interval, inclusiv weekendurile și sărbătorile. Poți debifa orice zi; selecția nu stabilește plata sau consumul legal al concediului.",
-  "absente.toate_zilele": "Selectează toate datele",
+  "absente.selectie_indiciu": "Se inregistreaza numai zilele lucratoare din interval. Weekendurile si sarbatorile legale sunt excluse automat.",
+  "absente.toate_zilele": "Selecteaza toate zilele lucratoare",
   "absente.luni_vineri": "Selectează luni–vineri, fără sărbători",
   "absente.interval_invalid": "Alege un interval valid de cel mult 366 de zile.",
   "absente.selectie_invalida": "Alege un angajat și cel puțin o zi.",
@@ -1600,9 +1600,11 @@
   "ui.zoom_reseteaza": "Revino la 100% (Ctrl+0)",
   "ui.nume_subordonat": "{{nume}} ({{tip}})",
   "pontaj.absenta_titlu": "Concediu / alt tip de absenta",
-  "pontaj.absenta_indiciu": "Se aplica exact zilelor si persoanelor selectate. Inlocuieste programul din schita si se salveaza imediat in evidenta absentelor. Celelalte modificari nesalvate se pastreaza.",
+  "pontaj.absenta_indiciu": "Se aplica zilelor lucratoare selectate, fara weekend si sarbatori. Concediul inlocuieste programul, iar medicalul are prioritate si anuleaza intreaga tura suprapusa, inclusiv pe marcile asociate. Salvarea este imediata.",
   "pontaj.absenta_selectie": "Verifica selectia: {{numar}} zile-angajat",
   "pontaj.absenta_lista_limitata": "Sunt afisate primele 50 de pozitii; salvarea se aplica intregii selectii.",
   "pontaj.absenta_salvata": "Tipul zilelor selectate a fost actualizat in Pontaj si Absente.",
-  "pontaj.absenta_pontaj_efectiv": "Exista pontaj efectiv inregistrat pentru una dintre zile. Acesta trebuie corectat inainte de schimbarea tipului zilei."
+  "pontaj.absenta_pontaj_efectiv": "Exista pontaj efectiv inregistrat pentru una dintre zile. Acesta trebuie corectat inainte de schimbarea tipului zilei.",
+  "absente.zi_nelucratoare": "Concediile, inclusiv medicale, se inregistreaza numai in zile lucratoare, fara weekend si sarbatori legale.",
+  "absente.medical_prioritar": "Ziua are concediu medical activ. Un alt concediu nu poate inlocui concediul medical."
 }

@@ -516,10 +516,19 @@ Schimbarea calendarului impune regenerarea previzualizarii AI. Exporturile deja 
 1. Selectati celula sau intervalul de zile si persoane in grila Pontaj.
 2. Deschideti Completare si alegeti Concediu / alt tip de absenta.
 3. Alegeti unul dintre tipurile configurate (de exemplu CO sau CM), completati aprobarea, numarul de inregistrare, inlocuitorul si documentul, dupa caz.
-4. Verificati selectia din formular, apoi Salvati. Se folosesc exact zilele selectate, inclusiv weekend/sarbatoare daca le-ati inclus.
+4. Verificati selectia din formular, apoi Salvati. Se folosesc numai zilele lucratoare din selectie; weekendurile si sarbatorile sunt excluse.
 
 Operatia inlocuieste programul din schita si salveaza imediat absenta. Nu mai este necesara salvarea schitei pentru aceste zile. Codul concediului este afisat in celula; aceeasi inregistrare apare in Concedii si absente. Puteti redeschide meniul pentru a schimba tipul unei absente existente. Aprobarea nu este acordata automat: pentru o absenta noua starea initiala este In asteptare.
 
-Modificarile nesalvate din afara selectiei se pastreaza. Istoricul local Anuleaza/Refa se reinitializeaza dupa conversia salvata; corectiile ulterioare se fac prin formularul de absente. Planificarea ramane evidenta programului planificat, distincta de absenta efectiva. Lunile inchise si pontajul efectiv inregistrat sunt protejate. O eroare de validare sau un conflict de revizie anuleaza intregul lot si pastreaza schita initiala.
+Modificarile nesalvate din afara selectiei se pastreaza. Istoricul local Anuleaza/Refa se reinitializeaza dupa conversia salvata; corectiile ulterioare se fac prin formularul de absente. Programul planificat suprapus este anulat conform prioritatii concediilor; medicalul poate afecta si tura precedenta sau marcile asociate. Lunile inchise si pontajul efectiv inregistrat sunt protejate. O eroare de validare sau un conflict de revizie anuleaza intregul lot si pastreaza schita initiala.
 
 Pentru revenire de la absenta la program de lucru, anulati absenta din evidenta Concedii si absente si apoi aplicati programul dorit in Pontaj; simpla aplicare a unui program nu suprascrie o absenta activa.
+
+
+## Prioritatea concediilor si a medicalului
+
+Orice concediu, inclusiv medical, se inregistreaza numai luni-vineri, fara sarbatorile din calendarul aplicatiei. Verificati calendarul pentru anul folosit. Formularul exclude automat weekendurile si sarbatorile; serviciul refuza si cererile directe care contin aceste zile.
+
+Concediul inlocuieste programul din schita si planificarea acelei zile. Medicalul are prioritate fata de celelalte concedii si programe. Daca o tura inceputa in ziua precedenta intra in ziua medicalului, se anuleaza intreaga tura. Sunt anulate si programele marcilor asociate explicit aceleiasi persoane, inclusiv garzile. Absenta medicala nu se dubleaza pe aceste marci. Un alt concediu nu poate inlocui direct medicalul: medicalul trebuie mai intai anulat explicit.
+
+Salvarea este atomica si jurnalizata. O luna inchisa, inclusiv luna precedenta afectata de o tura de noapte, blocheaza operatia intreaga. Pontajele efective cu ore de inceput/sfarsit nu se sterg automat; un conflict trebuie verificat de operator. Programele anulate nu se restaureaza automat la anularea concediului. Inregistrarile istorice din weekend/sarbatori nu sunt migrate automat; verificati-le separat.

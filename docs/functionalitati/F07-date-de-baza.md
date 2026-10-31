@@ -10,6 +10,7 @@ Utilizatorul poate gestiona angajații și listele de care depinde pontajul.
 
 | ID | Task | Stare | Responsabil | Note |
 | --- | --- | --- | --- | --- |
+| F07-T33 | Absente numai in zile lucratoare si prioritate medical > alte concedii > program | gata | Codex | Medicalul anuleaza intreaga tura si programele marcilor asociate, cu jurnal si protectie la reintroducere. [Rezultate](../rezultate-F07-T33.md); pas urmator: proba operator. |
 | F07-T32 | Concedii si schimbarea tipului zilei din meniul Completare Pontaj | gata | Codex | Selectie exacta, formular comun de absente si conversie atomica a schitei de lucru. [Rezultate](../rezultate-F07-T32.md); pas urmator: proba operator. |
 | F07-T31 | Program normal L-V exclude sarbatorile legale din calendar | gata | Codex | Corectie filtre AI individual/grup; weekend/sarbatoare separate, fara reguli noi de plata. [Rezultate](../rezultate-F07-T31.md); pas urmator: proba operator. |
 | F07-T30 | Marcaj automat al numelor pentru marcile subordonate in toate contextele | gata | Codex | Legatura explicita principala/garda, fara modificarea numelui stocat. Liste, selectii, pontaj, planificare, absente, AI si exporturi. [Rezultate](../rezultate-F07-T30.md); pas urmator: proba operator. |

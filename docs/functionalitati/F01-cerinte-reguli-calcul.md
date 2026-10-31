@@ -109,3 +109,9 @@ Se pastreaza confirmarea anterioara: numai absente aprobate, numai zile in care 
 ### Clarificare utilizator 2026-10-31 - F07-T31
 
 Programul normal L-V inseamna toate zilele lucratoare, excluzand sarbatorile legale si weekendul. Sarbatorile si weekendul necesita tratare separata pe cazurile specifice. Aceasta clarificare nu stabileste procente noi, reguli de cumulare a sporurilor sau conversia ZNL in timp liber. Regula zilelor compensatorii ramane neprecizata.
+
+### Clarificare utilizator 2026-10-31 - F07-T33
+
+Toate concediile/absentele, inclusiv medicalul, se inregistreaza numai in zile lucratoare L-V fara sarbatori legale. Prioritate explicita: MEDICAL peste orice alt concediu, orice concediu peste program. Se suprascriu automat inregistrarile vizate, cu jurnal. Ceruta regula pentru tura de noapte care incepe in ziua precedenta: intreaga tura sau numai orele zilei de CM.
+
+F07-T33: utilizatorul confirma anularea intregii ture de noapte care intra intr-o zi de medical, inclusiv programul inceput in ziua precedenta. Medicalul anuleaza programele tuturor marcilor asociate explicit aceleiasi persoane; inregistrarea absentei ramane pe marca selectata.

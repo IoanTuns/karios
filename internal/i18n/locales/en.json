@@ -329,8 +329,8 @@
   "absente.selecteaza_zi": "Select {{data}} for {{nume}}",
   "absente.zile_selectate": "Days in the range",
   "absente.selectate": "{{numar}} days selected for saving",
-  "absente.selectie_indiciu": "Select the days to record explicitly. All dates in the range are initially selected, including weekends and holidays. You can clear any day; the selection does not determine pay or statutory leave consumption.",
-  "absente.toate_zilele": "Select all dates",
+  "absente.selectie_indiciu": "Only working days are recorded. Weekends and public holidays are excluded automatically.",
+  "absente.toate_zilele": "Select all working days",
   "absente.luni_vineri": "Select Monday–Friday, excluding holidays",
   "absente.interval_invalid": "Choose a valid range of at most 366 days.",
   "absente.selectie_invalida": "Select an employee and at least one day.",
@@ -1600,9 +1600,11 @@
   "ui.zoom_reseteaza": "Reset to 100% (Ctrl+0)",
   "ui.nume_subordonat": "{{nume}} ({{tip}})",
   "pontaj.absenta_titlu": "Leave / other absence type",
-  "pontaj.absenta_indiciu": "Applies to the exact selected dates and employees. Replaces the draft schedule and saves immediately to absence records. Other unsaved changes are retained.",
+  "pontaj.absenta_indiciu": "Applies to selected working days, excluding weekends and holidays. Leave replaces scheduled work; medical leave takes priority and cancels the entire overlapping shift, including linked employee records. Changes are saved immediately.",
   "pontaj.absenta_selectie": "Review selection: {{numar}} employee-days",
   "pontaj.absenta_lista_limitata": "The first 50 entries are shown; saving applies to the entire selection.",
   "pontaj.absenta_salvata": "Selected days were updated in Timesheet and Absences.",
-  "pontaj.absenta_pontaj_efectiv": "Actual attendance is recorded for one of these days. Correct it before changing the day type."
+  "pontaj.absenta_pontaj_efectiv": "Actual attendance is recorded for one of these days. Correct it before changing the day type.",
+  "absente.zi_nelucratoare": "All leave, including sick leave, can only be recorded on working days, excluding weekends and public holidays.",
+  "absente.medical_prioritar": "This day has active sick leave. Another leave type cannot replace sick leave."
 }

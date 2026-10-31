@@ -617,9 +617,10 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
         for(let r=inceputRand;r<=sfarsitRand;r++)for(let z=inceputZi;z<=sfarsitZi;z++) {
             if(!randuri[r]||!zile[z])continue;
             const id=randuri[r].id,data=zile[z];
+            if([0,6].includes(new Date(`${data}T12:00:00Z`).getUTCDay()) || calendar?.sarbatori.some(s=>s.data===data))continue;
             celule.push(new datebaza.CelulaSchita(originale.get(cheie(id,data))||{angajat_id:id,data,valoare:'',revizie:''}));
         }
-        if(!celule.length)return;
+        if(!celule.length){setEroare(t('absente.zi_nelucratoare'));return;}
         setOcupat(true);onOcupat(true);setEroare('');setEroareAbsenta('');
         try {
             const r=await CitesteAbsente(an);
@@ -635,10 +636,11 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
         if(!conversieAbsenta||blocat.current)return;
         blocat.current=true;setOcupat(true);onOcupat(true);setEroareAbsenta('');
         try {
-            const r=await InlocuiestePontajCuAbsente(an,luna,zileAbsenta,conversieAbsenta.celule);
+            const r=await InlocuiestePontajCuAbsente(an,luna,zileAbsenta,conversieAbsenta.celule.filter(c=>zileAbsenta.some(z=>z.angajat_id===c.angajat_id&&z.data===c.data)));
             if(r.eroare){setEroareAbsenta(t(r.eroare.cod,r.eroare.param||{}));return;}
             if(!r.schita){setEroareAbsenta(t('date.eroare'));return;}
-            const inlocuite=new Set(conversieAbsenta.celule.map(c=>cheie(c.angajat_id,c.data)));
+            const inlocuite=new Set(zileAbsenta.map(c=>cheie(c.angajat_id,c.data)));
+            for(const c of r.schita.celule){const k=cheie(c.angajat_id,c.data);const veche=originale.get(k);if(veche && veche.revizie!==c.revizie)inlocuite.add(k);}
             setModificari(vechi=>new Map([...vechi].filter(([k])=>!inlocuite.has(k))));
             setSchita(r.schita);setCalculat(r.schita.calcul);setIstoricInapoi([]);setIstoricInainte([]);setConversieAbsenta(null);
             setMesaj(t('pontaj.absenta_salvata'));notifica(t('pontaj.absenta_salvata'),'succes');

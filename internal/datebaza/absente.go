@@ -14,6 +14,7 @@ import (
 	"unicode/utf8"
 
 	"pontix/internal/bd/acces"
+	"pontix/internal/calcul"
 	"pontix/internal/i18n"
 )
 
@@ -352,6 +353,105 @@ func (s *Serviciu) salveazaAbsente(ctx context.Context, zile []ZiAbsenta, conver
 			}
 		}
 
+		sarbatori, err := q.ListaToateSarbatori(ctx)
+		if err != nil {
+			return err
+		}
+		calendar := calcul.Calendar{Sarbatori: map[string]string{}}
+		for _, zi := range sarbatori {
+			calendar.Sarbatori[zi.Data] = zi.Denumire
+		}
+		luniVerificate := map[string]bool{}
+		deLa, panaLa := zile[0].Data, zile[0].Data
+		for _, zi := range zile {
+			if zi.Data < deLa {
+				deLa = zi.Data
+			}
+			if zi.Data > panaLa {
+				panaLa = zi.Data
+			}
+		}
+		prima, _ := time.Parse(time.DateOnly, deLa)
+		extinsDeLa := prima.AddDate(0, 0, -2).Format(time.DateOnly)
+		pozitii, err := q.ListaPlanificare(ctx, acces.ListaPlanificareParams{DataDeLa: extinsDeLa, DataPanaLa: panaLa})
+		if err != nil {
+			return err
+		}
+		ciorne, err := q.ListaCiorneLuna(ctx, acces.ListaCiorneLunaParams{DataDeLa: extinsDeLa, DataPanaLa: panaLa})
+		if err != nil {
+			return err
+		}
+		schimburi, err := q.ListaSchimburi(ctx)
+		if err != nil {
+			return err
+		}
+		legaturi, err := q.ListaLegaturiIerarhice(ctx)
+		if err != nil {
+			return err
+		}
+		principal := func(id string) string {
+			if parinte := legaturi[id]; parinte != "" {
+				return parinte
+			}
+			return id
+		}
+		peCod := map[string]acces.ListaSchimburiRow{}
+		peID := map[string]acces.ListaSchimburiRow{}
+		for _, p := range schimburi {
+			peCod[strings.ToUpper(p.Cod)] = p
+			peID[p.ID] = p
+		}
+		verificaLuna := func(dataText string) error {
+			luna := dataText[:7]
+			if luniVerificate[luna] {
+				return nil
+			}
+			data, _ := time.Parse(time.DateOnly, dataText)
+			stare := "DESCHISA"
+			err := tx.QueryRowContext(ctx, "SELECT stare FROM stare_luni WHERE an=? AND luna=?", data.Year(), int(data.Month())).Scan(&stare)
+			if err != nil && err != sql.ErrNoRows {
+				return err
+			}
+			if stare != "DESCHISA" {
+				return eroare("pontaj.luna_inchisa")
+			}
+			luniVerificate[luna] = true
+			return nil
+		}
+		anuleazaCiorna := func(id, data string) error {
+			if err := verificaLuna(data); err != nil {
+				return err
+			}
+			veche, err := q.CitesteCiorna(ctx, acces.CitesteCiornaParams{AngajatID: id, Data: data})
+			if errors.Is(err, sql.ErrNoRows) {
+				return nil
+			}
+			if err != nil {
+				return err
+			}
+			if strings.TrimSpace(veche.Valoare) == "" {
+				return nil
+			}
+			rev, err := q.SalveazaCiorna(ctx, acces.SalveazaCiornaParams{AngajatID: id, Data: data, Valoare: "", ModificatLa: moment()})
+			if err != nil {
+				return err
+			}
+			nou := CelulaSchita{AngajatID: id, Data: data, Valoare: "", Revizie: strconv.FormatInt(rev, 10)}
+			return jurnal(ctx, q, "pontaj_ciorne", id+"/"+data, veche, nou)
+		}
+		suprapuneMedical := func(data string, p acces.ListaSchimburiRow, zi string) bool {
+			if p.OraStart < 0 || p.DurataMinute <= 0 {
+				return false
+			}
+			d, err := time.ParseInLocation(time.DateOnly, data, local)
+			if err != nil {
+				return false
+			}
+			inceput := time.Date(d.Year(), d.Month(), d.Day(), int(p.OraStart)/60, int(p.OraStart)%60, 0, 0, local)
+			sfarsit := inceput.Add(time.Duration(p.DurataMinute) * time.Minute)
+			inceputCM, _ := time.ParseInLocation(time.DateOnly, zi, local)
+			return inceput.Before(inceputCM.AddDate(0, 0, 1)) && sfarsit.After(inceputCM)
+		}
 		documenteNoi := map[string]acces.ExistaDocumentAbsentaRow{}
 		for _, z := range zile {
 			if _, err := q.CitesteAngajat(ctx, z.AngajatID); err != nil {
@@ -362,7 +462,34 @@ func (s *Serviciu) salveazaAbsente(ctx context.Context, zile []ZiAbsenta, conver
 			if err != nil && !errors.Is(err, sql.ErrNoRows) {
 				return err
 			}
-			if (exista && z.Revizie != strconv.FormatInt(veche.Revizie, 10)) || (!exista && z.Revizie != "") {
+			tip, err := q.CitesteTipAbsenta(ctx, z.Cod)
+			if errors.Is(err, sql.ErrNoRows) {
+				return eroare("absente.tip_invalid")
+			}
+			if err != nil {
+				return err
+			}
+			suprascrie := z.Activ && z.StareAprobare != "RESPINSA"
+			categorieVeche := ""
+			if exista && veche.Activ == 1 && veche.StareAprobare != "RESPINSA" {
+				tipVechi, err := q.CitesteTipAbsenta(ctx, veche.Cod)
+				if err != nil {
+					return err
+				}
+				categorieVeche = tipVechi.Categorie
+			}
+			if suprascrie && calcul.PrioritateAbsenta(tip.Categorie) < calcul.PrioritateAbsenta(categorieVeche) {
+				return eroare("absente.medical_prioritar")
+			}
+			medicalPrioritar := suprascrie && categorieVeche != "" && calcul.PrioritateAbsenta(tip.Categorie) > calcul.PrioritateAbsenta(categorieVeche)
+			data, _ := time.Parse(time.DateOnly, z.Data)
+			if z.Activ && calendar.TipZi(data) != calcul.Lucratoare {
+				return eroare("absente.zi_nelucratoare")
+			}
+			if err := verificaLuna(z.Data); err != nil {
+				return err
+			}
+			if (exista && z.Revizie != strconv.FormatInt(veche.Revizie, 10) && !(z.Revizie == "" && medicalPrioritar)) || (!exista && z.Revizie != "") {
 				return eroare("absente.conflict")
 			}
 			if !z.Activ && (!exista || veche.Cod != z.Cod) {
@@ -426,13 +553,6 @@ func (s *Serviciu) salveazaAbsente(ctx context.Context, zile []ZiAbsenta, conver
 			} else {
 				z.DocumentNume, z.DocumentMime = "", ""
 			}
-			tip, err := q.CitesteTipAbsenta(ctx, z.Cod)
-			if errors.Is(err, sql.ErrNoRows) {
-				return eroare("absente.tip_invalid")
-			}
-			if err != nil {
-				return err
-			}
 			if z.Activ {
 				if tip.Activ == 0 && !(exista && veche.Activ == 1 && veche.Cod == z.Cod) {
 					return eroare("absente.tip_invalid")
@@ -442,7 +562,17 @@ func (s *Serviciu) salveazaAbsente(ctx context.Context, zile []ZiAbsenta, conver
 					return err
 				}
 				if err == nil && strings.TrimSpace(ciorna.Valoare) != "" {
-					return eroare("absente.pontaj_existent")
+					if !suprascrie {
+						return eroare("absente.pontaj_existent")
+					}
+					rev, err := q.SalveazaCiorna(ctx, acces.SalveazaCiornaParams{AngajatID: z.AngajatID, Data: z.Data, Valoare: "", ModificatLa: moment()})
+					if err != nil {
+						return err
+					}
+					nou := CelulaSchita{AngajatID: z.AngajatID, Data: z.Data, Valoare: "", Revizie: strconv.FormatInt(rev, 10)}
+					if err := jurnal(ctx, q, "pontaj_ciorne", z.AngajatID+"/"+z.Data, ciorna, nou); err != nil {
+						return err
+					}
 				}
 				inceput, _ := time.ParseInLocation(time.DateOnly, z.Data, local)
 				pontaj, err := q.PontajExistentPeZi(ctx, acces.PontajExistentPeZiParams{AngajatID: z.AngajatID, Data: z.Data, InceputUtc: inceput.UTC().Format(time.RFC3339), SfarsitUtc: inceput.AddDate(0, 0, 1).UTC().Format(time.RFC3339)})
@@ -454,6 +584,42 @@ func (s *Serviciu) salveazaAbsente(ctx context.Context, zile []ZiAbsenta, conver
 						return eroare("pontaj.absenta_pontaj_efectiv")
 					}
 					return eroare("absente.pontaj_existent")
+				}
+			}
+			if suprascrie {
+				medical := tip.Categorie == "MEDICAL"
+				if medical {
+					for _, c := range ciorne {
+						if principal(c.AngajatID) == principal(z.AngajatID) && (c.Data == z.Data || suprapuneMedical(c.Data, peCod[strings.ToUpper(strings.TrimSpace(c.Valoare))], z.Data)) {
+							if err := anuleazaCiorna(c.AngajatID, c.Data); err != nil {
+								return err
+							}
+						}
+					}
+				}
+				for i, p := range pozitii {
+					if p.Activ != 1 || (p.AngajatID != z.AngajatID && !(medical && principal(p.AngajatID) == principal(z.AngajatID))) || (p.Data != z.Data && !(medical && suprapuneMedical(p.Data, peID[p.SchimbID], z.Data))) {
+						continue
+					}
+					if err := verificaLuna(p.Data); err != nil {
+						return err
+					}
+					acum := moment()
+					n, err := q.ModificaPozitiePlanificare(ctx, acces.ModificaPozitiePlanificareParams{ID: p.ID, Revizie: p.Revizie, SchimbID: p.SchimbID, Activ: 0, ModificatLa: acum})
+					if err != nil {
+						return err
+					}
+					if n != 1 {
+						return eroare("planificare.conflict")
+					}
+					nou := p
+					nou.Activ = 0
+					nou.Revizie++
+					nou.ModificatLa = acum
+					pozitii[i] = nou
+					if err := jurnal(ctx, q, "planificare", p.ID, p, nou); err != nil {
+						return err
+					}
 				}
 			}
 			if exista && veche.Cod == z.Cod && veche.Activ == numarBool(z.Activ) &&

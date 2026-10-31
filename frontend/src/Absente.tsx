@@ -297,9 +297,9 @@ export function FormularAbsente({dinPontaj = false, zi, lot, date, absente, anga
     const [calendarEroare, setCalendarEroare] = useState('');
     const [validare, setValidare] = useState('');
     const zile = lot ? lot.map(z => z.data) : interval(campuri.deLa,campuri.panaLa);
-    const alese = lot ? zile : zile.filter(data => !excluse.has(data));
+    const ziLucratoare = (data:string) => ![0,6].includes(new Date(`${data}T12:00:00Z`).getUTCDay()) && !sarbatori.has(data);
+    const alese = calendarGata ? zile.filter(data => ziLucratoare(data) && (Boolean(lot) || !excluse.has(data))) : [];
     useEffect(() => {
-        if (lot) { setCalendarGata(true); return; }
         let activ = true;
         setCalendarGata(false); setSarbatori(new Map()); setCalendarEroare('');
         const ani = [...new Set(zile.map(data => Number(data.slice(0,4))))];
@@ -355,7 +355,7 @@ export function FormularAbsente({dinPontaj = false, zi, lot, date, absente, anga
         if (zileTitularInlocuieste.length) { setValidare(t('absente.titular_este_inlocuitor')); return; }
         if (lot) {
             if (lot.some(z => campuri.inlocuitor && campuri.inlocuitor === z.angajat_id)) { setValidare(t('absente.inlocuitor_invalid')); return; }
-            salveaza(lot.map(z => new datebaza.ZiAbsenta({
+            salveaza(lot.filter(z=>alese.includes(z.data)).map(z => new datebaza.ZiAbsenta({
                 ...z,
                 cod: campuri.cod || z.cod,
                 activ: true,
@@ -400,11 +400,12 @@ export function FormularAbsente({dinPontaj = false, zi, lot, date, absente, anga
             <label className="latime-completa">{t('absente.cerere_atasata')}<input name="cerere_fisier" type="file" accept=".pdf,application/pdf,image/png,image/jpeg" onChange={incarcaFisier}/><small className="text-discret">{t('absente.fisier_indiciu')}</small></label>
             {(campuri.documentNume || campuri.documentId) && <div className="latime-completa atasament-curent"><span>{campuri.documentNume}</span><button type="button" className="legatura discreta" onClick={() => setCampuri(c => ({...c, documentId: '', documentNume: '', documentMime: '', documentContinutB64: ''}))}>{t('absente.elimina_atasament')}</button></div>}
         </fieldset>
-        {dinPontaj && lot && <><p className="nota-calendar">{t('pontaj.absenta_indiciu')}</p><details><summary>{t('pontaj.absenta_selectie', {numar: lot.length})}</summary><ul>{lot.slice(0,50).map(z=><li key={`${z.angajat_id}/${z.data}`}>{numeAngajat(date.angajati.find(a=>a.id===z.angajat_id))} ? {z.data}</li>)}</ul>{lot.length>50&&<p>{t('pontaj.absenta_lista_limitata')}</p>}</details></>}
+        {dinPontaj && lot && <><p className="nota-calendar">{t('pontaj.absenta_indiciu')}</p><details><summary>{t('pontaj.absenta_selectie', {numar: alese.length})}</summary><ul>{lot.filter(z=>alese.includes(z.data)).slice(0,50).map(z=><li key={`${z.angajat_id}/${z.data}`}>{numeAngajat(date.angajati.find(a=>a.id===z.angajat_id))} / {z.data}</li>)}</ul>{alese.length>50&&<p>{t('pontaj.absenta_lista_limitata')}</p>}</details></>}
+        {lot && calendarEroare && <p className="mesaj eroare" role="alert">{calendarEroare}</p>}
         {!lot && <><p className="nota-calendar">{t('absente.selectie_indiciu')}</p>{!zile.length && <p className="mesaj eroare">{t('absente.interval_invalid')}</p>}{calendarEroare && <p className="mesaj eroare" role="alert">{calendarEroare}</p>}
-        {!zi && <div className="actiuni-calendar"><button type="button" className="legatura" disabled={ocupat || !zile.length} onClick={() => setExcluse(new Set())}>{t('absente.toate_zilele')}</button><button type="button" className="legatura" disabled={ocupat || !calendarGata} onClick={() => setExcluse(new Set(zile.filter(data => [0,6].includes(new Date(`${data}T12:00:00Z`).getUTCDay()) || sarbatori.has(data))))}>{t('absente.luni_vineri')}</button></div>}
+        {!zi && <div className="actiuni-calendar"><button type="button" className="legatura" disabled={ocupat || !zile.length} onClick={() => setExcluse(new Set())}>{t('absente.toate_zilele')}</button></div>}
         <div className="zile-absenta" role="group" aria-label={t('absente.zile_selectate')}>
-            {zile.map(data => { const d = new Date(`${data}T12:00:00Z`), weekend = [0,6].includes(d.getUTCDay()); return <label key={data} className={sarbatori.has(data) ? 'zi-sarbatoare' : weekend ? 'zi-weekend' : ''}><input type="checkbox" disabled={ocupat || !!zi} checked={!excluse.has(data)} onChange={e => setExcluse(vechi => { const noi = new Set(vechi); if (e.target.checked) noi.delete(data); else noi.add(data); return noi; })}/><span>{data} · {formatData(i18n.language,{weekday:'short',timeZone:'UTC'}).format(d)}{sarbatori.has(data) && <small>{sarbatori.get(data)}</small>}</span></label>; })}
+            {zile.map(data => { const d = new Date(`${data}T12:00:00Z`), weekend = [0,6].includes(d.getUTCDay()); return <label key={data} className={sarbatori.has(data) ? 'zi-sarbatoare' : weekend ? 'zi-weekend' : ''}><input type="checkbox" disabled={ocupat || !!zi || !calendarGata || !ziLucratoare(data)} checked={calendarGata && ziLucratoare(data) && !excluse.has(data)} onChange={e => setExcluse(vechi => { const noi = new Set(vechi); if (e.target.checked) noi.delete(data); else noi.add(data); return noi; })}/><span>{data} · {formatData(i18n.language,{weekday:'short',timeZone:'UTC'}).format(d)}{sarbatori.has(data) && <small>{sarbatori.get(data)}</small>}</span></label>; })}
         </div></>}
         <p className="nota-calendar" role="status">{t('absente.selectate', {numar:alese.length})}</p>
     </div><footer className="subsol-dialog"><button type="button" className="buton secundar" disabled={ocupat} onClick={renunta}>{t('ui.anuleaza')}</button><button className="buton primar" disabled={ocupat || !alese.length}>{t('ui.salveaza')}</button></footer></form></Dialog>;

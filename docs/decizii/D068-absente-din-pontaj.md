@@ -7,3 +7,5 @@ Utilizatorul solicita concedii si schimbarea tipului zilei din Completare Pontaj
 Se transmit instantaneele originale ale celulelor, cu valori si revizii; conflictul oricarei celule sau absente anuleaza intregul lot, inclusiv jurnalul. Numai absente active si nerespinse sunt eligibile. Se verifica luna deschisa; pontajul efectiv ramane protejat. Aprobarea, documentele, inlocuitorii si celelalte reguli de absente raman cele existente. Planificarea nu este stearsa, fiind evidenta intentiei, distincta de realizare.
 
 Frontendul pastreaza modificarile nesalvate din afara selectiei si reseteaza istoricul local dupa salvarea conversiei, pentru a nu restaura programe peste absente salvate. Celula afiseaza codul absentei. Nu se schimba formulele rapoartelor si nu se adauga tipuri sau compensari presupuse. Fara migrare sau biblioteca noua.
+
+Actualizare F07-T33: regulile ulterioare confirmate de utilizator si implementarea propusa in [D069](D069-prioritate-absente.md) inlocuiesc pastrarea programului planificat si refuzul suprascrierii din fluxul obisnuit.

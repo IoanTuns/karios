@@ -146,6 +146,15 @@ func (s *Serviciu) salveazaSchita(ctx context.Context, an, luna int, celule []Ce
 				absenteActive[z.AngajatID+"/"+z.Data] = true
 			}
 		}
+		ultima, _ := time.Parse(time.DateOnly, panaLa)
+		medical, err := zileMedicalFamilie(ctx, q, deLa, ultima.AddDate(0, 0, 2).Format(time.DateOnly))
+		if err != nil {
+			return err
+		}
+		programeMedical := map[string]calcul.ProgramPrecompletare{}
+		for _, p := range schimburi {
+			programeMedical[strings.ToUpper(p.Cod)] = calcul.ProgramPrecompletare{OraStart: p.OraStart, DurataMinute: p.DurataMinute}
+		}
 		existente := map[string]acces.CitesteCiornaRow{}
 		ciorne, err := q.ListaCiorneLuna(ctx, acces.ListaCiorneLunaParams{DataDeLa: deLa, DataPanaLa: panaLa})
 		if err != nil {
@@ -161,6 +170,10 @@ func (s *Serviciu) salveazaSchita(ctx context.Context, an, luna int, celule []Ce
 		}
 		categoriiCitite := map[string]permisiuni{}
 		for _, c := range celule {
+			valoare := strings.ToUpper(strings.TrimSpace(c.Valoare))
+			if valoare != "" && (medical[c.AngajatID+"/"+c.Data] || calcul.VerificaTuraPlanificata(c.AngajatID, c.Data, programeMedical[valoare], medical, nil, nil) == "absenta") {
+				return eroare("absente.celula_protejata")
+			}
 			if absenteActive[c.AngajatID+"/"+c.Data] {
 				return eroare("absente.celula_protejata")
 			}
