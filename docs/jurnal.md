@@ -4,6 +4,7 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 
 | Data | Acțiune | Cine | Legături |
 | --- | --- | --- | --- |
+| 2026-10-31 | F07-T36: build oficial 0.92.13 complet din b7ba21a, manual 1.24 si ZIP; identitate, hashuri si integritate verificate. Pas urmator: proba operator pentru data/stare si actiuni vizibile. Fara push/merge. | Codex | [Livrare](rezultate-F07-T36.md) |
 | 2026-10-31 | F07-T36 verificat: gofmt/vet si Go complet, TypeScript/Vite, 21 teste frontend, Edge RO/EN si focus/zoom, 3 teste manual, 7 livrare si control documentatie trecute. Pregatire build 0.92.13 si manual 1.24. | Codex | [Rezultate](rezultate-F07-T36.md) |
 | 2026-10-31 | F07-T36 implementat: data editabila cu mutare atomica, stergere prin anulare, filtru/reactivare, stare in formular si actiuni directe pentru tipuri. Coloana actiunilor ramane vizibila la derulare. Teste backend rollback si Edge RO/EN trecute; verificari complete in curs. | Codex | [Rezultate](rezultate-F07-T36.md) |
 | 2026-10-31 | F07-T36 inceput: confirmat readOnly pe datele unei absente si ascunderea zilelor anulate, fara acces la reactivare. Se implementeaza mutare atomica, filtru de stare si actiuni explicite de activare/dezactivare. | Codex | F07-T36 |
