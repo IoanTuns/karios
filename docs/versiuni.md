@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.15 - 2026-10-31
+
+F07-T37: administratorul poate sterge definitiv configurari inactive/nefolosite, cu confirmare, revizie si verificarea referintelor. Datele operationale si jurnalul se pastreaza. Manual 1.26.
+
 ## 0.92.14 - 2026-10-31
 
 F16-T27: filtre Active/Inactive/Toate, implicit Active, in listele cu stare: nomenclatoare, programe, categorii, absente/tipuri, conturi, modele, reguli, Pontaj si Planificare. Angajatii pornesc implicit pe activi. Manual 1.25.

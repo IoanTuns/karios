@@ -450,6 +450,10 @@ export function StatisticiDiagnoza() {
   return window['go']['main']['App']['StatisticiDiagnoza']();
 }
 
+export function StergeConfigurare(arg1, arg2, arg3) {
+  return window['go']['main']['App']['StergeConfigurare'](arg1, arg2, arg3);
+}
+
 export function StergeSablonAI(arg1) {
   return window['go']['main']['App']['StergeSablonAI'](arg1);
 }

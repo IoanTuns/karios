@@ -1,3 +1,4 @@
+import {ButonStergereAdmin} from './ButonStergereAdmin';
 import {FiltruStare,corespundeStare,type StareLista} from './FiltruStare';
 import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
@@ -17,7 +18,7 @@ export function EditorNomenclator({tip,lista,onDate,date}:{tip:'categorii'|'func
  <button type="button" className="buton secundar" disabled={ocupat||!!editare} onClick={()=>{setEroare('');setEditare(new datebaza.ElementNomenclator({id:'',denumire:{ro:'',en:''},activ:true,revizie:'',ordine:0,grup_id:'',conducere:false,normare:'FARA',norma_minute:undefined,categorie_program_id:'',garda:false,comportament:tip==='regimuri_program'?'LUCRATOARE':'NORMAL',utilizari:0}));}}>{t('nomenclator.adauga')}</button>
  <button type="button" className="buton secundar" disabled={ocupat} onClick={async()=>{if(editare&&!window.confirm(t('ui.renunta')))return;setOcupat(true);setEroare('');try{const r=await DateInitiale();if(r.eroare)setEroare(t(r.eroare.cod,r.eroare.param??{}));else if(r.date){onDate(r.date);setEditare(null);}}catch{setEroare(t('date.eroare'));}finally{setOcupat(false);}}}>{t('program.reincarca')}</button>
  <FiltruStare nume={tip} valoare={stareLista} schimba={setStareLista} disabled={ocupat}/>
- <ul>{lista.filter(e=>corespundeStare(e.activ,stareLista)).map(e=><li key={e.id}>{nume(e)} {!e.activ&&<small>{t('ui.inactiv')}</small>} <button type="button" className="legatura" disabled={ocupat||!!editare} onClick={()=>{setEroare('');setEditare(new datebaza.ElementNomenclator({...e,denumire:{...e.denumire}}));}}>{t('ui.editeaza')}</button></li>)}</ul>
+ <ul>{lista.filter(e=>corespundeStare(e.activ,stareLista)).map(e=><li key={e.id}>{nume(e)} {!e.activ&&<small>{t('ui.inactiv')}</small>} <button type="button" className="legatura" disabled={ocupat||!!editare} onClick={()=>{setEroare('');setEditare(new datebaza.ElementNomenclator({...e,denumire:{...e.denumire}}));}}>{t('ui.editeaza')}</button><ButonStergereAdmin tip={tip} id={e.id} revizie={e.revizie} activ={e.activ} nume={nume(e)} disabled={ocupat||!!editare} onOcupat={setOcupat} onSters={onDate}/></li>)}</ul>
  {editare&&<form onSubmit={async e=>{e.preventDefault();if(ocupat)return;setOcupat(true);setEroare('');try{const r=await SalveazaElementNomenclator(tip,editare);if(r.eroare)setEroare(t(r.eroare.cod,r.eroare.param??{}));else if(r.date){onDate(r.date);setEditare(null);}}catch{setEroare(t('date.eroare'));}finally{setOcupat(false);}}}>
  <fieldset className="campuri" disabled={ocupat}>
  <label>{t('sarbatori.denumire_ro')}<input name="nomenclator_ro" autoFocus value={editare.denumire.ro||''} onChange={e=>setEditare({...editare,denumire:{...editare.denumire,ro:e.target.value}})}/></label>

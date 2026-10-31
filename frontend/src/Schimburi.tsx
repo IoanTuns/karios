@@ -1,3 +1,4 @@
+import {ButonStergereAdmin} from './ButonStergereAdmin';
 import {FiltruStare,corespundeStare,type StareLista} from './FiltruStare';
 import {useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
@@ -70,7 +71,7 @@ export function Schimburi({date,onDate}:{date:datebaza.Date;onDate:(date:datebaz
                 <td>{numeCategorie(s.categorie||'CUSTOM')}</td>
                 <td>{oraText(s.ora_start)}</td><td>{oraText((s.ora_start + s.durata_minute) % 1440)}{s.ora_start + s.durata_minute >= 1440 && <small className="zi-urmatoare">{t('schimburi.peste_zile', {numar: Math.floor((s.ora_start + s.durata_minute) / 1440)})}</small>}</td><td>{durata(s.durata_minute, t)}</td><td>{t('schimburi.minute', {numar: s.pauza_minute})}</td><td>{tipuri.find(t=>t.id===(s.tip_id||s.tip))?.denumire[i18n.language]||tipuri.find(t=>t.id===(s.tip_id||s.tip))?.denumire.ro||t(`schimburi.tip_${s.tip}`)}</td><td><span className={s.regim === 'INTRARE_ZI_LIBERA' ? 'eticheta-intrare' : ''}>{regimuri.find(r=>r.id===(s.regim_id||s.regim))?.denumire[i18n.language]||regimuri.find(r=>r.id===(s.regim_id||s.regim))?.denumire.ro||t(`schimburi.regim_${s.regim||'LUCRATOARE'}`)}</span></td><td>{t(s.activ ? 'ui.activ' : 'ui.inactiv')}</td>
                 <td><div className="actiuni-rand"><button className="legatura" disabled={ocupat} onClick={() => { setEroare(''); setEditare(s); }}>{t('ui.editeaza')}</button>
-                    <button className="legatura discreta" disabled={ocupat} onClick={() => executa(() => SchimbaActivSchimb(s.id, !s.activ))}>{t(s.activ ? 'ui.dezactiveaza' : 'ui.reactiveaza')}</button></div></td></tr>)}
+                    <button className="legatura discreta" disabled={ocupat} onClick={() => executa(() => SchimbaActivSchimb(s.id, !s.activ))}>{t(s.activ ? 'ui.dezactiveaza' : 'ui.reactiveaza')}</button><ButonStergereAdmin tip="schimburi" id={s.id} revizie={s.revizie} activ={s.activ} nume={s.cod} disabled={ocupat||!!editare} onOcupat={setOcupat} onSters={async d=>{onDate(d);await executa(ListaSchimburi);}}/></div></td></tr>)}
         </tbody></table>{filtrate.length === 0 && <p className="fara-rezultate">{t('schimburi.gol')}</p>}</div>}
         {!incarcare && eroare && !editare && <button className="buton secundar" disabled={ocupat} onClick={() => executa(ListaSchimburi)}>{t('ui.reincearca')}</button>}
         {editare && <FormularSchimb tipuri={tipuri} regimuri={regimuri} categorii={categorii} schimb={editare} ocupat={ocupat} eroare={eroare} inchide={() => { setEditare(null); setEroare(''); }} salveaza={s => executa(() => SalveazaSchimb(s))}/>}

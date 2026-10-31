@@ -21,6 +21,7 @@ import (
 const limitaDocumentAbsenta = 10 * 1024 * 1024
 
 type TipAbsenta struct {
+	Revizie   string    `json:"revizie"`
 	Cod       string    `json:"cod"`
 	Denumire  i18n.Text `json:"denumire"`
 	Categorie string    `json:"categorie"`
@@ -92,7 +93,7 @@ func (s *Serviciu) CitesteAbsente(ctx context.Context, an int) (AbsenteAn, error
 		if err := json.Unmarshal([]byte(r.Denumire), &denumire); err != nil {
 			return AbsenteAn{}, traduceEroare(err)
 		}
-		rez.Tipuri = append(rez.Tipuri, TipAbsenta{Cod: r.Cod, Denumire: denumire, Categorie: r.Categorie, Activ: r.Activ == 1})
+		rez.Tipuri = append(rez.Tipuri, TipAbsenta{Revizie: r.ModificatLa, Cod: r.Cod, Denumire: denumire, Categorie: r.Categorie, Activ: r.Activ == 1})
 	}
 	rez.Zile, err = citesteAbsenteInterval(ctx, q, deLa, panaLa)
 	if err != nil {

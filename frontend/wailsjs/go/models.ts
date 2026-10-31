@@ -852,6 +852,7 @@ export namespace datebaza {
 	    }
 	}
 	export class TipAbsenta {
+	    revizie: string;
 	    cod: string;
 	    denumire: Record<string, string>;
 	    categorie: string;
@@ -863,6 +864,7 @@ export namespace datebaza {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.revizie = source["revizie"];
 	        this.cod = source["cod"];
 	        this.denumire = source["denumire"];
 	        this.categorie = source["categorie"];
@@ -1901,6 +1903,7 @@ export namespace datebaza {
 	}
 
 	export class Schimb {
+	    revizie: string;
 	    tip_id: string;
 	    regim_id: string;
 	    id: string;
@@ -1920,6 +1923,7 @@ export namespace datebaza {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.revizie = source["revizie"];
 	        this.tip_id = source["tip_id"];
 	        this.regim_id = source["regim_id"];
 	        this.id = source["id"];

@@ -575,3 +575,12 @@ Listele cu stare au filtru Active / Inactive / Toate, implicit Active. Este disp
 In Pontaj filtrul controleaza angajatii afisati; alegeti Inactive sau Toate pentru istoricul persoanelor dezactivate. In Planificare exista un filtru pentru angajati si, in modul Lista, unul separat pentru pozitiile active/retrase. Filtrarea nu sterge datele si nu modifica totalurile salvate sau formulele rapoartelor. Un program, tip sau model dezactivat se regaseste prin filtrul Inactive; reactivati-l din editorul sau. Regula noua, creata initial inactiva, este afisata prin trecerea explicita la Toate.
 
 In evidenta absentelor, Inactive inlocuieste vechiul filtru Arata si zilele anulate; Toate afiseaza ambele stari. Pentru reactivare folositi butonul de pe rand. Ecranele fara stare activ/inactiv (de exemplu jurnal, backupuri si calendarul sarbatorilor) isi pastreaza filtrele proprii; nu se introduc stari artificiale pentru aceste date. Optiunile din formularele de creare raman active, iar la editare este pastrata si valoarea inactiva deja asociata, pentru a nu pierde referinta.
+
+
+## Stergere definitiva a configurarilor nefolosite - administrator
+
+Autentificati-va ca administrator. In lista configurarii alegeti Stare > Inactive (sau Toate), apoi Sterge definitiv pe randul dorit si confirmati numele. Inregistrarile active trebuie mai intai dezactivate. Operatorii nu au buton, iar endpointul refuza si apelurile directe fara administrator autentificat.
+
+Disponibil pentru programe, categorii de program, tipuri de absenta, functii, grupuri, tipuri de contract, categorii de schimb, tipuri/regimuri de lucru si modele de raport. Definitii de baza necesare compatibilitatii raman protejate. O configurare folosita de pontaj, planificare, concedii, angajati, reguli, sabloane sau operatii AI nu poate fi stearsa; mesajul indica sursa utilizarii. Modificati configurarea care o refera sau pastrati-o inactiva daca exista istoric.
+
+Stergerea unei categorii neatribuite elimina numai lista ei proprie de programe permise; programele nu sunt sterse. Stergerea unui program nefolosit elimina numai metadatele sale de clasificare. Nu se elimina asocieri din alte configurari pentru a forta stergerea. Pontajele, concediile, planificarile, angajatii si conturile nu se sterg prin aceasta actiune. Jurnalul pastreaza snapshotul configurarii eliminate. Stergerea este definitiva; nu exista buton de restaurare pentru configurarea stearsa.

@@ -235,6 +235,8 @@ export function StareSeif():Promise<main.RaspunsStareSeif>;
 
 export function StatisticiDiagnoza():Promise<diagnoza.StatisticiDiagnoza>;
 
+export function StergeConfigurare(arg1:string,arg2:string,arg3:string):Promise<main.RaspunsDate>;
+
 export function StergeSablonAI(arg1:string):Promise<main.RaspunsInstrumenteAI>;
 
 export function TrimiteRaportProblemaPeGitHub(arg1:string,arg2:string):Promise<main.RaspunsRaportProblema>;

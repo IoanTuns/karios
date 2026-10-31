@@ -1,3 +1,4 @@
+import {ButonStergereAdmin} from './ButonStergereAdmin';
 import {FiltruStare,corespundeStare,type StareLista} from './FiltruStare';
 import {useEffect, useState} from 'react';
 import {useTranslation} from 'react-i18next';
@@ -34,7 +35,7 @@ export function CategoriiProgram({date,ocupat,eroare,salveaza,reincarca,curataEr
         {eroareCitire&&<p role="alert" className="mesaj eroare">{eroareCitire}</p>}
         <div className="unelte-calendar"><button type="button" className="buton primar" disabled={ocupat||incarcare||Boolean(eroareCitire)} onClick={()=>deschide(new datebaza.CategorieProgram({id:'',denumire:{ro:'',en:''},schimburi_id:[],schimb_implicit_id:'',activ:true,revizie:''}))}>{t('program.adauga')}</button><button className="buton secundar" disabled={ocupat||incarcare} onClick={()=>void reincarcaTot()}>{t('program.reincarca')}</button></div>
         <div className="panou tabel-derulant"><table className="tabel-categorii-program"><thead><tr>{['denumire','programe','implicit','stare','actiuni'].map(c=><th key={c}>{t(c==='stare'||c==='actiuni'?`ui.${c}`:`program.${c}`)}</th>)}</tr></thead><tbody>
-            {(date.categorii_program??[]).filter(c=>corespundeStare(c.activ,stareLista)).map(c=><tr key={c.id}><th scope="row">{nume(c)}</th><td>{c.schimburi_id.map(program).join(', ')}</td><td>{c.schimb_implicit_id?program(c.schimb_implicit_id):t('program.fara_implicit')}</td><td>{t(c.activ?'ui.activ':'ui.inactiv')}</td><td><button type="button" className="legatura" disabled={ocupat||incarcare||Boolean(eroareCitire)} onClick={()=>deschide(c)}>{t('ui.editeaza')}</button></td></tr>)}
+            {(date.categorii_program??[]).filter(c=>corespundeStare(c.activ,stareLista)).map(c=><tr key={c.id}><th scope="row">{nume(c)}</th><td>{c.schimburi_id.map(program).join(', ')}</td><td>{c.schimb_implicit_id?program(c.schimb_implicit_id):t('program.fara_implicit')}</td><td>{t(c.activ?'ui.activ':'ui.inactiv')}</td><td><button type="button" className="legatura" disabled={ocupat||incarcare||Boolean(eroareCitire)} onClick={()=>deschide(c)}>{t('ui.editeaza')}</button><ButonStergereAdmin tip="categorii_program" id={c.id} revizie={c.revizie} activ={c.activ} nume={nume(c)} disabled={ocupat||!!editare} onSters={async()=>{await reincarcaTot();}}/></td></tr>)}
         </tbody></table></div>
         {editare&&<FormularCategorie key={editare.id||'nou'} categorie={editare} schimburi={schimburi} ocupat={ocupat} eroare={eroare} inchide={()=>setEditare(null)} salveaza={async c=>{if(await salveaza(c))setEditare(null);}}/>}
     </section>;

@@ -10,6 +10,7 @@ Utilizatorul poate gestiona angajații și listele de care depinde pontajul.
 
 | ID | Task | Stare | Responsabil | Note |
 | --- | --- | --- | --- | --- |
+| F07-T37 | Stergere definitiva configurari inactive/nefolosite, numai administrator | gata | Codex | 0.92.15: domeniu confirmat explicit; stergere admin stricta, inactive/nefolosite, verificari referinte/revizii, audit si rollback. [Specificatie](../stergere-configurari-admin.md), [rezultate](../rezultate-F07-T37.md), [D075](../decizii/D075-stergere-configurari-admin.md). Pas urmator: build oficial si proba operator; fara push/merge. |
 | F07-T36 | Modificare data absenta, anulare si reactivare vizibile | gata | Codex | Mutare atomica, stergere/anulare si reactivare, stare si tipuri editabile. [Rezultate](../rezultate-F07-T36.md); pas urmator: proba operator. |
 | F07-T35 | Tipuri si regimuri editabile, eliminare General/anterior si legaturi coerente | gata | Codex | Nomenclatoare si migrare 0027, referinte stabile si comportament explicit. [Rezultate](../rezultate-F07-T35.md); pas urmator: proba operator. |
 | F07-T34 | Corectare explicita si anulare concedii, inclusiv medicale | gata | Codex | Corectie cu revizie curenta, anulare cu istoric. [Rezultate](../rezultate-F07-T34.md); pas urmator: proba operator. |

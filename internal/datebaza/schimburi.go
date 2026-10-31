@@ -13,6 +13,7 @@ import (
 )
 
 type Schimb struct {
+	Revizie      string    `json:"revizie"`
 	TipID        string    `json:"tip_id"`
 	RegimID      string    `json:"regim_id"`
 	ID           string    `json:"id"`
@@ -106,7 +107,7 @@ func (s *Serviciu) ListaSchimburi(ctx context.Context) ([]Schimb, error) {
 		if c.RegimID == "GENERAL" {
 			c.RegimID = "LUCRATOARE"
 		}
-		rez = append(rez, Schimb{TipID: c.TipID, RegimID: c.RegimID, ID: r.ID, Cod: r.Cod, Denumire: denumire, OraStart: r.OraStart, DurataMinute: r.DurataMinute, PauzaMinute: r.PauzaMinute, Tip: r.Tip, Regim: r.Regim, Categorie: r.Categorie, Activ: r.Activ == 1})
+		rez = append(rez, Schimb{Revizie: c.Revizie, TipID: c.TipID, RegimID: c.RegimID, ID: r.ID, Cod: r.Cod, Denumire: denumire, OraStart: r.OraStart, DurataMinute: r.DurataMinute, PauzaMinute: r.PauzaMinute, Tip: r.Tip, Regim: r.Regim, Categorie: r.Categorie, Activ: r.Activ == 1})
 	}
 	return rez, nil
 }
