@@ -4,6 +4,7 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 
 | Data | Acțiune | Cine | Legături |
 | --- | --- | --- | --- |
+| 2026-10-31 | F07-T25 livrat local: 18bc22a, Pontix 0.92.1, manual 1.12 MD/HTML/PDF si ZIP. gofmt/vet/suita Go completa trecute dupa corectia finala; manifest, identitate si hashuri verificate. Ramane proba operator, review si clarificarile F07-T26; fara push/merge. | Codex | rezultate-F07-T25.md |
 | 2026-10-31 | F07-T25: build 0.92.0 complet din 9470a91. Review final: o salvare neutra a unei functii mostenite putea crea asociere proprie sau refuza functia principala dezactivata. Corectat cu test dedicat; versiune 0.92.1 si manual 1.12. | Codex | F07-T25 |
 | 2026-10-31 | F07-T25: PDF cu grupuri validat si inspectat; UI RO/EN include regula conditionata salvata. Filtrele sunt protejate in timpul generarii. Graficul GARZI exclude sectiunea DUPA_AMIAZA si totalizeaza numai marcile filtrate. Un caz de functie proprie fara grup a fost armonizat intre profilul de calcul si filtre. Reexecutare finala gofmt/vet/suita Go completa trecuta. Build oficial urmeaza dupa commit. | Codex | rezultate-F07-T25.md |
 | 2026-10-31 | F07-T25: suita completa a detectat coliziune de revizie la doua scrieri rapide (ceas Windows cu rezolutie finita). Revizia nomenclatorului devine strict ulterioara celei precedente, inclusiv daca ceasul regreseaza; testul conflictului ramane neschimbat, adaugat caz determinist. | Codex | F07-T25 |

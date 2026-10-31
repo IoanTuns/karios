@@ -24,7 +24,7 @@ Dependente verificate: Go 1.27.3 si npm actuale. Actualizarile tranzitive Go sun
 
 Nu exista calcul in lei fara baza orara. Conversia ZNL in zile compensatorii, acumularea si acordarea lor sunt blocate in F07-T26, cu intrebarile in F01. ZNL continua sa reprezinte ore eligibile, nu zile libere deja efectuate. Nicio formula neprecizata nu a fost inventata. Grupurile/functiile si regulile se configureaza explicit de operator; nu sunt deduse din denumiri.
 
-Configurarea este curenta, fara istoric contractual pe intervale; modificarile pot afecta regenerarea lunilor vechi. Exportul clasic din grila Pontaj ramane registrul lunar complet; exportul filtrat/grupat se face din Rapoarte dupa previzualizare. Proba interactiva desktop/WebView2 si tiparirea fizica raman la operator. Datele reale nu au fost deschise. Buildul oficial urmeaza dupa commit; fara push sau merge.
+Configurarea este curenta, fara istoric contractual pe intervale; modificarile pot afecta regenerarea lunilor vechi. Exportul clasic din grila Pontaj ramane registrul lunar complet; exportul filtrat/grupat se face din Rapoarte dupa previzualizare. Proba interactiva desktop/WebView2 si tiparirea fizica raman la operator. Datele reale nu au fost deschise. Build oficial complet din 18bc22a: `build/bin/pontix-0.92.1-20261031-124835-3649796913e64e2e853b3f73d7491cdd/pontix.exe`. Manual 1.12 MD/HTML/PDF si ZIP alaturi; identitatea si toate hashurile verificate. Fara push sau merge.
 
 Verificare suplimentara: ceas egal sau regresat produce o revizie strict noua; functia proprie fara grup nu mosteneste grupul principal in profilul de calcul. Graficul de garzi exclude programul DUPA_AMIAZA, cu totaluri corecte dupa filtrare.
 
