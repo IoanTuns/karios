@@ -4,6 +4,7 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 
 | Data | Acțiune | Cine | Legături |
 | --- | --- | --- | --- |
+| 2026-10-31 | F16-T23 finalizat: build curat 6f046a2, 0.89.4, manual 1.7 si ZIP generate; manifest complet, hashuri si ZIP verificate. Predare pe ramura F16-T23-focus-zoom; fara push. Ramane proba operator in WebView2. | Codex | rezultate-ui-F16-T23.md |
 | 2026-10-31 | F16-T23: utilizatorul a confirmat ca importul vizeaza zilele anuale. Focus/cursor, refuz inchidere, marire si zoom RO/EN, previzualizare concediu/norma fractionara si import CSV/XLSX (inclusiv actualizare zero) trecute. gofmt/vet/suita Go completa, 18 teste frontend si 3 probe manual trecute. | Codex | rezultate-ui-F16-T23.md |
 | 2026-10-31 | F16-T23: reprodusa pierderea focusului la prima litera in Prenume cu Input.insertText; corectat ciclul comun Dialog (inchidere/redeschidere la fiecare callback nou). Butoane marire implicite, S/M/L fara comprimare. Importul ignora antetele oficiale Zile_Concediu_An si Norma_Ore_Zi; corectate si concediul afisat in previzualizare, cu norma fara rotunjire. Probe focus/zoom RO/EN si import CSV/XLSX trecute; completare verificari in curs. | Codex | F16-T23 |
 | 2026-10-31 | F02-T24 finalizat: build oficial curat e2a3dff, aplicatie 0.89.3 cu codul main e4b6a8f si manual 1.6 revizuit. Manifest complet, executabil/manuale/ZIP cu hashuri verificate. gofmt/vet/suita Go, 18 teste frontend, 3 probe manual si control traduceri trecute. Fara push sau merge. | Codex | F02-T24 |
