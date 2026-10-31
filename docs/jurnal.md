@@ -4,6 +4,7 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 
 | Data | Acțiune | Cine | Legături |
 | --- | --- | --- | --- |
+| 2026-10-31 | F16-T26 recompilat: 0.92.11 din 9457e14, manual 1.22 MD/HTML/PDF si ZIP. Build complet, identitate, hashuri si integritate arhiva verificate. Nu s-au repetat testele functionale, codul fiind neschimbat fata de livrarea verificata anterior. | Codex | [Livrare](rezultate-F16-T26.md) |
 | 2026-10-31 | F16-T26: utilizatorul solicita recompilarea ultimei versiuni. Worktree Codex curat, versiunea 0.92.11; se foloseste build.ps1 cu regenerarea manualelor versionate. Fara schimbari de cod sau merge. | Codex | [Rezultate](rezultate-F16-T26.md) |
 | 2026-10-31 | F16-T26: build oficial 0.92.11 complet din 00385d2, manual 1.22 si ZIP; identitate si hashuri verificate. Pas urmator: proba operator. Fara push/merge. | Codex | [Livrare](rezultate-F16-T26.md) |
 | 2026-10-31 | F16-T26 verificat: gofmt/vet si Go complet trecute, 21 teste frontend si TypeScript/Vite, Edge RO/EN cu ore valide/invalide, focus/zoom, manual/livrare/documentatie trecute. Pregatire build 0.92.11 si manual 1.22. | Codex | [Rezultate](rezultate-F16-T26.md) |

@@ -11,3 +11,5 @@ La definirea schimbului, controlul nativ time putea impune 12h dupa Windows. A f
 gofmt, go vet ./... si go test -p 1 -timeout 120s ./... trecute, inclusiv reverificarea finala dupa campul HH:MM si traduceri. Dependente: Go stabil 1.27.3 si npm actuale; 62 actualizari tranzitive Go urmarite separat prin F14-T21. Fara migrare sau biblioteca noua. Fara schimbarea testelor contabile de referinta.
 
 Build oficial complet din 00385d2: `build/bin/pontix-0.92.11-20261031-152520-b482593feda84d8f98fb964c8d5acdf1/pontix.exe`. Manual 1.22 MD/HTML/PDF alaturi si ZIP; identitate, hashuri executabil/manuale/arhiva si integritate ZIP verificate. Pas urmator: proba operator in WebView2. Datele reale nu au fost accesate. Fara push/merge in main.
+
+Recompilare solicitata la 2026-10-31: `build/bin/pontix-0.92.11-20261031-155436-d010657fb81e42dfb769d04adfbdf909/pontix.exe`, commit 9457e14, manual 1.22 regenerat. Identitate si hashuri executabil/manuale/ZIP verificate. Cod neschimbat; testele functionale nu au fost repetate.
