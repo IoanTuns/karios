@@ -387,3 +387,7 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 | 2026-10-31 | F16-T32: gofmt, go vet si intreaga suita Go trecute; raportul detaliat RO/EN are toate explicatiile si istoricul pe ultima pagina; randare Windows inspectata. Probe cu explicatii lungi fara trunchiere. Pregatire livrare 0.92.21/manual 1.32. | Codex | [Rezultate](plan-F16-T32.md) |
 
 | 2026-10-31 | F16-T32: build 0.92.21/698295d si manual 1.32 finalizate in `build/bin/pontix-0.92.21-20261031-220250-ac81729610974bbdaa9f3eae2f7fd571`; integritate exe/manuale/ZIP verificata. Fara push/merge. | Codex | [Livrare](plan-F16-T32.md) |
+
+| 2026-11-02 | Inceput F07-T38; verificat worktree curat si creat ramura dedicata. Confirmate sursele orelor si reducerea obligatiei. | Codex | [Plan](plan-F07-T38.md) |
+
+| 2026-11-02 | Verificat Go stabil 1.27.3, go list -m -u all si npm outdated. Actualizat i18next 26.5.12 -> 26.7.1, react-i18next 17.1.9 -> 17.1.11, plugin-react 6.1.2 -> 6.2.1, vitest 5.0.5 -> 5.1.0; fara major nou sau biblioteca noua. Indirectele Go raman in F14-T21, pentru verificarea separata a compatibilitatii. Manual revizuit, fara schimbare de instructiuni pentru dependente. | Codex | F07-T38 |
