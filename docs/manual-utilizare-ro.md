@@ -655,3 +655,28 @@ Categoriile pot fi adaugate, redenumite, dezactivate si reactivate. Lista are fi
 In **Planificare > Grila lunara**, selectati angajatul/angajatii si zilele, apoi **Concediu / absenta pe selectie**. Salvati sau anulati mai intai modificarile nesalvate ale planului. Formularul comun permite alegerea tipului, aprobarii si documentelor, apoi previzualizarea efectelor si confirmarea salvarii. Weekendurile si sarbatorile legale sunt excluse. Efectul medicalului ramane prioritar, inclusiv pe marcile asociate si turele de noapte intersectate.
 
 Programul necesar creditarii trebuie salvat inaintea absentei. Daca lipseste programul ori norma, salvarea este refuzata, fara modificari partiale. Durata creditata se pastreaza chiar daca programul este anulat de absenta; schimbarea aprobarii sau reactivarea nu recalculeaza durata din setarile curente. Zilele in asteptare/respinse nu produc ore creditate. Anularea elimina efectul din totaluri si nu restaureaza programul vechi automat.
+
+
+## Rapoarte flexibile: SQL, Markdown si coloane proprii
+
+Din **Setari > Definire rapoarte**, adaugati sau duplicati un model. La **Datele raportului** alegeti **Lista garzilor - un rand pe garda**, **Totaluri lunare si coloane calculate** sau **Raport SQL personalizat**. Folositi **Campuri disponibile pentru raport** pentru schema si completati un singur SELECT, ori lasati SQL gol pentru modelul implicit.
+
+Exemplu pentru angajat si data garzii pe fiecare rand:
+
+```sql
+SELECT angajat, marca, data, program, inceput, sfarsit, ore
+FROM garzi
+ORDER BY angajat, data
+```
+
+Datele sunt limitate la perioada si filtrele raportului. Parametrii :an, :luna, :angajat_id, :sectie_id, :compartiment_id, :de_la si :pana_la sunt disponibili; :pana_la este prima zi a lunii urmatoare, exclusiva. SQL foloseste vederi de raportare locale, fara conturi, parole sau documente atasate. Nu se pot executa scrieri, PRAGMA ori ATTACH.
+
+**Adauga coloana calculata** defineste codul, denumirea, unitatea, precizia si o formula sau SELECT scalar. Formule acceptate: + - * /, paranteze, ABS, MIN, MAX si ROUND. Exemplu: ROUND(total_ore_lucrate - total_ore_lucratoare, 2). Coloanele se evalueaza in ordinea afisata. O valoare lipsa ramane nedefinita daca nu alegeti explicit rezultatul zero. Pentru SQL per angajat includeti angajat_id in SELECT; il puteti trece la **Coloane ascunse in tabel**.
+
+Catalogul lunar contine zile/ore conform contractului, ore lucratoare/lucrate, total concedii selectabil pe tipuri si categorii, total ore garda si ore eligibile weekend/sarbatori. Numai concediile aprobate din zile lucratoare intra in totaluri. Tipurile de concediu nou definite produc automat campuri concediu_* in catalog. Totalul selectat nu schimba obligatia lunara: deplasarile creditate nu se scad. Garda fara norma nu primeste obligatii de ore inventate.
+
+Alegeti **Tabel automat**, **Markdown** sau **Pozitionare libera**. Markdown suporta titluri, paragrafe, liste, evidentiere si tabele simple; {{tabel}} insereaza lista rezultata. Nu este HTML executabil. Editorul liber permite tragerea campurilor si coordonate exacte in mm. Campurile obisnuite folosesc prima inregistrare; bifati **Repeta elementul pentru fiecare rand de date** si configurati pasul randurilor pentru o structura proprie pe toate inregistrarile. {{tabel}} si campurile repetate sunt alternative, pentru a evita dublarea.
+
+Apasati **Verifica datele si previzualizeaza PDF**, verificati rezultatul, apoi **Salveaza**. Orice modificare necesita reverificare. Modelul activ apare in **Rapoarte**; datele se citesc din nou la generare. Formulele si istoricul raman in anexa finala. Exportul Excel pastreaza tabelul, nu coordonatele vizuale.
+
+Ghidul tehnic din repo, docs/ghid-rapoarte-flexibile.md, contine campurile, exemplele si limitele. Maximum 80 coloane/10000 randuri, cu limite de timp si volum; un aspect care nu incape este refuzat, fara decupare tacita.

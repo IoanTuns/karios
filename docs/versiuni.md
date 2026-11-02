@@ -1452,3 +1452,7 @@ F07-T38: efecte configurabile ale absentelor, ore creditate din norma sau progra
 ## 0.92.24 - 2026-11-02
 
 F07-T39: categorii de absenta administrabile, cu natura, regula orelor, activare si denumiri RO/EN; tipurile preiau regula categoriei. Filtre, sumar si rapoarte folosesc categoriile configurate. Migrare 0030 pastreaza efectele existente. Manual 1.34; rapoarte pontaj13/detaliat14/individual13/absente10/garzi10.
+
+## 0.92.25 - 2026-11-02
+
+F09-T13/T14: raport SQL pe instantaneu de raportare, surse lista garzi si totaluri lunare, coloane custom prin formule/SQL scalar, total concedii pe tipuri/categorii si campuri automate pe tip de concediu. Aspect tabel/Markdown/editor vizual cu elemente repetate pe inregistrari, coloane ascunse, previzualizare si salvare versionata. Rapoartele existente nu isi schimba motorul; raport flexibil v1 si catalog tehnic modele-v6. Manual 1.35. gofpdf1.4.3 existent devine dependenta directa, fara versiune ori biblioteca noua.

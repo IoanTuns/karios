@@ -123,5 +123,5 @@ F14-T25 implementează sumarul și filtrele din I075 și detaliile model/context
 
 | I105 | 2026-11-02 | Categorii de absenta administrabile cu natura si regula de ore mostenita de tipuri, distincte de cele trei naturi tehnice | Codex, utilizator | transformata | F07-T39, D081 propusa |
 
-| I106 | 2026-11-02 | Editor de rapoarte cu campuri din baza/SQL, Markdown si structura configurabila, inclusiv lista garzilor angajat-data | Codex, utilizator | transformata | TODO F09-T13; [specificatie](todo-rapoarte-configurabile.md), implementare neinceputa |
-| I107 | 2026-11-02 | Coloane calculate configurabile, totaluri contractuale/concedii/garzi si generarea unei coloane pentru fiecare tip nou de concediu | Codex, utilizator | transformata | TODO F09-T14; formulele cu unitati sau intervale neclare raman de clarificat in F01 |
+| I106 | 2026-11-02 | Editor de rapoarte cu campuri din baza/SQL, Markdown si structura configurabila, inclusiv lista garzilor angajat-data | Codex, utilizator | transformata | F09-T13 implementat in 0.92.25; [ghid](ghid-rapoarte-flexibile.md), Markdown subset si pozitionare libera, fara HTML executabil |
+| I107 | 2026-11-02 | Coloane calculate configurabile, totaluri contractuale/concedii/garzi si generarea unei coloane pentru fiecare tip nou de concediu | Codex, utilizator | transformata | F09-T14 implementat in 0.92.25; regulile pentru obligatie lunara, intersectii garzi si concedii deduplicate confirmate in F01 |

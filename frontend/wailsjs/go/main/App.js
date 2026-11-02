@@ -290,6 +290,10 @@ export function PrevizualizeazaEfecteAbsente(arg1, arg2, arg3, arg4) {
   return window['go']['main']['App']['PrevizualizeazaEfecteAbsente'](arg1, arg2, arg3, arg4);
 }
 
+export function PrevizualizeazaModelRaport(arg1, arg2) {
+  return window['go']['main']['App']['PrevizualizeazaModelRaport'](arg1, arg2);
+}
+
 export function PrevizualizeazaPlanAI(arg1) {
   return window['go']['main']['App']['PrevizualizeazaPlanAI'](arg1);
 }

@@ -73,6 +73,16 @@ func (a *App) PregatesteRaport(c rapoarte.Cerere) RaspunsRaport {
 	if err != nil {
 		return RaspunsRaport{Eroare: mesajRaport(err)}
 	}
+	return a.raspunsDocumentRaport(doc, c)
+}
+func (a *App) PrevizualizeazaModelRaport(d rapoarte.Definitie, c rapoarte.Cerere) RaspunsRaport {
+	doc, err := rapoarte.Nou(a.db).PrevizualizeazaFlexibil(a.contextLucru(), d, c, time.Now().UTC())
+	if err != nil {
+		return RaspunsRaport{Eroare: mesajRaport(err)}
+	}
+	return a.raspunsDocumentRaport(doc, c)
+}
+func (a *App) raspunsDocumentRaport(doc rapoarte.Document, c rapoarte.Cerere) RaspunsRaport {
 	pdf, err := rapoarte.GenereazaPDF(doc)
 	if err != nil {
 		return RaspunsRaport{Eroare: mesajRaport(err)}

@@ -254,6 +254,9 @@ func NumaraPaginiPDF(ctx context.Context, pdf []byte) (int, error) {
 }
 
 func GenereazaPDF(d Document) ([]byte, error) {
+	if d.Flexibil != nil {
+		return GenereazaPDFFlexibil(d)
+	}
 	if len(d.Coloane) == 0 {
 		return nil, eroare("rapoarte.continut_invalid")
 	}

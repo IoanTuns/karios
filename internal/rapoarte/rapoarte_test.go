@@ -164,7 +164,7 @@ func TestModeleInitialeReferinta(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	cale := filepath.Join("testdata", "modele-v5.json")
+	cale := filepath.Join("testdata", "modele-v6.json")
 	if *actualizeazaReferinte {
 		if err := os.MkdirAll("testdata", 0700); err != nil {
 			t.Fatal(err)

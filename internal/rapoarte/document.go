@@ -52,25 +52,29 @@ type Rand struct {
 	Culori []string `json:"culori"`
 }
 type Document struct {
-	Limba          i18n.Limba         `json:"-"`
-	Legenda        []string           `json:"legenda,omitempty"`
-	Titlu          string             `json:"titlu"`
-	Sursa          string             `json:"sursa"`
-	VersiuneRaport int                `json:"versiune_raport"`
-	RevizieModel   string             `json:"revizie_model"`
-	Pagina         Pagina             `json:"pagina"`
-	Antet          []string           `json:"antet"`
-	AntetImagini   map[string]Imagine `json:"antet_imagini,omitempty"`
-	Introducere    string             `json:"introducere"`
-	Coloane        []Coloana          `json:"coloane"`
-	Randuri        []Rand             `json:"randuri"`
-	Subsol         []string           `json:"subsol"`
-	SubsolImagini  map[string]Imagine `json:"subsol_imagini,omitempty"`
-	Metadate       string             `json:"metadate"`
-	Nota           string             `json:"nota"`
-	FaraDate       string             `json:"fara_date"`
-	Paginare       string             `json:"paginare"`
-	GeneratLa      time.Time          `json:"-"`
+	valoriRanduri   []map[string]string
+	VariabileRaport map[string]string  `json:"variabile_raport,omitempty"`
+	Flexibil        *RaportFlexibil    `json:"flexibil,omitempty"`
+	Schema          []TabelRaport      `json:"schema,omitempty"`
+	Limba           i18n.Limba         `json:"-"`
+	Legenda         []string           `json:"legenda,omitempty"`
+	Titlu           string             `json:"titlu"`
+	Sursa           string             `json:"sursa"`
+	VersiuneRaport  int                `json:"versiune_raport"`
+	RevizieModel    string             `json:"revizie_model"`
+	Pagina          Pagina             `json:"pagina"`
+	Antet           []string           `json:"antet"`
+	AntetImagini    map[string]Imagine `json:"antet_imagini,omitempty"`
+	Introducere     string             `json:"introducere"`
+	Coloane         []Coloana          `json:"coloane"`
+	Randuri         []Rand             `json:"randuri"`
+	Subsol          []string           `json:"subsol"`
+	SubsolImagini   map[string]Imagine `json:"subsol_imagini,omitempty"`
+	Metadate        string             `json:"metadate"`
+	Nota            string             `json:"nota"`
+	FaraDate        string             `json:"fara_date"`
+	Paginare        string             `json:"paginare"`
+	GeneratLa       time.Time          `json:"-"`
 }
 
 func textJSON(v string, limba i18n.Limba) string {
@@ -122,6 +126,9 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 	}
 	if err := Valideaza(d); err != nil {
 		return Document{}, err
+	}
+	if esteFlexibil(d.Continut.Sursa) {
+		return preparaFlexibil(ctx, tx, d, c, acum)
 	}
 	limba := i18n.Limba(c.Limba)
 	t := func(k string) string { return i18n.T(limba, "rapoarte."+k, nil) }

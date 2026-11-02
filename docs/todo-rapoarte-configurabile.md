@@ -39,3 +39,7 @@ Data: 2026-11-02. Cerinte utilizator, consemnate de Codex. Taskuri: F09-T13, F09
 4. Coloane noi: se definesc pe angajat/luna, pe fiecare inregistrare sau ambele; cum se afiseaza datele lipsa, rotunjirile si unitatile? Definitiile trebuie validate si versionate, cu teste pentru formulele de calcul.
 
 Pas urmator: clarificarea formulelor si proiectarea editorului intr-un task de implementare alocat explicit. Acest TODO nu autorizeaza modificarea regulilor existente si nu reprezinta o livrare de functionalitate.
+
+## Pornirea implementarii - 2026-11-02
+
+Utilizatorul autorizeaza implementarea tuturor elementelor TODO. Responsabil Codex, ramura F09-T13-editor-flexibil; F09-T14 este dependent de sursele de raportare din F09-T13. Confirmari explicite: ore lucratoare = ore contractuale minus orele concediilor care reduc obligatia; deplasarile creditate nu se scad. Garzi eligibile = numai intersectiile efective cu zilele weekend/sarbatori 00-24, fara dublare. Total concedii = selectie atat de tipuri cat si de categorii, deduplicata pe marca/data. Stare in lucru; pas urmator: motorul si editorul.

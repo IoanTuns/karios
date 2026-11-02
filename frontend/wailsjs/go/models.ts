@@ -3959,6 +3959,126 @@ export namespace main {
 }
 
 export namespace rapoarte {
+	export class TabelRaport {
+	    cod: string;
+	    campuri: string[];
+
+	    static createFrom(source: any = {}) {
+	        return new TabelRaport(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.cod = source["cod"];
+	        this.campuri = source["campuri"];
+	    }
+	}
+
+	export class RaportFlexibil {
+	    inaltime_rand: number;
+	    ascunse: string[];
+	    sql: string;
+	    mod_aspect: string;
+	    markdown: string;
+	    elemente: ElementRaport[];
+	    calculate: ColoanaCalculata[];
+	    concedii_tipuri: string[];
+	    concedii_categorii: string[];
+	    weekend: boolean;
+	    sarbatori: boolean;
+
+	    static createFrom(source: any = {}) {
+	        return new RaportFlexibil(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.inaltime_rand = source["inaltime_rand"];
+	        this.ascunse = source["ascunse"];
+	        this.sql = source["sql"];
+	        this.mod_aspect = source["mod_aspect"];
+	        this.markdown = source["markdown"];
+	        this.elemente = this.convertValues(source["elemente"], ElementRaport);
+	        this.calculate = this.convertValues(source["calculate"], ColoanaCalculata);
+	        this.concedii_tipuri = source["concedii_tipuri"];
+	        this.concedii_categorii = source["concedii_categorii"];
+	        this.weekend = source["weekend"];
+	        this.sarbatori = source["sarbatori"];
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+
+	export class ElementRaport {
+	    repeta_rand: boolean;
+	    id: string;
+	    text: string;
+	    x: number;
+	    y: number;
+	    latime: number;
+	    inaltime: number;
+	    font: number;
+
+	    static createFrom(source: any = {}) {
+	        return new ElementRaport(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.repeta_rand = source["repeta_rand"];
+	        this.id = source["id"];
+	        this.text = source["text"];
+	        this.x = source["x"];
+	        this.y = source["y"];
+	        this.latime = source["latime"];
+	        this.inaltime = source["inaltime"];
+	        this.font = source["font"];
+	    }
+	}
+
+	export class ColoanaCalculata {
+	    cod: string;
+	    denumire: Record<string, string>;
+	    unitate: string;
+	    mod: string;
+	    expresie: string;
+	    zecimale: number;
+	    lipsa_zero: boolean;
+	    activ: boolean;
+
+	    static createFrom(source: any = {}) {
+	        return new ColoanaCalculata(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.cod = source["cod"];
+	        this.denumire = source["denumire"];
+	        this.unitate = source["unitate"];
+	        this.mod = source["mod"];
+	        this.expresie = source["expresie"];
+	        this.zecimale = source["zecimale"];
+	        this.lipsa_zero = source["lipsa_zero"];
+	        this.activ = source["activ"];
+	    }
+	}
+
 
 	export class Imagine {
 	    nume: string;
@@ -4099,6 +4219,7 @@ export namespace rapoarte {
 	    }
 	}
 	export class Continut {
+	    flexibil?: RaportFlexibil;
 	    sursa: string;
 	    coloane: string[];
 	    text: Record<string, string>;
@@ -4109,10 +4230,29 @@ export namespace rapoarte {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.flexibil = this.convertValues(source["flexibil"], RaportFlexibil);
 	        this.sursa = source["sursa"];
 	        this.coloane = source["coloane"];
 	        this.text = source["text"];
 	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
 	}
 	export class Definitie {
 	    id: string;
@@ -4211,6 +4351,9 @@ export namespace rapoarte {
 	    }
 	}
 	export class Document {
+	    variabile_raport?: Record<string, string>;
+	    flexibil?: RaportFlexibil;
+	    schema?: TabelRaport[];
 	    legenda?: string[];
 	    titlu: string;
 	    sursa: string;
@@ -4235,6 +4378,9 @@ export namespace rapoarte {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.variabile_raport = source["variabile_raport"];
+	        this.flexibil = this.convertValues(source["flexibil"], RaportFlexibil);
+	        this.schema = this.convertValues(source["schema"], TabelRaport);
 	        this.legenda = source["legenda"];
 	        this.titlu = source["titlu"];
 	        this.sursa = source["sursa"];
@@ -4272,6 +4418,9 @@ export namespace rapoarte {
 		    return a;
 		}
 	}
+
+
+
 
 
 

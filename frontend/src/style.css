@@ -1325,3 +1325,5 @@ fieldset.filtre-profesionale{border:0;padding:0;min-width:0}
 .ux30-comparatie {margin-block:16px;}
 .ux30-eligibilitate {grid-column:1/-1;margin-block:8px;}
 [data-tabel-accesibil]:focus-visible,.filtre-active button:focus-visible {outline:3px solid var(--text);outline-offset:2px;}
+
+.editor-flexibil {display:grid;gap:12px;min-width:0}.editor-flexibil textarea{width:100%;box-sizing:border-box;font-family:monospace}.editor-flexibil fieldset{border:1px solid var(--bordura,#cad6d0);padding:12px}.schema-flexibila code{display:inline-block;padding:2px 4px}.panza-raport{width:100%;max-height:520px;touch-action:none;background:white;border:1px solid #8aa89c}.panza-raport g{cursor:move}.editor-flexibil .cadru-raport{width:100%;height:520px;border:1px solid #cad6d0}.flex-date td,.flex-date th{white-space:nowrap}

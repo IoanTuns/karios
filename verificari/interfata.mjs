@@ -1,3 +1,4 @@
+import {verificaRapoarteFlexibile} from './rapoarte-flexibile-scenarii.mjs';
 import {verificaUX30} from './ux30-scenarii.mjs';
 import {simulareStergereConfigurari,verificaStergereConfigurari} from './stergere-configurari-scenarii.mjs';
 import {verificaAbsentePontaj} from './pontaj-absente-scenarii.mjs';
@@ -180,7 +181,7 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
     const calendar = an => ({calendar: {an, sarbatori: structuredClone(stare.sarbatori.filter(s => Number(s.data.slice(0, 4)) === an).sort((a, b) => a.data.localeCompare(b.data))), import_disponibil: an === 2026}, adaugate: 0, eroare: null});
     stare.categoriiAbsenta ??= ['ODIHNA','MEDICAL','SPECIAL'].map(c=>({cod:c,denumire:{ro:cataloage.ro['absente.'+c],en:cataloage.en['absente.'+c]},natura:c,efect_ore:'ANTERIOR',activ:true,revizie:'1'}));
     const absente = an => ({absente:{an,categorii:structuredClone(stare.categoriiAbsenta),tipuri:structuredClone(stare.tipuriAbsenta),zile:structuredClone(stare.absente.filter(z => Number(z.data.slice(0,4)) === an).sort((a,b) => a.data.localeCompare(b.data)))},eroare:null});
-    const modele = () => ({configuratie:{...structuredClone(rapoarteSursa.configuratie),modele:structuredClone(stare.modeleRapoarte)},eroare:null});
+    const modele = () => ({configuratie:{...structuredClone(rapoarteSursa.configuratie),surse:[...rapoarteSursa.configuratie.surse,...['SQL_LIBER','LISTA_GARZI','CALCULATE_LUNAR'].map(cod=>({cod,coloane:['rezultat']}))],modele:structuredClone(stare.modeleRapoarte)},eroare:null});
     window.go = {main: {App: {
         Limbi: async () => [limba, ...Object.keys(cataloage).filter(l => l !== limba)],
         Catalog: async l => cataloage[l], Informatii: async () => ({versiune: versiuneAplicatie, commit: 'verificare'}),
@@ -219,6 +220,7 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
             if(i<0){d={...d,id:'model-'+crypto.randomUUID(),revizie:'1'};stare.modeleRapoarte.push(d);}else{d={...d,revizie:String(Number(d.revizie)+1)};stare.modeleRapoarte[i]=d;}
             raspuns();return {...modele(),salvat_id:d.id};
         },
+        PrevizualizeazaModelRaport:async(d,c)=>{if(d.continut.flexibil.sql.includes('invalida'))return {eroare:{cod:'rapoarte.sql_invalid'}};const cols=['angajat_id','angajat','marca','total_ore_lucrate','total_ore_lucratoare',...d.continut.flexibil.calculate.filter(v=>v.activ).map(v=>v.cod)];return {document:{...structuredClone(rapoarteSursa.document),coloane:cols.map(cod=>({cod,titlu:cod,pondere:10})),randuri:[{valori:['demo','Angajat demo','DEMO-001','154','147',...d.continut.flexibil.calculate.filter(v=>v.activ).map(()=> '7')],culori:[]}],schema:[{cod:'lunar',campuri:cols}]},pdf:rapoarteSursa.pdf,eroare:null};},
         PregatesteRaport: async c => {
             stare.ultimaCerereRaport=c;stare.ultimTokenRaport=crypto.randomUUID();raspuns();
             const d=stare.modeleRapoarte.find(d => d.id===c.model_id);
@@ -361,15 +363,16 @@ try {
     await cdp('Page.enable'); await cdp('Runtime.enable');
     await cdp('Emulation.setDeviceMetricsOverride', {width: 1440, height: 960, deviceScaleFactor: 1, mobile: false});
     const injectat = await cdp('Page.addScriptToEvaluateOnNewDocument', {source: `(${simulare})(${JSON.stringify(demo)},${JSON.stringify(cataloage)},'ro',${JSON.stringify(calendarSursa)},${JSON.stringify(versiuneAplicatie)},${JSON.stringify(schimburiSursa)},${JSON.stringify(rapoarteSursa)})`});
-    if (process.argv.includes('--ux30') || process.argv.includes('--stergere-admin') || process.argv.includes('--pontaj-absente') || process.argv.includes('--ajutor') || process.argv.includes('--focus') || process.argv.includes('--nomenclatoare')) {
+    if (process.argv.includes('--rapoarte-flexibile') || process.argv.includes('--ux30') || process.argv.includes('--stergere-admin') || process.argv.includes('--pontaj-absente') || process.argv.includes('--ajutor') || process.argv.includes('--focus') || process.argv.includes('--nomenclatoare')) {
         const limba=process.argv.includes('--en')?'en':'ro';
         await cdp('Emulation.setDeviceMetricsOverride',{width:1024,height:640,deviceScaleFactor:1,mobile:false});
         await cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(${simulareAjutor})(${JSON.stringify(catalogAjutor)},${JSON.stringify(cataloage)},${JSON.stringify(versiuneAplicatie)},${JSON.stringify(limba)})`});
     }
     if(process.argv.includes('--stergere-admin')) await cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(${simulareStergereConfigurari})()`});
-    if(process.argv.includes('--nomenclatoare')||process.argv.includes('--ux30')) await cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(${simulareNomenclatoare})()`});
+    if(process.argv.includes('--nomenclatoare')||process.argv.includes('--ux30')||process.argv.includes('--rapoarte-flexibile')) await cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(${simulareNomenclatoare})()`});
     await cdp('Page.navigate', {url});
-    if(process.argv.includes('--ux30')) {await verificaUX30({cdp,evalueaza,asteapta,apasa,completeaza,cataloage,limba:process.argv.includes('--en')?'en':'ro'});assert.deepEqual(erori,[],'Erori JS');console.log('UX30 verificat: '+capturi);}
+    if(process.argv.includes('--rapoarte-flexibile')){await verificaRapoarteFlexibile({evalueaza,asteapta,apasa,completeaza,cataloage,limba:process.argv.includes('--en')?'en':'ro'});assert.deepEqual(erori,[],'Erori JS');console.log('Rapoarte flexibile verificate: '+capturi);}
+    else if(process.argv.includes('--ux30')) {await verificaUX30({cdp,evalueaza,asteapta,apasa,completeaza,cataloage,limba:process.argv.includes('--en')?'en':'ro'});assert.deepEqual(erori,[],'Erori JS');console.log('UX30 verificat: '+capturi);}
     else if(process.argv.includes('--stergere-admin')) {await verificaStergereConfigurari({cdp,evalueaza,asteapta,apasa,completeaza,cataloage,limba:process.argv.includes('--en')?'en':'ro',captura:async nume=>{const r=await cdp('Page.captureScreenshot',{format:'png'});writeFileSync(join(capturi,nume),Buffer.from(r.data,'base64'));}});assert.deepEqual(erori,[],'Erori JS');console.log('Stergere admin verificata: '+capturi);}
     else if(process.argv.includes('--pontaj-absente')) {await verificaAbsentePontaj({cdp,evalueaza,asteapta,apasa,completeaza,cataloage,limba:process.argv.includes('--en')?'en':'ro',captura:async nume=>{const r=await cdp('Page.captureScreenshot',{format:'png'});writeFileSync(join(capturi,nume),Buffer.from(r.data,'base64'));}});assert.deepEqual(erori,[],'Erori JS');console.log('Absente din Pontaj verificate: '+capturi);}
     else if(process.argv.includes('--nomenclatoare')){await verificaNomenclatoare({cdp,evalueaza,asteapta,apasa,completeaza,cataloage,limba:process.argv.includes('--en')?'en':'ro',captura:async nume=>{const r=await cdp('Page.captureScreenshot',{format:'png'});writeFileSync(join(capturi,nume),Buffer.from(r.data,'base64'));}});assert.deepEqual(erori,[],'Erori JS');console.log('Nomenclatoare UI verificate: '+capturi);}

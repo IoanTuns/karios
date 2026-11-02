@@ -155,6 +155,8 @@ export function PrevizualizeazaAnulareAI():Promise<main.RaspunsInstrumenteAI>;
 
 export function PrevizualizeazaEfecteAbsente(arg1:Array<datebaza.ZiAbsenta>,arg2:number,arg3:number,arg4:Array<datebaza.CelulaSchita>):Promise<main.RaspunsEfecteAbsente>;
 
+export function PrevizualizeazaModelRaport(arg1:rapoarte.Definitie,arg2:rapoarte.Cerere):Promise<main.RaspunsRaport>;
+
 export function PrevizualizeazaPlanAI(arg1:ai.IntentiePlan):Promise<main.RaspunsPlanAI>;
 
 export function PrevizualizeazaPrecompletare(arg1:number,arg2:number,arg3:Array<string>,arg4:Array<datebaza.CelulaSchita>):Promise<main.RaspunsPrecompletare>;

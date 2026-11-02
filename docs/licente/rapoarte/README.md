@@ -17,3 +17,5 @@ Fișierele din acest folder sunt copiile notificărilor pentru versiunile folosi
 | go-runewidth | 0.0.31 | runewidth-v0.0.31.txt |
 
 Sursele sunt modulele descărcate prin Go proxy la versiunile exacte din go.mod/go.sum. Copierea acestor notificări nu introduce alte biblioteci sau programe în aplicație.
+
+F09-T13/T14: gofpdf1.4.3 este reutilizat direct pentru pozitionarea libera; licenta MIT reverificata din modulul local, notificarea existenta pastrata. Nu se adauga biblioteca noua.
