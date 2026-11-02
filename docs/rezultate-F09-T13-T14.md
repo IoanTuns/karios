@@ -28,3 +28,7 @@ Datele se exporta prin fluxurile existente PDF/Excel. Excel pastreaza tabelul re
 ## Predare
 
 Ghid: [rapoarte flexibile](ghid-rapoarte-flexibile.md). Pasul urmator: proba operator pe copii de date si revizuire pentru integrare; fara push sau merge. Buildul oficial si sumele de control se consemneaza dupa compilare.
+
+## Livrare locala verificata
+
+Build oficial 0.92.25 din commit 2dc440a, finalizat cu stare complet. Executabil si manuale Markdown/HTML/PDF regenerate in `build/bin/pontix-0.92.25-20261102-213132-1671b67c3862468fbcc087231332b5bd/`. Pachet ZIP alaturat cu fisier SHA256. Verificate versiunea si commitul din manifest, sumele executabilului si celor trei manuale, integritatea CRC a ZIP si suma ZIP. Modelele Wails regenerate au aceleasi clase/campuri; ordinea din sursa a fost pastrata dupa comparare. Fara push/merge; datele utilizatorului neaccesate.
