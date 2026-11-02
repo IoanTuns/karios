@@ -117,3 +117,10 @@ Toate concediile/absentele, inclusiv medicalul, se inregistreaza numai in zile l
 F07-T33: utilizatorul confirma anularea intregii ture de noapte care intra intr-o zi de medical, inclusiv programul inceput in ziua precedenta. Medicalul anuleaza programele tuturor marcilor asociate explicit aceleiasi persoane; inregistrarea absentei ramane pe marca selectata.
 
 F07-T34: utilizatorul confirma ca toate operatiunile, inclusiv concediile, trebuie sa poata fi corectate sau sterse. Pentru absente, corectia explicita cu revizie este permisa inclusiv din medical in alt tip; anularea pastreaza istoricul. Prioritatea automata nu face inregistrarea imuabila.
+
+
+### TODO utilizator 2026-11-02 - F09-T14, coloane calculate
+
+Cerute totaluri contractuale in zile/ore, total concedii configurabil, coloana automata pe fiecare tip nou de concediu, total ore garda si ore garda weekend/sarbatori configurabile, plus coloane calculate proprii din aplicatie. [Specificatie completa](../todo-rapoarte-configurabile.md).
+
+Intrebari deschise: formula numita Total ore lucratoare este exprimata zile contractuale minus zile concediu (rezultat in zile); trebuie confirmata conversia prin norma sau schimbata denumirea. Intervalul garzii este descris 00 ziua de intrare - 24 ora de iesire: trebuie confirmata intersectia cu orele efective sau perioada extinsa, atribuirea intre luni si evitarea dublei numarari weekend/sarbatoare. Trebuie stabilita selectia tipurilor/categoriilor din totalul concediilor, separat de efectul lor asupra obligatiei. Nu se schimba formula implementata si nu se presupun reguli noi de plata.

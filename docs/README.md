@@ -39,3 +39,5 @@ Orice idee, decizie și acțiune a proiectului se documentează aici, în acela�
 - **Limba documentației:** română.
 
 Analiza UX dupa remediile 0.92.19: [avantaje, riscuri si prioritati UX30](analiza-ux-0.92.19.md), F16-T30.
+
+TODO rapoarte si coloane calculate configurabile: [specificatie utilizator 2026-11-02](todo-rapoarte-configurabile.md), F09-T13/F09-T14.
