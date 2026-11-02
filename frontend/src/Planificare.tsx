@@ -1,3 +1,4 @@
+import {FormularAbsente} from './Absente';
 import {useSalvareParasire,confirmaParasire} from './Parasire';
 import {SelectieRezumat} from './SelectieRezumat';
 import {semnaleazaModificari} from './modificariNesalvate';
@@ -8,6 +9,7 @@ import {FiltreProfesionale,filtruProfesionalGol,corespundeProfesional} from './F
 import {useEffect, useMemo, useRef, useState, type KeyboardEvent} from 'react';
 import {useTranslation} from 'react-i18next';
 import {
+    CitesteAbsente, SalveazaAbsente,
     CitesteAcoperirePlanificare,
     CitesteCalendar,
     CitesteEchitatePlanificare,
@@ -60,6 +62,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj,onModificari
     const [calendar,setCalendar]=useState<datebaza.CalendarAn|null>(null);
     const [acoperire,setAcoperire]=useState<calcul.RaportAcoperire|null>(null);
     const [avertismenteEchitate,setAvertismenteEchitate]=useState<calcul.AvertismentEchitate[]>([]);
+    const [cerereAbsente,setCerereAbsente]=useState<{date:datebaza.AbsenteAn;lot:datebaza.ZiAbsenta[]}|null>(null);
     const [dialogSumar,setDialogSumar]=useState<datebaza.Angajat|null>(null);
     const [angajatSumarId,setAngajatSumarId]=useState<string>('');
     const [doarDeficit,setDoarDeficit]=useState<boolean>(false);
@@ -417,6 +420,20 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj,onModificari
     const avertismenteActiva=cheieActiva?avertismenteHarta.get(cheieActiva):undefined;
 
     useSalvareParasire('planificare',modificari.size,salveazaPlanGrila,()=>{setModificari(new Map());setIstoricInapoi([]);setIstoricInainte([]);});
+    async function deschideAbsente(){
+ if(ocupat)return;
+ // Selectia se fixeaza inaintea oricarei asteptari; nu se extinde la alte randuri.
+ const oameni=randuri.slice(inceputRand,sfarsitRand+1);
+ const dateSelectate=zile.slice(inceputZi,sfarsitZi+1).filter(d=>![0,6].includes(new Date(d+'T12:00:00Z').getUTCDay())&&!sarbatori.has(d));
+ if(!oameni.length||!dateSelectate.length){setEroare(t('absente.selectie_lucratoare'));return;}
+ if(modificari.size||sumarModificat){setEroare(t('absente.salveaza_planul'));return;}
+ setOcupat(true);setEroare('');
+ try{const r=await CitesteAbsente(an);if(r.eroare){setEroare(t(r.eroare.cod,r.eroare.param||{}));return;}if(!r.absente){setEroare(t('date.eroare'));return;}
+ const lot=oameni.flatMap(a=>dateSelectate.map(d=>new datebaza.ZiAbsenta({revizie:'',cod:'',...r.absente!.zile.find(z=>z.angajat_id===a.id&&z.data===d),angajat_id:a.id,data:d,activ:true})));
+ setCerereAbsente({date:r.absente,lot});
+ }catch{setEroare(t('date.eroare'));}finally{setOcupat(false);}
+ }
+ async function salveazaAbsentePlan(zile:datebaza.ZiAbsenta[]){setOcupat(true);setEroare('');try{const r=await SalveazaAbsente(zile,an);if(r.eroare){setEroare(t(r.eroare.cod,r.eroare.param||{}));return;}setCerereAbsente(null);setReincarcare(v=>v+1);}catch{setEroare(t('date.eroare'));}finally{setOcupat(false);}}
     return <section className="modul-planificare"><SelectieRezumat persoane={randuri.slice(inceputRand,sfarsitRand+1)} deLa={zile[inceputZi]} panaLa={zile[sfarsitZi]}/><FiltruStare nume="angajati_planificare" eticheta="ui.filtru_stare_angajati" valoare={stareLista} schimba={s=>{setStareLista(s);setSelectateLista(new Set());setSelectie({inceput:{rand:0,zi:0},sfarsit:{rand:0,zi:0}});}} disabled={ocupat}/><FiltreProfesionale numarRezultate={randuri.length} disabled={ocupat} date={date} value={filtruProfesional} onChange={f=>{setFiltruProfesional(f);setSelectateLista(new Set());setSelectie({inceput:{rand:0,zi:0},sfarsit:{rand:0,zi:0}});}}/>
         <div className="unelte-calendar unelte-perioada">
             <form onSubmit={async e=>{e.preventDefault();const a=Number(anText);if(Number.isInteger(a)&&a>=1&&a<=9999){if(!modificari.size||await confirmaParasire())setAn(a);}else setEroare(t('sarbatori.an_invalid'));}}>
@@ -469,7 +486,9 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj,onModificari
             {mod==='grila'&&modificari.size>0&&<span className="stare-modificari" aria-live="polite">{t('planificare.modificari_nesalvate',{numar:modificari.size})}</span>}
         </div>
 
+        {cerereAbsente&&<FormularAbsente zi={null} lot={cerereAbsente.lot} date={date} absente={cerereAbsente.date} angajatImplicit={cerereAbsente.lot[0]?.angajat_id||''} ocupat={ocupat} eroare={eroare} inchide={()=>{setCerereAbsente(null);setEroare('');}} salveaza={salveazaAbsentePlan}/>}
         {mod==='grila'&&<div className="paleta-planificare" role="toolbar" aria-label={t('planificare.paleta_titlu')}>
+            <button type="button" className="buton secundar" disabled={ocupat||!randuri.length} onClick={()=>void deschideAbsente()}>{t('absente.din_planificare')}</button>
             <span className="text-discret">{t('planificare.paleta_titlu')}</span>
             {cipuriSpeciale.map(cod=>{
                 const s=schimburi.find(x=>x.cod===cod);

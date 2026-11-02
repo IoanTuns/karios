@@ -638,3 +638,18 @@ Filtrele profesionale active au eticheta si valoare si se pot elimina individual
 ## Anexa finala a rapoartelor PDF (0.92.21)
 
 Modul de calcul, semnificatia coloanelor si istoricul tehnic de generare/revizii apar dupa tabel, intr-o anexa care incepe pe pagina noua. Nu se mai repeta in subsolul fiecarei pagini de pontaj. Numerotarea continua pana la final. Daca explicatiile depasesc o pagina, anexa continua fara trunchiere; istoricul de generare este la sfarsit. Istoricul nominal al operatiunilor ramane in Jurnal modificari.
+
+
+## Tipuri de absenta si introducere din Planificare
+
+In **Concedii si absente > Adauga tip de absenta**, definiti codul, denumirea si categoria. La **Efect asupra orelor** alegeti:
+
+- **Fara ore lucrate; reduce obligatia lunara**: ziua aprobata nu produce ore lucrate si scade o norma zilnica din Ore lucratoare.
+- **Ore lucrate din norma zilnica**: ziua aprobata produce norma zilnica din contract, fara reducerea obligatiei lunare (de exemplu deplasare).
+- **Ore lucrate din programul planificat**: ziua aprobata produce durata programului salvat anterior pe acea zi, fara reducerea obligatiei lunare.
+
+Ultimele doua optiuni sunt disponibile la categoria Special. Pentru odihna si medical nu se acorda ore lucrate. Tipurile existente pastreaza regula anterioara pentru compatibilitatea istoricului. Categoria si efectul unui tip deja folosit sunt protejate; pentru alta regula creati alt cod. Orele creditate nu definesc plata sau sporul.
+
+In **Planificare > Grila lunara**, selectati angajatul/angajatii si zilele, apoi **Concediu / absenta pe selectie**. Salvati sau anulati mai intai modificarile nesalvate ale planului. Formularul comun permite alegerea tipului, aprobarii si documentelor, apoi previzualizarea efectelor si confirmarea salvarii. Weekendurile si sarbatorile legale sunt excluse. Efectul medicalului ramane prioritar, inclusiv pe marcile asociate si turele de noapte intersectate.
+
+Programul necesar creditarii trebuie salvat inaintea absentei. Daca lipseste programul ori norma, salvarea este refuzata, fara modificari partiale. Durata creditata se pastreaza chiar daca programul este anulat de absenta; schimbarea aprobarii sau reactivarea nu recalculeaza durata din setarile curente. Zilele in asteptare/respinse nu produc ore creditate. Anularea elimina efectul din totaluri si nu restaureaza programul vechi automat.

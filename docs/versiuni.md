@@ -1444,3 +1444,7 @@ Rapoarte: niciunul încă. Baza de date: nicio migrare încă.
 ## 0.92.22 - 2026-11-02
 
 F07-T38: dependente frontend stabile i18next 26.7.1, react-i18next 17.1.11, plugin-react 6.2.1, vitest 5.1.0. Go 1.27.3 ramane actual; actualizarile indirecte Go raman in F14-T21 pentru compatibilitate.
+
+## 0.92.23 - 2026-11-02
+
+F07-T38: efecte configurabile ale absentelor, ore creditate din norma sau program cu instantaneu persistent si introducere din Planificare prin formularul comun cu previzualizare. Migrare 0029. Reguli existente pastrate; efectele folosite sunt protejate. Manual 1.33. Rapoarte pontaj12, detaliat13, individual12, absente9, garzi9 pentru noua generatie cu efecte explicite.

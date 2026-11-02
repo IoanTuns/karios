@@ -76,6 +76,17 @@ func completeazaSolduri(ctx context.Context, q *acces.Queries, an, luna int, rez
 			}
 		}
 	}
+	efecte, e := q.EfecteAbsente(ctx)
+	if e != nil {
+		return e
+	}
+	for cod, efect := range efecte {
+		if efect == "FARA_ORE" {
+			categorii[cod] = "CO"
+		} else if efect == "NORMA" || efect == "PROGRAM" {
+			categorii[cod] = ""
+		}
+	}
 	sold := map[string]int64{}
 	inceputCalcul := map[string]bool{}
 	definit := map[string]bool{}

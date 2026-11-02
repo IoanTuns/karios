@@ -92,7 +92,7 @@ func TestMigrareMarciGardaNuAsociazaOmonimi(t *testing.T) {
 	if _, err := db.Exec(`INSERT INTO angajati(id,nume,prenume,marca,creat_la,modificat_la) VALUES('n','Exemplu','Ana','N','x','x'),('g','Exemplu','Ana','G','x','x')`); err != nil {
 		t.Fatal(err)
 	}
-	if n, err := Migreaza(ctx, db, Migrari); err != nil || n != 4 {
+	if n, err := Migreaza(ctx, db, Migrari); err != nil || n != 5 {
 		t.Fatal(n, err)
 	}
 	var n int

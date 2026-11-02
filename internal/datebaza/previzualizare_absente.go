@@ -39,7 +39,7 @@ func campuriEfect(v any) map[string]any {
 	for k, v := range m {
 		n := strings.ToLower(strings.ReplaceAll(k, "_", ""))
 		switch n {
-		case "angajatid", "data", "valoare", "cod", "schimbid", "activ", "incepututc", "sfarsitutc", "stareaprobare", "start", "sfarsit", "stersla":
+		case "minutecreditate", "angajatid", "data", "valoare", "cod", "schimbid", "activ", "incepututc", "sfarsitutc", "stareaprobare", "start", "sfarsit", "stersla":
 			r[n] = v
 		}
 	}

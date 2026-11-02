@@ -859,6 +859,7 @@ export namespace datebaza {
 
 
 	export class ZiAbsenta {
+	    minute_creditate?: number;
 	    angajat_id: string;
 	    data: string;
 	    cod: string;
@@ -879,6 +880,7 @@ export namespace datebaza {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.minute_creditate = source["minute_creditate"];
 	        this.angajat_id = source["angajat_id"];
 	        this.data = source["data"];
 	        this.cod = source["cod"];
@@ -895,6 +897,7 @@ export namespace datebaza {
 	    }
 	}
 	export class TipAbsenta {
+	    efect_ore: string;
 	    revizie: string;
 	    cod: string;
 	    denumire: Record<string, string>;
@@ -907,6 +910,7 @@ export namespace datebaza {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.efect_ore = source["efect_ore"];
 	        this.revizie = source["revizie"];
 	        this.cod = source["cod"];
 	        this.denumire = source["denumire"];

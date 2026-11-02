@@ -10,7 +10,7 @@ Utilizatorul poate gestiona angajații și listele de care depinde pontajul.
 
 | ID | Task | Stare | Responsabil | Note |
 | --- | --- | --- | --- | --- |
-| F07-T38 | Efecte configurabile ale absentelor si introducere din Planificare | in lucru | Codex | Tip fara ore lucrate cu reducerea obligatiei; tip cu ore creditate din norma sau program. Cerinta si confirmari in plan-F07-T38.md. |
+| F07-T38 | Efecte configurabile ale absentelor si introducere din Planificare | gata | Codex | 0.92.23, migrare 0029; surse norma/program, instantaneu si audit, aprobari si reducerea obligatiei, formular comun din grila. [Rezultate](../plan-F07-T38.md), D080 propusa. Pas urmator: proba operator, fara push/merge. |
 | F07-T37 | Stergere definitiva configurari inactive/nefolosite, numai administrator | gata | Codex | 0.92.15: domeniu confirmat explicit; stergere admin stricta, inactive/nefolosite, verificari referinte/revizii, audit si rollback. [Specificatie](../stergere-configurari-admin.md), [rezultate](../rezultate-F07-T37.md), [D075](../decizii/D075-stergere-configurari-admin.md). Pas urmator: build oficial si proba operator; fara push/merge. |
 | F07-T36 | Modificare data absenta, anulare si reactivare vizibile | gata | Codex | Mutare atomica, stergere/anulare si reactivare, stare si tipuri editabile. [Rezultate](../rezultate-F07-T36.md); pas urmator: proba operator. |
 | F07-T35 | Tipuri si regimuri editabile, eliminare General/anterior si legaturi coerente | gata | Codex | Nomenclatoare si migrare 0027, referinte stabile si comportament explicit. [Rezultate](../rezultate-F07-T35.md); pas urmator: proba operator. |

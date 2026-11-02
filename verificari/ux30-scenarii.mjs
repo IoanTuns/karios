@@ -21,6 +21,16 @@ export async function verificaUX30({cdp,evalueaza,asteapta,apasa,completeaza,cat
  await apasa(t('ux30.salveaza_continua'));
  await asteapta(()=>evalueaza("Boolean(document.querySelector('.modul-planificare'))"),'Navigare dupa salvare lipsa');
  assert(await evalueaza("JSON.parse(localStorage.getItem('pontix-test')).ciorne.some(c=>c.valoare==='Z7')"),'Nu s-a salvat');
+ await asteapta(()=>evalueaza("Boolean(document.querySelector('.grila-planificare input[data-rand=\"0\"][data-zi=\"2\"]'))"),'Grila Planificare lipsa');
+ await evalueaza("document.querySelector('.grila-planificare input[data-rand=\"0\"][data-zi=\"2\"]')?.dispatchEvent(new FocusEvent('focusin',{bubbles:true}))");
+ await asteapta(()=>evalueaza(`Boolean(document.querySelector('.grila-planificare td.celula-selectata input[data-zi="2"]'))`),"Selectia Planificare lipsa");
+ await apasa(t('absente.din_planificare'));
+ await asteapta(()=>evalueaza("Boolean(document.querySelector('dialog[open] select[name=tip]'))"),'Formular absente din planificare lipsa');
+ await apasa(t('ux30.previzualizeaza'));
+ await asteapta(()=>evalueaza("Boolean(document.querySelector('.ux30-comparatie'))"),'Previzualizare absente din planificare lipsa');
+ await apasa(t('ux30.confirma_modificari'));
+ await asteapta(()=>evalueaza("!document.querySelector('dialog[open]')"),'Absenta din Planificare nu s-a salvat');
+
  await apasa(t('ui.pontaj'));
  await asteapta(()=>evalueaza(`Boolean(document.querySelector('${celula}'))`),'Revenire Pontaj lipsa');
  await evalueaza(`(()=>{const e=document.querySelector('input[data-rand="0"][data-zi="1"]');e.dispatchEvent(new MouseEvent('mousedown',{bubbles:true,button:0}));e.focus()})()`);
@@ -68,4 +78,14 @@ export async function verificaUX30({cdp,evalueaza,asteapta,apasa,completeaza,cat
  await evalueaza("document.querySelector('.ux30-luna-lista li:nth-child(4) button').click()");
  await asteapta(()=>evalueaza("Boolean(document.querySelector('.pontaj-lunar')) && document.querySelector('.unelte-perioada input[type=number]').value==='2027'"),'Perioada panou nepurtata');
  assert(await evalueaza("document.querySelector('[data-tabel-accesibil]').getAttribute('aria-label').length>30"),'Regiune fara denumire');
+ await apasa(t('ui.absente'));
+ await asteapta(()=>evalueaza("Boolean(document.querySelector('.tabel-tipuri-absenta'))"),'Tipuri absente lipsa');
+ await apasa(t('absente.adauga_tip'));
+ await completeaza('dialog input[name=cod]','DEPLUX');
+ await completeaza('dialog input[name=ro]','Deplasare demo');
+ await completeaza('dialog select[name=efect_ore]','NORMA');
+ await apasa(t('ui.salveaza'));
+ await asteapta(()=>evalueaza("!document.querySelector('dialog[open]')"),'Tip absenta nesalvat');
+ assert(await evalueaza("JSON.parse(localStorage.getItem('pontix-test')).tipuriAbsenta.some(t=>t.cod==='DEPLUX'&&t.efect_ore==='NORMA')"),'Efectul tipului nu s-a pastrat');
+
 }

@@ -111,12 +111,22 @@ func calculeazaPontajBaza(ctx context.Context, q *acces.Queries, an, luna int, m
 	if err != nil {
 		return gol, c, err
 	}
+	efecte, err := q.EfecteAbsente(ctx)
+	if err != nil {
+		return gol, c, err
+	}
+	minute, err := q.MinuteAbsente(ctx, extins, panaLa)
+	if err != nil {
+		return gol, c, err
+	}
 	for _, a := range absente {
 		if a.Activ == 1 {
 			k := a.AngajatID + "/" + a.Data
 			r := intrari[k]
 			r.AngajatID = a.AngajatID
 			r.Data = a.Data
+			r.Crediteaza = efecte[a.Cod] == "NORMA" || efecte[a.Cod] == "PROGRAM"
+			r.MinuteCreditate = minute[k]
 			r.Absenta = a.Cod
 			r.StareAprobare = a.StareAprobare
 			intrari[k] = r

@@ -154,7 +154,11 @@ type ProgramPontaj struct {
 	Cod                                 string
 	OraStart, DurataMinute, PauzaMinute int64
 }
-type IntrarePontaj struct{ AngajatID, Data, Valoare, Absenta, StareAprobare string }
+type IntrarePontaj struct {
+	AngajatID, Data, Valoare, Absenta, StareAprobare string
+	Crediteaza                                       bool
+	MinuteCreditate                                  *int64
+}
 type OreZi struct {
 	AngajatID  string   `json:"angajat_id"`
 	Data       string   `json:"data"`
@@ -258,7 +262,18 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 			if inPerioada {
 				a := persoana(in.AngajatID)
 				a.absente = append(a.absente, in)
-				celula(in.AngajatID, in.Data)
+				z := celula(in.AngajatID, in.Data)
+				if in.Crediteaza && in.StareAprobare == "APROBATA" {
+					if in.MinuteCreditate == nil {
+						z.Calculabil = false
+						a.complet = false
+						a.calendar = false
+					} else {
+						z.Minute += *in.MinuteCreditate
+						a.total += *in.MinuteCreditate
+						a.norma += *in.MinuteCreditate
+					}
+				}
 			}
 			continue
 		}

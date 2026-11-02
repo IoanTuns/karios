@@ -1,4 +1,4 @@
 package pontaj
 
 // Versiune identifică structura raportului lunar (D009).
-const Versiune = 11
+const Versiune = 12

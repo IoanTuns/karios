@@ -118,3 +118,5 @@ F14-T25 implementează sumarul și filtrele din I075 și detaliile model/context
 | I102 | 2026-10-31 | UX dupa 0.92.19: configurare cu rezultate filtrate, eligibilitate vizibila, erori inteligibile, selectie coerenta in rapoarte, comparatie inainte/dupa, flux lunar si accesibilitate | Codex | transformata | F16-T31 implementeaza cele sase recomandari agregate; F16-T30; [UX30-01...12](analiza-ux-0.92.19.md), propuneri fara implementare; Excel ramane amanat |
 
 | I103 | 2026-10-31 | Explicatiile de calcul si istoricul tehnic al raportului pe o anexa finala, fara repetare pe fiecare pagina | Codex, utilizator | transformata | F16-T32; cerere explicita, fara schimbare de calcul |
+
+| I104 | 2026-11-02 | Efecte configurabile absente: reducere obligatie sau creditare din norma/program, acces comun din Planificare | Codex, utilizator | transformata | F07-T38, D080 propusa |
