@@ -897,6 +897,7 @@ export namespace datebaza {
 	    }
 	}
 	export class TipAbsenta {
+	    categorie_id: string;
 	    efect_ore: string;
 	    revizie: string;
 	    cod: string;
@@ -910,6 +911,7 @@ export namespace datebaza {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.categorie_id = source["categorie_id"];
 	        this.efect_ore = source["efect_ore"];
 	        this.revizie = source["revizie"];
 	        this.cod = source["cod"];
@@ -918,7 +920,31 @@ export namespace datebaza {
 	        this.activ = source["activ"];
 	    }
 	}
+	export class CategorieAbsenta {
+	    cod: string;
+	    denumire: Record<string, string>;
+	    natura: string;
+	    efect_ore: string;
+	    activ: boolean;
+	    revizie: string;
+
+	    static createFrom(source: any = {}) {
+	        return new CategorieAbsenta(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.cod = source["cod"];
+	        this.denumire = source["denumire"];
+	        this.natura = source["natura"];
+	        this.efect_ore = source["efect_ore"];
+	        this.activ = source["activ"];
+	        this.revizie = source["revizie"];
+	    }
+	}
+
 	export class AbsenteAn {
+	    categorii: CategorieAbsenta[];
 	    an: number;
 	    tipuri: TipAbsenta[];
 	    zile: ZiAbsenta[];
@@ -929,6 +955,7 @@ export namespace datebaza {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.categorii = this.convertValues(source["categorii"], CategorieAbsenta);
 	        this.an = source["an"];
 	        this.tipuri = this.convertValues(source["tipuri"], TipAbsenta);
 	        this.zile = this.convertValues(source["zile"], ZiAbsenta);

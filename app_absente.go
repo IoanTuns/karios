@@ -77,3 +77,7 @@ type RaspunsEfecteAbsente struct {
 	Efecte []datebaza.EfectAbsenta `json:"efecte"`
 	Eroare *MesajEroare            `json:"eroare"`
 }
+
+func (a *App) SalveazaCategorieAbsenta(c datebaza.CategorieAbsenta, an int) RaspunsAbsente {
+	return a.raspunsAbsente(an, datebaza.Nou(a.db).SalveazaCategorieAbsenta(a.contextLucru(), c))
+}

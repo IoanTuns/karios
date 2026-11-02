@@ -80,12 +80,27 @@ export async function verificaUX30({cdp,evalueaza,asteapta,apasa,completeaza,cat
  assert(await evalueaza("document.querySelector('[data-tabel-accesibil]').getAttribute('aria-label').length>30"),'Regiune fara denumire');
  await apasa(t('ui.absente'));
  await asteapta(()=>evalueaza("Boolean(document.querySelector('.tabel-tipuri-absenta'))"),'Tipuri absente lipsa');
+ await apasa(t('absente.adauga_categorie'));
+ await completeaza('dialog input[name=cod_categorie_absenta]','DEPLCAT');
+ await completeaza('dialog input[name=categorie_absenta_ro]','Deplasari demo');
+ await completeaza('dialog select[name=efect_ore]','NORMA');
+ await apasa(t('ui.salveaza'));
+ await asteapta(()=>evalueaza("!document.querySelector('dialog[open]')"),'Categorie nesalvata');
+ await evalueaza("[...document.querySelectorAll('.tabel-categorii-absenta tbody tr')].find(r=>r.cells[0].textContent==='DEPLCAT').querySelector('button').click()");
+ await completeaza('dialog input[name=categorie_absenta_ro]','Deplasari redenumite');
+ await apasa(t('ui.salveaza'));
+ await asteapta(()=>evalueaza("!document.querySelector('dialog[open]')"),'Categorie neredenumita');
  await apasa(t('absente.adauga_tip'));
  await completeaza('dialog input[name=cod]','DEPLUX');
  await completeaza('dialog input[name=ro]','Deplasare demo');
- await completeaza('dialog select[name=efect_ore]','NORMA');
+ await completeaza('dialog select[name=categorie]','DEPLCAT');
+ assert(await evalueaza("document.querySelector('dialog[open]').textContent.includes("+JSON.stringify(t('absente.efect_NORMA'))+")"),'Regula mostenita lipsa');
  await apasa(t('ui.salveaza'));
  await asteapta(()=>evalueaza("!document.querySelector('dialog[open]')"),'Tip absenta nesalvat');
  assert(await evalueaza("JSON.parse(localStorage.getItem('pontix-test')).tipuriAbsenta.some(t=>t.cod==='DEPLUX'&&t.efect_ore==='NORMA')"),'Efectul tipului nu s-a pastrat');
+ await evalueaza("[...document.querySelectorAll('.tabel-categorii-absenta tbody tr')].find(r=>r.cells[0].textContent==='DEPLCAT').querySelectorAll('button')[1].click()");
+ await asteapta(()=>evalueaza("![...document.querySelectorAll('.tabel-categorii-absenta tbody tr')].some(r=>r.cells[0].textContent==='DEPLCAT')"),'Categoria inactiva vizibila implicit');
+ await completeaza('select[name=filtru_stare_categorii_absenta]','INACTIVE');
+ await asteapta(()=>evalueaza("[...document.querySelectorAll('.tabel-categorii-absenta tbody tr')].some(r=>r.cells[0].textContent==='DEPLCAT')"),'Filtru inactive lipsa');
 
 }

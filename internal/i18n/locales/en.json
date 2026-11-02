@@ -1764,5 +1764,14 @@
   "absente.din_planificare": "Leave / absence on selection",
   "absente.selectie_lucratoare": "Select at least one working day.",
   "absente.salveaza_planul": "Save or discard planning changes before entering absences.",
-  "absente.minute_creditate": "Credited hours: {{numar}} minutes"
+  "absente.minute_creditate": "Credited hours: {{numar}} minutes",
+  "absente.categorii_titlu": "Absence categories",
+  "absente.adauga_categorie": "Add absence category",
+  "absente.editeaza_categorie": "Edit absence category",
+  "absente.natura": "Absence nature",
+  "absente.regula_mostenita": "Rule inherited from category",
+  "absente.categorii_indiciu": "Define categories and hour rules, then assign absence types. Medical nature preserves medical priority. Names and status remain editable; nature and rules already used are protected to preserve history.",
+  "absente.natura_SPECIAL": "Other absence / travel",
+  "absente.sectiune_categorii": "Categories",
+  "absente.cod_categorie_invalid": "The category code must contain 1-48 ASCII letters, digits, hyphens or underscores. Existing codes cannot be renamed."
 }

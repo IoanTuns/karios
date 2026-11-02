@@ -393,3 +393,7 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 | 2026-11-02 | Inceput F07-T38; verificat worktree curat si creat ramura dedicata. Confirmate sursele orelor si reducerea obligatiei. | Codex | [Plan](plan-F07-T38.md) |
 
 | 2026-11-02 | Verificat Go stabil 1.27.3, go list -m -u all si npm outdated. Actualizat i18next 26.5.12 -> 26.7.1, react-i18next 17.1.9 -> 17.1.11, plugin-react 6.1.2 -> 6.2.1, vitest 5.0.5 -> 5.1.0; fara major nou sau biblioteca noua. Indirectele Go raman in F14-T21, pentru verificarea separata a compatibilitatii. Manual revizuit, fara schimbare de instructiuni pentru dependente. | Codex | F07-T38 |
+
+| 2026-11-02 | F07-T39: utilizatorul corecteaza explicit scopul; categoriile de absenta trebuie editabile cu regulile confirmate. Creat task si ramura, verificat worktree curat. | Codex | [Plan](plan-F07-T39.md) |
+
+| 2026-11-02 | F07-T39: implementate categorii editabile, fila Categorii, mostenirea regulii pe tipuri, propagare atomica pentru reguli nefolosite, protectie istoric si stare in selectiile de absente. Migrare 0030 si rapoarte cu numele configurate. Verificate dependente: Go1.27.3 si npm directe actuale; 67 actualizari indirecte Go raman in F14-T21 pentru verificarea compatibilitatii, fara actualizari largi in acest task. | Codex | [Plan](plan-F07-T39.md), [D081](decizii/D081-categorii-absente.md) |

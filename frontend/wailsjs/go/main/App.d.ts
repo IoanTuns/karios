@@ -175,6 +175,8 @@ export function SalveazaAbsente(arg1:Array<datebaza.ZiAbsenta>,arg2:number):Prom
 
 export function SalveazaAngajat(arg1:datebaza.Angajat):Promise<main.RaspunsDate>;
 
+export function SalveazaCategorieAbsenta(arg1:datebaza.CategorieAbsenta,arg2:number):Promise<main.RaspunsAbsente>;
+
 export function SalveazaCategorieProgram(arg1:datebaza.CategorieProgram):Promise<main.RaspunsDate>;
 
 export function SalveazaConfiguratiePontaj(arg1:calcul.ConfiguratiePontaj):Promise<main.RaspunsConfiguratiePontaj>;

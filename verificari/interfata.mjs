@@ -178,7 +178,8 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
         return {date: structuredClone(stare), eroare: null};
     };
     const calendar = an => ({calendar: {an, sarbatori: structuredClone(stare.sarbatori.filter(s => Number(s.data.slice(0, 4)) === an).sort((a, b) => a.data.localeCompare(b.data))), import_disponibil: an === 2026}, adaugate: 0, eroare: null});
-    const absente = an => ({absente:{an,tipuri:structuredClone(stare.tipuriAbsenta),zile:structuredClone(stare.absente.filter(z => Number(z.data.slice(0,4)) === an).sort((a,b) => a.data.localeCompare(b.data)))},eroare:null});
+    stare.categoriiAbsenta ??= ['ODIHNA','MEDICAL','SPECIAL'].map(c=>({cod:c,denumire:{ro:cataloage.ro['absente.'+c],en:cataloage.en['absente.'+c]},natura:c,efect_ore:'ANTERIOR',activ:true,revizie:'1'}));
+    const absente = an => ({absente:{an,categorii:structuredClone(stare.categoriiAbsenta),tipuri:structuredClone(stare.tipuriAbsenta),zile:structuredClone(stare.absente.filter(z => Number(z.data.slice(0,4)) === an).sort((a,b) => a.data.localeCompare(b.data)))},eroare:null});
     const modele = () => ({configuratie:{...structuredClone(rapoarteSursa.configuratie),modele:structuredClone(stare.modeleRapoarte)},eroare:null});
     window.go = {main: {App: {
         Limbi: async () => [limba, ...Object.keys(cataloage).filter(l => l !== limba)],
@@ -265,7 +266,9 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
         CitesteAbsente: async an => absente(an),
         // F16-T31: simulare UI fara mutatii; rollbackul real este testat in Go.
         PrevizualizeazaEfecteAbsente: async zile => ({efecte:zile.map(z=>({sursa:'absente_zile',id:z.angajat_id+'/'+z.data,inainte:stare.absente.find(a=>a.angajat_id===z.angajat_id&&a.data===z.data)||{},dupa:z})),eroare:null}),
+        SalveazaCategorieAbsenta:async(c,an)=>{const i=stare.categoriiAbsenta.findIndex(v=>v.cod===c.cod);if(i>=0&&stare.categoriiAbsenta[i].revizie!==c.revizie)return {eroare:{cod:'absente.conflict'}};const nou={...c,revizie:String(i<0?1:Number(c.revizie)+1)};if(i<0)stare.categoriiAbsenta.push(nou);else stare.categoriiAbsenta[i]=nou;for(const tip of stare.tipuriAbsenta){if(tip.categorie_id===c.cod){tip.categorie=c.natura;tip.efect_ore=c.efect_ore;}}raspuns();return absente(an);},
         SalveazaTipAbsenta: async (initial,tip,an) => {
+            if(tip.categorie_id){const c=stare.categoriiAbsenta.find(c=>c.cod===tip.categorie_id);if(!c)return {eroare:{cod:'absente.tip_invalid'}};tip.categorie=c.natura;tip.efect_ore=c.efect_ore;}
             tip.cod = tip.cod.trim().toUpperCase();
             if (stare.schimburi.some(s => s.cod === tip.cod) || (!initial && stare.tipuriAbsenta.some(t => t.cod === tip.cod))) return {absente:null,eroare:{cod:'absente.cod_duplicat'}};
             const i = stare.tipuriAbsenta.findIndex(t => t.cod === initial);

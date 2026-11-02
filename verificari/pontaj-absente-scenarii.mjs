@@ -6,6 +6,10 @@ export async function verificaAbsentePontaj({evalueaza,asteapta,apasa,completeaz
  await apasa(t('ui.pontaj'));
  const celula=i=>`input[data-rand="0"][data-zi="${i}"]`;
  await asteapta(()=>evalueaza(`Boolean(document.querySelector('${celula(0)}'))`),'Grila lipsa');
+ await completeaza('.unelte-perioada input[type=number]','2026');
+ await evalueaza("document.querySelector('.unelte-perioada form').requestSubmit()");
+ await completeaza('select[aria-label="'+t('pontaj.luna')+'"]','10');
+ await asteapta(()=>evalueaza("document.querySelector('input[data-rand=\"0\"][data-zi=\"0\"]').getAttribute('aria-label').includes('2026-10-01')"),'Perioada fixa octombrie 2026 lipsa');
  assert.equal(await evalueaza("document.querySelector('select[name=filtru_stare_angajati_pontaj]').value"),'ACTIVE','Pontaj nu porneste pe activi');
  await completeaza('select[name=filtru_stare_angajati_pontaj]','INACTIVE');
  assert.equal(await evalueaza("document.querySelectorAll('.grila-pontaj tbody tr').length"),await evalueaza("JSON.parse(localStorage.getItem('pontix-test')).angajati.filter(a=>!a.activ).length"),'Filtrul Pontaj amesteca starile');

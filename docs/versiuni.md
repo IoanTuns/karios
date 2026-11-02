@@ -1448,3 +1448,7 @@ F07-T38: dependente frontend stabile i18next 26.7.1, react-i18next 17.1.11, plug
 ## 0.92.23 - 2026-11-02
 
 F07-T38: efecte configurabile ale absentelor, ore creditate din norma sau program cu instantaneu persistent si introducere din Planificare prin formularul comun cu previzualizare. Migrare 0029. Reguli existente pastrate; efectele folosite sunt protejate. Manual 1.33. Rapoarte pontaj12, detaliat13, individual12, absente9, garzi9 pentru noua generatie cu efecte explicite.
+
+## 0.92.24 - 2026-11-02
+
+F07-T39: categorii de absenta administrabile, cu natura, regula orelor, activare si denumiri RO/EN; tipurile preiau regula categoriei. Filtre, sumar si rapoarte folosesc categoriile configurate. Migrare 0030 pastreaza efectele existente. Manual 1.34; rapoarte pontaj13/detaliat14/individual13/absente10/garzi10.

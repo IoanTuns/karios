@@ -1764,5 +1764,14 @@
   "absente.din_planificare": "Concediu / absenta pe selectie",
   "absente.selectie_lucratoare": "Selectati cel putin o zi lucratoare.",
   "absente.salveaza_planul": "Salvati sau anulati modificarile planificarii inainte de introducerea absentelor.",
-  "absente.minute_creditate": "Ore creditate: {{numar}} minute"
+  "absente.minute_creditate": "Ore creditate: {{numar}} minute",
+  "absente.categorii_titlu": "Categorii de absenta",
+  "absente.adauga_categorie": "Adauga categorie de absenta",
+  "absente.editeaza_categorie": "Editeaza categoria de absenta",
+  "absente.natura": "Natura absentei",
+  "absente.regula_mostenita": "Regula preluata din categorie",
+  "absente.categorii_indiciu": "Definiti categoriile si regula orelor, apoi asociati tipurile. Natura medicala pastreaza prioritatea medicalului. Denumirea si starea se pot edita; natura si regula deja folosite sunt protejate pentru a pastra istoricul.",
+  "absente.natura_SPECIAL": "Alta absenta / deplasare",
+  "absente.sectiune_categorii": "Categorii",
+  "absente.cod_categorie_invalid": "Codul categoriei trebuie sa aiba 1-48 de litere fara diacritice, cifre, cratima sau underscore. Codul existent nu se redenumeste."
 }

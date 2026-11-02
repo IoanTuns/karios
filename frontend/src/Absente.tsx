@@ -1,3 +1,4 @@
+import {FormularCategorieAbsenta} from './CategoriiAbsente';
 import {ComparatieAbsente} from './ComparatieAbsente';
 import {PrevizualizeazaEfecteAbsente} from '../wailsjs/go/main/App';
 import {ButonStergereAdmin} from './ButonStergereAdmin';
@@ -6,13 +7,13 @@ import {numeAngajat} from './numeAngajat';
 import {useEffect, useRef, useState, type ChangeEvent} from 'react';
 import {useTranslation} from 'react-i18next';
 import type {CerereConcediu} from './cerereConcediu';
-import {CitesteAbsente, CitesteCalendar, CitesteDocumentAbsenta, SalveazaAbsente, SalveazaTipAbsenta} from '../wailsjs/go/main/App';
+import {CitesteAbsente, CitesteCalendar, CitesteDocumentAbsenta, SalveazaCategorieAbsenta, SalveazaAbsente, SalveazaTipAbsenta} from '../wailsjs/go/main/App';
 import {datebaza, main} from '../wailsjs/go/models';
 import {Dialog} from './Formulare';
 import {PanouGanttAbsente} from './GanttAbsente';
 import {formatData} from './formatare';
 
-const categorii = ['ODIHNA', 'MEDICAL', 'SPECIAL'];
+const naturi = ['ODIHNA', 'MEDICAL', 'SPECIAL'];
 const stariAprobare = ['IN_ASTEPTARE', 'APROBATA', 'RESPINSA'];
 const cheieZi = (z: datebaza.ZiAbsenta) => `${z.angajat_id}/${z.data}`;
 const numeTip = (tip: datebaza.TipAbsenta, limba: string) => tip.denumire[limba] || tip.denumire.ro || Object.values(tip.denumire).find(Boolean) || tip.cod;
@@ -39,13 +40,15 @@ export function Absente({date, filtruInitial, cerereConcediu, onCerereDeschisa}:
     const [filtruAprobare, setFiltruAprobare] = useState('');
     const [cautareAbsente, setCautareAbsente] = useState('');
     const [stareTipuri,setStareTipuri]=useState<StareLista>('ACTIVE');
-    const [sectiuneActiva, setSectiuneActiva] = useState<'toate' | 'gantt' | 'zile' | 'sumar' | 'tipuri'>('toate');
+    const [sectiuneActiva, setSectiuneActiva] = useState<'toate' | 'gantt' | 'zile' | 'sumar' | 'categorii' | 'tipuri'>('toate');
     const [incarcare, setIncarcare] = useState(true);
     const [ocupat, setOcupat] = useState(false);
     const blocat = useRef(false);
     const [eroare, setEroare] = useState('');
     const [mesaj, setMesaj] = useState('');
     const [reincarcare, setReincarcare] = useState(0);
+    const [categorieEditata,setCategorieEditata]=useState<datebaza.CategorieAbsenta|null>(null);
+    const [stareCategorii,setStareCategorii]=useState<StareLista>('ACTIVE');
     const [tipEditat, setTipEditat] = useState<datebaza.TipAbsenta | null>(null);
     const [ziEditata, setZiEditata] = useState<datebaza.ZiAbsenta | null | undefined>(undefined);
     const [lotEditat, setLotEditat] = useState<datebaza.ZiAbsenta[] | null>(null);
@@ -83,7 +86,7 @@ export function Absente({date, filtruInitial, cerereConcediu, onCerereDeschisa}:
     async function executa(actiune: () => Promise<main.RaspunsAbsente>) {
         if (blocat.current) return;
         blocat.current = true; setOcupat(true); setEroare(''); setMesaj('');
-        try { if (aplica(await actiune())) { setTipEditat(null); setZiEditata(undefined); setLotEditat(null); setSelectate(new Set()); setMesaj(t('ui.salvat')); } }
+        try { if (aplica(await actiune())) { setCategorieEditata(null); setTipEditat(null); setZiEditata(undefined); setLotEditat(null); setSelectate(new Set()); setMesaj(t('ui.salvat')); } }
         catch { setEroare(t('date.eroare')); }
         finally { blocat.current = false; setOcupat(false); }
     }
@@ -126,6 +129,9 @@ export function Absente({date, filtruInitial, cerereConcediu, onCerereDeschisa}:
     }
 
     const tipuri = dateAbsente?.tipuri ?? [];
+ const categoriiDate=dateAbsente?.categorii?.length?dateAbsente.categorii:naturi.map(c=>new datebaza.CategorieAbsenta({cod:c,denumire:{ro:t('absente.'+c),en:t('absente.'+c)},natura:c,efect_ore:'ANTERIOR',activ:true,revizie:''}));
+ const categorii=categoriiDate.map(c=>c.cod);
+ const numeCategorie=(id:string)=>{const c=categoriiDate.find(c=>c.cod===id);return c?(c.denumire[i18n.language]||c.denumire.ro||c.cod):id;};
     const zile = (dateAbsente?.zile ?? []).filter(z => z.activ);
     const frecventaInlocuiri = new Map<string, number>();
     for (const z of zile) {
@@ -141,7 +147,7 @@ export function Absente({date, filtruInitial, cerereConcediu, onCerereDeschisa}:
         if(!corespundeStare(z.activ,stareLista))return false;
         if (angajat && z.angajat_id !== angajat) return false;
         const tip = tipPentru(z.cod);
-        if (categorie && tip?.categorie !== categorie) return false;
+        if (categorie && (tip?.categorie_id||tip?.categorie) !== categorie) return false;
         if (filtruAprobare && (z.stare_aprobare || 'IN_ASTEPTARE') !== filtruAprobare) return false;
         if (textCautat) {
             const a = date.angajati.find(x => x.id === z.angajat_id);
@@ -162,17 +168,17 @@ export function Absente({date, filtruInitial, cerereConcediu, onCerereDeschisa}:
         <p className="nota-calendar">{t('absente.corectare_indiciu')}</p>
         <div className="unelte-calendar unelte-perioada"><form onSubmit={e => { e.preventDefault(); const nou = Number(anText); if (Number.isInteger(nou) && nou >= 1 && nou <= 9999) setAn(nou); else setEroare(t('sarbatori.an_invalid')); }}>
             <label>{t('sarbatori.an')}<input aria-label={t('sarbatori.an')} type="number" min="1" max="9999" required disabled={ocupat} value={anText} onChange={e => setAnText(e.target.value)}/></label><button className="buton secundar" disabled={ocupat}>{t('sarbatori.arata')}</button></form>
-            <div className="actiuni-calendar"><button className="buton secundar" disabled={ocupat || incarcare || !dateAbsente} onClick={() => { setEroare(''); setTipEditat(new datebaza.TipAbsenta({cod:'', denumire:{ro:'',en:''}, categorie:'SPECIAL', efect_ore:'FARA_ORE', activ:true})); }}>{t('absente.adauga_tip')}</button>
+            <div className="actiuni-calendar"><button className="buton secundar" disabled={ocupat || incarcare || !dateAbsente} onClick={() => { setEroare(''); setTipEditat(new datebaza.TipAbsenta({cod:'', denumire:{ro:'',en:''}, categorie:'SPECIAL', categorie_id:categoriiDate.find(c=>c.activ)?.cod||'', efect_ore:'FARA_ORE', activ:true})); }}>{t('absente.adauga_tip')}</button>
                 <button className="buton primar" disabled={ocupat || incarcare || !dateAbsente || !date.angajati.length || !tipuri.some(tip => tip.activ)} onClick={() => { setEroare(''); setLotEditat(null); setZiEditata(null); }}>{t('absente.adauga')}</button></div></div>
-        {!tipEditat && ziEditata === undefined && !lotEditat && eroare && <p className="mesaj eroare" role="alert">{eroare}</p>}{mesaj && <p className="mesaj succes" role="status">{mesaj}</p>}
+        {!categorieEditata && !tipEditat && ziEditata === undefined && !lotEditat && eroare && <p className="mesaj eroare" role="alert">{eroare}</p>}{mesaj && <p className="mesaj succes" role="status">{mesaj}</p>}
         {incarcare ? <p role="status">{t('ui.incarcare')}</p> : !dateAbsente ? <button className="buton secundar" onClick={() => setReincarcare(x => x + 1)}>{t('ui.reincearca')}</button> : <>
             <div className="unelte filtre-absente"><label>{t('ui.angajat')}<select aria-label={t('ui.angajat')} value={angajat} disabled={ocupat} onChange={e => schimbaFiltru(() => setAngajat(e.target.value))}><option value="">{t('absente.toti_angajatii')}</option>{date.angajati.map(a => <option key={a.id} value={a.id}>{numeAngajat(a)} · {a.marca}</option>)}</select></label>
-                <label>{t('absente.categorie')}<select aria-label={t('absente.categorie')} disabled={ocupat} value={categorie} onChange={e => schimbaFiltru(() => setCategorie(e.target.value))}><option value="">{t('absente.toate_categoriile')}</option>{categorii.map(c => <option key={c} value={c}>{t(`absente.${c}`)}</option>)}</select></label>
+                <label>{t('absente.categorie')}<select aria-label={t('absente.categorie')} disabled={ocupat} value={categorie} onChange={e => schimbaFiltru(() => setCategorie(e.target.value))}><option value="">{t('absente.toate_categoriile')}</option>{categorii.map(c => <option key={c} value={c}>{numeCategorie(c)}</option>)}</select></label>
                 <label>{t('absente.aprobare')}<select aria-label={t('absente.aprobare')} disabled={ocupat} value={filtruAprobare} onChange={e => schimbaFiltru(() => setFiltruAprobare(e.target.value))}><option value="">{t('absente.toate_starile')}</option>{stariAprobare.map(s => <option key={s} value={s}>{t(`absente.aprobare_${s}`)}</option>)}</select></label>
                 <label>{t('absente.cauta')}<input name="cautare_absente" aria-label={t('absente.cauta')} placeholder={t('absente.cauta_indiciu')} disabled={ocupat} value={cautareAbsente} onChange={e => schimbaFiltru(() => setCautareAbsente(e.target.value))}/></label>
                 <button className="legatura" disabled={ocupat} onClick={() => setReincarcare(x => x + 1)}>{t('absente.reincarca')}</button></div>
             <div className="taburi-sectiuni" role="group" aria-label={t('ui.absente')}>
-                {(['toate', 'gantt', 'zile', 'sumar', 'tipuri'] as const).map(s => <button key={s} type="button" className={`buton-tab ${sectiuneActiva === s ? 'activ' : ''}`} aria-pressed={sectiuneActiva === s} onClick={() => setSectiuneActiva(s)}>{t(`absente.sectiune_${s}`)}</button>)}
+                {(['toate', 'gantt', 'zile', 'sumar', 'categorii', 'tipuri'] as const).map(s => <button key={s} type="button" className={`buton-tab ${sectiuneActiva === s ? 'activ' : ''}`} aria-pressed={sectiuneActiva === s} onClick={() => setSectiuneActiva(s)}>{t(`absente.sectiune_${s}`)}</button>)}
             </div>
             {(sectiuneActiva === 'toate' || sectiuneActiva === 'gantt') && <>
                 <h2>Cronologie Gantt & Suprapuneri Concedii ({an})</h2>
@@ -185,13 +191,13 @@ export function Absente({date, filtruInitial, cerereConcediu, onCerereDeschisa}:
             </>}
             {(sectiuneActiva === 'toate' || sectiuneActiva === 'sumar') && <>
             <h2>{t('absente.sumar', {an})}</h2><p className="nota-calendar">{t('absente.sumar_indiciu')}</p>
-            <div className="panou tabel-derulant"><table className="sumar-absente"><thead><tr><th>{t('ui.angajat')}</th><th>{t('absente.drept_contractual')}</th>{categorii.map(c => <th key={c}>{t(`absente.${c}`)}</th>)}</tr></thead><tbody>
+            <div className="panou tabel-derulant"><table className="sumar-absente"><thead><tr><th>{t('ui.angajat')}</th><th>{t('absente.drept_contractual')}</th>{categorii.map(c => <th key={c}>{numeCategorie(c)}</th>)}</tr></thead><tbody>
                 {persoane.map(a => {
                     const odihnaNerespinsa = zile.filter(z => z.angajat_id === a.id && tipPentru(z.cod)?.categorie === 'ODIHNA' && (z.stare_aprobare || 'IN_ASTEPTARE') !== 'RESPINSA');
                     const inAsteptare = odihnaNerespinsa.filter(z => (z.stare_aprobare || 'IN_ASTEPTARE') === 'IN_ASTEPTARE').length;
                     const coInitial=a.initializare?.luna.startsWith(String(an)+'-')?a.initializare.co_zile:0;
                     const ramas = a.concediu_zile_an == null ? null : a.concediu_zile_an - odihnaNerespinsa.length-coInitial;
-                    return <tr key={a.id}><td>{numeAngajat(a)}<small className="text-discret"> · {a.marca}</small></td><td>{a.concediu_zile_an == null ? t('ui.necompletat') : <><div>{t('ui.zile', {numar:a.concediu_zile_an})}</div><small className={ramas !== null && ramas < 0 ? 'sold-concediu depasit' : 'sold-concediu'}>{t('absente.ramas_contractual', {ramas: t('ui.zile', {numar: ramas ?? 0})})}{inAsteptare > 0 ? ` · ${t('absente.in_asteptare_scurt', {numar: inAsteptare})}` : ''}</small></>}</td>{categorii.map(c => <td key={c}>{zile.filter(z => z.angajat_id === a.id && tipPentru(z.cod)?.categorie === c).length+(c==='ODIHNA'?coInitial:0)}</td>)}</tr>;
+                    return <tr key={a.id}><td>{numeAngajat(a)}<small className="text-discret"> · {a.marca}</small></td><td>{a.concediu_zile_an == null ? t('ui.necompletat') : <><div>{t('ui.zile', {numar:a.concediu_zile_an})}</div><small className={ramas !== null && ramas < 0 ? 'sold-concediu depasit' : 'sold-concediu'}>{t('absente.ramas_contractual', {ramas: t('ui.zile', {numar: ramas ?? 0})})}{inAsteptare > 0 ? ` · ${t('absente.in_asteptare_scurt', {numar: inAsteptare})}` : ''}</small></>}</td>{categorii.map(c => <td key={c}>{zile.filter(z => z.angajat_id === a.id && (tipPentru(z.cod)?.categorie_id||tipPentru(z.cod)?.categorie) === c).length+(c==='ODIHNA'?coInitial:0)}</td>)}</tr>;
                 })}
             </tbody></table></div>
             </>}
@@ -220,7 +226,7 @@ export function Absente({date, filtruInitial, cerereConcediu, onCerereDeschisa}:
                         <td>{numeAngajat(a)}<small className="text-discret"> · {a?.marca}</small></td>
                         <td>{z.data}{!z.activ&&<small className="zi-urmatoare">{t('ui.inactiv')}</small>}</td>
                         <td><strong>{z.cod}</strong> · {tip ? numeTip(tip, i18n.language) : z.cod}</td>
-                        <td>{tip && t(`absente.${tip.categorie}`)}</td>
+                        <td>{tip && numeCategorie(tip.categorie_id||tip.categorie)}</td>
                         <td>{z.nr_inregistrare || '—'}</td>
                         <td>{inlocuitor ? <>{numeAngajat(inlocuitor)}<small className="text-discret"> · {inlocuitor.marca}</small>{dublaInlocuire && <small className="zi-urmatoare avertisment-text">{t('absente.dubla_inlocuire_eticheta')}</small>}</> : '—'}</td>
                         <td><span className={`eticheta-aprobare aprobare-${stare}`}>{t(`absente.aprobare_${stare}`)}</span>{z.aprobat_de && <small className="zi-urmatoare">{z.aprobat_de}</small>}</td>
@@ -230,11 +236,15 @@ export function Absente({date, filtruInitial, cerereConcediu, onCerereDeschisa}:
                 })}
             </tbody></table>{!vizibile.length && <p className="fara-rezultate">{t('absente.gol')}</p>}</div>
             </>}
-            {(sectiuneActiva === 'toate' || sectiuneActiva === 'tipuri') && <>
-            <h2>{t('absente.tipuri')}</h2><FiltruStare nume="tipuri_absenta" valoare={stareTipuri} schimba={setStareTipuri} disabled={ocupat}/><p className="nota-calendar">{t('absente.tipuri_indiciu')}</p><div className="panou tabel-derulant"><table className="tabel-tipuri-absenta"><thead><tr>{['schimburi.cod','schimburi.denumire','absente.categorie','absente.efect_ore','ui.stare','ui.actiuni'].map(c => <th key={c}>{t(c)}</th>)}</tr></thead><tbody>{tipuri.filter(tip=>corespundeStare(tip.activ,stareTipuri)).map(tip => <tr key={tip.cod}><td><strong>{tip.cod}</strong></td><td>{numeTip(tip, i18n.language)}</td><td>{t(`absente.${tip.categorie}`)}</td><td>{t(`absente.efect_${tip.efect_ore||'ANTERIOR'}`)}</td><td>{t(tip.activ ? 'ui.activ' : 'ui.inactiv')}</td><td><button className="legatura" disabled={ocupat} onClick={() => { setEroare(''); setTipEditat(tip); }}>{t('ui.editeaza')}</button><button className="legatura discreta" disabled={ocupat} onClick={()=>executa(()=>SalveazaTipAbsenta(tip.cod,new datebaza.TipAbsenta({...tip,activ:!tip.activ}),an))}>{t(tip.activ?'ui.dezactiveaza':'ui.reactiveaza')}</button><ButonStergereAdmin tip="tipuri_absenta" id={tip.cod} revizie={tip.revizie} activ={tip.activ} nume={tip.cod} disabled={ocupat} onOcupat={setOcupat} onSters={async()=>{await executa(()=>CitesteAbsente(an));}}/></td></tr>)}</tbody></table></div>
+            {(sectiuneActiva === 'toate' || sectiuneActiva === 'categorii') && <>
+            <h2>{t('absente.categorii_titlu')}</h2><button className="buton secundar" disabled={ocupat} onClick={()=>{setEroare('');setCategorieEditata(new datebaza.CategorieAbsenta({cod:'',denumire:{ro:'',en:''},natura:'SPECIAL',efect_ore:'FARA_ORE',activ:true,revizie:''}));}}>{t('absente.adauga_categorie')}</button><FiltruStare nume="categorii_absenta" valoare={stareCategorii} schimba={setStareCategorii} disabled={ocupat}/><p className="nota-calendar">{t('absente.categorii_indiciu')}</p><div className="panou tabel-derulant"><table className="tabel-categorii-absenta"><thead><tr>{['schimburi.cod','schimburi.denumire','absente.natura','absente.efect_ore','ui.stare','ui.actiuni'].map(k=><th key={k}>{t(k)}</th>)}</tr></thead><tbody>{categoriiDate.filter(c=>corespundeStare(c.activ,stareCategorii)).map(c=><tr key={c.cod}><td>{c.cod}</td><td>{numeCategorie(c.cod)}</td><td>{t(c.natura==='SPECIAL'?'absente.natura_SPECIAL':'absente.'+c.natura)}</td><td>{t('absente.efect_'+c.efect_ore)}</td><td>{t(c.activ?'ui.activ':'ui.inactiv')}</td><td><button className="legatura" disabled={ocupat} onClick={()=>{setEroare('');setCategorieEditata(c);}}>{t('ui.editeaza')}</button><button className="legatura" disabled={ocupat} onClick={()=>void executa(()=>SalveazaCategorieAbsenta(new datebaza.CategorieAbsenta({...c,activ:!c.activ}),an))}>{t(c.activ?'ui.dezactiveaza':'ui.reactiveaza')}</button></td></tr>)}</tbody></table></div>
+ </>}
+ {(sectiuneActiva === 'toate' || sectiuneActiva === 'tipuri') && <>
+ <h2>{t('absente.tipuri')}</h2><FiltruStare nume="tipuri_absenta" valoare={stareTipuri} schimba={setStareTipuri} disabled={ocupat}/><p className="nota-calendar">{t('absente.tipuri_indiciu')}</p><div className="panou tabel-derulant"><table className="tabel-tipuri-absenta"><thead><tr>{['schimburi.cod','schimburi.denumire','absente.categorie','absente.efect_ore','ui.stare','ui.actiuni'].map(c => <th key={c}>{t(c)}</th>)}</tr></thead><tbody>{tipuri.filter(tip=>corespundeStare(tip.activ,stareTipuri)).map(tip => <tr key={tip.cod}><td><strong>{tip.cod}</strong></td><td>{numeTip(tip, i18n.language)}</td><td>{numeCategorie(tip.categorie_id||tip.categorie)}</td><td>{t(`absente.efect_${tip.efect_ore||'ANTERIOR'}`)}</td><td>{t(tip.activ ? 'ui.activ' : 'ui.inactiv')}</td><td><button className="legatura" disabled={ocupat} onClick={() => { setEroare(''); setTipEditat(tip); }}>{t('ui.editeaza')}</button><button className="legatura discreta" disabled={ocupat} onClick={()=>executa(()=>SalveazaTipAbsenta(tip.cod,new datebaza.TipAbsenta({...tip,activ:!tip.activ}),an))}>{t(tip.activ?'ui.dezactiveaza':'ui.reactiveaza')}</button><ButonStergereAdmin tip="tipuri_absenta" id={tip.cod} revizie={tip.revizie} activ={tip.activ} nume={tip.cod} disabled={ocupat} onOcupat={setOcupat} onSters={async()=>{await executa(()=>CitesteAbsente(an));}}/></td></tr>)}</tbody></table></div>
             </>}
         </>}
-        {tipEditat && <FormularTip key={tipEditat.cod || 'nou'} tip={tipEditat} ocupat={ocupat} eroare={eroare} inchide={() => { setTipEditat(null); setEroare(''); }} salveaza={tip => executa(() => SalveazaTipAbsenta(tipEditat.cod, tip, an))}/>}
+        {categorieEditata&&<FormularCategorieAbsenta categorie={categorieEditata} ocupat={ocupat} eroare={eroare} inchide={()=>{setCategorieEditata(null);setEroare('');}} salveaza={c=>executa(()=>SalveazaCategorieAbsenta(c,an))}/>}
+        {tipEditat && <FormularTip key={tipEditat.cod || 'nou'} tip={tipEditat} categorii={categoriiDate} ocupat={ocupat} eroare={eroare} inchide={() => { setTipEditat(null); setEroare(''); }} salveaza={tip => executa(() => SalveazaTipAbsenta(tipEditat.cod, tip, an))}/>}
         {(ziEditata !== undefined || lotEditat) && dateAbsente && <FormularAbsente key={lotEditat ? `lot-${lotEditat.map(cheieZi).join(',')}` : ziEditata ? cheieZi(ziEditata) : 'nou'} zi={ziEditata ?? null} lot={lotEditat} date={date} absente={dateAbsente} angajatImplicit={angajat} precompletare={ziEditata === null && !lotEditat ? precompletare : null} ocupat={ocupat} eroare={eroare} inchide={() => { setZiEditata(undefined); setLotEditat(null); setEroare(''); setPrecompletare(null); }} salveaza={zile => executa(() => SalveazaAbsente(zile, an))}/>}
         {docPrevizualizat && <PrevizualizareCerere doc={docPrevizualizat} inchide={() => setDocPrevizualizat(null)} descarca={() => descarcaObiectDocument(docPrevizualizat)}/>}
     </section>;
@@ -262,18 +272,18 @@ function PrevizualizareCerere({doc, inchide, descarca}: {doc: datebaza.DocumentA
     </Dialog>;
 }
 
-function FormularTip({tip, ocupat, eroare, inchide, salveaza}: {tip: datebaza.TipAbsenta; ocupat: boolean; eroare: string; inchide: () => void; salveaza: (tip: datebaza.TipAbsenta) => Promise<void>}) {
-    const {t} = useTranslation();
-    const initial = {cod:tip.cod, ro:tip.denumire.ro || '', en:tip.denumire.en || '', categorie:tip.categorie, efect_ore:tip.efect_ore||'ANTERIOR', activ:tip.activ};
+function FormularTip({tip, categorii, ocupat, eroare, inchide, salveaza}: {tip: datebaza.TipAbsenta; categorii:datebaza.CategorieAbsenta[]; ocupat: boolean; eroare: string; inchide: () => void; salveaza: (tip: datebaza.TipAbsenta) => Promise<void>}) {
+    const {t,i18n} = useTranslation();
+    const initial = {cod:tip.cod, ro:tip.denumire.ro || '', en:tip.denumire.en || '', categorie:tip.categorie_id||tip.categorie||categorii.find(c=>c.activ)?.cod||'', efect_ore:tip.efect_ore||'ANTERIOR', activ:tip.activ};
     const [campuri, setCampuri] = useState(initial);
     const [validare, setValidare] = useState('');
     function seteaza<K extends keyof typeof campuri>(k: K, v: typeof campuri[K]) { setCampuri(c => ({...c,[k]:v})); }
     function renunta() { if (JSON.stringify(initial) === JSON.stringify(campuri) || window.confirm(t('ui.renunta'))) inchide(); }
-    return <Dialog titlu={t(tip.cod ? 'absente.editeaza_tip' : 'absente.adauga_tip')} ocupat={ocupat} inchide={renunta}><form onSubmit={e => { e.preventDefault(); if (!campuri.ro.trim() && !campuri.en.trim()) { setValidare(t('sarbatori.denumire_obligatorie')); return; } setValidare(''); salveaza(new datebaza.TipAbsenta({cod:campuri.cod, denumire:{...tip.denumire,ro:campuri.ro,en:campuri.en}, categorie:campuri.categorie, efect_ore:campuri.efect_ore, activ:campuri.activ})); }}>
+    return <Dialog titlu={t(tip.cod ? 'absente.editeaza_tip' : 'absente.adauga_tip')} ocupat={ocupat} inchide={renunta}><form onSubmit={e => { e.preventDefault(); if (!campuri.ro.trim() && !campuri.en.trim()) { setValidare(t('sarbatori.denumire_obligatorie')); return; } setValidare(''); salveaza(new datebaza.TipAbsenta({cod:campuri.cod, denumire:{...tip.denumire,ro:campuri.ro,en:campuri.en}, categorie_id:campuri.categorie, categorie:categorii.find(c=>c.cod===campuri.categorie)?.natura||'SPECIAL', efect_ore:categorii.find(c=>c.cod===campuri.categorie)?.efect_ore||'FARA_ORE', activ:campuri.activ})); }}>
         <div className="corp-dialog">{(eroare || validare) && <p className="mesaj eroare" role="alert">{validare || eroare}</p>}<fieldset className="campuri" disabled={ocupat}>
             <label>{t('schimburi.cod')} *<input name="cod" required maxLength={16} readOnly={!!tip.cod} value={campuri.cod} onChange={e => seteaza('cod',e.target.value)}/></label>
-            <label>{t('absente.categorie')}<select name="categorie" value={campuri.categorie} onChange={e => {const categorie=e.target.value;setCampuri(c=>({...c,categorie,efect_ore:categorie!=='SPECIAL'&&['NORMA','PROGRAM'].includes(c.efect_ore)?'FARA_ORE':c.efect_ore}));}}>{categorii.map(c => <option key={c} value={c}>{t(`absente.${c}`)}</option>)}</select></label>
-            <label>{t('absente.efect_ore')}<select name="efect_ore" value={campuri.efect_ore} onChange={e=>seteaza('efect_ore',e.target.value)}>{['ANTERIOR','FARA_ORE',...(campuri.categorie==='SPECIAL'?['NORMA','PROGRAM']:[])].map(v=><option key={v} value={v}>{t(`absente.efect_${v}`)}</option>)}</select></label><p className="nota-calendar">{t('absente.efect_indiciu')}</p>
+            <label>{t('absente.categorie')}<select name="categorie" required value={campuri.categorie} onChange={e=>seteaza('categorie',e.target.value)}>{categorii.filter(c=>c.activ||c.cod===(tip.categorie_id||tip.categorie)).map(c=><option key={c.cod} value={c.cod}>{c.denumire[i18n.language]||c.denumire.ro||c.cod}{!c.activ?' - '+t('ui.inactiv'):''}</option>)}</select></label>
+ <p className="nota-calendar">{t('absente.regula_mostenita')}: {t('absente.efect_'+(categorii.find(c=>c.cod===campuri.categorie)?.efect_ore||'FARA_ORE'))}</p>
  <label className="latime-completa">{t('sarbatori.denumire_ro')}<input name="ro" value={campuri.ro} onChange={e => seteaza('ro',e.target.value)}/></label><label className="latime-completa">{t('sarbatori.denumire_en')}<input name="en" value={campuri.en} onChange={e => seteaza('en',e.target.value)}/></label>
             <label className="bifa"><input name="activ" type="checkbox" checked={campuri.activ} onChange={e => seteaza('activ',e.target.checked)}/>{t('ui.activ_indiciu')}</label>
         </fieldset></div><footer className="subsol-dialog"><button type="button" className="buton secundar" disabled={ocupat} onClick={renunta}>{t('ui.anuleaza')}</button><button className="buton primar" disabled={ocupat}>{t('ui.salveaza')}</button></footer>
@@ -282,6 +292,7 @@ function FormularTip({tip, ocupat, eroare, inchide, salveaza}: {tip: datebaza.Ti
 
 export function FormularAbsente({celuleConversie, dinPontaj = false, zi, lot, date, absente, angajatImplicit, precompletare, ocupat, eroare, inchide, salveaza}: {celuleConversie?:datebaza.CelulaSchita[];dinPontaj?: boolean; zi: datebaza.ZiAbsenta | null; lot: datebaza.ZiAbsenta[] | null; date: datebaza.Date; absente: datebaza.AbsenteAn; angajatImplicit: string; precompletare?: CerereConcediu | null; ocupat: boolean; eroare: string; inchide: () => void; salveaza: (zile: datebaza.ZiAbsenta[]) => Promise<void>}) {
     const {t, i18n} = useTranslation();
+    const tipDisponibil=(tip:datebaza.TipAbsenta)=>tip.activ&&(absente.categorii?.find(c=>c.cod===tip.categorie_id)?.activ??true);
     const sursa = zi ?? (lot?.[0] ?? null);
     const modEditare = Boolean(zi || lot);
     const acelasiAngajatLot = !lot || new Set(lot.map(z => z.angajat_id)).size === 1;
@@ -289,7 +300,7 @@ export function FormularAbsente({celuleConversie, dinPontaj = false, zi, lot, da
     const initial = {
         activ:sursa?.activ??true,
         angajat: sursa?.angajat_id || precompletare?.angajatId || angajatImplicit,
-        cod: sursa?.cod || (precompletare && absente.tipuri.some(tip => tip.activ && tip.cod === precompletare.cod) ? precompletare.cod : '') || absente.tipuri.find(tip => tip.activ && tip.categorie === 'ODIHNA')?.cod || absente.tipuri.find(tip => tip.activ)?.cod || '',
+        cod: sursa?.cod || (precompletare && absente.tipuri.some(tip => tipDisponibil(tip) && tip.cod === precompletare.cod) ? precompletare.cod : '') || absente.tipuri.find(tip => tipDisponibil(tip) && tip.categorie === 'ODIHNA')?.cod || absente.tipuri.find(tipDisponibil)?.cod || '',
         deLa: zi?.data || (lot ? lot[0].data : precompletare?.deLa || dataImplicita),
         panaLa: zi?.data || (lot ? lot[lot.length - 1].data : precompletare?.panaLa || dataImplicita),
         nrInregistrare: sursa?.nr_inregistrare || '',
@@ -420,7 +431,7 @@ export function FormularAbsente({celuleConversie, dinPontaj = false, zi, lot, da
         {zileDublaInlocuire.length > 0 && <p className="mesaj avertisment" role="status">{t('absente.avertisment_dubla_inlocuire', {zile: zileDublaInlocuire.join(', ')})}</p>}
         <fieldset className="campuri" disabled={ocupat||previzualizareOcupata}>
             {acelasiAngajatLot && <label className="latime-completa">{t('ui.angajat')} *<select name="angajat" required disabled={modEditare} value={campuri.angajat} onChange={e => seteaza('angajat',e.target.value)}><option value="">{t('absente.alege_angajat')}</option>{date.angajati.map(a => <option key={a.id} value={a.id}>{numeAngajat(a)} · {a.marca}{!a.activ ? ` · ${t('ui.inactiv')}` : ''}</option>)}</select></label>}
-            <label className="latime-completa">{t('absente.tip')}<select name="tip" required value={campuri.cod} onChange={e => seteaza('cod',e.target.value)}>{absente.tipuri.filter(tip => tip.activ || tip.cod === sursa?.cod).map(tip => <option key={tip.cod} value={tip.cod}>{tip.cod} · {numeTip(tip,i18n.language)}{!tip.activ ? ` · ${t('ui.inactiv')}` : ''}</option>)}</select></label>
+            <label className="latime-completa">{t('absente.tip')}<select name="tip" required value={campuri.cod} onChange={e => seteaza('cod',e.target.value)}>{absente.tipuri.filter(tip => tipDisponibil(tip) || tip.cod === sursa?.cod).map(tip => <option key={tip.cod} value={tip.cod}>{tip.cod} · {numeTip(tip,i18n.language)}{!tip.activ ? ` · ${t('ui.inactiv')}` : ''}</option>)}</select></label>
             {!lot && <><label>{t('absente.de_la')} *<input name="de_la" type="date" min="0001-01-01" max="9999-12-31" required value={campuri.deLa} onChange={e => seteaza('deLa',e.target.value)}/></label><label>{t('absente.pana_la')} *<input name="pana_la" type="date" min="0001-01-01" max="9999-12-31" required value={campuri.panaLa} onChange={e => seteaza('panaLa',e.target.value)}/></label></>}
             <label>{t('absente.nr_inregistrare')}{precompletare ? ' *' : ''}<input name="nr_inregistrare" maxLength={64} required={Boolean(precompletare)} autoFocus={Boolean(precompletare)} value={campuri.nrInregistrare} onChange={e => seteaza('nrInregistrare',e.target.value)}/></label>
             <label>{t('absente.inlocuitor')}<select name="inlocuitor" value={campuri.inlocuitor} onChange={e => seteaza('inlocuitor',e.target.value)}><option value="">{t('absente.fara_inlocuitor')}</option>{inlocuitoriDisponibili.map(a => <option key={a.id} value={a.id}>{numeAngajat(a)} · {a.marca}{!a.activ ? ` · ${t('ui.inactiv')}` : ''}</option>)}</select></label>

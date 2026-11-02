@@ -21,12 +21,13 @@ import (
 const limitaDocumentAbsenta = 10 * 1024 * 1024
 
 type TipAbsenta struct {
-	EfectOre  string    `json:"efect_ore"`
-	Revizie   string    `json:"revizie"`
-	Cod       string    `json:"cod"`
-	Denumire  i18n.Text `json:"denumire"`
-	Categorie string    `json:"categorie"`
-	Activ     bool      `json:"activ"`
+	CategorieID string    `json:"categorie_id"`
+	EfectOre    string    `json:"efect_ore"`
+	Revizie     string    `json:"revizie"`
+	Cod         string    `json:"cod"`
+	Denumire    i18n.Text `json:"denumire"`
+	Categorie   string    `json:"categorie"`
+	Activ       bool      `json:"activ"`
 }
 
 type ZiAbsenta struct {
@@ -54,9 +55,10 @@ type DocumentAbsenta struct {
 }
 
 type AbsenteAn struct {
-	An     int          `json:"an"`
-	Tipuri []TipAbsenta `json:"tipuri"`
-	Zile   []ZiAbsenta  `json:"zile"`
+	Categorii []CategorieAbsenta `json:"categorii"`
+	An        int                `json:"an"`
+	Tipuri    []TipAbsenta       `json:"tipuri"`
+	Zile      []ZiAbsenta        `json:"zile"`
 }
 
 func valPtr(p *string) string {
@@ -94,12 +96,20 @@ func (s *Serviciu) CitesteAbsente(ctx context.Context, an int) (AbsenteAn, error
 	if err != nil {
 		return AbsenteAn{}, err
 	}
+	rez.Categorii, err = citesteCategoriiAbsente(ctx, tx)
+	if err != nil {
+		return AbsenteAn{}, traduceEroare(err)
+	}
+	asocieri, err := q.CategoriiTipuriAbsenta(ctx)
+	if err != nil {
+		return AbsenteAn{}, traduceEroare(err)
+	}
 	for _, r := range tipuri {
 		var denumire i18n.Text
 		if err := json.Unmarshal([]byte(r.Denumire), &denumire); err != nil {
 			return AbsenteAn{}, traduceEroare(err)
 		}
-		rez.Tipuri = append(rez.Tipuri, TipAbsenta{EfectOre: efecte[r.Cod], Revizie: r.ModificatLa, Cod: r.Cod, Denumire: denumire, Categorie: r.Categorie, Activ: r.Activ == 1})
+		rez.Tipuri = append(rez.Tipuri, TipAbsenta{CategorieID: asocieri[r.Cod], EfectOre: efecte[r.Cod], Revizie: r.ModificatLa, Cod: r.Cod, Denumire: denumire, Categorie: r.Categorie, Activ: r.Activ == 1})
 	}
 	rez.Zile, err = citesteAbsenteInterval(ctx, q, deLa, panaLa)
 	if err != nil {
@@ -197,22 +207,6 @@ func (s *Serviciu) SalveazaTipAbsenta(ctx context.Context, initial string, tip T
 	}) >= 0 || (initial != "" && initial != tip.Cod) {
 		return eroare("absente.cod_invalid")
 	}
-	switch tip.Categorie {
-	case "ODIHNA", "MEDICAL", "SPECIAL":
-	default:
-		return eroare("absente.categorie_invalida")
-	}
-	if tip.EfectOre == "" {
-		tip.EfectOre = "ANTERIOR"
-	}
-	switch tip.EfectOre {
-	case "ANTERIOR", "FARA_ORE", "NORMA", "PROGRAM":
-	default:
-		return eroare("absente.efect_invalid")
-	}
-	if tip.Categorie != "SPECIAL" && (tip.EfectOre == "NORMA" || tip.EfectOre == "PROGRAM") {
-		return eroare("absente.efect_invalid")
-	}
 	curata := i18n.Text{}
 	for limba, text := range tip.Denumire {
 		if text = strings.TrimSpace(text); text != "" {
@@ -223,7 +217,78 @@ func (s *Serviciu) SalveazaTipAbsenta(ctx context.Context, initial string, tip T
 		return eroare("sarbatori.denumire_obligatorie")
 	}
 	tip.Denumire = curata
-	return s.modifica(ctx, func(q *acces.Queries) error {
+	return s.modificaTx(ctx, func(tx *sql.Tx, q *acces.Queries) error {
+		asocieri, err := q.CategoriiTipuriAbsenta(ctx)
+		if err != nil {
+			return err
+		}
+		if tip.CategorieID != "" {
+			lista, e := citesteCategoriiAbsente(ctx, tx)
+			if e != nil {
+				return e
+			}
+			gasit := false
+			for _, c := range lista {
+				if c.Cod == tip.CategorieID {
+					if !c.Activ && asocieri[tip.Cod] != c.Cod {
+						return eroare("absente.tip_invalid")
+					}
+					tip.Categorie = c.Natura
+					tip.EfectOre = c.EfectOre
+					gasit = true
+				}
+			}
+			if !gasit {
+				return eroare("absente.tip_invalid")
+			}
+		}
+		switch tip.Categorie {
+		case "ODIHNA", "MEDICAL", "SPECIAL":
+		default:
+			return eroare("absente.categorie_invalida")
+		}
+		if tip.EfectOre == "" {
+			tip.EfectOre = "ANTERIOR"
+		}
+		switch tip.EfectOre {
+		case "ANTERIOR", "FARA_ORE", "NORMA", "PROGRAM":
+		default:
+			return eroare("absente.efect_invalid")
+		}
+		if tip.Categorie != "SPECIAL" && (tip.EfectOre == "NORMA" || tip.EfectOre == "PROGRAM") {
+			return eroare("absente.efect_invalid")
+		}
+		if tip.CategorieID == "" {
+			lista, e := citesteCategoriiAbsente(ctx, tx)
+			if e != nil {
+				return e
+			}
+			for _, c := range lista {
+				if c.Natura == tip.Categorie && c.EfectOre == tip.EfectOre {
+					tip.CategorieID = c.Cod
+					break
+				}
+			}
+			if tip.CategorieID == "" {
+				tip.CategorieID = tip.Categorie + "_" + tip.EfectOre
+				den, _ := json.Marshal(i18n.Text{"ro": i18n.T(i18n.Romana, "absente.efect_"+tip.EfectOre, nil), "en": i18n.T(i18n.Engleza, "absente.efect_"+tip.EfectOre, nil)})
+				if _, e := tx.ExecContext(ctx, "INSERT INTO categorii_absente(cod,denumire,natura,efect_ore) VALUES(?,?,?,?)", tip.CategorieID, string(den), tip.Categorie, tip.EfectOre); e != nil {
+					return e
+				}
+				if e := jurnal(ctx, q, "categorii_absente", tip.CategorieID, nil, tip); e != nil {
+					return e
+				}
+			}
+		}
+		listaCategorii, e := citesteCategoriiAbsente(ctx, tx)
+		if e != nil {
+			return e
+		}
+		for _, c := range listaCategorii {
+			if c.Cod == tip.CategorieID && !c.Activ && asocieri[tip.Cod] != c.Cod {
+				return eroare("absente.tip_invalid")
+			}
+		}
 		vechi, err := q.CitesteTipAbsenta(ctx, tip.Cod)
 		exista := err == nil
 		if err != nil && !errors.Is(err, sql.ErrNoRows) {
@@ -248,7 +313,7 @@ func (s *Serviciu) SalveazaTipAbsenta(ctx context.Context, initial string, tip T
 		if err != nil {
 			return err
 		}
-		if exista && (vechi.Categorie != tip.Categorie || efecte[tip.Cod] != tip.EfectOre) {
+		if exista && (vechi.Categorie != tip.Categorie || efecte[tip.Cod] != tip.EfectOre || tip.CategorieID != "" && asocieri[tip.Cod] != tip.CategorieID) {
 			folosit, err := q.TipAbsentaFolosit(ctx, tip.Cod)
 			if err != nil {
 				return err
@@ -267,6 +332,11 @@ func (s *Serviciu) SalveazaTipAbsenta(ctx context.Context, initial string, tip T
 		}
 		if err := q.SalveazaEfectAbsenta(ctx, tip.Cod, tip.EfectOre); err != nil {
 			return err
+		}
+		if tip.CategorieID != "" {
+			if err := q.AsociazaCategorieAbsenta(ctx, tip.Cod, tip.CategorieID); err != nil {
+				return err
+			}
 		}
 		var inainte any
 		if exista {
@@ -630,7 +700,11 @@ func (s *Serviciu) salveazaAbsente(ctx context.Context, zile []ZiAbsenta, conver
 				z.DocumentNume, z.DocumentMime = "", ""
 			}
 			if z.Activ {
-				if tip.Activ == 0 && !(exista && veche.Activ == 1 && veche.Cod == z.Cod) {
+				categorieActiva, e := q.CategorieTipAbsentaActiva(ctx, tip.Cod)
+				if e != nil {
+					return e
+				}
+				if (tip.Activ == 0 || !categorieActiva) && !(exista && veche.Activ == 1 && veche.Cod == z.Cod) {
 					return eroare("absente.tip_invalid")
 				}
 				ciorna, err := q.CitesteCiorna(ctx, acces.CitesteCiornaParams{AngajatID: z.AngajatID, Data: z.Data})

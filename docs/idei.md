@@ -120,3 +120,5 @@ F14-T25 implementează sumarul și filtrele din I075 și detaliile model/context
 | I103 | 2026-10-31 | Explicatiile de calcul si istoricul tehnic al raportului pe o anexa finala, fara repetare pe fiecare pagina | Codex, utilizator | transformata | F16-T32; cerere explicita, fara schimbare de calcul |
 
 | I104 | 2026-11-02 | Efecte configurabile absente: reducere obligatie sau creditare din norma/program, acces comun din Planificare | Codex, utilizator | transformata | F07-T38, D080 propusa |
+
+| I105 | 2026-11-02 | Categorii de absenta administrabile cu natura si regula de ore mostenita de tipuri, distincte de cele trei naturi tehnice | Codex, utilizator | transformata | F07-T39, D081 propusa |

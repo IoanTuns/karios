@@ -198,10 +198,17 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 	if err != nil {
 		return Document{}, traduce(err)
 	}
+	denumiriCategorii, err := q.DenumiriCategoriiAbsente(ctx)
+	if err != nil {
+		return Document{}, traduce(err)
+	}
 	descrieri, categorii := map[string]string{}, map[string]string{}
 	for _, v := range tipuri {
 		descrieri[v.Cod] = textJSON(v.Denumire, limba)
 		categorii[v.Cod] = i18n.T(limba, "absente."+v.Categorie, nil)
+		if denumiriCategorii[v.Cod] != "" {
+			categorii[v.Cod] = textJSON(denumiriCategorii[v.Cod], limba)
+		}
 	}
 	for _, v := range schimburi {
 		descrieri[v.Cod] = textJSON(v.Denumire, limba)

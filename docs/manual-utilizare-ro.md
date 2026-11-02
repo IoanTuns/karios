@@ -642,13 +642,15 @@ Modul de calcul, semnificatia coloanelor si istoricul tehnic de generare/revizii
 
 ## Tipuri de absenta si introducere din Planificare
 
-In **Concedii si absente > Adauga tip de absenta**, definiti codul, denumirea si categoria. La **Efect asupra orelor** alegeti:
+In **Concedii si absente > Categorii de absenta > Adauga categorie de absenta**, definiti codul, denumirea si natura. La **Efect asupra orelor** alegeti:
 
 - **Fara ore lucrate; reduce obligatia lunara**: ziua aprobata nu produce ore lucrate si scade o norma zilnica din Ore lucratoare.
 - **Ore lucrate din norma zilnica**: ziua aprobata produce norma zilnica din contract, fara reducerea obligatiei lunare (de exemplu deplasare).
 - **Ore lucrate din programul planificat**: ziua aprobata produce durata programului salvat anterior pe acea zi, fara reducerea obligatiei lunare.
 
-Ultimele doua optiuni sunt disponibile la categoria Special. Pentru odihna si medical nu se acorda ore lucrate. Tipurile existente pastreaza regula anterioara pentru compatibilitatea istoricului. Categoria si efectul unui tip deja folosit sunt protejate; pentru alta regula creati alt cod. Orele creditate nu definesc plata sau sporul.
+Ultimele doua optiuni sunt disponibile pentru natura Alta absenta / deplasare. Pentru odihna si medical nu se acorda ore lucrate. Apoi folositi **Adauga tip de absenta**, completati codul si denumirea si selectati categoria definita. Tipul preia automat regula categoriei; aceasta este afisata in formular.
+
+Categoriile pot fi adaugate, redenumite, dezactivate si reactivate. Lista are filtrul Active/Inactive/Toate, implicit Active. O categorie inactiva nu se poate atribui unor tipuri noi; asocierile existente si istoricul se pastreaza. Denumirea este folosita in selector, filtre, sumar si raportul de absente. Natura (odihna/medical/alta) stabileste evidenta concediului contractual si prioritatea medicalului, independent de numele categoriei. Natura si regula unei categorii folosite in istoric nu se modifica retroactiv; pentru alta regula creati o categorie noua. Categoriile initiale pastreaza regulile existente; migrarea separa automat categoriile cu efecte diferite deja configurate. Orele creditate nu definesc plata sau sporul.
 
 In **Planificare > Grila lunara**, selectati angajatul/angajatii si zilele, apoi **Concediu / absenta pe selectie**. Salvati sau anulati mai intai modificarile nesalvate ale planului. Formularul comun permite alegerea tipului, aprobarii si documentelor, apoi previzualizarea efectelor si confirmarea salvarii. Weekendurile si sarbatorile legale sunt excluse. Efectul medicalului ramane prioritar, inclusiv pe marcile asociate si turele de noapte intersectate.
 

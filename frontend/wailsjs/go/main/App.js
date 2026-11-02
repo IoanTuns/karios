@@ -330,6 +330,10 @@ export function SalveazaAngajat(arg1) {
   return window['go']['main']['App']['SalveazaAngajat'](arg1);
 }
 
+export function SalveazaCategorieAbsenta(arg1, arg2) {
+  return window['go']['main']['App']['SalveazaCategorieAbsenta'](arg1, arg2);
+}
+
 export function SalveazaCategorieProgram(arg1) {
   return window['go']['main']['App']['SalveazaCategorieProgram'](arg1);
 }

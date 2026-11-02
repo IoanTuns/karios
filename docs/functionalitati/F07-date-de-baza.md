@@ -10,6 +10,7 @@ Utilizatorul poate gestiona angajații și listele de care depinde pontajul.
 
 | ID | Task | Stare | Responsabil | Note |
 | --- | --- | --- | --- | --- |
+| F07-T39 | Categorii de absenta editabile cu regula de ore mostenita de tipuri | gata | Codex | 0.92.24, migrare 0030; fila Categorii, creare/editare/stare/reguli, tipuri cu regula mostenita, filtre/sumar/rapoarte conectate. [Rezultate](../plan-F07-T39.md), D081 propusa. Pas urmator: proba operator; fara push/merge. |
 | F07-T38 | Efecte configurabile ale absentelor si introducere din Planificare | gata | Codex | 0.92.23, migrare 0029; surse norma/program, instantaneu si audit, aprobari si reducerea obligatiei, formular comun din grila. [Rezultate](../plan-F07-T38.md), D080 propusa. Pas urmator: proba operator, fara push/merge. |
 | F07-T37 | Stergere definitiva configurari inactive/nefolosite, numai administrator | gata | Codex | 0.92.15: domeniu confirmat explicit; stergere admin stricta, inactive/nefolosite, verificari referinte/revizii, audit si rollback. [Specificatie](../stergere-configurari-admin.md), [rezultate](../rezultate-F07-T37.md), [D075](../decizii/D075-stergere-configurari-admin.md). Pas urmator: build oficial si proba operator; fara push/merge. |
 | F07-T36 | Modificare data absenta, anulare si reactivare vizibile | gata | Codex | Mutare atomica, stergere/anulare si reactivare, stare si tipuri editabile. [Rezultate](../rezultate-F07-T36.md); pas urmator: proba operator. |
