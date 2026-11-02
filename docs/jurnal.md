@@ -407,3 +407,9 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 | 2026-11-02 | F09-T13/T14: gofmt, go vet, intreaga suita Go, build frontend si 24 teste Vitest trecute. Scenariile Edge editor flexibil si UX30 trecute RO/EN. Documentatie 0 erori, 3 teste manual si 7 teste livrare. Corectate in probe aliasul optional pentru SQL scalar COUNT, conservarea DST si campurile ascunse/repetate; referintele istorice pastrate. Pregatit commit local si build oficial 0.92.25, fara push sau merge. | Codex | [Rezultate](rezultate-F09-T13-T14.md) |
 
 | 2026-11-02 | F09-T13/T14: build oficial 0.92.25 din 2dc440a complet, manuale MD/HTML/PDF regenerate; verificate SHA256 executabil/manuale/ZIP si CRC ZIP. Modele Wails comparate semantic, fara diferente de clase/campuri. Livrare locala, fara push sau merge. | Codex | [Livrare](rezultate-F09-T13-T14.md) |
+
+| 2026-11-02 | F09-T15: utilizatorul cere explicatii de calcul/coloane doar la alegere. Creat task si ramura; implementare per model pentru exporturi, fara schimbare de calcul. | Codex | [Task](functionalitati/F09-rapoarte-pdf.md) |
+
+| 2026-11-02 | F09-T15: verificat Go1.27.3, npm fara actualizari. Wails patch stabil 2.17.1 disponibil; actualizat modulul. Incercarea Excelize2.11.1 a introdus efp prerelease, revenit la Excelize2.11.0/efp0.0.2 conform regulii stabile. Actualizarile indirecte raman in F14-T21. Manual revizuit fara schimbari de flux pentru patch-ul de dependenta. | Codex | D007, F09-T15 |
+
+| 2026-11-02 | F09-T15: actualizarea Wails2.17.1 verificata cu gofmt, go vet si intreaga suita Go, toate trecute; Excelize stabil anterior pastrat din cauza dependentei prerelease a noului patch. Commit separat de functionalitate. | Codex | D007 |

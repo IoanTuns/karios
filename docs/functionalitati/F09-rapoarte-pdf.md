@@ -12,6 +12,7 @@ F09-T08 extinde modelele cu imagini locale în antet și subsol și verifică ra
 
 | ID | Task | Stare | Responsabil | Note |
 | --- | --- | --- | --- | --- |
+| F09-T15 | Afisare optionala a modului de calcul si semnificatiei coloanelor | in lucru | Codex | Cerere utilizator; bifa per model, aplicata PDF si Excel. Modelele noi fara explicatii, modelele existente pastreaza optiunea pana la editare. |
 | F09-T13 | Editor flexibil de rapoarte: campuri din baza, SQL si sabloane Markdown/HTML ori editor vizual | gata | Codex | SQL parametrizat pe instantaneu izolat, lista garzilor angajat/data, tabel, Markdown si pozitionare vizuala cu repetare. [Ghid](../ghid-rapoarte-flexibile.md). [Rezultate](../rezultate-F09-T13-T14.md); pas urmator: proba operator si review. |
 | F09-T14 | Catalog de coloane calculate, coloane automate pe tip de concediu si formule configurabile din aplicatie | gata | Codex | Formule aritmetice/SQL scalar, coloane automate pe tip de absenta, total concedii pe tipuri/categorii si totaluri contractuale/garzi. Reguli confirmate de utilizator in F01; [Rezultate](../rezultate-F09-T13-T14.md); pas urmator: proba operator si review. |
 | F09-T12 | Eliminare Ore norma din raportul detaliat si legenda in subsol pentru fiecare coloana | gata | Codex | Explicatii din regulile efectiv configurate, RO/EN, PDF si Excel. Clarificarile de calcul neintegrate nu sunt prezentate ca implementate. [Rezultate](../rezultate-F09-T12.md); pas urmator: proba operator si integrarea F07-T27/T28. |

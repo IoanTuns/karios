@@ -125,3 +125,5 @@ F14-T25 implementează sumarul și filtrele din I075 și detaliile model/context
 
 | I106 | 2026-11-02 | Editor de rapoarte cu campuri din baza/SQL, Markdown si structura configurabila, inclusiv lista garzilor angajat-data | Codex, utilizator | transformata | F09-T13 implementat in 0.92.25; [ghid](ghid-rapoarte-flexibile.md), Markdown subset si pozitionare libera, fara HTML executabil |
 | I107 | 2026-11-02 | Coloane calculate configurabile, totaluri contractuale/concedii/garzi si generarea unei coloane pentru fiecare tip nou de concediu | Codex, utilizator | transformata | F09-T14 implementat in 0.92.25; regulile pentru obligatie lunara, intersectii garzi si concedii deduplicate confirmate in F01 |
+
+| I108 | 2026-11-02 | Explicatiile de calcul si semnificatia coloanelor sunt optionale per model de raport | Codex, utilizator | transformata | F09-T15; cerere explicita |
