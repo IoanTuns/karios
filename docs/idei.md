@@ -127,3 +127,5 @@ F14-T25 implementează sumarul și filtrele din I075 și detaliile model/context
 | I107 | 2026-11-02 | Coloane calculate configurabile, totaluri contractuale/concedii/garzi si generarea unei coloane pentru fiecare tip nou de concediu | Codex, utilizator | transformata | F09-T14 implementat in 0.92.25; regulile pentru obligatie lunara, intersectii garzi si concedii deduplicate confirmate in F01 |
 
 | I108 | 2026-11-02 | Explicatiile de calcul si semnificatia coloanelor sunt optionale per model de raport | Codex, utilizator | transformata | F09-T15; cerere explicita |
+
+| I109 | 2026-11-03 | Antet/subsol flexibil cu trei zone simultane aliniate stanga/centru/dreapta, inclusiv imagini | Codex, captura utilizator | transformata | F09-T18, defect PDF confirmat in cod |

@@ -431,3 +431,9 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 | 2026-11-03 | F09-T17: utilizatorul cere Data ca numar al zilei, apoi ziua saptamanii, nume/prenume si Observatii cu intervalul orar. Actualizat exemplul SQL si ghidul; noul exemplu are cele patru coloane in ordinea ceruta, fara marca/nr_crt. Verificare anonima in motorul aplicatiei in curs. | Codex | [Exemplu](exemple/garzi-lunar.sql) |
 
 | 2026-11-03 | F09-T17: proba anonima temporara in motorul SQL al aplicatiei trecuta: patru coloane in ordinea ceruta, toate cele sapte zile ale saptamanii in romana, numarul zilei numeric si interval nocturn cu data iesirii. Eliminata proba temporara; doar exemplu/documentatie, fara build nou. | Codex | [Ghid](ghid-rapoarte-flexibile.md) |
+
+| 2026-11-03 | F09-T18: captura confirma ca raportul flexibil stivuieste toate textele antetului pe latime completa si la stanga, contrar zonelor din editor. Creat task si ramura; corectie TABEL/Markdown si aliniere imagini/subsol, fara modificari de calcul. | Codex | [Task](functionalitati/F09-rapoarte-pdf.md) |
+
+| 2026-11-03 | F09-T18: verificat Go1.27.3, Wails2.17.1, gofpdf1.4.3 actuale; npm raporteaza react-i18next17.1.12, actualizat de la17.1.11. Excelize2.11.1 ramane amanat din cauza efp prerelease; actualizarile indirecte raman in F14-T21. Fara pypdf instalat: probele PDF vor folosi pdfcpu existent si randarea Windows, fara instalare noua. | Codex | D007, D084 |
+
+| 2026-11-03 | F09-T18: patch react-i18next17.1.12 verificat: frontend build,24 teste, Edge RO/EN, gofmt/vet si intreaga suita Go trecute. Actualizare separata de corectia PDF, fara pachete noi. | Codex | D007 |
