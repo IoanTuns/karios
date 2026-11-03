@@ -441,3 +441,5 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 | 2026-11-03 | F09-T18: proba pe coordonatele textului din PDF reproduce defectul (A_CENTRU la31.18pt in loc de276.08pt). Implementate zone simultane L/C/R, imagini ancorate corespunzator si continutul anexei dupa antet. Coordonatele LIBER nu sunt translate. | Codex | [D084](decizii/D084-aliniere-antet-flexibil.md) |
 
 | 2026-11-03 | F09-T18: 12 cazuri de geometrie PDF trecute RO/EN, A4/A3, portret/peisaj, TABEL/Markdown; randarea Windows inspectata vizual. Gofmt/vet si intreaga suita Go, documentatie0 erori,3 teste manual,7 teste livrare trecute. Pregatit commit local si build0.92.29, fara push/merge. | Codex | [Rezultate](rezultate-F09-T18.md) |
+
+| 2026-11-03 | F09-T18: livrare0.92.29 din7a53702 completa, manuale MD/HTML/PDF regenerate; manifest, versiune/commit, SHA256 executabil/manuale/ZIP si CRC ZIP verificate. Modele Wails comparate semantic, ordinea sursei pastrata. Fara push/merge. | Codex | [Livrare](rezultate-F09-T18.md) |

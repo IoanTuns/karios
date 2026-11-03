@@ -21,3 +21,7 @@ Coordonatele continutului LIBER raman explicite; nu se introduc texte noi peste 
 ## Predare
 
 Pas urmator: proba utilizator pe raportul propriu, apoi review pentru integrare. Nu s-au accesat datele reale si nu s-a probat imprimanta fizica. Fara push sau merge. Buildul oficial se consemneaza dupa compilare.
+
+## Livrare verificata
+
+Build oficial0.92.29, commit7a53702, Wails CLI2.17.1. Executabil si manuale regenerate MD/HTML/PDF in `build/bin/pontix-0.92.29-20261103-200939-2e95395fa0e345a1a4f5c5924f9fd305/`; ZIP alaturat. Manifest complet, versiune/commit si SHA256 executabil/manuale/ZIP verificate; CRC ZIP corect. Modele Wails echivalente semantic, ordinea sursei pastrata. Fara push/merge.
