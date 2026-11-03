@@ -105,31 +105,32 @@ Verifica datele si previzualizeaza PDF este obligatoriu in editor inainte de sal
 
 In Setari > Definire rapoarte > Editeaza > Continut, bifa Afiseaza modul de calcul si semnificatia coloanelor include explicatiile in anexa finala PDF si in Excel. Debifati pentru un raport fara explicatii, formule sau SQL. Salvati modelul; la modelele flexibile refaceti previzualizarea inainte de salvare. Modelele noi pornesc debifate; duplicarea pastreaza alegerea, iar modelele existente pastreaza afisarea pana la debifare. Istoricul tehnic ramane separat la final.
 
-## Lista lunara de garzi cu numar curent si interval orar
+## Lista lunara de garzi: data, ziua, nume si observatii
 
-Alegeti Lista garzilor, luna/anul dorit si filtrele pentru toate persoanele. Un rand pentru fiecare garda care incepe in luna aleasa; o garda care incepe in luna precedenta nu este inclusa de acest exemplu, chiar daca se termina in luna curenta. Numerotare secventiala stabila, inclusiv la intervale identice, fara ROW_NUMBER (nepermis de motorul curent). Parametrul pana_la este prima zi a lunii urmatoare, exclusiv.
+Alegeti Lista garzilor, luna/anul dorit si filtrele pentru toate persoanele. Un rand pentru fiecare garda care incepe in luna aleasa; garzile incepute in luna precedenta nu sunt incluse de acest exemplu. Parametrul pana_la este prima zi a lunii urmatoare, exclusiv.
+
+Ordinea coloanelor este Data (numarul zilei din luna), Ziua (numele romanesc al zilei saptamanii), Nume si prenume, Observatii (ora de start - ora de final, format24h). Data iesirii este adaugata in paranteze daca garda se termina in alta zi. In aceasta varianta nr_crt si marca nu sunt afisate, conform noii liste de coloane cerute. Sortarea ramane dupa data completa si ora, apoi nume/marca pentru egalitati; nu se sorteaza dupa eticheta zilei sau dupa numarul zilei ca text.
 
 ```sql
-WITH lista AS (
-  SELECT rowid AS id_rand, *
-  FROM garzi
-  WHERE data >= :de_la AND data < :pana_la
-)
 SELECT
-  (SELECT COUNT(*) FROM lista b
-   WHERE (b.inceput, b.angajat, b.marca, b.id_rand)
-      <= (g.inceput, g.angajat, g.marca, g.id_rand)) AS nr_crt,
-  g.angajat AS nume,
-  g.marca,
-  strftime('%d.%m.%Y', g.data) AS data,
+  CAST(strftime('%d', g.data) AS INTEGER) AS data,
+  CASE strftime('%w', g.data)
+    WHEN '0' THEN 'Duminică'
+    WHEN '1' THEN 'Luni'
+    WHEN '2' THEN 'Marți'
+    WHEN '3' THEN 'Miercuri'
+    WHEN '4' THEN 'Joi'
+    WHEN '5' THEN 'Vineri'
+    WHEN '6' THEN 'Sâmbătă'
+  END AS ziua,
+  g.angajat AS nume_si_prenume,
   substr(g.inceput, 12, 5) || ' - ' || substr(g.sfarsit, 12, 5)
     || CASE WHEN substr(g.sfarsit, 1, 10) <> g.data
        THEN ' (' || strftime('%d.%m.%Y', g.sfarsit) || ')'
-       ELSE '' END AS ora
-FROM lista g
-ORDER BY g.inceput, g.angajat, g.marca, g.id_rand;
+       ELSE '' END AS observatii
+FROM garzi g
+WHERE g.data >= :de_la AND g.data < :pana_la
+ORDER BY g.inceput, g.angajat, g.marca, g.rowid;
 ```
 
-Ora este in format24h. Data iesirii este adaugata in paranteze daca garda se termina in alta zi. Interogare verificata pe SQLite in memorie cu date anonime: ordonare, numerotare inclusiv egalitati, excludere luna precedenta si garda nocturna. Schema verificata in implementarea raportului; nu s-a accesat baza reala.
-
-Daca apare SQL invalid dupa copiere, selectati intregul camp (Ctrl+A) si inlocuiti cu o singura interogare din [fisierul SQL curat](exemple/garzi-lunar.sql). Textul `END AS oraWITH lista AS (` indica lipirea a doua copii; nu pastrati finalul duplicat FROM/ORDER BY. Interogarea curata a trecut si in motorul izolat al aplicatiei, inclusiv pregatirea completa a raportului pe date anonime.
+Selectati intregul camp SQL din aplicatie (Ctrl+A) si inlocuiti cu o singura copie din [fisierul SQL curat](exemple/garzi-lunar.sql), apoi previzualizati si salvati modelul. Lipirea repetata a doua interogari produce eroare SQL invalid.

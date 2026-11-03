@@ -427,3 +427,7 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 | 2026-11-03 | F09-T16: utilizatorul raporteaza respingerea interogarii propuse pentru garzi. Exemplul fusese verificat pe SQLite generic, nu cu authorizer-ul aplicatiei; inceputa reproducerea in motorul efectiv, pe date anonime. | Codex | [Task](functionalitati/F09-rapoarte-pdf.md) |
 
 | 2026-11-03 | F09-T16: interogarea curata a trecut in motorul SQL real si in pregatirea completa a raportului, probe anonime temporare. Textul exact trimis de utilizator contine doua copii concatenate la END AS oraWITH si doua finale FROM/ORDER BY. Cauza este lipirea duplicata, nu o restrictie SQL; adaugat fisier curat si instructiune de inlocuire completa. Proba temporara este eliminata, fara schimbari de cod/calcul sau build nou. | Codex | [SQL](exemple/garzi-lunar.sql) |
+
+| 2026-11-03 | F09-T17: utilizatorul cere Data ca numar al zilei, apoi ziua saptamanii, nume/prenume si Observatii cu intervalul orar. Actualizat exemplul SQL si ghidul; noul exemplu are cele patru coloane in ordinea ceruta, fara marca/nr_crt. Verificare anonima in motorul aplicatiei in curs. | Codex | [Exemplu](exemple/garzi-lunar.sql) |
+
+| 2026-11-03 | F09-T17: proba anonima temporara in motorul SQL al aplicatiei trecuta: patru coloane in ordinea ceruta, toate cele sapte zile ale saptamanii in romana, numarul zilei numeric si interval nocturn cu data iesirii. Eliminata proba temporara; doar exemplu/documentatie, fara build nou. | Codex | [Ghid](ghid-rapoarte-flexibile.md) |
