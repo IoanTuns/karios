@@ -423,3 +423,7 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 | 2026-11-03 | F09-T15: livrare oficiala0.92.27 din e1629d5, Wails CLI2.17.1 rulat fara instalare. Executabil/manuale MD/HTML/PDF si ZIP verificate: manifest complet, versiune/commit, SHA256 si CRC. Modele generate echivalente semantic; ordinea originala pastrata. Fara push/merge. | Codex | [Livrare](rezultate-F09-T15.md) |
 
 | 2026-11-03 | F09-T13: cerere de configurare lista lunara de garzi cu nr_crt/nume/marca/data/ora, sortata cronologic. Adaugat exemplu SQL in ghid; verificat pe SQLite anonim inclusiv egalitati si trecere peste miezul noptii. Fara schimbari de cod sau date reale. | Codex | [Ghid](ghid-rapoarte-flexibile.md) |
+
+| 2026-11-03 | F09-T16: utilizatorul raporteaza respingerea interogarii propuse pentru garzi. Exemplul fusese verificat pe SQLite generic, nu cu authorizer-ul aplicatiei; inceputa reproducerea in motorul efectiv, pe date anonime. | Codex | [Task](functionalitati/F09-rapoarte-pdf.md) |
+
+| 2026-11-03 | F09-T16: interogarea curata a trecut in motorul SQL real si in pregatirea completa a raportului, probe anonime temporare. Textul exact trimis de utilizator contine doua copii concatenate la END AS oraWITH si doua finale FROM/ORDER BY. Cauza este lipirea duplicata, nu o restrictie SQL; adaugat fisier curat si instructiune de inlocuire completa. Proba temporara este eliminata, fara schimbari de cod/calcul sau build nou. | Codex | [SQL](exemple/garzi-lunar.sql) |

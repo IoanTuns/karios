@@ -131,3 +131,5 @@ ORDER BY g.inceput, g.angajat, g.marca, g.id_rand;
 ```
 
 Ora este in format24h. Data iesirii este adaugata in paranteze daca garda se termina in alta zi. Interogare verificata pe SQLite in memorie cu date anonime: ordonare, numerotare inclusiv egalitati, excludere luna precedenta si garda nocturna. Schema verificata in implementarea raportului; nu s-a accesat baza reala.
+
+Daca apare SQL invalid dupa copiere, selectati intregul camp (Ctrl+A) si inlocuiti cu o singura interogare din [fisierul SQL curat](exemple/garzi-lunar.sql). Textul `END AS oraWITH lista AS (` indica lipirea a doua copii; nu pastrati finalul duplicat FROM/ORDER BY. Interogarea curata a trecut si in motorul izolat al aplicatiei, inclusiv pregatirea completa a raportului pe date anonime.
