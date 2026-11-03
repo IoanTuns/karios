@@ -104,3 +104,30 @@ Verifica datele si previzualizeaza PDF este obligatoriu in editor inainte de sal
 ### Explicatii optionale in raport
 
 In Setari > Definire rapoarte > Editeaza > Continut, bifa Afiseaza modul de calcul si semnificatia coloanelor include explicatiile in anexa finala PDF si in Excel. Debifati pentru un raport fara explicatii, formule sau SQL. Salvati modelul; la modelele flexibile refaceti previzualizarea inainte de salvare. Modelele noi pornesc debifate; duplicarea pastreaza alegerea, iar modelele existente pastreaza afisarea pana la debifare. Istoricul tehnic ramane separat la final.
+
+## Lista lunara de garzi cu numar curent si interval orar
+
+Alegeti Lista garzilor, luna/anul dorit si filtrele pentru toate persoanele. Un rand pentru fiecare garda care incepe in luna aleasa; o garda care incepe in luna precedenta nu este inclusa de acest exemplu, chiar daca se termina in luna curenta. Numerotare secventiala stabila, inclusiv la intervale identice, fara ROW_NUMBER (nepermis de motorul curent). Parametrul pana_la este prima zi a lunii urmatoare, exclusiv.
+
+```sql
+WITH lista AS (
+  SELECT rowid AS id_rand, *
+  FROM garzi
+  WHERE data >= :de_la AND data < :pana_la
+)
+SELECT
+  (SELECT COUNT(*) FROM lista b
+   WHERE (b.inceput, b.angajat, b.marca, b.id_rand)
+      <= (g.inceput, g.angajat, g.marca, g.id_rand)) AS nr_crt,
+  g.angajat AS nume,
+  g.marca,
+  strftime('%d.%m.%Y', g.data) AS data,
+  substr(g.inceput, 12, 5) || ' - ' || substr(g.sfarsit, 12, 5)
+    || CASE WHEN substr(g.sfarsit, 1, 10) <> g.data
+       THEN ' (' || strftime('%d.%m.%Y', g.sfarsit) || ')'
+       ELSE '' END AS ora
+FROM lista g
+ORDER BY g.inceput, g.angajat, g.marca, g.id_rand;
+```
+
+Ora este in format24h. Data iesirii este adaugata in paranteze daca garda se termina in alta zi. Interogare verificata pe SQLite in memorie cu date anonime: ordonare, numerotare inclusiv egalitati, excludere luna precedenta si garda nocturna. Schema verificata in implementarea raportului; nu s-a accesat baza reala.
