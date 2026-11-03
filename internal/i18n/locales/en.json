@@ -1823,5 +1823,7 @@
   "ui.sterge": "Delete",
   "rapoarte.flex_ascunse": "Hidden table columns (comma-separated names; still available to calculations and template)",
   "rapoarte.flex_pas_rand": "Repeated row spacing (mm)",
-  "rapoarte.flex_repeta_rand": "Repeat element for every data row"
+  "rapoarte.flex_repeta_rand": "Repeat element for every data row",
+  "rapoarte.afiseaza_explicatii": "Show calculation method and column meanings",
+  "rapoarte.explicatii_indiciu": "Include explanations in the final PDF appendix and Excel export. Technical history remains separate."
 }

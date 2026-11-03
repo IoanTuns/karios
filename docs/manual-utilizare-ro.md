@@ -677,6 +677,10 @@ Catalogul lunar contine zile/ore conform contractului, ore lucratoare/lucrate, t
 
 Alegeti **Tabel automat**, **Markdown** sau **Pozitionare libera**. Markdown suporta titluri, paragrafe, liste, evidentiere si tabele simple; {{tabel}} insereaza lista rezultata. Nu este HTML executabil. Editorul liber permite tragerea campurilor si coordonate exacte in mm. Campurile obisnuite folosesc prima inregistrare; bifati **Repeta elementul pentru fiecare rand de date** si configurati pasul randurilor pentru o structura proprie pe toate inregistrarile. {{tabel}} si campurile repetate sunt alternative, pentru a evita dublarea.
 
-Apasati **Verifica datele si previzualizeaza PDF**, verificati rezultatul, apoi **Salveaza**. Orice modificare necesita reverificare. Modelul activ apare in **Rapoarte**; datele se citesc din nou la generare. Formulele si istoricul raman in anexa finala. Exportul Excel pastreaza tabelul, nu coordonatele vizuale.
+Apasati **Verifica datele si previzualizeaza PDF**, verificati rezultatul, apoi **Salveaza**. Orice modificare necesita reverificare. Modelul activ apare in **Rapoarte**; datele se citesc din nou la generare. Formulele apar optional in anexa finala, conform bifei din Continut; istoricul tehnic ramane la final. Exportul Excel pastreaza tabelul, nu coordonatele vizuale.
 
 Ghidul tehnic din repo, docs/ghid-rapoarte-flexibile.md, contine campurile, exemplele si limitele. Maximum 80 coloane/10000 randuri, cu limite de timp si volum; un aspect care nu incape este refuzat, fara decupare tacita.
+
+### Explicatii optionale in raport
+
+In Setari > Definire rapoarte > Editeaza > Continut, bifa Afiseaza modul de calcul si semnificatia coloanelor include explicatiile in anexa finala PDF si in Excel. Debifati pentru un raport fara explicatii, formule sau SQL. Salvati modelul; la modelele flexibile refaceti previzualizarea inainte de salvare. Modelele noi pornesc debifate; duplicarea pastreaza alegerea, iar modelele existente pastreaza afisarea pana la debifare. Istoricul tehnic ramane separat la final.

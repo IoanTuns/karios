@@ -225,6 +225,9 @@ func preparaFlexibil(ctx context.Context, tx *sql.Tx, d Definitie, c Cerere, acu
 			doc.Legenda = append(doc.Legenda, cc.Cod+" ["+cc.Unitate+"]: "+cc.Expresie)
 		}
 	}
+	if d.Continut.AscundeExplicatii {
+		doc.Legenda = nil
+	}
 	return doc, nil
 }
 

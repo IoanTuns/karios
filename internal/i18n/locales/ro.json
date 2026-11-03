@@ -1823,5 +1823,7 @@
   "ui.sterge": "Sterge",
   "rapoarte.flex_ascunse": "Coloane ascunse in tabel (nume separate prin virgula; raman disponibile calculelor si sablonului)",
   "rapoarte.flex_pas_rand": "Distanta dintre randurile repetate (mm)",
-  "rapoarte.flex_repeta_rand": "Repeta elementul pentru fiecare rand de date"
+  "rapoarte.flex_repeta_rand": "Repeta elementul pentru fiecare rand de date",
+  "rapoarte.afiseaza_explicatii": "Afișează modul de calcul și semnificația coloanelor",
+  "rapoarte.explicatii_indiciu": "Include explicațiile în anexa finală PDF și în exportul Excel. Istoricul tehnic rămâne separat."
 }

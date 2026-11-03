@@ -93,10 +93,14 @@ Pozitionare libera: Adauga element, alege text/campuri si coordonatele X/Y, lati
 
 Pentru o structura proprie pe fiecare rand de date bifati Repeta elementul pentru fiecare rand si configurati distanta dintre randuri. Campurile repetate primesc valorile fiecarei inregistrari si continua automat pe alte pagini. Nu combinati tabelul integral cu elemente repetate, pentru a nu duplica datele. Celulele trebuie sa incapa in dimensiunile alese; reduceti textul, cresteti dimensiunile sau schimbati pagina daca previzualizarea refuza aspectul.
 
-Antetul/subsolul configurat si imaginile sunt pastrate; explicatiile SQL/formulelor si istoricul tehnic sunt la final. Campurile ascunse raman disponibile sablonului. Excel exporta valorile si coloanele tabelului rezultat, nu coordonatele PDF. Investigatia anterioara a blocarii Excel pe sistemul utilizatorului ramane amanata, nu este declarata rezolvata de acest task.
+Antetul/subsolul configurat si imaginile sunt pastrate; explicatiile SQL/formulelor sunt optionale prin bifa din Continut, iar istoricul tehnic este la final. Campurile ascunse raman disponibile sablonului. Excel exporta valorile si coloanele tabelului rezultat, nu coordonatele PDF. Investigatia anterioara a blocarii Excel pe sistemul utilizatorului ramane amanata, nu este declarata rezolvata de acest task.
 
 ## Limite si verificare
 
 O interogare SELECT, maximum 80 coloane si 10000 randuri, 8 MiB rezultat, 256 KiB celula, doua secunde pe interogare; pregatirea are termen total 20 secunde. Sunt permise citirea si functiile SQL uzuale enumerate de motor, nu ATTACH, PRAGMA, scrieri sau functii de fisiere. Un calcul SQL per rand este limitat si ca numar de executii (2000 per raport).
 
 Verifica datele si previzualizeaza PDF este obligatoriu in editor inainte de salvarea definitiei curente. Dupa salvare, modelul activ apare in Rapoarte pentru generare cu filtrele alese, PDF, tiparire si exporturile existente. Nu se tipareste automat.
+
+### Explicatii optionale in raport
+
+In Setari > Definire rapoarte > Editeaza > Continut, bifa Afiseaza modul de calcul si semnificatia coloanelor include explicatiile in anexa finala PDF si in Excel. Debifati pentru un raport fara explicatii, formule sau SQL. Salvati modelul; la modelele flexibile refaceti previzualizarea inainte de salvare. Modelele noi pornesc debifate; duplicarea pastreaza alegerea, iar modelele existente pastreaza afisarea pana la debifare. Istoricul tehnic ramane separat la final.

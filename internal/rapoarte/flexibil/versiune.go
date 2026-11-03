@@ -1,4 +1,4 @@
 package flexibil
 
 // Versiune identifica raportul configurabil SQL, Markdown si pozitionare libera.
-const Versiune = 1
+const Versiune = 2

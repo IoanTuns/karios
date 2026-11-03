@@ -413,3 +413,9 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 | 2026-11-02 | F09-T15: verificat Go1.27.3, npm fara actualizari. Wails patch stabil 2.17.1 disponibil; actualizat modulul. Incercarea Excelize2.11.1 a introdus efp prerelease, revenit la Excelize2.11.0/efp0.0.2 conform regulii stabile. Actualizarile indirecte raman in F14-T21. Manual revizuit fara schimbari de flux pentru patch-ul de dependenta. | Codex | D007, F09-T15 |
 
 | 2026-11-02 | F09-T15: actualizarea Wails2.17.1 verificata cu gofmt, go vet si intreaga suita Go, toate trecute; Excelize stabil anterior pastrat din cauza dependentei prerelease a noului patch. Commit separat de functionalitate. | Codex | D007 |
+
+| 2026-11-02 | F09-T15: implementata bifa per model pentru explicatii PDF/Excel; modelele noi debifate, duplicarea si compatibilitatea pastrate. Probe Go RO/EN pentru surse vechi si flexibila trecute; frontend build, 24 teste si Edge RO/EN trecute. Actualizate manualul si referintele tehnice versionate, fara schimbarea cazurilor de calcul. | Codex | [Rezultate](rezultate-F09-T15.md) |
+
+| 2026-11-03 | F09-T15: suita finala Go a raportat timeout in TestAutentificareBlocareSiJurnal (pachet conturi, durata raportata peste 2 ore, limita120s). Celelalte pachete parcurse, inclusiv rapoarte, au trecut. Reluata verificarea pachetului conturi separat; nu se modifica testul sau codul de autentificare pentru a masca incidentul. | Codex | [Rezultate](rezultate-F09-T15.md) |
+
+| 2026-11-03 | F09-T15: conturi a trecut la reluare in19.116s, apoi intreaga suita Go a trecut. Gofmt/vet verificate, frontend/Edge RO/EN trecute; pregatit commit local si build oficial0.92.27. Fara push sau merge. | Codex | [Rezultate](rezultate-F09-T15.md) |

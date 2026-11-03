@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.27 - 2026-11-02
+
+F09-T15: afisare optionala a explicatiilor de calcul si semnificatiei coloanelor per model, PDF/Excel. Modelele noi pornesc fara explicatii; cele existente pastreaza optiunea pana la editare. Istoricul tehnic ramane separat. Rapoarte: pontaj14, detaliat15, individual14, absente11, garzi11, flexibil2. Manual1.37.
+
 ## 0.92.26 - 2026-11-02
 
 F09-T15: Wails 2.17.0 -> 2.17.1, patch stabil. Excelize ramane 2.11.0: versiunea 2.11.1 impune efp prerelease, incompatibil cu regula versiunilor stabile. Fara schimbare a rapoartelor. Manual revizuit 1.36.

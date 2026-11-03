@@ -683,7 +683,9 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 			return Document{}, traduce(err)
 		}
 	}
-	doc.Legenda = legendaColoane(doc, configLegenda, limba, etichete)
+	if !d.Continut.AscundeExplicatii {
+		doc.Legenda = legendaColoane(doc, configLegenda, limba, etichete)
+	}
 	if err := tx.Commit(); err != nil {
 		return Document{}, traduce(err)
 	}

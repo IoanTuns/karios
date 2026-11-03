@@ -4219,6 +4219,7 @@ export namespace rapoarte {
 	    }
 	}
 	export class Continut {
+	    ascunde_explicatii?: boolean;
 	    flexibil?: RaportFlexibil;
 	    sursa: string;
 	    coloane: string[];
@@ -4230,6 +4231,7 @@ export namespace rapoarte {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.ascunde_explicatii = source["ascunde_explicatii"];
 	        this.flexibil = this.convertValues(source["flexibil"], RaportFlexibil);
 	        this.sursa = source["sursa"];
 	        this.coloane = source["coloane"];

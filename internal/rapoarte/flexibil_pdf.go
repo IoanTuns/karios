@@ -384,7 +384,9 @@ func GenereazaPDFFlexibil(d Document) ([]byte, error) {
 	nouaPagina()
 	f.SetFont("Go", "B", 10)
 	f.SetXY(m, m+10)
-	f.MultiCell(w-2*m, 5, i18n.T(d.Limba, "rapoarte.anexa_calcul", nil), "", "L", false)
+	if len(d.Legenda) > 0 {
+		f.MultiCell(w-2*m, 5, i18n.T(d.Limba, "rapoarte.anexa_calcul", nil), "", "L", false)
+	}
 	f.SetFont("Go", "", 8)
 	linii := append([]string{}, d.Legenda...)
 	linii = append(linii, i18n.T(d.Limba, "rapoarte.anexa_istoric", nil), d.Metadate)

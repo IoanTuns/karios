@@ -27,10 +27,11 @@ type Bloc struct {
 	Imagini map[string]Imagine `json:"imagini,omitempty"`
 }
 type Continut struct {
-	Flexibil *RaportFlexibil `json:"flexibil,omitempty"`
-	Sursa    string          `json:"sursa"`
-	Coloane  []string        `json:"coloane"`
-	Text     i18n.Text       `json:"text"`
+	AscundeExplicatii bool            `json:"ascunde_explicatii,omitempty"`
+	Flexibil          *RaportFlexibil `json:"flexibil,omitempty"`
+	Sursa             string          `json:"sursa"`
+	Coloane           []string        `json:"coloane"`
+	Text              i18n.Text       `json:"text"`
 }
 type Pagina struct {
 	Format    string `json:"format"`
