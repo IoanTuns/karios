@@ -20,3 +20,7 @@ JSON continut.ascunde_explicatii optional, fara migrare. Rapoarte pontaj14, deta
 ## Predare
 
 Pas urmator: proba operator si review pentru integrare. Fara push sau merge. Buildul oficial si verificarile manifestului/manualelor se consemneaza dupa compilare.
+
+## Livrare verificata 2026-11-03
+
+Build oficial Wails CLI2.17.1, versiune0.92.27, commit e1629d5. Director `build/bin/pontix-0.92.27-20261103-192212-5111fa9881f7444fba0e5d7ec4cb7f56/`, ZIP alaturat. Executabil, manuale regenerate Markdown/HTML/PDF si manifest complet, versiune/commit/SHA256 verificate; ZIP CRC si SHA256 corecte. Modelele Wails comparate semantic cu sursa si ordinea pastrata. Fara push/merge.
