@@ -684,3 +684,9 @@ Ghidul tehnic din repo, docs/ghid-rapoarte-flexibile.md, contine campurile, exem
 ### Explicatii optionale in raport
 
 In Setari > Definire rapoarte > Editeaza > Continut, bifa Afiseaza modul de calcul si semnificatia coloanelor include explicatiile in anexa finala PDF si in Excel. Debifati pentru un raport fara explicatii, formule sau SQL. Salvati modelul; la modelele flexibile refaceti previzualizarea inainte de salvare. Modelele noi pornesc debifate; duplicarea pastreaza alegerea, iar modelele existente pastreaza afisarea pana la debifare. Istoricul tehnic ramane separat la final.
+
+### Alinierea antetului si a subsolului PDF flexibil
+
+In Tabel automat si Markdown, cele trei texte din antet apar simultan: stanga, centrat pe pagina si dreapta, fiecare in treimea lui. Textul se imparte automat pe linii in zona aleasa; tabelul incepe dupa cea mai inalta zona. Imaginile isi pastreaza proportiile si se aliniaza in zona lor. Subsolul respecta aceleasi alinieri. Antetul si imaginile se repeta si pe anexa finala, fara suprapunerea calculului/istoricului cu antetul. Pozitionarea libera continua sa foloseasca elementele si coordonatele explicite pentru textul din corp; nu se muta automat elementele deja configurate.
+
+Pentru titlul central al listei de garzi, introduceti textul in Antet > Centru. In Markdown folositi doar {{tabel}} daca nu doriti un al doilea titlu in corp. Etichetele {{an}}, {{luna}} si {{perioada}} se inlocuiesc in texte; pentru sursa flexibila luna este numerica, iar perioada are forma AAAA-LL.

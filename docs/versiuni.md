@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.29 - 2026-11-03
+
+F09-T18: antetul PDF flexibil TABEL/Markdown respecta cele trei zone stanga/centru/dreapta pe acelasi rand, cu text impachetat si spatiu rezervat. Imagini ancorate in zonele lor si texte subsol aliniate. Antetul se repeta pe anexa, care incepe dupa el. Raport flexibil3; celelalte versiuni/calculul neschimbate. Manual1.39.
+
 ## 0.92.28 - 2026-11-03
 
 F09-T18: react-i18next17.1.11 ->17.1.12, patch stabil, versiune exacta si lockfile. Manual revizuit1.38, fara schimbare de flux sau calcul.

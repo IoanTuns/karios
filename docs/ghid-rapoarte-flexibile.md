@@ -134,3 +134,9 @@ ORDER BY g.inceput, g.angajat, g.marca, g.rowid;
 ```
 
 Selectati intregul camp SQL din aplicatie (Ctrl+A) si inlocuiti cu o singura copie din [fisierul SQL curat](exemple/garzi-lunar.sql), apoi previzualizati si salvati modelul. Lipirea repetata a doua interogari produce eroare SQL invalid.
+
+### Alinierea antetului si a subsolului PDF flexibil
+
+In Tabel automat si Markdown, cele trei texte din antet apar simultan: stanga, centrat pe pagina si dreapta, fiecare in treimea lui. Textul se imparte automat pe linii in zona aleasa; tabelul incepe dupa cea mai inalta zona. Imaginile isi pastreaza proportiile si se aliniaza in zona lor. Subsolul respecta aceleasi alinieri. Antetul si imaginile se repeta si pe anexa finala, fara suprapunerea calculului/istoricului cu antetul. Pozitionarea libera continua sa foloseasca elementele si coordonatele explicite pentru textul din corp; nu se muta automat elementele deja configurate.
+
+Pentru titlul central al listei de garzi, introduceti textul in Antet > Centru. In Markdown folositi doar {{tabel}} daca nu doriti un al doilea titlu in corp. Etichetele {{an}}, {{luna}} si {{perioada}} se inlocuiesc in texte; pentru sursa flexibila luna este numerica, iar perioada are forma AAAA-LL.

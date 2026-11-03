@@ -437,3 +437,7 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 | 2026-11-03 | F09-T18: verificat Go1.27.3, Wails2.17.1, gofpdf1.4.3 actuale; npm raporteaza react-i18next17.1.12, actualizat de la17.1.11. Excelize2.11.1 ramane amanat din cauza efp prerelease; actualizarile indirecte raman in F14-T21. Fara pypdf instalat: probele PDF vor folosi pdfcpu existent si randarea Windows, fara instalare noua. | Codex | D007, D084 |
 
 | 2026-11-03 | F09-T18: patch react-i18next17.1.12 verificat: frontend build,24 teste, Edge RO/EN, gofmt/vet si intreaga suita Go trecute. Actualizare separata de corectia PDF, fara pachete noi. | Codex | D007 |
+
+| 2026-11-03 | F09-T18: proba pe coordonatele textului din PDF reproduce defectul (A_CENTRU la31.18pt in loc de276.08pt). Implementate zone simultane L/C/R, imagini ancorate corespunzator si continutul anexei dupa antet. Coordonatele LIBER nu sunt translate. | Codex | [D084](decizii/D084-aliniere-antet-flexibil.md) |
+
+| 2026-11-03 | F09-T18: 12 cazuri de geometrie PDF trecute RO/EN, A4/A3, portret/peisaj, TABEL/Markdown; randarea Windows inspectata vizual. Gofmt/vet si intreaga suita Go, documentatie0 erori,3 teste manual,7 teste livrare trecute. Pregatit commit local si build0.92.29, fara push/merge. | Codex | [Rezultate](rezultate-F09-T18.md) |

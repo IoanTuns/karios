@@ -96,7 +96,7 @@ func GenereazaPDFFlexibil(d Document) ([]byte, error) {
 				ih *= zone / iw
 				iw = zone
 			}
-			f.ImageOptions(n, m+float64(i)*zone, y, iw, ih, false, o, 0, "")
+			f.ImageOptions(n, m+float64(i)*zone+(zone-iw)*float64(i)/2, y, iw, ih, false, o, 0, "")
 			if ih > max {
 				max = ih
 			}
@@ -108,7 +108,7 @@ func GenereazaPDFFlexibil(d Document) ([]byte, error) {
 		y := h - m - footerH
 		for i, v := range d.Subsol {
 			f.SetXY(m+float64(i)*zone, y)
-			f.MultiCell(zone, 3.5, inloc(v), "", "L", false)
+			f.MultiCell(zone, 3.5, inloc(v), "", []string{"L", "C", "R"}[i], false)
 		}
 		imagine(d.SubsolImagini, y+maxText)
 		f.SetFont("Go", "", 7)
@@ -125,10 +125,7 @@ func GenereazaPDFFlexibil(d Document) ([]byte, error) {
 			f.MultiCell(w-2*m, 6, d.Titlu, "", "L", false)
 		}
 		f.SetFont("Go", "", float64(d.Pagina.FontPT))
-		if anexa {
-			return
-		}
-		if d.Flexibil.ModAspect == "LIBER" {
+		if d.Flexibil.ModAspect == "LIBER" && !anexa {
 			imagine(d.AntetImagini, m)
 			for _, e := range d.Flexibil.Elemente {
 				if e.RepetaRand || strings.TrimSpace(e.Text) == "{{tabel}}" {
@@ -141,14 +138,18 @@ func GenereazaPDFFlexibil(d Document) ([]byte, error) {
 			f.SetFont("Go", "", float64(d.Pagina.FontPT))
 		} else {
 			y := f.GetY() + imagine(d.AntetImagini, f.GetY())
-			for _, v := range d.Antet {
-				if v != "" {
-					f.SetXY(m, y)
-					f.MultiCell(w-2*m, 5, inloc(v), "", "L", false)
-					y = f.GetY()
+			maxY := y
+			for i, v := range d.Antet {
+				if strings.TrimSpace(v) != "" {
+					f.SetXY(m+float64(i)*zone, y)
+					f.MultiCell(zone, 5, inloc(v), "", []string{"L", "C", "R"}[i], false)
+					if f.GetY() > maxY {
+						maxY = f.GetY()
+					}
 				}
 			}
-			if d.Introducere != "" {
+			y = maxY
+			if d.Introducere != "" && !anexa {
 				f.SetXY(m, y)
 				f.MultiCell(w-2*m, 4, inloc(d.Introducere), "", "L", false)
 				y = f.GetY()
@@ -383,7 +384,7 @@ func GenereazaPDFFlexibil(d Document) ([]byte, error) {
 	anexa = true
 	nouaPagina()
 	f.SetFont("Go", "B", 10)
-	f.SetXY(m, m+10)
+	f.SetXY(m, startTabel)
 	if len(d.Legenda) > 0 {
 		f.MultiCell(w-2*m, 5, i18n.T(d.Limba, "rapoarte.anexa_calcul", nil), "", "L", false)
 	}
@@ -396,7 +397,7 @@ func GenereazaPDFFlexibil(d Document) ([]byte, error) {
 			if f.GetY()+4 > h-m-footerH-2 {
 				nouaPagina()
 				f.SetFont("Go", "", 8)
-				f.SetY(m + 10)
+				f.SetY(startTabel)
 			}
 			f.SetX(m)
 			f.CellFormat(w-2*m, 4, linie, "", 1, "L", false, 0, "")
