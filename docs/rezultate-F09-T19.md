@@ -27,3 +27,5 @@ Optiunea de extindere pastreaza grupurile consecutive nelucratoare la ambele mar
 ## Predare
 
 Pas urmator: proba operator pe modelul propriu si review pentru integrare. Fara push sau merge. Buildul oficial si sumele de verificare se consemneaza dupa compilare.
+
+Livrare oficiala: `build/bin/pontix-0.92.30-20261104-090526-c50d540a16e9494986da9817b8d89ec2/pontix.exe`, din commit `c37e1a4`. Pachet ZIP cu acelasi nume langa director. Manualele MD/HTML/PDF0.92.30, editia1.40, regenerate. Manifest complet, versiune/commit, SHA256 executabil/manuale/ZIP si CRC ZIP verificate. SHA256 executabil: `46DF100273D0DBB672775D95CD877F98C904EDD6BF0C2801D28CAB18147657AE`. Modele Wails identice semantic; ordinea sursei pastrata. Verificarea initiala a ZIP a folosit gresit with_suffix pe numele directorului cu puncte; corectata concatenarea extensiei, fara modificarea pachetului. Fara push/merge.
