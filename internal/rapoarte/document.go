@@ -241,6 +241,15 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 	cuDate := map[string]bool{}
 	for _, v := range ciorne {
 		celule[v.AngajatID+"/"+v.Data] = v.Valoare
+		if coduri := calcul.CoduriPrograme(v.Valoare); len(coduri) > 1 {
+			texte, cat := []string{}, []string{}
+			for _, cod := range coduri {
+				texte = append(texte, descrieri[cod])
+				cat = append(cat, categorii[cod])
+			}
+			descrieri[v.Valoare] = strings.Join(texte, " + ")
+			categorii[v.Valoare] = strings.Join(cat, " + ")
+		}
 		if v.Valoare != "" {
 			cuDate[v.AngajatID] = true
 		}
@@ -341,7 +350,7 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 		codSchimb[sc.ID] = sc.Cod
 		durataSchimb[sc.ID] = sc.DurataMinute
 	}
-	planificariAngajat := map[string]map[string]acces.Planificare{}
+	planificariAngajat := map[string]map[string][]acces.Planificare{}
 	cuPlanificare := map[string]bool{}
 	totaluriAngajatGarzi := map[string]int{}
 	totaluriAngajatMinute := map[string]int64{}
@@ -352,9 +361,9 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 		}
 		if p.Activ == 1 {
 			if planificariAngajat[p.AngajatID] == nil {
-				planificariAngajat[p.AngajatID] = map[string]acces.Planificare{}
+				planificariAngajat[p.AngajatID] = map[string][]acces.Planificare{}
 			}
-			planificariAngajat[p.AngajatID][p.Data] = p
+			planificariAngajat[p.AngajatID][p.Data] = append(planificariAngajat[p.AngajatID][p.Data], p)
 			cuPlanificare[p.AngajatID] = true
 			totaluriAngajatGarzi[p.AngajatID]++
 			totaluriAngajatMinute[p.AngajatID] += durataSchimb[p.SchimbID]
@@ -537,7 +546,11 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 				if len(col.Cod) == 10 && col.Cod[4] == '-' {
 					if d.Continut.Sursa == "GRAFIC_GARZI" {
 						if poz, exista := planificariAngajat[a.ID][col.Cod]; exista {
-							v = codSchimb[poz.SchimbID]
+							coduri := []string{}
+							for _, p := range poz {
+								coduri = append(coduri, codSchimb[p.SchimbID])
+							}
+							v = calcul.ValoarePrograme(coduri)
 						} else {
 							v = "—"
 						}

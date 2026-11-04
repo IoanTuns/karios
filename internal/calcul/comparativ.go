@@ -82,7 +82,12 @@ func CalculeazaPlanificatVsRealizat(
 	hartaPlan := make(map[string]PozitieComparativ)
 	for _, p := range pozitii {
 		if p.Activ {
-			hartaPlan[p.AngajatID+"/"+p.Data] = p
+			k := p.AngajatID + "/" + p.Data
+			if vechi, ok := hartaPlan[k]; ok {
+				p.Ore += vechi.Ore
+				p.CodSchimb = ValoarePrograme(append(CoduriPrograme(vechi.CodSchimb), p.CodSchimb))
+			}
+			hartaPlan[k] = p
 		}
 	}
 
@@ -149,7 +154,7 @@ func CalculeazaPlanificatVsRealizat(
 			} else if !arePlan && !areReal {
 				zc.Stare = "LIBER"
 			} else if arePlan && areReal {
-				if strings.EqualFold(zc.PlanValoare, zc.RealValoare) {
+				if AceleasiPrograme(zc.PlanValoare, zc.RealValoare) {
 					zc.Stare = "IDENTIC"
 				} else {
 					zc.Stare = "MODIFICAT"

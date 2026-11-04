@@ -1870,5 +1870,9 @@
   "ui.da": "Yes",
   "ui.nu": "No",
   "rapoarte.copie_id": "Copy ID: {{id}}",
-  "rapoarte.camp_data_evidentiere": "Full date column"
+  "rapoarte.camp_data_evidentiere": "Full date column",
+  "planificare.multiple_indiciu": "Add multiple programs on the same day. Intervals must not overlap; edit or remove each program separately.",
+  "planificare.adauga_program_zi": "Add program to day",
+  "planificare.multiple_schimba_sumar": "This day has multiple programs. Open the employee summary to edit each interval separately.",
+  "planificare.motiv_zi_nelucratoare": "Normal work can only be planned on working days, excluding weekends and public holidays."
 }

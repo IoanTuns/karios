@@ -78,7 +78,12 @@ func calculeazaPontajBaza(ctx context.Context, q *acces.Queries, an, luna int, m
 		}
 		for _, g := range garzi {
 			if g.Activ == 1 && g.Sectiune == "GARZI" && g.Data >= extins && g.Data <= panaLa {
-				intrari[g.AngajatID+"/"+g.Data] = calcul.IntrarePontaj{AngajatID: g.AngajatID, Data: g.Data, Valoare: coduri[g.SchimbID]}
+				k := g.AngajatID + "/" + g.Data
+				cod := coduri[g.SchimbID]
+				if vechi := intrari[k].Valoare; vechi != "" {
+					cod = calcul.ValoarePrograme(append(calcul.CoduriPrograme(vechi), cod))
+				}
+				intrari[k] = calcul.IntrarePontaj{AngajatID: g.AngajatID, Data: g.Data, Valoare: cod}
 			}
 		}
 	}
@@ -91,7 +96,7 @@ func calculeazaPontajBaza(ctx context.Context, q *acces.Queries, an, luna int, m
 		return gol, c, eroare("pontaj.lot_invalid")
 	}
 	for _, m := range modificari {
-		if !dataValida(m.Data) || m.Data < deLa || m.Data > panaLa || m.AngajatID == "" || utf8.RuneCountInString(m.Valoare) > 16 || strings.ContainsAny(m.Valoare, "\x00\t\r\n") {
+		if !dataValida(m.Data) || m.Data < deLa || m.Data > panaLa || m.AngajatID == "" || (utf8.RuneCountInString(m.Valoare) > 1024 || (!strings.Contains(m.Valoare, "+") && utf8.RuneCountInString(m.Valoare) > 16)) || strings.ContainsAny(m.Valoare, "\x00\t\r\n") {
 			return gol, c, eroare("pontaj.celula_invalida")
 		}
 		k := m.AngajatID + "/" + m.Data

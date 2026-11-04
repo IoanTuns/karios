@@ -343,7 +343,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
 
     function aplicaCelule(celule: {rand: number; zi: number; text: string}[]) {
         if (lunaBlocata) { setEroare(t('pontaj.luna_inchisa')); return; }
-        if (celule.some(c => !randuri[c.rand] || !zile[c.zi] || Array.from(c.text).length > 16 || /[\0\t\r\n]/.test(c.text))) { setEroare(t('pontaj.lipire_invalida')); return; }
+        if (celule.some(c => !randuri[c.rand] || !zile[c.zi] || Array.from(c.text).length > (c.text.includes('+')?1024:16) || /[\0\t\r\n]/.test(c.text))) { setEroare(t('pontaj.lipire_invalida')); return; }
         if (celule.some(c => absente.has(cheie(randuri[c.rand].id,zile[c.zi])))) { setEroare(t('absente.celula_protejata')); return; }
         for(const c of celule){
             if(c.text===(originale.get(cheie(randuri[c.rand].id,zile[c.zi]))?.valoare??''))continue;

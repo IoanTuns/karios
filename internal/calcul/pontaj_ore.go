@@ -252,7 +252,40 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 		}
 		return celule[k]
 	}
+	// Fiecare interval contribuie separat; absenta se aplica o singura data pe zi.
+	expandate := make([]IntrarePontaj, 0, len(intrari))
 	for _, in := range intrari {
+		if in.Absenta != "" {
+			expandate = append(expandate, in)
+			continue
+		}
+		coduri := CoduriPrograme(in.Valoare)
+		if len(coduri) > 1 {
+			intervale := []IntervalPlanificare{}
+			d, e := time.Parse(time.DateOnly, in.Data)
+			if e != nil {
+				return rez, &Eroare{Cod: "pontaj.celula_invalida"}
+			}
+			for _, cod := range coduri {
+				p, ok := mapPrograme[cod]
+				if !ok {
+					return rez, &Eroare{Cod: "pontaj.celula_invalida"}
+				}
+				program := ProgramPrecompletare{OraStart: p.OraStart, DurataMinute: p.DurataMinute, PauzaMinute: p.PauzaMinute}
+				if motiv := VerificaTuraPlanificata(in.AngajatID, in.Data, program, nil, intervale, nil); motiv != "" {
+					return rez, &Eroare{Cod: "planificare.motiv_" + motiv}
+				}
+				a := d.Add(time.Duration(p.OraStart) * time.Minute)
+				intervale = append(intervale, IntervalPlanificare{AngajatID: in.AngajatID, Inceput: a, Sfarsit: a.Add(time.Duration(p.DurataMinute) * time.Minute)})
+			}
+		}
+		for _, cod := range coduri {
+			nou := in
+			nou.Valoare = cod
+			expandate = append(expandate, nou)
+		}
+	}
+	for _, in := range expandate {
 		data, e := time.Parse(time.DateOnly, in.Data)
 		if e != nil {
 			return rez, &Eroare{Cod: "pontaj.celula_invalida"}

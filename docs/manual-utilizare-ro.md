@@ -766,3 +766,18 @@ LEFT JOIN garzi g ON g.data = c.data
 WHERE c.data >= :de_la AND c.data < :pana_la
 ORDER BY c.data, g.inceput, g.angajat, g.marca, g.rowid;
 ```
+
+
+## Mai multe programe in aceeasi zi (0.92.31)
+
+In Planificare deschide sumarul angajatului (butonul de langa nume sau Adauga program pe zi). Pentru data dorita apasa Adauga program pe zi, alege programul si salveaza. Repeta pentru al doilea interval. Fiecare program are selector si eliminare separate. De exemplu15:00-22:00 si22:00-07:00 pot coexista pe aceeasi marca; intervalele care se suprapun sunt refuzate inclusiv peste miezul noptii si limita lunii. Categoria angajatului trebuie sa permita fiecare program.
+
+Grila afiseaza codurile impreuna, de exemplu IN9+S7; calculul foloseste intervalele individuale, nu un total manual. Pentru o celula cu mai multe programe, foloseste sumarul pentru modificare, astfel incat o actiune rapida sa nu inlocuiasca accidental celelalte pozitii.
+
+Previzualizeaza si publica planul. Publicarea oricarei pozitii include toate programele active ale aceleiasi marci si zile, chiar daca sunt din sectiuni diferite. Repetarea publicarii nu dubleaza orele. Anularea unui program publicat retrage numai acel cod din Pontaj, daca proiectia publicata nu a fost modificata manual. Restul programelor se pastreaza. Modificarea unui program necesita republicarea setului.
+
+Concediile si medicalul isi pastreaza prioritatea. Medicalul elimina toate intervalele afectate ale persoanei, inclusiv intreaga tura nocturna intersectata, pe toate marcile asociate. Un interval din ziua precedenta care nu intersecteaza medicalul ramane. Absenta cu ore creditate dupa PROGRAM insumeaza duratele programelor zilei.
+
+Rapoartele flexibile pe sursa garzi afiseaza cate o inregistrare per interval. In graficul lunar codurile aceleiasi zile apar impreuna; totalurile insumeaza toate intervalele. Nu se schimba procentele si regulile de plata.
+
+Programele normale explicite pot fi selectate impreuna cu alte programe permise, dar NORMAL/LUCRATOARE se aplica numai in zile lucratoare, fara weekend si sarbatori legale. Codurile individuale raman de maximum16 caractere; proiectia mai multor programe poate avea maximum1024.

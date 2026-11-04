@@ -1331,3 +1331,6 @@ fieldset.filtre-profesionale{border:0;padding:0;min-width:0}
 .unelte-stil-raport{display:flex;gap:.75rem;flex-wrap:wrap;align-items:end;margin:.75rem 0}.unelte-stil-raport label{min-width:8rem}.editor-prezentare,.editor-copie-raport{border:1px solid var(--bordura,#ccd7d2);border-radius:.5rem;padding:1rem;margin:1rem 0}.editor-prezentare summary,.editor-copie-raport summary{font-weight:600;cursor:pointer}.tabel-copie-raport input{min-width:8rem;width:100%;box-sizing:border-box}.editor-copie-raport fieldset{min-width:0}.tabel-copie-raport th{position:sticky;top:0;z-index:1}
 
 .tabel-copie-raport textarea{min-width:8rem;width:100%;box-sizing:border-box;resize:vertical;font:inherit}.editor-prezentare fieldset{min-width:0;border:0;padding:0}
+
+/* F11-T21: intervale independente in sumarul zilei. */
+.programe-zi-item{display:flex;align-items:center;gap:.5rem;margin:.35rem 0}.programe-zi-item select{min-width:12rem;flex:1}.programe-zi-item button{flex-shrink:0}

@@ -457,3 +457,9 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 | 2026-11-04 | F11-T21: confirmate aceeasi marca si adaugare fara suprapuneri. Audit initial: index unic pe angajat/data in Planificare si mai multe adaptoare/mapari de Pontaj cu o singura valoare pe zi. Inceputa analiza pe ramura separata, fara modificarea datelor utilizatorului. | Codex | [Task](functionalitati/F11-planificare.md) |
 
 | 2026-11-04 | F11-T21: documentate cerintele confirmate, punctele de unicitate si activitatile de implementare/verificare. Audit initial incheiat; codul si schema raman neschimbate. Task de facut, pas urmator reprezentarea intervalelor si migrare noua. | Codex | [Specificatie](cerinte-F11-T21.md) |
+
+| 2026-11-04 | F11-T21: utilizatorul cere implementarea si compilarea. Reluat taskul pe ramura proprie; proiectie zilnica cu coduri distincte si pozitii normalizate, propunere D086. Incepute verificarea dependentelor si migrarea noua. | Codex | D086 |
+
+| 2026-11-04 | F11-T21: implementate migrarea0031, publicarea/sincronizarea setului zilnic, validarea suprapunerilor, calculul pe intervale, anularea individuala, medicalul prioritar si sumarul UI. Testele specifice Go, TypeScript/Vite,24 teste frontend si Edge RO/EN trecute. Referinte noi pe versiunile crescute ale rapoartelor; cazurile contabile existente pastrate. Corectate numai numerele de migrari ale testelor tehnice si harness-ul UI. Verificarile finale ruleaza. | Codex | [Rezultate](rezultate-F11-T21.md) |
+
+| 2026-11-04 | F11-T21: verificari finale trecute integral: gofmt, go vet, toate testele Go,24 teste frontend, TypeScript/Vite, programe multiple si UX30 Edge RO/EN,3 teste manuale,7 teste livrare, documentatie0 erori. Pregatit commit local si build oficial0.92.31, fara push/merge. | Codex | [Rezultate](rezultate-F11-T21.md) |

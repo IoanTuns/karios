@@ -132,3 +132,5 @@ F14-T25 implementează sumarul și filtrele din I075 și detaliile model/context
 
 | I110 | 2026-11-03 | Editare texte si celule in raportul generat, stiluri vizuale si randuri bold pentru weekend/sarbatori | Codex, utilizator | transformata | F09-T19; confirmare explicita inclusiv celule |
 | I111 | 2026-11-03 | Raportul de garzi include grupurile consecutive de zile libere care traverseaza limita lunii | Codex, utilizator | transformata | F09-T19; exemplu28-30noiembrie/1decembrie2026, margini in clarificare |
+
+| I112 | 2026-11-04 | Mai multe programe pe aceeasi marca si zi, adaugare fara inlocuire, fara suprapuneri | Codex, utilizator | transformata | F11-T21; confirmare explicita a marcii comune si a intervalelor distincte |

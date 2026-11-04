@@ -26,4 +26,10 @@ Aceeasi persoana, aceeasi marca, aceeasi zi: se pot adauga doua sau mai multe pr
 
 ## Stare si predare
 
-Cerintele si auditul initial sunt documentate. Codul aplicatiei si schema nu sunt modificate in acest commit; functionalitatea nu este inca disponibila in0.92.30. Pasul urmator este proiectarea reprezentarii intervalelor din Pontaj si o migrare noua, inaintea modificarii interfetei. Nu exista o decizie tehnica acceptata sau reguli de plata noi.
+Implementare0.92.31 pe ramura F11-T21-programe-multiple. Migrare0031: pozitii normalizate fara unicitate pe zi, ciorne zilnice cu proiectie canonica de coduri separate prin + (maximum1024 caractere). Codurile individuale isi pastreaza limita16. Calcul pe intervalele originale, fara transformare in ore manuale. [D086](decizii/D086-programe-multiple.md) ramane propusa. Verificarile si livrarea sunt in [rezultate](rezultate-F11-T21.md).
+
+Publicarea unei pozitii include intregul set activ al zilei, inclusiv sectiuni diferite. Un program neeligibil blocheaza setul zilei. Anularea unui program publicat retrage numai codul sau daca proiectia publicata nu a fost schimbata manual; anularea intregului set goleste proiectia. Modificarea necesita republicare. Aceasta inlocuieste vechiul comportament prin care retragerea planului lasa programul in Pontaj; testul tehnic al acestui flux a fost actualizat, nu cazurile contabile.
+
+Sumarul permite programe normale explicite si programe speciale din categoria angajatului. Programul NORMAL/LUCRATOARE este refuzat in weekend si sarbatori legale; precompletarea normala continua sa foloseasca zile lucratoare. Salvarea manuala obisnuita a unui singur program normal fara plan independent nu creeaza automat o planificare noua. In grila, modificarea rapida a unei celule cu mai multe pozitii trimite operatorul la sumar pentru editare individuala.
+
+Pas urmator dupa livrare: proba operator pe programele configurate, apoi review pentru integrare. Fara push/merge sau acces la baza reala.

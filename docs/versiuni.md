@@ -1476,3 +1476,7 @@ F07-T39: categorii de absenta administrabile, cu natura, regula orelor, activare
 ## 0.92.25 - 2026-11-02
 
 F09-T13/T14: raport SQL pe instantaneu de raportare, surse lista garzi si totaluri lunare, coloane custom prin formule/SQL scalar, total concedii pe tipuri/categorii si campuri automate pe tip de concediu. Aspect tabel/Markdown/editor vizual cu elemente repetate pe inregistrari, coloane ascunse, previzualizare si salvare versionata. Rapoartele existente nu isi schimba motorul; raport flexibil v1 si catalog tehnic modele-v6. Manual 1.35. gofpdf1.4.3 existent devine dependenta directa, fara versiune ori biblioteca noua.
+
+## 0.92.31 - 2026-11-04
+
+F11-T21: mai multe programe pe aceeasi marca/zi, fara suprapuneri. Pozitii editabile/anulabile separat, publicare a setului zilnic, calcul si raportare pe intervale distincte, medical prioritar. Migrare0031 conserva ciornele/reviziile. Manual1.41. Rapoarte pontaj16, detaliat17, individual16, absente13, garzi13, flexibil5.

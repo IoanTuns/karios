@@ -19,4 +19,4 @@ Graficul planificat se face separat de ce s-a lucrat efectiv, iar diferențele s
 
 | F11-T20 | Prioritate Planificare - concedii - medical in Pontaj | gata | Codex | Cerinta confirmata explicit. Planificarea publicata inlocuieste valorile de pontaj; absentele si medicalul raman prioritare. [Plan](../plan-F11-T20.md). |
 
-| F11-T21 | Mai multe programe in aceeasi zi si pe aceeasi marca | de facut | Codex | Cerinte confirmate si audit initial documentat in [specificatie](../cerinte-F11-T21.md). Adaugare fara inlocuire, fara suprapuneri; Planificare/Pontaj/absente/rapoarte. Pas urmator: reprezentarea intervalelor si migrare noua. Cod neimplementat. |
+| F11-T21 | Mai multe programe in aceeasi zi si pe aceeasi marca | gata | Codex | Aplicatie0.92.31, migrare0031. [Specificatie](../cerinte-F11-T21.md), [rezultate](../rezultate-F11-T21.md). Pozitii distincte, publicare/calcul/sincronizare fara pierderi, absente prioritare; Go/vet, UI RO/EN trecute. Pas urmator: proba operator si review. |

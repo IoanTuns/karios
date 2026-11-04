@@ -93,8 +93,8 @@ func TestPlanificareSeparataPublicareIdempotentaSiRetragere(t *testing.T) {
 	retras.Activ = false
 	planTest(t, m, 2026, 10, retras)
 	var valoare string
-	if err := m.db.QueryRow(`SELECT valoare FROM pontaj_ciorne`).Scan(&valoare); err != nil || valoare != "S7" {
-		t.Fatal("retragerea planului a sters pontajul", valoare, err)
+	if err := m.db.QueryRow(`SELECT valoare FROM pontaj_ciorne`).Scan(&valoare); err != nil || valoare != "" {
+		t.Fatal("retragerea programului publicat a lasat ore in pontaj", valoare, err)
 	}
 }
 func TestPublicareInlocuireImplicitaSiConflictPontaj(t *testing.T) {

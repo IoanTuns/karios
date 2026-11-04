@@ -1870,5 +1870,9 @@
   "ui.da": "Da",
   "ui.nu": "Nu",
   "rapoarte.copie_id": "ID copie: {{id}}",
-  "rapoarte.camp_data_evidentiere": "Coloana cu data completă"
+  "rapoarte.camp_data_evidentiere": "Coloana cu data completă",
+  "planificare.multiple_indiciu": "Poti adauga mai multe programe in aceeasi zi. Intervalele nu se pot suprapune; fiecare program poate fi editat sau eliminat separat.",
+  "planificare.adauga_program_zi": "Adauga program pe zi",
+  "planificare.multiple_schimba_sumar": "Ziua are mai multe programe. Deschide sumarul angajatului pentru a edita fiecare interval separat.",
+  "planificare.motiv_zi_nelucratoare": "Programul normal se poate planifica numai in zile lucratoare, fara weekend si sarbatori legale."
 }

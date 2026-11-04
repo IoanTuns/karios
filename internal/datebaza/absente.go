@@ -601,15 +601,19 @@ func (s *Serviciu) salveazaAbsente(ctx context.Context, zile []ZiAbsenta, conver
 				case "NORMA":
 					minuteCreditate = norme[z.AngajatID]
 				case "PROGRAM":
+					var totalMinute int64
 					for _, p := range pozitii {
 						if p.Activ == 1 && p.AngajatID == z.AngajatID && p.Data == z.Data {
 							program := peID[p.SchimbID]
 							if program.DurataMinute > 0 && program.PauzaMinute == 0 {
-								n := program.DurataMinute
-								minuteCreditate = &n
+								totalMinute += program.DurataMinute
 							}
 						}
 					}
+					if totalMinute > 0 {
+						minuteCreditate = &totalMinute
+					}
+
 				}
 				if (efecte[z.Cod] == "NORMA" || efecte[z.Cod] == "PROGRAM") && minuteCreditate == nil {
 					return eroare("absente.ore_lipsa")
@@ -753,8 +757,41 @@ func (s *Serviciu) salveazaAbsente(ctx context.Context, zile []ZiAbsenta, conver
 
 				if medical {
 					for _, c := range ciorne {
-						if principal(c.AngajatID) == principal(z.AngajatID) && (c.Data == z.Data || suprapuneMedical(c.Data, peCod[strings.ToUpper(strings.TrimSpace(c.Valoare))], z.Data)) {
+						if principal(c.AngajatID) != principal(z.AngajatID) {
+							continue
+						}
+						actuala, err := q.CitesteCiorna(ctx, acces.CitesteCiornaParams{AngajatID: c.AngajatID, Data: c.Data})
+						if err != nil {
+							return err
+						}
+						c.Valoare = actuala.Valoare
+						c.Revizie = actuala.Revizie
+						ramase := []string{}
+						afectat := false
+						for _, cod := range calcul.CoduriPrograme(c.Valoare) {
+							if c.Data == z.Data || suprapuneMedical(c.Data, peCod[cod], z.Data) {
+								afectat = true
+							} else {
+								ramase = append(ramase, cod)
+							}
+						}
+						if !afectat {
+							continue
+						}
+						if len(ramase) == 0 {
 							if err := anuleazaCiorna(c.AngajatID, c.Data); err != nil {
+								return err
+							}
+						} else {
+							if err := verificaLuna(c.Data); err != nil {
+								return err
+							}
+							val := calcul.ValoarePrograme(ramase)
+							rev, err := q.SalveazaCiorna(ctx, acces.SalveazaCiornaParams{AngajatID: c.AngajatID, Data: c.Data, Valoare: val, ModificatLa: moment()})
+							if err != nil {
+								return err
+							}
+							if err = jurnal(ctx, q, "pontaj_ciorne", c.AngajatID+"/"+c.Data, c, CelulaSchita{AngajatID: c.AngajatID, Data: c.Data, Valoare: val, Revizie: strconv.FormatInt(rev, 10)}); err != nil {
 								return err
 							}
 						}
