@@ -266,6 +266,10 @@ export function OpresteSarcinaAI() {
   return window['go']['main']['App']['OpresteSarcinaAI']();
 }
 
+export function PersonalizeazaRaport(arg1, arg2) {
+  return window['go']['main']['App']['PersonalizeazaRaport'](arg1, arg2);
+}
+
 export function PornesteAI(arg1) {
   return window['go']['main']['App']['PornesteAI'](arg1);
 }

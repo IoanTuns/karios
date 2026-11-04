@@ -107,7 +107,7 @@ In Setari > Definire rapoarte > Editeaza > Continut, bifa Afiseaza modul de calc
 
 ## Lista lunara de garzi: data, ziua, nume si observatii
 
-Alegeti Lista garzilor, luna/anul dorit si filtrele pentru toate persoanele. Un rand pentru fiecare garda care incepe in luna aleasa; garzile incepute in luna precedenta nu sunt incluse de acest exemplu. Parametrul pana_la este prima zi a lunii urmatoare, exclusiv.
+Alegeti Lista garzilor, luna/anul dorit si filtrele pentru toate persoanele. Un rand pentru fiecare garda care incepe in intervalul selectat. Implicit acesta este luna aleasa. Cu extinderea zilelor libere, parametrii de_la/pana_la delimiteaza grupul complet de la margini; pana_la este exclusiv.
 
 Ordinea coloanelor este Data (numarul zilei din luna), Ziua (numele romanesc al zilei saptamanii), Nume si prenume, Observatii (ora de start - ora de final, format24h). Data iesirii este adaugata in paranteze daca garda se termina in alta zi. In aceasta varianta nr_crt si marca nu sunt afisate, conform noii liste de coloane cerute. Sortarea ramane dupa data completa si ora, apoi nume/marca pentru egalitati; nu se sorteaza dupa eticheta zilei sau dupa numarul zilei ca text.
 
@@ -127,7 +127,8 @@ SELECT
   substr(g.inceput, 12, 5) || ' - ' || substr(g.sfarsit, 12, 5)
     || CASE WHEN substr(g.sfarsit, 1, 10) <> g.data
        THEN ' (' || strftime('%d.%m.%Y', g.sfarsit) || ')'
-       ELSE '' END AS observatii
+       ELSE '' END AS observatii,
+  g.data AS data_calendar
 FROM garzi g
 WHERE g.data >= :de_la AND g.data < :pana_la
 ORDER BY g.inceput, g.angajat, g.marca, g.rowid;
@@ -140,3 +141,28 @@ Selectati intregul camp SQL din aplicatie (Ctrl+A) si inlocuiti cu o singura cop
 In Tabel automat si Markdown, cele trei texte din antet apar simultan: stanga, centrat pe pagina si dreapta, fiecare in treimea lui. Textul se imparte automat pe linii in zona aleasa; tabelul incepe dupa cea mai inalta zona. Imaginile isi pastreaza proportiile si se aliniaza in zona lor. Subsolul respecta aceleasi alinieri. Antetul si imaginile se repeta si pe anexa finala, fara suprapunerea calculului/istoricului cu antetul. Pozitionarea libera continua sa foloseasca elementele si coordonatele explicite pentru textul din corp; nu se muta automat elementele deja configurate.
 
 Pentru titlul central al listei de garzi, introduceti textul in Antet > Centru. In Markdown folositi doar {{tabel}} daca nu doriti un al doilea titlu in corp. Etichetele {{an}}, {{luna}} si {{perioada}} se inlocuiesc in texte; pentru sursa flexibila luna este numerica, iar perioada are forma AAAA-LL.
+
+## Formatare si editare libera a rapoartelor
+
+In Setari > Definire rapoarte > Editeaza, deschideti Formatare texte si etichete. Alegeti campul: titlu, introducere/paragrafe Markdown, cele sase zone antet/subsol, corpul tabelului sau capetele de tabel. Puteti alege bold, italic, marime 6-40 pt si aliniere. Marimea0 si alegerea Implicit mostenesc stilul existent. Reseteaza stilul elimina particularizarea campului. Stilurile se pastreaza in model, impreuna cu revizia lui. Pentru o eticheta proprie adaugati codul exact al coloanei din rezultatul SQL (sau codul coloanei raportului standard), apoi denumirile RO/EN. Coloana si eticheta ei pot fi formatate separat. In Pozitionare libera, elementele au si bold/italic/aliniere, iar marimea ramane in campul Font al elementului. Formatarea este pe camp/celula, nu un editor Word pentru fragmente arbitrare de caractere.
+
+Pentru un raport deja generat: Rapoarte > Genereaza si previzualizeaza > Editeaza textele si celulele raportului. Modificati titlul, antetul/subsolul, introducerea, etichetele sau celulele. Focalizati un camp pentru a-i alege stilul. Tabelul de editare are25 randuri pe pagina; modificarile se pastreaza cand navigati intre paginile editorului. Celulele accepta text pe mai multe linii.
+
+Aplica si actualizeaza PDF valideaza toate modificarile impreuna si creeaza o copie noua pentru exportul PDF/Excel. Pana la aplicare, PDF-ul afisat este cel anterior si exportul este dezactivat. Renunta la modificari restabileste ultima copie aplicata. Copia este marcata drept personalizata; detaliile autor/moment/identificator sunt in istoricul de la final si in jurnalul aplicatiei, cu valorile/stilurile inainte si dupa. Istoricul si calculele nu pot fi sterse din editorul de celule. Maximum1000 schimbari si2MiB per aplicare,4000 caractere per camp. O copie care nu incape pe pagina este refuzata; originalul ramane disponibil.
+
+Modificarea unei celule din raport nu actualizeaza pontajul sau planificarea si nu recalculeaza alte celule/totaluri. Pentru corectarea datelor operationale folositi meniul lor si regenerati raportul. Editarile copiei apartin acestei livrari, nu modelului; salvati PDF/Excel inainte de inchidere. Regenerarea din model produce din nou valorile sursa. Stilurile si etichetele salvate in model se reutilizeaza la generari viitoare.
+
+## Bold pentru weekend/sarbatori si grupuri la limita lunii
+
+In definitia raportului flexibil, zona Zile speciale si intervalul raportului:
+
+1. Folositi SQL-ul actualizat [garzi-lunar.sql](exemple/garzi-lunar.sql), care include data completa in data_calendar.
+2. Introduceti data_calendar la Coloane ascunse pentru a pastra doar Data, Ziua, Nume si prenume, Observatii pe document.
+3. La Coloana cu data completa alegeti/scrieti data_calendar.
+4. Bifati Bold pentru sambata si duminica si/sau Bold pentru sarbatori configurate. Se evidentiaza randul pe baza datei complete, inclusiv cand coloana este ascunsa; nu se deduce data din textul zilei sau din numarul1-31. Stilurile explicite ale unei coloane/celule pot suprascrie stilul mostenit.
+5. Bifati Include grupurile de zile libere la ambele margini ale lunii pentru grupurile consecutive care ating prima/ultima zi a lunii. SQL-ul trebuie sa foloseasca :de_la si :pana_la pentru interval. Doar filtrele :an/:luna nu includ automat datele din alta luna.
+6. Refaceti previzualizarea si salvati modelul.
+
+Calendarul de sarbatori configurat este sursa regulii. Pentru noiembrie2026, intervalul complet este31octombrie-1decembrie (inceputul lunii este duminica). Pentru decembrie2026 este28noiembrie-31decembrie: grupul28-30noiembrie/1decembrie se pastreaza integral. Nu se sare peste o zi lucratoare pentru a adauga alte sarbatori indepartate. Limita tehnica este366 zile suplimentare, cu eroare explicita pentru un calendar excesiv. Textul {{de_la}} arata prima data inclusa si {{pana_la}} ultima data inclusa; parametrul SQL :pana_la este prima data exclusa. Titlul poate continua sa indice luna aleasa. Totalurile contractuale si cele din catalogul lunar raman ale lunii selectate; lista garzilor poate acoperi intervalul extins.
+
+[garzi-lunar.sql](exemple/garzi-lunar.sql) arata zilele cu garzi inregistrate. Pentru un tabel care arata toate zilele intervalului, inclusiv randuri goale unde nu exista garda, folositi varianta [garzi-lunar-calendar.sql](exemple/garzi-lunar-calendar.sql). Ambele folosesc data_calendar pentru bold si aceiasi parametri de interval.

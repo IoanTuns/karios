@@ -18,16 +18,21 @@ type ColoanaCalculata struct {
 	Activ     bool      `json:"activ"`
 }
 type ElementRaport struct {
-	RepetaRand bool    `json:"repeta_rand"`
-	ID         string  `json:"id"`
-	Text       string  `json:"text"`
-	X          float64 `json:"x"`
-	Y          float64 `json:"y"`
-	Latime     float64 `json:"latime"`
-	Inaltime   float64 `json:"inaltime"`
-	Font       float64 `json:"font"`
+	Stil       *StilText `json:"stil,omitempty"`
+	RepetaRand bool      `json:"repeta_rand"`
+	ID         string    `json:"id"`
+	Text       string    `json:"text"`
+	X          float64   `json:"x"`
+	Y          float64   `json:"y"`
+	Latime     float64   `json:"latime"`
+	Inaltime   float64   `json:"inaltime"`
+	Font       float64   `json:"font"`
 }
 type RaportFlexibil struct {
+	ExtindeZileLibere bool               `json:"extinde_zile_libere,omitempty"`
+	BoldWeekend       bool               `json:"bold_weekend,omitempty"`
+	BoldSarbatori     bool               `json:"bold_sarbatori,omitempty"`
+	ColoanaData       string             `json:"coloana_data,omitempty"`
 	InaltimeRand      float64            `json:"inaltime_rand"`
 	Ascunse           []string           `json:"ascunse"`
 	SQL               string             `json:"sql"`
@@ -59,6 +64,9 @@ func valideazaFlexibil(f *RaportFlexibil) error {
 	if f == nil || len(f.SQL) > 32768 || len(f.Markdown) > 32000 || len(f.Elemente) > 60 || len(f.Calculate) > 80 {
 		return eroare("rapoarte.flex_invalid")
 	}
+	if (f.BoldWeekend || f.BoldSarbatori) && !codFlexibil.MatchString(f.ColoanaData) {
+		return eroare("rapoarte.data_evidentiere_invalida")
+	}
 	if f.ModAspect != "" && f.ModAspect != "TABEL" && f.ModAspect != "MARKDOWN" && f.ModAspect != "LIBER" {
 		return eroare("rapoarte.flex_invalid")
 	}
@@ -83,6 +91,11 @@ func valideazaFlexibil(f *RaportFlexibil) error {
 		return eroare("rapoarte.flex_invalid")
 	}
 	for _, e := range f.Elemente {
+		if e.Stil != nil {
+			if err := valideazaStil(*e.Stil); err != nil {
+				return err
+			}
+		}
 		if f.ModAspect == "LIBER" && strings.TrimSpace(e.Text) == "{{tabel}}" {
 			tabele++
 			if tabele > 1 || repetate > 0 {

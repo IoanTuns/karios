@@ -44,7 +44,7 @@ func preparaFlexibil(ctx context.Context, tx *sql.Tx, d Definitie, c Cerere, acu
 	if strings.TrimSpace(sqlText) == "" {
 		sqlText = sqlImplicit(d.Continut.Sursa)
 	}
-	param := parametriFlexibili(c)
+	param := b.parametri
 	r, e := b.query(ctx, sqlText, param)
 	if e != nil {
 		return Document{}, traduce(e)
@@ -174,6 +174,25 @@ func preparaFlexibil(ctx context.Context, tx *sql.Tx, d Definitie, c Cerere, acu
 		}
 		doc.Randuri = append(doc.Randuri, Rand{Valori: v})
 	}
+	if f.BoldWeekend || f.BoldSarbatori {
+		idx := -1
+		for i, col := range doc.Coloane {
+			if col.Cod == f.ColoanaData {
+				idx = i
+				break
+			}
+		}
+		if idx < 0 {
+			return Document{}, eroare("rapoarte.data_evidentiere_invalida")
+		}
+		for ri, r := range doc.Randuri {
+			zi, err := time.Parse(time.DateOnly, r.Valori[idx])
+			if err != nil {
+				return Document{}, eroare("rapoarte.data_evidentiere_invalida")
+			}
+			doc.Randuri[ri].Aldin = (f.BoldWeekend && (zi.Weekday() == time.Saturday || zi.Weekday() == time.Sunday)) || (f.BoldSarbatori && b.sarbatori[zi.Format(time.DateOnly)])
+		}
+	}
 	for _, r := range doc.Randuri {
 		val := map[string]string{}
 		for i, c := range doc.Coloane {
@@ -228,6 +247,7 @@ func preparaFlexibil(ctx context.Context, tx *sql.Tx, d Definitie, c Cerere, acu
 	if d.Continut.AscundeExplicatii {
 		doc.Legenda = nil
 	}
+	aplicaPrezentare(&doc, d.Continut.Prezentare)
 	return doc, nil
 }
 

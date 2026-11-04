@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"github.com/phpdave11/gofpdf"
 	"golang.org/x/image/font/gofont/gobold"
+	"golang.org/x/image/font/gofont/gobolditalic"
+	"golang.org/x/image/font/gofont/goitalic"
 	"golang.org/x/image/font/gofont/goregular"
 	"pontix/internal/i18n"
 	"strings"
@@ -15,6 +17,8 @@ func GenereazaPDFFlexibil(d Document) ([]byte, error) {
 	f := gofpdf.New(map[bool]string{true: "L", false: "P"}[d.Pagina.Orientare == "PEISAJ"], "mm", d.Pagina.Format, "")
 	f.AddUTF8FontFromBytes("Go", "", goregular.TTF)
 	f.AddUTF8FontFromBytes("Go", "B", gobold.TTF)
+	f.AddUTF8FontFromBytes("Go", "I", goitalic.TTF)
+	f.AddUTF8FontFromBytes("Go", "BI", gobolditalic.TTF)
 	f.SetFont("Go", "", float64(d.Pagina.FontPT))
 	m := float64(d.Pagina.MargineMM)
 	f.SetMargins(m, m, m)
@@ -39,8 +43,10 @@ func GenereazaPDFFlexibil(d Document) ([]byte, error) {
 	footerH := 6.
 	maxText, maxImg := 0., 0.
 	f.SetFont("Go", "", 8)
-	for _, v := range d.Subsol {
-		n := float64(len(f.SplitText(inloc(v), zone))) * 3.5
+	for i, v := range d.Subsol {
+		s := StilPentru(d, 8, []string{"L", "C", "R"}[i], false, "subsol_"+[]string{"stanga", "centru", "dreapta"}[i])
+		f.SetFont("Go", s.FontPDF(), s.FontPT)
+		n := float64(len(f.SplitText(inloc(v), zone))) * 3.5 * s.FontPT / 8
 		if n > maxText {
 			maxText = n
 		}
@@ -52,6 +58,13 @@ func GenereazaPDFFlexibil(d Document) ([]byte, error) {
 	}
 	footerH += maxText + maxImg
 	f.SetFont("Go", "", float64(d.Pagina.FontPT))
+	stilElement := func(e ElementRaport, aldin bool) StilEfectiv {
+		var temp Document
+		if e.Stil != nil {
+			temp.Stiluri = map[string]StilText{"element": *e.Stil}
+		}
+		return StilPentru(temp, e.Font, "L", aldin, "element")
+	}
 	// Verificam coordonatele si inaltimea textului, fara decupare tacita.
 	for _, e := range d.Flexibil.Elemente {
 		if d.Flexibil.ModAspect != "LIBER" {
@@ -61,8 +74,9 @@ func GenereazaPDFFlexibil(d Document) ([]byte, error) {
 			return nil, eroare("rapoarte.aspect_prea_mare")
 		}
 		if strings.TrimSpace(e.Text) != "{{tabel}}" {
-			f.SetFont("Go", "", e.Font)
-			if float64(len(f.SplitText(inloc(e.Text), e.Latime)))*e.Font*.45 > e.Inaltime {
+			st := stilElement(e, false)
+			f.SetFont("Go", st.FontPDF(), st.FontPT)
+			if float64(len(f.SplitText(inloc(e.Text), e.Latime)))*st.FontPT*.45 > e.Inaltime {
 				return nil, eroare("rapoarte.aspect_prea_mare")
 			}
 		}
@@ -108,7 +122,9 @@ func GenereazaPDFFlexibil(d Document) ([]byte, error) {
 		y := h - m - footerH
 		for i, v := range d.Subsol {
 			f.SetXY(m+float64(i)*zone, y)
-			f.MultiCell(zone, 3.5, inloc(v), "", []string{"L", "C", "R"}[i], false)
+			s := StilPentru(d, 8, []string{"L", "C", "R"}[i], false, "subsol_"+[]string{"stanga", "centru", "dreapta"}[i])
+			f.SetFont("Go", s.FontPDF(), s.FontPT)
+			f.MultiCell(zone, 3.5*s.FontPT/8, inloc(v), "", s.Aliniere, false)
 		}
 		imagine(d.SubsolImagini, y+maxText)
 		f.SetFont("Go", "", 7)
@@ -122,7 +138,9 @@ func GenereazaPDFFlexibil(d Document) ([]byte, error) {
 		f.SetFont("Go", "B", float64(d.Pagina.FontPT)+2)
 		f.SetXY(m, m)
 		if anexa || d.Flexibil.ModAspect == "TABEL" || d.Flexibil.ModAspect == "" {
-			f.MultiCell(w-2*m, 6, d.Titlu, "", "L", false)
+			s := StilPentru(d, float64(d.Pagina.FontPT)+2, "L", true, "titlu")
+			f.SetFont("Go", s.FontPDF(), s.FontPT)
+			f.MultiCell(w-2*m, 6*s.FontPT/(float64(d.Pagina.FontPT)+2), d.Titlu, "", s.Aliniere, false)
 		}
 		f.SetFont("Go", "", float64(d.Pagina.FontPT))
 		if d.Flexibil.ModAspect == "LIBER" && !anexa {
@@ -131,9 +149,10 @@ func GenereazaPDFFlexibil(d Document) ([]byte, error) {
 				if e.RepetaRand || strings.TrimSpace(e.Text) == "{{tabel}}" {
 					continue
 				}
-				f.SetFont("Go", "", e.Font)
+				st := stilElement(e, false)
+				f.SetFont("Go", st.FontPDF(), st.FontPT)
 				f.SetXY(m+e.X, m+e.Y)
-				f.MultiCell(e.Latime, e.Font*.45, inloc(e.Text), "", "L", false)
+				f.MultiCell(e.Latime, st.FontPT*.45, inloc(e.Text), "", st.Aliniere, false)
 			}
 			f.SetFont("Go", "", float64(d.Pagina.FontPT))
 		} else {
@@ -142,7 +161,9 @@ func GenereazaPDFFlexibil(d Document) ([]byte, error) {
 			for i, v := range d.Antet {
 				if strings.TrimSpace(v) != "" {
 					f.SetXY(m+float64(i)*zone, y)
-					f.MultiCell(zone, 5, inloc(v), "", []string{"L", "C", "R"}[i], false)
+					s := StilPentru(d, float64(d.Pagina.FontPT), []string{"L", "C", "R"}[i], false, "antet_"+[]string{"stanga", "centru", "dreapta"}[i])
+					f.SetFont("Go", s.FontPDF(), s.FontPT)
+					f.MultiCell(zone, 5*s.FontPT/float64(d.Pagina.FontPT), inloc(v), "", s.Aliniere, false)
 					if f.GetY() > maxY {
 						maxY = f.GetY()
 					}
@@ -151,7 +172,9 @@ func GenereazaPDFFlexibil(d Document) ([]byte, error) {
 			y = maxY
 			if d.Introducere != "" && !anexa {
 				f.SetXY(m, y)
-				f.MultiCell(w-2*m, 4, inloc(d.Introducere), "", "L", false)
+				s := StilPentru(d, float64(d.Pagina.FontPT), "L", false, "introducere")
+				f.SetFont("Go", s.FontPDF(), s.FontPT)
+				f.MultiCell(w-2*m, 4*s.FontPT/float64(d.Pagina.FontPT), inloc(d.Introducere), "", s.Aliniere, false)
 				y = f.GetY()
 			}
 			startTabel = y + 3
@@ -197,16 +220,22 @@ func GenereazaPDFFlexibil(d Document) ([]byte, error) {
 		for _, c := range d.Coloane {
 			labels = append(labels, c.Titlu)
 		}
-		var deseneaza func([]string, bool) error
-		deseneaza = func(vals []string, bold bool) error {
-			if bold {
-				f.SetFont("Go", "B", float64(d.Pagina.FontPT))
-			} else {
-				f.SetFont("Go", "", float64(d.Pagina.FontPT))
-			}
+
+		var deseneaza func([]string, bool, int) error
+		deseneaza = func(vals []string, antet bool, ri int) error {
+			stiluri := make([]StilEfectiv, len(vals))
 			rh := line + 2
-			for _, v := range vals {
-				n := float64(len(f.SplitText(v, cw-2)))*line + 2
+			for i, v := range vals {
+				chei := []string{"antet_tabel", "eticheta:" + d.Coloane[i].Cod}
+				bold := antet
+				if !antet {
+					chei = []string{"tabel", "coloana:" + d.Coloane[i].Cod, "celula:" + fmt.Sprint(ri) + ":" + d.Coloane[i].Cod}
+					bold = ri >= 0 && (d.Randuri[ri].Aldin || d.Randuri[ri].Grup)
+				}
+				st := StilPentru(d, float64(d.Pagina.FontPT), "L", bold, chei...)
+				stiluri[i] = st
+				f.SetFont("Go", st.FontPDF(), st.FontPT)
+				n := float64(len(f.SplitText(v, cw-2)))*st.FontPT*.5 + 2
 				if n > rh {
 					rh = n
 				}
@@ -215,7 +244,7 @@ func GenereazaPDFFlexibil(d Document) ([]byte, error) {
 				return eroare("rapoarte.aspect_prea_mare")
 			}
 			if f.GetY()+rh > tableLimite {
-				if bold {
+				if antet {
 					return eroare("rapoarte.aspect_prea_mare")
 				}
 				nouaPagina()
@@ -223,10 +252,9 @@ func GenereazaPDFFlexibil(d Document) ([]byte, error) {
 					tableY = startTabel
 				}
 				f.SetY(tableY)
-				if e := deseneaza(labels, true); e != nil {
+				if e := deseneaza(labels, true, -1); e != nil {
 					return e
 				}
-				f.SetFont("Go", "", float64(d.Pagina.FontPT))
 				if f.GetY()+rh > tableLimite {
 					return eroare("rapoarte.aspect_prea_mare")
 				}
@@ -234,23 +262,26 @@ func GenereazaPDFFlexibil(d Document) ([]byte, error) {
 			y := f.GetY()
 			for i, v := range vals {
 				x := tableX + float64(i)*cw
+				st := stiluri[i]
+				f.SetFont("Go", st.FontPDF(), st.FontPT)
 				f.Rect(x, y, cw, rh, "D")
 				f.SetXY(x+1, y+1)
-				f.MultiCell(cw-2, line, v, "", "L", false)
+				f.MultiCell(cw-2, st.FontPT*.5, v, "", st.Aliniere, false)
 			}
 			f.SetY(y + rh)
 			return nil
 		}
-		if e := deseneaza(labels, true); e != nil {
+		if e := deseneaza(labels, true, -1); e != nil {
 			f.SetError(e)
 			return
 		}
-		for _, r := range d.Randuri {
-			if e := deseneaza(r.Valori, false); e != nil {
+		for ri, r := range d.Randuri {
+			if e := deseneaza(r.Valori, false, ri); e != nil {
 				f.SetError(e)
 				return
 			}
 		}
+
 		if len(d.Randuri) == 0 {
 			f.MultiCell(tableW, line, d.FaraDate, "", "L", false)
 		}
@@ -295,13 +326,25 @@ func GenereazaPDFFlexibil(d Document) ([]byte, error) {
 					}
 				}
 				for _, e := range repetate {
-					f.SetFont("Go", "", e.Font)
+					st := stilElement(e, r.Aldin)
+					for _, c := range d.Coloane {
+						if strings.TrimSpace(e.Text) == "{{"+c.Cod+"}}" {
+							st = StilPentru(d, e.Font, "L", r.Aldin, "tabel", "coloana:"+c.Cod)
+							if e.Stil != nil {
+								st = completeazaStil(st, *e.Stil)
+							}
+							if v, ok := d.Stiluri[fmt.Sprintf("celula:%d:%s", ri, c.Cod)]; ok {
+								st = completeazaStil(st, v)
+							}
+						}
+					}
+					f.SetFont("Go", st.FontPDF(), st.FontPT)
 					v := inloc(e.Text)
-					if float64(len(f.SplitText(v, e.Latime)))*e.Font*.45 > e.Inaltime {
+					if float64(len(f.SplitText(v, e.Latime)))*st.FontPT*.45 > e.Inaltime {
 						return nil, eroare("rapoarte.aspect_prea_mare")
 					}
 					f.SetXY(m+e.X, m+e.Y+offset)
-					f.MultiCell(e.Latime, e.Font*.45, v, "", "L", false)
+					f.MultiCell(e.Latime, st.FontPT*.45, v, "", st.Aliniere, false)
 				}
 				offset += d.Flexibil.InaltimeRand
 			}
@@ -365,6 +408,13 @@ func GenereazaPDFFlexibil(d Document) ([]byte, error) {
 				style = "B"
 				v = strings.ReplaceAll(v, "**", "")
 			}
+			tinta := "introducere"
+			if strings.HasPrefix(strings.TrimSpace(linie), "#") {
+				tinta = "titlu"
+			}
+			st := StilPentru(d, size, "L", style == "B", tinta)
+			size = st.FontPT
+			style = st.FontPDF()
 			f.SetFont("Go", style, size)
 			for _, l := range f.SplitText(v, w-2*m) {
 				if f.GetY()+size*.5 > h-m-footerH-2 {
@@ -372,7 +422,7 @@ func GenereazaPDFFlexibil(d Document) ([]byte, error) {
 					f.SetFont("Go", style, size)
 				}
 				f.SetX(m)
-				f.CellFormat(w-2*m, size*.5, l, "", 1, "L", false, 0, "")
+				f.CellFormat(w-2*m, size*.5, l, "", 1, st.Aliniere, false, 0, "")
 			}
 			f.Ln(2)
 		}

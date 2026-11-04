@@ -27,11 +27,12 @@ type Bloc struct {
 	Imagini map[string]Imagine `json:"imagini,omitempty"`
 }
 type Continut struct {
-	AscundeExplicatii bool            `json:"ascunde_explicatii,omitempty"`
-	Flexibil          *RaportFlexibil `json:"flexibil,omitempty"`
-	Sursa             string          `json:"sursa"`
-	Coloane           []string        `json:"coloane"`
-	Text              i18n.Text       `json:"text"`
+	Prezentare        *PrezentareRaport `json:"prezentare,omitempty"`
+	AscundeExplicatii bool              `json:"ascunde_explicatii,omitempty"`
+	Flexibil          *RaportFlexibil   `json:"flexibil,omitempty"`
+	Sursa             string            `json:"sursa"`
+	Coloane           []string          `json:"coloane"`
+	Text              i18n.Text         `json:"text"`
 }
 type Pagina struct {
 	Format    string `json:"format"`
@@ -112,6 +113,9 @@ func contine(lista []string, valoare string) bool {
 }
 
 func Valideaza(d Definitie) error {
+	if e := valideazaPrezentare(d.Continut.Prezentare); e != nil {
+		return e
+	}
 	for _, bloc := range []Bloc{d.Antet, d.Subsol} {
 		for zona, imagine := range bloc.Imagini {
 			if !contine([]string{"stanga", "centru", "dreapta"}, zona) {

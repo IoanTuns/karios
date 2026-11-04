@@ -11,6 +11,8 @@ import (
 )
 
 type bazaRaport struct {
+	parametri map[string]any
+	sarbatori map[string]bool
 	db        *sql.DB
 	schema    []TabelRaport
 	variabile map[string]string

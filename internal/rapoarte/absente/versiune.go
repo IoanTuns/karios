@@ -1,4 +1,4 @@
 package absente
 
 // Versiune identifică structura evidenței absențelor (D009).
-const Versiune = 11
+const Versiune = 12

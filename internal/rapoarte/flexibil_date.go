@@ -100,13 +100,29 @@ func incarcatBazaRaport(ctx context.Context, tx *sql.Tx, c Cerere, f *RaportFlex
 	for _, s := range sarb {
 		libere[s.Data] = true
 	}
+	b.sarbatori = libere
+	intervalStart, intervalEnd := start, end
+	if f.ExtindeZileLibere {
+		var err error
+		intervalStart, intervalEnd, err = calcul.IntervalRaportZileLibere(start, end, libere)
+		if err != nil {
+			return nil, eroare("rapoarte.interval_invalid")
+		}
+	}
+	b.parametri = parametriFlexibili(c)
+	b.parametri["de_la"] = intervalStart.Format(time.DateOnly)
+	b.parametri["pana_la"] = intervalEnd.Format(time.DateOnly)
+	b.variabile["de_la"] = intervalStart.Format(time.DateOnly)
+	b.variabile["pana_la"] = intervalEnd.AddDate(0, 0, -1).Format(time.DateOnly)
+	extins = intervalStart.AddDate(0, 0, -2).Format(time.DateOnly)
+	garziPana := intervalEnd.AddDate(0, 0, -1).Format(time.DateOnly)
 	rc := [][]any{}
 	zileLucr := 0
-	for zi := start; zi.Before(end); zi = zi.AddDate(0, 0, 1) {
+	for zi := intervalStart; zi.Before(intervalEnd); zi = zi.AddDate(0, 0, 1) {
 		d := zi.Format(time.DateOnly)
 		week := zi.Weekday() == time.Saturday || zi.Weekday() == time.Sunday
 		lucr := !week && !libere[d]
-		if lucr {
+		if lucr && !zi.Before(start) && zi.Before(end) {
 			zileLucr++
 		}
 		rc = append(rc, []any{d, week, libere[d], lucr})
@@ -221,7 +237,7 @@ func incarcatBazaRaport(ctx context.Context, tx *sql.Tx, c Cerere, f *RaportFlex
 	if e = b.adauga(ctx, "programe", []string{"id", "cod", "denumire", "start_minute", "durata_minute", "tip", "regim", "activ"}, rp); e != nil {
 		return nil, e
 	}
-	plan, e := q.ListaPlanificare(ctx, acces.ListaPlanificareParams{DataDeLa: extins, DataPanaLa: panaLa})
+	plan, e := q.ListaPlanificare(ctx, acces.ListaPlanificareParams{DataDeLa: extins, DataPanaLa: garziPana})
 	if e != nil {
 		return nil, e
 	}
@@ -229,8 +245,8 @@ func incarcatBazaRaport(ctx context.Context, tx *sql.Tx, c Cerere, f *RaportFlex
 	totalG, eligG := map[string]float64{}, map[string]float64{}
 	efective := map[string]bool{}
 	adaugaGarda := func(id, data, cod string, a, z time.Time) {
-		limitaStart := time.Date(start.Year(), start.Month(), start.Day(), 0, 0, 0, 0, a.Location())
-		limitaEnd := time.Date(end.Year(), end.Month(), end.Day(), 0, 0, 0, 0, a.Location())
+		limitaStart := time.Date(intervalStart.Year(), intervalStart.Month(), intervalStart.Day(), 0, 0, 0, 0, a.Location())
+		limitaEnd := time.Date(intervalEnd.Year(), intervalEnd.Month(), intervalEnd.Day(), 0, 0, 0, 0, a.Location())
 		s, l := a, z
 		if s.Before(limitaStart) {
 			s = limitaStart
@@ -254,12 +270,23 @@ func incarcatBazaRaport(ctx context.Context, tx *sql.Tx, c Cerere, f *RaportFlex
 			rz = append(rz, []any{id, nume[id], marci[id], data, cod, cur.Format("2006-01-02 15:04"), lim.Format("2006-01-02 15:04"), float64(lim.Sub(cur)/time.Minute) / 60, eligZi, week, libere[data]})
 			cur = lim
 		}
-		totalG[id] += minute / 60
-		eligG[id] += elig / 60
+		lunaStart := time.Date(start.Year(), start.Month(), start.Day(), 0, 0, 0, 0, a.Location())
+		lunaEnd := time.Date(end.Year(), end.Month(), end.Day(), 0, 0, 0, 0, a.Location())
+		ls, le := a, z
+		if ls.Before(lunaStart) {
+			ls = lunaStart
+		}
+		if le.After(lunaEnd) {
+			le = lunaEnd
+		}
+		if ls.Before(le) {
+			totalG[id] += float64(le.Sub(ls)/time.Minute) / 60
+		}
+		eligG[id] += float64(calcul.MinuteGardaEligibile(a, z, lunaStart, lunaEnd, f.Weekend, f.Sarbatori, libere)) / 60
 		rg = append(rg, []any{id, nume[id], marci[id], data, cod, a.Format("2006-01-02 15:04"), z.Format("2006-01-02 15:04"), minute / 60, elig / 60})
 	}
 	// Pontajele efective active au prioritate pentru aceeasi marca si zi; cele retrase nu intra.
-	rows, e := tx.QueryContext(ctx, "SELECT angajat_id,data,start,sfarsit FROM pontaj WHERE sters_la IS NULL AND start IS NOT NULL AND sfarsit IS NOT NULL AND data BETWEEN ? AND ?", extins, panaLa)
+	rows, e := tx.QueryContext(ctx, "SELECT angajat_id,data,start,sfarsit FROM pontaj WHERE sters_la IS NULL AND start IS NOT NULL AND sfarsit IS NOT NULL AND data BETWEEN ? AND ?", extins, garziPana)
 	if e != nil {
 		return nil, e
 	}

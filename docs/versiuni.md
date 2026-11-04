@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.30 - 2026-11-04
+
+F09-T19: stiluri bold/italic/marime/aliniere si etichete de coloane persistate in modele. Editarea textelor/celulelor copiei generate, PDF/Excel actualizate impreuna, token nou si jurnal inainte/dupa; sursa nu se modifica. Evidentiere optionala weekend/sarbatori pe data completa si extinderea grupurilor de zile libere la ambele margini ale lunii, fara schimbarea totalurilor lunare. Rapoarte: pontaj15, detaliat16, individual15, absente12, garzi12, flexibil4. Manual1.40.
+
 ## 0.92.29 - 2026-11-03
 
 F09-T18: antetul PDF flexibil TABEL/Markdown respecta cele trei zone stanga/centru/dreapta pe acelasi rand, cu text impachetat si spatiu rezervat. Imagini ancorate in zonele lor si texte subsol aliniate. Antetul se repeta pe anexa, care incepe dupa el. Raport flexibil3; celelalte versiuni/calculul neschimbate. Manual1.39.

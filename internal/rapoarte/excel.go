@@ -1,6 +1,9 @@
 package rapoarte
 
-import "github.com/xuri/excelize/v2"
+import (
+	"fmt"
+	"github.com/xuri/excelize/v2"
+)
 
 // GenereazaExcel exporta exact documentul previzualizat, inclusiv filtrele si grupele.
 func GenereazaExcel(d Document) ([]byte, error) {
@@ -53,6 +56,91 @@ func GenereazaExcel(d Document) ([]byte, error) {
 	}
 	if err := scrie(len(d.Randuri)+6+len(d.Legenda), []string{d.Metadate}, false); err != nil {
 		return nil, err
+	}
+	// Stilurile se aplica exclusiv pe documentul pregatit/exportat.
+	stiluriExcel := map[string]int{}
+	aplica := func(celula string, font float64, bold bool, chei ...string) error {
+		activ := bold && len(chei) > 0 && chei[0] == "tabel"
+		for _, k := range chei {
+			_, ok := d.Stiluri[k]
+			activ = activ || ok
+		}
+		if !activ {
+			return nil
+		}
+		st := StilPentru(d, font, "L", bold, chei...)
+		aliniere := map[string]string{"L": "left", "C": "center", "R": "right"}[st.Aliniere]
+		vechi, e := f.GetCellStyle(foaie, celula)
+		if e != nil {
+			return e
+		}
+		cheie := fmt.Sprintf("%d/%g/%t/%t/%s", vechi, st.FontPT, st.Aldin, st.Cursiv, aliniere)
+		id, ok := stiluriExcel[cheie]
+		if !ok {
+			v, e := f.GetStyle(vechi)
+			if e != nil {
+				return e
+			}
+			if v.Font == nil {
+				v.Font = &excelize.Font{}
+			}
+			v.Font.Bold = st.Aldin
+			v.Font.Italic = st.Cursiv
+			v.Font.Size = st.FontPT
+			if v.Alignment == nil {
+				v.Alignment = &excelize.Alignment{}
+			}
+			v.Alignment.Horizontal = aliniere
+			v.Alignment.WrapText = true
+			id, e = f.NewStyle(v)
+			if e != nil {
+				return e
+			}
+			stiluriExcel[cheie] = id
+		}
+		return f.SetCellStyle(foaie, celula, celula, id)
+	}
+	if err := aplica("A1", 11, true, "titlu"); err != nil {
+		return nil, err
+	}
+	for i, c := range d.Coloane {
+		cel, _ := excelize.CoordinatesToCellName(i+1, 4)
+		if err := aplica(cel, 11, true, "antet_tabel", "eticheta:"+c.Cod); err != nil {
+			return nil, err
+		}
+	}
+	for ri, r := range d.Randuri {
+		for ci, c := range d.Coloane {
+			cel, _ := excelize.CoordinatesToCellName(ci+1, ri+5)
+			if err := aplica(cel, 11, r.Aldin || r.Grup, "tabel", "coloana:"+c.Cod, fmt.Sprintf("celula:%d:%s", ri, c.Cod)); err != nil {
+				return nil, err
+			}
+		}
+	}
+	if d.Personalizat || len(d.Stiluri) > 0 {
+		row := len(d.Randuri) + 8 + len(d.Legenda)
+		if err := scrie(row, []string{d.Introducere}, false); err != nil {
+			return nil, err
+		}
+		if err := aplica(fmt.Sprintf("A%d", row), 11, false, "introducere"); err != nil {
+			return nil, err
+		}
+		row++
+		for _, bloc := range []struct {
+			prefix string
+			texte  []string
+		}{{"antet", d.Antet}, {"subsol", d.Subsol}} {
+			if err := scrie(row, bloc.texte, false); err != nil {
+				return nil, err
+			}
+			for i := range bloc.texte {
+				cel, _ := excelize.CoordinatesToCellName(i+1, row)
+				if err := aplica(cel, 11, false, bloc.prefix+"_"+[]string{"stanga", "centru", "dreapta"}[i]); err != nil {
+					return nil, err
+				}
+			}
+			row++
+		}
 	}
 	b, err := f.WriteToBuffer()
 	if err != nil {

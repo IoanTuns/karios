@@ -3975,6 +3975,10 @@ export namespace rapoarte {
 	}
 
 	export class RaportFlexibil {
+	    extinde_zile_libere?: boolean;
+	    bold_weekend?: boolean;
+	    bold_sarbatori?: boolean;
+	    coloana_data?: string;
 	    inaltime_rand: number;
 	    ascunse: string[];
 	    sql: string;
@@ -3993,6 +3997,10 @@ export namespace rapoarte {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.extinde_zile_libere = source["extinde_zile_libere"];
+	        this.bold_weekend = source["bold_weekend"];
+	        this.bold_sarbatori = source["bold_sarbatori"];
+	        this.coloana_data = source["coloana_data"];
 	        this.inaltime_rand = source["inaltime_rand"];
 	        this.ascunse = source["ascunse"];
 	        this.sql = source["sql"];
@@ -4026,6 +4034,7 @@ export namespace rapoarte {
 	}
 
 	export class ElementRaport {
+	    stil?: StilText;
 	    repeta_rand: boolean;
 	    id: string;
 	    text: string;
@@ -4041,6 +4050,7 @@ export namespace rapoarte {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.stil = this.convertValues(source["stil"], StilText);
 	        this.repeta_rand = source["repeta_rand"];
 	        this.id = source["id"];
 	        this.text = source["text"];
@@ -4050,6 +4060,24 @@ export namespace rapoarte {
 	        this.inaltime = source["inaltime"];
 	        this.font = source["font"];
 	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
 	}
 
 	export class ColoanaCalculata {
@@ -4219,6 +4247,7 @@ export namespace rapoarte {
 	    }
 	}
 	export class Continut {
+	    prezentare?: PrezentareRaport;
 	    ascunde_explicatii?: boolean;
 	    flexibil?: RaportFlexibil;
 	    sursa: string;
@@ -4231,6 +4260,7 @@ export namespace rapoarte {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.prezentare = this.convertValues(source["prezentare"], PrezentareRaport);
 	        this.ascunde_explicatii = source["ascunde_explicatii"];
 	        this.flexibil = this.convertValues(source["flexibil"], RaportFlexibil);
 	        this.sursa = source["sursa"];
@@ -4337,6 +4367,7 @@ export namespace rapoarte {
 
 
 	export class Rand {
+	    aldin?: boolean;
 	    grup?: boolean;
 	    valori: string[];
 	    culori: string[];
@@ -4347,12 +4378,15 @@ export namespace rapoarte {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.aldin = source["aldin"];
 	        this.grup = source["grup"];
 	        this.valori = source["valori"];
 	        this.culori = source["culori"];
 	    }
 	}
 	export class Document {
+	    stiluri?: Record<string, StilText>;
+	    personalizat?: boolean;
 	    variabile_raport?: Record<string, string>;
 	    flexibil?: RaportFlexibil;
 	    schema?: TabelRaport[];
@@ -4380,6 +4414,8 @@ export namespace rapoarte {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.stiluri = this.convertValues(source["stiluri"], StilText, true);
+	        this.personalizat = source["personalizat"];
 	        this.variabile_raport = source["variabile_raport"];
 	        this.flexibil = this.convertValues(source["flexibil"], RaportFlexibil);
 	        this.schema = this.convertValues(source["schema"], TabelRaport);
@@ -4427,6 +4463,93 @@ export namespace rapoarte {
 
 
 
+
+	export class EditareTextRaport {
+	    cheie: string;
+	    text: string;
+	    stil?: StilText;
+
+	    static createFrom(source: any = {}) {
+	        return new EditareTextRaport(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.cheie = source["cheie"];
+	        this.text = source["text"];
+	        this.stil = this.convertValues(source["stil"], StilText);
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+
+	export class PrezentareRaport {
+	    stiluri?: Record<string, StilText>;
+	    etichete?: Record<string, any>;
+
+	    static createFrom(source: any = {}) {
+	        return new PrezentareRaport(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.stiluri = this.convertValues(source["stiluri"], StilText, true);
+	        this.etichete = source["etichete"];
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+
+	export class StilText {
+	    font_pt?: number;
+	    aliniere?: string;
+	    aldin?: boolean;
+	    cursiv?: boolean;
+
+	    static createFrom(source: any = {}) {
+	        return new StilText(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.font_pt = source["font_pt"];
+	        this.aliniere = source["aliniere"];
+	        this.aldin = source["aldin"];
+	        this.cursiv = source["cursiv"];
+	    }
+	}
 }
 
 export namespace raportare {

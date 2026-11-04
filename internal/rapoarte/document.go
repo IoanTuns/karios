@@ -47,11 +47,14 @@ type Coloana struct {
 	Culoare string `json:"culoare"`
 }
 type Rand struct {
+	Aldin  bool     `json:"aldin,omitempty"`
 	Grup   bool     `json:"grup,omitempty"`
 	Valori []string `json:"valori"`
 	Culori []string `json:"culori"`
 }
 type Document struct {
+	Stiluri         map[string]StilText `json:"stiluri,omitempty"`
+	Personalizat    bool                `json:"personalizat,omitempty"`
 	valoriRanduri   []map[string]string
 	VariabileRaport map[string]string  `json:"variabile_raport,omitempty"`
 	Flexibil        *RaportFlexibil    `json:"flexibil,omitempty"`
@@ -686,6 +689,7 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 	if !d.Continut.AscundeExplicatii {
 		doc.Legenda = legendaColoane(doc, configLegenda, limba, etichete)
 	}
+	aplicaPrezentare(&doc, d.Continut.Prezentare)
 	if err := tx.Commit(); err != nil {
 		return Document{}, traduce(err)
 	}

@@ -143,6 +143,8 @@ export function OpresteAI():Promise<main.RaspunsStareAI>;
 
 export function OpresteSarcinaAI():Promise<boolean>;
 
+export function PersonalizeazaRaport(arg1:string,arg2:Array<rapoarte.EditareTextRaport>):Promise<main.RaspunsRaport>;
+
 export function PornesteAI(arg1:string):Promise<main.RaspunsStareAI>;
 
 export function PornesteSarcinaAI(arg1:main.CerereInterogareAI):Promise<main.RaspunsSarcinaAI>;

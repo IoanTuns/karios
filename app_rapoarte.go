@@ -10,6 +10,7 @@ import (
 
 	wruntime "github.com/wailsapp/wails/v2/pkg/runtime"
 
+	"pontix/internal/datebaza"
 	"pontix/internal/exportexcel"
 	"pontix/internal/i18n"
 	"pontix/internal/portabil"
@@ -35,6 +36,7 @@ type RaspunsFisierRaport struct {
 	Eroare *MesajEroare `json:"eroare"`
 }
 type raportPregatit struct {
+	Cerere   rapoarte.Cerere
 	Document rapoarte.Document
 	PDF      []byte
 	Nume     string
@@ -91,13 +93,19 @@ func (a *App) raspunsDocumentRaport(doc rapoarte.Document, c rapoarte.Cerere) Ra
 	if err != nil {
 		return RaspunsRaport{Eroare: mesajRaport(err)}
 	}
+	return a.raspunsRaportValidat(doc, c, pdf, pagini)
+}
+func (a *App) raspunsRaportValidat(doc rapoarte.Document, c rapoarte.Cerere, pdf []byte, pagini int, tokenDat ...string) RaspunsRaport {
 	token := rapoarte.IDNou()
+	if len(tokenDat) > 0 {
+		token = tokenDat[0]
+	}
 	nume := doc.Sursa + "-" + doc.GeneratLa.Format("20060102-150405") + "-" + token[:8] + ".pdf"
 	a.raportMu.Lock()
 	if a.raportCache == nil {
 		a.raportCache = map[string]raportPregatit{}
 	}
-	a.raportCache[token] = raportPregatit{Document: doc, PDF: pdf, Nume: nume, Limba: i18n.Limba(c.Limba)}
+	a.raportCache[token] = raportPregatit{Document: doc, PDF: pdf, Nume: nume, Limba: i18n.Limba(c.Limba), Cerere: c}
 	a.raportOrdine = append(a.raportOrdine, token)
 	if len(a.raportOrdine) > 4 {
 		delete(a.raportCache, a.raportOrdine[0])
@@ -105,6 +113,32 @@ func (a *App) raspunsDocumentRaport(doc rapoarte.Document, c rapoarte.Cerere) Ra
 	}
 	a.raportMu.Unlock()
 	return RaspunsRaport{Document: &doc, PDF: base64.StdEncoding.EncodeToString(pdf), Token: token, NumeFisier: nume, Pagini: pagini}
+}
+func (a *App) PersonalizeazaRaport(token string, editari []rapoarte.EditareTextRaport) RaspunsRaport {
+	r, ok := a.raportPentru(token)
+	if !ok {
+		return RaspunsRaport{Eroare: &MesajEroare{Cod: "rapoarte.expirat"}}
+	}
+	ctx := a.contextLucru()
+	acum := time.Now().UTC()
+	doc, e := rapoarte.EditeazaDocument(r.Document, editari, datebaza.Actor(ctx), acum)
+	if e != nil {
+		return RaspunsRaport{Eroare: mesajRaport(e)}
+	}
+	tokenNou := rapoarte.IDNou()
+	doc.Metadate += " | " + i18n.T(r.Limba, "rapoarte.copie_id", map[string]string{"id": tokenNou})
+	pdf, e := rapoarte.GenereazaPDF(doc)
+	if e != nil {
+		return RaspunsRaport{Eroare: mesajRaport(e)}
+	}
+	pagini, e := rapoarte.NumaraPaginiPDF(ctx, pdf)
+	if e != nil {
+		return RaspunsRaport{Eroare: mesajRaport(e)}
+	}
+	if e := rapoarte.Nou(a.db).JurnalPersonalizare(ctx, tokenNou, r.Document, doc, editari, acum, r.Cerere); e != nil {
+		return RaspunsRaport{Eroare: mesajRaport(e)}
+	}
+	return a.raspunsRaportValidat(doc, r.Cerere, pdf, pagini, tokenNou)
 }
 func (a *App) raportPentru(token string) (raportPregatit, bool) {
 	a.raportMu.Lock()

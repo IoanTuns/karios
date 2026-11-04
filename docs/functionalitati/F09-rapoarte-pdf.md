@@ -12,6 +12,7 @@ F09-T08 extinde modelele cu imagini locale în antet și subsol și verifică ra
 
 | ID | Task | Stare | Responsabil | Note |
 | --- | --- | --- | --- | --- |
+| F09-T19 | Texte formatabile, celule editabile in copia raportului si evidentiere zile libere | gata | Codex | Celule si grupuri complete la ambele margini confirmate de utilizator. Stiluri per camp/celula, PDF/Excel din copia editata cu audit. [Rezultate](../rezultate-F09-T19.md); pas urmator: proba operator si review. |
 | F09-T18 | Alinierea zonelor antet/subsol in PDF flexibil | gata | Codex | Captura arata textele centru/dreapta stivuite la stanga. Corectie rand comun cu trei zone, imagini aliniate si spatiu rezervat corect. [Rezultate](../rezultate-F09-T18.md); pas urmator: proba utilizator si review. |
 | F09-T17 | Exemplu SQL garzi cu zi din luna, zi a saptamanii, nume si observatii | gata | Codex | Ordine noua ceruta explicit; patru coloane, intervalul orar in observatii. Motorul aplicatiei verificat pe sapte zile anonime; pas urmator: inlocuire SQL si previzualizare la utilizator. |
 | F09-T16 | Diagnosticarea interogarii pentru lista cronologica de garzi | gata | Codex | SQL lipit de doua ori, identificat din textul utilizatorului (oraWITH). Interogarea curata trece in motorul aplicatiei si in pregatirea completa pe date anonime. Adaugat fisier SQL curat si instructiune Ctrl+A/inlocuire; fara schimbare de cod. Pas urmator: utilizatorul inlocuieste textul. |

@@ -3,6 +3,7 @@ package rapoarte
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"math"
 	"pontix/internal/i18n"
 
@@ -24,6 +25,8 @@ import (
 	"github.com/johnfercher/maroto/v2/pkg/props"
 	"github.com/pdfcpu/pdfcpu/pkg/api"
 	"golang.org/x/image/font/gofont/gobold"
+	"golang.org/x/image/font/gofont/gobolditalic"
+	"golang.org/x/image/font/gofont/goitalic"
 	"golang.org/x/image/font/gofont/goregular"
 )
 
@@ -74,7 +77,7 @@ func randImagini(p Pagina, imagini map[string]Imagine) (core.Row, error) {
 
 // ConstruiestePDF este folosit și de testele de referință ale structurii raportului.
 func ConstruiestePDF(d Document) (core.Maroto, error) {
-	fonturi, err := fontrepository.New().AddUTF8FontFromBytes("Go", fontstyle.Normal, goregular.TTF).AddUTF8FontFromBytes("Go", fontstyle.Bold, gobold.TTF).Load()
+	fonturi, err := fontrepository.New().AddUTF8FontFromBytes("Go", fontstyle.Normal, goregular.TTF).AddUTF8FontFromBytes("Go", fontstyle.Bold, gobold.TTF).AddUTF8FontFromBytes("Go", fontstyle.Italic, goitalic.TTF).AddUTF8FontFromBytes("Go", fontstyle.BoldItalic, gobolditalic.TTF).Load()
 	if err != nil {
 		return nil, traduce(err)
 	}
@@ -94,7 +97,7 @@ func ConstruiestePDF(d Document) (core.Maroto, error) {
 		WithCreator("Pontix", true).WithCompression(true).
 		WithPageNumber(props.PageNumber{Pattern: d.Paginare, Place: props.Bottom, Family: "Go", Style: fontstyle.Normal, Size: 7}).Build()
 	m := maroto.New(cfg)
-	bloc := func(valori []string, marime float64, stil fontstyle.Type) core.Row {
+	bloc := func(valori []string, marime float64, stil fontstyle.Type, prefix string) core.Row {
 		r := row.New()
 		for i, v := range valori {
 			aliniere := align.Left
@@ -104,7 +107,7 @@ func ConstruiestePDF(d Document) (core.Maroto, error) {
 			if i == 2 {
 				aliniere = align.Right
 			}
-			r.Add(text.NewCol(40, v, props.Text{Family: "Go", Style: stil, Size: marime, Align: aliniere, Top: 1, Bottom: 2, Left: 1, Right: 1}))
+			r.Add(text.NewCol(40, v, stilProps(d, props.Text{Family: "Go", Style: stil, Size: marime, Align: aliniere, Top: 1, Bottom: 2, Left: 1, Right: 1}, prefix+"_"+[]string{"stanga", "centru", "dreapta"}[i])))
 		}
 		return r
 	}
@@ -160,14 +163,16 @@ func ConstruiestePDF(d Document) (core.Maroto, error) {
 		latimi[i%len(latimi)]++
 		ramas--
 	}
-	rand := func(valori []string, fundal []string, antet bool) core.Row {
+	rand := func(valori []string, fundal []string, antet bool, ri int, aldin bool) core.Row {
 		r := row.New()
 		for i, v := range valori {
 			stil := fontstyle.Normal
 			culoare := (*props.Color)(nil)
-			if antet {
+			if antet || aldin {
 				stil = fontstyle.Bold
-				culoare = &props.Color{Red: 231, Green: 239, Blue: 234}
+				if antet {
+					culoare = &props.Color{Red: 231, Green: 239, Blue: 234}
+				}
 			}
 			if i < len(fundal) && culori[fundal[i]] != nil {
 				culoare = culori[fundal[i]]
@@ -176,7 +181,11 @@ func ConstruiestePDF(d Document) (core.Maroto, error) {
 			if (len(d.Coloane[i].Cod) == 10 && d.Coloane[i].Cod[4] == '-') || d.Coloane[i].Cod == "total_garzi" || d.Coloane[i].Cod == "total_ore" {
 				aliniere = align.Center
 			}
-			col := text.NewCol(latimi[i], v, props.Text{Family: "Go", Style: stil, Size: float64(d.Pagina.FontPT), Align: aliniere, Top: 1, Bottom: 1.5, Left: 0.7, Right: 0.7})
+			chei := []string{"tabel", "coloana:" + d.Coloane[i].Cod, "celula:" + fmt.Sprint(ri) + ":" + d.Coloane[i].Cod}
+			if antet {
+				chei = []string{"antet_tabel", "eticheta:" + d.Coloane[i].Cod}
+			}
+			col := text.NewCol(latimi[i], v, stilProps(d, props.Text{Family: "Go", Style: stil, Size: float64(d.Pagina.FontPT), Align: aliniere, Top: 1, Bottom: 1.5, Left: 0.7, Right: 0.7}, chei...))
 			col.WithStyle(&props.Cell{BorderType: border.Full, BorderColor: &props.Color{Red: 140, Green: 150, Blue: 144}, BorderThickness: 0.15, BackgroundColor: culoare})
 			r.Add(col)
 		}
@@ -187,7 +196,7 @@ func ConstruiestePDF(d Document) (core.Maroto, error) {
 		titluri = append(titluri, c.Titlu)
 		fundal = append(fundal, c.Culoare)
 	}
-	antet := []core.Row{bloc(d.Antet, float64(d.Pagina.FontPT)+2, fontstyle.Bold)}
+	antet := []core.Row{bloc(d.Antet, float64(d.Pagina.FontPT)+2, fontstyle.Bold, "antet")}
 	imaginiAntet, err := randImagini(d.Pagina, d.AntetImagini)
 	if err != nil {
 		return nil, err
@@ -197,13 +206,13 @@ func ConstruiestePDF(d Document) (core.Maroto, error) {
 	}
 	antet = append(antet, text.NewAutoRow(d.Nota, props.Text{Family: "Go", Size: 6, Top: 1, Bottom: 2}))
 	if d.Introducere != "" {
-		antet = append(antet, text.NewAutoRow(d.Introducere, props.Text{Family: "Go", Size: float64(d.Pagina.FontPT), Top: 2, Bottom: 3}))
+		antet = append(antet, text.NewAutoRow(d.Introducere, stilProps(d, props.Text{Family: "Go", Size: float64(d.Pagina.FontPT), Top: 2, Bottom: 3}, "introducere")))
 	}
-	antet = append(antet, rand(titluri, fundal, true))
+	antet = append(antet, rand(titluri, fundal, true, -1, false))
 	if err := m.RegisterHeader(antet...); err != nil {
 		return nil, eroare("rapoarte.aspect_prea_mare")
 	}
-	subsol := []core.Row{bloc(d.Subsol, float64(d.Pagina.FontPT), fontstyle.Normal)}
+	subsol := []core.Row{bloc(d.Subsol, float64(d.Pagina.FontPT), fontstyle.Normal, "subsol")}
 	imaginiSubsol, err := randImagini(d.Pagina, d.SubsolImagini)
 	if err != nil {
 		return nil, err
@@ -214,8 +223,8 @@ func ConstruiestePDF(d Document) (core.Maroto, error) {
 	if err := m.RegisterFooter(subsol...); err != nil {
 		return nil, eroare("rapoarte.aspect_prea_mare")
 	}
-	for _, r := range d.Randuri {
-		m.AddRows(rand(r.Valori, r.Culori, r.Grup))
+	for ri, r := range d.Randuri {
+		m.AddRows(rand(r.Valori, r.Culori, r.Grup, ri, r.Aldin))
 	}
 	if len(d.Randuri) == 0 {
 		m.AddRows(text.NewAutoRow(d.FaraDate, props.Text{Family: "Go", Size: float64(d.Pagina.FontPT), Top: 4, Bottom: 4}))
@@ -230,7 +239,7 @@ func ConstruiestePDF(d Document) (core.Maroto, error) {
 		if imaginiAntet != nil {
 			anexa = append(anexa, imaginiAntet)
 		}
-		anexa = append(anexa, bloc(d.Antet, float64(d.Pagina.FontPT)+2, fontstyle.Bold))
+		anexa = append(anexa, bloc(d.Antet, float64(d.Pagina.FontPT)+2, fontstyle.Bold, "antet"))
 		titlu := func(cheie string) core.Row {
 			return text.NewAutoRow(i18n.T(d.Limba, "rapoarte."+cheie, nil), props.Text{Family: "Go", Size: 10, Style: fontstyle.Bold, Top: 3, Bottom: 2})
 		}

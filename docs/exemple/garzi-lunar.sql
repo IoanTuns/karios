@@ -13,7 +13,8 @@ SELECT
   substr(g.inceput, 12, 5) || ' - ' || substr(g.sfarsit, 12, 5)
     || CASE WHEN substr(g.sfarsit, 1, 10) <> g.data
        THEN ' (' || strftime('%d.%m.%Y', g.sfarsit) || ')'
-       ELSE '' END AS observatii
+       ELSE '' END AS observatii,
+  g.data AS data_calendar
 FROM garzi g
 WHERE g.data >= :de_la AND g.data < :pana_la
 ORDER BY g.inceput, g.angajat, g.marca, g.rowid;

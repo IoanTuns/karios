@@ -129,3 +129,6 @@ F14-T25 implementează sumarul și filtrele din I075 și detaliile model/context
 | I108 | 2026-11-02 | Explicatiile de calcul si semnificatia coloanelor sunt optionale per model de raport | Codex, utilizator | transformata | F09-T15; cerere explicita |
 
 | I109 | 2026-11-03 | Antet/subsol flexibil cu trei zone simultane aliniate stanga/centru/dreapta, inclusiv imagini | Codex, captura utilizator | transformata | F09-T18, defect PDF confirmat in cod |
+
+| I110 | 2026-11-03 | Editare texte si celule in raportul generat, stiluri vizuale si randuri bold pentru weekend/sarbatori | Codex, utilizator | transformata | F09-T19; confirmare explicita inclusiv celule |
+| I111 | 2026-11-03 | Raportul de garzi include grupurile consecutive de zile libere care traverseaza limita lunii | Codex, utilizator | transformata | F09-T19; exemplu28-30noiembrie/1decembrie2026, margini in clarificare |
