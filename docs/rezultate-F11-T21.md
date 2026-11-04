@@ -29,3 +29,5 @@ Dependente verificate: Go1.27.3, npm outdated gol. Module directe actuale except
 Pas urmator: proba operator si review pentru integrare. Fara push sau merge. Buildul oficial, manualele si sumele de verificare urmeaza dupa verificarea finala.
 
 Verificare finala: gofmt -l -w ., go vet ./..., go test -p 1 -timeout 180s ./... trecute integral. TypeScript/Vite,24 teste frontend, programe multiple Edge RO/EN, regresie UX30 RO/EN,3 teste manuale,7 teste livrare si documentatie0 erori trecute. Dialogul nativ de imprimare si baza operationala reala nu au fost accesate. Urmeaza buildul oficial din commit curat.
+
+Livrare oficiala0.92.31 din `058c410`: `build/bin/pontix-0.92.31-20261104-094519-9043d77021f54ab3a0a551d6107cd21a/pontix.exe`. Manuale MD/HTML/PDF0.92.31, editia1.41 regenerate; ZIP langa director. Manifest complet, versiune/commit, SHA256 executabil/manuale/ZIP si CRC ZIP verificate. SHA256 executabil: `CE1CC9B46B2D4F8D5901683FA230CA7A0F494988310368BFC0C3FA13E60E8174`. Modele Wails identice semantic, ordinea sursei pastrata. Fara push/merge.
