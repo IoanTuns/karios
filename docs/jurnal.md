@@ -453,3 +453,7 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 | 2026-11-04 | F09-T19: verificari finale trecute: TypeScript/Vite, gofmt, go vet, intreaga suita Go cu timeout180s, UX30 RO/EN,3 teste manuale si7 teste livrare. Pregatit commit local si build oficial0.92.30; fara push/merge. | Codex | [Rezultate](rezultate-F09-T19.md) |
 
 | 2026-11-04 | F09-T19: build oficial0.92.30 din c37e1a4 complet, cu manuale MD/HTML/PDF1.40 regenerate. Verificate manifestul, versiunea/commitul, SHA256 executabil/manuale/ZIP si CRC ZIP; calea ZIP corectata in verificarea initiala. Modele Wails identice semantic, ordinea sursei pastrata. Fara push/merge; urmeaza proba operator si review. | Codex | [Livrare](rezultate-F09-T19.md) |
+
+| 2026-11-04 | F11-T21: confirmate aceeasi marca si adaugare fara suprapuneri. Audit initial: index unic pe angajat/data in Planificare si mai multe adaptoare/mapari de Pontaj cu o singura valoare pe zi. Inceputa analiza pe ramura separata, fara modificarea datelor utilizatorului. | Codex | [Task](functionalitati/F11-planificare.md) |
+
+| 2026-11-04 | F11-T21: documentate cerintele confirmate, punctele de unicitate si activitatile de implementare/verificare. Audit initial incheiat; codul si schema raman neschimbate. Task de facut, pas urmator reprezentarea intervalelor si migrare noua. | Codex | [Specificatie](cerinte-F11-T21.md) |
