@@ -194,6 +194,10 @@ export function FinalizeazaRaportPdfme(arg1, arg2) {
   return window['go']['main']['App']['FinalizeazaRaportPdfme'](arg1, arg2);
 }
 
+export function FontSistem(arg1) {
+  return window['go']['main']['App']['FontSistem'](arg1);
+}
+
 export function FonturiRapoarte() {
   return window['go']['main']['App']['FonturiRapoarte']();
 }
@@ -244,6 +248,10 @@ export function ListaBackupuri() {
 
 export function ListaConturi() {
   return window['go']['main']['App']['ListaConturi']();
+}
+
+export function ListaFonturiSistem() {
+  return window['go']['main']['App']['ListaFonturiSistem']();
 }
 
 export function ListaModeleRapoarte() {

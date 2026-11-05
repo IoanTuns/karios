@@ -176,3 +176,7 @@ Aspectul `PDFME` pastreaza SQL-ul, calculele si filtrele de mai sus; se schimba 
 - Tipuri acceptate: text, text cu variabile, tabel, imagine, linie, dreptunghi, elipsa. Pagina de baza este goala (latime/inaltime/margini), nu un PDF importat. Sablon maximum 4 MiB, 50 pagini, 300 elemente pe pagina.
 - Fonturi: `Go`, `GoBold`, `GoItalic`, `GoBoldItalic`, din aplicatie; nu se descarca nimic.
 - Fluxul: Go pregateste documentul si intrarile, interfata genereaza PDF-ul cu `@pdfme/generator`, `FinalizeazaRaportPdfme` il valideaza cu pdfcpu (maximum 64 MiB), adauga anexa si il pune in cache pentru salvare/tiparire. Copia editata a raportului (D085) se regenereaza la fel; stilurile pe celula si boldul pe zile nu sunt inca aplicate in pdfme (F09-T22).
+
+### Fonturi Windows in sablon (0.92.34, D088)
+
+`fontName` poate fi, pe langa fonturile Go, numele complet al unui font Windows (tabelul `name`, ID 4), de exemplu `Arial Bold`. Aplicatia citeste antetele din `%WINDIR%\Fonts` si `%LOCALAPPDATA%\Microsoft\Windows\Fonts` o singura data pe sesiune si exclude fonturile cu licenta restrictiva sau doar bitmap. Datele se cer dupa nume (`FontSistem`), niciodata dupa cale; colectiile `.ttc` sunt extrase ca font separat. Fonturile cu fsType „fara subset” se includ intregi. La generare se incarca toate fonturile din `fontName` (elemente, pagina fixa, stilurile tabelului); cele lipsa sunt inlocuite cu `Go` in copia sablonului folosita la generare, iar sablonul salvat ramane neschimbat.

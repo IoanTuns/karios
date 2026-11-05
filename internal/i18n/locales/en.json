@@ -1887,5 +1887,12 @@
   "rapoarte.pdfme_in_interfata": "This report is generated from the visual editor, inside the application.",
   "rapoarte.pdfme_pdf_invalid": "The PDF generated from the template is not valid.",
   "rapoarte.pdfme_negenerat": "The report PDF has not been generated yet.",
-  "rapoarte.pdfme_pagina": "Page {currentPage} of {totalPages}"
+  "rapoarte.pdfme_pagina": "Page {currentPage} of {totalPages}",
+  "fonturi.inexistent": "The font \"{{nume}}\" is not installed on this computer or cannot be embedded in a PDF.",
+  "fonturi.citire": "The font \"{{nume}}\" could not be read.",
+  "rapoarte.pdfme_fonturi": "Windows fonts",
+  "rapoarte.pdfme_fonturi_indiciu": "Pick an installed font and press Add font; it then appears in the element font list. For bold or italic pick the font variant (for example Arial Bold). Only fonts whose license allows embedding in a PDF are shown.",
+  "rapoarte.pdfme_adauga_font": "Add font",
+  "rapoarte.pdfme_font_adaugat": "The font {{nume}} is available in the editor.",
+  "rapoarte.pdfme_fonturi_lipsa": "The fonts {{fonturi}} are missing on this computer; the Go font was used."
 }

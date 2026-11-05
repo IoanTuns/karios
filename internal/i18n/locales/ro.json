@@ -1887,5 +1887,12 @@
   "rapoarte.pdfme_in_interfata": "Acest raport se generează din editorul vizual, în aplicație.",
   "rapoarte.pdfme_pdf_invalid": "PDF-ul generat din șablon nu este valid.",
   "rapoarte.pdfme_negenerat": "PDF-ul raportului nu a fost încă generat.",
-  "rapoarte.pdfme_pagina": "Pagina {currentPage} din {totalPages}"
+  "rapoarte.pdfme_pagina": "Pagina {currentPage} din {totalPages}",
+  "fonturi.inexistent": "Fontul „{{nume}}” nu este instalat pe acest calculator sau nu poate fi inclus în PDF.",
+  "fonturi.citire": "Fontul „{{nume}}” nu a putut fi citit.",
+  "rapoarte.pdfme_fonturi": "Fonturi din Windows",
+  "rapoarte.pdfme_fonturi_indiciu": "Alegeți un font instalat și apăsați Adaugă fontul; apoi îl găsiți în lista de fonturi a elementului. Pentru bold sau italic alegeți varianta fontului (de exemplu Arial Bold). Sunt afișate doar fonturile a căror licență permite includerea în PDF.",
+  "rapoarte.pdfme_adauga_font": "Adaugă fontul",
+  "rapoarte.pdfme_font_adaugat": "Fontul {{nume}} este disponibil în editor.",
+  "rapoarte.pdfme_fonturi_lipsa": "Fonturile {{fonturi}} lipsesc pe acest calculator; s-a folosit fontul Go."
 }

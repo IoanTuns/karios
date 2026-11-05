@@ -107,6 +107,8 @@ export function ExportaPontajExcel(arg1:number,arg2:number):Promise<main.Raspuns
 
 export function FinalizeazaRaportPdfme(arg1:string,arg2:string):Promise<main.RaspunsRaport>;
 
+export function FontSistem(arg1:string):Promise<main.RaspunsFontSistem>;
+
 export function FonturiRapoarte():Promise<Record<string, string>>;
 
 export function GenereazaCheieRecuperareNoua():Promise<main.RaspunsRecuperare>;
@@ -132,6 +134,8 @@ export function Limbi():Promise<Array<string>>;
 export function ListaBackupuri():Promise<main.RaspunsBackupuri>;
 
 export function ListaConturi():Promise<main.RaspunsConturi>;
+
+export function ListaFonturiSistem():Promise<main.RaspunsFonturiSistem>;
 
 export function ListaModeleRapoarte():Promise<main.RaspunsModeleRapoarte>;
 

@@ -1,7 +1,9 @@
 // Rapoarte cu sablon pdfme (D087): editorul si generarea PDF-ului ruleaza in
 // interfata; Go pregateste datele din SQL si adauga anexa la finalizare.
 import type {Font, Template} from '@pdfme/common';
-import {FinalizeazaRaportPdfme, FonturiRapoarte} from '../wailsjs/go/main/App';
+import i18next from 'i18next';
+import {FinalizeazaRaportPdfme, FontSistem, FonturiRapoarte} from '../wailsjs/go/main/App';
+import {notifica} from './Toast';
 import {main} from '../wailsjs/go/models';
 
 // pdfme (cativa MB) se incarca la cerere, numai cand un raport il foloseste.
@@ -43,23 +45,75 @@ export function fonturiPdfme(): Promise<Font> {
     return fonturi;
 }
 
-export async function genereazaPdfPdfme(sablon: string, intrari: Record<string, string>): Promise<Uint8Array> {
+const fonturiSistem = new Map<string, Promise<Font[string] | null>>();
+
+// fontSistem incarca un font Windows dupa nume, o singura data (D088).
+export function fontSistem(nume: string): Promise<Font[string] | null> {
+    let f = fonturiSistem.get(nume);
+    if (!f) {
+        f = FontSistem(nume).then(r => (r.eroare || !r.date ? null : {data: dinBase64(r.date), subset: r.subset, fallback: false}));
+        f.then(v => { if (!v) fonturiSistem.delete(nume); }, () => fonturiSistem.delete(nume));
+        fonturiSistem.set(nume, f);
+    }
+    return f;
+}
+
+// fonturiDinSablon aduna toate valorile fontName din sablon (elemente, pagina fixa, stiluri de tabel).
+export function fonturiDinSablon(v: unknown, rez = new Set<string>()): Set<string> {
+    if (Array.isArray(v)) v.forEach(x => fonturiDinSablon(x, rez));
+    else if (v && typeof v === 'object') {
+        for (const [k, x] of Object.entries(v)) {
+            if (k === 'fontName' && typeof x === 'string' && x) rez.add(x);
+            else fonturiDinSablon(x, rez);
+        }
+    }
+    return rez;
+}
+
+function inlocuiesteFonturi(v: unknown, lipsa: Set<string>): void {
+    if (Array.isArray(v)) v.forEach(x => inlocuiesteFonturi(x, lipsa));
+    else if (v && typeof v === 'object') {
+        const o = v as Record<string, unknown>;
+        for (const [k, x] of Object.entries(o)) {
+            if (k === 'fontName' && typeof x === 'string' && lipsa.has(x)) o[k] = 'Go';
+            else inlocuiesteFonturi(x, lipsa);
+        }
+    }
+}
+
+// fonturiPentruSablon pregateste fonturile Go si fonturile Windows folosite de
+// sablon. Cele care lipsesc pe acest calculator se inlocuiesc cu Go, in sablon.
+export async function fonturiPentruSablon(template: Template): Promise<{font: Font; lipsa: string[]}> {
+    const font: Font = {...await fonturiPdfme()};
+    const lipsa = new Set<string>();
+    for (const nume of fonturiDinSablon(template)) {
+        if (font[nume]) continue;
+        const f = await fontSistem(nume).catch(() => null);
+        if (f) font[nume] = f;
+        else lipsa.add(nume);
+    }
+    inlocuiesteFonturi(template, lipsa);
+    return {font, lipsa: [...lipsa]};
+}
+
+export async function genereazaPdfPdfme(sablon: string, intrari: Record<string, string>): Promise<{pdf: Uint8Array; lipsa: string[]}> {
     const template = JSON.parse(sablon) as Template;
-    const [{generate}, plugins, font] = await Promise.all([import('@pdfme/generator'), pluginuriPdfme(), fonturiPdfme()]);
-    return generate({template, inputs: [intrari], plugins, options: {font}});
+    const [{generate}, plugins, {font, lipsa}] = await Promise.all([import('@pdfme/generator'), pluginuriPdfme(), fonturiPentruSablon(template)]);
+    return {pdf: await generate({template, inputs: [intrari], plugins, options: {font}}), lipsa};
 }
 
 // completeazaRaport transforma un raspuns care cere generare pdfme intr-un
 // raspuns cu PDF final; celelalte raspunsuri trec neschimbate.
 export async function completeazaRaport(r: main.RaspunsRaport): Promise<main.RaspunsRaport> {
     if (r.eroare || !r.generare_pdfme) return r;
-    let pdf: Uint8Array;
+    let rez: {pdf: Uint8Array; lipsa: string[]};
     try {
-        pdf = await genereazaPdfPdfme(r.sablon, r.intrari || {});
+        rez = await genereazaPdfPdfme(r.sablon, r.intrari || {});
     } catch {
         return new main.RaspunsRaport({...r, eroare: {cod: 'rapoarte.pdfme_eroare_generare'}});
     }
-    return FinalizeazaRaportPdfme(r.token, inBase64(pdf));
+    if (rez.lipsa.length) notifica(i18next.t('rapoarte.pdfme_fonturi_lipsa', {fonturi: rez.lipsa.join(', ')}), 'avertisment', 8000);
+    return FinalizeazaRaportPdfme(r.token, inBase64(rez.pdf));
 }
 
 export interface PaginaRaport {format: string; orientare: string; margine_mm: number; font_pt: number}

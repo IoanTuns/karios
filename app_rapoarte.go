@@ -12,6 +12,7 @@ import (
 
 	"pontix/internal/datebaza"
 	"pontix/internal/exportexcel"
+	"pontix/internal/fonturi"
 	"pontix/internal/i18n"
 	"pontix/internal/portabil"
 	"pontix/internal/rapoarte"
@@ -140,6 +141,33 @@ func (a *App) FinalizeazaRaportPdfme(token, pdfBase64 string) RaspunsRaport {
 	}
 	a.raportMu.Unlock()
 	return RaspunsRaport{Document: &r.Document, PDF: base64.StdEncoding.EncodeToString(pdf), Token: token, NumeFisier: r.Nume, Pagini: pagini}
+}
+
+// fonturiSistem citeste fonturile Windows o singura data, la prima cerere (D088).
+var fonturiSistem = fonturi.Nou()
+
+type RaspunsFonturiSistem struct {
+	Fonturi []fonturi.Font `json:"fonturi"`
+}
+type RaspunsFontSistem struct {
+	Nume   string       `json:"nume"`
+	Date   string       `json:"date"`
+	Subset bool         `json:"subset"`
+	Eroare *MesajEroare `json:"eroare"`
+}
+
+// ListaFonturiSistem da numele fonturilor Windows care pot fi incluse in PDF.
+func (a *App) ListaFonturiSistem() RaspunsFonturiSistem {
+	return RaspunsFonturiSistem{Fonturi: fonturiSistem.Lista()}
+}
+
+// FontSistem da datele unui font Windows, cautat dupa nume in lista aplicatiei.
+func (a *App) FontSistem(nume string) RaspunsFontSistem {
+	date, f, err := fonturiSistem.Date(nume)
+	if err != nil {
+		return RaspunsFontSistem{Nume: nume, Eroare: mesajRaport(err)}
+	}
+	return RaspunsFontSistem{Nume: f.Nume, Date: base64.StdEncoding.EncodeToString(date), Subset: f.Subset}
 }
 
 // FonturiRapoarte da interfetei fonturile Go pentru pdfme, in base64.

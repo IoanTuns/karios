@@ -10,12 +10,16 @@ vi.mock('../wailsjs/go/main/App', () => {
     const b64 = btoa(bin);
     return {
         FonturiRapoarte: async () => ({Go: b64, GoBold: b64, GoItalic: b64, GoBoldItalic: b64}),
+        FontSistem: vi.fn(async (nume: string) => (nume === 'Arial' ? {nume, date: b64, subset: true} : {nume, date: '', subset: false, eroare: {cod: 'fonturi.inexistent'}})),
         FinalizeazaRaportPdfme: vi.fn(async (token: string, pdf: string) => ({token, pdf, pagini: 1})),
     };
 });
+const notificari: string[] = [];
+vi.mock('./Toast', () => ({notifica: (m: string) => notificari.push(m)}));
+vi.mock('i18next', () => ({default: {t: (k: string, p?: Record<string, string>) => k + (p ? ' ' + JSON.stringify(p) : '')}}));
 vi.mock('../wailsjs/go/models', () => ({main: {RaspunsRaport: class { constructor(v: object) { Object.assign(this, v); } }}}));
 
-import {completeazaRaport, genereazaPdfPdfme, inBase64, dinBase64, sablonDinColoane} from './raportPdfme';
+import {completeazaRaport, fonturiDinSablon, fonturiPentruSablon, genereazaPdfPdfme, inBase64, dinBase64, sablonDinColoane} from './raportPdfme';
 
 const coloane = [{cod: 'angajat', titlu: 'Angajat'}, {cod: 'data', titlu: 'Data'}, {cod: 'ore', titlu: 'Ore'}];
 const pagina = {format: 'A4', orientare: 'PORTRET', margine_mm: 10, font_pt: 9};
@@ -35,9 +39,10 @@ describe('sablon pdfme', () => {
     it('genereaza un PDF cu diacritice si continua tabelul pe pagini noi', async () => {
         const sablon = await sablonDinColoane(coloane, pagina, 'Pagina {currentPage} din {totalPages}');
         const randuri = Array.from({length: 120}, (_, i) => [`Șerban Țîru ${i}`, '2026-11-05', String(i % 24)]);
-        const pdf = await genereazaPdfPdfme(sablon, {titlu: 'Gărzi noiembrie', antet_stanga: 'Spital', antet_centru: '', antet_dreapta: '', subsol_stanga: '', subsol_centru: '', tabel: JSON.stringify(randuri)});
+        const {pdf, lipsa} = await genereazaPdfPdfme(sablon, {titlu: 'Gărzi noiembrie', antet_stanga: 'Spital', antet_centru: '', antet_dreapta: '', subsol_stanga: '', subsol_centru: '', tabel: JSON.stringify(randuri)});
         const text = new TextDecoder('latin1').decode(pdf);
         expect(text.startsWith('%PDF-')).toBe(true);
+        expect(lipsa).toEqual([]);
         expect((await PDFDocument.load(pdf)).getPageCount()).toBeGreaterThan(1);
     }, 30000);
 
@@ -59,4 +64,25 @@ describe('sablon pdfme', () => {
         const r = await completeazaRaport({token: 'x', generare_pdfme: true, sablon: '{', intrari: {}} as never) as unknown as {eroare: {cod: string}};
         expect(r.eroare.cod).toBe('rapoarte.pdfme_eroare_generare');
     });
+
+    it('incarca fonturile Windows folosite si inlocuieste cu Go pe cele lipsa', async () => {
+        const s = JSON.parse(await sablonDinColoane(coloane, pagina, '{currentPage}'));
+        s.schemas[0][0].fontName = 'Arial';
+        s.schemas[0][1].fontName = 'Font Inexistent';
+        expect([...fonturiDinSablon(s)].sort()).toEqual(['Arial', 'Font Inexistent', 'Go', 'GoBold']);
+        const {font, lipsa} = await fonturiPentruSablon(s);
+        expect(Object.keys(font)).toContain('Arial');
+        expect(lipsa).toEqual(['Font Inexistent']);
+        expect(s.schemas[0][1].fontName).toBe('Go');
+        expect(s.schemas[0][0].fontName).toBe('Arial');
+    }, 30000);
+
+    it('genereaza raportul si avertizeaza cand un font lipseste', async () => {
+        const s = JSON.parse(await sablonDinColoane(coloane, pagina, '{currentPage}'));
+        s.schemas[0][3].fontName = 'Font Inexistent';
+        notificari.length = 0;
+        const r = await completeazaRaport({token: 'f', generare_pdfme: true, sablon: JSON.stringify(s), intrari: {titlu: 'T', tabel: '[["a","b","c"]]'}} as never) as unknown as {pdf: string};
+        expect(r.pdf).toBeTruthy();
+        expect(notificari).toEqual(['rapoarte.pdfme_fonturi_lipsa {"fonturi":"Font Inexistent"}']);
+    }, 30000);
 });
