@@ -6,6 +6,7 @@ Stări: `nouă`, `în analiză`, `transformată` (în task sau decizie), `amâna
 
 | ID | Data | Idee | Cine | Stare | Legături / motiv |
 | --- | --- | --- | --- | --- | --- |
+| I113 | 2026-11-05 | Editor vizual open-source (pdfme) pentru rapoarte si toate rapoartele generate din SQL, pentru flexibilitate | Ioan Tuns, Claude | transformată | F09-T20...F09-T23, [D087](decizii/D087-rapoarte-sql-pdfme.md) |
 | I101 | 2026-10-31 | Consecventa statutului Garda, explicatii pentru programe excluse, stari clare salvare/publicare, formulare grupate, capete de tabele vizibile si exporturi Excel utilizabile; loturile 0 si A-D din auditul UI28 | Codex | transformata | F16-T29; [rezultate](plan-F16-T29.md), UI28-14 amanata la cererea utilizatorului |
 | I100 | 2026-10-30 | Livrare reproductibila ZIP si documente operator, cu verificari traduceri si legaturi | Codex, utilizator | transformată | F02-T22; toate cele cinci propuneri autorizate explicit |
 | I099 | 2026-10-30 | Lot UX pentru pilot: protectie context AI, indicator neutru de prezenta, ajutor fara model, drawer compact si validare actualizare/recuperare | Codex | transformată | F16-T21; rezultate-ux-F16-T21.md |

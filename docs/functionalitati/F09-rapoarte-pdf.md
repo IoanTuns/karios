@@ -12,6 +12,10 @@ F09-T08 extinde modelele cu imagini locale în antet și subsol și verifică ra
 
 | ID | Task | Stare | Responsabil | Note |
 | --- | --- | --- | --- | --- |
+| F09-T20 | Infrastructura pdfme: editor in definirea rapoartelor, generare PDF in aplicatie din SQL, fonturi Go, anexa si subsol D009 adaugate de Go | în lucru | Claude | [D087](../decizii/D087-rapoarte-sql-pdfme.md). Ramura F09-T20-pdfme-sql. Pas urmator: model nou de definitie cu sablon pdfme si generare de proba pe sursa SQL_LIBER. |
+| F09-T21 | Rapoartele standard (pontaj lunar, detaliat, fisa individuala, absente anuale, grafic garzi) ca SQL + sablon pdfme; calculele raman in Go, expuse ca tabele in instantaneu | de făcut | | Depinde de F09-T20. Acelasi continut ca motorul vechi, verificat pe date anonime; versiune noua pe fiecare raport. |
+| F09-T22 | Plugin pdfme pentru stil pe rand/celula (bold weekend/sarbatori, celule editate D085) si tabel cu coloane pe zilele lunii | de făcut | | Depinde de F09-T20. |
+| F09-T23 | Conversia automata a modelelor salvate in SQL + pdfme si stergerea motorului vechi (maroto, desenarea gofpdf) | de făcut | | Depinde de F09-T21/T22. Revizie noua cu jurnal, originalul ramane in istoric; stergerea doar dupa comparare pe date anonime. |
 | F09-T19 | Texte formatabile, celule editabile in copia raportului si evidentiere zile libere | gata | Codex | Celule si grupuri complete la ambele margini confirmate de utilizator. Stiluri per camp/celula, PDF/Excel din copia editata cu audit. [Rezultate](../rezultate-F09-T19.md); pas urmator: proba operator si review. |
 | F09-T18 | Alinierea zonelor antet/subsol in PDF flexibil | gata | Codex | Captura arata textele centru/dreapta stivuite la stanga. Corectie rand comun cu trei zone, imagini aliniate si spatiu rezervat corect. [Rezultate](../rezultate-F09-T18.md); pas urmator: proba utilizator si review. |
 | F09-T17 | Exemplu SQL garzi cu zi din luna, zi a saptamanii, nume si observatii | gata | Codex | Ordine noua ceruta explicit; patru coloane, intervalul orar in observatii. Motorul aplicatiei verificat pe sapte zile anonime; pas urmator: inlocuire SQL si previzualizare la utilizator. |
