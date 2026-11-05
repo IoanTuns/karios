@@ -5,7 +5,7 @@ import {useTranslation} from 'react-i18next';
 import {DateInitiale,SalveazaElementNomenclator} from '../wailsjs/go/main/App';
 import {datebaza} from '../wailsjs/go/models';
 
-export function EditorNomenclator({tip,lista,onDate,date}:{tip:'categorii'|'functii'|'grupuri'|'contracte'|'tipuri_program'|'regimuri_program';lista:datebaza.ElementNomenclator[];onDate:(date:datebaza.Date)=>void;date?:datebaza.Date}) {
+export function EditorNomenclator({tip,lista,onDate,date}:{tip:'categorii'|'functii'|'prefixe'|'grupuri'|'contracte'|'tipuri_program'|'regimuri_program';lista:datebaza.ElementNomenclator[];onDate:(date:datebaza.Date)=>void;date?:datebaza.Date}) {
  const {t,i18n}=useTranslation();
  const [stareLista,setStareLista]=useState<StareLista>('ACTIVE');
  const [editare,setEditare]=useState<datebaza.ElementNomenclator|null>(null);

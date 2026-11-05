@@ -796,3 +796,15 @@ Rapoartele SQL (Setari > Definire rapoarte, sursele SQL liber, Lista garzi si Ca
 **Fonturi din Windows (0.92.34).** Deasupra editorului, la **Fonturi din Windows**, scrieti sau alegeti un font instalat (de exemplu Arial, Calibri, Times New Roman) si apasati **Adauga fontul**. Fontul apare apoi in lista de fonturi din panoul elementului. Pentru bold sau italic alegeti varianta fontului, de exemplu **Arial Bold**. Lista arata doar fonturile a caror licenta permite includerea in PDF. Fontul este inclus in PDF, deci documentul arata la fel pe orice calculator. Daca deschideti raportul pe un calculator care nu are fontul, aplicatia foloseste fontul Go si afiseaza un avertisment.
 
 PDF-ul arata la fel ca in editor. Explicatiile si istoricul tehnic sunt adaugate de aplicatie intr-o anexa la final si nu pot fi sterse din editor. Exportul Excel ramane din rezultatul SQL. Etichetele editorului sunt deocamdata in engleza. Boldul pentru weekend/sarbatori si stilurile pe celula nu se aplica inca in acest aspect (F09-T22).
+
+## Prefixul angajatului (0.92.35)
+
+Fiecare angajat poate avea un prefix (titulatura) afisat inaintea numelui, de exemplu **Dr. Popescu Ion**.
+
+1. **Lista de prefixe** este in Setari, langa Functii, la **Prefixe**. Aplicatia porneste cu Dr., Biol., Chim., Farm., As., Ing., Ec. si Psih. Le puteti redenumi, adauga altele sau dezactiva. Forma engleza porneste identica cu cea romana; completati-o daca rapoartele in engleza au nevoie de alta forma.
+2. **In fisa angajatului**, campul **Prefix** sta inaintea numelui. Prefixul este optional: alegeti **Fara prefix** pentru personalul fara titulatura.
+3. **Unde apare:** in rapoarte (PDF si Excel), in lista de angajati si in selectoarele cu angajati. In grilele Pontaj si Planificare apare doar numele.
+4. **Marca de garda** fara prefix propriu il afiseaza pe al marcii principale. Daca alegeti un prefix chiar pe marca de garda, se foloseste acela.
+5. Un prefix dezactivat ramane la angajatii care il au deja, dar nu mai poate fi ales pentru altii. Un prefix folosit nu poate fi sters.
+
+In rapoartele SQL, tabelul `angajati` are coloana `prefix`, iar coloana `angajat` contine numele cu prefix. Coloanele `nume` si `prenume` raman fara prefix.

@@ -41,6 +41,9 @@ type Angajat struct {
 	NormaMinute         int64                     `json:"norma_minute"`
 	ConcediuZileAn      *int64                    `json:"concediu_zile_an"`
 	Activ               bool                      `json:"activ"`
+	// PrefixID leaga angajatul de nomenclatorul prefixe (D089); Prefix este denumirea lui.
+	PrefixID string    `json:"prefix_id"`
+	Prefix   i18n.Text `json:"prefix,omitempty"`
 }
 
 type Sectie struct {
@@ -61,6 +64,7 @@ type Date struct {
 	TipuriContract      []ElementNomenclator `json:"tipuri_contract"`
 	CategoriiSchimburi  []ElementNomenclator `json:"categorii_schimburi"`
 	Functii             []ElementNomenclator `json:"functii"`
+	Prefixe             []ElementNomenclator `json:"prefixe"`
 	Angajati            []Angajat            `json:"angajati"`
 	Sectii              []Sectie             `json:"sectii"`
 	Departamente        []Departament        `json:"departamente"`
@@ -177,6 +181,15 @@ func (s *Serviciu) Citeste(ctx context.Context) (Date, error) {
 			}
 		}
 	}
+	rez.Prefixe, err = citesteNomenclator(ctx, tx, "prefixe")
+	if err != nil {
+		return Date{}, traduceEroare(err)
+	}
+	prefixe, err := citestePrefixeAngajati(ctx, tx)
+	if err != nil {
+		return Date{}, traduceEroare(err)
+	}
+	completeazaPrefixe(rez.Angajati, rez.Prefixe, prefixe)
 	garzi, err := citesteLegaturiGarzi(ctx, tx)
 	if err != nil {
 		return Date{}, traduceEroare(err)
@@ -247,6 +260,14 @@ func (s *Serviciu) Citeste(ctx context.Context) (Date, error) {
 			a.Functie = p.Functie
 			a.GrupID = p.GrupID
 			a.Conducere = p.Conducere
+		}
+	}
+	// Marca de garda fara prefix propriu il afiseaza pe al marcii principale;
+	// PrefixID ramane gol, ca o salvare sa nu il fixeze separat (D089).
+	for i := range rez.Angajati {
+		a := &rez.Angajati[i]
+		if a.AngajatPrincipalID != "" && a.PrefixID == "" {
+			a.Prefix = indexAngajati[a.AngajatPrincipalID].Prefix
 		}
 	}
 	n, err := q.NumaraAngajati(ctx)
@@ -396,6 +417,9 @@ func (s *Serviciu) SalveazaAngajat(ctx context.Context, a Angajat) error {
 			if _, err := tx.ExecContext(ctx, "INSERT INTO angajati_functii VALUES(?,?)", a.ID, a.FunctieID); err != nil {
 				return err
 			}
+		}
+		if err := salveazaPrefixAngajat(ctx, tx, q, a.ID, a.PrefixID); err != nil {
+			return err
 		}
 		contractID := a.ContractID
 		if contractID == "" {

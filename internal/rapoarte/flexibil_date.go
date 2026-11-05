@@ -65,6 +65,10 @@ func incarcatBazaRaport(ctx context.Context, tx *sql.Tx, c Cerere, f *RaportFlex
 	for _, v := range dep {
 		nd[v.ID] = textJSON(v.Denumire, limba)
 	}
+	prefixe, e := prefixeRapoarte(ctx, tx, limba)
+	if e != nil {
+		return nil, e
+	}
 	inclus := map[string]bool{}
 	nume := map[string]string{}
 	marci := map[string]string{}
@@ -77,15 +81,15 @@ func incarcatBazaRaport(ctx context.Context, tx *sql.Tx, c Cerere, f *RaportFlex
 		}
 		inclus[a.ID] = true
 		garda[a.ID] = p.Garda || asocieri[a.ID] != ""
-		nume[a.ID] = identitate.Nume(a.Nume, a.Prenume, garda[a.ID], limba)
+		nume[a.ID] = identitate.CuPrefix(prefixe[a.ID], identitate.Nume(a.Nume, a.Prenume, garda[a.ID], limba))
 		marci[a.ID] = a.Marca
 		var norma any
 		if n := norme[a.ID]; n != nil {
 			norma = float64(*n) / 60
 		}
-		ra = append(ra, []any{a.ID, nume[a.ID], a.Marca, optional(a.Functie), optional(a.SectieID), ns[optional(a.SectieID)], optional(a.DepartamentID), nd[optional(a.DepartamentID)], p.NumeContract, garda[a.ID], norma, a.Activ == 1, a.Nume, a.Prenume, a.ConcediuZileAn, asocieri[a.ID]})
+		ra = append(ra, []any{a.ID, nume[a.ID], a.Marca, optional(a.Functie), optional(a.SectieID), ns[optional(a.SectieID)], optional(a.DepartamentID), nd[optional(a.DepartamentID)], p.NumeContract, garda[a.ID], norma, a.Activ == 1, a.Nume, a.Prenume, a.ConcediuZileAn, asocieri[a.ID], prefixe[a.ID]})
 	}
-	if e = b.adauga(ctx, "angajati", []string{"angajat_id", "angajat", "marca", "functie", "sectie_id", "sectie", "compartiment_id", "compartiment", "contract", "garda", "norma_zilnica", "activ", "nume", "prenume", "concediu_zile_an", "angajat_principal_id"}, ra); e != nil {
+	if e = b.adauga(ctx, "angajati", []string{"angajat_id", "angajat", "marca", "functie", "sectie_id", "sectie", "compartiment_id", "compartiment", "contract", "garda", "norma_zilnica", "activ", "nume", "prenume", "concediu_zile_an", "angajat_principal_id", "prefix"}, ra); e != nil {
 		return nil, e
 	}
 	b.variabile = map[string]string{"sectie": ns[c.SectieID], "departament": nd[c.DepartamentID], "compartiment": nd[c.DepartamentID], "angajat": nume[c.AngajatID]}

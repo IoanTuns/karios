@@ -180,3 +180,7 @@ Aspectul `PDFME` pastreaza SQL-ul, calculele si filtrele de mai sus; se schimba 
 ### Fonturi Windows in sablon (0.92.34, D088)
 
 `fontName` poate fi, pe langa fonturile Go, numele complet al unui font Windows (tabelul `name`, ID 4), de exemplu `Arial Bold`. Aplicatia citeste antetele din `%WINDIR%\Fonts` si `%LOCALAPPDATA%\Microsoft\Windows\Fonts` o singura data pe sesiune si exclude fonturile cu licenta restrictiva sau doar bitmap. Datele se cer dupa nume (`FontSistem`), niciodata dupa cale; colectiile `.ttc` sunt extrase ca font separat. Fonturile cu fsType „fara subset” se includ intregi. La generare se incarca toate fonturile din `fontName` (elemente, pagina fixa, stilurile tabelului); cele lipsa sunt inlocuite cu `Go` in copia sablonului folosita la generare, iar sablonul salvat ramane neschimbat.
+
+### Prefixul angajatului (0.92.35, D089)
+
+`angajati.prefix` contine titulatura in limba raportului (gol daca lipseste; marca de garda o preia pe a marcii principale). `angajati.angajat` si numele din celelalte seturi contin numele cu prefix; `nume` si `prenume` raman fara prefix. Exemplu: `SELECT prefix, nume, prenume, marca FROM angajati WHERE prefix='Dr.' ORDER BY nume`.

@@ -13,3 +13,12 @@ func Nume(nume, prenume string, subordonat bool, limba i18n.Limba) string {
 	}
 	return i18n.T(limba, "ui.nume_subordonat", map[string]string{"nume": complet, "tip": i18n.T(limba, "rapoarte.subtip_garda", nil)})
 }
+
+// CuPrefix pune titulatura (Dr., Biol. …, D089) inaintea numelui afisat.
+func CuPrefix(prefix, nume string) string {
+	prefix = strings.TrimSpace(prefix)
+	if prefix == "" {
+		return nume
+	}
+	return prefix + " " + nume
+}

@@ -167,10 +167,14 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 	if err != nil {
 		return Document{}, traduce(err)
 	}
+	prefixe, err := prefixeRapoarte(ctx, tx, limba)
+	if err != nil {
+		return Document{}, traduce(err)
+	}
 	var persoana string
 	for _, a := range oameni {
 		if a.ID == c.AngajatID {
-			persoana = identitate.Nume(a.Nume, a.Prenume, profile[a.ID].Garda || asocieri[a.ID] != "", limba)
+			persoana = identitate.CuPrefix(prefixe[a.ID], identitate.Nume(a.Nume, a.Prenume, profile[a.ID].Garda || asocieri[a.ID] != "", limba))
 			if (c.SectieID != "" && optional(a.SectieID) != c.SectieID) || (c.DepartamentID != "" && optional(a.DepartamentID) != c.DepartamentID) {
 				return Document{}, eroare("rapoarte.parametri_invalizi")
 			}
@@ -471,7 +475,7 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 		if d.Continut.Sursa == "GRAFIC_GARZI" && a.Activ == 0 && !cuPlanificare[a.ID] {
 			continue
 		}
-		identitate := map[string]string{"angajat": identitate.Nume(a.Nume, a.Prenume, profile[a.ID].Garda || asocieri[a.ID] != "", limba), "marca": a.Marca, "sectie": numeSectii[optional(a.SectieID)], "departament": numeDepartamente[optional(a.DepartamentID)], "functie": optional(a.Functie), "contract": profile[a.ID].NumeContract, "norma_contract": profile[a.ID].NormaContract}
+		identitate := map[string]string{"angajat": identitate.CuPrefix(prefixe[a.ID], identitate.Nume(a.Nume, a.Prenume, profile[a.ID].Garda || asocieri[a.ID] != "", limba)), "marca": a.Marca, "sectie": numeSectii[optional(a.SectieID)], "departament": numeDepartamente[optional(a.DepartamentID)], "functie": optional(a.Functie), "contract": profile[a.ID].NumeContract, "norma_contract": profile[a.ID].NormaContract}
 		if totaluri[a.ID] == nil && d.Continut.Sursa == "PONTAJ_DETALIAT" {
 			gol, err := calcul.CalculeazaPontaj(deLa, panaLa, configuratie, nil, []calcul.IntrarePontaj{{AngajatID: a.ID, Data: deLa, Valoare: "@M0"}}, nil)
 			if err != nil {

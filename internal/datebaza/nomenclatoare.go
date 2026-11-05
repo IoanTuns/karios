@@ -41,6 +41,8 @@ func tabelaNomenclator(tip string) string {
 		return "tipuri_contract"
 	case "functii":
 		return "functii"
+	case "prefixe":
+		return "prefixe"
 	}
 	return ""
 }

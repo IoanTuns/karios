@@ -1001,6 +1001,8 @@ export namespace datebaza {
 	    norma_minute: number;
 	    concediu_zile_an?: number;
 	    activ: boolean;
+	    prefix_id: string;
+	    prefix?: Record<string, string>;
 
 	    static createFrom(source: any = {}) {
 	        return new Angajat(source);
@@ -1029,6 +1031,8 @@ export namespace datebaza {
 	        this.norma_minute = source["norma_minute"];
 	        this.concediu_zile_an = source["concediu_zile_an"];
 	        this.activ = source["activ"];
+	        this.prefix_id = source["prefix_id"];
+	        this.prefix = source["prefix"];
 	    }
 
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -1418,6 +1422,7 @@ export namespace datebaza {
 	    tipuri_contract: ElementNomenclator[];
 	    categorii_schimburi: ElementNomenclator[];
 	    functii: ElementNomenclator[];
+	    prefixe: ElementNomenclator[];
 	    angajati: Angajat[];
 	    sectii: Sectie[];
 	    departamente: Departament[];
@@ -1437,6 +1442,7 @@ export namespace datebaza {
 	        this.tipuri_contract = this.convertValues(source["tipuri_contract"], ElementNomenclator);
 	        this.categorii_schimburi = this.convertValues(source["categorii_schimburi"], ElementNomenclator);
 	        this.functii = this.convertValues(source["functii"], ElementNomenclator);
+	        this.prefixe = this.convertValues(source["prefixe"], ElementNomenclator);
 	        this.angajati = this.convertValues(source["angajati"], Angajat);
 	        this.sectii = this.convertValues(source["sectii"], Sectie);
 	        this.departamente = this.convertValues(source["departamente"], Departament);

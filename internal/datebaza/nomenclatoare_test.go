@@ -12,6 +12,9 @@ func elementTest(t *testing.T, m *mediuTest, tip, nume string) ElementNomenclato
 	if tip == "categorii" {
 		lista = citeste(t, m.serviciu).CategoriiSchimburi
 	}
+	if tip == "prefixe" {
+		lista = citeste(t, m.serviciu).Prefixe
+	}
 	for _, e := range lista {
 		if numeElement(e) == nume {
 			return e

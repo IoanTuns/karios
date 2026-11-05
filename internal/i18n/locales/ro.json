@@ -1894,5 +1894,12 @@
   "rapoarte.pdfme_fonturi_indiciu": "Alegeți un font instalat și apăsați Adaugă fontul; apoi îl găsiți în lista de fonturi a elementului. Pentru bold sau italic alegeți varianta fontului (de exemplu Arial Bold). Sunt afișate doar fonturile a căror licență permite includerea în PDF.",
   "rapoarte.pdfme_adauga_font": "Adaugă fontul",
   "rapoarte.pdfme_font_adaugat": "Fontul {{nume}} este disponibil în editor.",
-  "rapoarte.pdfme_fonturi_lipsa": "Fonturile {{fonturi}} lipsesc pe acest calculator; s-a folosit fontul Go."
+  "rapoarte.pdfme_fonturi_lipsa": "Fonturile {{fonturi}} lipsesc pe acest calculator; s-a folosit fontul Go.",
+  "nomenclator.prefixe": "Prefixe",
+  "nomenclator.prefixe_indiciu": "Titulaturi afișate înaintea numelui (Dr., Biol. …) în liste, selectoare și rapoarte. Prefixul este opțional; dezactivarea îl păstrează la angajații care îl au deja.",
+  "nomenclator.prefix": "Prefix",
+  "nomenclator.fara_prefix": "Fără prefix",
+  "nomenclator.prefix_mostenit": "Marca de gardă afișează prefixul mărcii principale cât timp nu are unul propriu.",
+  "jurnal.tabel_prefixe": "Prefixe",
+  "jurnal.tabel_angajati_prefixe": "Prefixul angajatului"
 }

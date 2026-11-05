@@ -90,6 +90,7 @@ export function FormularAngajat({angajat, date, ocupat, eroare, inchide, salveaz
     const [marca, setMarca] = useState(angajat.marca);
     const [functie, setFunctie] = useState(angajat.functie);
     const [functieId,setFunctieId]=useState(angajat.functie_id||'');
+    const [prefixId,setPrefixId]=useState(angajat.prefix_id||'');
     const [principalId,setPrincipalId]=useState(angajat.angajat_principal_id||'');
     const [sectie, setSectie] = useState(angajat.sectie_id);
     const [departament, setDepartament] = useState(angajat.departament_id || '');
@@ -102,10 +103,10 @@ export function FormularAngajat({angajat, date, ocupat, eroare, inchide, salveaz
     const [coInitial,setCoInitial]=useState(String(angajat.initializare?.co_zile||0));
     const [activ, setActiv] = useState(angajat.activ);
     const [validare, setValidare] = useState('');
-    const initial = useRef(JSON.stringify([nume, prenume, marca, functie, functieId, principalId, sectie, departament, categorieProgram, contract, ore, concediu, activ,lunaSold,oreSold,coInitial]));
+    const initial = useRef(JSON.stringify([prefixId, nume, prenume, marca, functie, functieId, principalId, sectie, departament, categorieProgram, contract, ore, concediu, activ,lunaSold,oreSold,coInitial]));
 
     function inchideCuVerificare() {
-        const modificat = initial.current !== JSON.stringify([nume, prenume, marca, functie, functieId, principalId, sectie, departament, categorieProgram, contract, ore, concediu, activ,lunaSold,oreSold,coInitial]);
+        const modificat = initial.current !== JSON.stringify([prefixId, nume, prenume, marca, functie, functieId, principalId, sectie, departament, categorieProgram, contract, ore, concediu, activ,lunaSold,oreSold,coInitial]);
         if (!ocupat && (!modificat || window.confirm(t('ui.renunta')))) inchide();
     }
 
@@ -119,7 +120,7 @@ export function FormularAngajat({angajat, date, ocupat, eroare, inchide, salveaz
         if (zile !== null && (!Number.isSafeInteger(zile) || zile < 0)) { setValidare(t('date.concediu_invalid')); return; }
         const minuteSold=Math.round(Number(oreSold.replace(',','.'))*60),zileInitiale=Number(coInitial);
         if((!lunaSold&&(!!angajat.initializare||Number(oreSold.replace(',','.'))!==0||zileInitiale!==0))||(lunaSold&&(!Number.isSafeInteger(minuteSold)||!Number.isSafeInteger(zileInitiale)||zileInitiale<0))){setValidare(t('sold.initializare_invalida'));return;}
-        await salveaza(new datebaza.Angajat({...angajat, nume, prenume, marca, functie, functie_id:functieId, angajat_principal_id:principalId, sectie_id: sectie, departament_id: departament,
+        await salveaza(new datebaza.Angajat({...angajat, prefix_id:prefixId, nume, prenume, marca, functie, functie_id:functieId, angajat_principal_id:principalId, sectie_id: sectie, departament_id: departament,
             categorie_program_id:categorieProgram, contract_id:contract, tip_contract: modNormare==='INDIVIDUALA'?'PARTIALA':'INTREAGA', norma_partiala_minute: minute, concediu_zile_an: zile, activ,initializare:lunaSold?{luna:lunaSold,minute:minuteSold,co_zile:zileInitiale,revizie:angajat.initializare?.revizie||0}:undefined}));
     }
 
@@ -133,6 +134,7 @@ export function FormularAngajat({angajat, date, ocupat, eroare, inchide, salveaz
             <div className="corp-dialog"><p className="text-discret">{t('ui.formular_indiciu')}</p>
                 {(validare || eroare) && <div className="mesaj eroare" role="alert">{validare || eroare}</div>}
                 <fieldset disabled={ocupat} className="campuri grup-formular"><legend>{t('ui28.identitate')}</legend>
+                    <label>{t('nomenclator.prefix')}<select name="angajat_prefix" value={prefixId} onChange={e=>setPrefixId(e.target.value)}><option value="">{t('nomenclator.fara_prefix')}</option>{(date.prefixe??[]).filter(p=>p.activ||p.id===prefixId).map(p=><option key={p.id} value={p.id}>{p.denumire[i18n.language]||p.denumire.ro||p.denumire.en}{!p.activ?` (${t('ui.inactiv')})`:''}</option>)}</select>{angajat.angajat_principal_id&&!prefixId&&angajat.prefix&&<small>{t('nomenclator.prefix_mostenit')}</small>}</label>
                     <label>{t('ui.nume')} *<input autoFocus required name="angajat_nume" value={nume} onChange={e => setNume(e.target.value)}/></label>
                     <label>{t('ui.prenume')} *<input required name="angajat_prenume" value={prenume} onChange={e => setPrenume(e.target.value)}/></label>
                     <label>{t('ui.marca')} *<input required name="angajat_marca" value={marca} onChange={e => setMarca(e.target.value)}/></label>
@@ -253,7 +255,7 @@ export function Setari({date, onDate, ocupat, salveazaNorma, adaugaSectie, adaug
             <button type="button" className="buton secundar" disabled={ocupat || ocupatBackup} onClick={creeazaBackup}>{t(ocupatBackup ? 'ui.salvare' : 'ui.creeaza_backup')}</button>
             {esteAdministrator && <RestaurareBackup reimprospatare={backupuriCreate} ocupat={ocupat || ocupatBackup}/>}
         </section>
-        <EditorNomenclator tip="grupuri" lista={date.grupuri_profesionale??[]} onDate={onDate} date={date}/><EditorNomenclator tip="functii" lista={date.functii??[]} onDate={onDate} date={date}/><EditorNomenclator tip="contracte" lista={date.tipuri_contract??[]} onDate={onDate} date={date}/>
+        <EditorNomenclator tip="grupuri" lista={date.grupuri_profesionale??[]} onDate={onDate} date={date}/><EditorNomenclator tip="functii" lista={date.functii??[]} onDate={onDate} date={date}/><EditorNomenclator tip="prefixe" lista={date.prefixe??[]} onDate={onDate} date={date}/><EditorNomenclator tip="contracte" lista={date.tipuri_contract??[]} onDate={onDate} date={date}/>
         <section className="panou card-setari card-despre">
             <h2>{t('ui.despre_titlu')}</h2>
             <p>{t('ui.despre_descriere')}</p>

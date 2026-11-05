@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.35 - 2026-11-06
+
+F07-T40 (D089): prefixul (titulatura) angajatului. Nomenclator nou Prefixe in Setari, cu lista de pornire Dr., Biol., Chim., Farm., As., Ing., Ec., Psih. (RO/EN editabile); prefix optional in fisa angajatului, cu jurnal. Afisat inaintea numelui in rapoarte, liste si selectoare, nu in grilele Pontaj si Planificare. Marca de garda fara prefix propriu il afiseaza pe al marcii principale. Instantaneul SQL al rapoartelor are coloana prefix in tabelul angajati. Migrare 0032_prefixe. Rapoarte: pontaj 17, detaliat 18, individual 17, absente 14, garzi 14, flexibil 8 (referintele difera doar prin versiune; datele de test nu au prefix). Manual 1.45.
+
 ## 0.92.34 - 2026-11-05
 
 F09-T24 (D088): fonturile instalate in Windows (folderul sistemului si fonturile utilizatorului) pot fi folosite in editorul pdfme. Lista contine doar fonturile a caror licenta permite includerea in PDF (fsType), fara fonturi bitmap; datele unui font se incarca la cerere, dupa nume. Fonturile din colectii .ttc se extrag ca fisiere separate. La generare se incarca fonturile folosite de sablon; cele lipsa pe calculatorul curent se inlocuiesc cu Go, cu avertisment. Pachet nou internal/fonturi, fara biblioteca noua. Raport flexibil 7. Manual 1.44.

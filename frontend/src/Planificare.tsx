@@ -4,7 +4,7 @@ import {SelectieRezumat} from './SelectieRezumat';
 import {semnaleazaModificari} from './modificariNesalvate';
 import {programPlanificat,motivProgramExclus} from './eligibilitateProgram';
 import {FiltruStare,corespundeStare,type StareLista} from './FiltruStare';
-import {numeAngajat} from './numeAngajat';
+import {numeAngajat, numeAngajatFaraPrefix} from './numeAngajat';
 import {FiltreProfesionale,filtruProfesionalGol,corespundeProfesional} from './FiltreProfesionale';
 import {useEffect, useMemo, useRef, useState, type KeyboardEvent} from 'react';
 import {useTranslation} from 'react-i18next';
@@ -95,7 +95,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj,onModificari
     const grilaRef=useRef<HTMLDivElement>(null);
     const blocat=useRef(false);
 
-    const nume=(id:string)=>{const a=date.angajati.find(a=>a.id===id);return a?`${numeAngajat(a)}`:id;};
+    const nume=(id:string)=>{const a=date.angajati.find(a=>a.id===id);return a?`${numeAngajatFaraPrefix(a)}`:id;};
     const textSchimb=(id:string)=>{const s=schimburi.find(s=>s.id===id);return s?`${s.cod} · ${s.denumire[i18n.language]||s.denumire.ro} · ${durata(s.durata_minute,t)}`:t('program.schimb_lipsa');};
     const sarbatori=useMemo(()=>new Map((calendar?.sarbatori??[]).map(z=>[z.data,z.denumire[i18n.language]||z.denumire.ro])),[calendar,i18n.language]);
 
@@ -160,7 +160,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj,onModificari
         return date.angajati.filter(a=>{
  if(!corespundeProfesional(a,filtruProfesional))return false;
             if(!corespundeStare(a.activ,stareLista)||(sectie&&a.sectie_id!==sectie)||(departament&&a.departament_id!==departament))return false;
-            if(termen&&!`${numeAngajat(a)} ${a.marca}`.toLocaleLowerCase().includes(termen))return false;
+            if(termen&&!`${numeAngajatFaraPrefix(a)} ${a.marca}`.toLocaleLowerCase().includes(termen))return false;
             return true;
         });
     },[stareLista,filtruProfesional,date.angajati,plan,sectie,departament,cautare]);
@@ -532,7 +532,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj,onModificari
 
         {randActiv&&dataActiva&&<div className="inspectie-celula" role="region" aria-label={t('planificare.inspectie_titlu')}>
             <div className="detalii-celula-activa">
-                <strong>{numeAngajat(randActiv)}</strong>
+                <strong>{numeAngajatFaraPrefix(randActiv)}</strong>
                 <span>{dataActiva}{sarbatori.get(dataActiva)?` · ${sarbatori.get(dataActiva)}`:''}</span>
                 {absentaActiva&&<span className="eticheta-contract">{absentaActiva.cod} ({t(`absente.${absentaActiva.cod}`)||absentaActiva.cod})</span>}
                 {schimbActiv&&<span className="eticheta-intrare">{schimbActiv.cod} ({schimbActiv.denumire[i18n.language]||schimbActiv.denumire.ro}) · {t(`planificare.stare_${pozitieActiva?.stare||'NEPUBLICATA'}`)}</span>}
@@ -566,7 +566,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj,onModificari
                             return <tr key={a.id}>
                                 <th scope="row" className="fix-nume">
                                     <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:'4px'}}>
-                                        <strong>{numeAngajat(a)}</strong>
+                                        <strong>{numeAngajatFaraPrefix(a)}</strong>
                                         <button type="button" className="buton-sumar-angajat" title={t('planificare.deschide_sumar')} onClick={()=>setDialogSumar(a)}>📋</button>
                                     </div>
                                     {!a.activ&&<small>{t('ui.inactiv')}</small>}
@@ -590,12 +590,12 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj,onModificari
                                     const stareClasa=p?`plan-${(p.stare||'nepublicata').toLowerCase()}`:'';
 
                                     return <td key={data} className={`${sarbatori.has(data)?'zi-sarbatoare':weekend?'zi-weekend':''} ${selectata?'celula-selectata':''} ${esteModificata?'celula-modificata':''} ${areAvertisment?'celula-atentie':''}`}>
-                                        <input data-rand={r} data-zi={z} aria-label={`${numeAngajat(a)} ${data}`}
+                                        <input data-rand={r} data-zi={z} aria-label={`${numeAngajatFaraPrefix(a)} ${data}`}
                                             readOnly disabled={ocupat}
                                             className={`${absenta?'celula-absenta':''} ${stareClasa}`}
                                             value={valoareAfisata}
                                             title={[
-                                                t('ui.tooltip_marca', {nume: `${numeAngajat(a)}`, marca: a.marca || '—'}),
+                                                t('ui.tooltip_marca', {nume: `${numeAngajatFaraPrefix(a)}`, marca: a.marca || '—'}),
                                                 t('ui.tooltip_data', {data}) + (weekend ? ` [${t('ui.tooltip_weekend')}]` : '') + (sarbatori.has(data) ? ` [${sarbatori.get(data)}]` : ''),
                                                 t('ui.tooltip_schimb', {schimb: valoareAfisata || t('ui.tooltip_liber')}) + (schimb ? ` (${schimb.denumire[i18n.language] || schimb.denumire.ro}, ${durata(schimb.durata_minute, t)})` : ''),
                                                 absenta ? `${t('absente.celula_protejata')}: ${absenta.cod}` : '',
@@ -745,7 +745,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj,onModificari
             </div>
         </>:null}
 
-        {dialogSumar&&<Dialog titlu={t('planificare.sumar_angajat_titlu',{nume:`${numeAngajat(dialogSumar)}`})} ocupat={ocupat} permiteMaximizare={true} inchide={()=>{if(!sumarModificat) setDialogSumar(null);else void confirmaParasire().then(da=>{if(da)setDialogSumar(null);});}}>
+        {dialogSumar&&<Dialog titlu={t('planificare.sumar_angajat_titlu',{nume:`${numeAngajatFaraPrefix(dialogSumar)}`})} ocupat={ocupat} permiteMaximizare={true} inchide={()=>{if(!sumarModificat) setDialogSumar(null);else void confirmaParasire().then(da=>{if(da)setDialogSumar(null);});}}>
             <div className="corp-dialog corp-dialog-sumar">
                 <PanouSumarAngajat onModificari={setSumarModificat}
                     angajat={dialogSumar}
@@ -872,7 +872,7 @@ function PanouSumarAngajat({
     useSalvareParasire('sumar-plan',modificariLocale.size,salveaza,()=>setModificariLocale(new Map()));
     return <div className="panou-sumar-angajat">
         <div className="antet-sumar-angajat">
-            <div>{angajatiDisponibili&&onSelectAngajat?<select aria-label={t('ui.angajat')} value={angajat.id} disabled={ocupat} onChange={async e=>{const id=e.target.value;if(!modificariLocale.size||await confirmaParasire())onSelectAngajat(id);}}>{angajatiDisponibili.map(a=><option key={a.id} value={a.id}>{numeAngajat(a)} ? {a.marca}</option>)}</select>:<strong>{numeAngajat(angajat)} ? {angajat.marca}</strong>}</div>
+            <div>{angajatiDisponibili&&onSelectAngajat?<select aria-label={t('ui.angajat')} value={angajat.id} disabled={ocupat} onChange={async e=>{const id=e.target.value;if(!modificariLocale.size||await confirmaParasire())onSelectAngajat(id);}}>{angajatiDisponibili.map(a=><option key={a.id} value={a.id}>{numeAngajat(a)} ? {a.marca}</option>)}</select>:<strong>{numeAngajatFaraPrefix(angajat)} ? {angajat.marca}</strong>}</div>
             <div>{t('planificare.total_ture_planificate')}: <strong>{active.length}</strong> ? {t('planificare.total_ore_planificate')}: <strong>{durata(totalMinute,t)}</strong></div>
             {modificariLocale.size>0&&<button className="buton primar" disabled={ocupat||active.some(([,p])=>!p.schimb_id)} onClick={()=>void salveaza()}>{t('ui.salveaza')} ({modificariLocale.size})</button>}
         </div>
@@ -1099,7 +1099,7 @@ function PanouComparativPlanificatVsRealizat({
             if (doarDiscrepante && r.discAng === 0 && r.difOre === 0) return false;
             if (filtruNume.trim()) {
                 const q = filtruNume.toLowerCase();
-                const text = `${numeAngajat(r.angajat)} ${r.angajat.marca}`.toLowerCase();
+                const text = `${numeAngajatFaraPrefix(r.angajat)} ${r.angajat.marca}`.toLowerCase();
                 if (!text.includes(q)) return false;
             }
             return true;
@@ -1188,7 +1188,7 @@ function PanouComparativPlanificatVsRealizat({
                                 <th scope="row" className="fix-angajat-comp">
                                     <div className="identitate">
                                         <span className="avatar" aria-hidden="true">{r.angajat.prenume.charAt(0)}{r.angajat.nume.charAt(0)}</span>
-                                        <span><strong>{numeAngajat(r.angajat)}</strong><small>{r.angajat.marca}</small></span>
+                                        <span><strong>{numeAngajatFaraPrefix(r.angajat)}</strong><small>{r.angajat.marca}</small></span>
                                     </div>
                                 </th>
                                 <td className="fix-ore-comp">{r.orePlanAng}h</td>
