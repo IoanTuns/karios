@@ -10,6 +10,7 @@ Sistem integrat de diagnoză locală, captare robustă a erorilor pe frontend ș
 
 | ID | Task | Responsabil | Stare | Legături | Note |
 | --- | --- | --- | --- | --- | --- |
+| F16-T33 | Analiza UI a rapoartelor cu editor vizual pdfme (0.92.34) | Claude | gata | [Analiza](../analiza-ui-rapoarte-pdfme-0.92.34.md), D087, D088 | Cerere utilizator. Scenariu Edge nou `--rapoarte-pdfme`, 12 constatari UIR-01..12, fara implementare. Pas urmator: utilizatorul alege ce se implementeaza; recomandat UIR-01+02. |
 | F16-T27 | Filtre Active/Inactive/Toate, implicit Active, in listele cu stare | Codex | gata | [D074](../decizii/D074-filtre-stare.md) | [Rezultate](../rezultate-F16-T27.md); proba operator. |
 | F16-T26 | Afisare unitara a orelor in format 24h | Codex | gata | [D071](../decizii/D071-format-ore-24h.md) | [Rezultate](../rezultate-F16-T26.md); proba operator. |
 | F16-T25 | Zoom global cu butoane minus/plus, resetare, tastatura si memorare locala | Codex | gata | [D065](../decizii/D065-zoom-interfata.md) | [Rezultate](../rezultate-F16-T25.md); proba operator pe monitorul propriu. |

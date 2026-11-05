@@ -1,5 +1,6 @@
 import {verificaProgrameMultiple} from './programe-multiple-scenarii.mjs';
 import {verificaRapoarteFlexibile} from './rapoarte-flexibile-scenarii.mjs';
+import {fonturiPdfmeTest,simularePdfme,verificaRapoartePdfme} from './rapoarte-pdfme-scenarii.mjs';
 import {verificaUX30} from './ux30-scenarii.mjs';
 import {simulareStergereConfigurari,verificaStergereConfigurari} from './stergere-configurari-scenarii.mjs';
 import {verificaAbsentePontaj} from './pontaj-absente-scenarii.mjs';
@@ -370,15 +371,17 @@ try {
     await cdp('Page.enable'); await cdp('Runtime.enable');
     await cdp('Emulation.setDeviceMetricsOverride', {width: 1440, height: 960, deviceScaleFactor: 1, mobile: false});
     const injectat = await cdp('Page.addScriptToEvaluateOnNewDocument', {source: `(${simulare})(${JSON.stringify(demo)},${JSON.stringify(cataloage)},'ro',${JSON.stringify(calendarSursa)},${JSON.stringify(versiuneAplicatie)},${JSON.stringify(schimburiSursa)},${JSON.stringify(rapoarteSursa)})`});
-    if (process.argv.includes('--programe-multiple') || process.argv.includes('--rapoarte-flexibile') || process.argv.includes('--ux30') || process.argv.includes('--stergere-admin') || process.argv.includes('--pontaj-absente') || process.argv.includes('--ajutor') || process.argv.includes('--focus') || process.argv.includes('--nomenclatoare')) {
+    if (process.argv.includes('--programe-multiple') || process.argv.includes('--rapoarte-flexibile') || process.argv.includes('--rapoarte-pdfme') || process.argv.includes('--ux30') || process.argv.includes('--stergere-admin') || process.argv.includes('--pontaj-absente') || process.argv.includes('--ajutor') || process.argv.includes('--focus') || process.argv.includes('--nomenclatoare')) {
         const limba=process.argv.includes('--en')?'en':'ro';
         await cdp('Emulation.setDeviceMetricsOverride',{width:1024,height:640,deviceScaleFactor:1,mobile:false});
         await cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(${simulareAjutor})(${JSON.stringify(catalogAjutor)},${JSON.stringify(cataloage)},${JSON.stringify(versiuneAplicatie)},${JSON.stringify(limba)})`});
     }
     if(process.argv.includes('--stergere-admin')) await cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(${simulareStergereConfigurari})()`});
-    if(process.argv.includes('--programe-multiple')||process.argv.includes('--nomenclatoare')||process.argv.includes('--ux30')||process.argv.includes('--rapoarte-flexibile')) await cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(${simulareNomenclatoare})()`});
+    if(process.argv.includes('--programe-multiple')||process.argv.includes('--nomenclatoare')||process.argv.includes('--ux30')||process.argv.includes('--rapoarte-flexibile')||process.argv.includes('--rapoarte-pdfme')) await cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(${simulareNomenclatoare})()`});
+    if(process.argv.includes('--rapoarte-pdfme')) await cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(${simularePdfme})(${JSON.stringify(fonturiPdfmeTest())})`});
     await cdp('Page.navigate', {url});
-    if(process.argv.includes('--rapoarte-flexibile')){await verificaRapoarteFlexibile({cdp,evalueaza,asteapta,apasa,completeaza,cataloage,limba:process.argv.includes('--en')?'en':'ro'});assert.deepEqual(erori,[],'Erori JS');console.log('Rapoarte flexibile verificate: '+capturi);}
+    if(process.argv.includes('--rapoarte-pdfme')){const masuri=await verificaRapoartePdfme({cdp,evalueaza,asteapta,apasa,completeaza,cataloage,limba:process.argv.includes('--en')?'en':'ro',captura:async nume=>{const r=await cdp('Page.captureScreenshot',{format:'png'});writeFileSync(join(capturi,nume),Buffer.from(r.data,'base64'));}});writeFileSync(join(capturi,'masuratori-pdfme.json'),JSON.stringify({masuri,erori},null,2));assert.deepEqual(erori,[],'Erori JS');console.log('Rapoarte pdfme verificate: '+capturi);}
+    else if(process.argv.includes('--rapoarte-flexibile')){await verificaRapoarteFlexibile({cdp,evalueaza,asteapta,apasa,completeaza,cataloage,limba:process.argv.includes('--en')?'en':'ro'});assert.deepEqual(erori,[],'Erori JS');console.log('Rapoarte flexibile verificate: '+capturi);}
     else if(process.argv.includes('--programe-multiple')) {await verificaProgrameMultiple({cdp,evalueaza,asteapta,apasa,completeaza,cataloage,limba:process.argv.includes('--en')?'en':'ro'});assert.deepEqual(erori,[],'Erori JS');console.log('Programe multiple UI verificate: '+capturi);}
     else if(process.argv.includes('--ux30')) {await verificaUX30({cdp,evalueaza,asteapta,apasa,completeaza,cataloage,limba:process.argv.includes('--en')?'en':'ro'});assert.deepEqual(erori,[],'Erori JS');console.log('UX30 verificat: '+capturi);}
     else if(process.argv.includes('--stergere-admin')) {await verificaStergereConfigurari({cdp,evalueaza,asteapta,apasa,completeaza,cataloage,limba:process.argv.includes('--en')?'en':'ro',captura:async nume=>{const r=await cdp('Page.captureScreenshot',{format:'png'});writeFileSync(join(capturi,nume),Buffer.from(r.data,'base64'));}});assert.deepEqual(erori,[],'Erori JS');console.log('Stergere admin verificata: '+capturi);}
