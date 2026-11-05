@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.32 - 2026-11-05
+
+F09-T20: actualizari patch stabile npm: i18next 26.7.1 -> 26.7.2, react-i18next 17.1.12 -> 17.1.13, vite 8.3.5 -> 8.3.6; versiuni exacte si lockfile. Go si modulele directe la zi (excelize ramane 2.11.0, motivul de la 0.92.26). Fara schimbare a rapoartelor sau a calculului. Manual revizuit 1.42.
+
 ## 0.92.30 - 2026-11-04
 
 F09-T19: stiluri bold/italic/marime/aliniere si etichete de coloane persistate in modele. Editarea textelor/celulelor copiei generate, PDF/Excel actualizate impreuna, token nou si jurnal inainte/dupa; sursa nu se modifica. Evidentiere optionala weekend/sarbatori pe data completa si extinderea grupurilor de zile libere la ambele margini ale lunii, fara schimbarea totalurilor lunare. Rapoarte: pontaj15, detaliat16, individual15, absente12, garzi12, flexibil4. Manual1.40.
