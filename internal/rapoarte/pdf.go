@@ -263,6 +263,10 @@ func NumaraPaginiPDF(ctx context.Context, pdf []byte) (int, error) {
 }
 
 func GenereazaPDF(d Document) ([]byte, error) {
+	if EstePdfme(d) {
+		// PDF-ul pdfme se genereaza in interfata si se finalizeaza cu FinalizeazaPdfme.
+		return nil, eroare("rapoarte.pdfme_in_interfata")
+	}
 	if d.Flexibil != nil {
 		return GenereazaPDFFlexibil(d)
 	}

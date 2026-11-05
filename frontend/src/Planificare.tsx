@@ -31,6 +31,7 @@ import {Dialog, denumireSectie, denumireDepartament, durata} from './Formulare';
 import {oraText} from './Schimburi';
 import {notifica} from './Toast';
 import {formatData, formateazaDataSigura} from './formatare';
+import {completeazaRaport} from './raportPdfme';
 
 export {programPlanificat} from './eligibilitateProgram';
 export function inSectiune(p:datebaza.Schimb,sectiune:string) {
@@ -376,7 +377,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj,onModificari
         setMesaj('');
         setOcupat(true);
         try {
-            const r=await PregatesteRaport(new rapoarte.Cerere({
+            const r=await completeazaRaport(await PregatesteRaport(new rapoarte.Cerere({
                 model_id:'raport-garzi',
  ...filtruProfesional,
                 an,
@@ -384,7 +385,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj,onModificari
                 sectie_id:sectie,
                 departament_id:departament,
                 limba:i18n.language==='en'?'en':'ro'
-            }));
+            })));
             if(r.eroare){
                 setEroare(t(r.eroare.cod,r.eroare.param||{}));
             }else{

@@ -3509,6 +3509,9 @@ export namespace main {
 	    token: string;
 	    nume_fisier: string;
 	    pagini: number;
+	    generare_pdfme: boolean;
+	    sablon: string;
+	    intrari: Record<string, string>;
 	    eroare?: MesajEroare;
 
 	    static createFrom(source: any = {}) {
@@ -3522,6 +3525,9 @@ export namespace main {
 	        this.token = source["token"];
 	        this.nume_fisier = source["nume_fisier"];
 	        this.pagini = source["pagini"];
+	        this.generare_pdfme = source["generare_pdfme"];
+	        this.sablon = source["sablon"];
+	        this.intrari = source["intrari"];
 	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
 	    }
 
@@ -3984,6 +3990,7 @@ export namespace rapoarte {
 	    sql: string;
 	    mod_aspect: string;
 	    markdown: string;
+	    sablon?: string;
 	    elemente: ElementRaport[];
 	    calculate: ColoanaCalculata[];
 	    concedii_tipuri: string[];
@@ -4006,6 +4013,7 @@ export namespace rapoarte {
 	        this.sql = source["sql"];
 	        this.mod_aspect = source["mod_aspect"];
 	        this.markdown = source["markdown"];
+	        this.sablon = source["sablon"];
 	        this.elemente = this.convertValues(source["elemente"], ElementRaport);
 	        this.calculate = this.convertValues(source["calculate"], ColoanaCalculata);
 	        this.concedii_tipuri = source["concedii_tipuri"];

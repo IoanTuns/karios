@@ -105,6 +105,10 @@ export function ExportaPlanAICSV(arg1:ai.IntentiePlan,arg2:string,arg3:string,ar
 
 export function ExportaPontajExcel(arg1:number,arg2:number):Promise<main.RaspunsExportExcel>;
 
+export function FinalizeazaRaportPdfme(arg1:string,arg2:string):Promise<main.RaspunsRaport>;
+
+export function FonturiRapoarte():Promise<Record<string, string>>;
+
 export function GenereazaCheieRecuperareNoua():Promise<main.RaspunsRecuperare>;
 
 export function IesireDinCont():Promise<main.RaspunsStareCont>;

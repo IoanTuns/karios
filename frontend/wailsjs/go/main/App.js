@@ -190,6 +190,14 @@ export function ExportaPontajExcel(arg1, arg2) {
   return window['go']['main']['App']['ExportaPontajExcel'](arg1, arg2);
 }
 
+export function FinalizeazaRaportPdfme(arg1, arg2) {
+  return window['go']['main']['App']['FinalizeazaRaportPdfme'](arg1, arg2);
+}
+
+export function FonturiRapoarte() {
+  return window['go']['main']['App']['FonturiRapoarte']();
+}
+
 export function GenereazaCheieRecuperareNoua() {
   return window['go']['main']['App']['GenereazaCheieRecuperareNoua']();
 }

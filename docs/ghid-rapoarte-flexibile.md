@@ -166,3 +166,13 @@ In definitia raportului flexibil, zona Zile speciale si intervalul raportului:
 Calendarul de sarbatori configurat este sursa regulii. Pentru noiembrie2026, intervalul complet este31octombrie-1decembrie (inceputul lunii este duminica). Pentru decembrie2026 este28noiembrie-31decembrie: grupul28-30noiembrie/1decembrie se pastreaza integral. Nu se sare peste o zi lucratoare pentru a adauga alte sarbatori indepartate. Limita tehnica este366 zile suplimentare, cu eroare explicita pentru un calendar excesiv. Textul {{de_la}} arata prima data inclusa si {{pana_la}} ultima data inclusa; parametrul SQL :pana_la este prima data exclusa. Titlul poate continua sa indice luna aleasa. Totalurile contractuale si cele din catalogul lunar raman ale lunii selectate; lista garzilor poate acoperi intervalul extins.
 
 [garzi-lunar.sql](exemple/garzi-lunar.sql) arata zilele cu garzi inregistrate. Pentru un tabel care arata toate zilele intervalului, inclusiv randuri goale unde nu exista garda, folositi varianta [garzi-lunar-calendar.sql](exemple/garzi-lunar-calendar.sql). Ambele folosesc data_calendar pentru bold si aceiasi parametri de interval.
+
+## Editor vizual pdfme (0.92.33, D087)
+
+Aspectul `PDFME` pastreaza SQL-ul, calculele si filtrele de mai sus; se schimba doar desenarea paginii. Sablonul este JSON pdfme (coordonate in mm), salvat in `continut.flexibil.sablon`, cu revizia modelului.
+
+- Tabelul `tabel` (tip `table`, nu doar citire) primeste randurile vizibile, ca JSON. `head` are cate un titlu pentru fiecare coloana vizibila; la nepotrivire generarea se opreste cu mesajul `rapoarte.pdfme_coloane`. Se accepta un singur astfel de tabel.
+- Elementele doar citire de tip text folosesc variabile `{nume}`: variabilele raportului, zonele antet/subsol (`antet_stanga` ... `subsol_dreapta`, cu etichetele `{{an}}` deja inlocuite), `introducere`, `nota`, `generat_la` si coloanele SQL. Elementele din `basePdf.staticSchema` se repeta pe fiecare pagina; `{currentPage}`/`{totalPages}` dau paginarea.
+- Tipuri acceptate: text, text cu variabile, tabel, imagine, linie, dreptunghi, elipsa. Pagina de baza este goala (latime/inaltime/margini), nu un PDF importat. Sablon maximum 4 MiB, 50 pagini, 300 elemente pe pagina.
+- Fonturi: `Go`, `GoBold`, `GoItalic`, `GoBoldItalic`, din aplicatie; nu se descarca nimic.
+- Fluxul: Go pregateste documentul si intrarile, interfata genereaza PDF-ul cu `@pdfme/generator`, `FinalizeazaRaportPdfme` il valideaza cu pdfcpu (maximum 64 MiB), adauga anexa si il pune in cache pentru salvare/tiparire. Copia editata a raportului (D085) se regenereaza la fel; stilurile pe celula si boldul pe zile nu sunt inca aplicate in pdfme (F09-T22).

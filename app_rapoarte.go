@@ -28,7 +28,12 @@ type RaspunsRaport struct {
 	Token      string             `json:"token"`
 	NumeFisier string             `json:"nume_fisier"`
 	Pagini     int                `json:"pagini"`
-	Eroare     *MesajEroare       `json:"eroare"`
+	// GenerarePdfme cere interfetei sa genereze PDF-ul din Sablon si Intrari,
+	// apoi sa il trimita la FinalizeazaRaportPdfme (D087).
+	GenerarePdfme bool              `json:"generare_pdfme"`
+	Sablon        string            `json:"sablon"`
+	Intrari       map[string]string `json:"intrari"`
+	Eroare        *MesajEroare      `json:"eroare"`
 }
 type RaspunsFisierRaport struct {
 	Anulat bool         `json:"anulat"`
@@ -84,7 +89,10 @@ func (a *App) PrevizualizeazaModelRaport(d rapoarte.Definitie, c rapoarte.Cerere
 	}
 	return a.raspunsDocumentRaport(doc, c)
 }
-func (a *App) raspunsDocumentRaport(doc rapoarte.Document, c rapoarte.Cerere) RaspunsRaport {
+func (a *App) raspunsDocumentRaport(doc rapoarte.Document, c rapoarte.Cerere, tokenDat ...string) RaspunsRaport {
+	if rapoarte.EstePdfme(doc) {
+		return a.raspunsPdfme(doc, c, tokenDat...)
+	}
 	pdf, err := rapoarte.GenereazaPDF(doc)
 	if err != nil {
 		return RaspunsRaport{Eroare: mesajRaport(err)}
@@ -93,7 +101,54 @@ func (a *App) raspunsDocumentRaport(doc rapoarte.Document, c rapoarte.Cerere) Ra
 	if err != nil {
 		return RaspunsRaport{Eroare: mesajRaport(err)}
 	}
-	return a.raspunsRaportValidat(doc, c, pdf, pagini)
+	return a.raspunsRaportValidat(doc, c, pdf, pagini, tokenDat...)
+}
+
+// raspunsPdfme pune documentul in cache fara PDF; PDF-ul vine din interfata.
+func (a *App) raspunsPdfme(doc rapoarte.Document, c rapoarte.Cerere, tokenDat ...string) RaspunsRaport {
+	intrari, err := rapoarte.DatePdfme(doc)
+	if err != nil {
+		return RaspunsRaport{Eroare: mesajRaport(err)}
+	}
+	r := a.raspunsRaportValidat(doc, c, nil, 0, tokenDat...)
+	r.GenerarePdfme, r.Sablon, r.Intrari = true, doc.Flexibil.Sablon, intrari
+	return r
+}
+
+// FinalizeazaRaportPdfme primeste PDF-ul generat de pdfme pentru un token din
+// cache, il verifica, adauga anexa si il pastreaza pentru salvare si tiparire.
+func (a *App) FinalizeazaRaportPdfme(token, pdfBase64 string) RaspunsRaport {
+	r, ok := a.raportPentru(token)
+	if !ok {
+		return RaspunsRaport{Eroare: &MesajEroare{Cod: "rapoarte.expirat"}}
+	}
+	if r.PDF != nil || !rapoarte.EstePdfme(r.Document) || len(pdfBase64) > base64.StdEncoding.EncodedLen(64<<20) {
+		return RaspunsRaport{Eroare: &MesajEroare{Cod: "rapoarte.pdfme_pdf_invalid"}}
+	}
+	octeti, err := base64.StdEncoding.DecodeString(pdfBase64)
+	if err != nil {
+		return RaspunsRaport{Eroare: &MesajEroare{Cod: "rapoarte.pdfme_pdf_invalid"}}
+	}
+	pdf, pagini, err := rapoarte.FinalizeazaPdfme(a.contextLucru(), r.Document, octeti)
+	if err != nil {
+		return RaspunsRaport{Eroare: mesajRaport(err)}
+	}
+	a.raportMu.Lock()
+	if v, ok := a.raportCache[token]; ok && v.PDF == nil {
+		v.PDF = pdf
+		a.raportCache[token] = v
+	}
+	a.raportMu.Unlock()
+	return RaspunsRaport{Document: &r.Document, PDF: base64.StdEncoding.EncodeToString(pdf), Token: token, NumeFisier: r.Nume, Pagini: pagini}
+}
+
+// FonturiRapoarte da interfetei fonturile Go pentru pdfme, in base64.
+func (a *App) FonturiRapoarte() map[string]string {
+	rez := map[string]string{}
+	for k, v := range rapoarte.FonturiPdfme() {
+		rez[k] = base64.StdEncoding.EncodeToString(v)
+	}
+	return rez
 }
 func (a *App) raspunsRaportValidat(doc rapoarte.Document, c rapoarte.Cerere, pdf []byte, pagini int, tokenDat ...string) RaspunsRaport {
 	token := rapoarte.IDNou()
@@ -127,6 +182,15 @@ func (a *App) PersonalizeazaRaport(token string, editari []rapoarte.EditareTextR
 	}
 	tokenNou := rapoarte.IDNou()
 	doc.Metadate += " | " + i18n.T(r.Limba, "rapoarte.copie_id", map[string]string{"id": tokenNou})
+	if rapoarte.EstePdfme(doc) {
+		if _, e := rapoarte.DatePdfme(doc); e != nil {
+			return RaspunsRaport{Eroare: mesajRaport(e)}
+		}
+		if e := rapoarte.Nou(a.db).JurnalPersonalizare(ctx, tokenNou, r.Document, doc, editari, acum, r.Cerere); e != nil {
+			return RaspunsRaport{Eroare: mesajRaport(e)}
+		}
+		return a.raspunsPdfme(doc, r.Cerere, tokenNou)
+	}
 	pdf, e := rapoarte.GenereazaPDF(doc)
 	if e != nil {
 		return RaspunsRaport{Eroare: mesajRaport(e)}
@@ -162,6 +226,9 @@ func (a *App) SalveazaPDFRaport(token string) RaspunsFisierRaport {
 	if !ok {
 		return RaspunsFisierRaport{Eroare: &MesajEroare{Cod: "rapoarte.expirat"}}
 	}
+	if r.PDF == nil {
+		return RaspunsFisierRaport{Eroare: &MesajEroare{Cod: "rapoarte.pdfme_negenerat"}}
+	}
 	folder, err := folderRapoarte()
 	if err != nil {
 		return RaspunsFisierRaport{Eroare: mesajRaport(err)}
@@ -185,6 +252,9 @@ func (a *App) DeschidePDFPentruTiparire(token string) RaspunsFisierRaport {
 	r, ok := a.raportPentru(token)
 	if !ok {
 		return RaspunsFisierRaport{Eroare: &MesajEroare{Cod: "rapoarte.expirat"}}
+	}
+	if r.PDF == nil {
+		return RaspunsFisierRaport{Eroare: &MesajEroare{Cod: "rapoarte.pdfme_negenerat"}}
 	}
 	folder, err := folderRapoarte()
 	if err != nil {

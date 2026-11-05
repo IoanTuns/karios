@@ -1327,6 +1327,7 @@ fieldset.filtre-profesionale{border:0;padding:0;min-width:0}
 [data-tabel-accesibil]:focus-visible,.filtre-active button:focus-visible {outline:3px solid var(--text);outline-offset:2px;}
 
 .editor-flexibil {display:grid;gap:12px;min-width:0}.editor-flexibil textarea{width:100%;box-sizing:border-box;font-family:monospace}.editor-flexibil fieldset{border:1px solid var(--bordura,#cad6d0);padding:12px}.schema-flexibila code{display:inline-block;padding:2px 4px}.panza-raport{width:100%;max-height:520px;touch-action:none;background:white;border:1px solid #8aa89c}.panza-raport g{cursor:move}.editor-flexibil .cadru-raport{width:100%;height:520px;border:1px solid #cad6d0}.flex-date td,.flex-date th{white-space:nowrap}
+.editor-pdfme{width:100%;height:75vh;min-height:520px;border:1px solid #cad6d0;background:white}
 
 .unelte-stil-raport{display:flex;gap:.75rem;flex-wrap:wrap;align-items:end;margin:.75rem 0}.unelte-stil-raport label{min-width:8rem}.editor-prezentare,.editor-copie-raport{border:1px solid var(--bordura,#ccd7d2);border-radius:.5rem;padding:1rem;margin:1rem 0}.editor-prezentare summary,.editor-copie-raport summary{font-weight:600;cursor:pointer}.tabel-copie-raport input{min-width:8rem;width:100%;box-sizing:border-box}.editor-copie-raport fieldset{min-width:0}.tabel-copie-raport th{position:sticky;top:0;z-index:1}
 

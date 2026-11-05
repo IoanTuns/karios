@@ -1874,5 +1874,18 @@
   "planificare.multiple_indiciu": "Poti adauga mai multe programe in aceeasi zi. Intervalele nu se pot suprapune; fiecare program poate fi editat sau eliminat separat.",
   "planificare.adauga_program_zi": "Adauga program pe zi",
   "planificare.multiple_schimba_sumar": "Ziua are mai multe programe. Deschide sumarul angajatului pentru a edita fiecare interval separat.",
-  "planificare.motiv_zi_nelucratoare": "Programul normal se poate planifica numai in zile lucratoare, fara weekend si sarbatori legale."
+  "planificare.motiv_zi_nelucratoare": "Programul normal se poate planifica numai in zile lucratoare, fara weekend si sarbatori legale.",
+  "rapoarte.flex_PDFME": "Editor vizual (pdfme)",
+  "rapoarte.pdfme_indiciu": "Trageți și redimensionați elementele pe pagină. Tabelul numit „tabel” primește rândurile din SQL. În texte puteți folosi {titlu}, {perioada}, {an}, {luna}, {generat_la}, {antet_stanga}, {subsol_dreapta} sau orice coloană din SQL; {currentPage} și {totalPages} dau numărul paginii.",
+  "rapoarte.pdfme_din_coloane": "Șablon nou din coloanele SQL",
+  "rapoarte.pdfme_din_coloane_confirma": "Șablonul curent se înlocuiește cu unul nou, generat din coloanele rezultatului SQL. Continuați?",
+  "rapoarte.pdfme_fara_coloane": "Rulați întâi Verifică raportul, ca aplicația să afle coloanele SQL.",
+  "rapoarte.pdfme_generare": "Se generează PDF-ul...",
+  "rapoarte.pdfme_eroare_generare": "PDF-ul nu a putut fi generat din șablon. Verificați elementele șablonului.",
+  "rapoarte.pdfme_invalid": "Șablonul vizual al raportului nu este valid.",
+  "rapoarte.pdfme_coloane": "Tabelul din șablon are {{sablon}} coloane, iar SQL-ul dă {{date}}. Ajustați capul tabelului sau generați un șablon nou din coloane.",
+  "rapoarte.pdfme_in_interfata": "Acest raport se generează din editorul vizual, în aplicație.",
+  "rapoarte.pdfme_pdf_invalid": "PDF-ul generat din șablon nu este valid.",
+  "rapoarte.pdfme_negenerat": "PDF-ul raportului nu a fost încă generat.",
+  "rapoarte.pdfme_pagina": "Pagina {currentPage} din {totalPages}"
 }

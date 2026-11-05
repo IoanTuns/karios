@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.33 - 2026-11-05
+
+F09-T20 (D087): editor vizual pdfme 6.2.8 pentru rapoartele SQL, aspect nou „Editor vizual (pdfme)”. Sablonul (JSON) se salveaza in model; PDF-ul se genereaza in aplicatie cu pdfme si fonturile Go, apoi Go il verifica cu pdfcpu si adauga anexa cu explicatiile si istoricul tehnic. Sablon de pornire din coloanele SQL, cu antet in trei zone, titlu, tabel cu antet repetat si numarul paginii. pdfme se incarca la cerere, in bucati separate. Raport flexibil 6; celelalte rapoarte si calculul neschimbate. Manual 1.43.
+
 ## 0.92.32 - 2026-11-05
 
 F09-T20: actualizari patch stabile npm: i18next 26.7.1 -> 26.7.2, react-i18next 17.1.12 -> 17.1.13, vite 8.3.5 -> 8.3.6; versiuni exacte si lockfile. Go si modulele directe la zi (excelize ramane 2.11.0, motivul de la 0.92.26). Fara schimbare a rapoartelor sau a calculului. Manual revizuit 1.42.

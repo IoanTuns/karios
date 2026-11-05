@@ -10,6 +10,7 @@ import {semnaleazaModificari} from './modificariNesalvate';
 import {ListaModeleRapoarte, SalveazaModelRaport, PregatesteRaport, SalveazaPDFRaport, DeschidePDFPentruTiparire, SalveazaExcelRaport} from '../wailsjs/go/main/App';
 import {datebaza, main, rapoarte} from '../wailsjs/go/models';
 import {Dialog, denumireDepartament, denumireSectie} from './Formulare';
+import {completeazaRaport} from './raportPdfme';
 
 const copiaza = <T,>(v: T): T => JSON.parse(JSON.stringify(v));
 export type DateSimple<T> = T extends Array<infer V> ? DateSimple<V>[] : T extends object ? {[K in keyof T as T[K] extends Function ? never : K]: DateSimple<T[K]>} : T;
@@ -143,7 +144,7 @@ export function GenerareRapoarte({date,initial,onPerioada}: {date: datebaza.Date
     async function genereaza() {
         if (!model || blocat.current || (selectie.angajat&&!persoaneRaport.some(a=>a.id===selectie.angajat))) return;
         blocat.current = true;setOcupat(true);setEroare('');setMesaj('');setRezultat(null);
-        try { const r=await PregatesteRaport(new rapoarte.Cerere({model_id:model.id,revizie:model.revizie,an:selectie.an,luna:selectie.luna,sectie_id:selectie.sectie,departament_id:selectie.departament,...filtruProfesional,angajat_id:selectie.angajat,limba:selectie.limba}));if (r.eroare) setEroare(t(r.eroare.cod,r.eroare.param || {}));else setRezultat(r); }
+        try { const r=await completeazaRaport(await PregatesteRaport(new rapoarte.Cerere({model_id:model.id,revizie:model.revizie,an:selectie.an,luna:selectie.luna,sectie_id:selectie.sectie,departament_id:selectie.departament,...filtruProfesional,angajat_id:selectie.angajat,limba:selectie.limba})));if (r.eroare) setEroare(t(r.eroare.cod,r.eroare.param || {}));else setRezultat(r); }
         catch { setEroare(t('rapoarte.eroare')); } finally { blocat.current=false;setOcupat(false); }
     }
     async function fisier(tipareste: boolean) {

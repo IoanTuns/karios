@@ -781,3 +781,16 @@ Concediile si medicalul isi pastreaza prioritatea. Medicalul elimina toate inter
 Rapoartele flexibile pe sursa garzi afiseaza cate o inregistrare per interval. In graficul lunar codurile aceleiasi zile apar impreuna; totalurile insumeaza toate intervalele. Nu se schimba procentele si regulile de plata.
 
 Programele normale explicite pot fi selectate impreuna cu alte programe permise, dar NORMAL/LUCRATOARE se aplica numai in zile lucratoare, fara weekend si sarbatori legale. Codurile individuale raman de maximum16 caractere; proiectia mai multor programe poate avea maximum1024.
+
+## Editor vizual pentru rapoarte (0.92.33)
+
+Rapoartele SQL (Setari > Definire rapoarte, sursele SQL liber, Lista garzi si Calcule lunare) au un aspect nou: **Editor vizual (pdfme)**.
+
+1. Scrieti sau alegeti interogarea SQL, apoi apasati **Verifica raportul**.
+2. La **Aspect** alegeti **Editor vizual (pdfme)**. Aplicatia pregateste un sablon de pornire din coloanele SQL: antet in trei zone, titlu, tabelul cu datele si numarul paginii jos, pe fiecare pagina.
+3. Pe pagina din editor trageti si redimensionati elementele; proprietatile (font, marime, aliniere, culori) sunt in panoul din dreapta. Elemente noi (text, imagine, linie, dreptunghi) se adauga din bara din stanga.
+4. Tabelul numit `tabel` primeste randurile din SQL si continua singur pe paginile urmatoare, cu antetul repetat. Numarul de coloane din capul tabelului trebuie sa fie egal cu numarul de coloane din SQL. Daca schimbati SQL-ul, ajustati capul tabelului sau apasati **Sablon nou din coloanele SQL**.
+5. In texte puteti folosi variabile intre acolade: `{titlu}`, `{perioada}`, `{an}`, `{luna}`, `{generat_la}`, `{antet_stanga}`, `{antet_centru}`, `{antet_dreapta}`, `{subsol_stanga}`, `{subsol_centru}`, `{subsol_dreapta}` si orice coloana din SQL (valoarea de pe primul rand). `{currentPage}` si `{totalPages}` dau pagina curenta si numarul de pagini.
+6. Apasati **Verifica raportul** pentru previzualizare, apoi salvati modelul.
+
+PDF-ul arata la fel ca in editor. Explicatiile si istoricul tehnic sunt adaugate de aplicatie intr-o anexa la final si nu pot fi sterse din editor. Exportul Excel ramane din rezultatul SQL. Etichetele editorului sunt deocamdata in engleza. Boldul pentru weekend/sarbatori si stilurile pe celula nu se aplica inca in acest aspect (F09-T22).

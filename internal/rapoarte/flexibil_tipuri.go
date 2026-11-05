@@ -29,15 +29,17 @@ type ElementRaport struct {
 	Font       float64   `json:"font"`
 }
 type RaportFlexibil struct {
-	ExtindeZileLibere bool               `json:"extinde_zile_libere,omitempty"`
-	BoldWeekend       bool               `json:"bold_weekend,omitempty"`
-	BoldSarbatori     bool               `json:"bold_sarbatori,omitempty"`
-	ColoanaData       string             `json:"coloana_data,omitempty"`
-	InaltimeRand      float64            `json:"inaltime_rand"`
-	Ascunse           []string           `json:"ascunse"`
-	SQL               string             `json:"sql"`
-	ModAspect         string             `json:"mod_aspect"`
-	Markdown          string             `json:"markdown"`
+	ExtindeZileLibere bool     `json:"extinde_zile_libere,omitempty"`
+	BoldWeekend       bool     `json:"bold_weekend,omitempty"`
+	BoldSarbatori     bool     `json:"bold_sarbatori,omitempty"`
+	ColoanaData       string   `json:"coloana_data,omitempty"`
+	InaltimeRand      float64  `json:"inaltime_rand"`
+	Ascunse           []string `json:"ascunse"`
+	SQL               string   `json:"sql"`
+	ModAspect         string   `json:"mod_aspect"`
+	Markdown          string   `json:"markdown"`
+	// Sablon este sablonul pdfme (JSON) pentru ModAspect PDFME, D087.
+	Sablon            string             `json:"sablon,omitempty"`
 	Elemente          []ElementRaport    `json:"elemente"`
 	Calculate         []ColoanaCalculata `json:"calculate"`
 	ConcediiTipuri    []string           `json:"concedii_tipuri"`
@@ -67,8 +69,15 @@ func valideazaFlexibil(f *RaportFlexibil) error {
 	if (f.BoldWeekend || f.BoldSarbatori) && !codFlexibil.MatchString(f.ColoanaData) {
 		return eroare("rapoarte.data_evidentiere_invalida")
 	}
-	if f.ModAspect != "" && f.ModAspect != "TABEL" && f.ModAspect != "MARKDOWN" && f.ModAspect != "LIBER" {
+	if f.ModAspect != "" && f.ModAspect != "TABEL" && f.ModAspect != "MARKDOWN" && f.ModAspect != "LIBER" && f.ModAspect != ModPdfme {
 		return eroare("rapoarte.flex_invalid")
+	}
+	if f.ModAspect == ModPdfme {
+		if _, err := citesteSablonPdfme(f.Sablon); err != nil {
+			return err
+		}
+	} else if f.Sablon != "" {
+		return eroare("rapoarte.pdfme_invalid")
 	}
 	vaz := map[string]bool{}
 	for _, c := range f.Calculate {
