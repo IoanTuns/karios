@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.51 - 2026-11-06
+
+F16-T35. Configurare pontaj (I119): ultima coloana a tabelului de reguli (bifa „Numai absente aprobate”) nu mai e fixata la dreapta, deci nu mai acopera coloana Factor si eroarea de sub ea la 1024 px. Proba asistentului „sabloane” (I120) numara si comutatorul „Arata doar selectati” adaugat in F14-T32; acum numara doar persoanele si trece (24/24). Fara alte schimbari de functionalitate; manualul revizuit fara modificari de continut.
+
 ## 0.92.50 - 2026-11-06
 
 F14-T35 (D049, I077–I080), planul asistentului AI. Starea planului e afisata mereu (in editare, pregatit, trebuie verificat din nou, aplicat, anulat) si apare si in lista planurilor. Lipsurile sunt enumerate si fiecare duce la campul ei; perioada gresita e marcata langa data vinovata (format, ordine, peste un an). La confirmarea unui plan expirat, cererea ramane, iar „Actualizeaza previzualizarea” primeste focus; la revenirea intr-un plan care avea previzualizare, aceasta nu se reia din memorie si se cere o noua verificare. Rezumatul e pe contoare, cu lunile scrise cu nume; datele din tabel si lunile din filtre, din sumar si din butoanele de deschidere a pontajului sunt formatate; un avertisment scris apare cand se inlocuiesc celule. In optiunile motorului apare consumul ultimei cereri raportat de motor (campul usage), sau mentiunea ca nu a fost raportat. Manual 1.56.

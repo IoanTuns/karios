@@ -1321,6 +1321,9 @@ fieldset.filtre-profesionale{border:0;padding:0;min-width:0}
 .tabel-angajati>table tr>:nth-child(2){position:sticky;left:40px;width:180px;min-width:180px;max-width:180px;white-space:normal;overflow-wrap:anywhere;background:var(--suprafata);z-index:3}
 .tabel-angajati>table>thead>tr>:nth-child(2){z-index:7}
 .tabel-derulant>table:not(.grila-pontaj):not(.grila-planificare)>tbody>tr>:last-child{position:sticky;right:0;background:var(--suprafata);z-index:2;box-shadow:-1px 0 var(--linie)}
+/* I119: in Configurare pontaj ultima coloana e o bifa, nu actiuni; fixata, acoperea coloana Factor. */
+.reguli-pontaj .tabel-derulant>table.tabel-reguli-pontaj>tbody>tr>:last-child{position:static;box-shadow:none}
+.reguli-pontaj .tabel-derulant>table.tabel-reguli-pontaj>thead>tr>:last-child{right:auto}
 .tabel-derulant>table>thead>tr>:last-child{right:0;z-index:6}
 .grila-planificare .fix-total-ture{position:sticky;right:0;z-index:2;background:var(--suprafata);box-shadow:-1px 0 var(--linie)}
 .grila-planificare thead .fix-total-ture{z-index:5}
