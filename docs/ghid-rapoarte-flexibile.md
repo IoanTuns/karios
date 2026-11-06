@@ -192,3 +192,15 @@ Tabelul `tabel` din sablon pastreaza in proprietatea `pontixColoane` codurile co
 ### Stiluri pe rand si pe celula in tabelul pdfme (0.92.37, F09-T22)
 
 Tabelul pdfme nu are stiluri pe rand, asa ca la generare aplicatia inlocuieste doar desenarea tabelului `tabel`; editorul, panoul de proprietati si impartirea pe pagini raman cele din pdfme. Go trimite intrarea `pontix_stiluri` (JSON): `randuri` (indice in tot corpul -> stil; aici ajung randurile aldine pentru weekend/sarbatori), `celule` (`"rand:coloana"` -> stil, din editarea copiei D085, coloana fiind indicele coloanei vizibile), `corp` si `cap` (stilurile `tabel` si `antet_tabel`). Un stil are `aldin`, `cursiv`, `font_pt`, `aliniere` (L/C/R). Ordinea de aplicare: sectiune, rand, celula. Aldinul foloseste `GoBold`/`GoItalic`/`GoBoldItalic` sau varianta „Nume Bold/Italic” a fontului Windows, daca exista. Inaltimile randurilor sunt cele calculate de pdfme pentru textul normal, ca paginarea sa nu se schimbe; un text aldin foarte lung poate depasi usor celula. Stilurile pe coloana (`coloana:cod`) nu se transmit: in modul vizual coloanele se formateaza in editor. Celulele cu imagini se deseneaza cu codul original, fara stiluri.
+
+## Rapoartele standard ca tabele calculate (0.92.38, D090)
+
+| Tabel | Sursa | Coloane |
+| --- | --- | --- |
+| pontaj_lunar | Pontaj lunar | rand, grup, angajat, marca, sectie, departament, functie, contract, norma_contract, z01-z31 |
+| pontaj_detaliat | Pontaj detaliat | ca mai sus, plus total_L_INCEPUT si totalurile configurate (total_T, total_ZNL, total_CO ...) |
+| fisa_individuala | Fisa individuala (cere angajat) | rand, grup, data, zi, ore, descriere, categorie |
+| absente_anuale | Evidenta anuala a absentelor | rand, grup, data, angajat, marca, sectie, departament, contract, norma_contract, cod, descriere, categorie |
+| grafic_garzi | Grafic garzi | rand, grup, angajat, marca, ..., z01-z31, total_garzi, total_ore |
+
+Un tabel se calculeaza doar daca SQL-ul (sau un calcul SQL) il numeste, cu filtrele raportului. Valorile sunt textele afisate de raportul standard. `rand` este pozitia randului in raportul calculat; cu ea, aplicatia preia titlurile, culorile pe celula si pe coloana, randurile de grup/aldine si legenda doar pentru coloanele alese. Daca SQL-ul combina doua tabele standard sau nu pastreaza `rand`, raportul ramane corect, dar fara aceste metadate.

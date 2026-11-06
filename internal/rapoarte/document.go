@@ -53,9 +53,12 @@ type Rand struct {
 	Culori []string `json:"culori"`
 }
 type Document struct {
-	Stiluri         map[string]StilText `json:"stiluri,omitempty"`
-	Personalizat    bool                `json:"personalizat,omitempty"`
-	valoriRanduri   []map[string]string
+	Stiluri       map[string]StilText `json:"stiluri,omitempty"`
+	Personalizat  bool                `json:"personalizat,omitempty"`
+	valoriRanduri []map[string]string
+	// legendaPentru reface legenda pentru un set de coloane (rapoartele standard
+	// folosite din SQL afiseaza doar explicatiile coloanelor alese, D090).
+	legendaPentru   func([]Coloana) []string
 	VariabileRaport map[string]string  `json:"variabile_raport,omitempty"`
 	Flexibil        *RaportFlexibil    `json:"flexibil,omitempty"`
 	Schema          []TabelRaport      `json:"schema,omitempty"`
@@ -133,6 +136,20 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 	if esteFlexibil(d.Continut.Sursa) {
 		return preparaFlexibil(ctx, tx, d, c, acum)
 	}
+	doc, err := pregatesteStandard(ctx, tx, q, d, c, acum)
+	if err != nil {
+		return Document{}, err
+	}
+	if err := tx.Commit(); err != nil {
+		return Document{}, traduce(err)
+	}
+	return doc, nil
+}
+
+// pregatesteStandard calculeaza documentul unei surse standard (pontaj lunar,
+// detaliat, fisa individuala, absente anuale, grafic garzi) in tranzactia data,
+// fara sa o inchida. O folosesc motorul vechi si setul de date SQL (D090).
+func pregatesteStandard(ctx context.Context, tx *sql.Tx, q *acces.Queries, d Definitie, c Cerere, acum time.Time) (Document, error) {
 	limba := i18n.Limba(c.Limba)
 	t := func(k string) string { return i18n.T(limba, "rapoarte."+k, nil) }
 	oameni, err := q.ListaAngajati(ctx)
@@ -706,10 +723,12 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 	if !d.Continut.AscundeExplicatii {
 		doc.Legenda = legendaColoane(doc, configLegenda, limba, etichete)
 	}
-	aplicaPrezentare(&doc, d.Continut.Prezentare)
-	if err := tx.Commit(); err != nil {
-		return Document{}, traduce(err)
+	doc.legendaPentru = func(cols []Coloana) []string {
+		sub := doc
+		sub.Coloane = cols
+		return legendaColoane(sub, configLegenda, limba, etichete)
 	}
+	aplicaPrezentare(&doc, d.Continut.Prezentare)
 	return doc, nil
 }
 

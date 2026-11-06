@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.38 - 2026-11-06
+
+F09-T21 faza 1 (D090 propusa): rapoartele standard sunt disponibile ca tabele calculate in SQL-ul rapoartelor flexibile: pontaj_lunar, pontaj_detaliat, fisa_individuala, absente_anuale, grafic_garzi. Calculul este cel al motorului vechi (extras in pregatesteStandard, fara schimbari); zilele sunt coloanele z01-z31. Cu coloana rand in rezultat, raportul preia titlurile, culorile de weekend/absenta, grupurile si legenda coloanelor alese. Echivalenta verificata pe toate cele cinci rapoarte. Rapoartele standard existente sunt neschimbate; raport flexibil 10. Manual 1.48.
+
 ## 0.92.37 - 2026-11-06
 
 F09-T22: stil pe rand si pe celula in tabelul rapoartelor cu editor vizual. Boldul pentru weekend si sarbatori, celulele editate in copia raportului (D085) si stilurile generale ale corpului si capului de tabel se aplica acum si in PDF-ul pdfme. Go trimite stilurile separat de randuri (intrarea pontix_stiluri); la generare, interfata deseneaza tabelul cu aceleasi inaltimi, fundaluri alternante, chenare si impartire pe pagini ca pdfme, plus stilurile cerute. Variantele aldin/cursiv ale fonturilor Windows se incarca la cerere. Tabelele fara stiluri se deseneaza neschimbat. Raport flexibil 9. Manual 1.47.

@@ -16,6 +16,8 @@ type bazaRaport struct {
 	db        *sql.DB
 	schema    []TabelRaport
 	variabile map[string]string
+	// standard: documentele surselor standard folosite de SQL (D090).
+	standard []documentStandard
 }
 
 func nouaBazaRaport() (*bazaRaport, error) {

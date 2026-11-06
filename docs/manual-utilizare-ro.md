@@ -808,3 +808,9 @@ Fiecare angajat poate avea un prefix (titulatura) afisat inaintea numelui, de ex
 5. Un prefix dezactivat ramane la angajatii care il au deja, dar nu mai poate fi ales pentru altii. Un prefix folosit nu poate fi sters.
 
 In rapoartele SQL, tabelul `angajati` are coloana `prefix`, iar coloana `angajat` contine numele cu prefix. Coloanele `nume` si `prenume` raman fara prefix.
+
+## Rapoartele standard in SQL (0.92.38)
+
+In rapoartele SQL puteti folosi acum rezultatul rapoartelor standard ca tabele: `pontaj_lunar`, `pontaj_detaliat`, `fisa_individuala` (cere un angajat ales), `absente_anuale` si `grafic_garzi`. Valorile sunt calculate exact ca in rapoartele standard; SQL-ul doar alege coloanele, ordinea si randurile. Zilele lunii sunt coloanele `z01` ... `z31` (in lunile mai scurte ultimele sunt goale).
+
+Exemplu: `SELECT rand, angajat, marca, z01, z02, z03 FROM pontaj_lunar ORDER BY rand`. Pastrati coloana `rand` si treceti-o la **Coloane ascunse**: asa raportul preia titlurile coloanelor, culorile de weekend si absenta, randurile de grup si explicatiile coloanelor.

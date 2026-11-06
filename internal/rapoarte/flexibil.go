@@ -35,7 +35,7 @@ func preparaFlexibil(ctx context.Context, tx *sql.Tx, d Definitie, c Cerere, acu
 	ctx, stop := context.WithTimeout(ctx, 20*time.Second)
 	defer stop()
 	f := d.Continut.Flexibil
-	b, e := incarcatBazaRaport(ctx, tx, c, f)
+	b, e := incarcatBazaRaport(ctx, tx, c, f, acum)
 	if e != nil {
 		return Document{}, traduce(e)
 	}
@@ -174,6 +174,7 @@ func preparaFlexibil(ctx context.Context, tx *sql.Tx, d Definitie, c Cerere, acu
 		}
 		doc.Randuri = append(doc.Randuri, Rand{Valori: v})
 	}
+	aplicaMetadateStandard(&doc, b)
 	if f.BoldWeekend || f.BoldSarbatori {
 		idx := -1
 		for i, col := range doc.Coloane {
@@ -229,10 +230,15 @@ func preparaFlexibil(ctx context.Context, tx *sql.Tx, d Definitie, c Cerere, acu
 	}
 	for i, r := range doc.Randuri {
 		v := []string{}
+		var cul []string
 		for _, j := range indici {
 			v = append(v, r.Valori[j])
+			if len(r.Culori) == len(r.Valori) {
+				cul = append(cul, r.Culori[j])
+			}
 		}
 		doc.Randuri[i].Valori = v
+		doc.Randuri[i].Culori = cul
 	}
 	doc.Coloane = vizibile
 	if err := valideazaVariabileFlexibile(doc); err != nil {

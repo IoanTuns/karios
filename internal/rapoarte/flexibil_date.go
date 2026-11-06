@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-func incarcatBazaRaport(ctx context.Context, tx *sql.Tx, c Cerere, f *RaportFlexibil) (*bazaRaport, error) {
+func incarcatBazaRaport(ctx context.Context, tx *sql.Tx, c Cerere, f *RaportFlexibil, acum time.Time) (*bazaRaport, error) {
 	b, e := nouaBazaRaport()
 	if e != nil {
 		return nil, e
@@ -381,6 +381,9 @@ func incarcatBazaRaport(ctx context.Context, tx *sql.Tx, c Cerere, f *RaportFlex
 		rl = append(rl, r)
 	}
 	if e = b.adauga(ctx, "lunar", cols, rl); e != nil {
+		return nil, e
+	}
+	if e = b.adaugaStandard(ctx, tx, c, textFolositSQL(f, f.SQL), acum); e != nil {
 		return nil, e
 	}
 	succes = true
