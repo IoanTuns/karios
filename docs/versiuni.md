@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.54 - 2026-11-06
+
+F06-T13 (I066, etapa a doua): salvarea pontajului in bloc. In aceeasi tranzactie, instructiunile SQL se pregatesc o singura data si se refolosesc (adaptorul txPregatit in modificaTx, doar pentru Exec si QueryRow); validarea programelor multiple afla o singura data pe lot ce angajati au celule cu mai multe programe, in loc sa parcurga toate ciornele lunii pentru fiecare celula. Masurat pe 300 de angajati, o luna de 6.300 de celule: 3,2 s → 1,7 s fara audit si 5,0 s → 2,2 s cu trigger-ele auditului. Fara schimbari de comportament; manualul revizuit fara modificari de continut.
+
 ## 0.92.53 - 2026-11-06
 
 F05-T23 (I052). Filele din Setari stau pe un singur rand, compacte, cu derulare orizontala cand nu incap; submeniul lateral ramane (D034). In Configurare pontaj, codurile unei reguli se aleg doar prin butoanele rapide (folosibile cu tastatura, cu numele complet in eticheta accesibila si in tooltip); lista cu selectie multipla, care dubla aceleasi coduri si cerea Ctrl+clic, a fost scoasa. F05-T22 (I051) inchis ca acoperit de F09-T25 (lista de variabile si coloane SQL in editorul pdfme, previzualizare PDF reala). Manual 1.58.

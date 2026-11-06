@@ -648,7 +648,7 @@ func (s *Serviciu) modificaTx(ctx context.Context, actiune func(*sql.Tx, *acces.
 		return traduceEroare(err)
 	}
 	defer tx.Rollback()
-	if err := actiune(tx, acces.New(tx)); err != nil {
+	if err := actiune(tx, acces.New(nouTxPregatit(tx))); err != nil {
 		return traduceEroare(err)
 	}
 	if ctx.Value(cheieSimulareAbsente{}) != nil {
