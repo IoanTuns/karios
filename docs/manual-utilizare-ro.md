@@ -859,3 +859,12 @@ Un total afișat „—” nu este zero: aplicația nu îl poate calcula fără 
 
 În **Setări › Configurare pontaj**, un factor în afara limitelor (0,01–10) sau o sursă fără coduri alese sunt marcate sub câmp, iar salvarea nu pornește până la corectare.
 
+## Planul asistentului AI: starea și reluarea (0.92.50)
+
+- Sub titlul planului apare **Starea planului**: în editare, pregătit pentru confirmare, trebuie verificat din nou, aplicat sau anulat. Aceeași stare apare și în lista planurilor, când sunt mai multe.
+- Cât planul nu e complet, sub el apare lista a ceea ce lipsește (persoanele, programul, perioada, zilele, ce se întâmplă cu celulele completate). Apăsați un element ca să ajungeți la câmpul lui. O perioadă greșită e explicată lângă data în cauză.
+- Dacă datele se schimbă între previzualizare și confirmare, cererea rămâne completată și apare butonul **Actualizează previzualizarea**. După actualizare, verificați din nou modificările și bifați confirmarea.
+- Dacă părăsiți planul cât are o previzualizare și reveniți, previzualizarea nu se reia automat: o refaceți pe datele actuale. Astfel nu se confirmă o previzualizare veche.
+- Rezumatul arată separat persoanele, lunile, celulele noi, înlocuirile, cele identice, cele ocupate și cele excluse. Când se înlocuiesc celule deja completate, apare un avertisment.
+- În **Opțiuni motor**, pe lângă modelul activ și limita de context, apare consumul ultimei cereri, dacă motorul îl raportează.
+

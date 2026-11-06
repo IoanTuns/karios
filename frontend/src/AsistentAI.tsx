@@ -330,6 +330,8 @@ export function AsistentAI({
                     <div className="meniu-motor-ai">
                     <p>{t('ai.model_activ')}: <strong>{stare?.model_activ || t('ai.model_nepornit')}</strong></p>
                     <p>{t('ai.context_configurat', {numar: stare?.context_configurat ?? '—'})}</p>
+                    {/* I080: consumul vine doar din raportul motorului; altfel se spune explicit ca lipseste. */}
+                    <p data-utilizare-context>{stare?.ultima_utilizare ? t('ai.context_utilizat', {total: stare.ultima_utilizare.total, limita: stare.ultima_utilizare.limita, prompt: stare.ultima_utilizare.prompt, raspuns: stare.ultima_utilizare.raspuns}) : t('ai.context_utilizat_indisponibil')}</p>
                     <p className="text-discret">{t('ai.context_indiciu')}</p>
                     <p className="text-discret">{t('ai.reset_indiciu')}</p>
                     <label className="comutator-autopornire-ai" title={t('ai.autopornire_descriere')}>
@@ -380,7 +382,7 @@ export function AsistentAI({
                 <button type="button" className={`buton mic ${vizualizare === 'instrumente' ? 'primar' : 'secundar'}`} disabled={blocat} aria-pressed={vizualizare === 'instrumente'} onClick={() => setVizualizare('instrumente')}>{t('ai.instrumente')}</button>
                 <button type="button" className="buton secundar mic" disabled={blocat} onClick={() => incarcaPlan()}>{t('ai.plan_nou')}</button>
                 {vizualizare === 'plan' && planuri.length > 1 && <select aria-label={t('ai.alege_plan')} value={planActiv?.id} disabled={blocat} onChange={e => setPlanSelectat(e.target.value)}>
-                    {planuri.map((m, index) => <option key={m.id} value={m.id}>{t('ai.plan_numar', {numar: index + 1})} · {m.intentie?.de_la} – {m.intentie?.pana_la}</option>)}
+                    {planuri.map((m, index) => <option key={m.id} value={m.id}>{t('ai.plan_numar', {numar: index + 1})} · {m.intentie?.de_la} – {m.intentie?.pana_la} · {t(`ai.plan_ciclu_${m.rezultatPlan ? (m.rezultatPlan.anulat ? 'anulat' : 'aplicat') : 'editare'}`)}</option>)}
                 </select>}
             </div>
 
@@ -403,7 +405,7 @@ export function AsistentAI({
             </div>
 
             <div className="zona-plan-ai" hidden={vizualizare !== 'plan'}>
-                {planActiv?.intentie && <PlanAsistentAI key={planActiv.id}
+                {planActiv?.intentie && <PlanAsistentAI key={planActiv.id} idPlan={planActiv.id}
                     intentie={planActiv.intentie} date={date} rezultat={planActiv.rezultatPlan} blocat={blocat} onOcupat={setOcupat}
                     onSchimba={intentie => seteazaConversatie(prev => prev.map(m => m.id === planActiv.id ? {...m, intentie} : m))}
                     onAplicat={rezultatPlan => seteazaConversatie(prev => prev.map(m => m.id === planActiv.id ? {...m, rezultatPlan} : m))}

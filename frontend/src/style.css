@@ -989,6 +989,19 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .sumar-plan-ai p { margin: 3px 0 8px; font-size: 12px; }
 .sumar-plan-ai ul, .explicatii-selectie-ai ul { padding-left: 20px; }
 .validare-plan-ai { color: var(--discret); font-size: 12px; }
+/* F14-T35: starea planului, lipsurile si rezumatul pe contoare. */
+.ciclu-plan-ai { margin: 2px 0 0; font-size: 12px; }
+.ciclu-plan-ai[data-ciclu="expirat"] strong { color: #735014; }
+.ciclu-plan-ai[data-ciclu="pregatit"] strong, .ciclu-plan-ai[data-ciclu="aplicat"] strong { color: var(--verde, #1d5a3a); }
+.lipsuri-plan-ai p { margin: 0 0 4px; }
+.caseta-reluare-plan-ai { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; padding: 6px 10px; }
+.caseta-reluare-plan-ai p { margin: 0; flex: 1 1 260px; }
+.lipsuri-plan-ai ul { margin: 0; padding-left: 18px; display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.rezumat-plan-ai { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px 14px; margin: 0 0 10px; }
+.rezumat-plan-ai div { border: 1px solid var(--linie); border-radius: 6px; padding: 6px 8px; }
+.rezumat-plan-ai dt { font-size: 12px; color: var(--text-secundar, #4c5a52); }
+.rezumat-plan-ai dd { margin: 2px 0 0; font-size: 14px; font-weight: 600; }
+.plan-asistent-ai [aria-invalid="true"] { border-color: var(--eroare-text); }
 .sabloane-ai fieldset { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .instrumente-asistent-ai p, .instrumente-asistent-ai li { overflow-wrap: anywhere; }
 .meniu-motor-ai p { margin: 5px 0; overflow-wrap: anywhere; }

@@ -376,11 +376,13 @@ func (c *Client) Interogheaza(ctx context.Context, istoric []MesajConversatie, i
 				} `json:"tool_calls"`
 			} `json:"message"`
 		} `json:"choices"`
+		Usage *usageOpenAI `json:"usage"`
 	}
 
 	if err := json.NewDecoder(resp.Body).Decode(&raspunsOpenAI); err != nil {
 		return RaspunsAsistent{}, fmt.Errorf("eroare decodare răspuns AI: %w", err)
 	}
+	inregistreazaUtilizare(raspunsOpenAI.Usage)
 
 	if len(raspunsOpenAI.Choices) == 0 {
 		return RaspunsAsistent{Mesaj: "Nu am primit niciun răspuns de la modelul local."}, nil
