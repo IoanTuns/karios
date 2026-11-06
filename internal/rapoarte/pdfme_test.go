@@ -108,12 +108,6 @@ func TestDatePdfmeColoaneDiferite(t *testing.T) {
 	}
 }
 
-func TestGenereazaPDFRefuzaPdfme(t *testing.T) {
-	if _, err := GenereazaPDF(documentPdfmeTest(sablonPdfmeTest)); codEroarePdfme(err) != "rapoarte.pdfme_in_interfata" {
-		t.Fatalf("motorul vechi nu trebuie sa deseneze sablonul pdfme: %v", err)
-	}
-}
-
 // pdfSimplu tine locul PDF-ului generat de pdfme in interfata.
 func pdfSimplu(t *testing.T, pagini int) []byte {
 	t.Helper()

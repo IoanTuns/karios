@@ -5,8 +5,6 @@ go 1.27
 toolchain go1.27.3
 
 require (
-	github.com/johnfercher/go-tree v1.1.0
-	github.com/johnfercher/maroto/v2 v2.4.4
 	github.com/ncruces/go-sqlite3 v0.36.0
 	github.com/pdfcpu/pdfcpu v0.16.4
 	github.com/phpdave11/gofpdf v1.4.3
@@ -22,7 +20,6 @@ require (
 require (
 	git.sr.ht/~jackmordaunt/go-toast/v2 v2.0.3 // indirect
 	github.com/bep/debounce v1.2.1 // indirect
-	github.com/boombuler/barcode v1.1.0 // indirect
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.16 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect

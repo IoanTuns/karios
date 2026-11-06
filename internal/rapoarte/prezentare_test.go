@@ -4,15 +4,10 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
-	"github.com/pdfcpu/pdfcpu/pkg/api"
 	"github.com/xuri/excelize/v2"
-	"io"
 	"math"
 	"pontix/internal/i18n"
 	"reflect"
-	"regexp"
-	"strconv"
 	"strings"
 	"testing"
 )
@@ -37,9 +32,6 @@ func TestEditareCopieAtomicaCuIstoricSiExport(t *testing.T) {
 		}
 		if !n.Personalizat || !strings.Contains(n.Metadate, "Operator demo") || n.Randuri[0].Valori[0] != "=2+2" || d.Randuri[0].Valori[0] != veche || d.Antet[1] == n.Antet[1] || *d.Stiluri[k].Aldin {
 			t.Fatal("copie/istoric incorect")
-		}
-		if _, e := GenereazaPDF(n); e != nil {
-			t.Fatal(e)
 		}
 		x, e := GenereazaExcel(n)
 		if e != nil {
@@ -104,9 +96,6 @@ func TestPrezentarePersistentaEticheteStiluri(t *testing.T) {
 		}
 		if doc.Coloane[0].Titlu != d.Continut.Prezentare.Etichete["angajat"].In(i18n.Limba(limba)) {
 			t.Fatal(doc.Coloane)
-		}
-		if _, e := GenereazaPDF(doc); e != nil {
-			t.Fatal(e)
 		}
 	}
 	d.Continut.Prezentare.Stiluri["antet_centru"] = StilText{FontPT: 5}
@@ -181,60 +170,5 @@ func TestGarziExtindereCalendarBoldSiTotalLunarNeschimbat(t *testing.T) {
 	f.ColoanaData = "ore"
 	if _, e := m.s.PrevizualizeazaFlexibil(ctx, d, Cerere{An: 2026, Luna: 11, Limba: "ro"}, momentFix); e == nil {
 		t.Fatal("data invalida acceptata")
-	}
-}
-func TestBoldRandPDFExcelPaginare(t *testing.T) {
-	d := Document{Titlu: "Demo", Pagina: Pagina{Format: "A4", Orientare: "PORTRET", MargineMM: 10, FontPT: 8}, Flexibil: &RaportFlexibil{ModAspect: "MARKDOWN", Markdown: "{{tabel}}"}, Coloane: []Coloana{{Cod: "x", Titlu: "Coloana"}}, Metadate: "Istoric", Limba: i18n.Romana}
-	for i := 0; i < 130; i++ {
-		d.Randuri = append(d.Randuri, Rand{Valori: []string{fmt.Sprintf("RAND_%03d", i)}, Aldin: i%2 == 1})
-	}
-	pdf, e := GenereazaPDF(d)
-	if e != nil {
-		t.Fatal(e)
-	}
-	fonturi := map[string]string{}
-	re := regexp.MustCompile(`(?s)/(F\S+) [-0-9.]+ Tf|\((.*?)\)\s*Tj`)
-	e = api.ExtractContent(context.Background(), bytes.NewReader(pdf), nil, func(r io.Reader, n int) error {
-		b, e := io.ReadAll(r)
-		if e != nil {
-			return e
-		}
-		font := ""
-		for _, v := range re.FindAllStringSubmatch(string(b), -1) {
-			if v[1] != "" {
-				font = v[1]
-			} else {
-				var s strings.Builder
-				for i := 1; i < len(v[2]); i += 2 {
-					s.WriteByte(v[2][i])
-				}
-				if strings.HasPrefix(s.String(), "RAND_") {
-					fonturi[s.String()] = font
-				}
-			}
-		}
-		return nil
-	}, nil)
-	if e != nil {
-		t.Fatal(e)
-	}
-	if len(fonturi) != 130 || fonturi["RAND_000"] == fonturi["RAND_001"] {
-		t.Fatal("bold PDF pierdut", fonturi)
-	}
-	x, e := GenereazaExcel(d)
-	if e != nil {
-		t.Fatal(e)
-	}
-	f, e := excelize.OpenReader(bytes.NewReader(x))
-	if e != nil {
-		t.Fatal(e)
-	}
-	defer f.Close()
-	for i := 0; i < 130; i++ {
-		id, _ := f.GetCellStyle(f.GetSheetName(0), "A"+strconv.Itoa(i+5))
-		s, _ := f.GetStyle(id)
-		if s.Font.Bold != (i%2 == 1) {
-			t.Fatal("bold Excel pierdut", i)
-		}
 	}
 }

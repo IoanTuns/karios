@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"github.com/xuri/excelize/v2"
-	"pontix/internal/i18n"
 	"reflect"
 	"strings"
 	"testing"
@@ -52,20 +51,6 @@ func TestExplicatiiOptionalePersistentaSiExporturi(t *testing.T) {
 						etalon = doc
 					} else if !reflect.DeepEqual(etalon.Coloane, doc.Coloane) || !reflect.DeepEqual(etalon.Randuri, doc.Randuri) {
 						t.Fatal("optiunea schimba datele")
-					}
-					if doc.Flexibil == nil {
-						p, e := ConstruiestePDF(doc)
-						if e != nil {
-							t.Fatal(e)
-						}
-						txt := textePaginaAnexa(p.GetStructure())
-						titlu := i18n.T(i18n.Limba(limba), "rapoarte.anexa_calcul", nil)
-						if strings.Contains(txt, titlu) == ascunde {
-							t.Fatal("titlu calcul nepotrivit in PDF")
-						}
-					}
-					if _, e := GenereazaPDF(doc); e != nil {
-						t.Fatal(e)
 					}
 					x, e := GenereazaExcel(doc)
 					if e != nil {

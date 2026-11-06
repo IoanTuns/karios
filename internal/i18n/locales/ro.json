@@ -2059,5 +2059,9 @@
   "rapoarte.pdfme_deschide": "Deschide editorul vizual",
   "rapoarte.pdfme_renunta_sablon": "Schimbarea aspectului renunță la șablonul vizual al acestui model. Continuați?",
   "rapoarte.pdfme_etichete_indiciu": "Etichetele dau titlurile coloanelor când tabelul se generează sau se actualizează din SQL. Fonturile, mărimile și alinierea se aleg direct pe pagină, în editorul vizual.",
-  "rapoarte.pdfme_texte_formular": "Editor vizual: textele de antet, subsol și introducere de mai jos apar pe pagină acolo unde ați pus {antet_stanga}, {subsol_centru}, {introducere} etc. Restul aspectului se face în editorul vizual."
+  "rapoarte.pdfme_texte_formular": "Editor vizual: textele de antet, subsol și introducere de mai jos apar pe pagină acolo unde ați pus {antet_stanga}, {subsol_centru}, {introducere} etc. Restul aspectului se face în editorul vizual.",
+  "rapoarte.model_neconvertit": "Acest model nu a putut fi trecut pe editorul vizual. Deschideți-l în Definire rapoarte și creați șablonul din coloanele SQL.",
+  "rapoarte.doar_editor_vizual": "Modelele noi folosesc o sursă SQL și editorul vizual.",
+  "rapoarte.conversie_anunt": "{{numar}} modele de raport au fost trecute pe editorul vizual. Verificați-le înainte de folosire; versiunile vechi sunt în Jurnal modificări.",
+  "rapoarte.conversie_erori": "Nu s-au putut converti: {{modele}}. Se reîncearcă la următoarea deschidere a rapoartelor."
 }

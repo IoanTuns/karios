@@ -1,12 +1,8 @@
 package rapoarte
 
 import (
-	"bytes"
 	"context"
 	"fmt"
-	"github.com/pdfcpu/pdfcpu/pkg/api"
-	"os"
-	"path/filepath"
 	"pontix/internal/datebaza"
 	"pontix/internal/i18n"
 	"strings"
@@ -47,13 +43,6 @@ func TestFlexibilSQLFormulePersistentaPDF(t *testing.T) {
 		}
 		doc, e = m.s.PrevizualizeazaFlexibil(ctx, d, c, momentFix)
 		if e != nil {
-			t.Fatal(e)
-		}
-		pdf, e := GenereazaPDF(doc)
-		if e != nil {
-			t.Fatal(mod, e)
-		}
-		if e := api.Validate(ctx, bytes.NewReader(pdf), nil, nil); e != nil {
 			t.Fatal(e)
 		}
 	}
@@ -171,50 +160,6 @@ func TestFlexibilScalareMultipleSiCicluriRefuzate(t *testing.T) {
 	}
 }
 
-func TestFlexibilPDFPaginareSiLimite(t *testing.T) {
-	m := pregateste(t)
-	fixture(t, m)
-	d := modelFlexTest()
-	d.Continut.Flexibil.SQL = "WITH RECURSIVE n(x) AS (SELECT 1 UNION ALL SELECT x+1 FROM n WHERE x<180) SELECT x AS numar, 'Angajat demonstrativ' AS angajat FROM n"
-	ctx := context.Background()
-	for _, mod := range []string{"TABEL", "MARKDOWN", "LIBER"} {
-		d.Continut.Flexibil.ModAspect = mod
-		d.Continut.Flexibil.Markdown = "# {{titlu}}\n\n| Camp | Explicatie |\n| --- | --- |\n| A | B |\n\n{{tabel}}"
-		d.Continut.Flexibil.Elemente = []ElementRaport{{ID: "tabel", Text: "{{tabel}}", X: 5, Y: 20, Latime: 240, Inaltime: 130, Font: 8}}
-		doc, e := m.s.PrevizualizeazaFlexibil(ctx, d, Cerere{An: 2026, Luna: 10, Limba: "ro"}, momentFix)
-		if e != nil {
-			t.Fatal(e)
-		}
-		pdf, e := GenereazaPDF(doc)
-		if e != nil {
-			t.Fatal(mod, e)
-		}
-		n, e := NumaraPaginiPDF(ctx, pdf)
-		if e != nil || n < 3 {
-			t.Fatal(mod, n, e)
-		}
-		if e := api.Validate(ctx, bytes.NewReader(pdf), nil, nil); e != nil {
-			t.Fatal(e)
-		}
-		if *directorDemo != "" {
-			if e := os.MkdirAll(*directorDemo, 0700); e != nil {
-				t.Fatal(e)
-			}
-			if e := os.WriteFile(filepath.Join(*directorDemo, "flexibil-"+mod+".pdf"), pdf, 0600); e != nil {
-				t.Fatal(e)
-			}
-		}
-	}
-	d.Continut.Flexibil.Elemente[0].X = 400
-	doc, e := m.s.PrevizualizeazaFlexibil(ctx, d, Cerere{An: 2026, Luna: 10, Limba: "ro"}, momentFix)
-	if e != nil {
-		t.Fatal(e)
-	}
-	if _, e := GenereazaPDF(doc); e == nil {
-		t.Fatal("coordonate in afara paginii acceptate")
-	}
-}
-
 func TestSQLRaportLimiteResurse(t *testing.T) {
 	b, e := nouaBazaRaport()
 	if e != nil {
@@ -249,12 +194,5 @@ func TestFlexibilCampuriRepetateSiAscunse(t *testing.T) {
 	}
 	if len(doc.Coloane) != 1 || len(doc.valoriRanduri) != 90 {
 		t.Fatal("ascundere sau repetare", doc.Coloane)
-	}
-	pdf, e := GenereazaPDF(doc)
-	if e != nil {
-		t.Fatal(e)
-	}
-	if n, e := NumaraPaginiPDF(context.Background(), pdf); e != nil || n < 4 {
-		t.Fatal(n, e)
 	}
 }

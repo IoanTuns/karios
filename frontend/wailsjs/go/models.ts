@@ -3374,6 +3374,7 @@ export namespace main {
 		}
 	}
 	export class RaspunsModeleRapoarte {
+	    conversie?: rapoarte.RezultatConversie[];
 	    configuratie?: rapoarte.Configuratie;
 	    salvat_id: string;
 	    eroare?: MesajEroare;
@@ -3384,6 +3385,7 @@ export namespace main {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.conversie = this.convertValues(source["conversie"], rapoarte.RezultatConversie);
 	        this.configuratie = this.convertValues(source["configuratie"], rapoarte.Configuratie);
 	        this.salvat_id = source["salvat_id"];
 	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
@@ -4061,6 +4063,25 @@ export namespace main {
 }
 
 export namespace rapoarte {
+	export class RezultatConversie {
+	    id: string;
+	    denumire: Record<string, string>;
+	    note?: string[];
+	    eroare?: string;
+
+	    static createFrom(source: any = {}) {
+	        return new RezultatConversie(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.denumire = source["denumire"];
+	        this.note = source["note"];
+	        this.eroare = source["eroare"];
+	    }
+	}
+
 	export class TabelRaport {
 	    cod: string;
 	    campuri: string[];

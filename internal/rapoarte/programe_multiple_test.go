@@ -31,9 +31,6 @@ func TestRaportProgrameMultipleIncludeAmbeleIntervale(t *testing.T) {
 			t.Fatal(r)
 		}
 	}
-	if _, e = GenereazaPDF(doc); e != nil {
-		t.Fatal(e)
-	}
 	if _, e = GenereazaExcel(doc); e != nil {
 		t.Fatal(e)
 	}

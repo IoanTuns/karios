@@ -2059,5 +2059,9 @@
   "rapoarte.pdfme_deschide": "Open visual editor",
   "rapoarte.pdfme_renunta_sablon": "Changing the layout discards this model's visual template. Continue?",
   "rapoarte.pdfme_etichete_indiciu": "Labels give the column titles when the table is built or updated from SQL. Fonts, sizes and alignment are chosen on the page, in the visual editor.",
-  "rapoarte.pdfme_texte_formular": "Visual editor: the header, footer and introduction texts below appear on the page where you placed {antet_stanga}, {subsol_centru}, {introducere} etc. The rest of the layout is done in the visual editor."
+  "rapoarte.pdfme_texte_formular": "Visual editor: the header, footer and introduction texts below appear on the page where you placed {antet_stanga}, {subsol_centru}, {introducere} etc. The rest of the layout is done in the visual editor.",
+  "rapoarte.model_neconvertit": "This model could not be moved to the visual editor. Open it in Report definitions and create the template from the SQL columns.",
+  "rapoarte.doar_editor_vizual": "New models use an SQL source and the visual editor.",
+  "rapoarte.conversie_anunt": "{{numar}} report models were moved to the visual editor. Check them before use; the old versions are in the change log.",
+  "rapoarte.conversie_erori": "Could not convert: {{modele}}. It will be retried the next time reports are opened."
 }

@@ -385,3 +385,8 @@ func (s *Serviciu) ConvertesteModeleVechi(ctx context.Context) ([]RezultatConver
 	}
 	return rez, nil
 }
+
+// SursaSQL: sursele modelelor noi; sursele standard se folosesc din SQL (D090).
+func SursaSQL(s string) bool {
+	return esteFlexibil(s)
+}

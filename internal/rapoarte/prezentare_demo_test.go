@@ -3,7 +3,6 @@ package rapoarte
 import (
 	"context"
 	"os"
-	"path/filepath"
 	"pontix/internal/i18n"
 	"testing"
 )
@@ -45,18 +44,6 @@ func TestExempluPublicGarziCuPrezentare(t *testing.T) {
 	if len(doc.Coloane) != 4 || len(doc.Randuri) != 5 || doc.Randuri[0].Aldin || !doc.Randuri[4].Aldin || doc.Randuri[4].Valori[0] != "1" {
 		t.Fatal(doc.Randuri)
 	}
-	pdf, e := GenereazaPDF(doc)
-	if e != nil {
-		t.Fatal(e)
-	}
-	if *directorDemo != "" {
-		if e := os.MkdirAll(*directorDemo, 0700); e != nil {
-			t.Fatal(e)
-		}
-		if e := os.WriteFile(filepath.Join(*directorDemo, "garzi-stilizate-noiembrie.pdf"), pdf, 0600); e != nil {
-			t.Fatal(e)
-		}
-	}
 	qCalendar, err := os.ReadFile("../../docs/exemple/garzi-lunar-calendar.sql")
 	if err != nil {
 		t.Fatal(err)
@@ -80,9 +67,6 @@ func TestExempluPublicGarziCuPrezentare(t *testing.T) {
 	}
 	doc, e = EditeazaDocument(doc, []EditareTextRaport{{Cheie: "celula:0:nume_si_prenume", Text: "Nume editat", Stil: &StilText{FontPT: 14, Aldin: logic(true), Aliniere: "C"}}}, "Demo", momentFix)
 	if e != nil {
-		t.Fatal(e)
-	}
-	if _, e := GenereazaPDF(doc); e != nil {
 		t.Fatal(e)
 	}
 }

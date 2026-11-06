@@ -11,11 +11,22 @@ import {ListaModeleRapoarte, SalveazaModelRaport, PregatesteRaport, SalveazaPDFR
 import {datebaza, main, rapoarte} from '../wailsjs/go/models';
 import {Dialog, denumireDepartament, denumireSectie} from './Formulare';
 import {completeazaRaport} from './raportPdfme';
+import {notifica} from './Toast';
 
 const copiaza = <T,>(v: T): T => JSON.parse(JSON.stringify(v));
 export type DateSimple<T> = T extends Array<infer V> ? DateSimple<V>[] : T extends object ? {[K in keyof T as T[K] extends Function ? never : K]: DateSimple<T[K]>} : T;
 const textIn = (v: {[limba: string]: string} | undefined, limba: string) => v?.[limba] || v?.ro || Object.values(v || {}).find(Boolean) || '';
 const adresaImagine = (i: DateSimple<rapoarte.Imagine>) => `data:image/${i.date.startsWith('iVBOR') ? 'png' : 'jpeg'};base64,${i.date}`;
+
+// F09-T23: modelele vechi trec pe editorul vizual la primul acces; anuntul spune cate
+// si ce s-a aproximat (originalele raman in jurnal).
+function anuntaConversia(conv: rapoarte.RezultatConversie[] | undefined, t: (k: string, p?: Record<string, unknown>) => string) {
+    if (!conv?.length) return;
+    const erori = conv.filter(c => c.eroare);
+    const note = conv.flatMap(c => (c.note || []).map(n => `${c.denumire.ro || c.id}: ${n}`));
+    notifica(t('rapoarte.conversie_anunt', {numar: conv.length - erori.length}) + (note.length ? ' ' + note.join(' ') : ''), note.length ? 'avertisment' : 'info', 12000);
+    if (erori.length) notifica(t('rapoarte.conversie_erori', {modele: erori.map(c => c.denumire.ro || c.id).join(', ')}), 'eroare', 12000);
+}
 
 function useModele() {
     const {t} = useTranslation();
@@ -23,7 +34,7 @@ function useModele() {
     const [incarcare, setIncarcare] = useState(true);
     const [eroare, setEroare] = useState('');
     const [revizie, setRevizie] = useState(0);
-    function aplica(r: main.RaspunsModeleRapoarte) { if (r.eroare) { setEroare(t(r.eroare.cod,r.eroare.param || {})); return false; } if (!r.configuratie) { setEroare(t('rapoarte.eroare')); return false; } setConfiguratie(r.configuratie); return true; }
+    function aplica(r: main.RaspunsModeleRapoarte) { anuntaConversia(r.conversie, t); if (r.eroare) { setEroare(t(r.eroare.cod,r.eroare.param || {})); return false; } if (!r.configuratie) { setEroare(t('rapoarte.eroare')); return false; } setConfiguratie(r.configuratie); return true; }
     useEffect(() => { let activ = true; setIncarcare(true); setEroare(''); ListaModeleRapoarte().then(r => { if (activ) aplica(r); }).catch(() => { if (activ) setEroare(t('rapoarte.eroare')); }).finally(() => { if (activ) setIncarcare(false); }); return () => { activ = false; }; },[revizie]);
     return {configuratie,incarcare,eroare,setEroare,aplica,reincarca:() => setRevizie(r => r+1)};
 }
@@ -111,7 +122,7 @@ function EditorModel({initial,configuratie,ocupat:salvareInCurs,eroare,inchide,s
             <p className="variabile-raport"><strong>{t('rapoarte.variabile')}: </strong>{configuratie.variabile.map(v => <code key={v}>{`{{${v}}}`}</code>)}</p>
             <p className="nota-calendar">{t('rapoarte.imagini_indiciu')}</p>{citireImagine && <p role="status">{t('ui.incarcare')}</p>}
             <fieldset className="componenta-raport" disabled={ocupat}><legend>1 · {t('rapoarte.antet')}</legend>{zone('antet')}</fieldset>
-            <fieldset className="componenta-raport" disabled={ocupat}><legend>2 · {t('rapoarte.continut')}</legend><label>{t('rapoarte.sursa')}<select name="sursa" value={model.continut.sursa} onChange={e => { const cod=e.target.value,coloane=configuratie.surse.find(s => s.cod===cod)!.coloane;setModel(m => ({...m,continut:{...m.continut,sursa:cod,coloane:[...coloane],flexibil:esteFlexibil(cod)?m.continut.flexibil||flexibilInitial():undefined},pagina:{...m.pagina,format:cod.startsWith('PONTAJ_')?'A3':'A4',font_pt:cod==='PONTAJ_DETALIAT'?6:m.pagina.font_pt,orientare:cod==='FISA_INDIVIDUALA'?'PORTRET':'PEISAJ'}})); }}>{configuratie.surse.map(s => <option key={s.cod} value={s.cod}>{t(`rapoarte.sursa_${s.cod}`)}</option>)}</select></label>{esteFlexibil(model.continut.sursa)&&<EditorFlexibil model={model} schimba={flexibil=>setModel(m=>({...m,continut:{...m.continut,flexibil}}))} validat={()=>setValidatFlex(JSON.stringify(model))} invalideaza={()=>setValidatFlex('')}/>}
+            <fieldset className="componenta-raport" disabled={ocupat}><legend>2 · {t('rapoarte.continut')}</legend><label>{t('rapoarte.sursa')}<select name="sursa" value={model.continut.sursa} onChange={e => { const cod=e.target.value,coloane=configuratie.surse.find(s => s.cod===cod)!.coloane;setModel(m => ({...m,continut:{...m.continut,sursa:cod,coloane:[...coloane],flexibil:esteFlexibil(cod)?m.continut.flexibil||flexibilInitial():undefined},pagina:{...m.pagina,format:cod.startsWith('PONTAJ_')?'A3':'A4',font_pt:cod==='PONTAJ_DETALIAT'?6:m.pagina.font_pt,orientare:cod==='FISA_INDIVIDUALA'?'PORTRET':'PEISAJ'}})); }}>{configuratie.surse.filter(s => esteFlexibil(s.cod) || s.cod === model.continut.sursa).map(s => <option key={s.cod} value={s.cod}>{t(`rapoarte.sursa_${s.cod}`)}</option>)}</select></label>{esteFlexibil(model.continut.sursa)&&<EditorFlexibil model={model} schimba={flexibil=>setModel(m=>({...m,continut:{...m.continut,flexibil}}))} validat={()=>setValidatFlex(JSON.stringify(model))} invalideaza={()=>setValidatFlex('')}/>}
                 <label className="bifa"><input type="checkbox" name="afiseaza_explicatii" checked={!model.continut.ascunde_explicatii} onChange={e=>setModel(m=>({...m,continut:{...m.continut,ascunde_explicatii:!e.target.checked}}))}/>{t('rapoarte.afiseaza_explicatii')}</label>
                 <p className="nota-calendar">{t('rapoarte.explicatii_indiciu')}</p>
                 <label>{t('rapoarte.introducere')}<textarea name="introducere" rows={2} maxLength={1000} value={model.continut.text?.[limba] || ''} onChange={e => setModel(m => ({...m,continut:{...m.continut,text:{...m.continut.text,[limba]:e.target.value}}}))}/></label>

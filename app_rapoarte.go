@@ -11,6 +11,7 @@ import (
 	wruntime "github.com/wailsapp/wails/v2/pkg/runtime"
 
 	"pontix/internal/datebaza"
+	"pontix/internal/diagnoza"
 	"pontix/internal/exportexcel"
 	"pontix/internal/fonturi"
 	"pontix/internal/i18n"
@@ -19,9 +20,11 @@ import (
 )
 
 type RaspunsModeleRapoarte struct {
-	Configuratie *rapoarte.Configuratie `json:"configuratie"`
-	SalvatID     string                 `json:"salvat_id"`
-	Eroare       *MesajEroare           `json:"eroare"`
+	// Conversie: modelele convertite la acest acces (F09-T23), pentru anuntul din interfata.
+	Conversie    []rapoarte.RezultatConversie `json:"conversie,omitempty"`
+	Configuratie *rapoarte.Configuratie       `json:"configuratie"`
+	SalvatID     string                       `json:"salvat_id"`
+	Eroare       *MesajEroare                 `json:"eroare"`
 }
 type RaspunsRaport struct {
 	Document   *rapoarte.Document `json:"document"`
@@ -60,7 +63,40 @@ func mesajRaport(err error) *MesajEroare {
 	}
 	return mesaj
 }
+
+// asiguraConversiaRapoarte converteste o data pe sesiune modelele vechi in
+// SQL + pdfme (F09-T23). Daca un model nu se poate converti (de exemplu inainte
+// de autentificare), conversia se reia la urmatorul acces.
+func (a *App) asiguraConversiaRapoarte() []rapoarte.RezultatConversie {
+	a.conversieMu.Lock()
+	defer a.conversieMu.Unlock()
+	if a.rapoarteConvertite || a.db == nil {
+		return nil
+	}
+	rez, err := rapoarte.Nou(a.db).ConvertesteModeleVechi(a.contextLucru())
+	if err != nil {
+		diagnoza.ObtineManager().InregistreazaEroare("rapoarte/conversie", err)
+		return nil
+	}
+	complet := true
+	for _, r := range rez {
+		if r.Eroare != "" {
+			complet = false
+			diagnoza.ObtineManager().InregistreazaEroare("rapoarte/conversie", errors.New("model "+r.ID+": "+r.Eroare))
+		}
+	}
+	a.rapoarteConvertite = complet
+	return rez
+}
+
 func (a *App) ListaModeleRapoarte() RaspunsModeleRapoarte {
+	conversie := a.asiguraConversiaRapoarte()
+	r := a.listaModeleRapoarte()
+	r.Conversie = conversie
+	return r
+}
+
+func (a *App) listaModeleRapoarte() RaspunsModeleRapoarte {
 	c, err := rapoarte.Nou(a.db).Lista(a.contextLucru())
 	if err != nil {
 		return RaspunsModeleRapoarte{Eroare: mesajRaport(err)}
@@ -68,15 +104,19 @@ func (a *App) ListaModeleRapoarte() RaspunsModeleRapoarte {
 	return RaspunsModeleRapoarte{Configuratie: &c}
 }
 func (a *App) SalveazaModelRaport(d rapoarte.Definitie) RaspunsModeleRapoarte {
+	if rapoarte.ConversieNecesara(d) || !rapoarte.SursaSQL(d.Continut.Sursa) {
+		return RaspunsModeleRapoarte{Eroare: &MesajEroare{Cod: "rapoarte.doar_editor_vizual"}}
+	}
 	id, err := rapoarte.Nou(a.db).Salveaza(a.contextLucru(), d)
 	if err != nil {
 		return RaspunsModeleRapoarte{Eroare: mesajRaport(err)}
 	}
-	r := a.ListaModeleRapoarte()
+	r := a.listaModeleRapoarte()
 	r.SalvatID = id
 	return r
 }
 func (a *App) PregatesteRaport(c rapoarte.Cerere) RaspunsRaport {
+	a.asiguraConversiaRapoarte()
 	doc, err := rapoarte.Nou(a.db).Pregateste(a.contextLucru(), c, time.Now().UTC())
 	if err != nil {
 		return RaspunsRaport{Eroare: mesajRaport(err)}
@@ -91,18 +131,11 @@ func (a *App) PrevizualizeazaModelRaport(d rapoarte.Definitie, c rapoarte.Cerere
 	return a.raspunsDocumentRaport(doc, c)
 }
 func (a *App) raspunsDocumentRaport(doc rapoarte.Document, c rapoarte.Cerere, tokenDat ...string) RaspunsRaport {
-	if rapoarte.EstePdfme(doc) {
-		return a.raspunsPdfme(doc, c, tokenDat...)
+	if !rapoarte.EstePdfme(doc) {
+		// Motorul vechi a fost sters (F09-T23); modelele se convertesc la primul acces.
+		return RaspunsRaport{Eroare: &MesajEroare{Cod: "rapoarte.model_neconvertit"}}
 	}
-	pdf, err := rapoarte.GenereazaPDF(doc)
-	if err != nil {
-		return RaspunsRaport{Eroare: mesajRaport(err)}
-	}
-	pagini, err := rapoarte.NumaraPaginiPDF(a.contextLucru(), pdf)
-	if err != nil {
-		return RaspunsRaport{Eroare: mesajRaport(err)}
-	}
-	return a.raspunsRaportValidat(doc, c, pdf, pagini, tokenDat...)
+	return a.raspunsPdfme(doc, c, tokenDat...)
 }
 
 // raspunsPdfme pune documentul in cache fara PDF; PDF-ul vine din interfata.
@@ -223,18 +256,7 @@ func (a *App) PersonalizeazaRaport(token string, editari []rapoarte.EditareTextR
 		}
 		return a.raspunsPdfme(doc, r.Cerere, tokenNou)
 	}
-	pdf, e := rapoarte.GenereazaPDF(doc)
-	if e != nil {
-		return RaspunsRaport{Eroare: mesajRaport(e)}
-	}
-	pagini, e := rapoarte.NumaraPaginiPDF(ctx, pdf)
-	if e != nil {
-		return RaspunsRaport{Eroare: mesajRaport(e)}
-	}
-	if e := rapoarte.Nou(a.db).JurnalPersonalizare(ctx, tokenNou, r.Document, doc, editari, acum, r.Cerere); e != nil {
-		return RaspunsRaport{Eroare: mesajRaport(e)}
-	}
-	return a.raspunsRaportValidat(doc, r.Cerere, pdf, pagini, tokenNou)
+	return RaspunsRaport{Eroare: &MesajEroare{Cod: "rapoarte.model_neconvertit"}}
 }
 func (a *App) raportPentru(token string) (raportPregatit, bool) {
 	a.raportMu.Lock()

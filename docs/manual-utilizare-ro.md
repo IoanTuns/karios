@@ -818,3 +818,13 @@ Exemplu: `SELECT rand, angajat, marca, z01, z02, z03 FROM pontaj_lunar ORDER BY 
 ### Modelele standard in editorul vizual (0.92.39)
 
 In lista de modele apar cinci modele noi, cu „(editor vizual)” in nume: pontaj lunar, pontaj detaliat, fisa individuala, evidenta absentelor si grafic garzi. Dau aceleasi valori ca modelele vechi, dar pagina se poate schimba in editorul vizual, iar coloanele din SQL. Titlurile coloanelor apar in limba raportului, zilele de weekend si sarbatorile sunt colorate ca inainte, iar in lunile cu mai putin de 31 de zile coloanele in plus nu apar. Imaginile din antetul modelelor vechi nu sunt preluate; le puteti adauga ca imagine in editorul vizual. Modelele vechi raman disponibile pana la conversia lor.
+
+## Toate rapoartele in editorul vizual (0.92.42)
+
+Din aceasta versiune toate rapoartele folosesc editorul vizual. La prima deschidere a rapoartelor dupa actualizare, aplicatia trece automat modelele vechi pe editorul vizual si afiseaza un anunt cu numarul lor:
+
+- **modelele standard** (pontaj lunar, detaliat, fisa individuala, absente, grafic garzi) dau aceleasi valori, titluri si antete, cu aspectul clasic;
+- **modelele cu aspect Tabel** primesc un sablon care urmeaza singur coloanele SQL;
+- **modelele cu Markdown sau Pozitionare libera** se transforma aproximativ: titlurile, paragrafele si listele devin texte, iar elementele repetate pe fiecare rand devin un tabel. Anuntul spune ce s-a aproximat; verificati aceste modele in editorul vizual.
+
+Versiunea veche a fiecarui model ramane in **Jurnal modificari**. Daca un model nu se poate converti, anuntul il numeste si conversia se reia la urmatoarea deschidere. Modelele noi folosesc o sursa SQL; daca un model nu are inca sablon, **Verifica raportul** il creeaza din coloanele SQL.

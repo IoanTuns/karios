@@ -32,6 +32,10 @@ Versiuni stabile la 2026-11-05, fixate exact în `package.json` și `package-loc
 - Dependențele de producție aduse: 208 MIT, plus `@swc/helpers` Apache-2.0, `dompurify` MPL-2.0 sau Apache-2.0, `ieee754` și `jpeg-js` BSD-3-Clause, `lucide`/`lucide-react` ISC, `pako` MIT și Zlib, `tslib` 0BSD. Toate sunt permisive și compatibile cu distribuția aplicației. Notificările de licență intră în livrare, ca la celelalte biblioteci.
 - Nu se adaugă nimic în Go: pdfcpu, ncruces/go-sqlite3 și excelize sunt deja în proiect.
 
+## Implementare (0.92.33-0.92.42)
+
+Punctele 1-8 sunt implementate (F09-T20...F09-T25). Conversia (punctul 7) ruleaza la primul acces la rapoarte dupa autentificare, nu la pornire, pentru ca scrierile cer autentificare (D045) si jurnalul trebuie sa poarte utilizatorul. La cererea utilizatorului, si modelele Markdown/Pozitionare libera se convertesc aproximativ, iar motorul vechi s-a sters in acelasi task, fara proba pe date reale inainte. Validarea in Go a incadrarii in pagina a disparut odata cu motorul vechi.
+
 ## Variante respinse
 
 - **Go desenează șablonul pdfme** (gofpdf): totul ar rămâne în Go, dar ar trebui reimplementată logica pdfme (tabele paginate, text dinamic), iar PDF-ul ar putea diferi de editor. Respinsă de utilizator.

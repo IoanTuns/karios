@@ -16,17 +16,20 @@ import (
 
 // App conține metodele apelate din interfața React.
 type App struct {
-	ctx           context.Context
-	db            *sql.DB
-	radacina      string
-	raportMu      sync.Mutex
-	raportCache   map[string]raportPregatit
-	raportOrdine  []string
-	aiManager     *ai.Manager
-	aiManagerOnce sync.Once
-	aiMu          sync.Mutex
-	aiSarcina     *sarcinaAI
-	paza          *audit.Paza
+	// conversia modelelor de raport vechi (F09-T23), o data pe sesiune
+	conversieMu        sync.Mutex
+	rapoarteConvertite bool
+	ctx                context.Context
+	db                 *sql.DB
+	radacina           string
+	raportMu           sync.Mutex
+	raportCache        map[string]raportPregatit
+	raportOrdine       []string
+	aiManager          *ai.Manager
+	aiManagerOnce      sync.Once
+	aiMu               sync.Mutex
+	aiSarcina          *sarcinaAI
+	paza               *audit.Paza
 	// seif e seiful deschis la pornire sau la deblocare (D054); codRecuperare, cheia de
 	// recuperare încă neconfirmată, de afișat administratorului.
 	seif          *seif.Seif

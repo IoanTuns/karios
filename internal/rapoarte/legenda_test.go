@@ -48,9 +48,6 @@ func TestDetaliatFaraOreNormaCuLegendaPDFExcel(t *testing.T) {
 		if len(d.Legenda) == 0 {
 			t.Fatal("legenda lipsa")
 		}
-		if _, err := GenereazaPDF(d); err != nil {
-			t.Fatal(err)
-		}
 		b, err := GenereazaExcel(d)
 		if err != nil {
 			t.Fatal(err)

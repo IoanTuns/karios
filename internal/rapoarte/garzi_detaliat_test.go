@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"github.com/pdfcpu/pdfcpu/pkg/api"
 	"os"
 	"path/filepath"
 	"pontix/internal/calcul"
@@ -136,21 +135,6 @@ func TestReferintaDetaliatCuMarciGarda(t *testing.T) {
 	d, err := m.s.Pregateste(context.Background(), Cerere{ModelID: "raport-pontaj-detaliat", An: 2026, Luna: 10, Limba: "ro", AngajatID: "a"}, momentFix)
 	if err != nil {
 		t.Fatal(err)
-	}
-	pdf, err := GenereazaPDF(d)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err := api.Validate(context.Background(), bytes.NewReader(pdf), nil, nil); err != nil {
-		t.Fatal(err)
-	}
-	if *directorDemo != "" {
-		if err := os.MkdirAll(*directorDemo, 0700); err != nil {
-			t.Fatal(err)
-		}
-		if err := os.WriteFile(filepath.Join(*directorDemo, "pontaj-detaliat-marci-garda.pdf"), pdf, 0600); err != nil {
-			t.Fatal(err)
-		}
 	}
 	d.Metadate = strings.ReplaceAll(d.Metadate, versiune.Aplicatie, "<aplicatie>")
 	date, err := json.MarshalIndent(d, "", "  ")

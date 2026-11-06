@@ -1,11 +1,7 @@
 package rapoarte
 
 import (
-	"bytes"
 	"context"
-	"github.com/pdfcpu/pdfcpu/pkg/api"
-	"os"
-	"path/filepath"
 	"testing"
 )
 
@@ -31,21 +27,6 @@ func TestRaportGrupuriSefiAlfabeticSiFiltre(t *testing.T) {
 		return d
 	}
 	d := citeste()
-	pdf, err := GenereazaPDF(d)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err := api.Validate(context.Background(), bytes.NewReader(pdf), nil, nil); err != nil {
-		t.Fatal(err)
-	}
-	if *directorDemo != "" {
-		if err := os.MkdirAll(*directorDemo, 0700); err != nil {
-			t.Fatal(err)
-		}
-		if err := os.WriteFile(filepath.Join(*directorDemo, "grupuri-profesionale.pdf"), pdf, 0600); err != nil {
-			t.Fatal(err)
-		}
-	}
 
 	marci := []string{}
 	grupuri := []string{}

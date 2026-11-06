@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.42 - 2026-11-06
+
+F09-T23 (D087 punctul 7): toate rapoartele folosesc editorul vizual. La primul acces la rapoarte dupa autentificare, modelele vechi se convertesc automat (o data pe sesiune, reluat la eroare): modelele standard trec pe SQL pe tabelele calculate, cu sablon clasic si aceleasi valori, titluri si antete; Tabel primeste un sablon care urmeaza coloanele SQL; Markdown si Pozitionare libera se convertesc aproximativ (texte, aldin, tabel; elementele repetate pe rand devin tabel), cu note in anuntul din interfata. Fiecare model convertit are revizie noua, iar definitia veche ramane in Jurnal modificari. Motorul vechi a fost sters: desenarea maroto a rapoartelor standard si desenarea gofpdf a celor flexibile; gofpdf ramane doar pentru anexa. Dependente scoase: maroto 2.4.4, go-tree 1.1.0, barcode 1.1.0. Modelele noi folosesc doar surse SQL si editorul vizual; „Verifica raportul” creeaza singur sablonul daca lipseste. Validarea in Go a incadrarii in pagina a disparut odata cu motorul vechi (pdfme continua textul lung pe randurile urmatoare); limitele de lungime raman. Raport flexibil 12. Manual 1.50.
+
 ## 0.92.41 - 2026-11-06
 
 F09-T23 pasul 3: codul de conversie a modelelor vechi in SQL + pdfme (conversie.go): modelele standard primesc SQL pe tabelul calculat si sablon clasic; Tabel primeste sablon care urmeaza coloanele; Markdown devine texte (aldin prin Markdown in rand) si tabel; Pozitionare libera devine texte la aceleasi coordonate, iar elementele repetate devin tabel; imaginile din antet/subsol devin imagini pdfme. Rapoartele pe un tabel standard folosesc variabilele raportului standard (perioada „octombrie 2026”, luna ca nume, persoana aleasa). Conversia nu este inca pornita din aplicatie.

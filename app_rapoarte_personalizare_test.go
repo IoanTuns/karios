@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"crypto/rand"
 	"path/filepath"
@@ -27,7 +26,7 @@ func TestPersonalizareTokenAuditSiOriginalImuabil(t *testing.T) {
 		t.Fatal(e)
 	}
 	a := NewApp(db)
-	d := rapoarte.Document{Titlu: "Demo", Sursa: "SQL_LIBER", Limba: i18n.Romana, GeneratLa: time.Date(2026, 11, 1, 12, 0, 0, 0, time.UTC), Pagina: rapoarte.Pagina{Format: "A4", Orientare: "PORTRET", MargineMM: 10, FontPT: 8}, Flexibil: &rapoarte.RaportFlexibil{ModAspect: "TABEL"}, Coloane: []rapoarte.Coloana{{Cod: "x", Titlu: "Eticheta"}}, Randuri: []rapoarte.Rand{{Valori: []string{"Initial"}}}, Metadate: "Istoric", Antet: []string{"", "Titlu", ""}, Subsol: []string{"", "", ""}}
+	d := rapoarte.Document{Titlu: "Demo", Sursa: "SQL_LIBER", Limba: i18n.Romana, GeneratLa: time.Date(2026, 11, 1, 12, 0, 0, 0, time.UTC), Pagina: rapoarte.Pagina{Format: "A4", Orientare: "PORTRET", MargineMM: 10, FontPT: 8}, Flexibil: &rapoarte.RaportFlexibil{ModAspect: rapoarte.ModPdfme, Sablon: rapoarte.SablonDinColoane([]rapoarte.ColoanaSablon{{Cod: "x", Titlu: "Eticheta"}}, rapoarte.Pagina{Format: "A4", Orientare: "PORTRET", MargineMM: 10, FontPT: 8}, rapoarte.OptiuniSablon{TextPagina: "{currentPage}"})}, Coloane: []rapoarte.Coloana{{Cod: "x", Titlu: "Eticheta"}}, Randuri: []rapoarte.Rand{{Valori: []string{"Initial"}}}, Metadate: "Istoric", Antet: []string{"", "Titlu", ""}, Subsol: []string{"", "", ""}}
 	original := a.raspunsDocumentRaport(d, rapoarte.Cerere{Limba: "ro"})
 	if original.Eroare != nil {
 		t.Fatal(original.Eroare)
@@ -47,8 +46,9 @@ func TestPersonalizareTokenAuditSiOriginalImuabil(t *testing.T) {
 	if !ok || vechi.Document.Randuri[0].Valori[0] != "Initial" {
 		t.Fatal("original modificat")
 	}
+	// Copia editata cere un PDF nou din interfata, cu datele modificate.
 	nou, ok := a.raportPentru(r.Token)
-	if !ok || bytes.Equal(nou.PDF, vechi.PDF) {
+	if !ok || nou.PDF != nil || !r.GenerarePdfme || !strings.Contains(r.Intrari["tabel"], "Personalizat") {
 		t.Fatal("PDF neactualizat")
 	}
 	count := func() int {
@@ -69,15 +69,9 @@ func TestPersonalizareTokenAuditSiOriginalImuabil(t *testing.T) {
 		t.Fatal("copia exportata nu se leaga de jurnal")
 	}
 
-	font := 40.
-	bad := a.PersonalizeazaRaport(original.Token, []rapoarte.EditareTextRaport{{Cheie: "celula:0:x", Text: strings.Repeat("x ", 2000), Stil: &rapoarte.StilText{FontPT: font}}})
-	if bad.Eroare == nil {
-		t.Fatal("aspect excesiv acceptat")
-	}
-	if count() != 1 {
-		t.Fatal("editare neexportabila jurnalizata ca aplicata")
-	}
-	bad = a.PersonalizeazaRaport(original.Token, []rapoarte.EditareTextRaport{{Cheie: "metadate", Text: "fals"}})
+	// Din F09-T23 aranjarea in pagina o face pdfme in interfata (textul lung trece
+	// pe randurile urmatoare); in Go raman limitele de lungime si cheile permise.
+	bad := a.PersonalizeazaRaport(original.Token, []rapoarte.EditareTextRaport{{Cheie: "metadate", Text: "fals"}})
 	if bad.Eroare == nil || count() != 1 {
 		t.Fatal("istoric editabil")
 	}
