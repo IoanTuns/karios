@@ -53,8 +53,10 @@ async function verifica(){
         await seteaza(det.querySelector('input'),'Program secție');await apasa('sablon_salveaza',det);cere(sabloane.length===1,'Șablon nesalvat');
         await seteaza(det.querySelector('select'),'sablon1');await apasa('sablon_incarca',det);cere(document.querySelector('[data-actiune="previzualizeaza"]').disabled,'Șablonul nu cere revizuirea perioadei');
         window.confirm=()=>true;await apasa('sablon_sterge',det);cere(sabloane.length===0&&det.textContent.includes(t('sablon_sters')),'Ștergerea șablonului nu a fost actualizată');
-        const grup=document.querySelector('.campuri-plan-ai select');await seteaza(grup,'persoane');const lista=document.querySelector('.persoane-plan-ai');await seteaza(lista.querySelector('input:not([type="checkbox"])'),'Proba');cere(lista.querySelectorAll('input[type="checkbox"]').length===1,'Căutarea nominală nu filtrează');
-        lista.querySelector('button').click();await asteapta(100);cere(lista.querySelector('input[type="checkbox"]').checked,'Selecția rezultatelor nu funcționează');
+        const grup=document.querySelector('.campuri-plan-ai select');await seteaza(grup,'persoane');const lista=document.querySelector('.persoane-plan-ai');await seteaza(lista.querySelector('input:not([type="checkbox"])'),'Proba');// I120: din F14-T32 lista are si comutatorul „Arată doar selectați”; se numara doar persoanele.
+        const persoaneLista=()=>lista.querySelectorAll('label:not(.optiune-plan-ai) > input[type="checkbox"]');
+        cere(persoaneLista().length===1,'Căutarea nominală nu filtrează');
+        lista.querySelector('button').click();await asteapta(100);cere(persoaneLista()[0].checked,'Selecția rezultatelor nu funcționează');
     } else if(caz==='anulare'||caz==='conflict'||caz==='expirat'){
         await apasa('instrumente');await apasa('anulare_pregateste');const p=document.querySelector('.instrumente-asistent-ai');
         const confirma=buton('anulare_confirma',p);cere(confirma.disabled&&laVedere(confirma),'Anulare fără confirmare sau în afara ferestrei');

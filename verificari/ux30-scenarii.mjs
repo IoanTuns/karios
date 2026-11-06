@@ -79,6 +79,9 @@ export async function verificaUX30({cdp,evalueaza,asteapta,apasa,completeaza,cat
  await asteapta(()=>evalueaza("Boolean(document.querySelector('.pontaj-lunar')) && document.querySelector('.unelte-perioada input[type=number]').value==='2027'"),'Perioada panou nepurtata');
  assert(await evalueaza("document.querySelector('[data-tabel-accesibil]').getAttribute('aria-label').length>30"),'Regiune fara denumire');
  await apasa(t('ui.absente'));
+ // F05-T21: ecranul se deschide pe zile; scenariul lucreaza pe toate sectiunile.
+ await asteapta(()=>evalueaza("Boolean(document.querySelector('.taburi-sectiuni'))"),'File absente lipsa');
+ await apasa(t('absente.sectiune_toate'));
  await asteapta(()=>evalueaza("Boolean(document.querySelector('.tabel-tipuri-absenta'))"),'Tipuri absente lipsa');
  await apasa(t('absente.adauga_categorie'));
  await completeaza('dialog input[name=cod_categorie_absenta]','DEPLCAT');

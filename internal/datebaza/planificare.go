@@ -76,6 +76,9 @@ type sursePlanificare struct {
 	absente      map[string]bool
 	ciorne       map[string]acces.PontajCiorne
 	intervale    []calcul.IntervalPlanificare
+	// multipli: angajatii cu cel putin o celula cu mai multe programe ("A+B"), calculat o
+	// data pe lot de intervaleLotPontaj (I066); nil inseamna necalculat.
+	multipli map[string]bool
 }
 
 func sursePentruPlanificare(ctx context.Context, q *acces.Queries, deLa, panaLa string) (sursePlanificare, error) {

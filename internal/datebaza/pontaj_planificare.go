@@ -127,10 +127,12 @@ func sincronizeazaPontajPlan(ctx context.Context, q *acces.Queries, deLa, panaLa
 func valideazaSetPrograme(s sursePlanificare, c CelulaSchita) error {
 	coduri := calcul.CoduriPrograme(c.Valoare)
 	if len(coduri) < 2 {
-		vecinMultiplu := false
-		for _, v := range s.ciorne {
-			if v.AngajatID == c.AngajatID && strings.Contains(v.Valoare, "+") {
-				vecinMultiplu = true
+		vecinMultiplu := s.multipli[c.AngajatID]
+		if s.multipli == nil {
+			for _, v := range s.ciorne {
+				if v.AngajatID == c.AngajatID && strings.Contains(v.Valoare, "+") {
+					vecinMultiplu = true
+				}
 			}
 		}
 		if !vecinMultiplu || c.Valoare == "" {
@@ -169,6 +171,13 @@ func intervaleLotPontaj(s *sursePlanificare, celule []CelulaSchita) {
 	for _, c := range celule {
 		chei["c/"+c.AngajatID+"/"+c.Data] = true
 		s.ciorne[c.AngajatID+"/"+c.Data] = acces.PontajCiorne{AngajatID: c.AngajatID, Data: c.Data, Valoare: c.Valoare}
+	}
+	// O singura trecere prin ciornele lunii, nu una pe celula (I066).
+	s.multipli = map[string]bool{}
+	for _, v := range s.ciorne {
+		if strings.Contains(v.Valoare, "+") {
+			s.multipli[v.AngajatID] = true
+		}
 	}
 	pastrate := []calcul.IntervalPlanificare{}
 	for _, i := range s.intervale {

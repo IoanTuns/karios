@@ -4,6 +4,26 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.54 - 2026-11-06
+
+F06-T13 (I066, etapa a doua): salvarea pontajului in bloc. In aceeasi tranzactie, instructiunile SQL se pregatesc o singura data si se refolosesc (adaptorul txPregatit in modificaTx, doar pentru Exec si QueryRow); validarea programelor multiple afla o singura data pe lot ce angajati au celule cu mai multe programe, in loc sa parcurga toate ciornele lunii pentru fiecare celula. Masurat pe 300 de angajati, o luna de 6.300 de celule: 3,2 s → 1,7 s fara audit si 5,0 s → 2,2 s cu trigger-ele auditului. Fara schimbari de comportament; manualul revizuit fara modificari de continut.
+
+## 0.92.53 - 2026-11-06
+
+F05-T23 (I052). Filele din Setari stau pe un singur rand, compacte, cu derulare orizontala cand nu incap; submeniul lateral ramane (D034). In Configurare pontaj, codurile unei reguli se aleg doar prin butoanele rapide (folosibile cu tastatura, cu numele complet in eticheta accesibila si in tooltip); lista cu selectie multipla, care dubla aceleasi coduri si cerea Ctrl+clic, a fost scoasa. F05-T22 (I051) inchis ca acoperit de F09-T25 (lista de variabile si coloane SQL in editorul pdfme, previzualizare PDF reala). Manual 1.58.
+
+## 0.92.52 - 2026-11-06
+
+F05-T21 (I050). Concedii si absente se deschide pe „Zile inregistrate” (sau pe ultima fila aleasa, retinuta local), nu pe toate sectiunile, deci zilele nu mai cer derularea prin Gantt si soldurile anuale. In evidenta zilelor, comutatorul „Pe zile / Pe cereri” arata cate un rand pe cerere (document sau numar de inregistrare; fara cerere, intervale de zile apropiate cu acelasi cod si aceeasi stare), cu perioada, numarul de zile, starea si „Selecteaza zilele”, care pregateste editarea sau anularea in lot din bara existenta. Titlul cronologiei Gantt trece prin cataloagele de traduceri (era scris direct in cod). Manual 1.57.
+
+## 0.92.51 - 2026-11-06
+
+F16-T35. Configurare pontaj (I119): ultima coloana a tabelului de reguli (bifa „Numai absente aprobate”) nu mai e fixata la dreapta, deci nu mai acopera coloana Factor si eroarea de sub ea la 1024 px. Proba asistentului „sabloane” (I120) numara si comutatorul „Arata doar selectati” adaugat in F14-T32; acum numara doar persoanele si trece (24/24). Fara alte schimbari de functionalitate; manualul revizuit fara modificari de continut.
+
+## 0.92.50 - 2026-11-06
+
+F14-T35 (D049, I077–I080), planul asistentului AI. Starea planului e afisata mereu (in editare, pregatit, trebuie verificat din nou, aplicat, anulat) si apare si in lista planurilor. Lipsurile sunt enumerate si fiecare duce la campul ei; perioada gresita e marcata langa data vinovata (format, ordine, peste un an). La confirmarea unui plan expirat, cererea ramane, iar „Actualizeaza previzualizarea” primeste focus; la revenirea intr-un plan care avea previzualizare, aceasta nu se reia din memorie si se cere o noua verificare. Rezumatul e pe contoare, cu lunile scrise cu nume; datele din tabel si lunile din filtre, din sumar si din butoanele de deschidere a pontajului sunt formatate; un avertisment scris apare cand se inlocuiesc celule. In optiunile motorului apare consumul ultimei cereri raportat de motor (campul usage), sau mentiunea ca nu a fost raportat. Manual 1.56.
+
 ## 0.92.49 - 2026-11-06
 
 F05-T20 (I049). In Pontaj, fiecare total necalculat („—”) spune de ce: regula coloanei neconfigurata, cod care nu e program si nici ore, program cu pauza (regula pauzei lipseste, F04-T05), absenta creditata fara ore stabilite, program fara ora de inceput sau cu durata in afara limitelor; mesajul numeste codul si locul unde se corecteaza. Deasupra grilei, un sumar pliabil grupeaza motivele lunii. Calculul (internal/calcul) adauga motiv si motiv_cod pe ValoarePontaj, fara nicio schimbare de suma. In Configurare pontaj, factorul in afara limitelor si sursa fara coduri sunt oprite inainte de salvare si marcate sub camp, cu focus pe primul camp gresit; serverul intoarce coduri distincte cu coloana si campul (pontaj.regula_factor, _fara_coduri, _coduri, _sursa) in locul mesajului generic. Manual 1.55.

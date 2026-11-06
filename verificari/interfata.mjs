@@ -648,7 +648,8 @@ try {
     assert.equal(await evalueaza(`document.querySelector('select[name="sursa_ore_garda"]').value`),'NEDEFINITA','Garda are o regulă inventată.');
     await completeaza('select[name="atribuire"]','ZILE_CALENDARISTICE');
     await completeaza('select[name="sursa_ore_garda"]','ORE_SCHIMBURI');
-    await evalueaza(`(()=>{const s=document.querySelector('select[name="coduri_ore_garda"]');[...s.options].forEach(o=>o.selected=o.value==='G24');s.dispatchEvent(new Event('change',{bubbles:true}));})()`);
+    // F05-T23: selectia codurilor se face doar prin butoane (fara lista multipla dublata).
+    await evalueaza(`[...document.querySelectorAll('.optiuni-rapide-regula button')].find(b=>b.closest('tr').querySelector('select[name="sursa_ore_garda"]')&&b.textContent==='G24').click()`);
     await completeaza('input[name="factor_ore_garda"]','2');await apasa('Salvează');
     await asteapta(()=>evalueaza(`JSON.parse(localStorage.getItem('pontix-test')).reguliPontaj.revizie==='2'`),'Regulile nu s-au salvat.');
     await completeaza('select[name="atribuire"]','ZI_INCEPUT');

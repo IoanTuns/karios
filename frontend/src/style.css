@@ -308,7 +308,6 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .reguli-pontaj .camp-atribuire { display: grid; gap: 8px; margin: 18px 0; max-width: 620px; }
 .reguli-pontaj table { min-width: 820px; }
 .reguli-pontaj select { max-width: 265px; }
-.reguli-pontaj select[multiple] { min-width: 190px; min-height: 95px; }
 .reguli-pontaj input[type=number] { width: 95px; }
 .reguli-pontaj th { white-space: normal; }
 .sold-concediu { display: block; color: var(--discret); font-size: 11px; margin-top: 2px; }
@@ -359,7 +358,9 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .continut-setari .buton.secundar:hover:not(:disabled) { background: var(--subnav-selectat-fond); }
 .continut-setari .buton-tab { color: var(--setari-text); border-color: var(--setari-contur); }
 .continut-setari .buton-tab.activ { background: var(--verde); color: var(--text-pe-accent); border-color: var(--verde); }
-.taburi-setari { margin: -8px 0 22px; padding-bottom: 14px; border-bottom: 1px solid var(--linie); }
+/* F05-T23 (I052): filele din Setari pe un singur rand, compacte; submeniul lateral ramane (D034). */
+.taburi-setari { margin: -8px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--linie); flex-wrap: nowrap; overflow-x: auto; gap: 6px; scrollbar-width: thin; }
+.taburi-setari .buton-tab { flex: 0 0 auto; padding: 5px 10px; white-space: nowrap; }
 .categorie-angajat { display: block; margin-top: 6px; color: var(--discret); font-size: 11px; }
 .selectie-programe { border: 1px solid var(--linie); border-radius: 6px; margin: 0; padding: 12px; display: grid; gap: 8px; }
 .selectie-programe legend { padding: 0 6px; }
@@ -989,6 +990,19 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .sumar-plan-ai p { margin: 3px 0 8px; font-size: 12px; }
 .sumar-plan-ai ul, .explicatii-selectie-ai ul { padding-left: 20px; }
 .validare-plan-ai { color: var(--discret); font-size: 12px; }
+/* F14-T35: starea planului, lipsurile si rezumatul pe contoare. */
+.ciclu-plan-ai { margin: 2px 0 0; font-size: 12px; }
+.ciclu-plan-ai[data-ciclu="expirat"] strong { color: #735014; }
+.ciclu-plan-ai[data-ciclu="pregatit"] strong, .ciclu-plan-ai[data-ciclu="aplicat"] strong { color: var(--verde, #1d5a3a); }
+.lipsuri-plan-ai p { margin: 0 0 4px; }
+.caseta-reluare-plan-ai { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; padding: 6px 10px; }
+.caseta-reluare-plan-ai p { margin: 0; flex: 1 1 260px; }
+.lipsuri-plan-ai ul { margin: 0; padding-left: 18px; display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.rezumat-plan-ai { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px 14px; margin: 0 0 10px; }
+.rezumat-plan-ai div { border: 1px solid var(--linie); border-radius: 6px; padding: 6px 8px; }
+.rezumat-plan-ai dt { font-size: 12px; color: var(--text-secundar, #4c5a52); }
+.rezumat-plan-ai dd { margin: 2px 0 0; font-size: 14px; font-weight: 600; }
+.plan-asistent-ai [aria-invalid="true"] { border-color: var(--eroare-text); }
 .sabloane-ai fieldset { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .instrumente-asistent-ai p, .instrumente-asistent-ai li { overflow-wrap: anywhere; }
 .meniu-motor-ai p { margin: 5px 0; overflow-wrap: anywhere; }
@@ -1308,6 +1322,9 @@ fieldset.filtre-profesionale{border:0;padding:0;min-width:0}
 .tabel-angajati>table tr>:nth-child(2){position:sticky;left:40px;width:180px;min-width:180px;max-width:180px;white-space:normal;overflow-wrap:anywhere;background:var(--suprafata);z-index:3}
 .tabel-angajati>table>thead>tr>:nth-child(2){z-index:7}
 .tabel-derulant>table:not(.grila-pontaj):not(.grila-planificare)>tbody>tr>:last-child{position:sticky;right:0;background:var(--suprafata);z-index:2;box-shadow:-1px 0 var(--linie)}
+/* I119: in Configurare pontaj ultima coloana e o bifa, nu actiuni; fixata, acoperea coloana Factor. */
+.reguli-pontaj .tabel-derulant>table.tabel-reguli-pontaj>tbody>tr>:last-child{position:static;box-shadow:none}
+.reguli-pontaj .tabel-derulant>table.tabel-reguli-pontaj>thead>tr>:last-child{right:auto}
 .tabel-derulant>table>thead>tr>:last-child{right:0;z-index:6}
 .grila-planificare .fix-total-ture{position:sticky;right:0;z-index:2;background:var(--suprafata);box-shadow:-1px 0 var(--linie)}
 .grila-planificare thead .fix-total-ture{z-index:5}

@@ -66,6 +66,15 @@ export async function verificaAbsentePontaj({evalueaza,asteapta,apasa,completeaz
  await asteapta(()=>evalueaza("Boolean(document.querySelector('.tabel-absente, .lista-absente')) || document.body.textContent.includes('TEST-CO')"),'Absenta lipseste din evidenta');
  assert(await evalueaza("document.body.textContent.includes('TEST-CO')"),'Metadatele nu sunt vizibile in Absente');
  await captura('absenta-pontaj-salvata-'+limba+'.png');
+ // F05-T21 (I050): ecranul se deschide pe evidenta zilelor; vederea pe cereri grupeaza si selecteaza zilele.
+ assert(await evalueaza("document.querySelector('.taburi-sectiuni [aria-pressed=true]')?.textContent==="+JSON.stringify(t('absente.sectiune_zile'))+""),'Absentele nu se deschid pe zile');
+ await apasa(t('absente.vedere_cereri'));
+ await asteapta(()=>evalueaza("document.querySelectorAll('.tabel-cereri-absente tbody tr').length>=1"),'Vederea pe cereri lipseste');
+ await evalueaza("document.querySelector('.tabel-cereri-absente tbody tr td:last-child button').click()");
+ await asteapta(()=>evalueaza("[...document.querySelectorAll('.modul-absente button')].some(b=>b.textContent.startsWith("+JSON.stringify(t('absente.editeaza_selectate').split('(')[0])+")&&!b.textContent.includes('(0)')&&!b.disabled)"),'Selectarea zilelor cererii nu activeaza editarea in lot');
+ await captura('absente-cereri-'+limba+'.png');
+ await apasa(t('absente.vedere_zile'));
+ await asteapta(()=>evalueaza("Boolean(document.querySelector('.tabel-absente'))"),'Revenirea la zile lipsa');
  await apasa(t('ui.editeaza'));
  await asteapta(()=>evalueaza("Boolean(document.querySelector('dialog input[name=de_la]'))"),'Editare zi lipsa');
  const dataNoua=await evalueaza("(()=>{const s=JSON.parse(localStorage.getItem('pontix-test'));const d=new Date(s.absente.find(z=>z.activ).data+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+7);return d.toISOString().slice(0,10)})()");
@@ -81,6 +90,7 @@ export async function verificaAbsentePontaj({evalueaza,asteapta,apasa,completeaz
  await asteapta(()=>evalueaza("document.querySelectorAll('.tabel-absente tbody tr').length>=2"),'Zilele anulate sunt inaccesibile');
  await apasa(t('ui.reactiveaza'));await asteapta(()=>evalueaza("Boolean(document.querySelector('dialog select[name=tip]'))"),'Reactivare lipsa');await apasa(t('ux30.previzualizeaza'));await asteapta(()=>evalueaza("Boolean(document.querySelector('.ux30-comparatie'))"),'Comparatie reactivare lipsa');await apasa(t('ux30.confirma_modificari'));
  await asteapta(()=>evalueaza("JSON.parse(localStorage.getItem('pontix-test')).absente.some(z=>z.activ)"),'Reactivarea nu s-a salvat');
+ await apasa(t('absente.sectiune_toate'));
  await completeaza('select[name=filtru_stare_tipuri_absenta]','TOATE');
  for (const activa of [false,true]) {
   await evalueaza("document.querySelector('.tabel-tipuri-absenta tbody tr td:last-child button:nth-child(2)').click()");

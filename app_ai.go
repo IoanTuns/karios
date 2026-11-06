@@ -114,6 +114,7 @@ func (a *App) stareMediuAI() ai.StareMediu {
 	stare.ContextConfigurat = ai.ContextConfigurat
 	if stare.Activ {
 		stare.ModelActiv = mgr.ModelActiv()
+		stare.UltimaUtilizare = ai.UltimaUtilizare()
 	}
 	if stare.Activ {
 		stare.Mesaj = "Motorul local este activ și gata de utilizare."

@@ -7,7 +7,12 @@ import {SabloaneAsistentAI} from './SabloaneAsistentAI';
 import {AnalizaPlanAI} from './AnalizaPlanAI';
 import {formatData} from './formatare';
 
-export function PlanAsistentAI({intentie, date, rezultat, blocat, onSchimba, onAplicat, onOcupat, onDeschidePontaj}: {
+// I078: planurile care aveau o previzualizare cand zona a fost parasita. La revenire,
+// previzualizarea nu se reface din memorie: tokenul vechi nu trebuie sa para confirmabil.
+const previzualizariInchise = new Set<string>();
+
+export function PlanAsistentAI({idPlan, intentie, date, rezultat, blocat, onSchimba, onAplicat, onOcupat, onDeschidePontaj}: {
+    idPlan?: string;
     intentie: ai.IntentiePlan;
     date: datebaza.Date;
     rezultat?: datebaza.PlanAI;
@@ -32,6 +37,11 @@ export function PlanAsistentAI({intentie, date, rezultat, blocat, onSchimba, onA
     const [verificare, setVerificare] = useState<datebaza.VerificarePontajAI>();
     const [paginaVerificare, setPaginaVerificare] = useState(0);
     const [mesajExport, setMesajExport] = useState('');
+    // expirat: confirmarea a fost refuzata pentru ca datele s-au schimbat (I077);
+    // revenire: exista o previzualizare inainte de parasirea zonei (I078).
+    const [expirat, setExpirat] = useState(false);
+    const [revenire, setRevenire] = useState(() => !!idPlan && !rezultat && previzualizariInchise.has(idPlan));
+    const actualizeazaRef = useRef<HTMLButtonElement>(null);
     const cerereActivaRef = useRef(false);
     const titluRef = useRef<HTMLHeadingElement>(null);
     const corpRef = useRef<HTMLDivElement>(null);
@@ -45,10 +55,32 @@ export function PlanAsistentAI({intentie, date, rezultat, blocat, onSchimba, onA
         ? grupuri.filter(g => g.id === selectie.valoare)
         : grupuri.filter(g => Object.values(g.denumire).some(n => n.toLocaleLowerCase() === selectie.valoare.toLocaleLowerCase()));
     const rezolvaValoare = grupuriGasite.length === 1 ? grupuriGasite[0].id : '';
-    const perioadaValida = /^\d{4}-\d{2}-\d{2}$/.test(intentie.de_la) && /^\d{4}-\d{2}-\d{2}$/.test(intentie.pana_la) && intentie.de_la >= '2000-01-01' && intentie.pana_la <= '2100-12-31' && intentie.de_la <= intentie.pana_la && (Date.parse(intentie.pana_la) - Date.parse(intentie.de_la)) <= 366 * 86400000;
+    // I077: aceeasi regula ca inainte, dar cu motivul si campul vinovat.
+    const dataBuna = (d: string) => /^\d{4}-\d{2}-\d{2}$/.test(d) && !Number.isNaN(Date.parse(d)) && d >= '2000-01-01' && d <= '2100-12-31';
+    const eroarePerioada: {camp: 'de_la' | 'pana_la'; cod: string} | null =
+        !dataBuna(intentie.de_la) ? {camp: 'de_la', cod: 'ai.validare_data'}
+        : !dataBuna(intentie.pana_la) ? {camp: 'pana_la', cod: 'ai.validare_data'}
+        : intentie.de_la > intentie.pana_la ? {camp: 'pana_la', cod: 'ai.validare_ordine'}
+        : (Date.parse(intentie.pana_la) - Date.parse(intentie.de_la)) > 366 * 86400000 ? {camp: 'pana_la', cod: 'ai.validare_durata'}
+        : null;
+    const perioadaValida = !eroarePerioada;
     const selectieValida = !!(selectie.tip && (selectie.tip === 'toti' || (selectie.tip === 'persoane' ? selectie.marci.length : rezolvaValoare)));
     const verificabil = selectieValida && perioadaValida && !intentie.an_de_confirmat && !!intentie.filtru_zile;
     const complet = verificabil && !!(intentie.cod_schimb && intentie.mod_existente);
+    // Clarificarile inca necesare, fiecare cu campul la care duce (I077).
+    const lipsuri = [
+        !selectieValida && {cheie: 'persoane', camp: 'plan-ai-persoane'},
+        !intentie.cod_schimb && {cheie: 'program', camp: 'plan-ai-program'},
+        !perioadaValida && {cheie: 'perioada', camp: eroarePerioada?.camp === 'de_la' ? 'plan-ai-de-la' : 'plan-ai-pana-la'},
+        intentie.an_de_confirmat && {cheie: 'an', camp: 'plan-ai-an'},
+        !intentie.filtru_zile && {cheie: 'zile', camp: 'plan-ai-zile'},
+        !intentie.mod_existente && {cheie: 'existente', camp: 'plan-ai-existente'},
+    ].filter(Boolean) as {cheie: string; camp: string}[];
+    const ciclu = aplicat ? (rezultat?.anulat ? 'anulat' : 'aplicat') : plan ? 'pregatit' : (expirat || revenire) ? 'expirat' : 'editare';
+    const lunaAfisata = (luna: string) => {
+        const data = new Date(`${luna}-01T12:00:00Z`);
+        return Number.isNaN(data.getTime()) ? luna : formatData(i18n.language, {month: 'long', year: 'numeric', timeZone: 'UTC'}).format(data);
+    };
     const normal = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase();
     const persoaneFiltrate = date.angajati.filter(a =>
         a.activ &&
@@ -92,7 +124,13 @@ export function PlanAsistentAI({intentie, date, rezultat, blocat, onSchimba, onA
         return () => { activ = false; };
     }, []);
 
+    function uitaPrevizualizarea() {
+        if (idPlan) previzualizariInchise.delete(idPlan);
+        setExpirat(false); setRevenire(false);
+    }
+
     function schimba(campuri: Partial<ai.IntentiePlan>) {
+        uitaPrevizualizarea();
         setPlan(undefined); setVerificat(false); setEroare(''); setPagina(0);
         setVerificare(undefined); setMesajExport(''); setFiltruStare(''); setFiltruLuna(''); setCautare('');
         onSchimba(new ai.IntentiePlan({...intentie, ...campuri}));
@@ -109,7 +147,11 @@ export function PlanAsistentAI({intentie, date, rezultat, blocat, onSchimba, onA
         try {
             const r = await PrevizualizeazaPlanAI(new ai.IntentiePlan({...intentie, selectie: {...selectie, valoare: rezolvaValoare || selectie.valoare}}));
             if (r.eroare) setEroare(t(r.eroare.cod, r.eroare.param ?? {}));
-            else setPlan(r.plan);
+            else {
+                uitaPrevizualizarea();
+                setPlan(r.plan);
+                if (idPlan) previzualizariInchise.add(idPlan);
+            }
         } catch { setEroare(t('date.eroare')); }
         finally { cerereActivaRef.current = false; setOcupat(false); onOcupat(false); }
     }
@@ -121,9 +163,12 @@ export function PlanAsistentAI({intentie, date, rezultat, blocat, onSchimba, onA
         try {
             const r = await ConfirmaPlanAI(plan.intentie, plan.token);
             if (r.eroare) {
-                setEroare(t(r.eroare.cod, r.eroare.param ?? {}));
                 setPlan(undefined); setVerificat(false);
-            } else if (r.plan) { onAplicat(r.plan); }
+                // Planul expirat: contextul ramane, iar actualizarea e la un pas (I077). Mesajul
+                // apare o singura data, in caseta cu butonul, nu si ca eroare separata.
+                if (r.eroare.cod === 'ai.plan_expirat') { setExpirat(true); window.setTimeout(() => actualizeazaRef.current?.focus({preventScroll: true}), 0); }
+                else setEroare(t(r.eroare.cod, r.eroare.param ?? {}));
+            } else if (r.plan) { if (idPlan) previzualizariInchise.delete(idPlan); onAplicat(r.plan); }
         } catch { setEroare(t('date.eroare')); setPlan(undefined); setVerificat(false); }
         finally { cerereActivaRef.current = false; setOcupat(false); onOcupat(false); }
     }
@@ -156,7 +201,12 @@ export function PlanAsistentAI({intentie, date, rezultat, blocat, onSchimba, onA
             <p className="context-plan-ai">{grupAfisat} · {intentie.cod_schimb || t('ai.plan_alege')} · {dataAfisata(intentie.de_la)} – {dataAfisata(intentie.pana_la)}
                 <span className="reguli-context-plan-ai">{intentie.filtru_zile ? t(`ai.plan_zile_${intentie.filtru_zile}`) : t('ai.plan_intrebare_zile')} · {intentie.mod_existente ? t(`ai.plan_context_${intentie.mod_existente}`) : t('ai.plan_intrebare_existente')}{selectie.fara_pontaj && <> · {t('ai.plan_context_fara_pontaj')}</>}</span>
             </p>
+            <p className="ciclu-plan-ai" data-ciclu={ciclu}>{t('ai.plan_stare_curenta')}: <strong>{t(`ai.plan_ciclu_${ciclu}`)}</strong></p>
             {eroare && <p className="mesaj eroare" role="alert">{eroare}</p>}
+            {(expirat || revenire) && !plan && !aplicat && <div className="mesaj avertisment caseta-reluare-plan-ai" role={expirat ? 'alert' : 'status'}>
+                <p>{t(expirat ? 'ai.plan_expirat' : 'ai.plan_revenire')}</p>
+                <button ref={actualizeazaRef} type="button" className="buton primar mic" disabled={blocat || ocupat || !complet} data-actiune="actualizeaza" onClick={() => void pregateste()}>{t('ai.plan_actualizeaza')}</button>
+            </div>}
             {rezultat?.anulat && <p role="status">{t('ai.rezultat_anulat')}</p>}
         </header>
         <div className="corp-plan-ai" ref={corpRef}>
@@ -168,12 +218,12 @@ export function PlanAsistentAI({intentie, date, rezultat, blocat, onSchimba, onA
             <legend>{t('ai.plan_interpretare')}</legend>
             <div className="campuri-plan-ai">
                 <label>{t('ai.plan_persoane')}
-                    <select value={selectie.tip} onChange={e => schimbaSelectia({tip: e.target.value, valoare: '', marci: []})}>
+                    <select id="plan-ai-persoane" value={selectie.tip} aria-invalid={!selectieValida || undefined} aria-describedby={!selectieValida ? 'plan-ai-eroare-selectie' : undefined} onChange={e => schimbaSelectia({tip: e.target.value, valoare: '', marci: []})}>
                         <option value="">{t('ai.plan_alege')}</option>
                         {['toti', 'sectie', 'departament', 'categorie', 'persoane'].map(tip => <option key={tip} value={tip}>{t(`ai.plan_grup_${tip}`)}</option>)}
                     </select>
                 </label>
-                {!selectieValida && <p className="validare-plan-ai">{t('ai.validare_selectie')}</p>}
+                {!selectieValida && <p id="plan-ai-eroare-selectie" className="validare-plan-ai">{t('ai.validare_selectie')}</p>}
                 {['sectie', 'departament', 'categorie'].includes(selectie.tip) && <label>{t(`ai.plan_grup_${selectie.tip}`)}
                     <select value={rezolvaValoare} onChange={e => schimbaSelectia({valoare: e.target.value})}>
                         <option value="">{t('ai.plan_alege')}</option>
@@ -181,16 +231,16 @@ export function PlanAsistentAI({intentie, date, rezultat, blocat, onSchimba, onA
                     </select>
                 </label>}
                 <label>{t('ai.plan_program')}
-                    <select value={intentie.cod_schimb} onChange={e => schimba({cod_schimb: e.target.value})}>
+                    <select id="plan-ai-program" value={intentie.cod_schimb} onChange={e => schimba({cod_schimb: e.target.value})}>
                         <option value="">{t('ai.plan_alege')}</option>
                         {programe.map(p => <option key={p.id} value={p.cod}>{p.cod} · {text(p.denumire)}</option>)}
                     </select>
                 </label>
-                <label>{t('ai.plan_de_la')}<input type="date" min="2000-01-01" max="2100-12-31" value={intentie.de_la} onChange={e => schimba({de_la: e.target.value})}/></label>
-                <label>{t('ai.plan_pana_la')}<input type="date" min="2000-01-01" max="2100-12-31" value={intentie.pana_la} onChange={e => schimba({pana_la: e.target.value})}/></label>
+                {(['de_la', 'pana_la'] as const).map(camp => <label key={camp}>{t(`ai.plan_${camp}`)}<input id={camp === 'de_la' ? 'plan-ai-de-la' : 'plan-ai-pana-la'} type="date" min="2000-01-01" max="2100-12-31" value={intentie[camp]}
+                    aria-invalid={eroarePerioada?.camp === camp || undefined} aria-describedby={eroarePerioada?.camp === camp ? `plan-ai-eroare-${camp}` : undefined} onChange={e => schimba({[camp]: e.target.value})}/>
+                    {eroarePerioada?.camp === camp && <span id={`plan-ai-eroare-${camp}`} className="validare-plan-ai" role="status">{t(eroarePerioada.cod)}</span>}</label>)}
             </div>
-            {!perioadaValida && <p className="validare-plan-ai" role="status">{t('ai.validare_perioada')}</p>}
-            {intentie.an_de_confirmat && <label className="optiune-plan-ai"><input type="checkbox" checked={false} onChange={() => schimba({an_de_confirmat: false})}/>{t('ai.confirma_an', {de_la: dataAfisata(intentie.de_la), pana_la: dataAfisata(intentie.pana_la)})}</label>}
+            {intentie.an_de_confirmat && <label className="optiune-plan-ai"><input id="plan-ai-an" type="checkbox" checked={false} onChange={() => schimba({an_de_confirmat: false})}/>{t('ai.confirma_an', {de_la: dataAfisata(intentie.de_la), pana_la: dataAfisata(intentie.pana_la)})}</label>}
             {selectie.tip === 'persoane' && <details className="persoane-plan-ai" open>
                 <summary>{t('ai.plan_selectate', {numar: selectie.marci.length})}</summary>
                 <div className="filtre-detalii-ai">
@@ -207,11 +257,11 @@ export function PlanAsistentAI({intentie, date, rezultat, blocat, onSchimba, onA
             <label className="optiune-plan-ai"><input type="checkbox" checked={selectie.fara_pontaj} onChange={e => schimbaSelectia({fara_pontaj: e.target.checked})}/>{t('ai.plan_fara_pontaj')}</label>
             <fieldset className="clarificare-plan-ai">
                 <legend>{t('ai.plan_intrebare_zile')}</legend>
-                {['lucratoare', 'toate', 'weekend'].map(f => <button type="button" key={f} aria-pressed={intentie.filtru_zile === f} className={`buton mic ${intentie.filtru_zile === f ? 'primar' : 'secundar'}`} onClick={() => schimba({filtru_zile: f})}>{t(`ai.plan_zile_${f}`)}</button>)}
+                {['lucratoare', 'toate', 'weekend'].map((f, index) => <button type="button" key={f} id={index === 0 ? 'plan-ai-zile' : undefined} aria-pressed={intentie.filtru_zile === f} className={`buton mic ${intentie.filtru_zile === f ? 'primar' : 'secundar'}`} onClick={() => schimba({filtru_zile: f})}>{t(`ai.plan_zile_${f}`)}</button>)}
             </fieldset>
             <fieldset className="clarificare-plan-ai">
                 <legend>{t('ai.plan_intrebare_existente')}</legend>
-                {['pastreaza', 'inlocuieste'].map(f => <button type="button" key={f} aria-pressed={intentie.mod_existente === f} className={`buton mic ${intentie.mod_existente === f ? 'primar' : 'secundar'}`} onClick={() => schimba({mod_existente: f})}>{t(`ai.plan_existente_${f}`)}</button>)}
+                {['pastreaza', 'inlocuieste'].map((f, index) => <button type="button" key={f} id={index === 0 ? 'plan-ai-existente' : undefined} aria-pressed={intentie.mod_existente === f} className={`buton mic ${intentie.mod_existente === f ? 'primar' : 'secundar'}`} onClick={() => schimba({mod_existente: f})}>{t(`ai.plan_existente_${f}`)}</button>)}
             </fieldset>
         </fieldset>
         <section className="verificare-pontaj-ai"><h4>{t('ai.verificare_titlu')}</h4><p className="text-discret">{t('ai.verificare_indiciu')}</p>
@@ -223,7 +273,13 @@ export function PlanAsistentAI({intentie, date, rezultat, blocat, onSchimba, onA
         </section>
         </>}
         {afisat && <div className="previzualizare-plan-ai">
-            <p>{t('ai.plan_rezumat', {persoane: afisat.persoane.length, afectate: persoaneAfectate, luni: afisat.luni.join(', '), noi: afisat.noi, inlocuiri: afisat.inlocuiri, identice: afisat.identice, ocupate: afisat.ocupate, blocate: afisat.blocate})}</p>
+            {/* I079: rezumat pe contoare, nu o fraza lunga; lunile cu nume. */}
+            <dl className="rezumat-plan-ai" aria-label={t('ai.plan_rezumat_titlu')}>
+                <div><dt>{t('ai.rezumat_persoane')}</dt><dd>{t('ai.rezumat_persoane_valoare', {persoane: afisat.persoane.length, afectate: persoaneAfectate})}</dd></div>
+                <div><dt>{t('ai.rezumat_luni')}</dt><dd>{afisat.luni.map(lunaAfisata).join(', ')}</dd></div>
+                {(['noi', 'inlocuiri', 'identice', 'ocupate', 'blocate'] as const).map(c => <div key={c} data-contor={c}><dt>{t(`ai.rezumat_${c}`)}</dt><dd>{afisat[c]}</dd></div>)}
+            </dl>
+            {!aplicat && afisat.inlocuiri > 0 && <p className="mesaj avertisment" role="note">{t('ai.plan_avertisment_inlocuire', {numar: afisat.inlocuiri})}</p>}
             <details><summary>{t('ai.plan_lista_persoane')}</summary><ul>{afisat.persoane.map(a => <li key={a.id}>{numeAngajat(date.angajati.find(p=>p.id===a.id)) || a.nume} ({a.marca})</li>)}</ul></details>
             <AnalizaPlanAI plan={afisat} date={date}/>
             <button type="button" className="buton secundar mic" disabled={blocat || ocupat} onClick={() => void exporta()}>{t('ai.export_titlu')}</button>
@@ -235,7 +291,7 @@ export function PlanAsistentAI({intentie, date, rezultat, blocat, onSchimba, onA
                     <option value="exceptii">{t('ai.filtru_doar_exceptii')}</option>
                     {['noua','inlocuire','ocupata','blocata','identica'].map(s => <option key={s} value={s}>{t(`ai.plan_stare_${s}`)}</option>)}
                 </select></label>
-                <label>{t('ai.filtru_luna')}<select value={filtruLuna} onChange={e => {setFiltruLuna(e.target.value);setPagina(0);}}><option value="">{t('ai.filtru_toate')}</option>{afisat.luni.map(l => <option key={l}>{l}</option>)}</select></label>
+                <label>{t('ai.filtru_luna')}<select value={filtruLuna} onChange={e => {setFiltruLuna(e.target.value);setPagina(0);}}><option value="">{t('ai.filtru_toate')}</option>{afisat.luni.map(l => <option key={l} value={l}>{lunaAfisata(l)}</option>)}</select></label>
             </div>
             <p role="status">{t('ai.rezultate_numar', {numar: randuriFiltrate.length})}</p>
             <div className="tabel-plan-ai"><table>
@@ -246,7 +302,7 @@ export function PlanAsistentAI({intentie, date, rezultat, blocat, onSchimba, onA
                     const valoare = aplicat && !salvat ? r.inainte : r.dupa;
                     const stareFinala = salvat ? 'salvat' : r.stare === 'ocupata' ? 'pastrat' : r.stare === 'identica' ? 'identic' : 'neaplicat';
                     return <tr key={`${r.angajat_id}/${r.data}`} data-stare={r.stare}>
-                        <td>{numeAngajat(date.angajati.find(a=>a.id===r.angajat_id)) || r.nume} ({r.marca})</td><td>{r.data}</td><td>{r.inainte || '—'}</td><td>{valoare || '—'}</td><td>{t(aplicat ? `ai.plan_final_${stareFinala}` : `ai.plan_stare_${r.stare}`)}{r.motiv && <> · {t(`ai.plan_motiv_${r.motiv}`)}</>}</td>
+                        <td>{numeAngajat(date.angajati.find(a=>a.id===r.angajat_id)) || r.nume} ({r.marca})</td><td><time dateTime={r.data}>{dataAfisata(r.data)}</time></td><td>{r.inainte || '—'}</td><td>{valoare || '—'}</td><td>{t(aplicat ? `ai.plan_final_${stareFinala}` : `ai.plan_stare_${r.stare}`)}{r.motiv && <> · {t(`ai.plan_motiv_${r.motiv}`)}</>}</td>
                     </tr>;
                 })}</tbody>
             </table></div>
@@ -261,15 +317,16 @@ export function PlanAsistentAI({intentie, date, rezultat, blocat, onSchimba, onA
             {ocupat && <p role="status">{t('ai.plan_in_lucru')}</p>}
             {aplicat && afisat ? <>
                 <strong role="status">{t(afisat.anulat ? 'ai.anulare_reusita' : 'ai.plan_aplicate', {numar: afisat.aplicate})}</strong>
-                <div className="actiuni-plan-ai">{onDeschidePontaj && afisat.luni.map(luna => <button key={luna} type="button" className="buton secundar mic" onClick={() => onDeschidePontaj(Number(luna.slice(0, 4)), Number(luna.slice(5, 7)))}>{t('ai.plan_deschide', {luna})}</button>)}</div>
+                <div className="actiuni-plan-ai">{onDeschidePontaj && afisat.luni.map(luna => <button key={luna} type="button" className="buton secundar mic" onClick={() => onDeschidePontaj(Number(luna.slice(0, 4)), Number(luna.slice(5, 7)))}>{t('ai.plan_deschide', {luna: lunaAfisata(luna)})}</button>)}</div>
             </> : plan && afisat ? <>
                 <label className="optiune-plan-ai"><input type="checkbox" checked={verificat} disabled={blocat} onChange={e => setVerificat(e.target.checked)}/>{t('ai.plan_verificat')}</label>
                 <div className="actiuni-plan-ai">
-                    <button type="button" className="buton secundar" disabled={blocat} data-actiune="revizuieste" onClick={() => {setPlan(undefined); setVerificat(false); setPagina(0);}}>{t('ai.plan_revizuieste')}</button>
+                    <button type="button" className="buton secundar" disabled={blocat} data-actiune="revizuieste" onClick={() => {uitaPrevizualizarea(); setPlan(undefined); setVerificat(false); setPagina(0);}}>{t('ai.plan_revizuieste')}</button>
                     <button type="button" className="buton primar" disabled={blocat || !verificat || afisat.noi + afisat.inlocuiri === 0} data-actiune="confirma" onClick={() => void confirma()}>{t('ai.plan_confirma', {numar: afisat.noi + afisat.inlocuiri})}</button>
                 </div>
             </> : <>
-                {!complet && <p role="status">{t('ai.plan_clarifica')}</p>}
+                {!complet && <div className="lipsuri-plan-ai" role="status"><p>{t('ai.plan_clarifica_lista')}</p>
+                    <ul>{lipsuri.map(l => <li key={l.cheie}><button type="button" className="legatura" onClick={() => document.getElementById(l.camp)?.focus()}>{t(`ai.lipsa_${l.cheie}`)}</button></li>)}</ul></div>}
                 <button type="button" className="buton primar" disabled={blocat || !complet} data-actiune="previzualizeaza" onClick={() => void pregateste()}>{t('ai.plan_previzualizeaza')}</button>
             </>}
         </footer>

@@ -2,15 +2,20 @@ import {numeAngajat} from './numeAngajat';
 import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {datebaza} from '../wailsjs/go/models';
+import {formatData} from './formatare';
 
 export function AnalizaPlanAI({plan, date}: {plan: datebaza.PlanAI; date: datebaza.Date}) {
-    const {t} = useTranslation();
+    const {t, i18n} = useTranslation();
+    // I079: lunile din rezumat cu nume, nu in format ISO.
+    const eticheta = (s: datebaza.SumarPlanAI) => /^\d{4}-\d{2}$/.test(s.cheie)
+        ? formatData(i18n.language, {month: 'long', year: 'numeric', timeZone: 'UTC'}).format(new Date(`${s.cheie}-01T12:00:00Z`))
+        : numeAngajat(date.angajati.find(a=>a.marca===s.cheie)) || s.nume;
     const [cautare, setCautare] = useState('');
     const [selectie, setSelectie] = useState('');
     const [pagina, setPagina] = useState(0);
     const normal = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase();
     const persoane = (plan.selectie_explicata ?? []).filter(a => normal(`${a.nume} ${a.marca}`).includes(normal(cautare)) && (!selectie || (selectie === 'inclus' ? a.inclus : !a.inclus)));
-    const sumar = (s: datebaza.SumarPlanAI) => <li key={s.cheie}><strong>{numeAngajat(date.angajati.find(a=>a.marca===s.cheie)) || s.nume}{s.nume !== s.cheie && <> ({s.cheie})</>}</strong><p>{t('ai.sumar_detalii', {...s})}</p></li>;
+    const sumar = (s: datebaza.SumarPlanAI) => <li key={s.cheie}><strong>{eticheta(s)}{s.nume !== s.cheie && <> ({s.cheie})</>}</strong><p>{t('ai.sumar_detalii', {...s})}</p></li>;
     return <>
         <details className="sumar-plan-ai" open><summary>{t('ai.sumar_luni')}</summary><ul>{(plan.sumar_luni ?? []).map(sumar)}</ul></details>
         <details className="sumar-plan-ai"><summary>{t('ai.sumar_persoane')}</summary><ul>{(plan.sumar_persoane ?? []).map(sumar)}</ul></details>

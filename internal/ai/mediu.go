@@ -17,16 +17,18 @@ const PortImplicit = 28491
 
 // StareMediu descrie starea componentelor motorului local pe disc și în memorie.
 type StareMediu struct {
-	ModelActiv        string   `json:"model_activ"`
-	ContextConfigurat int      `json:"context_configurat"`
-	Instalat          bool     `json:"instalat"`
-	CaleFolder        string   `json:"cale_folder"`
-	CaleBinar         string   `json:"cale_binar"`
-	CaleModel         string   `json:"cale_model"`
-	ModeleDisponibile []string `json:"modele_disponibile"`
-	Activ             bool     `json:"activ"`
-	Port              int      `json:"port"`
-	Mesaj             string   `json:"mesaj"`
+	ModelActiv        string `json:"model_activ"`
+	ContextConfigurat int    `json:"context_configurat"`
+	// UltimaUtilizare: consumul raportat de motor la ultima cerere (I080); lipsește dacă nu e raportat.
+	UltimaUtilizare   *UtilizareContext `json:"ultima_utilizare,omitempty"`
+	Instalat          bool              `json:"instalat"`
+	CaleFolder        string            `json:"cale_folder"`
+	CaleBinar         string            `json:"cale_binar"`
+	CaleModel         string            `json:"cale_model"`
+	ModeleDisponibile []string          `json:"modele_disponibile"`
+	Activ             bool              `json:"activ"`
+	Port              int               `json:"port"`
+	Mesaj             string            `json:"mesaj"`
 }
 
 // NumeBinarServer întoarce numele executabilului serverului local în funcție de sistemul de operare.

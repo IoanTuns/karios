@@ -162,9 +162,28 @@ export namespace ai {
 		}
 	}
 
+	export class UtilizareContext {
+	    prompt: number;
+	    raspuns: number;
+	    total: number;
+	    limita: number;
+
+	    static createFrom(source: any = {}) {
+	        return new UtilizareContext(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.prompt = source["prompt"];
+	        this.raspuns = source["raspuns"];
+	        this.total = source["total"];
+	        this.limita = source["limita"];
+	    }
+	}
 	export class StareMediu {
 	    model_activ: string;
 	    context_configurat: number;
+	    ultima_utilizare?: UtilizareContext;
 	    instalat: boolean;
 	    cale_folder: string;
 	    cale_binar: string;
@@ -182,6 +201,7 @@ export namespace ai {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.model_activ = source["model_activ"];
 	        this.context_configurat = source["context_configurat"];
+	        this.ultima_utilizare = this.convertValues(source["ultima_utilizare"], UtilizareContext);
 	        this.instalat = source["instalat"];
 	        this.cale_folder = source["cale_folder"];
 	        this.cale_binar = source["cale_binar"];
@@ -191,6 +211,24 @@ export namespace ai {
 	        this.port = source["port"];
 	        this.mesaj = source["mesaj"];
 	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
 	}
 
 }
