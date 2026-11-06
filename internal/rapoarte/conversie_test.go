@@ -174,8 +174,28 @@ func TestConversieModeleFlexibile(t *testing.T) {
 	if _, err := DatePdfme(doc); err != nil {
 		t.Fatalf("tabel: %v", err)
 	}
-	if !strings.Contains(conv.Continut.Flexibil.Sablon, "data:image/png;base64,") {
-		t.Fatal("imaginea din antet lipseste din sablon")
+	// Imaginea si antetul se repeta pe fiecare pagina (F09-T26): sunt elemente fixe.
+	var sab struct {
+		BasePdf struct {
+			Padding      []float64        `json:"padding"`
+			StaticSchema []map[string]any `json:"staticSchema"`
+		} `json:"basePdf"`
+		Schemas [][]map[string]any `json:"schemas"`
+	}
+	if err := json.Unmarshal([]byte(conv.Continut.Flexibil.Sablon), &sab); err != nil {
+		t.Fatal(err)
+	}
+	imagineFixa, antetFix := false, false
+	for _, e := range sab.BasePdf.StaticSchema {
+		imagineFixa = imagineFixa || (e["type"] == "image" && strings.HasPrefix(e["content"].(string), "data:image/png;base64,"))
+		antetFix = antetFix || e["content"] == "{antet_stanga}"
+	}
+	if !imagineFixa || !antetFix || len(sab.Schemas[0]) != 1 {
+		t.Fatalf("imagine/antet nefixe: imagine=%v antet=%v pagina1=%d", imagineFixa, antetFix, len(sab.Schemas[0]))
+	}
+	// Zona de continut incepe sub imagine si antet.
+	if tabelY := sab.Schemas[0][0]["position"].(map[string]any)["y"].(float64); sab.BasePdf.Padding[0] > tabelY+0.001 || sab.BasePdf.Padding[0] < 32 {
+		t.Fatalf("zona de continut: padding %v, tabel la %v", sab.BasePdf.Padding[0], tabelY)
 	}
 
 	// Markdown: titlu, paragraf cu variabila, tabel.

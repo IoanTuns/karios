@@ -144,12 +144,22 @@ func fontVarianteGo() obiect {
 	return obiect{"bold": "GoBold", "italic": "GoItalic", "boldItalic": "GoBoldItalic"}
 }
 
-// bazaFaraCorp: sablonul de pornire fara titlu si tabel (antet, subsol, pagina).
+// bazaFaraCorp: sablonul de pornire fara titlu si tabel: antetul (fix, pe
+// fiecare pagina), subsolul si numarul paginii; continutul incepe sub antet.
 func bazaFaraCorp(p Pagina, opt OptiuniSablon) (obiect, []any) {
 	var t obiect
 	_ = json.Unmarshal([]byte(SablonDinColoane(nil, p, opt)), &t)
-	pagina := t["schemas"].([]any)[0].([]any)
-	return t, pagina[:3]
+	baza := t["basePdf"].(obiect)
+	static := []any{}
+	for _, e := range baza["staticSchema"].([]any) {
+		if e.(obiect)["content"] != "{titlu}" {
+			static = append(static, e)
+		}
+	}
+	baza["staticSchema"] = static
+	_, _, m, _ := dimensiuniPagina(p)
+	baza["padding"].([]any)[0] = m + 10
+	return t, []any{}
 }
 
 func tabelAuto(p Pagina, opt OptiuniSablon, x, y, latime float64) obiect {
@@ -305,6 +315,7 @@ func adaugaImaginiSablon(sablon string, d Definitie) (string, string) {
 	}
 	pagini := t["schemas"].([]any)
 	prima := pagini[0].([]any)
+	baza := t["basePdf"].(obiect)
 	maxSus := 0.0
 	imaginiSus := []any{}
 	for _, zona := range []string{"stanga", "centru", "dreapta"} {
@@ -316,17 +327,24 @@ func adaugaImaginiSablon(sablon string, d Definitie) (string, string) {
 		}
 	}
 	if maxSus > 0 {
-		// Restul primei pagini coboara sub imagini.
-		for _, e := range prima {
-			if o, ok := e.(obiect); ok {
-				if poz, ok := o["position"].(obiect); ok {
-					poz["y"] = poz["y"].(float64) + maxSus + 2
+		// Imaginile se repeta pe fiecare pagina, deasupra antetului; antetul,
+		// continutul primei pagini si zona de continut coboara sub ele.
+		dedesubt := func(lista []any) {
+			for _, e := range lista {
+				if o, ok := e.(obiect); ok {
+					if poz, ok := o["position"].(obiect); ok {
+						poz["y"] = poz["y"].(float64) + maxSus + 2
+					}
 				}
 			}
 		}
-		pagini[0] = append(imaginiSus, prima...)
+		dedesubt(baza["staticSchema"].([]any))
+		dedesubt(prima)
+		if pad, ok := baza["padding"].([]any); ok && len(pad) == 4 {
+			pad[0] = pad[0].(float64) + maxSus + 2
+		}
+		baza["staticSchema"] = append(imaginiSus, baza["staticSchema"].([]any)...)
 	}
-	baza := t["basePdf"].(obiect)
 	static := baza["staticSchema"].([]any)
 	maxJos := 0.0
 	for _, zona := range []string{"stanga", "centru", "dreapta"} {

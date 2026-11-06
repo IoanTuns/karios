@@ -1,4 +1,4 @@
-import {describe, expect, it, vi} from 'vitest';
+import {beforeAll, describe, expect, it, vi} from 'vitest';
 import {getDefaultFont} from '@pdfme/common';
 import {PDFDocument} from '@pdfme/pdf-lib';
 
@@ -23,6 +23,10 @@ import {genereazaPdfPdfme, sablonDinColoane, stiluriDinIntrari} from './raportPd
 const baza = {fontName: 'Go', alignment: 'left', verticalAlignment: 'middle', fontSize: 9, lineHeight: 1, characterSpacing: 0, fontColor: '#000000', backgroundColor: '', borderColor: '#888888', borderWidth: {top: .1, right: .1, bottom: .1, left: .1}, padding: {top: 1, right: 1, bottom: 1, left: 1}};
 
 describe('stiluri pe rand si celula in tabelul pdfme', () => {
+    beforeAll(async () => {
+        await Promise.all([import('@pdfme/schemas'), import('@pdfme/generator')]);
+    }, 120000);
+
     it('alege varianta aldin/cursiv a fontului', () => {
         expect(numeVarianta('Go', true, false, {})).toBe('GoBold');
         expect(numeVarianta('GoBold', false, true, {})).toBe('GoItalic');

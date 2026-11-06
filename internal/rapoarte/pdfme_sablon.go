@@ -190,9 +190,10 @@ func SablonDinColoane(coloane []ColoanaSablon, p Pagina, opt OptiuniSablon) stri
 		textFixSablon(n("subsol_centru", "subsol_centru_txt"), "{subsol_centru}", m+treime, jos, treime, "center", font, obiect{"fontSize": 8.0}),
 		textFixSablon(n("pagina", "pagina_txt"), opt.TextPagina, m+2*treime, jos, treime, "right", font, obiect{"fontSize": 8.0}),
 	}
+	// Antetul si titlul se repeta pe fiecare pagina (F09-T26); continutul incepe sub ele.
 	sablon := obiect{
-		"basePdf": obiect{"width": w, "height": h, "padding": []any{m, m, m + 8, m}, "staticSchema": static},
-		"schemas": []any{append(antet, tabelSablon(coloane, m, m+24, util, font, opt))},
+		"basePdf": obiect{"width": w, "height": h, "padding": []any{m + 22, m, m + 8, m}, "staticSchema": append(antet, static...)},
+		"schemas": []any{[]any{tabelSablon(coloane, m, m+24, util, font, opt)}},
 	}
 	b, _ := json.Marshal(sablon)
 	return string(b)

@@ -1,4 +1,4 @@
-import {describe, expect, it, vi} from 'vitest';
+import {beforeAll, describe, expect, it, vi} from 'vitest';
 import {getDefaultFont} from '@pdfme/common';
 import {PDFDocument} from '@pdfme/pdf-lib';
 
@@ -28,6 +28,12 @@ const coloane = [{cod: 'angajat', titlu: 'Angajat'}, {cod: 'data', titlu: 'Data'
 const pagina = {format: 'A4', orientare: 'PORTRET', margine_mm: 10, font_pt: 9};
 
 describe('sablon pdfme', () => {
+    // I116: pdfme (cativa MB) se incarca o singura data, inaintea testelor, cu o
+    // limita generoasa; sub sarcina incarcarea poate depasi limita unui test.
+    beforeAll(async () => {
+        await Promise.all([import('@pdfme/schemas'), import('@pdfme/generator')]);
+    }, 120000);
+
     it('construieste tabelul din coloanele SQL si pagina din model', async () => {
         const s = JSON.parse(await sablonDinColoane(coloane, {...pagina, orientare: 'PEISAJ'}, 'Pagina {currentPage} din {totalPages}'));
         expect(s.basePdf.width).toBe(297);
@@ -70,19 +76,20 @@ describe('sablon pdfme', () => {
 
     it('incarca fonturile Windows folosite si inlocuieste cu Go pe cele lipsa', async () => {
         const s = JSON.parse(await sablonDinColoane(coloane, pagina, '{currentPage}'));
-        s.schemas[0][0].fontName = 'Arial';
-        s.schemas[0][1].fontName = 'Font Inexistent';
+        // Antetul (pe fiecare pagina) e in staticSchema: 0 stanga, 1 centru, 2 dreapta, 3 titlu.
+        s.basePdf.staticSchema[0].fontName = 'Arial';
+        s.basePdf.staticSchema[1].fontName = 'Font Inexistent';
         expect([...fonturiDinSablon(s)].sort()).toEqual(['Arial', 'Font Inexistent', 'Go', 'GoBold']);
         const {font, lipsa} = await fonturiPentruSablon(s);
         expect(Object.keys(font)).toContain('Arial');
         expect(lipsa).toEqual(['Font Inexistent']);
-        expect(s.schemas[0][1].fontName).toBe('Go');
-        expect(s.schemas[0][0].fontName).toBe('Arial');
+        expect(s.basePdf.staticSchema[1].fontName).toBe('Go');
+        expect(s.basePdf.staticSchema[0].fontName).toBe('Arial');
     }, 30000);
 
     it('genereaza raportul si avertizeaza cand un font lipseste', async () => {
         const s = JSON.parse(await sablonDinColoane(coloane, pagina, '{currentPage}'));
-        s.schemas[0][3].fontName = 'Font Inexistent';
+        s.basePdf.staticSchema[3].fontName = 'Font Inexistent';
         notificari.length = 0;
         const r = await completeazaRaport({token: 'f', generare_pdfme: true, sablon: JSON.stringify(s), intrari: {titlu: 'T', tabel: '[["a","b","c"]]'}} as never) as unknown as {pdf: string};
         expect(r.pdf).toBeTruthy();
@@ -94,8 +101,11 @@ describe('sablon pdfme', () => {
         const tabel = s.schemas[0].find((e: {name: string}) => e.name === 'tabel');
         expect(tabel[COLOANE_SQL]).toEqual(['angajat', 'total_ore']);
         expect(tabel.head).toEqual(['Angajat', 'Total ore']);
-        expect(s.schemas[0].map((e: {name: string}) => e.name)).toContain('Titlu');
-        expect(s.schemas[0].map((e: {name: string}) => e.name)).toContain('Antet stânga');
+        // Antetul si titlul se repeta pe fiecare pagina (F09-T26).
+        expect(s.basePdf.staticSchema.map((e: {name: string}) => e.name)).toContain('Titlu');
+        expect(s.basePdf.staticSchema.map((e: {name: string}) => e.name)).toContain('Antet stânga');
+        expect(s.schemas[0].map((e: {name: string}) => e.name)).toEqual(['tabel']);
+        expect(s.basePdf.padding[0]).toBeGreaterThan(tabel.position.y - 3);
         expect(titluColoana({cod: 'angajat_id', titlu: ''})).toBe('Angajat_id');
     }, 30000);
 

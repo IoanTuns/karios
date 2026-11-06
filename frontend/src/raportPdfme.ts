@@ -233,7 +233,8 @@ export async function sablonDinColoane(coloane: ColoanaSablon[], pagina: PaginaR
         textFix(n('subsol_centru', 'subsol_centru_txt'), '{subsol_centru}', m + treime, jos, treime, 'center', {fontSize: 8}),
         textFix(n('pagina', 'pagina_txt'), textPagina, m + 2 * treime, jos, treime, 'right', {fontSize: 8}),
     ];
-    const sablon = {basePdf: {width: W, height: H, padding: [m, m, m + 8, m], staticSchema}, schemas: [[...antet, tabel]]};
+    // Antetul si titlul se repeta pe fiecare pagina, ca in rapoartele standard vechi (F09-T26).
+    const sablon = {basePdf: {width: W, height: H, padding: [m + 22, m, m + 8, m], staticSchema: [...antet, ...staticSchema]}, schemas: [[tabel]]};
     return JSON.stringify(sablon);
 }
 

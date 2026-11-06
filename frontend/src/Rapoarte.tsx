@@ -80,7 +80,6 @@ function EditorModel({initial,configuratie,ocupat:salvareInCurs,eroare,inchide,s
     const [citireImagine,setCitireImagine] = useState(false);
     const importInCurs = useRef(false);
     const ocupat = salvareInCurs || citireImagine;
-    const sursa = configuratie.surse.find(s => s.cod === model.continut.sursa)!;
     const modificate = JSON.stringify(model) !== JSON.stringify(initial);
     useEffect(() => semnaleazaModificari('rapoarte', modificate), [modificate]);
     function renunta() { if (!modificate || window.confirm(t('ui.renunta'))) inchide(); }
@@ -101,8 +100,6 @@ function EditorModel({initial,configuratie,ocupat:salvareInCurs,eroare,inchide,s
         } catch(e) { setValidare(t(e instanceof Error && e.message.startsWith('rapoarte.') ? e.message : 'rapoarte.imagine_invalida')); }
         finally { importInCurs.current=false;setCitireImagine(false); }
     }
-    function selecteazaColoana(cod: string,bifat: boolean) { setModel(m => ({...m,continut:{...m.continut,coloane:bifat ? [...m.continut.coloane.filter(c=>c!=='totaluri'),cod,...(m.continut.coloane.includes('totaluri')?['totaluri']:[])] : m.continut.coloane.filter(c => c!==cod)}})); }
-    function muta(cod: string,sens: number) { setModel(m => { const coloane=[...m.continut.coloane],i=coloane.indexOf(cod),j=i+sens;if (i<0 || j<0 || j>=coloane.length || cod==='totaluri' || coloane[j]==='totaluri') return m;[coloane[i],coloane[j]]=[coloane[j],coloane[i]];return {...m,continut:{...m.continut,coloane}}; }); }
     const zone = (bloc: 'antet'|'subsol') => <div className="zone-raport">{(['stanga','centru','dreapta'] as const).map(z => {
         const imagine=model[bloc].imagini?.[z];
         return <div className="zona-model-raport" key={z}>
@@ -126,7 +123,7 @@ function EditorModel({initial,configuratie,ocupat:salvareInCurs,eroare,inchide,s
                 <label className="bifa"><input type="checkbox" name="afiseaza_explicatii" checked={!model.continut.ascunde_explicatii} onChange={e=>setModel(m=>({...m,continut:{...m.continut,ascunde_explicatii:!e.target.checked}}))}/>{t('rapoarte.afiseaza_explicatii')}</label>
                 <p className="nota-calendar">{t('rapoarte.explicatii_indiciu')}</p>
                 <label>{t('rapoarte.introducere')}<textarea name="introducere" rows={2} maxLength={1000} value={model.continut.text?.[limba] || ''} onChange={e => setModel(m => ({...m,continut:{...m.continut,text:{...m.continut.text,[limba]:e.target.value}}}))}/></label>
-{!esteFlexibil(model.continut.sursa)&&<>                <p>{t('rapoarte.coloane')}</p><div className="coloane-raport">{[...model.continut.coloane,...sursa.coloane.filter(c => !model.continut.coloane.includes(c))].map(c => { const i=model.continut.coloane.indexOf(c);return <div key={c}><label><input type="checkbox" name={`coloana_${c}`} checked={i>=0} disabled={(model.continut.sursa==='PONTAJ_LUNAR' && c==='angajat') || (model.continut.sursa==='PONTAJ_DETALIAT' && ['angajat','zile','totaluri'].includes(c))} onChange={e => selecteazaColoana(c,e.target.checked)}/>{t(`rapoarte.coloana_${c}`)}</label><button type="button" className="legatura" aria-label={t('rapoarte.muta_sus',{coloana:t(`rapoarte.coloana_${c}`)})} disabled={i<=0 || c==='totaluri'} onClick={() => muta(c,-1)}>↑</button><button type="button" className="legatura" aria-label={t('rapoarte.muta_jos',{coloana:t(`rapoarte.coloana_${c}`)})} disabled={i<0 || i===model.continut.coloane.length-1 || model.continut.coloane[i+1]==='totaluri'} onClick={() => muta(c,1)}>↓</button></div>; })}</div></>}</fieldset>
+</fieldset>
             <fieldset className="componenta-raport" disabled={ocupat}><legend>3 · {t('rapoarte.subsol')}</legend>{zone('subsol')}</fieldset>
             <EditorPrezentare disabled={ocupat} doarEtichete={vizual} value={model.continut.prezentare} schimba={prezentare=>setModel(m=>({...m,continut:{...m.continut,prezentare}}))}/>
             <fieldset className="componenta-raport" disabled={ocupat}><legend>{t('rapoarte.pagina')}</legend><div className="campuri"><label>{t('rapoarte.format')}<select name="format" value={model.pagina.format} onChange={e => setModel(m => ({...m,pagina:{...m.pagina,format:e.target.value}}))}><option value="A4">A4</option><option value="A3">A3</option></select></label><label>{t('rapoarte.orientare')}<select name="orientare" value={model.pagina.orientare} onChange={e => setModel(m => ({...m,pagina:{...m.pagina,orientare:e.target.value}}))}>{['PORTRET','PEISAJ'].map(o => <option key={o} value={o}>{t(`rapoarte.${o}`)}</option>)}</select></label>

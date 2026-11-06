@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.43 - 2026-11-06
+
+F09-T26: in sabloanele pdfme antetul (cele trei zone) si titlul se repeta pe fiecare pagina, ca in rapoartele standard vechi, iar tabelul continuat incepe sub ele. Se aplica sablonului de pornire, modelelor predefinite (migrarea 0033 regenerata, inca neadusa in main), modelelor convertite si imaginilor din antetul lor. La Markdown si Pozitionare libera se repeta doar antetul. Curatenie dupa conversie: sters din formular blocul de coloane al surselor standard, inaccesibil dupa F09-T23; ghidul marcheaza ca istorice aspectele vechi. Testele pdfme incarca pdfme o data, inainte (I116). Raport flexibil 13. Manual 1.51.
+
 ## 0.92.42 - 2026-11-06
 
 F09-T23 (D087 punctul 7): toate rapoartele folosesc editorul vizual. La primul acces la rapoarte dupa autentificare, modelele vechi se convertesc automat (o data pe sesiune, reluat la eroare): modelele standard trec pe SQL pe tabelele calculate, cu sablon clasic si aceleasi valori, titluri si antete; Tabel primeste un sablon care urmeaza coloanele SQL; Markdown si Pozitionare libera se convertesc aproximativ (texte, aldin, tabel; elementele repetate pe rand devin tabel), cu note in anuntul din interfata. Fiecare model convertit are revizie noua, iar definitia veche ramane in Jurnal modificari. Motorul vechi a fost sters: desenarea maroto a rapoartelor standard si desenarea gofpdf a celor flexibile; gofpdf ramane doar pentru anexa. Dependente scoase: maroto 2.4.4, go-tree 1.1.0, barcode 1.1.0. Modelele noi folosesc doar surse SQL si editorul vizual; „Verifica raportul” creeaza singur sablonul daca lipseste. Validarea in Go a incadrarii in pagina a disparut odata cu motorul vechi (pdfme continua textul lung pe randurile urmatoare); limitele de lungime raman. Raport flexibil 12. Manual 1.50.

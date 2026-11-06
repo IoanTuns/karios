@@ -78,6 +78,8 @@ In coloana SQL, :angajat_id este marca interna a randului daca este disponibila,
 
 ## Aspectul
 
+> Istoric: din 0.92.42 (F09-T23) aspectele Tabel automat, Markdown si Pozitionare libera de mai jos nu mai sunt desenate de aplicatie. Modelele existente se convertesc automat in editorul vizual (vezi „Conversia modelelor vechi” la final); descrierea ramane pentru intelegerea conversiei.
+
 Tabel automat: coloanele urmeaza SELECT-ul, apoi coloanele calculate. Antetele se repeta la continuarea pe alte pagini.
 
 Markdown: titluri #, paragrafe, liste cu -, evidentiere **text**, tabele simple cu | si substitutia {{tabel}} pentru lista rezultata. Subset documentat de Markdown, fara HTML/CSS sau scripturi executabile.

@@ -828,3 +828,7 @@ Din aceasta versiune toate rapoartele folosesc editorul vizual. La prima deschid
 - **modelele cu Markdown sau Pozitionare libera** se transforma aproximativ: titlurile, paragrafele si listele devin texte, iar elementele repetate pe fiecare rand devin un tabel. Anuntul spune ce s-a aproximat; verificati aceste modele in editorul vizual.
 
 Versiunea veche a fiecarui model ramane in **Jurnal modificari**. Daca un model nu se poate converti, anuntul il numeste si conversia se reia la urmatoarea deschidere. Modelele noi folosesc o sursa SQL; daca un model nu are inca sablon, **Verifica raportul** il creeaza din coloanele SQL.
+
+### Antetul pe fiecare pagina (0.92.43)
+
+In rapoartele din editorul vizual, antetul (stanga, centru, dreapta) si titlul apar pe fiecare pagina, iar tabelul continua sub ele, ca in rapoartele de dinainte. Sablonul nou din coloanele SQL le pune automat astfel; intr-un sablon facut inainte de aceasta versiune puteti apasa **Sablon nou din coloanele SQL** pentru acelasi aspect.
