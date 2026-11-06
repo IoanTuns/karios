@@ -107,11 +107,11 @@ Stări: `nouă`, `în analiză`, `transformată` (în task sau decizie), `amâna
 | I074 | 2026-10-29 | P1: delimitarea propunerii de rezultatul real; valori finale corecte pentru celule păstrate sau excluse | Codex | transformată | F14-T24, F14-T23, D049 propusă, review-ui-asistent-2026-10-29.md |
 | I075 | 2026-10-29 | P2: filtre și căutare în previzualizarea AI, sumar pe lună și numere distincte pentru selectați și afectați | Codex, Antigravity | transformată | F14-T25; F14-T32: filtru «Doar excepții» și contor persoane afectate |
 | I076 | 2026-10-29 | P2: căutare în selecția nominală AI, vedere pentru selectați și comenzi aplicate rezultatelor filtrate | Codex, Antigravity | transformată | F14-T25; F14-T32: comutator «Arată doar selectați» în selecția nominală |
-| I077 | 2026-10-29 | P2: validare lângă câmpurile planului AI și recuperare accesibilă din eroarea de plan expirat | Codex | nouă | F14-T23, review-ui-asistent-2026-10-29.md |
-| I078 | 2026-10-29 | P2: stări vizibile pentru planul AI activ, revizuire/anulare și revenire explicată după navigare | Codex | nouă | F14-T23, review-ui-asistent-2026-10-29.md |
-| I079 | 2026-10-29 | P2: rezumat actual al planului AI separat de cererea inițială, date neambigue și contoare lizibile | Codex | nouă | F14-T23, review-ui-asistent-2026-10-29.md |
+| I077 | 2026-10-29 | P2: validare lângă câmpurile planului AI și recuperare accesibilă din eroarea de plan expirat | Codex | transformată | F14-T23, review-ui-asistent-2026-10-29.md F14-T35 (D049 acceptata 2026-11-06). |
+| I078 | 2026-10-29 | P2: stări vizibile pentru planul AI activ, revizuire/anulare și revenire explicată după navigare | Codex | transformată | F14-T23, review-ui-asistent-2026-10-29.md F14-T35 (D049 acceptata 2026-11-06). |
+| I079 | 2026-10-29 | P2: rezumat actual al planului AI separat de cererea inițială, date neambigue și contoare lizibile | Codex | transformată | F14-T23, review-ui-asistent-2026-10-29.md F14-T35 (D049 acceptata 2026-11-06). |
 
-| I080 | 2026-10-29 | P2: detalii pliabile cu modelul AI efectiv activ, contextul configurat și utilizarea raportată de motor, fără estimări prezentate ca măsurători | Codex | nouă | F14-T23, review-ui-asistent-2026-10-29.md |
+| I080 | 2026-10-29 | P2: detalii pliabile cu modelul AI efectiv activ, contextul configurat și utilizarea raportată de motor, fără estimări prezentate ca măsurători | Codex | transformată | F14-T23, review-ui-asistent-2026-10-29.md F14-T35 (D049 acceptata 2026-11-06). |
 | I081 | 2026-10-29 | Anularea ultimei operații AI pe baza instantaneelor persistente și reviziilor, cu refuz integral la conflicte | Codex, cerere Ioan Tuns | transformată | F14-T25, D050 propusă |
 | I082 | 2026-10-29 | Explicarea selecției pentru fiecare persoană, cu criteriu de grup și excepții pe zile | Codex, cerere Ioan Tuns | transformată | F14-T25, D050 propusă |
 | I083 | 2026-10-29 | Clarificarea anului din context și a parametrilor înainte de planificare | Codex, cerere Ioan Tuns | transformată | F14-T25 |
