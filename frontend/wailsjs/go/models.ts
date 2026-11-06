@@ -703,6 +703,8 @@ export namespace calcul {
 	    sutimi: number;
 	    unitate: string;
 	    definita: boolean;
+	    motiv?: string;
+	    motiv_cod?: string;
 
 	    static createFrom(source: any = {}) {
 	        return new ValoarePontaj(source);
@@ -713,6 +715,8 @@ export namespace calcul {
 	        this.sutimi = source["sutimi"];
 	        this.unitate = source["unitate"];
 	        this.definita = source["definita"];
+	        this.motiv = source["motiv"];
+	        this.motiv_cod = source["motiv_cod"];
 	    }
 	}
 	export class TotalPontaj {

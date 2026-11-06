@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.49 - 2026-11-06
+
+F05-T20 (I049). In Pontaj, fiecare total necalculat („—”) spune de ce: regula coloanei neconfigurata, cod care nu e program si nici ore, program cu pauza (regula pauzei lipseste, F04-T05), absenta creditata fara ore stabilite, program fara ora de inceput sau cu durata in afara limitelor; mesajul numeste codul si locul unde se corecteaza. Deasupra grilei, un sumar pliabil grupeaza motivele lunii. Calculul (internal/calcul) adauga motiv si motiv_cod pe ValoarePontaj, fara nicio schimbare de suma. In Configurare pontaj, factorul in afara limitelor si sursa fara coduri sunt oprite inainte de salvare si marcate sub camp, cu focus pe primul camp gresit; serverul intoarce coduri distincte cu coloana si campul (pontaj.regula_factor, _fara_coduri, _coduri, _sursa) in locul mesajului generic. Manual 1.55.
+
 ## 0.92.48 - 2026-11-06
 
 F14-T34 (I118): asistentul AI gaseste angajatul si cand numele sau marca sunt lipite de punctuatie („Ce program are Pop Ana?”, „(M1)”, „Pop Ana: Z7.”). Inainte, numele nu intra in contextul trimis modelului, iar planificarea ratata selectia cand urma un punct. Cratima si apostroful raman parte din marci si nume. Manualul revizuit fara modificari de continut.

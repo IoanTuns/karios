@@ -362,7 +362,7 @@ Pentru suport, notează versiunea aplicației, ecranul, anul/luna, pașii și er
 | Previzualizarea AI a expirat | Reia previzualizarea și verifică diferențele înainte de o nouă confirmare. |
 | AI-ul a răspuns cu o listă în loc să înregistreze concediul | Folosește o cerere explicită, cu nume/marcă și date; verifică formularul de concediu. Dacă nu apare, folosește direct modulul. |
 | Eroare de context AI | Pornește o conversație nouă și trimite o cerere concentrată, cu perioada și persoanele. Verifică versiunea aplicației și motorul compatibil. |
-| Totalul este „—” | Verifică programul, pauza și sursa coloanei în configurare. Nu înlocui automat „—” cu zero. |
+| Totalul este „—” | Treceți cu mouse-ul peste „—” sau deschideți „Vezi de ce” deasupra grilei: aplicația spune motivul (regulă neconfigurată, cod necunoscut, program cu pauză, absență fără ore stabilite) și unde se corectează. Nu înlocui automat „—” cu zero. |
 | Nu pot restaura un backup | Verifică rolul, copia și mesajul de integritate; nu modifica fișierele pentru a ocoli eroarea. |
 | După mutare, aplicația pare goală | Verifică dacă întregul folder `karios` a fost copiat lângă executabilul pornit. Închide aplicația înainte de transfer. |
 | Motorul AI este necunoscut | Folosește motorul livrat și verificat pentru aplicație; nu schimba arbitrar executabilul. |
@@ -845,3 +845,17 @@ Daca porniti o versiune mai veche a aplicatiei pe date deja folosite de o versiu
 ### Aplicatia deschisa de doua ori (0.92.45)
 
 Daca porniti aplicatia a doua oara pe acelasi folder (de exemplu de pe alt calculator, din acelasi stick sau folder partajat), a doua copie se deschide **doar in citire**: un banner arata pe ce calculator, de catre cine si de cand este deschisa prima. In a doua copie puteti consulta datele si rapoartele, dar nu puteti salva. Inchideti prima copie, apoi reporniti-o pe a doua pentru a lucra normal. Daca prima copie abia porneste sau actualizeaza datele, a doua cere sa asteptati.
+
+## De ce un total nu se calculează (0.92.49)
+
+Un total afișat „—” nu este zero: aplicația nu îl poate calcula fără să inventeze o regulă. Treceți cu mouse-ul peste „—” ca să vedeți motivul. Deasupra grilei, rândul **„… valori nu se pot calcula. Vezi de ce”** le grupează pe toate pentru luna afișată.
+
+| Motiv | Ce faceți |
+| --- | --- |
+| Coloana nu are regulă de calcul | Configurați-o în Setări › Configurare pontaj, cu regula primită de la contabilitate. |
+| Un cod nu este program și nici număr de ore | Corectați celula sau adăugați programul în Setări › Schimburi. |
+| Programul are pauză | Regula de scădere a pauzei nu e stabilită încă. Dacă programul nu are pauză, puneți pauza 0 în Setări › Schimburi. |
+| Absența se creditează cu ore, dar orele lipsesc | Completați norma zilnică a angajatului sau programul planificat în ziua respectivă. |
+
+În **Setări › Configurare pontaj**, un factor în afara limitelor (0,01–10) sau o sursă fără coduri alese sunt marcate sub câmp, iar salvarea nu pornește până la corectare.
+

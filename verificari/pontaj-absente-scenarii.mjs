@@ -21,6 +21,13 @@ export async function verificaAbsentePontaj({evalueaza,asteapta,apasa,completeaz
  await apasa(t('pontaj.salveaza'));
  await asteapta(()=>evalueaza("JSON.parse(localStorage.getItem('pontix-test')).ciorne.some(c=>c.valoare==='Z7')"),'Program nesalvat');
  await asteapta(()=>evalueaza(`!document.querySelector('${celula(0)}').disabled && !document.querySelector('${celula(0)}').closest('td').classList.contains('celula-modificata')`),'Salvare inca ocupata');
+ // F05-T20: totalurile necalculate spun de ce, iar sumarul le grupeaza deasupra grilei.
+ const motivRegula=t('pontaj.motiv_regula_nedefinita');
+ await asteapta(()=>evalueaza(`[...document.querySelectorAll('.grila-pontaj td.total-necalculat')].some(td=>td.title===${JSON.stringify(motivRegula)})`),'Totalul necalculat nu are motivul regulii');
+ await evalueaza("document.querySelector('.motive-necalculate summary').click()");
+ assert(await evalueaza(`document.querySelector('.motive-necalculate').open && document.querySelector('.motive-necalculate li').textContent.includes(${JSON.stringify(motivRegula.slice(0,30))})`),'Sumarul motivelor lipseste sau e gol');
+ await captura('pontaj-motive-'+limba+'.png');
+ await evalueaza("document.querySelector('.motive-necalculate summary').click()");
  await evalueaza(`(()=>{const e=document.querySelector('${celula(1)}');e.dispatchEvent(new MouseEvent('mousedown',{bubbles:true,button:0}));e.focus()})()`);
  await asteapta(()=>evalueaza(`document.querySelector('${celula(1)}').closest('td').classList.contains('celula-selectata')`),'Selectia zilei a doua lipsa');
  await apasa(t('pontaj.aplica_program')); 
