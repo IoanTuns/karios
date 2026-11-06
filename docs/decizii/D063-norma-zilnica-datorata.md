@@ -1,6 +1,8 @@
 # D063 - Calculul de baza al normei zilnice datorate
 
-Stare: propusa. Propusa de Codex, 2026-10-31. Task F07-T27.
+Stare: acceptată. Propusa de Codex, 2026-10-31. Task F07-T27 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
+
+Ioan Tuns confirmă, 2026-11-06: „CVE” din răspunsul anterior înseamnă CEV.
 
 Reguli confirmate de utilizator: reducere pentru CO/CEV/CFS/CM aprobate; formarea si delegatia nu sunt in lista reducerilor; liberele compensatorii nu au inca regula. CVE din ultimul raspuns este interpretat ca CEV din definitia anterioara.
 

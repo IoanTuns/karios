@@ -1,6 +1,6 @@
 # D070 - Corectarea explicita a absentelor
 
-Stare: propusa. Codex, 2026-10-31. F07-T34.
+Stare: acceptată. Codex, 2026-10-31. F07-T34 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 Utilizatorul confirma ca operatiunile, inclusiv concediile, trebuie sa poata fi editate/modificate sau sterse. Prioritatea medicalului din D069 nu trebuie interpretata ca imposibilitate de corectie explicita.
 

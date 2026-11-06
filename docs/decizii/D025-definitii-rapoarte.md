@@ -1,6 +1,8 @@
 # D025 · Definiții de rapoarte și tipărire
 
-Stare: propusă · Data: 2026-10-25 · Task: F09-T07
+Stare: acceptată · Data: 2026-10-25 · Task: F09-T07 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
+
+Aspectul (Markdown, poziționare liberă, desenarea gofpdf) este înlocuit de [D087](D087-rapoarte-sql-pdfme.md) și a fost șters în F09-T23; restul rămâne valabil.
 
 Ioan Tuns cere rapoarte cu trei componente — header, content, footer — definite separat pentru fiecare raport într-un meniu propriu. Lucrează simultan la alte modificări; implementarea rapoartelor se face într-un worktree izolat, pornit din 68c0681, fără schimbarea ramurii sale F07-T11.
 

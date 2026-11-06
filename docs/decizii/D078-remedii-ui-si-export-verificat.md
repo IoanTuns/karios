@@ -1,6 +1,6 @@
 # D078 - Remedii UI si salvare verificata a exporturilor
 
-Stare: propusa. Data: 2026-10-31. F16-T29. Utilizatorul a autorizat remedierea auditului UI28 si apoi a cerut amanarea investigatiei blocajului Excel.
+Stare: acceptată. Data: 2026-10-31. F16-T29. Utilizatorul a autorizat remedierea auditului UI28 si apoi a cerut amanarea investigatiei blocajului Excel · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 Identitatea de garda este afisata consecvent din atributul contractului sau asocierea explicita; nu se modifica numele salvat si nu se creeaza asocieri dupa nume. Se pastreaza criteriile existente de eligibilitate a programelor, dar se explica motivele excluderii. Se grupeaza formularele si filtrele, se afiseaza stari textuale si se pastreaza repere fixe la derulare. Panourile native details pastreaza navigarea cu tastatura, fara biblioteca noua. Legaturile de configurare respecta protectia modificarilor nesalvate si drepturile.
 

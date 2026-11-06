@@ -1,6 +1,6 @@
 # D048 · Interpretare editabilă și plan verificat pentru asistent
 
-Stare: propusă · Data: 2026-10-29 · Propusă de: Codex
+Stare: acceptată · Data: 2026-10-29 · Propusă de: Codex · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 Task: F14-T22, cerut de Ioan Tuns, cu implementarea tuturor celor șase propuneri discutate.
 

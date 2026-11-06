@@ -1,6 +1,8 @@
 # D085 - Prezentare si copii editabile de raport
 
-Stare: propusa. Responsabil Codex. Data2026-11-03. F09-T19.
+Stare: acceptată. Responsabil Codex. Data2026-11-03. F09-T19 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
+
+Aspectul (Markdown, poziționare liberă, desenarea gofpdf) este înlocuit de [D087](D087-rapoarte-sql-pdfme.md) și a fost șters în F09-T23; restul rămâne valabil.
 
 Cerere: texte formatabile, inclusiv celule generate (confirmare utilizator), bold optional pentru sambata/duminica/sarbatori, interval de garzi care poate depasi luna pentru grupuri consecutive de zile libere. Exemplu furnizat28-30noiembrie si1decembrie2026; s-a cerut confirmarea aplicarii la ambele margini.
 

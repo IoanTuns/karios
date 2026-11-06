@@ -1,6 +1,6 @@
 # D019 · Schimburi inițiale din PDF și precizările utilizatorului
 
-Stare: propusă · Data: 2026-10-25 · Taskuri: F07-T09
+Stare: acceptată · Data: 2026-10-25 · Taskuri: F07-T09 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 Înlocuiește propunerea D015 numai în privința absenței unui set inițial: Ioan Tuns a cerut acum folosirea valorilor din document și a precizat orele lipsă pentru 7 și 12. Validările și editarea ulterioară rămân aceleași.
 

@@ -1,6 +1,6 @@
 # D028 · Ore în pontaj, două rapoarte și configurarea calculelor
 
-Stare: propusă · Data: 2026-10-26 · Task: F09-T09
+Stare: acceptată · Data: 2026-10-26 · Task: F09-T09 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 Ioan Tuns cere ore afișate în pontaj, codurile rămânând în date/calcul, un centralizator și un raport detaliat cu coloanele finale din captura trimisă. Confirmă T total, ZNL weekend/sărbători/libere 00–24 și Ore norm luni–vineri fără zile libere. Pentru coloanele rămase cere configurare, fără reguli disponibile încă. Captura nu este copiată în repo.
 

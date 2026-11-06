@@ -114,6 +114,8 @@ export function DialogImportAngajati({
     }
 
     const randuriEligibile = analiza?.randuri.filter(r => r.valid && (actualizeazaExistente || !r.exista_deja)) ?? [];
+    // Erorile noi vin cu cod traductibil (D004); cele vechi raman text.
+    const mesajRand = (r: datebaza.RandImportAngajat) => r.cod_eroare ? t(r.cod_eroare, r.param_eroare ?? {}) : r.mesaj_eroare;
 
     return (
         <div className="ecran-blocat" role="dialog" aria-modal="true" aria-labelledby="titlu-import-angajati">
@@ -215,8 +217,8 @@ export function DialogImportAngajati({
                                                 >
                                                     <td>
                                                         {esteInvalid ? (
-                                                            <span className="stare-eticheta eroare" title={r.mesaj_eroare}>
-                                                                ✕ {r.mesaj_eroare || t('import.stare_eroare')}
+                                                            <span className="stare-eticheta eroare" title={mesajRand(r)}>
+                                                                ✕ {mesajRand(r) || t('import.stare_eroare')}
                                                             </span>
                                                         ) : esteExistent ? (
                                                             <span className="stare-eticheta avertisment">
@@ -229,7 +231,7 @@ export function DialogImportAngajati({
                                                         )}
                                                     </td>
                                                     <td><strong>{r.marca || '—'}</strong></td>
-                                                    <td>{numeAngajat({...r, angajat_principal_id: r.exista_deja ? angajati.find(a=>a.marca===r.marca)?.angajat_principal_id : undefined})}</td>
+                                                    <td>{numeAngajat({...r, prefix: r.prefix_import ? {ro: r.prefix_import} : null, angajat_principal_id: r.exista_deja ? angajati.find(a=>a.marca===r.marca)?.angajat_principal_id : undefined})}</td>
                                                     <td>{r.functie || '—'}</td>
                                                     <td>{r.sectie || '—'}</td>
                                                     <td>{r.departament || '—'}</td>

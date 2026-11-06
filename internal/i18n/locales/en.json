@@ -2068,5 +2068,7 @@
   "audit.doar_citire": "The application is open read-only: another instance is working on the same data. Close it to be able to save.",
   "stocare.alta_instanta_pregatire": "Another instance of the application has the data open and is still preparing it. Start the application after that one has finished starting.",
   "stocare.alta_instanta_actualizare": "Another, older instance of the application has the data open. This version must update the database; close the other instance first.",
-  "ui.doar_citire_banner": "Read-only: the application is also open on {{calculator}} by {{utilizator}} (since {{de_la}}). You can view the data but not change it."
+  "ui.doar_citire_banner": "Read-only: the application is also open on {{calculator}} by {{utilizator}} (since {{de_la}}). You can view the data but not change it.",
+  "import.prefix_necunoscut": "The prefix “{{prefix}}” does not exist in Settings › Prefixes. Add it there or correct the file.",
+  "import.prefix_inactiv": "The prefix “{{prefix}}” is inactive. Activate it in Settings › Prefixes or correct the file."
 }

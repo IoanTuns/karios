@@ -1,6 +1,6 @@
 # D068 - Conversia schitei de Pontaj in absente
 
-Stare: propusa. Codex, 2026-10-31. F07-T32.
+Stare: acceptată. Codex, 2026-10-31. F07-T32 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 Utilizatorul solicita concedii si schimbarea tipului zilei din Completare Pontaj. Se reutilizeaza formularul si validarile existente de absente, pe selectia exacta de persoane/date. Noua operatie este explicita si salveaza imediat, in aceeasi tranzactie, golirea celulelor de schita si adaugarea/modificarea absentelor. Fluxul obisnuit SalveazaAbsente continua sa refuze suprapunerea cu o schita de lucru.
 

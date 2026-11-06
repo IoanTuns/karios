@@ -1,6 +1,6 @@
 # D033 · Îmbunătățiri UX în fluxurile de lucru: căutare și navigare lunară în pontaj, selecție prin tragere, precompletare pe rândurile selectate, grupare cereri de concediu și salt contextual
 
-Stare: propusă · Data: 2026-10-26 · Propunere: Antigravity · Legat de: F08-T09, I038, I039, I040, I041, I042, I043
+Stare: acceptată · Data: 2026-10-26 · Propunere: Antigravity · Legat de: F08-T09, I038, I039, I040, I041, I042, I043 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 ## Context
 

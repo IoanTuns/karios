@@ -1,6 +1,6 @@
 # D023 · Categorii pentru nomenclatorul de schimburi (`LAB` și `CUSTOM`)
 
-Stare: propusă · Data: 2026-10-25 · Task: F07-T11
+Stare: acceptată · Data: 2026-10-25 · Task: F07-T11 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 Ioan Tuns a cerut împărțirea tabelului de schimburi pe categorii: codurile `G24`, `IN9`, `N12` (confirmat explicit ca forma corectă pentru `n2`), `N9`, `Z7`, `Z12`, `S7` intră în categoria de precompletare `LAB`, iar restul schimburilor intră în categoria `CUSTOM` pentru moment. La clarificare a confirmat că `categorie` este un câmp separat de `tip` și `regim` (cu valorile predefinite `LAB` și `CUSTOM`), cu filtru în tabel și alegere la precompletare, adăugare și editare.
 

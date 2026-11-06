@@ -1,6 +1,6 @@
 # D060 - Marca de garda legata explicit de angajat
 
-Stare: propusa. Propusa de: Codex. Data: 2026-10-31. Task: F09-T11.
+Stare: acceptată. Propusa de: Codex. Data: 2026-10-31. Task: F09-T11 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 Cerinta confirmata de utilizator: doua randuri in pontajul detaliat, fiecare cu marca distincta. Marca principala si marca de garda sunt inregistrari separate, legate prin chei straine. Fara potrivire dupa nume, legaturi catre sine, lanturi sau cicluri. Inregistrarile existente nu sunt reasociate automat.
 

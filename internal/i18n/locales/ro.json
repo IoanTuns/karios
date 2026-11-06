@@ -2068,5 +2068,7 @@
   "audit.doar_citire": "Aplicația este deschisă doar în citire: altă instanță lucrează pe aceleași date. Închideți-o pentru a putea salva.",
   "stocare.alta_instanta_pregatire": "Altă instanță a aplicației are datele deschise și încă le pregătește. Porniți aplicația după ce aceea a terminat de pornit.",
   "stocare.alta_instanta_actualizare": "Altă instanță, mai veche, a aplicației are datele deschise. Această versiune trebuie să actualizeze baza; închideți mai întâi cealaltă instanță.",
-  "ui.doar_citire_banner": "Doar citire: aplicația este deschisă și pe {{calculator}} de {{utilizator}} (din {{de_la}}). Puteți consulta datele, dar nu le puteți modifica."
+  "ui.doar_citire_banner": "Doar citire: aplicația este deschisă și pe {{calculator}} de {{utilizator}} (din {{de_la}}). Puteți consulta datele, dar nu le puteți modifica.",
+  "import.prefix_necunoscut": "Prefixul „{{prefix}}” nu există în Setări › Prefixe. Adăugați-l acolo sau corectați fișierul.",
+  "import.prefix_inactiv": "Prefixul „{{prefix}}” este inactiv. Activați-l în Setări › Prefixe sau corectați fișierul."
 }

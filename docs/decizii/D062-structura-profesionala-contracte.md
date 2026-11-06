@@ -1,6 +1,6 @@
 # D062 - Structura profesionala si contracte configurabile
 
-Stare: propusa. Propusa de Codex, 2026-10-31. Task F07-T25.
+Stare: acceptată. Propusa de Codex, 2026-10-31. Task F07-T25 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 Se separa grupul profesional, functia (cu pozitia conducere/executie), contractul si asocierea marcii de garda. Ordinea numerica a grupului si a functiei sunt configurabile; sefii sunt primii, restul alfabetic romanesc. Marcile asociate raman impreuna, cu incadrarea principala in raport.
 

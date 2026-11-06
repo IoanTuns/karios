@@ -1,6 +1,6 @@
 # D076 - Prioritatea publicarii in Pontaj
 
-Stare: propusa. Data: 2026-10-31. Task: F11-T20.
+Stare: acceptată. Data: 2026-10-31. Task: F11-T20 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 ## Context
 

@@ -1,6 +1,6 @@
 # D050 · Instrumente pentru asistent
 
-Stare: propusă. Propusă de: Codex, 2026-10-29. Task: F14-T25, autorizat explicit de Ioan Tuns pentru implementare.
+Stare: acceptată. Propusă de: Codex, 2026-10-29. Task: F14-T25, autorizat explicit de Ioan Tuns pentru implementare · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 Se propun instantanee tranzacționale persistente pentru anularea ultimei operații AI, cu refuz integral la orice revizie schimbată sau lună închisă. Anularea este previzualizată și confirmată; păstrează auditul și crește reviziile. Alternativa unei anulări doar din memoria interfeței pierde istoricul la repornire și permite date alterate în client.
 

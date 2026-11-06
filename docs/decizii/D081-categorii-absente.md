@@ -1,6 +1,6 @@
 # D081 - Categorii administrabile ale absentelor
 
-Stare: propusa. Data: 2026-11-02. Task F07-T39.
+Stare: acceptată. Data: 2026-11-02. Task F07-T39 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 Utilizatorul precizeaza explicit ca lista de categorii trebuie editabila si sa detina regula de ore din F07-T38. Implementarea anterioara facuse editabile numai tipurile.
 

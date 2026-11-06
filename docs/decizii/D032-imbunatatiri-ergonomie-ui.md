@@ -1,6 +1,6 @@
 # D032 · Îmbunătățiri de ergonomie în interfață: bară de inspecție a celulei, Undo/Redo în pontaj, coloană T fixă, filtre de secțiune și selector de limbă
 
-Stare: propusă · Data: 2026-10-26 · Propunere: Antigravity · Legat de: F08-T08, I032, I033, I034, I035, I036, I037
+Stare: acceptată · Data: 2026-10-26 · Propunere: Antigravity · Legat de: F08-T08, I032, I033, I034, I035, I036, I037 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 ## Context
 

@@ -1210,6 +1210,7 @@ export namespace datebaza {
 	export class RandImportAngajat {
 	    nume: string;
 	    prenume: string;
+	    prefix_import: string;
 	    marca: string;
 	    functie: string;
 	    sectie: string;
@@ -1219,6 +1220,8 @@ export namespace datebaza {
 	    concediu_zile_an?: number;
 	    valid: boolean;
 	    mesaj_eroare: string;
+	    cod_eroare?: string;
+	    param_eroare?: Record<string, string>;
 	    exista_deja: boolean;
 
 	    static createFrom(source: any = {}) {
@@ -1229,6 +1232,7 @@ export namespace datebaza {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.nume = source["nume"];
 	        this.prenume = source["prenume"];
+	        this.prefix_import = source["prefix_import"];
 	        this.marca = source["marca"];
 	        this.functie = source["functie"];
 	        this.sectie = source["sectie"];
@@ -1238,6 +1242,8 @@ export namespace datebaza {
 	        this.concediu_zile_an = source["concediu_zile_an"];
 	        this.valid = source["valid"];
 	        this.mesaj_eroare = source["mesaj_eroare"];
+	        this.cod_eroare = source["cod_eroare"];
+	        this.param_eroare = source["param_eroare"];
 	        this.exista_deja = source["exista_deja"];
 	    }
 	}

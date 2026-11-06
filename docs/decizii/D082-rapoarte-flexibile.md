@@ -1,6 +1,8 @@
 # D082 - Rapoarte SQL, formule si aspect configurabil
 
-Stare: propusa. Data: 2026-11-02. Taskuri F09-T13/F09-T14. Responsabil Codex.
+Stare: acceptată. Data: 2026-11-02. Taskuri F09-T13/F09-T14. Responsabil Codex · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
+
+Aspectul (Markdown, poziționare liberă, desenarea gofpdf) este înlocuit de [D087](D087-rapoarte-sql-pdfme.md) și a fost șters în F09-T23; restul rămâne valabil.
 
 ## Cerinta si confirmari
 

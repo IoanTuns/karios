@@ -1,6 +1,6 @@
 # D016 · Prima grilă de pontaj și schițele persistente
 
-Stare: propusă · Data: 2026-10-25 · Taskuri: F08-T01
+Stare: acceptată · Data: 2026-10-25 · Taskuri: F08-T01 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 ## Context
 

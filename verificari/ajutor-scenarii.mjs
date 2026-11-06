@@ -87,12 +87,21 @@ export async function verificaAjutor({cdp,evalueaza,asteapta,completeaza,apasa,c
     await evalueaza("document.querySelector('.buton-drawer-ai').click()");
     await asteapta(()=>evalueaza("document.querySelectorAll('.continut-drawer-ai .bula-mesaj .legatura').length>=3"),'Citari drawer lipsa.');
     const perioadaInainte = await evalueaza("document.querySelector('.grila-pontaj').getAttribute('aria-label')");
+    // Din F16-T31 parasirea cu modificari nesalvate trece prin DialogParasire, nu prin window.confirm (I117).
+    const titluParasire=JSON.stringify(t('ux30.parasire'));
+    const dialogParasire="[...document.querySelectorAll('dialog[open]')].some(d=>d.textContent.includes("+titluParasire+"))";
     await evalueaza("window.__confirmOriginal=window.confirm;window.__confirmari=0;window.confirm=()=>{window.__confirmari++;return false}");
     await evalueaza("document.querySelector('.buton-deschide-pontaj').click()");
+    await asteapta(()=>evalueaza(dialogParasire),'Deschiderea in Pontaj din AI nu cere confirmarea.');
+    await apasa(t('ux30.ramai'));
+    await asteapta(()=>evalueaza("!"+dialogParasire),'Ramai nu inchide dialogul.');
     assert.equal(await evalueaza("document.querySelector('.grila-pontaj').getAttribute('aria-label')"),perioadaInainte,'Refuzul a schimbat perioada.');
     await evalueaza("[...document.querySelectorAll('.continut-drawer-ai button')].find(b=>b.textContent.includes("+JSON.stringify(t('ai.deschide_formular_concediu'))+")).click()");
+    await asteapta(()=>evalueaza(dialogParasire),'Formularul de concediu din AI nu cere confirmarea.');
+    await apasa(t('ux30.ramai'));
+    await asteapta(()=>evalueaza("!"+dialogParasire),'Ramai nu inchide dialogul.');
     assert(await evalueaza("Boolean(document.querySelector('.grila-pontaj'))"),'Refuzul a parasit Pontajul.');
-    assert.equal(await evalueaza("window.__confirmari"),2,'Navigarea AI ocoleste confirmarile.');
+    assert.equal(await evalueaza("window.__confirmari"),0,'Navigarea AI a folosit confirm in locul dialogului.');
     assert.equal(await evalueaza("document.querySelector('.grila-pontaj tbody input').value"),'7','Navigarea a pierdut modificarea.');
     await evalueaza("window.confirm=window.__confirmOriginal");
     await apasa(t('ajutor.citire').replace('{{id}}','absente.inregistreaza'));

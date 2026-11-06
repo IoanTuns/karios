@@ -1,6 +1,6 @@
 # D058 · Manualele în livrarea fiecărei versiuni
 
-Stare: propusă. Propusă de: Codex, 2026-10-30. F02-T18. Cerința utilizatorului: manualele se regenerează și se marchează pentru fiecare versiune și se salvează împreună cu executabilul.
+Stare: acceptată. Propusă de: Codex, 2026-10-30. F02-T18. Cerința utilizatorului: manualele se regenerează și se marchează pentru fiecare versiune și se salvează împreună cu executabilul · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 Sursa Markdown se păstrează în repo, împreună cu ediția și versiunea revizuită editorial în JSON. Buildul refuză o sursă nerevizuită pentru versiunea curentă și produce documente noi MD/HTML/PDF cu versiune, commit, data buildului și ediție. Manifestul păstrează identitatea și hashurile. Nu se declară livrare completă dacă lipsește un format.
 

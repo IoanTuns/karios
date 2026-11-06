@@ -1,6 +1,6 @@
 # D069 - Prioritatea absentelor
 
-Stare: propusa. Responsabil: Codex. Task: F07-T33.
+Stare: acceptată. Responsabil: Codex. Task: F07-T33 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 Regula functionala a fost confirmata explicit de utilizator: toate concediile numai in zile lucratoare; medical > alte concedii > program; anularea intregii ture de noapte suprapuse si a programelor tuturor marcilor asociate explicit persoanei.
 

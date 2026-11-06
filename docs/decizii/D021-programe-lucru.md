@@ -1,6 +1,6 @@
 # D021 · Programe de lucru și intrarea în zile libere
 
-Stare: propusă · Data: 2026-10-25 · Task: F07-T10
+Stare: acceptată · Data: 2026-10-25 · Task: F07-T10 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 Ioan Tuns a precizat programele reale: 07–14, 15–22, 22–07. Pentru weekenduri/sărbători se începe în seara anterioară cu 22–07, cu statut special și cod separat, apoi schimburi de 12/24 ore. La clarificare a răspuns „da” pentru începutul în seara precedentă și exemplele 07–19, 19–07, gardă 07–07, respectiv „ok” pentru codurile Z7/S7/N9/IN9 și evidențierea separată. Nu a precizat reguli suplimentare de plată.
 

@@ -230,7 +230,7 @@ func AnalizeazaComandaGrup(mesaj string, info ContextPontix) (RaspunsAsistent, b
 	nume := make([]any, len(grup.angajati))
 	for i, a := range grup.angajati {
 		marci[i] = a.Marca
-		nume[i] = strings.TrimSpace(a.Nume+" "+a.Prenume) + " (" + a.Marca + ")"
+		nume[i] = numeAfisat(a) + " (" + a.Marca + ")"
 	}
 	denumire := schimb.Cod
 	if schimb.Denumire != "" {

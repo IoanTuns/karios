@@ -1,6 +1,6 @@
 # D072 - Tipuri si regimuri de program configurabile
 
-Stare: propusa. Codex, 2026-10-31. F07-T35.
+Stare: acceptată. Codex, 2026-10-31. F07-T35 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 Utilizatorul solicita eliminarea General/anterior si configurarea tipurilor/regimurilor, cu pastrarea legaturilor. General se migreaza la regimul normal LUCRATOARE; tipul NORMAL/TURA/NOAPTE/GARDA este independent si se pastreaza.
 

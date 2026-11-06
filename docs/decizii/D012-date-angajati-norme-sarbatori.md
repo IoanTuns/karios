@@ -1,6 +1,6 @@
 # D012 · Datele angajaților, normele și sărbătorile anuale
 
-Stare: propusă · Data: 2026-10-25 · Taskuri: F07-T06, F07-T01, F07-T03
+Stare: acceptată · Data: 2026-10-25 · Taskuri: F07-T06, F07-T01, F07-T03 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 ## Cerințe confirmate
 

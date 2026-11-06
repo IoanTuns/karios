@@ -1,6 +1,6 @@
 # D051 · Programele speciale introduse manual în Pontaj
 
-Stare: propusă. Propusă de: Codex, 2026-10-29. Task F07-T21, cerere Ioan Tuns privind modificarea normal → S7 care nu apare în Planificare.
+Stare: acceptată. Propusă de: Codex, 2026-10-29. Task F07-T21, cerere Ioan Tuns privind modificarea normal → S7 care nu apare în Planificare · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 Salvarea din ecranul Pontaj actualizează în aceeași tranzacție poziția de planificare pentru programele speciale, după clasificarea existentă. Pentru schimbarea între secțiuni se dezactivează poziția veche și se creează alta. Revenirea la normal/gol dezactivează numai o poziție care corespunde programului anterior din celulă. O planificare independentă divergentă nu este suprascrisă: o nouă tură specială incompatibilă este refuzată.
 

@@ -210,6 +210,7 @@ func (a *App) interogheazaAI(ctx context.Context, cerere CerereInterogareAI) Ras
 				Prenume:     ang.Prenume,
 				Marca:       ang.Marca,
 				Functie:     ang.Functie,
+				Prefix:      ang.Prefix.In(i18n.Romana),
 				Sectie:      numeSectii[ang.SectieID],
 				Categorie:   numeCategorii[ang.CategorieProgramID],
 				Departament: numeDepartamente[ang.DepartamentID],

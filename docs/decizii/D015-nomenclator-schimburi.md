@@ -1,6 +1,6 @@
 # D015 · Nomenclatorul configurabil de schimburi
 
-Stare: propusă · Data: 2026-10-25 · Taskuri: F07-T02
+Stare: acceptată · Data: 2026-10-25 · Taskuri: F07-T02 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 ## Cerință
 
