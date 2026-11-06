@@ -7,7 +7,7 @@ import {notifica} from './Toast';
 import {main} from '../wailsjs/go/models';
 
 import cheiPdfme from './cheiPdfme.json';
-import {areStiluri, INTRARE_STILURI, tabelCuStiluri, variantaNecesare, type StiluriTabel} from './pdfmeTabel';
+import {areStiluri, INTRARE_STILURI, tabelCuStiluri, TITLURI_DIN_RAPORT, variantaNecesare, type StiluriTabel} from './pdfmeTabel';
 
 // Tipurile de elemente, in ordinea din bara editorului; numele afisate vin din cataloage (UIR-11).
 export const TIPURI_PDFME = ['text', 'multiVariableText', 'table', 'image', 'line', 'rectangle', 'ellipse'] as const;
@@ -116,7 +116,8 @@ export function stiluriDinIntrari(intrari: Record<string, string>): Record<strin
     if (!text) return {};
     try {
         const v = JSON.parse(text) as StiluriTabel;
-        return areStiluri(v) ? {[TABEL_PDFME]: v} : {};
+        // Titlurile singure conteaza doar pentru tabelele marcate pontixTitluri.
+        return areStiluri(v) || v.titluri?.length ? {[TABEL_PDFME]: v} : {};
     } catch {
         return {};
     }
@@ -174,7 +175,11 @@ function dinPlugin(plugin: {propPanel: {defaultSchema: SchemaPdfme}}, extra: Sch
 
 // sablonDinColoane face un sablon de pornire: antet in trei zone, titlu,
 // tabelul cu coloanele SQL si subsol cu numarul paginii pe fiecare pagina.
-export async function sablonDinColoane(coloane: ColoanaSablon[], pagina: PaginaRaport, textPagina: string, nume: NumeElementeSablon = {}): Promise<string> {
+// Optiuni pentru modelele predefinite (D090): ponderile coloanelor din raportul
+// standard si titlurile coloanelor luate din raport, in limba lui.
+export interface OptiuniSablon {ponderi?: number[]; titluriDinRaport?: boolean; stilClasic?: boolean}
+
+export async function sablonDinColoane(coloane: ColoanaSablon[], pagina: PaginaRaport, textPagina: string, nume: NumeElementeSablon = {}, optiuni: OptiuniSablon = {}): Promise<string> {
     const p = await pluginuriPdfme();
     const text = p.text, table = p.table;
     const n = (k: keyof NumeElementeSablon, implicit: string) => nume[k] || implicit;
@@ -192,7 +197,8 @@ export async function sablonDinColoane(coloane: ColoanaSablon[], pagina: PaginaR
         textFix(n('antet_dreapta', 'antet_dreapta_txt'), '{antet_dreapta}', m + 2 * treime, m, treime, 'right'),
         textFix(n('titlu', 'titlu_txt'), '{titlu}', m, m + 10, util, 'center', {height: 10, fontSize: font + 5, fontName: 'GoBold'}),
     ];
-    const latime = coloane.length ? 100 / coloane.length : 100;
+    const ponderi = optiuni.ponderi && optiuni.ponderi.length === coloane.length ? optiuni.ponderi : coloane.map(() => 1);
+    const totalPonderi = ponderi.reduce((a, b) => a + b, 0) || 1;
     const tabel = dinPlugin(table as never, {
         name: TABEL_PDFME,
         position: {x: m, y: m + 24},
@@ -201,12 +207,25 @@ export async function sablonDinColoane(coloane: ColoanaSablon[], pagina: PaginaR
         showHead: true,
         repeatHead: true,
         head: coloane.map(titluColoana),
-        headWidthPercentages: coloane.map(() => latime),
+        headWidthPercentages: ponderi.map(p => (p * 100) / totalPonderi),
         content: JSON.stringify([coloane.map(() => '')]),
         [COLOANE_SQL]: coloane.map(c => c.cod),
+        ...(optiuni.titluriDinRaport ? {[TITLURI_DIN_RAPORT]: true} : {}),
     });
+    // Spatiere mica pentru tabelele cu multe coloane (zilele lunii), ca textul sa incapa.
+    const spatiu = coloane.length > 12 ? 0.8 : 2;
+    const padding = {top: spatiu, right: spatiu, bottom: spatiu, left: spatiu};
     for (const [cheie, fontName] of [['headStyles', 'GoBold'], ['bodyStyles', 'Go']] as const) {
-        tabel[cheie] = {...(tabel[cheie] as object), fontName, fontSize: font};
+        tabel[cheie] = {...(tabel[cheie] as object), fontName, fontSize: font, padding};
+    }
+    // Zilele (z01-z31) se centreaza, ca in raportul standard.
+    const centrate = Object.fromEntries(coloane.map((c, i) => [i, c.cod]).filter(([, cod]) => /^z\d{2}$/.test(String(cod))).map(([i]) => [i, 'center']));
+    if (Object.keys(centrate).length) tabel.columnStyles = {...(tabel.columnStyles as object), alignment: centrate};
+    if (optiuni.stilClasic) {
+        // Aspectul raportului standard vechi: cap gri-verzui cu text negru, fara alternanta, chenare gri.
+        tabel.headStyles = {...(tabel.headStyles as object), backgroundColor: '#E7EFEA', fontColor: '#000000', borderColor: '#8C9690', borderWidth: {top: 0.15, right: 0.15, bottom: 0.15, left: 0.15}};
+        tabel.bodyStyles = {...(tabel.bodyStyles as object), alternateBackgroundColor: '', borderColor: '#8C9690', borderWidth: {top: 0.15, right: 0.15, bottom: 0.15, left: 0.15}};
+        tabel.tableStyles = {borderColor: '#8C9690', borderWidth: 0.15};
     }
     const jos = H - m - 6;
     const staticSchema = [

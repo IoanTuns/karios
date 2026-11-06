@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"io"
 	"math"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -151,32 +152,81 @@ func DatePdfme(d Document) (map[string]string, error) {
 // Indicii sunt in tot corpul tabelului; celulele au cheia "rand:coloana".
 const IntrareStiluriPdfme = "pontix_stiluri"
 
-type stiluriTabelPdfme struct {
-	Cap     *StilText           `json:"cap,omitempty"`
-	Corp    *StilText           `json:"corp,omitempty"`
-	Randuri map[string]StilText `json:"randuri,omitempty"`
-	Celule  map[string]StilText `json:"celule,omitempty"`
+// stilPdfme este stilul trimis desenarii tabelului; pe langa StilText are fundalul.
+type stilPdfme struct {
+	Aldin    *bool   `json:"aldin,omitempty"`
+	Cursiv   *bool   `json:"cursiv,omitempty"`
+	FontPT   float64 `json:"font_pt,omitempty"`
+	Aliniere string  `json:"aliniere,omitempty"`
+	Fundal   string  `json:"fundal,omitempty"`
 }
 
+func dinStilText(s StilText) stilPdfme {
+	return stilPdfme{Aldin: s.Aldin, Cursiv: s.Cursiv, FontPT: s.FontPT, Aliniere: s.Aliniere}
+}
+
+type stiluriTabelPdfme struct {
+	Cap        *stilPdfme           `json:"cap,omitempty"`
+	Corp       *stilPdfme           `json:"corp,omitempty"`
+	CapColoane map[string]stilPdfme `json:"cap_coloane,omitempty"`
+	Randuri    map[string]stilPdfme `json:"randuri,omitempty"`
+	Celule     map[string]stilPdfme `json:"celule,omitempty"`
+	// Ascunse: coloanele zilelor care nu exista in luna raportului (z29-z31).
+	Ascunse []int `json:"ascunse,omitempty"`
+	// Titluri: titlurile coloanelor in limba raportului; desenarea le foloseste
+	// doar pentru tabelele marcate pontixTitluri (modelele predefinite, D090).
+	Titluri []string `json:"titluri,omitempty"`
+}
+
+// Culorile motorului vechi (pdf.go), ca PDF-ul pdfme sa arate la fel.
+var culoriPdfme = map[string]string{"WEEKEND": "#E7EAE7", "SARBATOARE": "#FFF0C7", "ABSENTA": "#DFEFE4"}
+
+const fundalGrupPdfme = "#E7EFEA"
+
+var coloanaZi = regexp.MustCompile(`^z(\d{2})$`)
+
 func stiluriPdfme(d Document) string {
-	st := stiluriTabelPdfme{Randuri: map[string]StilText{}, Celule: map[string]StilText{}}
+	st := stiluriTabelPdfme{CapColoane: map[string]stilPdfme{}, Randuri: map[string]stilPdfme{}, Celule: map[string]stilPdfme{}}
 	aldin := true
 	for i, r := range d.Randuri {
-		if r.Aldin {
-			st.Randuri[strconv.Itoa(i)] = StilText{Aldin: &aldin}
+		switch {
+		case r.Grup:
+			st.Randuri[strconv.Itoa(i)] = stilPdfme{Aldin: &aldin, Fundal: fundalGrupPdfme}
+		case r.Aldin:
+			st.Randuri[strconv.Itoa(i)] = stilPdfme{Aldin: &aldin}
+		}
+		for j, c := range r.Culori {
+			if f := culoriPdfme[c]; f != "" && j < len(d.Coloane) {
+				st.Celule[strconv.Itoa(i)+":"+strconv.Itoa(j)] = stilPdfme{Fundal: f}
+			}
 		}
 	}
 	indice := map[string]int{}
+	areTitluri := false
 	for j, c := range d.Coloane {
 		indice[c.Cod] = j
+		if f := culoriPdfme[c.Culoare]; f != "" {
+			st.CapColoane[strconv.Itoa(j)] = stilPdfme{Fundal: f}
+		}
+		if m := coloanaZi.FindStringSubmatch(c.Cod); m != nil && d.zileLuna > 0 {
+			if n, _ := strconv.Atoi(m[1]); n > d.zileLuna {
+				st.Ascunse = append(st.Ascunse, j)
+			}
+		}
+		areTitluri = areTitluri || c.Titlu != ""
+	}
+	if areTitluri {
+		for _, c := range d.Coloane {
+			st.Titluri = append(st.Titluri, c.Titlu)
+		}
 	}
 	for k, v := range d.Stiluri {
-		v := v
+		sp := dinStilText(v)
 		switch {
 		case k == "tabel":
-			st.Corp = &v
+			st.Corp = &sp
 		case k == "antet_tabel":
-			st.Cap = &v
+			st.Cap = &sp
 		case strings.HasPrefix(k, "celula:"):
 			parti := strings.SplitN(k, ":", 3)
 			if len(parti) != 3 {
@@ -187,10 +237,13 @@ func stiluriPdfme(d Document) string {
 			if err != nil || !ok || i < 0 || i >= len(d.Randuri) {
 				continue
 			}
-			st.Celule[parti[1]+":"+strconv.Itoa(j)] = v
+			cheie := parti[1] + ":" + strconv.Itoa(j)
+			// Editarea pastreaza fundalul calculat al celulei (weekend, absenta).
+			sp.Fundal = st.Celule[cheie].Fundal
+			st.Celule[cheie] = sp
 		}
 	}
-	if st.Cap == nil && st.Corp == nil && len(st.Randuri) == 0 && len(st.Celule) == 0 {
+	if st.Cap == nil && st.Corp == nil && len(st.CapColoane) == 0 && len(st.Randuri) == 0 && len(st.Celule) == 0 && len(st.Ascunse) == 0 && len(st.Titluri) == 0 {
 		return ""
 	}
 	b, err := json.Marshal(st)

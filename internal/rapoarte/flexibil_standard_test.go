@@ -146,3 +146,18 @@ func TestTabelStandardReordonatPastreazaCulorile(t *testing.T) {
 		t.Fatalf("culori pierdute: %q", nou.Randuri[0].Culori)
 	}
 }
+
+func TestCompleteazaZileLunaScurta(t *testing.T) {
+	cols := []string{"rand", "angajat", "z01", "z28", "total"}
+	rows := [][]any{{0, "A", "8", "8", "16"}}
+	c, r := completeazaZile(cols, rows)
+	if strings.Join(c, ",") != "rand,angajat,z01,z28,z29,z30,z31,total" {
+		t.Fatalf("coloane: %v", c)
+	}
+	if len(r[0]) != 8 || r[0][4] != nil || r[0][7] != "16" {
+		t.Fatalf("rand: %v", r[0])
+	}
+	if c2, _ := completeazaZile([]string{"rand", "data"}, nil); len(c2) != 2 {
+		t.Fatal("tabel fara zile modificat")
+	}
+}

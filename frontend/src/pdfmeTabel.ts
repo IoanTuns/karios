@@ -19,9 +19,18 @@ export interface StilCelula {
 export interface StiluriTabel {
     cap?: StilCelula;
     corp?: StilCelula;
+    // Stilul capului fiecarei coloane (culoarea zilelor de weekend/sarbatoare).
+    cap_coloane?: Record<string, StilCelula>;
     randuri?: Record<string, StilCelula>;
     celule?: Record<string, StilCelula>;
+    // Coloanele zilelor inexistente in luna (z29-z31); se scot din tabel (D090).
+    ascunse?: number[];
+    // Titlurile coloanelor in limba raportului, pentru tabelele marcate pontixTitluri.
+    titluri?: string[];
 }
+
+// Proprietatea din sablon care cere titlurile coloanelor din raport (modelele predefinite).
+export const TITLURI_DIN_RAPORT = 'pontixTitluri';
 
 export const INTRARE_STILURI = 'pontix_stiluri';
 
@@ -68,7 +77,7 @@ export function numeVarianta(nume: string | undefined, aldin: boolean, cursiv: b
 // fonturiNecesare: variantele aldin/cursiv de care are nevoie tabelul, ca sa
 // poata fi incarcate inainte de generare (fonturile Windows se incarca la cerere).
 export function variantaNecesare(fonturiTabel: string[], stiluri: StiluriTabel): string[] {
-    const toate = [stiluri.cap, stiluri.corp, ...Object.values(stiluri.randuri || {}), ...Object.values(stiluri.celule || {})].filter(Boolean) as StilCelula[];
+    const toate = [stiluri.cap, stiluri.corp, ...Object.values(stiluri.cap_coloane || {}), ...Object.values(stiluri.randuri || {}), ...Object.values(stiluri.celule || {})].filter(Boolean) as StilCelula[];
     const rez = new Set<string>();
     for (const f of fonturiTabel) {
         if (VARIANTE_GO[f]) continue;
@@ -83,7 +92,15 @@ export function variantaNecesare(fonturiTabel: string[], stiluri: StiluriTabel):
 }
 
 export function areStiluri(s?: StiluriTabel | null): boolean {
-    return !!s && !!(s.cap || s.corp || Object.keys(s.randuri || {}).length || Object.keys(s.celule || {}).length);
+    return !!s && !!(s.cap || s.corp || Object.keys(s.cap_coloane || {}).length || Object.keys(s.randuri || {}).length || Object.keys(s.celule || {}).length || s.ascunse?.length);
+}
+
+// coloaneVizibile da indicii coloanelor desenate si latimile lor in mm: cele
+// ascunse dispar, iar restul isi pastreaza proportiile pe toata latimea tabelului.
+export function coloaneVizibile(procente: number[], latimeTabel: number, ascunse: number[] = []): {indici: number[]; latimi: number[]} {
+    const indici = procente.map((_, i) => i).filter(i => !ascunse.includes(i));
+    const total = indici.reduce((a, i) => a + (procente[i] || 0), 0) || 1;
+    return {indici, latimi: indici.map(i => (latimeTabel * (procente[i] || 0)) / total)};
 }
 
 // stilFinal combina stilul pdfme al celulei cu stilurile Pontix, in ordinea
@@ -99,6 +116,9 @@ export function stilFinal(baza: CellStyle, straturi: (StilCelula | undefined)[],
         if (s.aliniere && ALINIERI[s.aliniere]) rez.alignment = ALINIERI[s.aliniere];
         if (s.fundal) rez.backgroundColor = s.fundal;
     }
+    // Un fundal deschis peste un text alb (de exemplu capul albastru implicit) ar
+    // face textul ilizibil: textul trece pe negru.
+    if (rez.backgroundColor && rez.backgroundColor !== baza.backgroundColor && luminozitate(rez.backgroundColor) > 0.6 && luminozitate(rez.fontColor) > 0.6) rez.fontColor = '#000000';
     if (aldin !== undefined || cursiv !== undefined) {
         const go = baza.fontName ? VARIANTE_GO[baza.fontName] : undefined;
         const eraAldin = !!baza.fontName && (/Bold/.test(baza.fontName) || go?.[1] === baza.fontName);
@@ -106,6 +126,14 @@ export function stilFinal(baza: CellStyle, straturi: (StilCelula | undefined)[],
         rez.fontName = numeVarianta(baza.fontName, aldin ?? eraAldin, cursiv ?? eraCursiv, fonturi);
     }
     return rez;
+}
+
+// luminozitate relativa aproximativa a unei culori #rrggbb (0 negru, 1 alb).
+export function luminozitate(culoare: string): number {
+    const m = /^#?([0-9a-f]{6})/i.exec(culoare || '');
+    if (!m) return 0;
+    const n = parseInt(m[1], 16);
+    return (0.299 * ((n >> 16) & 255) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) / 255;
 }
 
 function cutie(v: unknown, implicit = 0): Box {
@@ -147,7 +175,8 @@ export function tabelCuStiluri(original: Plugin, desenatori: Desenatori, inaltim
         const st = stiluri[arg.schema.name];
         const schema = arg.schema as TabelSchema;
         const imagini = Object.values(schema.columnStyles?.cellType || {}).includes('image');
-        if (!areStiluri(st) || imagini) return original.pdf(arg);
+        const titluri = (schema as unknown as Record<string, unknown>)[TITLURI_DIN_RAPORT] === true && (st?.titluri?.length ?? 0) === schema.head.length ? st!.titluri! : null;
+        if ((!areStiluri(st) && !titluri) || imagini) return original.pdf(arg);
         const fonturi = (arg.options?.font || {}) as Font;
         const corp: string[][] = (() => { try { const v = JSON.parse(typeof arg.value === 'string' ? arg.value : JSON.stringify(arg.value ?? [])); return Array.isArray(v) ? v.map((r: unknown[]) => (Array.isArray(r) ? r.map(c => String(c ?? '')) : [])) : []; } catch { return []; } })();
         const range = interval(schema);
@@ -160,7 +189,8 @@ export function tabelCuStiluri(original: Plugin, desenatori: Desenatori, inaltim
         const nCap = cap ? 1 : 0;
         const inaltimiCap = cap ? h.slice(0, 1) : [];
         const inaltimiCorp = cap ? h.slice(1) : h.slice(1);
-        const latimi = schema.headWidthPercentages.map(p => (schema.width * p) / 100);
+        const {indici, latimi} = coloaneVizibile(schema.headWidthPercentages, schema.width, st?.ascunse);
+        const cap0 = titluri ?? schema.head;
         const coloana = (cs: CellStyle, i: number): CellStyle => ({...cs,
             alignment: schema.columnStyles?.alignment?.[i] ?? cs.alignment,
             verticalAlignment: schema.columnStyles?.verticalAlignment?.[i] ?? cs.verticalAlignment});
@@ -169,9 +199,10 @@ export function tabelCuStiluri(original: Plugin, desenatori: Desenatori, inaltim
         const d = desenatori;
         if (nCap) {
             let x = x0;
-            for (let c = 0; c < latimi.length; c++) {
-                await deseneazaCelula(arg, d, schema.head[c] ?? '', x, y, latimi[c], inaltimiCap[0], stilFinal(coloana(schema.headStyles, c), [st!.cap], fonturi));
-                x += latimi[c];
+            for (let k = 0; k < indici.length; k++) {
+                const c = indici[k];
+                await deseneazaCelula(arg, d, cap0[c] ?? '', x, y, latimi[k], inaltimiCap[0], stilFinal(coloana(schema.headStyles, c), [st?.cap, st?.cap_coloane?.[String(c)]], fonturi));
+                x += latimi[k];
             }
             y += inaltimiCap[0];
         }
@@ -182,10 +213,11 @@ export function tabelCuStiluri(original: Plugin, desenatori: Desenatori, inaltim
             // Randurile pare (in tot tabelul) primesc fundalul alternant, ca in pdfme.
             const bazaRand = {...schema.bodyStyles, backgroundColor: g % 2 === 0 && alternant ? alternant : schema.bodyStyles.backgroundColor};
             let x = x0;
-            for (let c = 0; c < latimi.length; c++) {
-                const s = stilFinal(coloana(bazaRand, c), [st!.corp, st!.randuri?.[String(g)], st!.celule?.[g + ':' + c]], fonturi);
-                await deseneazaCelula(arg, d, randuri[r][c] ?? '', x, y, latimi[c], hr, s);
-                x += latimi[c];
+            for (let k = 0; k < indici.length; k++) {
+                const c = indici[k];
+                const s = stilFinal(coloana(bazaRand, c), [st?.corp, st?.randuri?.[String(g)], st?.celule?.[g + ':' + c]], fonturi);
+                await deseneazaCelula(arg, d, randuri[r][c] ?? '', x, y, latimi[k], hr, s);
+                x += latimi[k];
             }
             y += hr;
         }

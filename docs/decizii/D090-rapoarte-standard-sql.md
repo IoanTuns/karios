@@ -15,6 +15,10 @@ D087 cere ca toate rapoartele să fie generate din SQL, cu calculele rămase în
 5. **Modelele predefinite** (faza 2): câte un model SQL pentru fiecare sursă standard, cu șablon pdfme, adăugat prin migrare. Modelele vechi rămân până la conversia din F09-T23.
 6. **Coloanele zilelor** în PDF (faza 2): Go trimite în `pontix_stiluri` indicii coloanelor `z29`…`z31` inexistente în luna raportului, iar desenarea tabelului le scoate și redistribuie lățimile. Culorile de pe coloane și celule se trimit tot prin `pontix_stiluri`.
 
+## Implementare (0.92.38-0.92.39)
+
+Punctele 1-6 sunt implementate in F09-T21. Modelele predefinite se numesc „... (editor vizual)” si sunt generate reproductibil din modelele initiale, fara imaginile din antet/subsol. Titlurile coloanelor se iau din raport doar pentru tabelele marcate `pontixTitluri`, ca un cap editat de utilizator sa ramana al lui.
+
 ## Variante respinse
 
 - **Calculul rescris în SQL** (norma, totalurile pe reguli configurate, gărzile): ar duplica reguli de pontaj în afara `internal/calcul` și a testelor de referință.

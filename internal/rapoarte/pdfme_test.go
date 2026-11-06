@@ -164,8 +164,13 @@ func TestFinalizeazaPdfmeRefuzaDateInvalide(t *testing.T) {
 
 func TestDatePdfmeStiluriPeRandSiCelula(t *testing.T) {
 	d := documentPdfmeTest(sablonPdfmeTest)
-	if _, ok := mustDate(t, d)[IntrareStiluriPdfme]; ok {
-		t.Fatal("fara stiluri nu se trimite intrarea de stiluri")
+	// Fara stiluri se trimit doar titlurile coloanelor (pentru sabloanele predefinite).
+	var gol stiluriTabelPdfme
+	if err := json.Unmarshal([]byte(mustDate(t, d)[IntrareStiluriPdfme]), &gol); err != nil {
+		t.Fatal(err)
+	}
+	if len(gol.Randuri)+len(gol.Celule)+len(gol.Ascunse)+len(gol.CapColoane) != 0 || gol.Cap != nil || gol.Corp != nil || len(gol.Titluri) != 2 {
+		t.Fatalf("fara stiluri: %+v", gol)
 	}
 	adevarat := true
 	d.Randuri[1].Aldin = true
@@ -186,7 +191,7 @@ func TestDatePdfmeStiluriPeRandSiCelula(t *testing.T) {
 	if len(st.Celule) != 1 || st.Celule["0:1"].Aliniere != "R" || st.Celule["0:1"].Cursiv == nil {
 		t.Fatalf("celule: %+v", st.Celule)
 	}
-	if st.Cap == nil || st.Cap.FontPT != 11 || st.Corp != nil {
+	if st.Cap == nil || st.Cap.FontPT != 11 || st.Corp != nil || len(st.Titluri) != 2 || st.Titluri[1] != "Ore" {
 		t.Fatalf("cap/corp: %+v %+v", st.Cap, st.Corp)
 	}
 }
@@ -198,4 +203,41 @@ func mustDate(t *testing.T, d Document) map[string]string {
 		t.Fatal(err)
 	}
 	return v
+}
+
+func TestDatePdfmeCuloriGrupuriSiZileInexistente(t *testing.T) {
+	d := documentPdfmeTest(strings.Replace(sablonPdfmeTest, `["Angajat","Ore"]`, `["Angajat","Ore","29","30","31"]`, 1))
+	d.Coloane = append(d.Coloane, Coloana{Cod: "z29", Titlu: "29", Culoare: "WEEKEND"}, Coloana{Cod: "z30", Titlu: "30"}, Coloana{Cod: "z31", Titlu: "31"})
+	for i := range d.Randuri {
+		d.Randuri[i].Valori = append(d.Randuri[i].Valori, "", "", "")
+	}
+	d.Randuri[0].Culori = []string{"", "ABSENTA", "WEEKEND", "", ""}
+	d.Randuri[1].Grup = true
+	d.zileLuna = 29 // februarie intr-un an bisect
+	var st stiluriTabelPdfme
+	if err := json.Unmarshal([]byte(mustDate(t, d)[IntrareStiluriPdfme]), &st); err != nil {
+		t.Fatal(err)
+	}
+	if st.Celule["0:1"].Fundal != "#DFEFE4" || st.Celule["0:2"].Fundal != "#E7EAE7" {
+		t.Fatalf("culori celule: %+v", st.Celule)
+	}
+	if st.Randuri["1"].Fundal != fundalGrupPdfme || st.Randuri["1"].Aldin == nil {
+		t.Fatalf("rand de grup: %+v", st.Randuri)
+	}
+	if st.CapColoane["2"].Fundal != "#E7EAE7" {
+		t.Fatalf("culoare coloana: %+v", st.CapColoane)
+	}
+	if len(st.Ascunse) != 2 || st.Ascunse[0] != 3 || st.Ascunse[1] != 4 {
+		t.Fatalf("zile ascunse: %v", st.Ascunse)
+	}
+	// O celula editata pastreaza fundalul calculat.
+	adevarat := true
+	d.Stiluri = map[string]StilText{"celula:0:ore": {Aldin: &adevarat}}
+	st = stiluriTabelPdfme{}
+	if err := json.Unmarshal([]byte(mustDate(t, d)[IntrareStiluriPdfme]), &st); err != nil {
+		t.Fatal(err)
+	}
+	if st.Celule["0:1"].Fundal != "#DFEFE4" || st.Celule["0:1"].Aldin == nil {
+		t.Fatalf("celula editata: %+v", st.Celule["0:1"])
+	}
 }

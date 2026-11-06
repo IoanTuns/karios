@@ -814,3 +814,7 @@ In rapoartele SQL, tabelul `angajati` are coloana `prefix`, iar coloana `angajat
 In rapoartele SQL puteti folosi acum rezultatul rapoartelor standard ca tabele: `pontaj_lunar`, `pontaj_detaliat`, `fisa_individuala` (cere un angajat ales), `absente_anuale` si `grafic_garzi`. Valorile sunt calculate exact ca in rapoartele standard; SQL-ul doar alege coloanele, ordinea si randurile. Zilele lunii sunt coloanele `z01` ... `z31` (in lunile mai scurte ultimele sunt goale).
 
 Exemplu: `SELECT rand, angajat, marca, z01, z02, z03 FROM pontaj_lunar ORDER BY rand`. Pastrati coloana `rand` si treceti-o la **Coloane ascunse**: asa raportul preia titlurile coloanelor, culorile de weekend si absenta, randurile de grup si explicatiile coloanelor.
+
+### Modelele standard in editorul vizual (0.92.39)
+
+In lista de modele apar cinci modele noi, cu „(editor vizual)” in nume: pontaj lunar, pontaj detaliat, fisa individuala, evidenta absentelor si grafic garzi. Dau aceleasi valori ca modelele vechi, dar pagina se poate schimba in editorul vizual, iar coloanele din SQL. Titlurile coloanelor apar in limba raportului, zilele de weekend si sarbatorile sunt colorate ca inainte, iar in lunile cu mai putin de 31 de zile coloanele in plus nu apar. Imaginile din antetul modelelor vechi nu sunt preluate; le puteti adauga ca imagine in editorul vizual. Modelele vechi raman disponibile pana la conversia lor.

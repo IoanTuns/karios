@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.39 - 2026-11-06
+
+F09-T21 faza 2 (D090): cinci modele predefinite noi, „... (editor vizual)”, pentru pontaj lunar, pontaj detaliat, fisa individuala, evidenta absentelor si grafic garzi, cu SQL pe tabelele calculate si sablon pdfme in aspectul clasic (migrarea 0033, generata reproductibil din modelele initiale). Valorile, titlurile si culorile sunt identice cu modelele vechi (testat RO/EN). In PDF-ul pdfme: titlurile coloanelor vin din raport in limba lui, culorile de weekend/sarbatoare/absenta si randurile de grup apar ca in raportul vechi, iar zilele 29-31 inexistente in luna se ascund cu latimile redistribuite. Tabelele calculate au mereu z01-z31. Sablonul de pornire foloseste spatiere mica la tabelele cu multe coloane si centreaza zilele; un fundal deschis peste text alb trece textul pe negru. Fisa individuala din SQL cere angajatul la generare. Modelele vechi raman pana la F09-T23. Raport flexibil 11. Manual 1.49.
+
 ## 0.92.38 - 2026-11-06
 
 F09-T21 faza 1 (D090 propusa): rapoartele standard sunt disponibile ca tabele calculate in SQL-ul rapoartelor flexibile: pontaj_lunar, pontaj_detaliat, fisa_individuala, absente_anuale, grafic_garzi. Calculul este cel al motorului vechi (extras in pregatesteStandard, fara schimbari); zilele sunt coloanele z01-z31. Cu coloana rand in rezultat, raportul preia titlurile, culorile de weekend/absenta, grupurile si legenda coloanelor alese. Echivalenta verificata pe toate cele cinci rapoarte. Rapoartele standard existente sunt neschimbate; raport flexibil 10. Manual 1.48.

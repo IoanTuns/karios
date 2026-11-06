@@ -125,6 +125,9 @@ function EditorModel({initial,configuratie,ocupat:salvareInCurs,eroare,inchide,s
     </form></Dialog>;
 }
 
+// Fisa individuala cere un angajat, si cand e folosita din SQL (tabelul fisa_individuala, D090).
+const ceAngajat=(m?:rapoarte.Definitie|null)=>m?.continut.sursa==='FISA_INDIVIDUALA'||/fisa_individuala/i.test(m?.continut.flexibil?.sql||'');
+
 export function GenerareRapoarte({date,initial,onPerioada}: {date: datebaza.Date;initial?:{an:number;luna:number};onPerioada?:(p:{an:number;luna:number})=>void}) {
     const {t,i18n} = useTranslation();
     const {configuratie,incarcare,eroare,setEroare,reincarca} = useModele();
@@ -165,7 +168,7 @@ export function GenerareRapoarte({date,initial,onPerioada}: {date: datebaza.Date
             <label>{t('rapoarte.limba')}<select name="limba_raport" value={selectie.limba} onChange={e => seteaza('limba',e.target.value)}><option value="ro">{t('rapoarte.ro')}</option><option value="en">{t('rapoarte.en')}</option></select></label>
             <label>{t('ui.sectie')}<select name="sectie_raport" value={selectie.sectie} onChange={e => seteaza('sectie',e.target.value)}><option value="">{t('ui.toate_sectiile')}</option>{date.sectii.map(s => <option key={s.id} value={s.id}>{denumireSectie(s,i18n.language)}</option>)}</select></label>
             <label>{t('ui.departament')}<select name="departament_raport" value={selectie.departament} onChange={e => seteaza('departament',e.target.value)}><option value="">{t('ui.toate_departamentele')}</option>{(date.departamente||[]).filter(d => !selectie.sectie || d.sectie_id===selectie.sectie).map(d => <option key={d.id} value={d.id}>{denumireDepartament(d,i18n.language)}</option>)}</select></label>
-            <label>{t('ui.angajat')}<select name="angajat_raport" required={model?.continut.sursa==='FISA_INDIVIDUALA'} value={selectie.angajat} onChange={e => seteaza('angajat',e.target.value)}><option value="">{t(model?.continut.sursa==='FISA_INDIVIDUALA'?'absente.alege_angajat':'absente.toti_angajatii')}</option>{persoaneRaport.map(a => <option key={a.id} value={a.id}>{numeAngajat(a)} · {a.marca}</option>)}</select></label>
+            <label>{t('ui.angajat')}<select name="angajat_raport" required={ceAngajat(model)} value={selectie.angajat} onChange={e => seteaza('angajat',e.target.value)}><option value="">{t(ceAngajat(model)?'absente.alege_angajat':'absente.toti_angajatii')}</option>{persoaneRaport.map(a => <option key={a.id} value={a.id}>{numeAngajat(a)} · {a.marca}</option>)}</select></label>
             <button className="buton primar" disabled={!model}>{t('rapoarte.genereaza')}</button>
             <button type="button" className="buton secundar" title={t('pontaj.export_excel_titlu')} disabled={ocupat||stareCopie.modificat||stareCopie.ocupat||!rezultat} onClick={exportaExcelPontaj}>📊 {t('pontaj.export_excel')}</button></fieldset></form>
             {!modele.length && <p className="fara-rezultate">{t('rapoarte.lista_goala')}</p>}<button className="legatura" disabled={ocupat||stareCopie.modificat||stareCopie.ocupat} onClick={() => { setRezultat(null);reincarca(); }}>{t('rapoarte.reincarca')}</button>

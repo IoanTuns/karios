@@ -3,6 +3,7 @@ package rapoarte
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -106,6 +107,7 @@ func (b *bazaRaport) adaugaStandard(ctx context.Context, tx *sql.Tx, c Cerere, t
 			}
 			randuri = append(randuri, rand)
 		}
+		cols, randuri = completeazaZile(cols, randuri)
 		if err := b.adauga(ctx, t.Tabel, cols, randuri); err != nil {
 			return err
 		}
@@ -122,6 +124,11 @@ func aplicaMetadateStandard(doc *Document, b *bazaRaport) {
 		return
 	}
 	s := b.standard[0]
+	if an, e1 := strconv.Atoi(doc.VariabileRaport["an"]); e1 == nil {
+		if luna, e2 := strconv.Atoi(doc.VariabileRaport["luna"]); e2 == nil && luna >= 1 && luna <= 12 {
+			doc.zileLuna = time.Date(an, time.Month(luna)+1, 0, 0, 0, 0, 0, time.UTC).Day()
+		}
+	}
 	idxRand := -1
 	for j, c := range doc.Coloane {
 		if c.Cod == "rand" {
@@ -181,4 +188,34 @@ func textFolositSQL(f *RaportFlexibil, sqlText string) string {
 		}
 	}
 	return strings.Join(parti, "\n")
+}
+
+var codZi = regexp.MustCompile(`^z(\d{2})$`)
+
+// completeazaZile adauga coloanele z29-z31 lipsa in lunile mai scurte, goale,
+// imediat dupa ultima zi, ca un SQL salvat sa mearga in orice luna (D090).
+func completeazaZile(cols []string, randuri [][]any) ([]string, [][]any) {
+	ultima, maxZi := -1, 0
+	for j, c := range cols {
+		if m := codZi.FindStringSubmatch(c); m != nil {
+			n, _ := strconv.Atoi(m[1])
+			ultima = j
+			if n > maxZi {
+				maxZi = n
+			}
+		}
+	}
+	if ultima < 0 || maxZi >= 31 {
+		return cols, randuri
+	}
+	lipsa := []string{}
+	for n := maxZi + 1; n <= 31; n++ {
+		lipsa = append(lipsa, fmt.Sprintf("z%02d", n))
+	}
+	noi := append(append(append([]string{}, cols[:ultima+1]...), lipsa...), cols[ultima+1:]...)
+	for i, r := range randuri {
+		goale := make([]any, len(lipsa))
+		randuri[i] = append(append(append([]any{}, r[:ultima+1]...), goale...), r[ultima+1:]...)
+	}
+	return noi, randuri
 }

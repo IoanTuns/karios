@@ -27,8 +27,13 @@ func TestRaportCacheTokenSiPDF(t *testing.T) {
 	}
 	a := NewApp(db)
 	modele := a.ListaModeleRapoarte()
-	if modele.Eroare != nil || len(modele.Configuratie.Modele) != 5 {
+	// Cinci modele standard si cinci modele predefinite SQL + pdfme (D090, migrarea 0033).
+	if modele.Eroare != nil || len(modele.Configuratie.Modele) != 10 {
 		t.Fatalf("modele: %+v", modele)
+	}
+	vizual := a.PregatesteRaport(rapoarte.Cerere{ModelID: "raport-pontaj-sql", An: 2026, Luna: 10, Limba: "ro"})
+	if vizual.Eroare != nil || !vizual.GenerarePdfme || vizual.Sablon == "" || vizual.Intrari["tabel"] == "" || vizual.PDF != "" {
+		t.Fatalf("model vizual: %+v", vizual.Eroare)
 	}
 	prima := a.PregatesteRaport(rapoarte.Cerere{ModelID: "raport-pontaj", An: 2026, Luna: 10, Limba: "ro"})
 	if prima.Eroare != nil || prima.Document == nil || prima.Token == "" {

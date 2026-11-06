@@ -58,7 +58,9 @@ type Document struct {
 	valoriRanduri []map[string]string
 	// legendaPentru reface legenda pentru un set de coloane (rapoartele standard
 	// folosite din SQL afiseaza doar explicatiile coloanelor alese, D090).
-	legendaPentru   func([]Coloana) []string
+	legendaPentru func([]Coloana) []string
+	// zileLuna: zilele lunii raportului, pentru ascunderea coloanelor z29-z31 (D090).
+	zileLuna        int
 	VariabileRaport map[string]string  `json:"variabile_raport,omitempty"`
 	Flexibil        *RaportFlexibil    `json:"flexibil,omitempty"`
 	Schema          []TabelRaport      `json:"schema,omitempty"`

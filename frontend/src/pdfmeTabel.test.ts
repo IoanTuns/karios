@@ -17,7 +17,7 @@ vi.mock('../wailsjs/go/main/App', () => {
 vi.mock('./Toast', () => ({notifica: () => {}}));
 vi.mock('../wailsjs/go/models', () => ({main: {RaspunsRaport: class {}}}));
 
-import {areStiluri, numeVarianta, stilFinal, tabelCuStiluri, variantaNecesare} from './pdfmeTabel';
+import {areStiluri, coloaneVizibile, numeVarianta, stilFinal, tabelCuStiluri, variantaNecesare} from './pdfmeTabel';
 import {genereazaPdfPdfme, sablonDinColoane, stiluriDinIntrari} from './raportPdfme';
 
 const baza = {fontName: 'Go', alignment: 'left', verticalAlignment: 'middle', fontSize: 9, lineHeight: 1, characterSpacing: 0, fontColor: '#000000', backgroundColor: '', borderColor: '#888888', borderWidth: {top: .1, right: .1, bottom: .1, left: .1}, padding: {top: 1, right: 1, bottom: 1, left: 1}};
@@ -41,6 +41,9 @@ describe('stiluri pe rand si celula in tabelul pdfme', () => {
         expect(s.alignment).toBe('right');
         expect(s.backgroundColor).toBe('#eeeeee');
         expect(stilFinal(baza, [undefined], {})).toEqual(baza);
+        // Fundal deschis peste text alb: textul trece pe negru.
+        expect(stilFinal({...baza, fontColor: '#ffffff', backgroundColor: '#2980ba'}, [{fundal: '#E7EAE7'}], {}).fontColor).toBe('#000000');
+        expect(stilFinal({...baza, fontColor: '#ffffff', backgroundColor: '#2980ba'}, [{aldin: true}], {}).fontColor).toBe('#ffffff');
         expect(areStiluri({})).toBe(false);
         expect(areStiluri({randuri: {'3': {aldin: true}}})).toBe(true);
     });
@@ -74,4 +77,34 @@ describe('stiluri pe rand si celula in tabelul pdfme', () => {
         // Desenarea proprie a produs alt continut decat cea originala.
         expect(stilat.pdf.length).not.toBe(simplu.pdf.length);
     }, 60000);
+
+    it('scoate coloanele ascunse si pastreaza proportiile celorlalte (D090)', () => {
+        const {indici, latimi} = coloaneVizibile([20, 10, 10, 10, 50], 200, [2, 3]);
+        expect(indici).toEqual([0, 1, 4]);
+        expect(latimi.reduce((a, b) => a + b, 0)).toBeCloseTo(200);
+        expect(latimi[0] / latimi[1]).toBeCloseTo(2);
+        expect(coloaneVizibile([50, 50], 100).latimi).toEqual([50, 50]);
+        expect(areStiluri({ascunse: [3]})).toBe(true);
+    });
+
+    it('genereaza modelul predefinit de pontaj pentru februarie, cu zilele 29-31 ascunse', async () => {
+        const proces = (globalThis as {process?: {env?: Record<string, string | undefined>}}).process;
+        const coloane = [{cod: 'angajat', titlu: 'Angajat'}, {cod: 'marca', titlu: 'Marca'}, ...Array.from({length: 31}, (_, i) => ({cod: 'z' + String(i + 1).padStart(2, '0'), titlu: String(i + 1)}))];
+        const sablon = JSON.parse(await sablonDinColoane(coloane, {format: 'A3', orientare: 'PEISAJ', margine_mm: 10, font_pt: 8}, 'Pagina {currentPage} din {totalPages}', {}, {ponderi: [12, 5, ...Array(31).fill(3)], titluriDinRaport: true, stilClasic: true}));
+        const tabel = sablon.schemas[0].find((e: {name: string}) => e.name === 'tabel');
+        expect(tabel.pontixTitluri).toBe(true);
+        const randuri = Array.from({length: 60}, (_, i) => [`Ștefănescu Ana ${i}`, `DEMO-${i}`, ...Array.from({length: 31}, (_, z) => (z >= 28 ? '' : z % 7 === 5 ? 'CO' : '8'))]);
+        const celule: Record<string, {fundal: string}> = {};
+        randuri.forEach((_, i) => { for (let z = 0; z < 28; z++) if (z % 7 === 5 || z % 7 === 6) celule[`${i}:${z + 2}`] = {fundal: '#E7EAE7'}; });
+        const capColoane = Object.fromEntries(Array.from({length: 28}, (_, z) => z).filter(z => z % 7 === 5 || z % 7 === 6).map(z => [String(z + 2), {fundal: '#E7EAE7'}]));
+        const stiluri = {celule, cap_coloane: capColoane, randuri: {'0': {aldin: true, fundal: '#E7EFEA'}}, ascunse: [30, 31, 32], titluri: ['Nume angajat', 'Marcă', ...Array.from({length: 31}, (_, i) => String(i + 1))]};
+        const {pdf} = await genereazaPdfPdfme(JSON.stringify(sablon), {titlu: 'Pontaj februarie', antet_centru: 'PONTAJ · 2026-02', tabel: JSON.stringify(randuri), pontix_stiluri: JSON.stringify(stiluri)});
+        expect((await PDFDocument.load(pdf)).getPageCount()).toBeGreaterThan(1);
+        const iesire = proces?.env?.PDF_TEST;
+        if (iesire) {
+            const fs = await import(/* @vite-ignore */ 'node:' + 'fs') as {writeFileSync: (p: string, d: Uint8Array) => void};
+            fs.writeFileSync(iesire, pdf);
+        }
+    }, 60000);
 });
+

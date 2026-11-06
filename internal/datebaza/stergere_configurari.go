@@ -33,7 +33,7 @@ func (s *Serviciu) StergeConfigurare(ctx context.Context, tip, id, revizie strin
 		"categorii": {"LAB", "CUSTOM"}, "tipuri_program": {"NORMAL", "TURA", "NOAPTE", "GARDA"},
 		"regimuri_program": {"LUCRATOARE", "NELUCRATOARE", "INTRARE_ZI_LIBERA"},
 		"contracte":        {"INTREAGA", "PARTIALA", "GARDA"},
-		"modele_raport":    {"raport-pontaj", "raport-pontaj-detaliat", "raport-absente", "raport-garzi", "raport-fisa"},
+		"modele_raport":    {"raport-pontaj", "raport-pontaj-detaliat", "raport-absente", "raport-garzi", "raport-fisa", "raport-pontaj-sql", "raport-pontaj-detaliat-sql", "raport-absente-sql", "raport-garzi-sql", "raport-fisa-sql"},
 	}
 	for _, p := range protejate[tip] {
 		if id == p {
