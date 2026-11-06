@@ -6,6 +6,7 @@ Stări: `nouă`, `în analiză`, `transformată` (în task sau decizie), `amâna
 
 | ID | Data | Idee | Cine | Stare | Legături / motiv |
 | --- | --- | --- | --- | --- | --- |
+| I117 | 2026-11-06 | Scenariul Edge --ajutor pica: navigarea ceruta din asistentul AI (deschide Pontaj / formular concediu) nu cere confirmarea modificarilor nesalvate (0 confirmari in loc de 2); posibil defect real cu pierdere de modificari | Claude | nouă | Gasit la pregatirea integrarii; pica identic pe 07dc462, deci anterior lucrului din 2026-11-05/06. [Integrare](integrare-main-2026-11-06.md) |
 | I116 | 2026-11-06 | Testul vitest raportPdfme incarca pdfme in primul test si poate depasi 30 s sub sarcina (a picat o data dupa repausul calculatorului); preincarcare in beforeAll cu limita mai mare | Claude | transformată | Observat la F07-T40; testul trece singur (7-11 s) si in rularea completa repetata Rezolvat in F09-T26: preincarcare in beforeAll cu limita de 120 s. |
 | I115 | 2026-11-05 | Prefix (titulatura) pentru fiecare angajat: Dr., Biol. etc. | Ioan Tuns | transformată | F07-T40, [D089](decizii/D089-prefix-angajat.md); lista predefinita, optional, rapoarte si liste |
 | I114 | 2026-11-05 | Fonturile instalate in Windows (C:\Windows\Fonts si fonturile utilizatorului) disponibile in editorul pdfme, incarcate la cerere | Ioan Tuns, Claude | transformată | F09-T24, [D088](decizii/D088-fonturi-windows-rapoarte.md); D087; de verificat permisiunea de includere in PDF (fsType) si colectiile .ttc; fonturile Go raman rezerva |
