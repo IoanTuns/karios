@@ -58,7 +58,7 @@ Migrările nu se pot desface. Aplicația face singură o copie a bazei înaintea
    git merge --ff-only F05-T11-doar-citire
    ```
 
-   `--ff-only` garantează că `main` doar avansează la `b8b7603`, fără commit de merge. Dacă refuză, înseamnă că `main` s-a schimbat între timp; atunci nu forța.
+   `--ff-only` garantează că `main` doar avansează la vârful ramurii (codul de la `b8b7603`, plus commiturile de documentație ale acestei note), fără commit de merge. Dacă refuză, înseamnă că `main` s-a schimbat între timp; atunci nu forța.
 3. **Verificare în checkout-ul principal** (opțională, dar recomandată):
 
    ```powershell
