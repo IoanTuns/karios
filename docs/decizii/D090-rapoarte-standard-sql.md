@@ -1,6 +1,8 @@
 # D090 · Rapoartele standard ca tabele calculate în SQL
 
-Stare: propusă · Data: 2026-11-06 · Taskuri: F09-T21
+Stare: acceptată · Data: 2026-11-06 · Taskuri: F09-T21 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
+
+Condiție la acceptare: proba pe datele reale arată aceleași cifre ca înainte de trecerea pe SQL. Dacă apar diferențe, decizia se redeschide.
 
 ## Context
 

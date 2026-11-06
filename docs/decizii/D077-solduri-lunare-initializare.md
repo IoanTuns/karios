@@ -1,6 +1,6 @@
 # D077 - Solduri lunare si initializare
 
-Stare: propusa. Data: 2026-10-31. Task F07-T27.
+Stare: acceptată. Data: 2026-10-31. Task F07-T27 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 Reguli confirmate explicit de utilizator: norma lunara scade concediile CO/CEV/CFS/CM; L Fin = L Inceput + ore lucrate - ore lucratoare. Nu se modifica procente sau reguli de plata.
 

@@ -1,6 +1,6 @@
 # D074 - Filtrare unitara a starii
 
-Stare: propusa. Codex, 2026-10-31. F16-T27.
+Stare: acceptată. Codex, 2026-10-31. F16-T27 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 Utilizatorul solicita filtre active/inactive in toate meniurile, implicit active. Se foloseste componenta comuna cu Active/Inactive/Toate si stare locala per lista. Angajati pastreaza selectorul existent, implicit activi. Se acopera toate listele de administrare cu camp activ, inclusiv regulile conditionate, angajatii Pontaj/Planificare si pozitiile planificate.
 

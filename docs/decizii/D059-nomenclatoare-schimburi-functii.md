@@ -1,6 +1,6 @@
 # D059 - Nomenclatoare pentru categorii de schimburi si functii
 
-Stare: propusa. Data: 2026-10-31. Propusa de: Codex. Task F07-T24, cerere utilizator pentru categorii multiple si functii selectabile.
+Stare: acceptată. Data: 2026-10-31. Propusa de: Codex. Task F07-T24, cerere utilizator pentru categorii multiple si functii selectabile · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 Categorii de schimburi cu ID stabil si denumiri i18n.Text, initial LAB/CUSTOM. Migrarea 0024 inlocuieste restrictia enumerata a coloanei categorie pastrand valorile, ID-urile si legaturile programelor. Trigger-ele protejeaza referintele categoriilor; nu se reconstruieste tabelul de programe si nu se modifica migrari din main. Regimul de calcul al programului este separat de categorie.
 

@@ -1,6 +1,6 @@
 # D080 - Efectele tipurilor de absenta
 
-Stare: propusa. Data: 2026-11-02. Task: F07-T38.
+Stare: acceptată. Data: 2026-11-02. Task: F07-T38 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 Cerinta si reguli confirmate de utilizator: absente fara ore lucrate cu reducerea obligatiei lunare; absente cu ore lucrate (deplasari) din norma zilnica sau programul planificat. Alegerea sursei se face pe tip.
 

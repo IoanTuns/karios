@@ -1,6 +1,6 @@
 # D047 · Contextul asistentului AI
 
-Stare: propusă · Data: 2026-10-29 · Propusă de: Codex
+Stare: acceptată · Data: 2026-10-29 · Propusă de: Codex · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 Task: F14-T20. Eroarea raportată arată 9658 tokenuri pentru un context de 8192.
 

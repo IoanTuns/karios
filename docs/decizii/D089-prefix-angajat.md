@@ -1,6 +1,8 @@
 # D089 · Prefixul angajatului (Dr., Biol., As. …)
 
-Stare: decisă (cerințele) · propusă (detaliile tehnice) · Data: 2026-11-05 · Taskuri: F07-T40
+Stare: acceptată · Data: 2026-11-05 · Taskuri: F07-T40 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
+
+Completare acceptată la 2026-11-06: asistentul AI recunoaște numele cu sau fără prefix (F14-T33); importul citește prefixul dintr-o coloană separată, opțională (F07-T41).
 
 Decisă de: Ioan Tuns, 2026-11-05, pentru: listă predefinită din care se alege prefixul fiecărui angajat; prefix opțional; afișare în rapoarte (PDF/Excel) și în liste și selectoare, nu în grilele Pontaj și Planificare.
 

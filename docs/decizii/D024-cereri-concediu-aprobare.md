@@ -1,6 +1,6 @@
 # D024 · Cereri de concediu semnate atașate, număr de înregistrare, înlocuitor și aprobare
 
-Stare: propusă · Data: 2026-10-25 · Task: F07-T12
+Stare: acceptată · Data: 2026-10-25 · Task: F07-T12 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 Ioan Tuns a cerut ca înregistrările de concedii să poată avea atașată cererea de concediu semnată, un număr de înregistrare, persoana care înlocuiește angajatul aflat în concediu și starea de aprobare. La clarificare a ales:
 - păstrarea fișierelor atașate (PDF/JPG/PNG) direct în baza de date SQLite criptată (`BLOB`), incluse automat în backup și protejate cu aceeași cheie ([D008](D008-criptarea-datelor.md));

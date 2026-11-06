@@ -1,6 +1,6 @@
 # D075 - Stergere configurari inactive
 
-Stare: propusă. Data: 2026-10-31. Task: F07-T37.
+Stare: acceptată. Data: 2026-10-31. Task: F07-T37 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 ## Context
 

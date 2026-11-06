@@ -1,6 +1,6 @@
 # D022 · Revizii independente de ceas
 
-Stare: propusă · Data: 2026-10-25 · Task: F06-T07
+Stare: acceptată · Data: 2026-10-25 · Task: F06-T07 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 La verificarea F07-T10, două teste existente au arătat că două salvări apropiate pot primi aceeași valoare `modificat_la`. Aceasta era folosită și drept revizie; un client vechi putea astfel suprascrie modificarea intermediară. Repetarea suitei a trecut, confirmând caracterul intermitent, nu corectitudinea mecanismului.
 

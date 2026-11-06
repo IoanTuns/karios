@@ -1,6 +1,6 @@
 # D027 · Reunirea ramurilor prin PR și build din main
 
-Stare: propusă · Data: 2026-10-26 · Task: F02-T11
+Stare: acceptată · Data: 2026-10-26 · Task: F02-T11 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 Ioan Tuns cere explicit reunirea tuturor ramurilor în main printr-un PR și construirea ultimei versiuni. Această cerere autorizează pushul ramurii de integrare, crearea PR-ului și merge-ul în main, fără reconfirmare.
 

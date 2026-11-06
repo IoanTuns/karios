@@ -1,6 +1,8 @@
 # D026 · Imagini în rapoarte și paginare
 
-Stare: propusă · Data: 2026-10-25 · Task: F09-T08
+Stare: acceptată · Data: 2026-10-25 · Task: F09-T08 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
+
+Aspectul (Markdown, poziționare liberă, desenarea gofpdf) este înlocuit de [D087](D087-rapoarte-sql-pdfme.md) și a fost șters în F09-T23; restul rămâne valabil.
 
 Ioan Tuns precizează că fiecare raport poate avea una sau mai multe pagini și imagini în antet/subsol. Paginarea existentă continuă automat conținutul și repetă componentele pe fiecare pagină, cu numărul paginii și totalul.
 

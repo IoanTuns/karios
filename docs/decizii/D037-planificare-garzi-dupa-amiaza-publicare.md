@@ -1,6 +1,6 @@
 # D037 · Planificare separată și publicare în pontaj
 
-Stare: propusă · Data: 2026-10-26 · Propusă de: Codex · Decisă de: — · Task: F11-T01
+Stare: acceptată · Data: 2026-10-26 · Propusă de: Codex · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25) · Task: F11-T01
 
 Cerință explicită: gărzi și schimburi de după-amiază într-o secțiune separată, din care se publică datele în pontaj. Se păstrează D036: gărzile sunt alese explicit, fără rotații inventate.
 

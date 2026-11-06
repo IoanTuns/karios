@@ -1,6 +1,6 @@
 # D065 - Zoom global al interfetei
 
-Stare: propusa. Codex, 2026-10-31. Task F16-T25.
+Stare: acceptată. Codex, 2026-10-31. Task F16-T25 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 Cerinta utilizatorului este existenta optiunilor zoom-in/zoom-out. Implementarea propune niveluri 75/80/90/100/110/125/150/175/200%, butoane in antet si resetare procentuala, scurtaturi Ctrl+-/Ctrl++/Ctrl+0 si memorare localStorage. Lipsa accesului la stocare nu blocheaza folosirea in sesiune.
 

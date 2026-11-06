@@ -1,6 +1,6 @@
 # D029 · Director separat pentru fiecare build și curățarea artefactelor
 
-Stare: propusă · Data: 2026-10-26 · Task: F02-T12
+Stare: acceptată · Data: 2026-10-26 · Task: F02-T12 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 Ioan Tuns cere curățarea fișierelor generate și câte un director pentru fiecare build nou. Inventarul Git nu conține executabile, build/bin sau dist; nu este necesară rescrierea istoricului. Legăturile Wails, resursele Windows și referințele rapoartelor rămân urmărite, fiind necesare compilării și verificării.
 

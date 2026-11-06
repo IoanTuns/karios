@@ -1,6 +1,6 @@
 # D066 - Marcarea numelor in ierarhie
 
-Stare: propusa. Codex, 2026-10-31. Task F07-T30.
+Stare: acceptată. Codex, 2026-10-31. Task F07-T30 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 Utilizatorul solicita identificarea automata a inregistrarilor ierarhice in toate contextele. Marcajul de afisare propus este Nume Prenume (Garda), tradus prin catalagele RO/EN. Este aplicat numai unei marci cu legatura explicita angajat_principal_id; nu se deduce din nume, functie sau contract. Un contract de garda independent nu este automat subordonat. In prezent singurul subtip ierarhic disponibil este marca de garda; tipuri noi necesita model explicit.
 

@@ -1,6 +1,6 @@
 # D013 · Primul flux de angajați și datele demo
 
-Stare: propusă · Data: 2026-10-25 · Taskuri: F06-T03, F07-T01, F07-T07
+Stare: acceptată · Data: 2026-10-25 · Taskuri: F06-T03, F07-T01, F07-T07 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 ## Cerință
 

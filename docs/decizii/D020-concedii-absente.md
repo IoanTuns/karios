@@ -1,6 +1,6 @@
 # D020 · Concedii și absențe pe zile
 
-Stare: propusă · Data: 2026-10-25 · Task: F07-T04
+Stare: acceptată · Data: 2026-10-25 · Task: F07-T04 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 Ioan Tuns cere un modul pentru concediu de odihnă, zile libere speciale și concediu medical; tipurile speciale se definesc după nevoie.
 

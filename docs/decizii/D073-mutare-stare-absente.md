@@ -1,6 +1,6 @@
 # D073 - Mutarea si starea absentelor
 
-Stare: propusa. Codex, 2026-10-31. F07-T36.
+Stare: acceptată. Codex, 2026-10-31. F07-T36 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 Cerinta utilizatorului: schimbarea datei si eliminarea/activarea/dezactivarea absentelor. Data era readOnly; anularea exista dar ascundea inregistrarea, fara reactivare accesibila.
 

@@ -1,6 +1,8 @@
 # D088 · Fonturile instalate în Windows în rapoartele pdfme
 
-Stare: propusă · Data: 2026-11-05 · Taskuri: F09-T24
+Stare: acceptată · Data: 2026-11-05 · Taskuri: F09-T24 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
+
+Regulă la acceptare: pentru rapoartele oficiale se folosesc fonturile Windows standard (Arial, Calibri, Times New Roman) sau fontul inclus în aplicație, pentru că unele fonturi comerciale nu permit încorporarea în PDF, iar aplicația nu verifică licența fiecărui font.
 
 Ioan Tuns cere fonturile din Windows în editorul de rapoarte (I114), după D087.
 

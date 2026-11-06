@@ -1,6 +1,6 @@
 # D017 · Build fără ștergerea datelor aplicației
 
-Stare: propusă · Data: 2026-10-25 · Taskuri: F05-T15
+Stare: acceptată · Data: 2026-10-25 · Taskuri: F05-T15 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 ## Problemă observată
 

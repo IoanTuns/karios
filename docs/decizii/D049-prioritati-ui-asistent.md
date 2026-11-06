@@ -1,6 +1,6 @@
 # D049 · Priorități UI pentru asistentul AI
 
-Stare: propusă · Data: 2026-10-29 · Propusă de: Codex
+Stare: acceptată (primul lot, I072–I074) · propusă (loturile următoare) · Data: 2026-10-29 · Propusă de: Codex · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 Task: F14-T23. Bază: [review-ul UI al versiunii 0.82.1](../review-ui-asistent-2026-10-29.md). Solicitantul a cerut review, avantaje, dezavantaje și îmbunătățiri; nu a aprobat prin aceasta implementarea noului lot.
 

@@ -1,6 +1,6 @@
 # D030 · Verificarea suprapunerilor pentru înlocuitor, evidențierea în pontaj, diferența aritmetică a concediului și previzualizarea cererii
 
-Stare: propusă · Data: 2026-10-26 · Propusă de: Antigravity · Decisă de: —
+Stare: acceptată · Data: 2026-10-26 · Propusă de: Antigravity · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 ## Context
 

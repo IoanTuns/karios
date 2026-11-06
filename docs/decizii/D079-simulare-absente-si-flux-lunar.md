@@ -1,6 +1,6 @@
 # D079: simulare de absente si coordonarea fluxului lunar
 
-Stare: propusa. Data: 2026-10-31. Autor: Codex. Task: F16-T31.
+Stare: acceptată. Data: 2026-10-31. Autor: Codex. Task: F16-T31 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 Cerinta utilizatorului: implementarea tuturor celor sase recomandari UX din F16-T30.
 

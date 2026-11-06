@@ -2,6 +2,8 @@
 
 Stare: propusă · Data: 2026-10-26 · Propusă de: Antigravity · Task: F11-T08, I061
 
+Amânată de Ioan Tuns, 2026-11-06 (F02-T25): rămâne propusă până vin regulile de la contabilitate și de la spital; fără ele nu se știe ce trebuie să exprime motorul.
+
 ## Context
 
 Utilizatorul a solicitat evaluarea creării unui proces care să ofere libertate de configurare pentru reguli care nu sunt încă definite sau hardcodate în sistem:

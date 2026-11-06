@@ -1,6 +1,6 @@
 # D031 · Precompletarea lunii, avertismente vizuale în grila de pontaj și copie de siguranță la cerere
 
-Stare: propusă · Data: 2026-10-26 · Propunere: Antigravity · Legat de: F08-T07, F05-T16, I029, I030, I031
+Stare: acceptată · Data: 2026-10-26 · Propunere: Antigravity · Legat de: F08-T07, F05-T16, I029, I030, I031 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 ## Context
 

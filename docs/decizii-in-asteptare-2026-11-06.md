@@ -2,6 +2,10 @@
 
 Pregătit de Claude (F02-T25), pentru Ioan Tuns. Un agent doar propune; starea o schimbă un om (AGENTS.md §2).
 
+## Rezultat
+
+Ioan Tuns a răspuns „da la toate” (2026-11-06): recomandările de mai jos s-au aplicat întocmai. 61 de decizii sunt acceptate (D084 înlocuită de D087), D049 e acceptată doar pentru primul lot, D041 rămâne propusă și amânată (I061 amânată). Taskuri noi din D089: F07-T41 (prefix la import) și F14-T33 (prefix în asistentul AI). D090 e acceptată cu condiția probei pe date reale.
+
 ## Pe scurt
 
 63 de decizii au starea `propusă`. Aproape toate descriu lucruri cerute de tine și deja implementate în `main` (0.92.45); le lipsește doar confirmarea formală. Le-am împărțit în trei grupe:

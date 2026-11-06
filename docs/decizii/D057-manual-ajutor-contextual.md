@@ -1,6 +1,6 @@
 # D057 · Manual comun pentru documente, ajutor contextual și AI
 
-Stare: propusă. Propusă de: Codex, 2026-10-30. Task F02-T17. Cerere Ioan Tuns: manual în română și evaluarea unui manual interactiv în AI și a ghidurilor în fiecare meniu.
+Stare: acceptată. Propusă de: Codex, 2026-10-30. Task F02-T17. Cerere Ioan Tuns: manual în română și evaluarea unui manual interactiv în AI și a ghidurilor în fiecare meniu · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
 ## Propunere
 

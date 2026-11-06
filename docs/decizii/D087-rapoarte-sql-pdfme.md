@@ -1,8 +1,8 @@
 # D087 · Toate rapoartele din SQL, cu editor vizual pdfme
 
-Stare: decisă (direcția, motorul PDF, conversia modelelor) · propusă (detaliile tehnice) · Data: 2026-11-05 · Taskuri: F09-T20, F09-T21, F09-T22, F09-T23
+Stare: acceptată · Data: 2026-11-05 · Taskuri: F09-T20, F09-T21, F09-T22, F09-T23 · Decisă de: Ioan Tuns, 2026-11-06 (F02-T25)
 
-Decisă de: Ioan Tuns, 2026-11-05, pentru: folosirea pdfme, trecerea tuturor rapoartelor pe SQL, generarea PDF cu pdfme în aplicație și conversia automată a modelelor salvate. Restul secțiunii „Decizie” rămâne propus până la acceptare.
+Decisă de: Ioan Tuns, 2026-11-05, pentru: folosirea pdfme, trecerea tuturor rapoartelor pe SQL, generarea PDF cu pdfme în aplicație și conversia automată a modelelor salvate. Restul secțiunii „Decizie” acceptat de Ioan Tuns la 2026-11-06 (F02-T25).
 
 ## Context
 
