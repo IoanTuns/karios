@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.53 - 2026-11-06
+
+F05-T23 (I052). Filele din Setari stau pe un singur rand, compacte, cu derulare orizontala cand nu incap; submeniul lateral ramane (D034). In Configurare pontaj, codurile unei reguli se aleg doar prin butoanele rapide (folosibile cu tastatura, cu numele complet in eticheta accesibila si in tooltip); lista cu selectie multipla, care dubla aceleasi coduri si cerea Ctrl+clic, a fost scoasa. F05-T22 (I051) inchis ca acoperit de F09-T25 (lista de variabile si coloane SQL in editorul pdfme, previzualizare PDF reala). Manual 1.58.
+
 ## 0.92.52 - 2026-11-06
 
 F05-T21 (I050). Concedii si absente se deschide pe „Zile inregistrate” (sau pe ultima fila aleasa, retinuta local), nu pe toate sectiunile, deci zilele nu mai cer derularea prin Gantt si soldurile anuale. In evidenta zilelor, comutatorul „Pe zile / Pe cereri” arata cate un rand pe cerere (document sau numar de inregistrare; fara cerere, intervale de zile apropiate cu acelasi cod si aceeasi stare), cu perioada, numarul de zile, starea si „Selecteaza zilele”, care pregateste editarea sau anularea in lot din bara existenta. Titlul cronologiei Gantt trece prin cataloagele de traduceri (era scris direct in cod). Manual 1.57.

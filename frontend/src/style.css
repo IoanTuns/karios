@@ -308,7 +308,6 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .reguli-pontaj .camp-atribuire { display: grid; gap: 8px; margin: 18px 0; max-width: 620px; }
 .reguli-pontaj table { min-width: 820px; }
 .reguli-pontaj select { max-width: 265px; }
-.reguli-pontaj select[multiple] { min-width: 190px; min-height: 95px; }
 .reguli-pontaj input[type=number] { width: 95px; }
 .reguli-pontaj th { white-space: normal; }
 .sold-concediu { display: block; color: var(--discret); font-size: 11px; margin-top: 2px; }
@@ -359,7 +358,9 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .continut-setari .buton.secundar:hover:not(:disabled) { background: var(--subnav-selectat-fond); }
 .continut-setari .buton-tab { color: var(--setari-text); border-color: var(--setari-contur); }
 .continut-setari .buton-tab.activ { background: var(--verde); color: var(--text-pe-accent); border-color: var(--verde); }
-.taburi-setari { margin: -8px 0 22px; padding-bottom: 14px; border-bottom: 1px solid var(--linie); }
+/* F05-T23 (I052): filele din Setari pe un singur rand, compacte; submeniul lateral ramane (D034). */
+.taburi-setari { margin: -8px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--linie); flex-wrap: nowrap; overflow-x: auto; gap: 6px; scrollbar-width: thin; }
+.taburi-setari .buton-tab { flex: 0 0 auto; padding: 5px 10px; white-space: nowrap; }
 .categorie-angajat { display: block; margin-top: 6px; color: var(--discret); font-size: 11px; }
 .selectie-programe { border: 1px solid var(--linie); border-radius: 6px; margin: 0; padding: 12px; display: grid; gap: 8px; }
 .selectie-programe legend { padding: 0 6px; }

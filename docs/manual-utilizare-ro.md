@@ -874,3 +874,8 @@ Un total afișat „—” nu este zero: aplicația nu îl poate calcula fără 
 - Deasupra tabelului, **Pe zile / Pe cereri** schimbă afișarea. **Pe cereri** arată câte un rând pentru fiecare cerere (după documentul atașat sau numărul de înregistrare), cu perioada, numărul de zile și starea aprobării. Zilele fără cerere apar grupate pe intervale apropiate, cu mențiunea „fără cerere înregistrată”.
 - **Selectează zilele** marchează toate zilele cererii; apoi folosiți butoanele de deasupra pentru a completa cererea/aprobarea sau pentru a anula zilele.
 
+## Setări mai compacte (0.92.53)
+
+- Filele din partea de sus a Setărilor stau pe un singur rând; dacă nu încap, derulați-le orizontal sau folosiți submeniul din bara laterală, care le conține pe toate.
+- În **Configurare pontaj**, codurile (programe sau tipuri de absență) pentru o coloană se aleg apăsând butoanele cu codurile; un buton apăsat e marcat ca ales. Țineți mouse-ul pe un cod ca să-i vedeți numele complet. Butoanele se pot folosi și cu tastatura (Tab, apoi Enter sau Spațiu).
+
