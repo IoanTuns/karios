@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.47 - 2026-11-06
+
+Actualizarea dependentelor (AGENTS.md §6): `github.com/xuri/excelize/v2` v2.11.0 → v2.11.1 (patch, aceeasi licenta BSD-3-Clause). Versiunea ceruta de excelize trage si `github.com/xuri/efp` v0.0.2 → v0.0.3-0.20260924042702-217b81952dec (pseudo-versiune, nu lansare; o impune go.mod-ul excelize). Go 1.27.3 si pachetele npm erau deja la zi. Fara schimbari de functionalitate; manualul revizuit fara modificari de continut.
+
 ## 0.92.46 - 2026-11-06
 
 F07-T41 si F14-T33 (D089). Importul angajatilor are coloana optionala Prefix (si in sablonul CSV/XLSX): valoarea se potriveste cu Setari › Prefixe dupa denumirea RO sau EN, fara diferente de majuscule, spatii sau punct; un prefix necunoscut sau inactiv face randul invalid, cu mesaj tradus, si nu se creeaza automat; un prefix inactiv e acceptat doar la angajatul care il are deja; celula goala pastreaza prefixul existent la actualizare. Asistentul AI primeste prefixul angajatilor: il afiseaza in liste, confirmari si cereri de concediu, iar „Dr. Ana” se cauta ca „Ana”. Scenariul Edge --ajutor verifica dialogul de parasire (F16-T34, fara schimbare de cod). Manual 1.54.
