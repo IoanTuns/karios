@@ -33,8 +33,18 @@ var reAnPlan = regexp.MustCompile(`\b20\d{2}\b`)
 var reZiPlan = regexp.MustCompile(`\b(?:pe|din|on) (\d{1,2}) (ianuarie|februarie|martie|aprilie|mai|iunie|iulie|august|septembrie|octombrie|noiembrie|decembrie)\b`)
 var luniEngleza = []string{"january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"}
 
+// faraPunctuatie înlocuiește cu spațiu semnele care pot sta lipite de un nume
+// („Pop Ana?”, „(M1)”). Cratima și apostroful rămân: fac parte din mărci și nume.
+var faraPunctuatie = strings.NewReplacer(".", " ", ",", " ", ";", " ", ":", " ", "!", " ", "?", " ",
+	"(", " ", ")", " ", "\"", " ", "„", " ", "“", " ", "”", " ", "«", " ", "»", " ")
+
+// contineExpresie caută expresia ca cuvinte întregi, ignorând punctuația lipită (I118).
 func contineExpresie(m, expresie string) bool {
-	return strings.Contains(" "+m+" ", " "+normalizeaza(expresie)+" ")
+	e := normalizeaza(faraPunctuatie.Replace(normalizeaza(expresie)))
+	if e == "" {
+		return false
+	}
+	return strings.Contains(" "+normalizeaza(faraPunctuatie.Replace(m))+" ", " "+e+" ")
 }
 
 // InterpreteazaPlan recunoaște intenția fără model. Câmpurile nesigure rămân

@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.48 - 2026-11-06
+
+F14-T34 (I118): asistentul AI gaseste angajatul si cand numele sau marca sunt lipite de punctuatie („Ce program are Pop Ana?”, „(M1)”, „Pop Ana: Z7.”). Inainte, numele nu intra in contextul trimis modelului, iar planificarea ratata selectia cand urma un punct. Cratima si apostroful raman parte din marci si nume. Manualul revizuit fara modificari de continut.
+
 ## 0.92.47 - 2026-11-06
 
 Actualizarea dependentelor (AGENTS.md §6): `github.com/xuri/excelize/v2` v2.11.0 → v2.11.1 (patch, aceeasi licenta BSD-3-Clause). Versiunea ceruta de excelize trage si `github.com/xuri/efp` v0.0.2 → v0.0.3-0.20260924042702-217b81952dec (pseudo-versiune, nu lansare; o impune go.mod-ul excelize). Go 1.27.3 si pachetele npm erau deja la zi. Fara schimbari de functionalitate; manualul revizuit fara modificari de continut.
