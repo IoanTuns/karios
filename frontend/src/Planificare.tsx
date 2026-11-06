@@ -1,6 +1,15 @@
+import {FormularAbsente} from './Absente';
+import {useSalvareParasire,confirmaParasire} from './Parasire';
+import {SelectieRezumat} from './SelectieRezumat';
+import {semnaleazaModificari} from './modificariNesalvate';
+import {programPlanificat,motivProgramExclus} from './eligibilitateProgram';
+import {FiltruStare,corespundeStare,type StareLista} from './FiltruStare';
+import {numeAngajat, numeAngajatFaraPrefix} from './numeAngajat';
+import {FiltreProfesionale,filtruProfesionalGol,corespundeProfesional} from './FiltreProfesionale';
 import {useEffect, useMemo, useRef, useState, type KeyboardEvent} from 'react';
 import {useTranslation} from 'react-i18next';
 import {
+    CitesteAbsente, SalveazaAbsente,
     CitesteAcoperirePlanificare,
     CitesteCalendar,
     CitesteEchitatePlanificare,
@@ -22,36 +31,39 @@ import {Dialog, denumireSectie, denumireDepartament, durata} from './Formulare';
 import {oraText} from './Schimburi';
 import {notifica} from './Toast';
 import {formatData, formateazaDataSigura} from './formatare';
+import {completeazaRaport} from './raportPdfme';
 
-export function programPlanificat(p:datebaza.Schimb) {
-    return p.tip==='GARDA'||p.tip==='NOAPTE'||p.regim==='NELUCRATOARE'||p.regim==='INTRARE_ZI_LIBERA'||(p.ora_start>=720&&p.ora_start<1320);
-}
+export {programPlanificat} from './eligibilitateProgram';
 export function inSectiune(p:datebaza.Schimb,sectiune:string) {
     if(sectiune==='TOATE'||!sectiune)return programPlanificat(p);
     const garda=p.tip==='GARDA'||p.tip==='NOAPTE'||p.regim==='NELUCRATOARE'||p.regim==='INTRARE_ZI_LIBERA';
-    return sectiune==='GARZI'?garda:!garda&&p.ora_start>=720&&p.ora_start<1320;
+    return sectiune==='GARZI'?garda:!garda&&(p.tip==='NORMAL'||(p.ora_start>=720&&p.ora_start<1320));
 }
 type PublicareCurenta={cerere:datebaza.CererePublicarePlan;rezultat:datebaza.PublicarePlan};
 type Pozitie={rand:number;zi:number};
 type Selectie={inceput:Pozitie;sfarsit:Pozitie};
 
-export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:datebaza.Date;initial?:{an:number;luna:number};onOcupat:(v:boolean)=>void;onDeschidePontaj:(an:number,luna:number)=>void}) {
+export function Planificare({date,initial,onOcupat,onDeschidePontaj,onModificari,onPerioada}:{onPerioada?:(p:{an:number;luna:number})=>void;onModificari?:(modificat:boolean)=>void;date:datebaza.Date;initial?:{an:number;luna:number};onOcupat:(v:boolean)=>void;onDeschidePontaj:(an:number,luna:number)=>void}) {
     const {t,i18n}=useTranslation();
     const [an,setAn]=useState(initial?.an??new Date().getFullYear());
     const [luna,setLuna]=useState(initial?.luna??new Date().getMonth()+1);
     const [anText,setAnText]=useState(String(an));
+    useEffect(()=>onPerioada?.({an,luna}),[an,luna,onPerioada]);
     const [mod,setMod]=useState<'grila'|'comparativ'|'sumar'|'acoperire'|'lista'>('grila');
     const [sectiune,setSectiune]=useState('TOATE');
+    const [filtruProfesional,setFiltruProfesional]=useState({...filtruProfesionalGol});
     const [sectie,setSectie]=useState('');
     const [departament,setDepartament]=useState('');
     const [cautare,setCautare]=useState('');
-    const [inactive,setInactive]=useState(false);
+    const [starePozitii,setStarePozitii]=useState<StareLista>('ACTIVE');
+    const [stareLista,setStareLista]=useState<StareLista>('ACTIVE');
     const [plan,setPlan]=useState<datebaza.PlanificareLuna|null>(null);
     const [schita,setSchita]=useState<datebaza.SchitaLuna|null>(null);
     const [schimburi,setSchimburi]=useState<datebaza.Schimb[]>([]);
     const [calendar,setCalendar]=useState<datebaza.CalendarAn|null>(null);
     const [acoperire,setAcoperire]=useState<calcul.RaportAcoperire|null>(null);
     const [avertismenteEchitate,setAvertismenteEchitate]=useState<calcul.AvertismentEchitate[]>([]);
+    const [cerereAbsente,setCerereAbsente]=useState<{date:datebaza.AbsenteAn;lot:datebaza.ZiAbsenta[]}|null>(null);
     const [dialogSumar,setDialogSumar]=useState<datebaza.Angajat|null>(null);
     const [angajatSumarId,setAngajatSumarId]=useState<string>('');
     const [doarDeficit,setDoarDeficit]=useState<boolean>(false);
@@ -66,6 +78,9 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
     const [incarcare,setIncarcare]=useState(true);
     const [reincarcare,setReincarcare]=useState(0);
     const [modificari,setModificari]=useState<Map<string,datebaza.PozitiePlanificare>>(new Map());
+    const [sumarModificat,setSumarModificat]=useState(false);
+ useEffect(()=>semnaleazaModificari('planificare',modificari.size>0||sumarModificat),[modificari.size,sumarModificat]);
+    useEffect(()=>{onModificari?.(modificari.size>0||sumarModificat);return()=>onModificari?.(false);},[modificari,sumarModificat,onModificari]);
     const [istoricInapoi,setIstoricInapoi]=useState<Map<string,datebaza.PozitiePlanificare>[]>([]);
     const [istoricInainte,setIstoricInainte]=useState<Map<string,datebaza.PozitiePlanificare>[]>([]);
     const [selectie,setSelectie]=useState<Selectie>({inceput:{rand:0,zi:0},sfarsit:{rand:0,zi:0}});
@@ -80,7 +95,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
     const grilaRef=useRef<HTMLDivElement>(null);
     const blocat=useRef(false);
 
-    const nume=(id:string)=>{const a=date.angajati.find(a=>a.id===id);return a?`${a.nume} ${a.prenume}`:id;};
+    const nume=(id:string)=>{const a=date.angajati.find(a=>a.id===id);return a?`${numeAngajatFaraPrefix(a)}`:id;};
     const textSchimb=(id:string)=>{const s=schimburi.find(s=>s.id===id);return s?`${s.cod} · ${s.denumire[i18n.language]||s.denumire.ro} · ${durata(s.durata_minute,t)}`:t('program.schimb_lipsa');};
     const sarbatori=useMemo(()=>new Map((calendar?.sarbatori??[]).map(z=>[z.data,z.denumire[i18n.language]||z.denumire.ro])),[calendar,i18n.language]);
 
@@ -116,7 +131,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
     const pozitiiDB=useMemo(()=>{
         const harta=new Map<string,datebaza.PozitiePlanificare>();
         for(const p of plan?.pozitii??[]){
-            harta.set(`${p.angajat_id}/${p.data}`,p);
+            if(p.activ||!harta.has(`${p.angajat_id}/${p.data}`))harta.set(`${p.angajat_id}/${p.data}`,p);
         }
         return harta;
     },[plan]);
@@ -141,14 +156,14 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
     },[avertismenteEchitate]);
 
     const randuri=useMemo(()=>{
-        const cuPlan=new Set((plan?.pozitii??[]).map(p=>p.angajat_id));
         const termen=cautare.trim().toLocaleLowerCase();
         return date.angajati.filter(a=>{
-            if(!(a.activ||cuPlan.has(a.id))||(sectie&&a.sectie_id!==sectie)||(departament&&a.departament_id!==departament))return false;
-            if(termen&&!`${a.nume} ${a.prenume} ${a.marca}`.toLocaleLowerCase().includes(termen))return false;
+ if(!corespundeProfesional(a,filtruProfesional))return false;
+            if(!corespundeStare(a.activ,stareLista)||(sectie&&a.sectie_id!==sectie)||(departament&&a.departament_id!==departament))return false;
+            if(termen&&!`${numeAngajatFaraPrefix(a)} ${a.marca}`.toLocaleLowerCase().includes(termen))return false;
             return true;
         });
-    },[date.angajati,plan,sectie,departament,cautare]);
+    },[stareLista,filtruProfesional,date.angajati,plan,sectie,departament,cautare]);
 
     const angajatActivSumar=useMemo(()=>{
         if(angajatSumarId){
@@ -160,7 +175,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
 
     const pozitiiLista=(plan?.pozitii??[]).filter(p=>{
         const a=date.angajati.find(a=>a.id===p.angajat_id),termen=cautare.trim().toLocaleLowerCase();
-        return (sectiune==='TOATE'||p.sectiune===sectiune)&&(inactive||p.activ)&&(!sectie||a?.sectie_id===sectie)&&(!departament||a?.departament_id===departament)&&(!termen||`${nume(p.angajat_id)} ${a?.marca??''}`.toLocaleLowerCase().includes(termen));
+        return Boolean(a&&corespundeStare(a.activ,stareLista)&&corespundeProfesional(a,filtruProfesional))&&(sectiune==='TOATE'||p.sectiune===sectiune)&&corespundeStare(p.activ,starePozitii)&&(!sectie||a?.sectie_id===sectie)&&(!departament||a?.departament_id===departament)&&(!termen||`${nume(p.angajat_id)} ${a?.marca??''}`.toLocaleLowerCase().includes(termen));
     });
 
     const inceputRand=Math.min(selectie.inceput.rand,selectie.sfarsit.rand),sfarsitRand=Math.max(selectie.inceput.rand,selectie.sfarsit.rand);
@@ -173,8 +188,8 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
         return dinDB&&dinDB.activ?dinDB:null;
     }
 
-    function schimbaLunaRelativ(delta:number) {
-        if(ocupat||(modificari.size>0&&!window.confirm(t('ui.renunta'))))return;
+    async function schimbaLunaRelativ(delta:number) {
+        if(ocupat||(modificari.size>0&&!await confirmaParasire()))return;
         let nouAn=an,nouaLuna=luna+delta;
         if(nouaLuna<1){nouAn--;nouaLuna=12;}
         else if(nouaLuna>12){nouAn++;nouaLuna=1;}
@@ -184,6 +199,9 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
 
     function aplicaProgramSelectie(schimbCod:string) {
         if(ocupat||!randuri.length)return;
+        for(let r=inceputRand;r<=sfarsitRand;r++)for(let z=inceputZi;z<=sfarsitZi;z++){
+            if((plan?.pozitii??[]).filter(p=>p.activ&&p.angajat_id===randuri[r]?.id&&p.data===zile[z]).length>1){setEroare(t('planificare.multiple_schimba_sumar'));return;}
+        }
         const sAles=schimburi.find(s=>s.cod===schimbCod);
         if(schimbCod&&!sAles)return;
 
@@ -277,7 +295,8 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
     }
 
     async function salveazaPlanGrila() {
-        if(blocat.current||!modificari.size)return;
+        if(blocat.current)return false;
+        if(!modificari.size)return true;
         blocat.current=true;setOcupat(true);onOcupat(true);setEroare('');setMesaj('');
         try{
             const pozitii=Array.from(modificari.values());
@@ -286,39 +305,43 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
             else if(r.planificare){
                 setPlan(r.planificare);setModificari(new Map());setIstoricInapoi([]);setIstoricInainte([]);setMesaj(t('planificare.salvata'));
                 notifica(t('planificare.salvata'), 'succes');
-                setReincarcare(x=>x+1);
+                setReincarcare(x=>x+1);return true;
             }else setEroare(t('date.eroare'));
         }catch{setEroare(t('date.eroare'));}finally{blocat.current=false;setOcupat(false);onOcupat(false);}
+        return false;
     }
 
     async function salveazaPozitiiLista(pozitii:datebaza.PozitiePlanificare[]) {
-        if(blocat.current)return;blocat.current=true;setOcupat(true);onOcupat(true);setEroare('');setMesaj('');
+        if(blocat.current)return false;blocat.current=true;setOcupat(true);onOcupat(true);setEroare('');setMesaj('');
         try{
             const r=await SalveazaPlanificare(an,luna,pozitii);
             if(r.eroare){setEroare(t(r.eroare.cod,r.eroare.param??{}));notifica(t(r.eroare.cod,r.eroare.param??{}), 'eroare');}
             else if(r.planificare){
                 setPlan(r.planificare);setEditare(null);setDialogSumar(null);setMesaj(t('planificare.salvata'));
                 notifica(t('planificare.salvata'), 'succes');
-                setReincarcare(x=>x+1);
+                setReincarcare(x=>x+1);return true;
             }else setEroare(t('date.eroare'));
         }catch{setEroare(t('date.eroare'));}finally{blocat.current=false;setOcupat(false);onOcupat(false);}
+        return false;
     }
 
     const dePublicatTotal=useMemo(()=>{
         return (plan?.pozitii??[]).filter(p=>p.activ&&(sectiune==='TOATE'||p.sectiune===sectiune));
     },[plan,sectiune]);
 
-    async function previzualizeazaPublicare(inlocuieste=false) {
+    async function previzualizeazaPublicare(inlocuieste=true) {
         if(modificari.size>0){
             if(!window.confirm(t('planificare.salveaza_inainte_publicare')))return;
-            await salveazaPlanGrila();
+            if(!await salveazaPlanGrila())return;
         }
         if(blocat.current)return;
-        const pozitiiActive=(plan?.pozitii??[]).filter(p=>p.activ&&(sectiune==='TOATE'||p.sectiune===sectiune));
-        if(!pozitiiActive.length){setEroare(t('planificare.fara_pozitii'));return;}
         blocat.current=true;setOcupat(true);onOcupat(true);setEroare('');setMesaj('');
-        const cerere=new datebaza.CererePublicarePlan({an,luna,sectiune:sectiune==='TOATE'?'TOATE':sectiune,pozitii_id:pozitiiActive.map(p=>p.id),inlocuieste,token:''});
         try{
+            const planActual=await CitestePlanificare(an,luna);
+            if(planActual.eroare){setEroare(t(planActual.eroare.cod,planActual.eroare.param||{}));return;}
+            const pozitiiActive=(planActual.planificare?.pozitii??[]).filter(p=>p.activ&&(sectiune==='TOATE'||p.sectiune===sectiune));
+            if(!pozitiiActive.length){setEroare(t('planificare.fara_pozitii'));return;}
+            const cerere=new datebaza.CererePublicarePlan({an,luna,sectiune:sectiune==='TOATE'?'TOATE':sectiune,pozitii_id:pozitiiActive.map(p=>p.id),inlocuieste,token:''});
             const r=await PrevizualizeazaPublicarePlan(cerere);
             if(r.eroare)setEroare(t(r.eroare.cod,r.eroare.param??{}));
             else if(r.publicare)setPublicare({cerere:new datebaza.CererePublicarePlan({...cerere,token:r.publicare.token}),rezultat:r.publicare});
@@ -354,14 +377,15 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
         setMesaj('');
         setOcupat(true);
         try {
-            const r=await PregatesteRaport(new rapoarte.Cerere({
+            const r=await completeazaRaport(await PregatesteRaport(new rapoarte.Cerere({
                 model_id:'raport-garzi',
+ ...filtruProfesional,
                 an,
                 luna,
                 sectie_id:sectie,
                 departament_id:departament,
                 limba:i18n.language==='en'?'en':'ro'
-            }));
+            })));
             if(r.eroare){
                 setEroare(t(r.eroare.cod,r.eroare.param||{}));
             }else{
@@ -399,13 +423,28 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
     const absentaActiva=cheieActiva?absente.get(cheieActiva):undefined;
     const avertismenteActiva=cheieActiva?avertismenteHarta.get(cheieActiva):undefined;
 
-    return <section className="modul-planificare">
+    useSalvareParasire('planificare',modificari.size,salveazaPlanGrila,()=>{setModificari(new Map());setIstoricInapoi([]);setIstoricInainte([]);});
+    async function deschideAbsente(){
+ if(ocupat)return;
+ // Selectia se fixeaza inaintea oricarei asteptari; nu se extinde la alte randuri.
+ const oameni=randuri.slice(inceputRand,sfarsitRand+1);
+ const dateSelectate=zile.slice(inceputZi,sfarsitZi+1).filter(d=>![0,6].includes(new Date(d+'T12:00:00Z').getUTCDay())&&!sarbatori.has(d));
+ if(!oameni.length||!dateSelectate.length){setEroare(t('absente.selectie_lucratoare'));return;}
+ if(modificari.size||sumarModificat){setEroare(t('absente.salveaza_planul'));return;}
+ setOcupat(true);setEroare('');
+ try{const r=await CitesteAbsente(an);if(r.eroare){setEroare(t(r.eroare.cod,r.eroare.param||{}));return;}if(!r.absente){setEroare(t('date.eroare'));return;}
+ const lot=oameni.flatMap(a=>dateSelectate.map(d=>new datebaza.ZiAbsenta({revizie:'',cod:'',...r.absente!.zile.find(z=>z.angajat_id===a.id&&z.data===d),angajat_id:a.id,data:d,activ:true})));
+ setCerereAbsente({date:r.absente,lot});
+ }catch{setEroare(t('date.eroare'));}finally{setOcupat(false);}
+ }
+ async function salveazaAbsentePlan(zile:datebaza.ZiAbsenta[]){setOcupat(true);setEroare('');try{const r=await SalveazaAbsente(zile,an);if(r.eroare){setEroare(t(r.eroare.cod,r.eroare.param||{}));return;}setCerereAbsente(null);setReincarcare(v=>v+1);}catch{setEroare(t('date.eroare'));}finally{setOcupat(false);}}
+    return <section className="modul-planificare"><SelectieRezumat persoane={randuri.slice(inceputRand,sfarsitRand+1)} deLa={zile[inceputZi]} panaLa={zile[sfarsitZi]}/><FiltruStare nume="angajati_planificare" eticheta="ui.filtru_stare_angajati" valoare={stareLista} schimba={s=>{setStareLista(s);setSelectateLista(new Set());setSelectie({inceput:{rand:0,zi:0},sfarsit:{rand:0,zi:0}});}} disabled={ocupat}/><FiltreProfesionale numarRezultate={randuri.length} disabled={ocupat} date={date} value={filtruProfesional} onChange={f=>{setFiltruProfesional(f);setSelectateLista(new Set());setSelectie({inceput:{rand:0,zi:0},sfarsit:{rand:0,zi:0}});}}/>
         <div className="unelte-calendar unelte-perioada">
-            <form onSubmit={e=>{e.preventDefault();const a=Number(anText);if(Number.isInteger(a)&&a>=1&&a<=9999)setAn(a);else setEroare(t('sarbatori.an_invalid'));}}>
+            <form onSubmit={async e=>{e.preventDefault();const a=Number(anText);if(Number.isInteger(a)&&a>=1&&a<=9999){if(!modificari.size||await confirmaParasire())setAn(a);}else setEroare(t('sarbatori.an_invalid'));}}>
                 <label>{t('sarbatori.an')}<input name="an_planificare" type="number" min="1" max="9999" required value={anText} disabled={ocupat} onChange={e=>setAnText(e.target.value)}/></label>
                 <button className="buton secundar" disabled={ocupat}>{t('sarbatori.arata')}</button>
                 <button type="button" className="buton secundar buton-luna-nav" aria-label={t('planificare.luna_precedenta')} disabled={ocupat} onClick={()=>schimbaLunaRelativ(-1)}>◀</button>
-                <label>{t('pontaj.luna')}<select name="luna_planificare" value={luna} disabled={ocupat} onChange={e=>setLuna(Number(e.target.value))}>
+                <label>{t('pontaj.luna')}<select name="luna_planificare" value={luna} disabled={ocupat} onChange={async e=>{const l=Number(e.target.value);if(!modificari.size||await confirmaParasire())setLuna(l);}}>
                     {Array.from({length:12},(_,i)=><option key={i} value={i+1}>{formatData(i18n.language,{month:'long',timeZone:'UTC'}).format(new Date(Date.UTC(2026,i,1)))}</option>)}
                 </select></label>
                 <button type="button" className="buton secundar buton-luna-nav" aria-label={t('planificare.luna_urmatoare')} disabled={ocupat} onClick={()=>schimbaLunaRelativ(1)}>▶</button>
@@ -417,6 +456,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
                 <button type="button" className={mod==='acoperire'?'activ':''} onClick={()=>setMod('acoperire')}>{t('planificare.mod_acoperire')}</button>
                 <button type="button" className={mod==='lista'?'activ':''} onClick={()=>setMod('lista')}>{t('planificare.mod_lista')}</button>
             </div>
+            <div className="ui28-etapes" role="status"><span>{sumarModificat?t('ui28.sumar_nesalvat'):t('ui28.etapa_nesalvata',{numar:modificari.size})}</span><span>{t('ui28.etapa_plan',{numar:dePublicatTotal.length})}</span><span>{t('ui28.etapa_publicata',{numar:plan?.pozitii.filter(p=>p.activ&&p.stare==='PUBLICATA').length||0})}</span></div>
             {mod==='grila'&&<button className="buton primar" disabled={ocupat||!modificari.size} onClick={salveazaPlanGrila}>{t('planificare.salveaza_grila')}</button>}
             <button className="buton secundar" disabled={ocupat||!dePublicatTotal.length} onClick={()=>void previzualizeazaPublicare()}>{t('planificare.previzualizeaza')}</button>
             <button type="button" className="buton secundar" disabled={ocupat} onClick={deschideRaportGarzi}>{t('planificare.raport_garzi')}</button>
@@ -446,12 +486,14 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
                 <button type="button" className={`buton-zoom ${zoomGrila === 'normal' ? 'activ' : ''}`} title={t('ui.zoom_normal')} onClick={() => schimbaZoom('normal')}>M</button>
                 <button type="button" className={`buton-zoom ${zoomGrila === 'extins' ? 'activ' : ''}`} title={t('ui.zoom_extins')} onClick={() => schimbaZoom('extins')}>L</button>
             </div>}
-            {mod==='lista'&&<label className="bifa"><input type="checkbox" name="planificari_inactive" checked={inactive} disabled={ocupat} onChange={e=>setInactive(e.target.checked)}/>{t('planificare.arata_retrase')}</label>}
+            {mod==='lista'&&<FiltruStare nume="pozitii_planificare" eticheta="ui.filtru_stare_pozitii" valoare={starePozitii} schimba={s=>{setStarePozitii(s);setSelectateLista(new Set());}} disabled={ocupat}/>}
             {mod==='grila'&&modificari.size>0&&<span className="stare-modificari" aria-live="polite">{t('planificare.modificari_nesalvate',{numar:modificari.size})}</span>}
         </div>
 
+        {cerereAbsente&&<FormularAbsente zi={null} lot={cerereAbsente.lot} date={date} absente={cerereAbsente.date} angajatImplicit={cerereAbsente.lot[0]?.angajat_id||''} ocupat={ocupat} eroare={eroare} inchide={()=>{setCerereAbsente(null);setEroare('');}} salveaza={salveazaAbsentePlan}/>}
         {mod==='grila'&&<div className="paleta-planificare" role="toolbar" aria-label={t('planificare.paleta_titlu')}>
-            <span className="text-discret">{t('planificare.paleta_titlu')}</span>
+            <button type="button" className="buton secundar" disabled={ocupat||!randuri.length} onClick={()=>void deschideAbsente()}>{t('absente.din_planificare')}</button>
+            <button type="button" className="buton secundar" disabled={ocupat||modificari.size>0||!randActiv} onClick={()=>randActiv&&setDialogSumar(randActiv)}>{t('planificare.adauga_program_zi')}</button><span className="text-discret">{t('planificare.paleta_titlu')}</span>
             {cipuriSpeciale.map(cod=>{
                 const s=schimburi.find(x=>x.cod===cod);
                 return <button key={cod} type="button" className="cip-schimb" disabled={ocupat||!randuri.length||!s} title={s?`${s.denumire[i18n.language]||s.denumire.ro} · ${oraText(s.ora_start)}`:cod} onClick={()=>aplicaProgramSelectie(cod)}>{cod}</button>;
@@ -490,7 +532,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
 
         {randActiv&&dataActiva&&<div className="inspectie-celula" role="region" aria-label={t('planificare.inspectie_titlu')}>
             <div className="detalii-celula-activa">
-                <strong>{randActiv.nume} {randActiv.prenume}</strong>
+                <strong>{numeAngajatFaraPrefix(randActiv)}</strong>
                 <span>{dataActiva}{sarbatori.get(dataActiva)?` · ${sarbatori.get(dataActiva)}`:''}</span>
                 {absentaActiva&&<span className="eticheta-contract">{absentaActiva.cod} ({t(`absente.${absentaActiva.cod}`)||absentaActiva.cod})</span>}
                 {schimbActiv&&<span className="eticheta-intrare">{schimbActiv.cod} ({schimbActiv.denumire[i18n.language]||schimbActiv.denumire.ro}) · {t(`planificare.stare_${pozitieActiva?.stare||'NEPUBLICATA'}`)}</span>}
@@ -524,7 +566,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
                             return <tr key={a.id}>
                                 <th scope="row" className="fix-nume">
                                     <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:'4px'}}>
-                                        <strong>{a.nume} {a.prenume}</strong>
+                                        <strong>{numeAngajatFaraPrefix(a)}</strong>
                                         <button type="button" className="buton-sumar-angajat" title={t('planificare.deschide_sumar')} onClick={()=>setDialogSumar(a)}>📋</button>
                                     </div>
                                     {!a.activ&&<small>{t('ui.inactiv')}</small>}
@@ -542,16 +584,18 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
                                     const esteModificata=modificari.has(k);
                                     const avertismenteCelula=avertismenteHarta.get(k);
                                     const areAvertisment=Boolean(avertismenteCelula&&avertismenteCelula.length>0);
-                                    const valoareAfisata=absenta?absenta.cod:schimb?schimb.cod:'';
+                                    const toate=(plan?.pozitii??[]).filter(x=>x.activ&&x.angajat_id===a.id&&x.data===data);
+                                    const valoareAfisata=absenta?absenta.cod:toate.length>1?toate.map(x=>schimburi.find(s=>s.id===x.schimb_id)?.cod||'').sort().join('+'):schimb?schimb.cod:'';
+                                    if(toate.length>1)totalTure+=toate.length-1;
                                     const stareClasa=p?`plan-${(p.stare||'nepublicata').toLowerCase()}`:'';
 
                                     return <td key={data} className={`${sarbatori.has(data)?'zi-sarbatoare':weekend?'zi-weekend':''} ${selectata?'celula-selectata':''} ${esteModificata?'celula-modificata':''} ${areAvertisment?'celula-atentie':''}`}>
-                                        <input data-rand={r} data-zi={z} aria-label={`${a.nume} ${a.prenume} ${data}`}
+                                        <input data-rand={r} data-zi={z} aria-label={`${numeAngajatFaraPrefix(a)} ${data}`}
                                             readOnly disabled={ocupat}
                                             className={`${absenta?'celula-absenta':''} ${stareClasa}`}
                                             value={valoareAfisata}
                                             title={[
-                                                t('ui.tooltip_marca', {nume: `${a.nume} ${a.prenume}`, marca: a.marca || '—'}),
+                                                t('ui.tooltip_marca', {nume: `${numeAngajatFaraPrefix(a)}`, marca: a.marca || '—'}),
                                                 t('ui.tooltip_data', {data}) + (weekend ? ` [${t('ui.tooltip_weekend')}]` : '') + (sarbatori.has(data) ? ` [${sarbatori.get(data)}]` : ''),
                                                 t('ui.tooltip_schimb', {schimb: valoareAfisata || t('ui.tooltip_liber')}) + (schimb ? ` (${schimb.denumire[i18n.language] || schimb.denumire.ro}, ${durata(schimb.durata_minute, t)})` : ''),
                                                 absenta ? `${t('absente.celula_protejata')}: ${absenta.cod}` : '',
@@ -659,7 +703,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
                 </div>
             </div>
         </>:plan&&mod==='sumar'&&angajatActivSumar?<>
-            <PanouSumarAngajat
+            <PanouSumarAngajat onModificari={setSumarModificat}
                 angajat={angajatActivSumar}
                 angajatiDisponibili={randuri}
                 an={an}
@@ -701,9 +745,9 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
             </div>
         </>:null}
 
-        {dialogSumar&&<Dialog titlu={t('planificare.sumar_angajat_titlu',{nume:`${dialogSumar.nume} ${dialogSumar.prenume}`})} ocupat={ocupat} permiteMaximizare={true} inchide={()=>setDialogSumar(null)}>
+        {dialogSumar&&<Dialog titlu={t('planificare.sumar_angajat_titlu',{nume:`${numeAngajatFaraPrefix(dialogSumar)}`})} ocupat={ocupat} permiteMaximizare={true} inchide={()=>{if(!sumarModificat) setDialogSumar(null);else void confirmaParasire().then(da=>{if(da)setDialogSumar(null);});}}>
             <div className="corp-dialog corp-dialog-sumar">
-                <PanouSumarAngajat
+                <PanouSumarAngajat onModificari={setSumarModificat}
                     angajat={dialogSumar}
                     an={an}
                     luna={luna}
@@ -724,7 +768,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
             <div className="corp-dialog previzualizare-publicare">
                 <p>{t('planificare.publicare_indiciu')}</p>
                 {eroare&&<p role="alert" className="mesaj eroare">{eroare}</p>}
-                <label className="bifa"><input type="checkbox" name="inlocuieste_pontaj" checked={publicare.cerere.inlocuieste} disabled={ocupat} onChange={e=>void previzualizeazaPublicare(e.target.checked)}/>{t('planificare.permite_inlocuire')}</label>
+                <p>{t('planificare.prioritate_publicare')}</p><p className="ui28-efecte">{t('ui28.total_efective',{numar:publicare.rezultat.randuri.filter(r=>r.stare!=='BLOCATA').reduce((s,r)=>s+(r.pontaje_efective||0),0)})}</p>
                 <p><strong>{t('planificare.rezumat_publicare',{publicabile:publicare.rezultat.publicabile,identice:publicare.rezultat.identice,blocate:publicare.rezultat.blocate})}</strong></p>
                 <div className="tabel-derulant">
                     <table>
@@ -733,9 +777,9 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj}:{date:dateb
                         </thead>
                         <tbody>
                             {publicare.rezultat.randuri.map(r=><tr key={r.pozitie_id}>
-                                <th scope="row">{nume(r.angajat_id)}</th>
+                                <th scope="row">{nume(r.angajat_id)} / {date.angajati.find(a=>a.id===r.angajat_id)?.marca}</th>
                                 <td>{r.data}</td>
-                                <td>{r.inainte||'—'}</td>
+                                <td>{r.inainte||'—'}{r.pontaje_efective>0&&<small>{t('planificare.efective_retrase',{numar:r.pontaje_efective})}</small>}</td>
                                 <td>{textSchimb(r.schimb_id)}</td>
                                 <td>{t(`planificare.publicare_${r.stare}`)}{r.motiv&&<small>{t(`planificare.motiv_${r.motiv}`)}</small>}</td>
                             </tr>)}
@@ -784,7 +828,7 @@ function PanouSumarAngajat({
     avertismenteEchitate,
     ocupat,
     onSelectAngajat,
-    salveazaPozitii
+    salveazaPozitii,onModificari
 }:{
     angajat:datebaza.Angajat;
     angajatiDisponibili?:datebaza.Angajat[];
@@ -798,151 +842,68 @@ function PanouSumarAngajat({
     avertismenteEchitate:calcul.AvertismentEchitate[];
     ocupat:boolean;
     onSelectAngajat?:(id:string)=>void;
-    salveazaPozitii:(p:datebaza.PozitiePlanificare[])=>Promise<void>;
+    salveazaPozitii:(p:datebaza.PozitiePlanificare[])=>Promise<boolean>;
+    onModificari?:(modificat:boolean)=>void;
 }) {
     const {t,i18n}=useTranslation();
-    const [modificariLocale,setModificariLocale]=useState<Map<string,string>>(new Map());
-    const numarZile=[31,an%400===0||(an%4===0&&an%100!==0)?29:28,31,30,31,30,31,31,30,31,30,31][luna-1];
-    const zile=Array.from({length:numarZile},(_,i)=>`${String(an).padStart(4,'0')}-${String(luna).padStart(2,'0')}-${String(i+1).padStart(2,'0')}`);
-
-    const pozitiiDB=useMemo(()=>{
-        const harta=new Map<string,datebaza.PozitiePlanificare>();
-        for(const p of plan?.pozitii??[]){
-            if(p.angajat_id===angajat.id&&p.activ){
-                harta.set(p.data,p);
-            }
-        }
-        return harta;
-    },[plan,angajat.id]);
-
+    const [modificariLocale,setModificariLocale]=useState<Map<string,datebaza.PozitiePlanificare>>(new Map());
+    const secventa=useRef(0);
+    useEffect(()=>{onModificari?.(modificariLocale.size>0);return()=>onModificari?.(false);},[modificariLocale,onModificari]);
+    const ultima=new Date(Date.UTC(an,luna,0)).getUTCDate();
+    const zile=Array.from({length:ultima},(_,i)=>`${an}-${String(luna).padStart(2,'0')}-${String(i+1).padStart(2,'0')}`);
     const categorie=date.categorii_program?.find(c=>c.id===angajat.categorie_program_id);
-    const programePermise=useMemo(()=>{
-        return schimburi.filter(s=>s.activ&&programPlanificat(s)&&(!categorie||(categorie.activ&&categorie.schimburi_id.includes(s.id))));
-    },[schimburi,categorie]);
-
-    const avertismenteAngajat=useMemo(()=>{
-        return avertismenteEchitate.filter(a=>a.angajat_id===angajat.id);
-    },[avertismenteEchitate,angajat.id]);
-
-    function getSchimbZi(data:string):string {
-        if(modificariLocale.has(data))return modificariLocale.get(data)!;
-        const p=pozitiiDB.get(data);
-        return p?p.schimb_id:'';
+    const programePermise=schimburi.filter(s=>!motivProgramExclus(s,categorie));
+    const pozitii=new Map<string,datebaza.PozitiePlanificare>();
+    for(const p of plan?.pozitii??[])if(p.angajat_id===angajat.id&&p.activ)pozitii.set(p.id,p);
+    for(const [k,p] of modificariLocale)pozitii.set(k,p);
+    const active=[...pozitii.entries()].filter(([,p])=>p.activ);
+    const totalMinute=active.reduce((n,[,p])=>n+(schimburi.find(s=>s.id===p.schimb_id)?.durata_minute||0),0);
+    function modifica(k:string,p:datebaza.PozitiePlanificare){setModificariLocale(m=>new Map(m).set(k,p));}
+    function adauga(data:string){
+        modifica(`nou-${++secventa.current}`,new datebaza.PozitiePlanificare({id:'',angajat_id:angajat.id,data,schimb_id:'',sectiune:'GARZI',activ:true,revizie:'',stare:'NEPUBLICATA',publicat_la:''}));
     }
-
-    let totalTure=0,totalMinute=0;
-    for(const d of zile){
-        const sid=getSchimbZi(d);
-        if(sid){
-            totalTure++;
-            const s=schimburi.find(x=>x.id===sid);
-            if(s)totalMinute+=s.durata_minute;
-        }
+    async function salveaza(){
+        if(ocupat)return false;
+        const lot=[...modificariLocale.values()].filter(p=>p.id||p.activ);
+        if(lot.some(p=>p.activ&&!p.schimb_id))return false;
+        if(lot.length&&!await salveazaPozitii(lot))return false;
+        setModificariLocale(new Map());return true;
     }
-
-    async function salveaza() {
-        if(ocupat||!modificariLocale.size)return;
-        const deSalvat:datebaza.PozitiePlanificare[]=[];
-        for(const [data,schimbId] of modificariLocale.entries()){
-            const existent=pozitiiDB.get(data);
-            if(!schimbId){
-                if(existent){
-                    deSalvat.push(new datebaza.PozitiePlanificare({...existent,activ:false}));
-                }
-            } else {
-                const s=schimburi.find(x=>x.id===schimbId);
-                const sect=s&&inSectiune(s,'DUPA_AMIAZA')?'DUPA_AMIAZA':'GARZI';
-                if(existent){
-                    deSalvat.push(new datebaza.PozitiePlanificare({...existent,schimb_id:schimbId,sectiune:sect,activ:true}));
-                } else {
-                    deSalvat.push(new datebaza.PozitiePlanificare({id:'',angajat_id:angajat.id,data,schimb_id:schimbId,sectiune:sect,activ:true,revizie:'',stare:'NEPUBLICATA',publicat_la:''}));
-                }
-            }
-        }
-        await salveazaPozitii(deSalvat);
-        setModificariLocale(new Map());
-    }
-
+    useSalvareParasire('sumar-plan',modificariLocale.size,salveaza,()=>setModificariLocale(new Map()));
     return <div className="panou-sumar-angajat">
         <div className="antet-sumar-angajat">
-            <div style={{display:'flex',alignItems:'center',gap:'12px'}}>
-                {angajatiDisponibili&&onSelectAngajat?<select value={angajat.id} onChange={e=>onSelectAngajat(e.target.value)}>
-                    {angajatiDisponibili.map(a=><option key={a.id} value={a.id}>{a.nume} {a.prenume} · {a.marca}</option>)}
-                </select>:<div>
-                    <strong>{angajat.nume} {angajat.prenume}</strong>
-                    <span className="text-discret" style={{marginLeft:'8px'}}>{angajat.marca}</span>
-                </div>}
-                {categorie&&<span className="categorie-angajat">{categorie.denumire[i18n.language]||categorie.denumire.ro}</span>}
-            </div>
-            <div className="statistici-sumar-angajat">
-                <div className="statistica-sumar-item">
-                    <span>{t('planificare.total_ture_planificate')}</span>
-                    <strong>{totalTure}</strong>
-                </div>
-                <div className="statistica-sumar-item">
-                    <span>{t('planificare.total_ore_planificate')}</span>
-                    <strong>{durata(totalMinute,t)}</strong>
-                </div>
-                {modificariLocale.size>0&&<button className="buton primar" disabled={ocupat} onClick={()=>void salveaza()}>{t('ui.salveaza')} ({modificariLocale.size})</button>}
-            </div>
+            <div>{angajatiDisponibili&&onSelectAngajat?<select aria-label={t('ui.angajat')} value={angajat.id} disabled={ocupat} onChange={async e=>{const id=e.target.value;if(!modificariLocale.size||await confirmaParasire())onSelectAngajat(id);}}>{angajatiDisponibili.map(a=><option key={a.id} value={a.id}>{numeAngajat(a)} ? {a.marca}</option>)}</select>:<strong>{numeAngajatFaraPrefix(angajat)} ? {angajat.marca}</strong>}</div>
+            <div>{t('planificare.total_ture_planificate')}: <strong>{active.length}</strong> ? {t('planificare.total_ore_planificate')}: <strong>{durata(totalMinute,t)}</strong></div>
+            {modificariLocale.size>0&&<button className="buton primar" disabled={ocupat||active.some(([,p])=>!p.schimb_id)} onClick={()=>void salveaza()}>{t('ui.salveaza')} ({modificariLocale.size})</button>}
         </div>
-
-        {avertismenteAngajat.length>0&&<div className="caseta-avertismente-sumar" role="region" aria-label={t('planificare.avertismente_echitate')}>
-            <strong>⚠️ {t('planificare.avertismente_echitate')}:</strong>
-            <ul>
-                {avertismenteAngajat.map((av,i)=><li key={i}>
-                    <strong>{av.data}:</strong> {av.mesaj}
-                </li>)}
-            </ul>
-        </div>}
-
-        <div className="panou tabel-derulant">
-            <table className="tabel-sumar-angajat">
-                <thead>
-                    <tr>
-                        <th>{t('planificare.data')}</th>
-                        <th>Zi</th>
-                        <th>{t('planificare.tip_zi')}</th>
-                        <th>{t('planificare.program')}</th>
-                        <th>{t('planificare.durata')}</th>
-                        <th>{t('planificare.actiune')}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {zile.map(d=>{
-                        const dt=new Date(`${d}T12:00:00Z`);
-                        const esteWeekend=[0,6].includes(dt.getUTCDay());
-                        const sarb=sarbatori.get(d);
-                        const k=`${angajat.id}/${d}`;
-                        const absenta=absente.get(k);
-                        const schimbId=getSchimbZi(d);
-                        const s=schimburi.find(x=>x.id===schimbId);
-                        const modificata=modificariLocale.has(d);
-
-                        return <tr key={d} className={sarb?'plan-zi-libera':esteWeekend?'plan-weekend':''}>
-                            <td><strong>{d}</strong></td>
-                            <td>{formatData(i18n.language,{weekday:'short',timeZone:'UTC'}).format(dt)}</td>
-                            <td>{sarb?<span className="eticheta-intrare">{sarb}</span>:esteWeekend?t('ui.tooltip_weekend'):t('planificare.lucratoare')}</td>
-                            <td>
-                                {absenta?<span className="eticheta-contract">{absenta.cod} ({t(`absente.${absenta.cod}`)||absenta.cod})</span>:<select disabled={ocupat} value={schimbId} onChange={e=>setModificariLocale(m=>new Map(m).set(d,e.target.value))}>
-                                    <option value="">— {t('planificare.niciunul')} —</option>
-                                    {programePermise.map(pr=><option key={pr.id} value={pr.id}>{pr.cod} · {pr.denumire[i18n.language]||pr.denumire.ro}</option>)}
-                                </select>}
-                            </td>
-                            <td>{s?durata(s.durata_minute,t):'—'}</td>
-                            <td>
-                                {!absenta&&schimbId&&<button type="button" className="legatura discreta" disabled={ocupat} onClick={()=>setModificariLocale(m=>new Map(m).set(d,''))}>{t('planificare.sterge_selectia')}</button>}
-                                {modificata&&<small style={{marginLeft:'6px',color:'#8c661d'}}>*</small>}
-                            </td>
-                        </tr>;
-                    })}
-                </tbody>
-            </table>
-        </div>
+        <p>{t('planificare.multiple_indiciu')}</p>
+        <details className="detalii-configurare programe-excluse"><summary>{t('ui28.programe_excluse',{numar:schimburi.filter(p=>motivProgramExclus(p,categorie)).length})}</summary><p>{t('ui28.programe_indiciu')}</p><ul>{schimburi.filter(p=>motivProgramExclus(p,categorie)).map(p=><li key={p.id}><strong>{p.cod}</strong>: {t('ui28.exclus_'+motivProgramExclus(p,categorie))}</li>)}</ul><button type="button" className="legatura" disabled={modificariLocale.size>0} onClick={()=>window.dispatchEvent(new CustomEvent('pontix-configurare',{detail:'schimburi'}))}>{t('ui28.deschide_schimburi')}</button><button type="button" className="legatura" onClick={()=>window.dispatchEvent(new CustomEvent('pontix-ajutor-contextual',{detail:'schimburi'}))}>{t('ajutor.buton')}</button></details>
+        {avertismenteEchitate.filter(a=>a.angajat_id===angajat.id).map((a,i)=><p key={i}>{a.data}: {a.mesaj}</p>)}
+        <div className="panou tabel-derulant"><table className="tabel-sumar-angajat">
+            <thead><tr><th>{t('planificare.data')}</th><th>{t('planificare.tip_zi')}</th><th>{t('planificare.program')}</th><th>{t('planificare.durata')}</th><th>{t('planificare.actiune')}</th></tr></thead>
+            <tbody>{zile.map(d=>{
+                const absenta=absente.get(`${angajat.id}/${d}`);
+                const weekend=[0,6].includes(new Date(`${d}T12:00:00Z`).getUTCDay());
+                const lista=active.filter(([,p])=>p.data===d).sort((a,b)=>(schimburi.find(s=>s.id===a[1].schimb_id)?.ora_start||0)-(schimburi.find(s=>s.id===b[1].schimb_id)?.ora_start||0));
+                return <tr key={d} className={sarbatori.has(d)?'plan-zi-libera':weekend?'plan-weekend':''}>
+                    <td><strong>{d}</strong><br/>{formatData(i18n.language,{weekday:'short',timeZone:'UTC'}).format(new Date(`${d}T12:00:00Z`))}</td>
+                    <td>{sarbatori.get(d)||(weekend?t('ui.tooltip_weekend'):t('planificare.lucratoare'))}</td>
+                    <td>{absenta?<span>{absenta.cod}</span>:lista.map(([k,p])=>{const pr=schimburi.find(s=>s.id===p.schimb_id);return <div key={k} className="programe-zi-item">
+                        <select aria-label={`${t('planificare.program')} ${d} ${k}`} disabled={ocupat} value={p.schimb_id} onChange={e=>{const pr=schimburi.find(s=>s.id===e.target.value);modifica(k,new datebaza.PozitiePlanificare({...p,schimb_id:e.target.value,sectiune:pr&&inSectiune(pr,'DUPA_AMIAZA')?'DUPA_AMIAZA':'GARZI'}));}}>
+                            <option value="">{t('planificare.alege_program')}</option>{programePermise.filter(pr=>!(pr.tip==='NORMAL'&&pr.regim==='LUCRATOARE'&&(weekend||sarbatori.has(d)))).map(pr=><option key={pr.id} value={pr.id}>{pr.cod} ? {pr.denumire[i18n.language]||pr.denumire.ro} ? {oraText(pr.ora_start)}</option>)}
+                            {pr&&!programePermise.some(s=>s.id===pr.id)&&<option value={pr.id} disabled>{pr.cod}</option>}
+                        </select>
+                        <button type="button" className="legatura" disabled={ocupat} onClick={()=>modifica(k,new datebaza.PozitiePlanificare({...p,activ:false}))}>{t('planificare.sterge_selectia')}</button>
+                    </div>;})}</td>
+                    <td>{lista.map(([k,p])=><div key={k}>{durata(schimburi.find(s=>s.id===p.schimb_id)?.durata_minute||0,t)}</div>)}</td>
+                    <td>{!absenta&&<button type="button" className="buton secundar" disabled={ocupat||!programePermise.length} onClick={()=>adauga(d)}>{t('planificare.adauga_program_zi')}</button>}</td>
+                </tr>;
+            })}</tbody>
+        </table></div>
     </div>;
 }
 
-function FormularPlanificare({pozitie,an,luna,date,schimburi,sarbatori,ocupat,eroare,inchide,salveaza}:{pozitie:datebaza.PozitiePlanificare;an:number;luna:number;date:datebaza.Date;schimburi:datebaza.Schimb[];sarbatori:Map<string,string>;ocupat:boolean;eroare:string;inchide:()=>void;salveaza:(p:datebaza.PozitiePlanificare[])=>Promise<void>}) {
+function FormularPlanificare({pozitie,an,luna,date,schimburi,sarbatori,ocupat,eroare,inchide,salveaza}:{pozitie:datebaza.PozitiePlanificare;an:number;luna:number;date:datebaza.Date;schimburi:datebaza.Schimb[];sarbatori:Map<string,string>;ocupat:boolean;eroare:string;inchide:()=>void;salveaza:(p:datebaza.PozitiePlanificare[])=>Promise<boolean>}) {
     const {t,i18n}=useTranslation();
     const [angajat,setAngajat]=useState(pozitie.angajat_id);
     const [schimb,setSchimb]=useState(pozitie.schimb_id);
@@ -968,7 +929,7 @@ function FormularPlanificare({pozitie,an,luna,date,schimburi,sarbatori,ocupat,er
             <div className="corp-dialog">
                 {(validare||eroare)&&<p role="alert" className="mesaj eroare">{validare||eroare}</p>}
                 <fieldset className="campuri" disabled={ocupat}>
-                    <label className="latime-completa">{t('ui.angajat')}<select name="plan_angajat" required disabled={Boolean(pozitie.id)} value={angajat} onChange={e=>{const id=e.target.value;setAngajat(id);const lista=programePentru(id);setSchimb(lista.some(s=>s.id===schimb)?schimb:lista.find(s=>s.cod===(pozitie.sectiune==='GARZI'?'G24':'S7'))?.id||lista[0]?.id||'');}}><option value="">{t('planificare.alege_angajat')}</option>{date.angajati.filter(a=>a.activ&&(programePentru(a.id).length||a.id===angajat)).map(a=><option key={a.id} value={a.id}>{a.nume} {a.prenume} · {a.marca}</option>)}</select></label>
+                    <label className="latime-completa">{t('ui.angajat')}<select name="plan_angajat" required disabled={Boolean(pozitie.id)} value={angajat} onChange={e=>{const id=e.target.value;setAngajat(id);const lista=programePentru(id);setSchimb(lista.some(s=>s.id===schimb)?schimb:lista.find(s=>s.cod===(pozitie.sectiune==='GARZI'?'G24':'S7'))?.id||lista[0]?.id||'');}}><option value="">{t('planificare.alege_angajat')}</option>{date.angajati.filter(a=>a.activ&&(programePentru(a.id).length||a.id===angajat)).map(a=><option key={a.id} value={a.id}>{numeAngajat(a)} · {a.marca}</option>)}</select></label>
                     <label className="latime-completa">{t('planificare.program')}<select name="plan_schimb" required value={schimb} onChange={e=>setSchimb(e.target.value)}><option value="">{t('planificare.alege_program')}</option>{programe.map(s=><option key={s.id} value={s.id}>{s.cod} · {s.denumire[i18n.language]||s.denumire.ro} · {oraText(s.ora_start)} · {durata(s.durata_minute,t)}</option>)}</select><small>{t('planificare.programe_indiciu')}</small></label>
                     <label>{t('absente.de_la')}<input name="plan_de_la" type="date" min={prima} max={ultima} required disabled={Boolean(pozitie.id)} value={deLa} onChange={e=>{setDeLa(e.target.value);if(e.target.value>panaLa)setPanaLa(e.target.value);setExcluse(new Set());}}/></label>
                     <label>{t('absente.pana_la')}<input name="plan_pana_la" type="date" min={deLa} max={ultima} required disabled={Boolean(pozitie.id)} value={panaLa} onChange={e=>{setPanaLa(e.target.value);setExcluse(new Set());}}/></label>
@@ -1032,7 +993,7 @@ function PanouComparativPlanificatVsRealizat({
         const m = new Map<string, string>();
         for (const p of plan?.pozitii ?? []) {
             if (p.activ) {
-                m.set(`${p.angajat_id}/${p.data}`, codSchimbID.get(p.schimb_id) || p.schimb_id);
+                const k=`${p.angajat_id}/${p.data}`;m.set(k,[...(m.get(k)?.split('+')||[]),codSchimbID.get(p.schimb_id)||p.schimb_id].sort().join('+'));
             }
         }
         return m;
@@ -1065,10 +1026,10 @@ function PanouComparativPlanificatVsRealizat({
                 const rVal = realHarta.get(k) || '';
                 const ab = absente.get(k);
 
-                const pOre = pVal ? (oreSchimb.get(pVal.toUpperCase()) || 8) : 0;
+                const pOre = pVal ? pVal.split('+').reduce((n,c)=>n+(oreSchimb.get(c.toUpperCase())||0),0) : 0;
                 let rOre = 0;
                 if (rVal) {
-                    rOre = oreSchimb.get(rVal.toUpperCase()) || (parseInt(rVal, 10) || 8);
+                    rOre = rVal.split('+').reduce((n,c)=>n+(oreSchimb.get(c.toUpperCase())||(Number(c)||0)),0);
                 }
 
                 let stare = 'liber';
@@ -1078,7 +1039,7 @@ function PanouComparativPlanificatVsRealizat({
                 } else if (!pVal && !rVal) {
                     stare = 'liber';
                 } else if (pVal && rVal) {
-                    if (pVal.toUpperCase() === rVal.toUpperCase()) {
+                    if (pVal.toUpperCase().split('+').sort().join('+') === rVal.toUpperCase().split('+').sort().join('+')) {
                         stare = 'identic';
                     } else {
                         stare = 'modificat';
@@ -1138,7 +1099,7 @@ function PanouComparativPlanificatVsRealizat({
             if (doarDiscrepante && r.discAng === 0 && r.difOre === 0) return false;
             if (filtruNume.trim()) {
                 const q = filtruNume.toLowerCase();
-                const text = `${r.angajat.nume} ${r.angajat.prenume} ${r.angajat.marca}`.toLowerCase();
+                const text = `${numeAngajatFaraPrefix(r.angajat)} ${r.angajat.marca}`.toLowerCase();
                 if (!text.includes(q)) return false;
             }
             return true;
@@ -1227,7 +1188,7 @@ function PanouComparativPlanificatVsRealizat({
                                 <th scope="row" className="fix-angajat-comp">
                                     <div className="identitate">
                                         <span className="avatar" aria-hidden="true">{r.angajat.prenume.charAt(0)}{r.angajat.nume.charAt(0)}</span>
-                                        <span><strong>{r.angajat.nume} {r.angajat.prenume}</strong><small>{r.angajat.marca}</small></span>
+                                        <span><strong>{numeAngajatFaraPrefix(r.angajat)}</strong><small>{r.angajat.marca}</small></span>
                                     </div>
                                 </th>
                                 <td className="fix-ore-comp">{r.orePlanAng}h</td>
@@ -1277,7 +1238,7 @@ function DialogConfigurareReguli({
         ListaReguliConfigurabile().then(r => {
             if (!activ) return;
             if (r.eroare) {
-                setEroare(r.eroare.cod);
+                setEroare(t(r.eroare.cod,r.eroare.param??{}));
             } else {
                 setReguli(r.reguli ?? []);
             }
@@ -1301,7 +1262,7 @@ function DialogConfigurareReguli({
             for (const r of reguli) {
                 const resp = await SalveazaRegulaConfigurabila(r);
                 if (resp.eroare) {
-                    setEroare(resp.eroare.cod);
+                    setEroare(t(resp.eroare.cod,resp.eroare.param??{}));
                     setSalvand(false);
                     return;
                 }

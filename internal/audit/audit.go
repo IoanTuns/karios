@@ -38,6 +38,10 @@ const (
 // CodEditareBlocata e codul i18n al erorii date oricărei scrieri cât timp există un incident.
 const CodEditareBlocata = "audit.editare_blocata"
 
+// CodDoarCitire e codul i18n al scrierilor refuzate cand alta instanta are
+// aplicatia deschisa pe acelasi folder (D002 punctul 6, F05-T11).
+const CodDoarCitire = "audit.doar_citire"
+
 const (
 	tabelSigilii = "sigilii"
 	tabelJurnal  = "jurnal_modificari"
@@ -71,6 +75,29 @@ type Paza struct {
 	cereCont     bool
 	autentificat bool
 	sistem       int
+	// doarCitire: alta instanta scrie in acelasi folder; operatiile de sistem
+	// (autentificarea) raman permise, celelalte scrieri sunt refuzate.
+	doarCitire bool
+}
+
+// DoarCitire activeaza refuzul permanent al scrierilor obisnuite (F05-T11).
+func (p *Paza) DoarCitire(da bool) {
+	if p == nil {
+		return
+	}
+	p.mu.Lock()
+	p.doarCitire = da
+	p.mu.Unlock()
+}
+
+// EsteDoarCitire spune daca instanta lucreaza doar in citire.
+func (p *Paza) EsteDoarCitire() bool {
+	if p == nil {
+		return false
+	}
+	p.mu.RLock()
+	defer p.mu.RUnlock()
+	return p.doarCitire
 }
 
 // NouaPaza pornește cu rezultatul verificării de la deschidere.
@@ -92,6 +119,9 @@ func (p *Paza) Blocata() bool {
 	defer p.mu.RUnlock()
 	if p.sistem > 0 {
 		return false
+	}
+	if p.doarCitire {
+		return true
 	}
 	if p.cereCont && !p.autentificat {
 		return true
@@ -225,7 +255,11 @@ func inregistreazaFunctii(c *sqlite3.Conn, cheie []byte, paza *Paza) error {
 	}
 	return c.CreateFunction("pontix_permite", 0, sqlite3.DIRECTONLY, func(ctx sqlite3.Context, arg ...sqlite3.Value) {
 		if paza.Blocata() {
-			ctx.ResultError(errors.New(CodEditareBlocata))
+			cod := CodEditareBlocata
+			if paza.EsteDoarCitire() {
+				cod = CodDoarCitire
+			}
+			ctx.ResultError(errors.New(cod))
 			return
 		}
 		ctx.ResultNull()
@@ -690,7 +724,15 @@ func Confirma(ctx context.Context, db *sql.DB, paza *Paza, motiv string) (Rezult
 
 // EsteEditareBlocata recunoaște eroarea dată de trigger-e cât timp există un incident.
 func EsteEditareBlocata(err error) bool {
-	return err != nil && strings.Contains(err.Error(), CodEditareBlocata)
+	return err != nil && (strings.Contains(err.Error(), CodEditareBlocata) || strings.Contains(err.Error(), CodDoarCitire))
+}
+
+// CodBlocare intoarce codul i18n potrivit unei scrieri refuzate: incident sau doar citire.
+func CodBlocare(err error) string {
+	if err != nil && strings.Contains(err.Error(), CodDoarCitire) {
+		return CodDoarCitire
+	}
+	return CodEditareBlocata
 }
 
 // MacSecventa autentifică contorul de jurnal păstrat în seif (F06-T09).

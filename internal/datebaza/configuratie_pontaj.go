@@ -72,7 +72,11 @@ func ValideazaCoduriReguli(ctx context.Context, q *acces.Queries, c calcul.Confi
 	if err != nil {
 		return err
 	}
-	for _, r := range c.Reguli {
+	reguli := append([]calcul.RegulaColoana(nil), c.Reguli...)
+	for _, r := range c.Conditionate {
+		reguli = append(reguli, r.Regula)
+	}
+	for _, r := range reguli {
 		tip := "SCHIMB"
 		if r.Sursa == "ZILE_ABSENTA" {
 			tip = "ABSENTA"
@@ -93,7 +97,20 @@ func (s *Serviciu) SalveazaConfiguratiePontaj(ctx context.Context, c calcul.Conf
 	if err := calcul.ValideazaConfiguratiePontaj(c); err != nil {
 		return err
 	}
-	return s.modifica(ctx, func(q *acces.Queries) error {
+	return s.modificaTx(ctx, func(tx *sql.Tx, q *acces.Queries) error {
+		for _, r := range c.Conditionate {
+			for _, ref := range []struct{ tabel, id string }{{"grupuri_profesionale", r.GrupID}, {"functii", r.FunctieID}, {"tipuri_contract", r.ContractID}} {
+				if ref.id != "" {
+					var n int
+					if err := tx.QueryRowContext(ctx, "SELECT count(*) FROM "+ref.tabel+" WHERE id=?", ref.id).Scan(&n); err != nil {
+						return err
+					}
+					if n != 1 {
+						return eroare("nomenclator.invalid")
+					}
+				}
+			}
+		}
 		vechi, err := citesteConfiguratiePontaj(ctx, q)
 		if err != nil {
 			return err
@@ -106,9 +123,10 @@ func (s *Serviciu) SalveazaConfiguratiePontaj(ctx context.Context, c calcul.Conf
 			return err
 		}
 		date, err := json.Marshal(struct {
-			Atribuire string                 `json:"atribuire"`
-			Reguli    []calcul.RegulaColoana `json:"reguli"`
-		}{c.Atribuire, c.Reguli})
+			Atribuire    string                      `json:"atribuire"`
+			Reguli       []calcul.RegulaColoana      `json:"reguli"`
+			Conditionate []calcul.RegulaConditionata `json:"conditionate,omitempty"`
+		}{c.Atribuire, c.Reguli, c.Conditionate})
 		if err != nil {
 			return err
 		}

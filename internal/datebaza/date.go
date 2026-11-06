@@ -20,19 +20,30 @@ import (
 )
 
 type Angajat struct {
-	ID                  string `json:"id"`
-	Nume                string `json:"nume"`
-	Prenume             string `json:"prenume"`
-	Marca               string `json:"marca"`
-	Functie             string `json:"functie"`
-	SectieID            string `json:"sectie_id"`
-	DepartamentID       string `json:"departament_id"`
-	CategorieProgramID  string `json:"categorie_program_id"`
-	TipContract         string `json:"tip_contract"`
-	NormaPartialaMinute *int64 `json:"norma_partiala_minute"`
-	NormaMinute         int64  `json:"norma_minute"`
-	ConcediuZileAn      *int64 `json:"concediu_zile_an"`
-	Activ               bool   `json:"activ"`
+	Initializare        *acces.InitializarePontaj `json:"initializare,omitempty"`
+	ContractID          string                    `json:"contract_id"`
+	GrupID              string                    `json:"grup_id"`
+	Conducere           bool                      `json:"conducere"`
+	Garda               bool                      `json:"garda"`
+	NormaDefinita       bool                      `json:"norma_definita"`
+	ID                  string                    `json:"id"`
+	Nume                string                    `json:"nume"`
+	Prenume             string                    `json:"prenume"`
+	Marca               string                    `json:"marca"`
+	Functie             string                    `json:"functie"`
+	FunctieID           string                    `json:"functie_id"`
+	AngajatPrincipalID  string                    `json:"angajat_principal_id"`
+	SectieID            string                    `json:"sectie_id"`
+	DepartamentID       string                    `json:"departament_id"`
+	CategorieProgramID  string                    `json:"categorie_program_id"`
+	TipContract         string                    `json:"tip_contract"`
+	NormaPartialaMinute *int64                    `json:"norma_partiala_minute"`
+	NormaMinute         int64                     `json:"norma_minute"`
+	ConcediuZileAn      *int64                    `json:"concediu_zile_an"`
+	Activ               bool                      `json:"activ"`
+	// PrefixID leaga angajatul de nomenclatorul prefixe (D089); Prefix este denumirea lui.
+	PrefixID string    `json:"prefix_id"`
+	Prefix   i18n.Text `json:"prefix,omitempty"`
 }
 
 type Sectie struct {
@@ -47,12 +58,19 @@ type Departament struct {
 }
 
 type Date struct {
-	Angajati            []Angajat          `json:"angajati"`
-	Sectii              []Sectie           `json:"sectii"`
-	Departamente        []Departament      `json:"departamente"`
-	CategoriiProgram    []CategorieProgram `json:"categorii_program"`
-	NormaIntreagaMinute int64              `json:"norma_intreaga_minute"`
-	DemoDisponibil      bool               `json:"demo_disponibil"`
+	TipuriProgram       []ElementNomenclator `json:"tipuri_program"`
+	RegimuriProgram     []ElementNomenclator `json:"regimuri_program"`
+	GrupuriProfesionale []ElementNomenclator `json:"grupuri_profesionale"`
+	TipuriContract      []ElementNomenclator `json:"tipuri_contract"`
+	CategoriiSchimburi  []ElementNomenclator `json:"categorii_schimburi"`
+	Functii             []ElementNomenclator `json:"functii"`
+	Prefixe             []ElementNomenclator `json:"prefixe"`
+	Angajati            []Angajat            `json:"angajati"`
+	Sectii              []Sectie             `json:"sectii"`
+	Departamente        []Departament        `json:"departamente"`
+	CategoriiProgram    []CategorieProgram   `json:"categorii_program"`
+	NormaIntreagaMinute int64                `json:"norma_intreaga_minute"`
+	DemoDisponibil      bool                 `json:"demo_disponibil"`
 }
 
 type Serviciu struct{ db *sql.DB }
@@ -79,12 +97,16 @@ func (s *Serviciu) Citeste(ctx context.Context) (Date, error) {
 	if err != nil {
 		return Date{}, traduceEroare(err)
 	}
+	initializari, err := q.ListaInitializariPontaj(ctx)
+	if err != nil {
+		return Date{}, traduceEroare(err)
+	}
 	for _, a := range angajati {
 		norma := rez.NormaIntreagaMinute
 		if a.TipContract == "PARTIALA" && a.NormaPartialaMinute != nil {
 			norma = *a.NormaPartialaMinute
 		}
-		rez.Angajati = append(rez.Angajati, Angajat{ID: a.ID, Nume: a.Nume, Prenume: a.Prenume,
+		rez.Angajati = append(rez.Angajati, Angajat{Initializare: initializarePentru(initializari, a.ID), ID: a.ID, Nume: a.Nume, Prenume: a.Prenume,
 			Marca: a.Marca, Functie: textSauGol(a.Functie), SectieID: textSauGol(a.SectieID),
 			DepartamentID:      textSauGol(a.DepartamentID),
 			CategorieProgramID: textSauGol(a.CategorieProgramID),
@@ -117,6 +139,137 @@ func (s *Serviciu) Citeste(ctx context.Context) (Date, error) {
 	if err != nil {
 		return Date{}, traduceEroare(err)
 	}
+	rez.TipuriProgram, err = citesteNomenclator(ctx, tx, "tipuri_program")
+	if err != nil {
+		return Date{}, traduceEroare(err)
+	}
+	rez.RegimuriProgram, err = citesteNomenclator(ctx, tx, "regimuri_program")
+	if err != nil {
+		return Date{}, traduceEroare(err)
+	}
+	rez.CategoriiSchimburi, err = citesteNomenclator(ctx, tx, "categorii")
+	if err != nil {
+		return Date{}, traduceEroare(err)
+	}
+	rez.Functii, err = citesteNomenclator(ctx, tx, "functii")
+	if err != nil {
+		return Date{}, traduceEroare(err)
+	}
+	legaturi, err := tx.QueryContext(ctx, "SELECT angajat_id,functie_id FROM angajati_functii")
+	if err != nil {
+		return Date{}, traduceEroare(err)
+	}
+	asocieri := map[string]string{}
+	for legaturi.Next() {
+		var a, f string
+		if err := legaturi.Scan(&a, &f); err != nil {
+			legaturi.Close()
+			return Date{}, traduceEroare(err)
+		}
+		asocieri[a] = f
+	}
+	err = legaturi.Err()
+	legaturi.Close()
+	if err != nil {
+		return Date{}, traduceEroare(err)
+	}
+	for i := range rez.Angajati {
+		rez.Angajati[i].FunctieID = asocieri[rez.Angajati[i].ID]
+		for _, f := range rez.Functii {
+			if f.ID == rez.Angajati[i].FunctieID {
+				rez.Angajati[i].Functie = numeElement(f)
+			}
+		}
+	}
+	rez.Prefixe, err = citesteNomenclator(ctx, tx, "prefixe")
+	if err != nil {
+		return Date{}, traduceEroare(err)
+	}
+	prefixe, err := citestePrefixeAngajati(ctx, tx)
+	if err != nil {
+		return Date{}, traduceEroare(err)
+	}
+	completeazaPrefixe(rez.Angajati, rez.Prefixe, prefixe)
+	garzi, err := citesteLegaturiGarzi(ctx, tx)
+	if err != nil {
+		return Date{}, traduceEroare(err)
+	}
+	for i := range rez.Angajati {
+		rez.Angajati[i].AngajatPrincipalID = garzi[rez.Angajati[i].ID]
+	}
+	rez.GrupuriProfesionale, err = citesteNomenclator(ctx, tx, "grupuri")
+	if err != nil {
+		return Date{}, traduceEroare(err)
+	}
+	rez.TipuriContract, err = citesteNomenclator(ctx, tx, "contracte")
+	if err != nil {
+		return Date{}, traduceEroare(err)
+	}
+	contracte, err := citesteContracteAngajati(ctx, tx)
+	if err != nil {
+		return Date{}, traduceEroare(err)
+	}
+	for i := range rez.Angajati {
+		a := &rez.Angajati[i]
+		a.NormaDefinita = true
+		a.Garda = a.AngajatPrincipalID != ""
+		a.ContractID = contracte[a.ID]
+		if a.ContractID == "" {
+			a.ContractID = a.TipContract
+		}
+		for _, f := range rez.Functii {
+			if f.ID == a.FunctieID {
+				a.GrupID = f.GrupID
+				a.Conducere = f.Conducere
+			}
+		}
+		for _, c := range rez.TipuriContract {
+			if c.ID == a.ContractID {
+				a.Garda = a.Garda || c.Garda
+				if c.CategorieProgramID != "" {
+					a.CategorieProgramID = c.CategorieProgramID
+				}
+				switch c.Normare {
+				case "GLOBALA":
+					a.NormaMinute = rez.NormaIntreagaMinute
+				case "INDIVIDUALA":
+					if a.NormaPartialaMinute == nil {
+						a.NormaDefinita = false
+						a.NormaMinute = 0
+					} else {
+						a.NormaMinute = *a.NormaPartialaMinute
+					}
+				case "FARA", "LUNARA":
+					a.NormaDefinita = false
+					a.NormaMinute = 0
+				case "ZILNICA":
+					a.NormaMinute = *c.NormaMinute
+				}
+			}
+		}
+	}
+	indexAngajati := map[string]Angajat{}
+	for _, a := range rez.Angajati {
+		indexAngajati[a.ID] = a
+	}
+	for i := range rez.Angajati {
+		a := &rez.Angajati[i]
+		if a.AngajatPrincipalID != "" && a.FunctieID == "" {
+			p := indexAngajati[a.AngajatPrincipalID]
+			a.FunctieID = p.FunctieID
+			a.Functie = p.Functie
+			a.GrupID = p.GrupID
+			a.Conducere = p.Conducere
+		}
+	}
+	// Marca de garda fara prefix propriu il afiseaza pe al marcii principale;
+	// PrefixID ramane gol, ca o salvare sa nu il fixeze separat (D089).
+	for i := range rez.Angajati {
+		a := &rez.Angajati[i]
+		if a.AngajatPrincipalID != "" && a.PrefixID == "" {
+			a.Prefix = indexAngajati[a.AngajatPrincipalID].Prefix
+		}
+	}
 	n, err := q.NumaraAngajati(ctx)
 	if err != nil {
 		return Date{}, traduceEroare(err)
@@ -138,18 +291,73 @@ func (s *Serviciu) SalveazaAngajat(ctx context.Context, a Angajat) error {
 	if a.Nume == "" || a.Prenume == "" || a.Marca == "" {
 		return eroare("date.campuri_obligatorii")
 	}
-	if a.TipContract != "INTREAGA" && a.TipContract != "PARTIALA" {
-		return eroare("date.contract_invalid")
-	}
-	if a.TipContract == "INTREAGA" {
-		a.NormaPartialaMinute = nil
-	} else if a.NormaPartialaMinute == nil || *a.NormaPartialaMinute < 1 || *a.NormaPartialaMinute > 1440 {
-		return eroare("date.norma_invalida")
-	}
-	if a.ConcediuZileAn != nil && *a.ConcediuZileAn < 0 {
-		return eroare("date.concediu_invalid")
-	}
-	return s.modifica(ctx, func(q *acces.Queries) error {
+	return s.modificaTx(ctx, func(tx *sql.Tx, q *acces.Queries) error {
+		if (a.ContractID == "INTREAGA" || a.ContractID == "PARTIALA") && (a.TipContract == "INTREAGA" || a.TipContract == "PARTIALA") && a.TipContract != a.ContractID {
+			a.ContractID = a.TipContract
+		}
+		if a.ContractID != "" {
+			c, err := contractPentruSalvare(ctx, tx, a)
+			if err != nil {
+				return err
+			}
+			if c.Normare == "INDIVIDUALA" {
+				a.TipContract = "PARTIALA"
+			} else {
+				a.TipContract = "INTREAGA"
+			}
+		}
+		if a.TipContract != "INTREAGA" && a.TipContract != "PARTIALA" {
+			return eroare("date.contract_invalid")
+		}
+		if a.TipContract == "INTREAGA" {
+			a.NormaPartialaMinute = nil
+		} else if a.NormaPartialaMinute == nil || *a.NormaPartialaMinute < 1 || *a.NormaPartialaMinute > 1440 {
+			return eroare("date.norma_invalida")
+		}
+		if a.ConcediuZileAn != nil && *a.ConcediuZileAn < 0 {
+			return eroare("date.concediu_invalid")
+		}
+
+		if a.ContractID != "" {
+			if err := valideazaContractActiv(ctx, tx, a); err != nil {
+				return err
+			}
+		}
+		if err := valideazaLegaturaGarda(ctx, tx, a); err != nil {
+			return err
+		}
+		// Profilul returnat UI poate include functia mostenita; o salvare neutra nu o fixeaza separat.
+		if a.AngajatPrincipalID != "" && a.FunctieID != "" {
+			var proprie, principala sql.NullString
+			if err := tx.QueryRowContext(ctx, "SELECT (SELECT functie_id FROM angajati_functii WHERE angajat_id=?),(SELECT functie_id FROM angajati_functii WHERE angajat_id=?)", a.ID, a.AngajatPrincipalID).Scan(&proprie, &principala); err != nil {
+				return err
+			}
+			if !proprie.Valid && principala.Valid && principala.String == a.FunctieID {
+				a.FunctieID = ""
+				a.Functie = ""
+			}
+		}
+		if a.FunctieID != "" {
+			lista, err := citesteNomenclator(ctx, tx, "functii")
+			if err != nil {
+				return err
+			}
+			gasit := false
+			for _, f := range lista {
+				if f.ID == a.FunctieID {
+					gasit = true
+					var vechiID string
+					_ = tx.QueryRowContext(ctx, "SELECT functie_id FROM angajati_functii WHERE angajat_id=?", a.ID).Scan(&vechiID)
+					if !f.Activ && vechiID != f.ID {
+						return eroare("nomenclator.inactiv")
+					}
+					a.Functie = numeElement(f)
+				}
+			}
+			if !gasit {
+				return eroare("nomenclator.invalid")
+			}
+		}
 		if a.CategorieProgramID != "" {
 			c, err := q.CitesteCategorieProgram(ctx, a.CategorieProgramID)
 			if err != nil {
@@ -200,6 +408,57 @@ func (s *Serviciu) SalveazaAngajat(ctx context.Context, a Angajat) error {
 			}
 			if n != 1 {
 				return sql.ErrNoRows
+			}
+		}
+		if _, err := tx.ExecContext(ctx, "DELETE FROM angajati_functii WHERE angajat_id=?", a.ID); err != nil {
+			return err
+		}
+		if a.FunctieID != "" {
+			if _, err := tx.ExecContext(ctx, "INSERT INTO angajati_functii VALUES(?,?)", a.ID, a.FunctieID); err != nil {
+				return err
+			}
+		}
+		if err := salveazaPrefixAngajat(ctx, tx, q, a.ID, a.PrefixID); err != nil {
+			return err
+		}
+		contractID := a.ContractID
+		if contractID == "" {
+			contractID = a.TipContract
+		}
+		var contractVechi string
+		errContract := tx.QueryRowContext(ctx, "SELECT contract_id FROM angajati_contracte WHERE angajat_id=?", a.ID).Scan(&contractVechi)
+		if errContract != nil && errContract != sql.ErrNoRows {
+			return errContract
+		}
+		if _, err := tx.ExecContext(ctx, "INSERT INTO angajati_contracte VALUES(?,?) ON CONFLICT(angajat_id) DO UPDATE SET contract_id=excluded.contract_id", a.ID, contractID); err != nil {
+			return err
+		}
+		if contractVechi != contractID && a.ContractID != "" {
+			if err := jurnal(ctx, q, "angajati_contracte", a.ID, contractVechi, contractID); err != nil {
+				return err
+			}
+		}
+		var principalVechi string
+		errLegatura := tx.QueryRowContext(ctx, "SELECT principal_id FROM angajati_garzi WHERE angajat_id=?", a.ID).Scan(&principalVechi)
+		if errLegatura != nil && errLegatura != sql.ErrNoRows {
+			return errLegatura
+		}
+		if _, err := tx.ExecContext(ctx, "DELETE FROM angajati_garzi WHERE angajat_id=?", a.ID); err != nil {
+			return err
+		}
+		if a.AngajatPrincipalID != "" {
+			if _, err := tx.ExecContext(ctx, "INSERT INTO angajati_garzi VALUES(?,?)", a.ID, a.AngajatPrincipalID); err != nil {
+				return err
+			}
+		}
+		if principalVechi != a.AngajatPrincipalID {
+			if err := jurnal(ctx, q, "angajati_garzi", a.ID, principalVechi, a.AngajatPrincipalID); err != nil {
+				return err
+			}
+		}
+		if a.Initializare != nil {
+			if err := salveazaInitializare(ctx, q, a.ID, *a.Initializare); err != nil {
+				return err
 			}
 		}
 		nou, err := q.CitesteAngajat(ctx, a.ID)
@@ -392,10 +651,20 @@ func (s *Serviciu) modificaTx(ctx context.Context, actiune func(*sql.Tx, *acces.
 	if err := actiune(tx, acces.New(tx)); err != nil {
 		return traduceEroare(err)
 	}
+	if ctx.Value(cheieSimulareAbsente{}) != nil {
+		return traduceEroare(tx.Rollback())
+	}
 	return traduceEroare(tx.Commit())
 }
 
 func jurnal(ctx context.Context, q *acces.Queries, tabel, id string, vechi, nou any) error {
+	if colector, ok := ctx.Value(cheieSimulareAbsente{}).(*[]EfectAbsenta); ok {
+		switch tabel {
+		case "pontaj_ciorne", "planificare", "absente_zile", "pontaj":
+			*colector = append(*colector, EfectAbsenta{tabel, id, campuriEfect(vechi), campuriEfect(nou)})
+		}
+		return nil
+	}
 	var inainte *string
 	if vechi != nil {
 		text, err := json.Marshal(vechi)
@@ -425,7 +694,7 @@ func traduceEroare(err error) error {
 	}
 	switch {
 	case audit.EsteEditareBlocata(err):
-		return eroare(audit.CodEditareBlocata)
+		return eroare(audit.CodBlocare(err))
 	case errors.Is(err, sql.ErrNoRows):
 		return eroare("date.inexistent")
 	case errors.Is(err, sqlite3.CONSTRAINT_UNIQUE):

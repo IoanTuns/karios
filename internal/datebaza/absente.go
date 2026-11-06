@@ -14,19 +14,24 @@ import (
 	"unicode/utf8"
 
 	"pontix/internal/bd/acces"
+	"pontix/internal/calcul"
 	"pontix/internal/i18n"
 )
 
 const limitaDocumentAbsenta = 10 * 1024 * 1024
 
 type TipAbsenta struct {
-	Cod       string    `json:"cod"`
-	Denumire  i18n.Text `json:"denumire"`
-	Categorie string    `json:"categorie"`
-	Activ     bool      `json:"activ"`
+	CategorieID string    `json:"categorie_id"`
+	EfectOre    string    `json:"efect_ore"`
+	Revizie     string    `json:"revizie"`
+	Cod         string    `json:"cod"`
+	Denumire    i18n.Text `json:"denumire"`
+	Categorie   string    `json:"categorie"`
+	Activ       bool      `json:"activ"`
 }
 
 type ZiAbsenta struct {
+	MinuteCreditate     *int64 `json:"minute_creditate,omitempty"`
 	AngajatID           string `json:"angajat_id"`
 	Data                string `json:"data"`
 	Cod                 string `json:"cod"`
@@ -50,9 +55,10 @@ type DocumentAbsenta struct {
 }
 
 type AbsenteAn struct {
-	An     int          `json:"an"`
-	Tipuri []TipAbsenta `json:"tipuri"`
-	Zile   []ZiAbsenta  `json:"zile"`
+	Categorii []CategorieAbsenta `json:"categorii"`
+	An        int                `json:"an"`
+	Tipuri    []TipAbsenta       `json:"tipuri"`
+	Zile      []ZiAbsenta        `json:"zile"`
 }
 
 func valPtr(p *string) string {
@@ -86,12 +92,24 @@ func (s *Serviciu) CitesteAbsente(ctx context.Context, an int) (AbsenteAn, error
 	if err != nil {
 		return AbsenteAn{}, traduceEroare(err)
 	}
+	efecte, err := q.EfecteAbsente(ctx)
+	if err != nil {
+		return AbsenteAn{}, err
+	}
+	rez.Categorii, err = citesteCategoriiAbsente(ctx, tx)
+	if err != nil {
+		return AbsenteAn{}, traduceEroare(err)
+	}
+	asocieri, err := q.CategoriiTipuriAbsenta(ctx)
+	if err != nil {
+		return AbsenteAn{}, traduceEroare(err)
+	}
 	for _, r := range tipuri {
 		var denumire i18n.Text
 		if err := json.Unmarshal([]byte(r.Denumire), &denumire); err != nil {
 			return AbsenteAn{}, traduceEroare(err)
 		}
-		rez.Tipuri = append(rez.Tipuri, TipAbsenta{Cod: r.Cod, Denumire: denumire, Categorie: r.Categorie, Activ: r.Activ == 1})
+		rez.Tipuri = append(rez.Tipuri, TipAbsenta{CategorieID: asocieri[r.Cod], EfectOre: efecte[r.Cod], Revizie: r.ModificatLa, Cod: r.Cod, Denumire: denumire, Categorie: r.Categorie, Activ: r.Activ == 1})
 	}
 	rez.Zile, err = citesteAbsenteInterval(ctx, q, deLa, panaLa)
 	if err != nil {
@@ -108,21 +126,26 @@ func citesteAbsenteInterval(ctx context.Context, q *acces.Queries, deLa, panaLa 
 	if err != nil {
 		return nil, err
 	}
+	minute, err := q.MinuteAbsente(ctx, deLa, panaLa)
+	if err != nil {
+		return nil, err
+	}
 	rez := []ZiAbsenta{}
 	for _, r := range randuri {
 		rez = append(rez, ZiAbsenta{
-			AngajatID:      r.AngajatID,
-			Data:           r.Data,
-			Cod:            r.Cod,
-			Activ:          r.Activ == 1,
-			Revizie:        strconv.FormatInt(r.Revizie, 10),
-			NrInregistrare: r.NrInregistrare,
-			InlocuitorID:   r.InlocuitorID,
-			StareAprobare:  r.StareAprobare,
-			AprobatDe:      r.AprobatDe,
-			DocumentID:     r.DocumentID,
-			DocumentNume:   r.DocumentNume,
-			DocumentMime:   r.DocumentMime,
+			MinuteCreditate: minute[r.AngajatID+"/"+r.Data],
+			AngajatID:       r.AngajatID,
+			Data:            r.Data,
+			Cod:             r.Cod,
+			Activ:           r.Activ == 1,
+			Revizie:         strconv.FormatInt(r.Revizie, 10),
+			NrInregistrare:  r.NrInregistrare,
+			InlocuitorID:    r.InlocuitorID,
+			StareAprobare:   r.StareAprobare,
+			AprobatDe:       r.AprobatDe,
+			DocumentID:      r.DocumentID,
+			DocumentNume:    r.DocumentNume,
+			DocumentMime:    r.DocumentMime,
 		})
 	}
 	return rez, nil
@@ -184,11 +207,6 @@ func (s *Serviciu) SalveazaTipAbsenta(ctx context.Context, initial string, tip T
 	}) >= 0 || (initial != "" && initial != tip.Cod) {
 		return eroare("absente.cod_invalid")
 	}
-	switch tip.Categorie {
-	case "ODIHNA", "MEDICAL", "SPECIAL":
-	default:
-		return eroare("absente.categorie_invalida")
-	}
 	curata := i18n.Text{}
 	for limba, text := range tip.Denumire {
 		if text = strings.TrimSpace(text); text != "" {
@@ -199,7 +217,78 @@ func (s *Serviciu) SalveazaTipAbsenta(ctx context.Context, initial string, tip T
 		return eroare("sarbatori.denumire_obligatorie")
 	}
 	tip.Denumire = curata
-	return s.modifica(ctx, func(q *acces.Queries) error {
+	return s.modificaTx(ctx, func(tx *sql.Tx, q *acces.Queries) error {
+		asocieri, err := q.CategoriiTipuriAbsenta(ctx)
+		if err != nil {
+			return err
+		}
+		if tip.CategorieID != "" {
+			lista, e := citesteCategoriiAbsente(ctx, tx)
+			if e != nil {
+				return e
+			}
+			gasit := false
+			for _, c := range lista {
+				if c.Cod == tip.CategorieID {
+					if !c.Activ && asocieri[tip.Cod] != c.Cod {
+						return eroare("absente.tip_invalid")
+					}
+					tip.Categorie = c.Natura
+					tip.EfectOre = c.EfectOre
+					gasit = true
+				}
+			}
+			if !gasit {
+				return eroare("absente.tip_invalid")
+			}
+		}
+		switch tip.Categorie {
+		case "ODIHNA", "MEDICAL", "SPECIAL":
+		default:
+			return eroare("absente.categorie_invalida")
+		}
+		if tip.EfectOre == "" {
+			tip.EfectOre = "ANTERIOR"
+		}
+		switch tip.EfectOre {
+		case "ANTERIOR", "FARA_ORE", "NORMA", "PROGRAM":
+		default:
+			return eroare("absente.efect_invalid")
+		}
+		if tip.Categorie != "SPECIAL" && (tip.EfectOre == "NORMA" || tip.EfectOre == "PROGRAM") {
+			return eroare("absente.efect_invalid")
+		}
+		if tip.CategorieID == "" {
+			lista, e := citesteCategoriiAbsente(ctx, tx)
+			if e != nil {
+				return e
+			}
+			for _, c := range lista {
+				if c.Natura == tip.Categorie && c.EfectOre == tip.EfectOre {
+					tip.CategorieID = c.Cod
+					break
+				}
+			}
+			if tip.CategorieID == "" {
+				tip.CategorieID = tip.Categorie + "_" + tip.EfectOre
+				den, _ := json.Marshal(i18n.Text{"ro": i18n.T(i18n.Romana, "absente.efect_"+tip.EfectOre, nil), "en": i18n.T(i18n.Engleza, "absente.efect_"+tip.EfectOre, nil)})
+				if _, e := tx.ExecContext(ctx, "INSERT INTO categorii_absente(cod,denumire,natura,efect_ore) VALUES(?,?,?,?)", tip.CategorieID, string(den), tip.Categorie, tip.EfectOre); e != nil {
+					return e
+				}
+				if e := jurnal(ctx, q, "categorii_absente", tip.CategorieID, nil, tip); e != nil {
+					return e
+				}
+			}
+		}
+		listaCategorii, e := citesteCategoriiAbsente(ctx, tx)
+		if e != nil {
+			return e
+		}
+		for _, c := range listaCategorii {
+			if c.Cod == tip.CategorieID && !c.Activ && asocieri[tip.Cod] != c.Cod {
+				return eroare("absente.tip_invalid")
+			}
+		}
 		vechi, err := q.CitesteTipAbsenta(ctx, tip.Cod)
 		exista := err == nil
 		if err != nil && !errors.Is(err, sql.ErrNoRows) {
@@ -220,7 +309,11 @@ func (s *Serviciu) SalveazaTipAbsenta(ctx context.Context, initial string, tip T
 		} else if !errors.Is(err, sql.ErrNoRows) {
 			return err
 		}
-		if exista && vechi.Categorie != tip.Categorie {
+		efecte, err := q.EfecteAbsente(ctx)
+		if err != nil {
+			return err
+		}
+		if exista && (vechi.Categorie != tip.Categorie || efecte[tip.Cod] != tip.EfectOre || tip.CategorieID != "" && asocieri[tip.Cod] != tip.CategorieID) {
 			folosit, err := q.TipAbsentaFolosit(ctx, tip.Cod)
 			if err != nil {
 				return err
@@ -237,6 +330,14 @@ func (s *Serviciu) SalveazaTipAbsenta(ctx context.Context, initial string, tip T
 		if err := q.SalveazaTipAbsenta(ctx, acces.SalveazaTipAbsentaParams{Cod: tip.Cod, Denumire: string(text), Categorie: tip.Categorie, Activ: numarBool(tip.Activ), CreatLa: acum, ModificatLa: acum}); err != nil {
 			return err
 		}
+		if err := q.SalveazaEfectAbsenta(ctx, tip.Cod, tip.EfectOre); err != nil {
+			return err
+		}
+		if tip.CategorieID != "" {
+			if err := q.AsociazaCategorieAbsenta(ctx, tip.Cod, tip.CategorieID); err != nil {
+				return err
+			}
+		}
 		var inainte any
 		if exista {
 			inainte = vechi
@@ -246,6 +347,32 @@ func (s *Serviciu) SalveazaTipAbsenta(ctx context.Context, initial string, tip T
 }
 
 func (s *Serviciu) SalveazaAbsente(ctx context.Context, zile []ZiAbsenta) error {
+	return s.salveazaAbsente(ctx, zile, nil)
+}
+
+type conversieAbsentePontaj struct {
+	An, Luna int
+	Celule   []CelulaSchita
+}
+
+// InlocuiestePontajCuAbsente schimba schita si absentele in aceeasi tranzactie.
+func (s *Serviciu) InlocuiestePontajCuAbsente(ctx context.Context, an, luna int, zile []ZiAbsenta, celule []CelulaSchita) error {
+	deLa, panaLa, err := limiteLuna(an, luna)
+	if err != nil {
+		return err
+	}
+	if len(zile) != len(celule) {
+		return eroare("absente.lot_invalid")
+	}
+	for _, z := range zile {
+		if z.Data < deLa || z.Data > panaLa || !z.Activ || z.StareAprobare == "RESPINSA" {
+			return eroare("absente.lot_invalid")
+		}
+	}
+	return s.salveazaAbsente(ctx, zile, &conversieAbsentePontaj{an, luna, celule})
+}
+
+func (s *Serviciu) salveazaAbsente(ctx context.Context, zile []ZiAbsenta, conversie *conversieAbsentePontaj) error {
 	if len(zile) == 0 || len(zile) > 10000 {
 		return eroare("absente.lot_invalid")
 	}
@@ -273,6 +400,9 @@ func (s *Serviciu) SalveazaAbsente(ctx context.Context, zile []ZiAbsenta) error 
 				return eroare("absente.aprobare_invalida")
 			}
 		}
+		if conversie != nil && z.StareAprobare == "RESPINSA" {
+			return eroare("absente.lot_invalid")
+		}
 		z.AprobatDe = strings.TrimSpace(z.AprobatDe)
 		if utf8.RuneCountInString(z.AprobatDe) > 120 || strings.ContainsAny(z.AprobatDe, "\x00\r\n\t") {
 			return eroare("absente.aprobat_de_invalid")
@@ -285,7 +415,151 @@ func (s *Serviciu) SalveazaAbsente(ctx context.Context, zile []ZiAbsenta) error 
 	if err != nil {
 		return traduceEroare(err)
 	}
-	return s.modifica(ctx, func(q *acces.Queries) error {
+	return s.modificaTx(ctx, func(tx *sql.Tx, q *acces.Queries) error {
+		if conversie != nil {
+			stare := "DESCHISA"
+			err := tx.QueryRowContext(ctx, "SELECT stare FROM stare_luni WHERE an=? AND luna=?", conversie.An, conversie.Luna).Scan(&stare)
+			if err != nil && err != sql.ErrNoRows {
+				return err
+			}
+			if stare != "DESCHISA" {
+				return eroare("pontaj.luna_inchisa")
+			}
+			vazuteCelule := map[string]bool{}
+			for _, c := range conversie.Celule {
+				k := c.AngajatID + "/" + c.Data
+				if !vazute[k] || vazuteCelule[k] {
+					return eroare("absente.lot_invalid")
+				}
+				vazuteCelule[k] = true
+				veche, err := q.CitesteCiorna(ctx, acces.CitesteCiornaParams{AngajatID: c.AngajatID, Data: c.Data})
+				exista := err == nil
+				if err != nil && err != sql.ErrNoRows {
+					return err
+				}
+				if (exista && (c.Revizie != strconv.FormatInt(veche.Revizie, 10) || c.Valoare != veche.Valoare)) || (!exista && (c.Revizie != "" || c.Valoare != "")) {
+					return eroare("pontaj.conflict")
+				}
+				if exista && strings.TrimSpace(veche.Valoare) != "" {
+					rev, err := q.SalveazaCiorna(ctx, acces.SalveazaCiornaParams{AngajatID: c.AngajatID, Data: c.Data, Valoare: "", ModificatLa: moment()})
+					if err != nil {
+						return err
+					}
+					nou := CelulaSchita{AngajatID: c.AngajatID, Data: c.Data, Valoare: "", Revizie: strconv.FormatInt(rev, 10)}
+					if err := jurnal(ctx, q, "pontaj_ciorne", k, veche, nou); err != nil {
+						return err
+					}
+				}
+			}
+		}
+
+		sarbatori, err := q.ListaToateSarbatori(ctx)
+		if err != nil {
+			return err
+		}
+		calendar := calcul.Calendar{Sarbatori: map[string]string{}}
+		for _, zi := range sarbatori {
+			calendar.Sarbatori[zi.Data] = zi.Denumire
+		}
+		luniVerificate := map[string]bool{}
+		deLa, panaLa := zile[0].Data, zile[0].Data
+		for _, zi := range zile {
+			if zi.Data < deLa {
+				deLa = zi.Data
+			}
+			if zi.Data > panaLa {
+				panaLa = zi.Data
+			}
+		}
+		prima, _ := time.Parse(time.DateOnly, deLa)
+		extinsDeLa := prima.AddDate(0, 0, -2).Format(time.DateOnly)
+		pozitii, err := q.ListaPlanificare(ctx, acces.ListaPlanificareParams{DataDeLa: extinsDeLa, DataPanaLa: panaLa})
+		if err != nil {
+			return err
+		}
+		ciorne, err := q.ListaCiorneLuna(ctx, acces.ListaCiorneLunaParams{DataDeLa: extinsDeLa, DataPanaLa: panaLa})
+		if err != nil {
+			return err
+		}
+		schimburi, err := q.ListaSchimburi(ctx)
+		if err != nil {
+			return err
+		}
+		legaturi, err := q.ListaLegaturiIerarhice(ctx)
+		if err != nil {
+			return err
+		}
+		principal := func(id string) string {
+			if parinte := legaturi[id]; parinte != "" {
+				return parinte
+			}
+			return id
+		}
+		peCod := map[string]acces.ListaSchimburiRow{}
+		peID := map[string]acces.ListaSchimburiRow{}
+		for _, p := range schimburi {
+			peCod[strings.ToUpper(p.Cod)] = p
+			peID[p.ID] = p
+		}
+		verificaLuna := func(dataText string) error {
+			luna := dataText[:7]
+			if luniVerificate[luna] {
+				return nil
+			}
+			data, _ := time.Parse(time.DateOnly, dataText)
+			stare := "DESCHISA"
+			err := tx.QueryRowContext(ctx, "SELECT stare FROM stare_luni WHERE an=? AND luna=?", data.Year(), int(data.Month())).Scan(&stare)
+			if err != nil && err != sql.ErrNoRows {
+				return err
+			}
+			if stare != "DESCHISA" {
+				return eroare("pontaj.luna_inchisa")
+			}
+			luniVerificate[luna] = true
+			return nil
+		}
+		anuleazaCiorna := func(id, data string) error {
+			if err := verificaLuna(data); err != nil {
+				return err
+			}
+			veche, err := q.CitesteCiorna(ctx, acces.CitesteCiornaParams{AngajatID: id, Data: data})
+			if errors.Is(err, sql.ErrNoRows) {
+				return nil
+			}
+			if err != nil {
+				return err
+			}
+			if strings.TrimSpace(veche.Valoare) == "" {
+				return nil
+			}
+			rev, err := q.SalveazaCiorna(ctx, acces.SalveazaCiornaParams{AngajatID: id, Data: data, Valoare: "", ModificatLa: moment()})
+			if err != nil {
+				return err
+			}
+			nou := CelulaSchita{AngajatID: id, Data: data, Valoare: "", Revizie: strconv.FormatInt(rev, 10)}
+			return jurnal(ctx, q, "pontaj_ciorne", id+"/"+data, veche, nou)
+		}
+		suprapuneMedical := func(data string, p acces.ListaSchimburiRow, zi string) bool {
+			if p.OraStart < 0 || p.DurataMinute <= 0 {
+				return false
+			}
+			d, err := time.ParseInLocation(time.DateOnly, data, local)
+			if err != nil {
+				return false
+			}
+			inceput := time.Date(d.Year(), d.Month(), d.Day(), int(p.OraStart)/60, int(p.OraStart)%60, 0, 0, local)
+			sfarsit := inceput.Add(time.Duration(p.DurataMinute) * time.Minute)
+			inceputCM, _ := time.ParseInLocation(time.DateOnly, zi, local)
+			return inceput.Before(inceputCM.AddDate(0, 0, 1)) && sfarsit.After(inceputCM)
+		}
+		efecte, err := q.EfecteAbsente(ctx)
+		if err != nil {
+			return err
+		}
+		norme, err := q.NormeSoldPontaj(ctx)
+		if err != nil {
+			return err
+		}
 		documenteNoi := map[string]acces.ExistaDocumentAbsentaRow{}
 		for _, z := range zile {
 			if _, err := q.CitesteAngajat(ctx, z.AngajatID); err != nil {
@@ -296,7 +570,76 @@ func (s *Serviciu) SalveazaAbsente(ctx context.Context, zile []ZiAbsenta) error 
 			if err != nil && !errors.Is(err, sql.ErrNoRows) {
 				return err
 			}
-			if (exista && z.Revizie != strconv.FormatInt(veche.Revizie, 10)) || (!exista && z.Revizie != "") {
+			tip, err := q.CitesteTipAbsenta(ctx, z.Cod)
+			if errors.Is(err, sql.ErrNoRows) {
+				return eroare("absente.tip_invalid")
+			}
+			if err != nil {
+				return err
+			}
+			if z.Activ && tip.Categorie == "ODIHNA" {
+				init, e := q.ListaInitializariPontaj(ctx)
+				if e != nil {
+					return e
+				}
+				v, ok := init[z.AngajatID]
+				if ok && v.COZile > 0 && z.Data >= v.Luna[:4]+"-01-01" && z.Data < v.Luna+"-01" {
+					return eroare("sold.co_dublat")
+				}
+			}
+			var minuteCreditate, minuteVechi *int64
+			if exista {
+				if err := tx.QueryRowContext(ctx, "SELECT minute_creditate FROM absente_zile WHERE angajat_id=? AND data=?", z.AngajatID, z.Data).Scan(&minuteVechi); err != nil {
+					return err
+				}
+			}
+			if exista && veche.Cod == z.Cod {
+				minuteCreditate = minuteVechi
+			}
+			if z.Activ && z.StareAprobare != "RESPINSA" && minuteCreditate == nil {
+				switch efecte[z.Cod] {
+				case "NORMA":
+					minuteCreditate = norme[z.AngajatID]
+				case "PROGRAM":
+					var totalMinute int64
+					for _, p := range pozitii {
+						if p.Activ == 1 && p.AngajatID == z.AngajatID && p.Data == z.Data {
+							program := peID[p.SchimbID]
+							if program.DurataMinute > 0 && program.PauzaMinute == 0 {
+								totalMinute += program.DurataMinute
+							}
+						}
+					}
+					if totalMinute > 0 {
+						minuteCreditate = &totalMinute
+					}
+
+				}
+				if (efecte[z.Cod] == "NORMA" || efecte[z.Cod] == "PROGRAM") && minuteCreditate == nil {
+					return eroare("absente.ore_lipsa")
+				}
+			}
+			suprascrie := z.Activ && z.StareAprobare != "RESPINSA"
+			categorieVeche := ""
+			if exista && veche.Activ == 1 && veche.StareAprobare != "RESPINSA" {
+				tipVechi, err := q.CitesteTipAbsenta(ctx, veche.Cod)
+				if err != nil {
+					return err
+				}
+				categorieVeche = tipVechi.Categorie
+			}
+			if suprascrie && z.Revizie == "" && calcul.PrioritateAbsenta(tip.Categorie) < calcul.PrioritateAbsenta(categorieVeche) {
+				return eroare("absente.medical_prioritar")
+			}
+			medicalPrioritar := suprascrie && categorieVeche != "" && calcul.PrioritateAbsenta(tip.Categorie) > calcul.PrioritateAbsenta(categorieVeche)
+			data, _ := time.Parse(time.DateOnly, z.Data)
+			if z.Activ && calendar.TipZi(data) != calcul.Lucratoare {
+				return eroare("absente.zi_nelucratoare")
+			}
+			if err := verificaLuna(z.Data); err != nil {
+				return err
+			}
+			if (exista && z.Revizie != strconv.FormatInt(veche.Revizie, 10) && !(z.Revizie == "" && medicalPrioritar)) || (!exista && z.Revizie != "") {
 				return eroare("absente.conflict")
 			}
 			if !z.Activ && (!exista || veche.Cod != z.Cod) {
@@ -360,15 +703,12 @@ func (s *Serviciu) SalveazaAbsente(ctx context.Context, zile []ZiAbsenta) error 
 			} else {
 				z.DocumentNume, z.DocumentMime = "", ""
 			}
-			tip, err := q.CitesteTipAbsenta(ctx, z.Cod)
-			if errors.Is(err, sql.ErrNoRows) {
-				return eroare("absente.tip_invalid")
-			}
-			if err != nil {
-				return err
-			}
 			if z.Activ {
-				if tip.Activ == 0 && !(exista && veche.Activ == 1 && veche.Cod == z.Cod) {
+				categorieActiva, e := q.CategorieTipAbsentaActiva(ctx, tip.Cod)
+				if e != nil {
+					return e
+				}
+				if (tip.Activ == 0 || !categorieActiva) && !(exista && veche.Activ == 1 && veche.Cod == z.Cod) {
 					return eroare("absente.tip_invalid")
 				}
 				ciorna, err := q.CitesteCiorna(ctx, acces.CitesteCiornaParams{AngajatID: z.AngajatID, Data: z.Data})
@@ -376,15 +716,110 @@ func (s *Serviciu) SalveazaAbsente(ctx context.Context, zile []ZiAbsenta) error 
 					return err
 				}
 				if err == nil && strings.TrimSpace(ciorna.Valoare) != "" {
-					return eroare("absente.pontaj_existent")
+					if !suprascrie {
+						return eroare("absente.pontaj_existent")
+					}
+					rev, err := q.SalveazaCiorna(ctx, acces.SalveazaCiornaParams{AngajatID: z.AngajatID, Data: z.Data, Valoare: "", ModificatLa: moment()})
+					if err != nil {
+						return err
+					}
+					nou := CelulaSchita{AngajatID: z.AngajatID, Data: z.Data, Valoare: "", Revizie: strconv.FormatInt(rev, 10)}
+					if err := jurnal(ctx, q, "pontaj_ciorne", z.AngajatID+"/"+z.Data, ciorna, nou); err != nil {
+						return err
+					}
 				}
 				inceput, _ := time.ParseInLocation(time.DateOnly, z.Data, local)
 				pontaj, err := q.PontajExistentPeZi(ctx, acces.PontajExistentPeZiParams{AngajatID: z.AngajatID, Data: z.Data, InceputUtc: inceput.UTC().Format(time.RFC3339), SfarsitUtc: inceput.AddDate(0, 0, 1).UTC().Format(time.RFC3339)})
 				if err != nil {
 					return err
 				}
-				if pontaj {
+				if pontaj && !suprascrie {
 					return eroare("absente.pontaj_existent")
+				}
+
+			}
+			if suprascrie {
+				medical := tip.Categorie == "MEDICAL"
+				d, _ := time.Parse(time.DateOnly, z.Data)
+				efective, err := q.ListaPontajePrioritate(ctx, d.AddDate(0, 0, -2).Format(time.DateOnly), d.AddDate(0, 0, 1).Format(time.DateOnly))
+				if err != nil {
+					return err
+				}
+				for _, p := range efective {
+					aceeasi := p.AngajatID == z.AngajatID || (medical && principal(p.AngajatID) == principal(z.AngajatID))
+					afectat := pontajIntersecteazaZi(p, z.Data)
+					if aceeasi && afectat {
+						if err := retragePontajPrioritar(ctx, q, p); err != nil {
+							return err
+						}
+					}
+				}
+
+				if medical {
+					for _, c := range ciorne {
+						if principal(c.AngajatID) != principal(z.AngajatID) {
+							continue
+						}
+						actuala, err := q.CitesteCiorna(ctx, acces.CitesteCiornaParams{AngajatID: c.AngajatID, Data: c.Data})
+						if err != nil {
+							return err
+						}
+						c.Valoare = actuala.Valoare
+						c.Revizie = actuala.Revizie
+						ramase := []string{}
+						afectat := false
+						for _, cod := range calcul.CoduriPrograme(c.Valoare) {
+							if c.Data == z.Data || suprapuneMedical(c.Data, peCod[cod], z.Data) {
+								afectat = true
+							} else {
+								ramase = append(ramase, cod)
+							}
+						}
+						if !afectat {
+							continue
+						}
+						if len(ramase) == 0 {
+							if err := anuleazaCiorna(c.AngajatID, c.Data); err != nil {
+								return err
+							}
+						} else {
+							if err := verificaLuna(c.Data); err != nil {
+								return err
+							}
+							val := calcul.ValoarePrograme(ramase)
+							rev, err := q.SalveazaCiorna(ctx, acces.SalveazaCiornaParams{AngajatID: c.AngajatID, Data: c.Data, Valoare: val, ModificatLa: moment()})
+							if err != nil {
+								return err
+							}
+							if err = jurnal(ctx, q, "pontaj_ciorne", c.AngajatID+"/"+c.Data, c, CelulaSchita{AngajatID: c.AngajatID, Data: c.Data, Valoare: val, Revizie: strconv.FormatInt(rev, 10)}); err != nil {
+								return err
+							}
+						}
+					}
+				}
+				for i, p := range pozitii {
+					if p.Activ != 1 || (p.AngajatID != z.AngajatID && !(medical && principal(p.AngajatID) == principal(z.AngajatID))) || (p.Data != z.Data && !(medical && suprapuneMedical(p.Data, peID[p.SchimbID], z.Data))) {
+						continue
+					}
+					if err := verificaLuna(p.Data); err != nil {
+						return err
+					}
+					acum := moment()
+					n, err := q.ModificaPozitiePlanificare(ctx, acces.ModificaPozitiePlanificareParams{ID: p.ID, Revizie: p.Revizie, SchimbID: p.SchimbID, Activ: 0, ModificatLa: acum})
+					if err != nil {
+						return err
+					}
+					if n != 1 {
+						return eroare("planificare.conflict")
+					}
+					nou := p
+					nou.Activ = 0
+					nou.Revizie++
+					nou.ModificatLa = acum
+					pozitii[i] = nou
+					if err := jurnal(ctx, q, "planificare", p.ID, p, nou); err != nil {
+						return err
+					}
 				}
 			}
 			if exista && veche.Cod == z.Cod && veche.Activ == numarBool(z.Activ) &&
@@ -393,6 +828,7 @@ func (s *Serviciu) SalveazaAbsente(ctx context.Context, zile []ZiAbsenta) error 
 				valPtr(veche.DocumentID) == z.DocumentID {
 				continue
 			}
+			z.MinuteCreditate = minuteCreditate
 			acum := moment()
 			revizie, err := q.SalveazaZiAbsenta(ctx, acces.SalveazaZiAbsentaParams{
 				AngajatID:      z.AngajatID,
@@ -410,10 +846,17 @@ func (s *Serviciu) SalveazaAbsente(ctx context.Context, zile []ZiAbsenta) error 
 			if err != nil {
 				return err
 			}
+			if _, err := tx.ExecContext(ctx, "UPDATE absente_zile SET minute_creditate=? WHERE angajat_id=? AND data=?", minuteCreditate, z.AngajatID, z.Data); err != nil {
+				return err
+			}
+
 			z.Revizie = strconv.FormatInt(revizie, 10)
 			var inainte any
 			if exista {
-				inainte = veche
+				inainte = struct {
+					acces.AbsenteZile
+					MinuteCreditate *int64 `json:"minute_creditate,omitempty"`
+				}{veche, minuteVechi}
 			}
 			if err := jurnal(ctx, q, "absente_zile", z.AngajatID+"/"+z.Data, inainte, z); err != nil {
 				return err

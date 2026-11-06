@@ -26,6 +26,7 @@ type RaspunsRecuperare struct {
 // aplicaDeschiderea preia baza, paza și seiful deschise la pornire sau la deblocare.
 func (a *App) aplicaDeschiderea(d *stocare.Deschidere) {
 	a.seif = d.Seif
+	a.doarCitire, a.detinator = d.DoarCitire, d.Detinator
 	if d.Blocat {
 		return
 	}
@@ -44,7 +45,13 @@ func (a *App) StareSeif() RaspunsStareSeif {
 }
 
 func (a *App) deblocheaza(ctx context.Context) error {
-	d, err := stocare.Deblocheaza(ctx, a.radacina, a.seif)
+	var d *stocare.Deschidere
+	var err error
+	if a.doarCitire {
+		d, err = stocare.DeblocheazaDoarCitire(ctx, a.radacina, a.seif, a.detinator)
+	} else {
+		d, err = stocare.Deblocheaza(ctx, a.radacina, a.seif)
+	}
 	if err != nil {
 		return err
 	}
@@ -118,4 +125,21 @@ func (a *App) GenereazaCheieRecuperareNoua() RaspunsRecuperare {
 	}
 	a.codRecuperare = cod
 	return a.StareRecuperare()
+}
+
+// RaspunsStareInstanta spune interfetei daca aplicatia ruleaza doar in citire,
+// pentru ca alta instanta tine folderul de date (F05-T11), si cine.
+type RaspunsStareInstanta struct {
+	DoarCitire bool   `json:"doar_citire"`
+	Calculator string `json:"calculator"`
+	Utilizator string `json:"utilizator"`
+	DeLa       string `json:"de_la"`
+}
+
+func (a *App) StareInstanta() RaspunsStareInstanta {
+	r := RaspunsStareInstanta{DoarCitire: a.doarCitire}
+	if a.detinator != nil {
+		r.Calculator, r.Utilizator, r.DeLa = a.detinator.Calculator, a.detinator.Utilizator, a.detinator.DeLa
+	}
+	return r
 }

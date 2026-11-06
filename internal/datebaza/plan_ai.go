@@ -15,6 +15,7 @@ import (
 	"pontix/internal/bd/acces"
 	"pontix/internal/calcul"
 	"pontix/internal/i18n"
+	"pontix/internal/identitate"
 )
 
 type PersoanaPlanAI struct {
@@ -97,9 +98,25 @@ func construiestePlanAI(ctx context.Context, tx *sql.Tx, q *acces.Queries, i ai.
 	if err != nil {
 		return p, surse, err
 	}
+	sarbatori, err := q.ListaToateSarbatori(ctx)
+	if err != nil {
+		return p, surse, err
+	}
+	calendar := calcul.Calendar{Sarbatori: map[string]string{}}
+	for _, zi := range sarbatori {
+		calendar.Sarbatori[zi.Data] = zi.Denumire
+	}
 	program, ok := surse.coduri[strings.ToUpper(i.CodSchimb)]
 	if !ok || !program.Activ {
 		return p, surse, eroare("ai.plan_program_invalid")
+	}
+	profileIdentitate, e := q.ListaProfilePontaj(ctx)
+	if e != nil {
+		return p, surse, e
+	}
+	garziIdentitate := map[string]bool{}
+	for _, profil := range profileIdentitate {
+		garziIdentitate[profil.ID] = profil.Garda != 0
 	}
 	// Rezolvăm numele afișat sau ID-ul grupului, fără potriviri parțiale.
 	grupID := i.Selectie.Valoare
@@ -160,7 +177,7 @@ func construiestePlanAI(ctx context.Context, tx *sql.Tx, q *acces.Queries, i ai.
 	p.SelectieExplicata = []ExplicatieSelectieAI{}
 	for _, a := range surse.oameni {
 		if a.Activ != 1 {
-			p.SelectieExplicata = append(p.SelectieExplicata, ExplicatieSelectieAI{a.ID, a.Marca, strings.TrimSpace(a.Nume + " " + a.Prenume), false, "inactiv"})
+			p.SelectieExplicata = append(p.SelectieExplicata, ExplicatieSelectieAI{a.ID, a.Marca, identitate.Nume(a.Nume, a.Prenume, garziIdentitate[a.ID] || surse.principali[a.ID] != "", i18n.Romana), false, "inactiv"})
 			continue
 		}
 		inclus := false
@@ -180,13 +197,13 @@ func construiestePlanAI(ctx context.Context, tx *sql.Tx, q *acces.Queries, i ai.
 			}
 		}
 		if inclus {
-			p.Persoane = append(p.Persoane, PersoanaPlanAI{a.ID, a.Marca, strings.TrimSpace(a.Nume + " " + a.Prenume)})
+			p.Persoane = append(p.Persoane, PersoanaPlanAI{a.ID, a.Marca, identitate.Nume(a.Nume, a.Prenume, garziIdentitate[a.ID] || surse.principali[a.ID] != "", i18n.Romana)})
 		}
 		motivSelectie := "alt_grup"
 		if inclus {
 			motivSelectie = i.Selectie.Tip
 		}
-		p.SelectieExplicata = append(p.SelectieExplicata, ExplicatieSelectieAI{a.ID, a.Marca, strings.TrimSpace(a.Nume + " " + a.Prenume), inclus, motivSelectie})
+		p.SelectieExplicata = append(p.SelectieExplicata, ExplicatieSelectieAI{a.ID, a.Marca, identitate.Nume(a.Nume, a.Prenume, garziIdentitate[a.ID] || surse.principali[a.ID] != "", i18n.Romana), inclus, motivSelectie})
 	}
 	if len(p.Persoane) == 0 || (i.Selectie.Tip == "persoane" && gasite != len(marci)) {
 		return p, surse, eroare("ai.plan_selectie_invalida")
@@ -227,7 +244,7 @@ func construiestePlanAI(ctx context.Context, tx *sql.Tx, q *acces.Queries, i ai.
 	for _, a := range p.Persoane {
 		for d := prima; !d.After(ultima); d = d.AddDate(0, 0, 1) {
 			weekend := d.Weekday() == time.Saturday || d.Weekday() == time.Sunday
-			if (i.FiltruZile == "lucratoare" && weekend) || (i.FiltruZile == "weekend" && !weekend) {
+			if (i.FiltruZile == "lucratoare" && calendar.TipZi(d) != calcul.Lucratoare) || (i.FiltruZile == "weekend" && !weekend) {
 				continue
 			}
 			if len(p.Randuri) >= 10000 {
@@ -319,7 +336,7 @@ func construiestePlanAI(ctx context.Context, tx *sql.Tx, q *acces.Queries, i ai.
 		Plan  PlanAI
 		Surse surseAmprentaAI
 		Stari map[string]string
-	}{p, surseAmprentaAI{surse.oameni, surse.categorii, surse.schimburi, surse.absente, surse.ciorne, surse.pozitii, surse.intervale}, stari})
+	}{p, surseAmprentaAI{calendar.Sarbatori, surse.principali, surse.oameni, surse.categorii, surse.schimburi, surse.absente, surse.ciorne, surse.pozitii, surse.intervale}, stari})
 	if err != nil {
 		return p, surse, err
 	}
@@ -330,13 +347,15 @@ func construiestePlanAI(ctx context.Context, tx *sql.Tx, q *acces.Queries, i ai.
 
 // Câmpuri exportate pentru serializarea completă și stabilă a surselor tokenului.
 type surseAmprentaAI struct {
-	Oameni    map[string]acces.ListaAngajatiRow
-	Categorii map[string]CategorieProgram
-	Programe  map[string]calcul.ProgramPrecompletare
-	Absente   map[string]bool
-	Ciorne    map[string]acces.PontajCiorne
-	Pozitii   []acces.Planificare
-	Intervale []calcul.IntervalPlanificare
+	Sarbatori  map[string]string
+	Principali map[string]string
+	Oameni     map[string]acces.ListaAngajatiRow
+	Categorii  map[string]CategorieProgram
+	Programe   map[string]calcul.ProgramPrecompletare
+	Absente    map[string]bool
+	Ciorne     map[string]acces.PontajCiorne
+	Pozitii    []acces.Planificare
+	Intervale  []calcul.IntervalPlanificare
 }
 
 // AplicaPlanAI reconstruiește planul în tranzacția de scriere. Nu acceptă

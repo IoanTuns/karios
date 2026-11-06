@@ -47,12 +47,12 @@ func TestAbsentePersistentaEditareAnulareSiAni(t *testing.T) {
 	if err := m.serviciu.SalveazaTipAbsenta(ctx, "", tip); err != nil {
 		t.Fatal(err)
 	}
-	// Date explicite, inclusiv weekend/sărbătoare: fără regulă implicită de consum.
+	// F07-T33: persistenta intre ani pe zile lucratoare; weekendurile/sarbatorile au teste separate.
 	lot := []ZiAbsenta{
-		{AngajatID: a.ID, Data: "2026-12-25", Cod: "CO", Activ: true},
-		{AngajatID: a.ID, Data: "2026-12-26", Cod: "CM", Activ: true},
+		{AngajatID: a.ID, Data: "2026-12-28", Cod: "CO", Activ: true},
+		{AngajatID: a.ID, Data: "2026-12-29", Cod: "CM", Activ: true},
 		{AngajatID: a.ID, Data: "2026-12-31", Cod: "EV_FAMILIE", Activ: true},
-		{AngajatID: a.ID, Data: "2027-01-01", Cod: "CO", Activ: true},
+		{AngajatID: a.ID, Data: "2027-01-04", Cod: "CO", Activ: true},
 	}
 	if err := m.serviciu.SalveazaAbsente(ctx, lot); err != nil {
 		t.Fatal(err)
@@ -143,21 +143,12 @@ func TestAbsenteConflicteAtomiceSiPontaj(t *testing.T) {
 	if err := m.serviciu.SalveazaSchita(ctx, 2026, 10, []CelulaSchita{{AngajatID: a.ID, Data: "2026-10-06", Valoare: "7"}}); err != nil {
 		t.Fatal(err)
 	}
-	verificaCod(t, m.serviciu.SalveazaAbsente(ctx, lot), "absente.pontaj_existent")
-	if len(absenteTest(t, m, 2026).Zile) != 0 {
-		t.Fatal("lot salvat parțial peste schiță")
-	}
-	schita, err := m.serviciu.CitesteSchita(ctx, 2026, 10)
-	if err != nil {
-		t.Fatal(err)
-	}
-	c := schita.Celule[0]
-	c.Valoare = ""
-	if err := m.serviciu.SalveazaSchita(ctx, 2026, 10, []CelulaSchita{c}); err != nil {
-		t.Fatal(err)
-	}
 	if err := m.serviciu.SalveazaAbsente(ctx, lot); err != nil {
 		t.Fatal(err)
+	}
+	schita, err := m.serviciu.CitesteSchita(ctx, 2026, 10)
+	if err != nil || schita.Celule[0].Valoare != "" || len(schita.Absente) != 2 {
+		t.Fatal("concediul nu a inlocuit programul", schita, err)
 	}
 	// Protecție inclusiv când absența este salvată după încărcarea grilei.
 	verificaCod(t, m.serviciu.SalveazaSchita(ctx, 2026, 10, []CelulaSchita{{AngajatID: a.ID, Data: "2026-10-07", Valoare: "7"}, {AngajatID: a.ID, Data: "2026-10-05", Valoare: "12"}}), "absente.celula_protejata")
@@ -173,25 +164,25 @@ func TestAbsenteConflicteAtomiceSiPontaj(t *testing.T) {
 	if !absenteTest(t, m, 2026).Zile[0].Activ {
 		t.Fatal("anulare parțială la conflict")
 	}
-	// Tura începe în ziua precedentă; ora României se schimbă în 25 octombrie.
-	if _, err := m.db.Exec(`INSERT INTO pontaj (id,angajat_id,data,start,sfarsit,creat_la,modificat_la) VALUES ('noapte',?,'2026-10-24','2026-10-24T19:00:00Z','2026-10-25T05:00:00Z','x','x')`, a.ID); err != nil {
+	// Pontajul efectiv din noaptea precedenta este retras integral; CM este intr-o zi lucratoare.
+	if _, err := m.db.Exec(`INSERT INTO pontaj (id,angajat_id,data,start,sfarsit,creat_la,modificat_la) VALUES ('noapte',?,'2026-10-25','2026-10-25T20:00:00Z','2026-10-26T05:00:00Z','x','x')`, a.ID); err != nil {
 		t.Fatal(err)
 	}
-	verificaCod(t, m.serviciu.SalveazaAbsente(ctx, []ZiAbsenta{{AngajatID: a.ID, Data: "2026-10-25", Cod: "CM", Activ: true}}), "absente.pontaj_existent")
-	// Terminarea exact la miezul nopții locale nu ocupă ziua următoare.
-	if _, err := m.db.Exec(`UPDATE pontaj SET sfarsit='2026-10-24T21:00:00Z' WHERE id='noapte'`); err != nil {
+	if err := m.serviciu.SalveazaAbsente(ctx, []ZiAbsenta{{AngajatID: a.ID, Data: "2026-10-26", Cod: "CM", Activ: true}}); err != nil {
 		t.Fatal(err)
 	}
-	if err := m.serviciu.SalveazaAbsente(ctx, []ZiAbsenta{{AngajatID: a.ID, Data: "2026-10-25", Cod: "CM", Activ: true}}); err != nil {
-		t.Fatal(err)
+	var retras int
+	if err := m.db.QueryRow("SELECT count(*) FROM pontaj WHERE id='noapte' AND sters_la IS NOT NULL").Scan(&retras); err != nil || retras != 1 {
+		t.Fatal(retras, err)
 	}
+
 }
 
 func TestAbsenteValidariSiRollbackJurnal(t *testing.T) {
 	m := pregateste(t)
 	ctx := context.Background()
 	a := persoanaAbsente(t, m)
-	buna := ZiAbsenta{AngajatID: a.ID, Data: "2026-02-28", Cod: "CO", Activ: true}
+	buna := ZiAbsenta{AngajatID: a.ID, Data: "2026-02-27", Cod: "CO", Activ: true}
 	for _, lot := range [][]ZiAbsenta{nil, {buna, buna}, {{AngajatID: a.ID, Data: "2026-02-29", Cod: "CO", Activ: true}}} {
 		verificaCod(t, m.serviciu.SalveazaAbsente(ctx, lot), "absente.lot_invalid")
 	}

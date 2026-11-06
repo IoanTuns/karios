@@ -4,6 +4,186 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.45 - 2026-11-06
+
+F05-T11 (D002 punctul 6): karios/pontix.lock ramane blocat cat ruleaza aplicatia (LockFileEx pe Windows, flock in rest) si retine calculatorul, utilizatorul si ora pornirii. A doua instanta pornita pe acelasi folder deschide datele doar in citire: nu scrie nimic la pornire (fara migrari, copii, restaurare, trecere sau contor in seif), refuza scrierile obisnuite cu un mesaj propriu si afiseaza un banner cu cine are aplicatia deschisa; autentificarea ramane posibila. Daca baza trebuie actualizata sau abia se creeaza, a doua instanta asteapta prima. Conversia rapoartelor nu ruleaza in doar citire. Manual 1.53.
+
+## 0.92.44 - 2026-11-06
+
+F06-T06 (D009 punctul 3): migrarea 0034 adauga tabelul istoric_migrari; fiecare migrare aplicata se noteaza cu versiunea aplicatiei si momentul. O versiune mai veche a aplicatiei refuza, cu mesaj tradus, o baza migrata de o versiune mai noua, inainte de backup si de orice schimbare. Testele cu numar fix de migrari crescute cu 1. Manual 1.52.
+
+## 0.92.43 - 2026-11-06
+
+F09-T26: in sabloanele pdfme antetul (cele trei zone) si titlul se repeta pe fiecare pagina, ca in rapoartele standard vechi, iar tabelul continuat incepe sub ele. Se aplica sablonului de pornire, modelelor predefinite (migrarea 0033 regenerata, inca neadusa in main), modelelor convertite si imaginilor din antetul lor. La Markdown si Pozitionare libera se repeta doar antetul. Curatenie dupa conversie: sters din formular blocul de coloane al surselor standard, inaccesibil dupa F09-T23; ghidul marcheaza ca istorice aspectele vechi. Testele pdfme incarca pdfme o data, inainte (I116). Raport flexibil 13. Manual 1.51.
+
+## 0.92.42 - 2026-11-06
+
+F09-T23 (D087 punctul 7): toate rapoartele folosesc editorul vizual. La primul acces la rapoarte dupa autentificare, modelele vechi se convertesc automat (o data pe sesiune, reluat la eroare): modelele standard trec pe SQL pe tabelele calculate, cu sablon clasic si aceleasi valori, titluri si antete; Tabel primeste un sablon care urmeaza coloanele SQL; Markdown si Pozitionare libera se convertesc aproximativ (texte, aldin, tabel; elementele repetate pe rand devin tabel), cu note in anuntul din interfata. Fiecare model convertit are revizie noua, iar definitia veche ramane in Jurnal modificari. Motorul vechi a fost sters: desenarea maroto a rapoartelor standard si desenarea gofpdf a celor flexibile; gofpdf ramane doar pentru anexa. Dependente scoase: maroto 2.4.4, go-tree 1.1.0, barcode 1.1.0. Modelele noi folosesc doar surse SQL si editorul vizual; „Verifica raportul” creeaza singur sablonul daca lipseste. Validarea in Go a incadrarii in pagina a disparut odata cu motorul vechi (pdfme continua textul lung pe randurile urmatoare); limitele de lungime raman. Raport flexibil 12. Manual 1.50.
+
+## 0.92.41 - 2026-11-06
+
+F09-T23 pasul 3: codul de conversie a modelelor vechi in SQL + pdfme (conversie.go): modelele standard primesc SQL pe tabelul calculat si sablon clasic; Tabel primeste sablon care urmeaza coloanele; Markdown devine texte (aldin prin Markdown in rand) si tabel; Pozitionare libera devine texte la aceleasi coordonate, iar elementele repetate devin tabel; imaginile din antet/subsol devin imagini pdfme. Rapoartele pe un tabel standard folosesc variabilele raportului standard (perioada „octombrie 2026”, luna ca nume, persoana aleasa). Conversia nu este inca pornita din aplicatie.
+
+## 0.92.40 - 2026-11-06
+
+F09-T23 pasii 1-2: constructorul de sabloane pdfme exista si in Go (pdfme_sablon.go, pe proprietatile implicite pdfme 6.2.8 din pdfme_baza.json) si reproduce exact sabloanele modelelor predefinite. Tabelul marcat pontixTitluri se adapteaza la generare la coloanele curente ale SQL-ului (latimi pastrate, coloane noi cu latimea medie). Fara schimbari vizibile pentru modelele existente. Manual revizuit, editia 1.49 neschimbata.
+
+## 0.92.39 - 2026-11-06
+
+F09-T21 faza 2 (D090): cinci modele predefinite noi, „... (editor vizual)”, pentru pontaj lunar, pontaj detaliat, fisa individuala, evidenta absentelor si grafic garzi, cu SQL pe tabelele calculate si sablon pdfme in aspectul clasic (migrarea 0033, generata reproductibil din modelele initiale). Valorile, titlurile si culorile sunt identice cu modelele vechi (testat RO/EN). In PDF-ul pdfme: titlurile coloanelor vin din raport in limba lui, culorile de weekend/sarbatoare/absenta si randurile de grup apar ca in raportul vechi, iar zilele 29-31 inexistente in luna se ascund cu latimile redistribuite. Tabelele calculate au mereu z01-z31. Sablonul de pornire foloseste spatiere mica la tabelele cu multe coloane si centreaza zilele; un fundal deschis peste text alb trece textul pe negru. Fisa individuala din SQL cere angajatul la generare. Modelele vechi raman pana la F09-T23. Raport flexibil 11. Manual 1.49.
+
+## 0.92.38 - 2026-11-06
+
+F09-T21 faza 1 (D090 propusa): rapoartele standard sunt disponibile ca tabele calculate in SQL-ul rapoartelor flexibile: pontaj_lunar, pontaj_detaliat, fisa_individuala, absente_anuale, grafic_garzi. Calculul este cel al motorului vechi (extras in pregatesteStandard, fara schimbari); zilele sunt coloanele z01-z31. Cu coloana rand in rezultat, raportul preia titlurile, culorile de weekend/absenta, grupurile si legenda coloanelor alese. Echivalenta verificata pe toate cele cinci rapoarte. Rapoartele standard existente sunt neschimbate; raport flexibil 10. Manual 1.48.
+
+## 0.92.37 - 2026-11-06
+
+F09-T22: stil pe rand si pe celula in tabelul rapoartelor cu editor vizual. Boldul pentru weekend si sarbatori, celulele editate in copia raportului (D085) si stilurile generale ale corpului si capului de tabel se aplica acum si in PDF-ul pdfme. Go trimite stilurile separat de randuri (intrarea pontix_stiluri); la generare, interfata deseneaza tabelul cu aceleasi inaltimi, fundaluri alternante, chenare si impartire pe pagini ca pdfme, plus stilurile cerute. Variantele aldin/cursiv ale fonturilor Windows se incarca la cerere. Tabelele fara stiluri se deseneaza neschimbat. Raport flexibil 9. Manual 1.47.
+
+## 0.92.36 - 2026-11-06
+
+F09-T25: remediile analizei UI a editorului vizual (UIR-01..11). Editorul se deschide intr-un spatiu de lucru separat, marit, cu file Pagina/Previzualizare PDF, campuri copiabile, fonturi Windows, actualizarea tabelului si verificarea in aceeasi bara. In modul vizual formularul ascunde stilurile si boldul pe zile (fara efect in pdfme) si explica unde apar textele de antet/subsol. Alegerea aspectului vizual creeaza singura sablonul din SQL, ascunde implicit angajat_id si da capete lizibile. Tabelul tine minte coloanele SQL si se poate actualiza pastrand titlurile, latimile si restul paginii. Editorul este tradus integral in romana (126 de etichete pdfme, tipuri si nume de elemente). Zoom potrivit latimii si panou de proprietati deschis de la 1280 px. Fara schimbari Go, ale calculului sau ale rapoartelor; versiunile rapoartelor raman. Manual 1.46.
+
+## 0.92.35 - 2026-11-06
+
+F07-T40 (D089): prefixul (titulatura) angajatului. Nomenclator nou Prefixe in Setari, cu lista de pornire Dr., Biol., Chim., Farm., As., Ing., Ec., Psih. (RO/EN editabile); prefix optional in fisa angajatului, cu jurnal. Afisat inaintea numelui in rapoarte, liste si selectoare, nu in grilele Pontaj si Planificare. Marca de garda fara prefix propriu il afiseaza pe al marcii principale. Instantaneul SQL al rapoartelor are coloana prefix in tabelul angajati. Migrare 0032_prefixe. Rapoarte: pontaj 17, detaliat 18, individual 17, absente 14, garzi 14, flexibil 8 (referintele difera doar prin versiune; datele de test nu au prefix). Manual 1.45.
+
+## 0.92.34 - 2026-11-05
+
+F09-T24 (D088): fonturile instalate in Windows (folderul sistemului si fonturile utilizatorului) pot fi folosite in editorul pdfme. Lista contine doar fonturile a caror licenta permite includerea in PDF (fsType), fara fonturi bitmap; datele unui font se incarca la cerere, dupa nume. Fonturile din colectii .ttc se extrag ca fisiere separate. La generare se incarca fonturile folosite de sablon; cele lipsa pe calculatorul curent se inlocuiesc cu Go, cu avertisment. Pachet nou internal/fonturi, fara biblioteca noua. Raport flexibil 7. Manual 1.44.
+
+## 0.92.33 - 2026-11-05
+
+F09-T20 (D087): editor vizual pdfme 6.2.8 pentru rapoartele SQL, aspect nou „Editor vizual (pdfme)”. Sablonul (JSON) se salveaza in model; PDF-ul se genereaza in aplicatie cu pdfme si fonturile Go, apoi Go il verifica cu pdfcpu si adauga anexa cu explicatiile si istoricul tehnic. Sablon de pornire din coloanele SQL, cu antet in trei zone, titlu, tabel cu antet repetat si numarul paginii. pdfme se incarca la cerere, in bucati separate. Raport flexibil 6; celelalte rapoarte si calculul neschimbate. Manual 1.43.
+
+## 0.92.32 - 2026-11-05
+
+F09-T20: actualizari patch stabile npm: i18next 26.7.1 -> 26.7.2, react-i18next 17.1.12 -> 17.1.13, vite 8.3.5 -> 8.3.6; versiuni exacte si lockfile. Go si modulele directe la zi (excelize ramane 2.11.0, motivul de la 0.92.26). Fara schimbare a rapoartelor sau a calculului. Manual revizuit 1.42.
+
+## 0.92.30 - 2026-11-04
+
+F09-T19: stiluri bold/italic/marime/aliniere si etichete de coloane persistate in modele. Editarea textelor/celulelor copiei generate, PDF/Excel actualizate impreuna, token nou si jurnal inainte/dupa; sursa nu se modifica. Evidentiere optionala weekend/sarbatori pe data completa si extinderea grupurilor de zile libere la ambele margini ale lunii, fara schimbarea totalurilor lunare. Rapoarte: pontaj15, detaliat16, individual15, absente12, garzi12, flexibil4. Manual1.40.
+
+## 0.92.29 - 2026-11-03
+
+F09-T18: antetul PDF flexibil TABEL/Markdown respecta cele trei zone stanga/centru/dreapta pe acelasi rand, cu text impachetat si spatiu rezervat. Imagini ancorate in zonele lor si texte subsol aliniate. Antetul se repeta pe anexa, care incepe dupa el. Raport flexibil3; celelalte versiuni/calculul neschimbate. Manual1.39.
+
+## 0.92.28 - 2026-11-03
+
+F09-T18: react-i18next17.1.11 ->17.1.12, patch stabil, versiune exacta si lockfile. Manual revizuit1.38, fara schimbare de flux sau calcul.
+
+## 0.92.27 - 2026-11-02
+
+F09-T15: afisare optionala a explicatiilor de calcul si semnificatiei coloanelor per model, PDF/Excel. Modelele noi pornesc fara explicatii; cele existente pastreaza optiunea pana la editare. Istoricul tehnic ramane separat. Rapoarte: pontaj14, detaliat15, individual14, absente11, garzi11, flexibil2. Manual1.37.
+
+## 0.92.26 - 2026-11-02
+
+F09-T15: Wails 2.17.0 -> 2.17.1, patch stabil. Excelize ramane 2.11.0: versiunea 2.11.1 impune efp prerelease, incompatibil cu regula versiunilor stabile. Fara schimbare a rapoartelor. Manual revizuit 1.36.
+
+## 0.92.21 - 2026-10-31
+
+F16-T32: modul de calcul si istoricul tehnic de generare/revizii sunt intr-o anexa finala PDF, nu repetate in subsolul tabelului. Numerotare continua, fara trunchierea explicatiilor. Rapoarte: pontaj 11, detaliat 12, individual 11, absente 8, garzi 8. Manual 1.32.
+
+## 0.92.20 - 2026-10-31
+
+F16-T31: cele sase recomandari UX: erori traduse/selectie coerenta in rapoarte, verificari cu liste filtrate si eligibilitate explicata, simulare inainte/dupa pentru absente, selectie vizibila si salvare la navigarea grilelor, panou lunar si filtre eliminabile/accesibile. Manual 1.31. Fara schimbari de calcul, migrari sau versiuni de raport. Excel ramane amanat.
+
+## 0.92.19 - 2026-10-31
+
+F16-T29: remedierea auditului UI28: identitate Garda consecventa, formulare grupate, filtre avansate, repere fixe in tabele, explicatii pentru programe excluse, stari de publicare si efectele absentelor, ajutor de configurare si salvare Excel verificata. Manual 1.30.
+
+## 0.92.18 - 2026-10-31
+
+F07-T27: ore lucratoare dupa norma si concedii aprobate, sold L Inceput/L Fin reportat lunar, initializare ore si CO in formularul angajatului. Migrare 0028; raport detaliat v10.
+
+## 0.92.17 - 2026-10-31
+
+F11-T20: prioritatea include pontajele efective, retrase logic din calcul la publicare/concediu/medical, cu audit integral. Medicalul afecteaza toate marcile asociate si intreaga tura intersectata.
+
+## 0.92.16 - 2026-10-31
+
+F11-T20: publicarea planificarii inlocuieste implicit programele si orele din schita Pontaj; concediile si medicalul raman prioritare. Reviziile si previzualizarea sunt pastrate.
+
+## 0.92.15 - 2026-10-31
+
+F07-T37: administratorul poate sterge definitiv configurari inactive/nefolosite, cu confirmare, revizie si verificarea referintelor. Datele operationale si jurnalul se pastreaza. Manual 1.26.
+
+## 0.92.14 - 2026-10-31
+
+F16-T27: filtre Active/Inactive/Toate, implicit Active, in listele cu stare: nomenclatoare, programe, categorii, absente/tipuri, conturi, modele, reguli, Pontaj si Planificare. Angajatii pornesc implicit pe activi. Manual 1.25.
+
+## 0.92.13 - 2026-10-31
+
+F07-T36: data unei absente poate fi schimbata atomic; zilele anulate pot fi afisate si reactivate. Stergere explicita prin anulare cu istoric si stare editabila. Actiuni directe activare/dezactivare tip absenta. Manual 1.24.
+
+## 0.92.12 - 2026-10-31
+
+F07-T35: General/anterior migrat la regim Normal. Tipuri si regimuri configurabile, cu referinte stabile in programe si comportament explicit folosit de motorul existent. Manual 1.23. Migrare 0027.
+
+## 0.92.11 - 2026-10-31
+
+F16-T26: orele sunt afisate unitar in format 24h (00-23), inclusiv jurnal, restaurare, audit, conturi si ultima modificare Pontaj, in romana si engleza. Manual 1.22.
+
+## 0.92.10 - 2026-10-31
+
+F07-T34: concediul medical poate fi corectat explicit in alt tip, cu verificarea reviziei. Anularea individuala si in lot pastreaza jurnalul. Prioritatea ramane pentru suprascrierile fara revizie. Manual 1.21.
+
+## 0.92.9 - 2026-10-31
+
+F07-T33: concedii numai in zile lucratoare, medical > alte concedii > program. Medicalul anuleaza intreaga tura suprapusa, inclusiv pe marcile asociate. Protectie la reintroducerea programelor si tranzactie cu jurnal; manual 1.20.
+
+## 0.92.8 · 2026-10-31
+
+F07-T32: in Completare Pontaj se poate alege concediu/alt tip de absenta pentru selectia exacta, inclusiv peste programul din schita. Salvare atomica si formular comun cu aprobari/documente; se pastreaza modificarile din afara selectiei. Manual 1.19.
+
+## 0.92.7 · 2026-10-31
+
+F07-T31: filtrele AI pentru program normal exclud sarbatorile legale din calendar, inclusiv intre ani. Modificarea calendarului invalideaza planul AI previzualizat. Weekendul ramane filtru S-D; nu include automat sarbatori din timpul saptamanii. Citirea calendarului complet pentru Pontaj si import este corectata. Pontaj/detaliat/fisa v9, manual 1.18. Fara procente sau compensari noi.
+
+## 0.92.6 · 2026-10-31
+
+F07-T30: nume marcat automat pentru marcile de garda legate de o persoana principala, in interfata si exporturi, fara modificarea identitatii salvate. Rapoarte pontaj/detaliat/fisa v8, absente/garzi v6; Excel clasic 1.1.0. Manual 1.17.
+
+## 0.92.5 · 2026-10-31
+
+F16-T25: zoom global 75-200%, butoane minus/plus si resetare 100%, Ctrl+-/Ctrl++/Ctrl+0 si memorare locala. Dimensiunile dialogurilor se raporteaza la ecranul disponibil. Manual 1.16.
+
+## 0.92.4 · 2026-10-31
+
+F07-T29: denumirea Departament devine Compartiment in interfata romana, ajutor, rapoarte si manual. Datele existente si cheile API raman compatibile. Rapoarte pontaj/detaliat/fisa v7, absente/garzi v5; manual 1.15.
+
+## 0.92.3 · 2026-10-31
+
+F09-T12: Ore norma eliminata din raportul detaliat, legenda pentru coloanele vizibile in subsolul PDF si Excel, cu surse/factori/coduri/aprobari/reguli conditionate reale. Rapoarte pontaj/detaliat/fisa v6, absente/garzi v4. Manual 1.14. Fara schimbarea formulelor de calcul.
+
+## 0.92.2 ? 2026-10-31
+
+F07-T27: motor de baza pentru norma datorata a contractelor zilnice: calendar lucrator minus CO/CEV/CFS/CM aprobate, fara dubla scadere si fara libere compensatorii presupuse. Calcul pur si teste, inca neconectat coloanelor de raport; T si soldurile asteapta clarificari.
+
+## 0.92.1 ? 2026-10-31
+
+F07-T25: salvarea neutra a marcii de garda pastreaza functia mostenita, inclusiv dezactivata, fara asociere proprie accidentala. Test dedicat. Manual 1.12.
+
+## 0.92.0 ? 2026-10-31
+
+F07-T25: grupuri profesionale si pozitii, contracte configurabile, filtre profesionale si reguli conditionate. Sursa ORE_SCHIMBURI_ZNL cu factor total explicit; fara calcule lei sau conversie zile compensatorii presupuse. Migrare 0026; pontaj/detaliat/fisa v5, garzi/absente v3. Manual 1.11.
+
+## 0.91.1 ? 2026-10-31
+
+F16-T24: dimensiuni initiale si minime adaptate zonei utile Windows si scalarii DPI; maxim initial 1280x800. Fara modificari de baza sau rapoarte. Manual 1.10.
+
+## 0.91.0 ? 2026-10-31
+
+F09-T11: marca de garda legata explicit de angajatul principal; pontaj detaliat v4 cu randuri distincte si planificare GARZI ca sursa pentru zilele lipsa din Pontaj. Migrare 0025. Manual 1.9.
+
+## 0.90.0 · 2026-10-31
+
+F07-T24: categorii configurabile in Schimburi cu programe asociate, nomenclator de functii in Setari, selectie functie la angajat si afisare in Pontaj. Migrare 0024 pastreaza categoriile LAB/CUSTOM si preia functiile existente; editare/dezactivare cu revizie si jurnal. Functia este asocierea curenta, nu istoric contractual. Manual 1.8.
+
+## 0.89.4 · 2026-10-31
+
+F16-T23: dialogurile nu se mai redeschid la fiecare tastare; focusul si cursorul sunt pastrate. Marirea/restaurarea este disponibila implicit in dialoguri, iar controalele S/M/L nu se comprima. Importul recunoaste coloanele oficiale Zile_Concediu_An si Norma_Ore_Zi din sabloanele CSV/XLSX. Manual 1.7.
+
 ## 0.89.3 · 2026-10-30
 
 F14-T32: rafinări ergonomice în planul Asistentului AI (I075, I076):
@@ -1336,3 +1516,23 @@ Prima versiune numerotată. Cuprinde tot codul de până acum.
 - Versionarea: pachetul `internal/versiune`, verificarea la commit (F02-T10).
 
 Rapoarte: niciunul încă. Baza de date: nicio migrare încă.
+
+## 0.92.22 - 2026-11-02
+
+F07-T38: dependente frontend stabile i18next 26.7.1, react-i18next 17.1.11, plugin-react 6.2.1, vitest 5.1.0. Go 1.27.3 ramane actual; actualizarile indirecte Go raman in F14-T21 pentru compatibilitate.
+
+## 0.92.23 - 2026-11-02
+
+F07-T38: efecte configurabile ale absentelor, ore creditate din norma sau program cu instantaneu persistent si introducere din Planificare prin formularul comun cu previzualizare. Migrare 0029. Reguli existente pastrate; efectele folosite sunt protejate. Manual 1.33. Rapoarte pontaj12, detaliat13, individual12, absente9, garzi9 pentru noua generatie cu efecte explicite.
+
+## 0.92.24 - 2026-11-02
+
+F07-T39: categorii de absenta administrabile, cu natura, regula orelor, activare si denumiri RO/EN; tipurile preiau regula categoriei. Filtre, sumar si rapoarte folosesc categoriile configurate. Migrare 0030 pastreaza efectele existente. Manual 1.34; rapoarte pontaj13/detaliat14/individual13/absente10/garzi10.
+
+## 0.92.25 - 2026-11-02
+
+F09-T13/T14: raport SQL pe instantaneu de raportare, surse lista garzi si totaluri lunare, coloane custom prin formule/SQL scalar, total concedii pe tipuri/categorii si campuri automate pe tip de concediu. Aspect tabel/Markdown/editor vizual cu elemente repetate pe inregistrari, coloane ascunse, previzualizare si salvare versionata. Rapoartele existente nu isi schimba motorul; raport flexibil v1 si catalog tehnic modele-v6. Manual 1.35. gofpdf1.4.3 existent devine dependenta directa, fara versiune ori biblioteca noua.
+
+## 0.92.31 - 2026-11-04
+
+F11-T21: mai multe programe pe aceeasi marca/zi, fara suprapuneri. Pozitii editabile/anulabile separat, publicare a setului zilnic, calcul si raportare pe intervale distincte, medical prioritar. Migrare0031 conserva ciornele/reviziile. Manual1.41. Rapoarte pontaj16, detaliat17, individual16, absente13, garzi13, flexibil5.

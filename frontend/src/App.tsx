@@ -1,3 +1,11 @@
+import {DialogParasire,confirmaParasire} from './Parasire';
+import {PanouLunar} from './PanouLunar';
+import {corespundeVerificare,type VerificareConfigurare} from './verificariConfigurare';
+import {ConfigurareGhidata} from './ConfigurareGhidata';
+import {AccesTabele} from './AccesTabele';
+import {numeAngajat} from './numeAngajat';
+import {ZoomInterfata} from './ZoomInterfata';
+import {FiltreProfesionale,filtruProfesionalGol,corespundeProfesional} from './FiltreProfesionale';
 import {PanouAjutor} from './Ajutor';
 import {lazy, Suspense, useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
@@ -6,7 +14,7 @@ import {datebaza, main} from '../wailsjs/go/models';
 import {DialogDemo, FormularAngajat, Setari, durata, denumireSectie, denumireDepartament} from './Formulare';
 import {DialogImportAngajati} from './ImportDialogs';
 import {ErrorBoundary} from './ErrorBoundary';
-import {BannerAudit} from './Audit';
+import {BannerAudit, BannerDoarCitire} from './Audit';
 import {DialogContulMeu, EcranConturi, useCont} from './Conturi';
 import type {CerereConcediu} from './cerereConcediu';
 import {initializeazaSesiuneAI, useSesiuneAI} from './asistentSesiune';
@@ -57,7 +65,12 @@ function Simbol({tip}: {tip: Ecran}) {
 function App() {
     const {t, i18n} = useTranslation();
     const [ajutor, setAjutor] = useState<{ecran: string; id?: string; versiune?: string} | null>(null);
+    useEffect(()=>{const ajutorContextual=(e:Event)=>{const d=(e as CustomEvent<string>).detail;setAjutor({ecran:d||'setari'});};window.addEventListener('pontix-ajutor-contextual',ajutorContextual);return()=>window.removeEventListener('pontix-ajutor-contextual',ajutorContextual);},[]);
     const [intrebareAjutor, setIntrebareAjutor] = useState<{text: string; id: number}>();
+    const [revizieNavigare,setRevizieNavigare]=useState(0);
+    const [panouLunar,setPanouLunar]=useState(false);
+    const [verificare,setVerificare]=useState<VerificareConfigurare>('');
+    const [perioadaRaport,setPerioadaRaport]=useState<{an:number;luna:number}>();
     const [ecran, setEcran] = useState<Ecran>('angajati');
     const [date, setDate] = useState<datebaza.Date | null>(null);
     const [versiune, setVersiune] = useState('');
@@ -67,7 +80,8 @@ function App() {
     const [eroare, setEroare] = useState('');
     const [mesaj, setMesaj] = useState('');
     const [cautare, setCautare] = useState('');
-    const [stare, setStare] = useState('toti');
+    const [stare, setStare] = useState('activi');
+    const [filtruProfesional,setFiltruProfesional]=useState({...filtruProfesionalGol});
     const [sectie, setSectie] = useState('');
     const [departament, setDepartament] = useState('');
     const [editare, setEditare] = useState<datebaza.Angajat | null>(null);
@@ -159,7 +173,7 @@ function App() {
     }
 
     const lista = date?.angajati ?? [];
-    const vizibili = lista.filter(a => normalizat(`${a.nume} ${a.prenume} ${a.marca}`).includes(normalizat(cautare.trim()))
+    const vizibili = lista.filter(a => corespundeVerificare(a,verificare)&&corespundeProfesional(a,filtruProfesional)&& normalizat(`${numeAngajat(a)} ${a.marca}`).includes(normalizat(cautare.trim()))
         && (stare === 'toti' || (stare === 'activi' ? a.activ : !a.activ)) && (!sectie || a.sectie_id === sectie) && (!departament || a.departament_id === departament));
     const sectiePentru = (id: string) => {
         const gasita = date?.sectii.find(s => s.id === id);
@@ -172,11 +186,13 @@ function App() {
     const esteInSetari = sectiuniSetari.includes(ecran);
     function schimbaEcran(item: Ecran): boolean {
         if (ocupat || pontajOcupat || (item === 'conturi' && cont?.cont.rol !== 'ADMINISTRATOR')) return false;
-        if (item !== ecran && pontajModificat && !window.confirm(t('ui.renunta'))) return false;
+        if(item!==ecran&&pontajModificat){void confirmaParasire().then(da=>{if(da){setPontajModificat(false);setEcran(item);setEroare('');setMesaj('');}});return false;}
         if (item !== ecran) setPontajModificat(false);
         setEcran(item); setEroare(''); setMesaj('');
         return true;
     }
+    useEffect(()=>{const sursa=(event:Event)=>{const e=(event as CustomEvent<string>).detail;if([...ecranePrincipale,...sectiuniSetari].includes(e as Ecran))schimbaEcran(e as Ecran);};window.addEventListener('pontix-configurare',sursa);return()=>window.removeEventListener('pontix-configurare',sursa);},[ecran,ocupat,pontajOcupat,pontajModificat,cont,t]);
+
 
     return <div className={`aplicatie ${sidebarCompact ? 'sidebar-compact' : ''}`}>
         <aside className="bara-laterala">
@@ -250,7 +266,8 @@ function App() {
         </aside>
         <main className={`continut ${ecran === 'pontaj' ? 'continut-pontaj' : ''} ${esteInSetari ? 'continut-setari' : ''}`}>
             <header className="antet">
-                <button type="button" className="buton secundar ajutor-antet" onClick={() => setAjutor({ecran})}>{t('ajutor.buton')}</button>
+                <ZoomInterfata/><DialogParasire/><button type="button" className="buton secundar" onClick={()=>setPanouLunar(true)}>{t('ux30.panou_lunar')}</button>{panouLunar&&date&&<PanouLunar date={date} initial={ecran==='planificare'?contextPlanificare:ecran==='rapoarte'?perioadaRaport:contextPontaj.current||contextPlanificare} nesalvat={pontajModificat} inchide={()=>setPanouLunar(false)} navigheaza={(e,an,luna)=>{const continua=()=>{setPontajModificat(false);contextPontaj.current={an,luna,sectie:'',departament:'',categorieProgram:'',cautare:'',filtruRanduri:'',selectie:null,derulareX:0,derulareY:0};setContextPlanificare({an,luna});setPerioadaRaport({an,luna});setRevizieNavigare(v=>v+1);setFiltruAbsente({an,angajatId:''});setPanouLunar(false);setEcran(e as Ecran);};if(ocupat||pontajOcupat)return;if(pontajModificat)void confirmaParasire().then(da=>{if(da)continua();});else continua();}}/>}
+                <AccesTabele/><button type="button" className="buton secundar ajutor-antet" onClick={() => setAjutor({ecran})}>{t('ajutor.buton')}</button>
                 <div><p className="fir-navigare">{t('ui.date_baza')} <span aria-hidden="true">/</span> {esteInSetari && ecran !== 'setari' ? <>{t('ui.setari')} <span aria-hidden="true">/</span> </> : null}{t(`ui.${ecran}`)}</p>
                     <h1>{t(`ui.${ecran}`)}</h1><p className="descriere">{t(`ui.${ecran}_descriere`)}</p></div>
                 {ecran === 'angajati' && date && <div className="actiuni-antet">
@@ -265,6 +282,7 @@ function App() {
                     aria-pressed={ecran === sub} disabled={ocupat || pontajOcupat}
                     onClick={() => schimbaEcran(sub)}>{t(sub === 'setari' ? 'ui.setari_general' : `ui.${sub}`)}</button>)}
             </div>}
+            <BannerDoarCitire/>
             <BannerAudit/>
             {!editare && !demo && eroare && <div className="mesaj eroare" role="alert">{eroare}</div>}
             {mesaj && <div className="mesaj succes" role="status">{mesaj}</div>}
@@ -272,34 +290,34 @@ function App() {
                 : !date ? <button className="buton secundar" disabled={ocupat} onClick={() => executa(DateInitiale, '')}>{t('ui.reincearca')}</button>
                 : <ErrorBoundary key={ecran} numeModul={ecran}>
                     <Suspense fallback={<div className="asteptare" role="status">{t('ui.incarcare')}</div>}>
-                    {ecran === 'pontaj' ? <Pontaj onAjutor={(id, versiune) => setAjutor({ecran: 'pontaj', id, versiune})} date={date} context={contextPontaj} onModificari={setPontajModificat} onOcupat={setPontajOcupat} onDeschideAbsente={(an, angajatId) => { setFiltruAbsente({an, angajatId}); setPontajModificat(false); setEcran('absente'); setEroare(''); setMesaj(''); }}/>
-                    : ecran === 'planificare' ? <Planificare date={date} initial={contextPlanificare} onOcupat={setPontajOcupat} onDeschidePontaj={(an,luna)=>{contextPontaj.current={an,luna,sectie:'',departament:'',categorieProgram:'',cautare:'',filtruRanduri:'',selectie:null,derulareX:0,derulareY:0};setEcran('pontaj');setEroare('');setMesaj('');}}/>
+                    {ecran === 'pontaj' ? <Pontaj key={revizieNavigare} onAjutor={(id, versiune) => setAjutor({ecran: 'pontaj', id, versiune})} date={date} context={contextPontaj} onModificari={setPontajModificat} onOcupat={setPontajOcupat} onDeschideAbsente={(an, angajatId) => { setFiltruAbsente({an, angajatId}); setPontajModificat(false); setEcran('absente'); setEroare(''); setMesaj(''); }}/>
+                    : ecran === 'planificare' ? <Planificare onPerioada={setContextPlanificare} key={revizieNavigare} date={date} onModificari={setPontajModificat} initial={contextPlanificare} onOcupat={setPontajOcupat} onDeschidePontaj={(an,luna)=>{contextPontaj.current={an,luna,sectie:'',departament:'',categorieProgram:'',cautare:'',filtruRanduri:'',selectie:null,derulareX:0,derulareY:0};setEcran('pontaj');setEroare('');setMesaj('');}}/>
                     : ecran === 'sarbatori' ? <Sarbatori/>
-                    : ecran === 'schimburi' ? <Schimburi/>
+                    : ecran === 'schimburi' ? <Schimburi date={date} onDate={setDate}/>
                     : ecran === 'categorii_program' ? <CategoriiProgram date={date} ocupat={ocupat} eroare={eroare} salveaza={c=>executa(()=>SalveazaCategorieProgram(c))} reincarca={()=>executa(DateInitiale,'')} curataEroare={()=>setEroare('')}/>
-                    : ecran === 'absente' ? <Absente date={date} filtruInitial={filtruAbsente} cerereConcediu={cerereConcediu} onCerereDeschisa={() => setCerereConcediu(null)}/>
+                    : ecran === 'absente' ? <Absente key={revizieNavigare} date={date} filtruInitial={filtruAbsente} cerereConcediu={cerereConcediu} onCerereDeschisa={() => setCerereConcediu(null)}/>
                     : ecran === 'jurnal_modificari' ? <Jurnal date={date}/>
                     : ecran === 'conturi' ? <EcranConturi/>
-                    : ecran === 'reguli_pontaj' ? <ReguliPontaj onModificari={setPontajModificat} onOcupat={setPontajOcupat}/>
+                    : ecran === 'reguli_pontaj' ? <ReguliPontaj date={date} onModificari={setPontajModificat} onOcupat={setPontajOcupat}/>
                     : ecran === 'definire_rapoarte' ? <DefinireRapoarte/>
-                    : ecran === 'rapoarte' ? <GenerareRapoarte date={date}/>
+                    : ecran === 'rapoarte' ? <GenerareRapoarte onPerioada={setPerioadaRaport} key={revizieNavigare} initial={perioadaRaport} date={date}/>
                     : ecran === 'asistent_ai' ? <AsistentAI intrebareAjutor={intrebareAjutor} onAjutor={(id, versiune) => setAjutor({ecran: 'asistent_ai', id, versiune})} date={date} perioadaEcran={contextPontaj.current ? {an: contextPontaj.current.an, luna: contextPontaj.current.luna} : contextPlanificare} onDeschideConcediu={c => { setFiltruAbsente({an: Number(c.deLa.slice(0, 4)), angajatId: c.angajatId}); setCerereConcediu(c); setEcran('absente'); setEroare(''); setMesaj(''); }} onDeschidePontaj={(an, luna) => { contextPontaj.current = { an, luna, sectie: '', departament: '', categorieProgram: '', cautare: '', filtruRanduri: '', selectie: null, derulareX: 0, derulareY: 0 }; setEcran('pontaj'); setEroare(''); setMesaj(''); }}/>
-                    : ecran === 'setari' ? <Setari date={date} ocupat={ocupat}
+                    : ecran === 'setari' ? <><ConfigurareGhidata date={date} navigheaza={(e,v)=>{if(['angajati','schimburi','categorii_program','reguli_pontaj'].includes(e)&&schimbaEcran(e as Ecran)){setVerificare(v||'');setCautare('');setSectie('');setDepartament('');setStare('activi');setFiltruProfesional({...filtruProfesionalGol});setSelectati([]);}}}/><Setari onDate={setDate} date={date} ocupat={ocupat}
                         salveazaNorma={minute => executa(() => SalveazaNormaIntreaga(minute))}
                         adaugaSectie={denumire => executa(() => AdaugaSectie({[i18n.language]: denumire}))}
-                        adaugaDepartament={(sectieID, denumire) => executa(() => AdaugaDepartament(sectieID, {[i18n.language]: denumire}))}/>
+                        adaugaDepartament={(sectieID, denumire) => executa(() => AdaugaDepartament(sectieID, {[i18n.language]: denumire}))}/></>
                     : <>
                         <section className="indicatori" aria-label={t('ui.angajati')}>
                             {[['ui.total', lista.length], ['ui.activi', lista.filter(a => a.activ).length],
                                 ['ui.partiali', lista.filter(a => a.tip_contract === 'PARTIALA').length]].map(([cheie, numar]) =>
                                 <div className="indicator" key={cheie}><span>{t(String(cheie))}</span><strong>{numar}</strong><span className="accent-indicator"/></div>)}
                         </section>
-                        <section className="panou lista-angajati" aria-label={t('ui.angajati')}>
+                        <section className="panou lista-angajati" aria-label={t('ui.angajati')}>{verificare&&<p role="status">{t('ux30.verificare_activa',{criteriu:t('ui28.verifica_'+verificare,{numar:vizibili.length})})} <button onClick={()=>setVerificare('')}>{t('structura.reseteaza')}</button> <button onClick={()=>schimbaEcran('setari')}>{t('ux30.inapoi_verificari')}</button></p>}<FiltreProfesionale numarRezultate={vizibili.length} date={date} value={filtruProfesional} onChange={setFiltruProfesional}/>
                             <div className="unelte">
                                 <label className="cautare"><span className="doar-cititor">{t('ui.cautare')}</span>
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/></svg>
                                     <input value={cautare} onChange={e => setCautare(e.target.value)} placeholder={t('ui.cautare_indiciu')}/></label>
-                                <select aria-label={t('ui.stare')} value={stare} onChange={e => setStare(e.target.value)}>
+                                <select aria-label={t('ui.stare')} value={stare} onChange={e => {setStare(e.target.value);setSelectati([]);}}>
                                     <option value="toti">{t('ui.toti')}</option><option value="activi">{t('ui.doar_activi')}</option><option value="inactivi">{t('ui.doar_inactivi')}</option>
                                 </select>
                                 <select aria-label={t('ui.sectie')} value={sectie} onChange={e => { setSectie(e.target.value); setDepartament(''); }}>
@@ -352,7 +370,7 @@ function App() {
                                 <span className="simbol-gol" aria-hidden="true"><Simbol tip="angajati"/></span>
                                 <h2>{t('ui.gol_titlu')}</h2><p>{t('ui.gol_descriere')}</p>
                                 {date.demo_disponibil && <button className="buton secundar" disabled={ocupat} onClick={() => { setEroare(''); setDemo(true); }}>{t('ui.demo')}</button>}
-                            </div> : <div className="tabel-derulant"><table>
+                            </div> : <div className="tabel-derulant tabel-angajati"><table>
                                 <thead><tr>
                                     <th scope="col" className="coloana-selectie">
                                         <input
@@ -374,7 +392,7 @@ function App() {
                                     <td className="coloana-selectie">
                                         <input
                                             type="checkbox"
-                                            aria-label={t('ui.selecteaza_angajat', {nume: `${a.nume} ${a.prenume}`})}
+                                            aria-label={t('ui.selecteaza_angajat', {nume: `${numeAngajat(a)}`})}
                                             checked={selectati.includes(a.id)}
                                             onChange={e => {
                                                 if (e.target.checked) {
@@ -386,13 +404,13 @@ function App() {
                                         />
                                     </td>
                                     <td><div className="identitate"><span className="avatar" aria-hidden="true">{a.prenume.charAt(0)}{a.nume.charAt(0)}</span>
-                                        <span><strong>{a.nume} {a.prenume}</strong>{a.functie && <small>{a.functie}</small>}</span></div></td>
+                                        <span><strong>{numeAngajat(a)}</strong>{a.functie && <small>{a.functie}</small>}{a.angajat_principal_id && <small>{t('ui28.marca_principala')} · {date?.angajati.find(p=>p.id===a.angajat_principal_id)?.marca}</small>}{a.garda&&!a.angajat_principal_id&&<small>{t('ui28.garda_independenta')}</small>}</span></div></td>
                                     <td className="marca-angajat">{a.marca}</td><td>{sectiePentru(a.sectie_id)}</td><td>{departamentPentru(a.departament_id)}</td>
-                                    <td><span className={`eticheta-contract ${a.tip_contract === 'PARTIALA' ? 'partial' : ''}`}>{t(a.tip_contract === 'PARTIALA' ? 'ui.partiala' : 'ui.intreaga')}</span>{a.categorie_program_id&&<small className="categorie-angajat">{date.categorii_program?.find(c=>c.id===a.categorie_program_id)?.denumire[i18n.language]||date.categorii_program?.find(c=>c.id===a.categorie_program_id)?.denumire.ro}</small>}</td>
-                                    <td className="durata">{durata(a.norma_minute, t)}</td><td>{a.concediu_zile_an == null ? <span className="text-discret">{t('ui.necompletat')}</span> : t('ui.zile', {numar: a.concediu_zile_an})}</td>
+                                    <td><span className={`eticheta-contract ${a.tip_contract === 'PARTIALA' ? 'partial' : ''}`}>{(()=>{const c=date.tipuri_contract?.find(c=>c.id===(a.contract_id||a.tip_contract));return c?(c.denumire[i18n.language]||c.denumire.ro):t(a.tip_contract==='PARTIALA'?'ui.partiala':'ui.intreaga')})()}</span>{a.categorie_program_id&&<small className="categorie-angajat">{date.categorii_program?.find(c=>c.id===a.categorie_program_id)?.denumire[i18n.language]||date.categorii_program?.find(c=>c.id===a.categorie_program_id)?.denumire.ro}</small>}</td>
+                                    <td className="durata">{a.norma_definita===false?t(date.tipuri_contract?.find(c=>c.id===a.contract_id)?.normare==='LUNARA'?'structura.normare_LUNARA':'structura.normare_FARA'):durata(a.norma_minute, t)}</td><td>{a.concediu_zile_an == null ? <span className="text-discret">{t('ui.necompletat')}</span> : t('ui.zile', {numar: a.concediu_zile_an})}</td>
                                     <td><span className={`stare-angajat ${a.activ ? 'activ' : ''}`}><i/>{t(a.activ ? 'ui.activ' : 'ui.inactiv')}</span></td>
-                                    <td><div className="actiuni-rand"><button className="legatura" disabled={ocupat} aria-label={t('ui.editare_pentru', {nume: `${a.nume} ${a.prenume}`})} onClick={() => deschide(a)}>{t('ui.editeaza')}</button>
-                                        <button className="legatura discreta" disabled={ocupat} aria-label={`${t(a.activ ? 'ui.dezactiveaza' : 'ui.reactiveaza')} ${a.nume} ${a.prenume}`}
+                                    <td><div className="actiuni-rand"><button className="legatura" disabled={ocupat} aria-label={t('ui.editare_pentru', {nume: `${numeAngajat(a)}`})} onClick={() => deschide(a)}>{t('ui.editeaza')}</button>
+                                        <button className="legatura discreta" disabled={ocupat} aria-label={`${t(a.activ ? 'ui.dezactiveaza' : 'ui.reactiveaza')} ${numeAngajat(a)}`}
                                             onClick={() => executa(() => SchimbaActivAngajat(a.id, !a.activ))}>{t(a.activ ? 'ui.dezactiveaza' : 'ui.reactiveaza')}</button></div></td>
                                 </tr>)}</tbody>
                             </table>{vizibili.length === 0 && <p className="fara-rezultate">{t('ui.fara_rezultate')}</p>}</div>}
@@ -410,7 +428,7 @@ function App() {
             intreaba={text => {if (!schimbaEcran('asistent_ai')) return false; setIntrebareAjutor({text, id: Date.now()}); return true;}}/>}
         {demo && <DialogDemo ocupat={ocupat} eroare={eroare} inchide={() => { setDemo(false); setEroare(''); }}
             confirma={async () => { if (await executa(IncarcaDemo, 'ui.demo_salvat')) setDemo(false); }}/>}
-        {importAngajati && <DialogImportAngajati
+        {importAngajati && <DialogImportAngajati angajati={date?.angajati}
             inchide={() => setImportAngajati(false)}
             laSucces={(dateNoi, msg) => {
                 setDate(dateNoi);

@@ -190,6 +190,18 @@ export function ExportaPontajExcel(arg1, arg2) {
   return window['go']['main']['App']['ExportaPontajExcel'](arg1, arg2);
 }
 
+export function FinalizeazaRaportPdfme(arg1, arg2) {
+  return window['go']['main']['App']['FinalizeazaRaportPdfme'](arg1, arg2);
+}
+
+export function FontSistem(arg1) {
+  return window['go']['main']['App']['FontSistem'](arg1);
+}
+
+export function FonturiRapoarte() {
+  return window['go']['main']['App']['FonturiRapoarte']();
+}
+
 export function GenereazaCheieRecuperareNoua() {
   return window['go']['main']['App']['GenereazaCheieRecuperareNoua']();
 }
@@ -208,6 +220,10 @@ export function InchideAplicatia() {
 
 export function Informatii() {
   return window['go']['main']['App']['Informatii']();
+}
+
+export function InlocuiestePontajCuAbsente(arg1, arg2, arg3, arg4) {
+  return window['go']['main']['App']['InlocuiestePontajCuAbsente'](arg1, arg2, arg3, arg4);
 }
 
 export function InregistreazaEroareFrontend(arg1, arg2, arg3) {
@@ -232,6 +248,10 @@ export function ListaBackupuri() {
 
 export function ListaConturi() {
   return window['go']['main']['App']['ListaConturi']();
+}
+
+export function ListaFonturiSistem() {
+  return window['go']['main']['App']['ListaFonturiSistem']();
 }
 
 export function ListaModeleRapoarte() {
@@ -262,6 +282,10 @@ export function OpresteSarcinaAI() {
   return window['go']['main']['App']['OpresteSarcinaAI']();
 }
 
+export function PersonalizeazaRaport(arg1, arg2) {
+  return window['go']['main']['App']['PersonalizeazaRaport'](arg1, arg2);
+}
+
 export function PornesteAI(arg1) {
   return window['go']['main']['App']['PornesteAI'](arg1);
 }
@@ -280,6 +304,14 @@ export function PregatesteRaportProblema(arg1) {
 
 export function PrevizualizeazaAnulareAI() {
   return window['go']['main']['App']['PrevizualizeazaAnulareAI']();
+}
+
+export function PrevizualizeazaEfecteAbsente(arg1, arg2, arg3, arg4) {
+  return window['go']['main']['App']['PrevizualizeazaEfecteAbsente'](arg1, arg2, arg3, arg4);
+}
+
+export function PrevizualizeazaModelRaport(arg1, arg2) {
+  return window['go']['main']['App']['PrevizualizeazaModelRaport'](arg1, arg2);
 }
 
 export function PrevizualizeazaPlanAI(arg1) {
@@ -322,12 +354,24 @@ export function SalveazaAngajat(arg1) {
   return window['go']['main']['App']['SalveazaAngajat'](arg1);
 }
 
+export function SalveazaCategorieAbsenta(arg1, arg2) {
+  return window['go']['main']['App']['SalveazaCategorieAbsenta'](arg1, arg2);
+}
+
 export function SalveazaCategorieProgram(arg1) {
   return window['go']['main']['App']['SalveazaCategorieProgram'](arg1);
 }
 
 export function SalveazaConfiguratiePontaj(arg1) {
   return window['go']['main']['App']['SalveazaConfiguratiePontaj'](arg1);
+}
+
+export function SalveazaElementNomenclator(arg1, arg2) {
+  return window['go']['main']['App']['SalveazaElementNomenclator'](arg1, arg2);
+}
+
+export function SalveazaExcelRaport(arg1) {
+  return window['go']['main']['App']['SalveazaExcelRaport'](arg1);
 }
 
 export function SalveazaModelRaport(arg1) {
@@ -426,6 +470,10 @@ export function StareCont() {
   return window['go']['main']['App']['StareCont']();
 }
 
+export function StareInstanta() {
+  return window['go']['main']['App']['StareInstanta']();
+}
+
 export function StareRecuperare() {
   return window['go']['main']['App']['StareRecuperare']();
 }
@@ -436,6 +484,10 @@ export function StareSeif() {
 
 export function StatisticiDiagnoza() {
   return window['go']['main']['App']['StatisticiDiagnoza']();
+}
+
+export function StergeConfigurare(arg1, arg2, arg3) {
+  return window['go']['main']['App']['StergeConfigurare'](arg1, arg2, arg3);
 }
 
 export function StergeSablonAI(arg1) {

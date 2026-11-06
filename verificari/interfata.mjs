@@ -1,3 +1,11 @@
+import {verificaProgrameMultiple} from './programe-multiple-scenarii.mjs';
+import {verificaRapoarteFlexibile} from './rapoarte-flexibile-scenarii.mjs';
+import {fonturiPdfmeTest,simularePdfme,verificaRapoartePdfme} from './rapoarte-pdfme-scenarii.mjs';
+import {verificaUX30} from './ux30-scenarii.mjs';
+import {simulareStergereConfigurari,verificaStergereConfigurari} from './stergere-configurari-scenarii.mjs';
+import {verificaAbsentePontaj} from './pontaj-absente-scenarii.mjs';
+import {simulareNomenclatoare,verificaNomenclatoare} from './nomenclatoare-scenarii.mjs';
+import {verificaFocus} from './focus-scenarii.mjs';
 import {simulareAjutor, verificaAjutor} from './ajutor-scenarii.mjs';
 // Verificare UI cu Edge existent și punte Wails simulată. Backendul real este
 // verificat separat prin testele Go; acest script nu deschide date operaționale.
@@ -116,6 +124,10 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
     let stare = JSON.parse(localStorage.getItem('pontix-test') || 'null') || {angajati: [], sectii: [], norma_intreaga_minute: 420, demo_disponibil: true};
     stare.sarbatori ??= structuredClone(calendarSursa);
     stare.schimburi ??= structuredClone(schimburiSursa);
+    stare.tipuri_program ??= ['NORMAL','TURA','NOAPTE','GARDA'].map(c=>({id:c,denumire:{ro:c,en:c},comportament:c,activ:true,revizie:'1',utilizari:0}));
+    stare.regimuri_program ??= ['LUCRATOARE','NELUCRATOARE','INTRARE_ZI_LIBERA'].map(c=>({id:c,denumire:{ro:c==='LUCRATOARE'?'Normal':c,en:c==='LUCRATOARE'?'Normal':c},comportament:c,activ:true,revizie:'1',utilizari:0}));
+    stare.schimburi=stare.schimburi.map(s=>({...s,regim:s.regim==='GENERAL'?'LUCRATOARE':s.regim,tip_id:s.tip_id||s.tip,regim_id:s.regim_id||(s.regim==='GENERAL'?'LUCRATOARE':s.regim)}));
+
     stare.categorii_program ??= [
         ['program-dimineata','Dimineață','Morning',['Z7'],'Z7'],
         ['program-dupa-amiaza','După-amiază','Afternoon',['S7'],'S7'],
@@ -169,8 +181,9 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
         return {date: structuredClone(stare), eroare: null};
     };
     const calendar = an => ({calendar: {an, sarbatori: structuredClone(stare.sarbatori.filter(s => Number(s.data.slice(0, 4)) === an).sort((a, b) => a.data.localeCompare(b.data))), import_disponibil: an === 2026}, adaugate: 0, eroare: null});
-    const absente = an => ({absente:{an,tipuri:structuredClone(stare.tipuriAbsenta),zile:structuredClone(stare.absente.filter(z => Number(z.data.slice(0,4)) === an).sort((a,b) => a.data.localeCompare(b.data)))},eroare:null});
-    const modele = () => ({configuratie:{...structuredClone(rapoarteSursa.configuratie),modele:structuredClone(stare.modeleRapoarte)},eroare:null});
+    stare.categoriiAbsenta ??= ['ODIHNA','MEDICAL','SPECIAL'].map(c=>({cod:c,denumire:{ro:cataloage.ro['absente.'+c],en:cataloage.en['absente.'+c]},natura:c,efect_ore:'ANTERIOR',activ:true,revizie:'1'}));
+    const absente = an => ({absente:{an,categorii:structuredClone(stare.categoriiAbsenta),tipuri:structuredClone(stare.tipuriAbsenta),zile:structuredClone(stare.absente.filter(z => Number(z.data.slice(0,4)) === an).sort((a,b) => a.data.localeCompare(b.data)))},eroare:null});
+    const modele = () => ({configuratie:{...structuredClone(rapoarteSursa.configuratie),surse:[...rapoarteSursa.configuratie.surse,...['SQL_LIBER','LISTA_GARZI','CALCULATE_LUNAR'].map(cod=>({cod,coloane:['rezultat']}))],modele:structuredClone(stare.modeleRapoarte)},eroare:null});
     window.go = {main: {App: {
         Limbi: async () => [limba, ...Object.keys(cataloage).filter(l => l !== limba)],
         Catalog: async l => cataloage[l], Informatii: async () => ({versiune: versiuneAplicatie, commit: 'verificare'}),
@@ -209,10 +222,12 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
             if(i<0){d={...d,id:'model-'+crypto.randomUUID(),revizie:'1'};stare.modeleRapoarte.push(d);}else{d={...d,revizie:String(Number(d.revizie)+1)};stare.modeleRapoarte[i]=d;}
             raspuns();return {...modele(),salvat_id:d.id};
         },
+        PersonalizeazaRaport:async(token,editari)=>{if(token!==stare.ultimTokenRaport)return {eroare:{cod:'rapoarte.expirat'}};const d=structuredClone(stare.documentRaportCurent);for(const e of editari){if(e.cheie==='titlu')d.titlu=e.text;else if(e.cheie==='introducere')d.introducere=e.text;else if(e.cheie.startsWith('antet_'))d.antet[['stanga','centru','dreapta'].indexOf(e.cheie.slice(6))]=e.text;else if(e.cheie.startsWith('subsol_'))d.subsol[['stanga','centru','dreapta'].indexOf(e.cheie.slice(7))]=e.text;else {const k=e.cheie.split(':');if(k[0]==='eticheta')d.coloane.find(c=>c.cod===k[1]).titlu=e.text;if(k[0]==='celula')d.randuri[Number(k[1])].valori[d.coloane.findIndex(c=>c.cod===k[2])]=e.text;}if(e.stil)(d.stiluri??={})[e.cheie]=e.stil;}d.personalizat=true;stare.documentRaportCurent=d;stare.ultimeEditariRaport=editari;stare.ultimTokenRaport=crypto.randomUUID();raspuns();return {document:d,pdf:rapoarteSursa.pdf,token:stare.ultimTokenRaport,nume_fisier:'personalizat-demo.pdf',pagini:4,eroare:null};},
+        PrevizualizeazaModelRaport:async(d,c)=>{if(d.continut.flexibil.sql.includes('invalida'))return {eroare:{cod:'rapoarte.sql_invalid'}};const cols=['angajat_id','angajat','marca','total_ore_lucrate','total_ore_lucratoare',...d.continut.flexibil.calculate.filter(v=>v.activ).map(v=>v.cod)];return {document:{...structuredClone(rapoarteSursa.document),coloane:cols.map(cod=>({cod,titlu:cod,pondere:10})),randuri:[{valori:['demo','Angajat demo','DEMO-001','154','147',...d.continut.flexibil.calculate.filter(v=>v.activ).map(()=> '7')],culori:[]}],schema:[{cod:'lunar',campuri:cols}]},pdf:rapoarteSursa.pdf,eroare:null};},
         PregatesteRaport: async c => {
             stare.ultimaCerereRaport=c;stare.ultimTokenRaport=crypto.randomUUID();raspuns();
             const d=stare.modeleRapoarte.find(d => d.id===c.model_id);
-            return {document:{...structuredClone(rapoarteSursa.document),titlu:d.denumire[c.limba]||d.denumire.ro,sursa:d.continut.sursa,revizie_model:d.revizie},pdf:rapoarteSursa.pdf,token:stare.ultimTokenRaport,nume_fisier:'raport-demo.pdf',pagini:4,eroare:null};
+            stare.documentRaportCurent={...structuredClone(rapoarteSursa.document),titlu:d.denumire[c.limba]||d.denumire.ro,sursa:d.continut.sursa,revizie_model:d.revizie};raspuns();return {document:structuredClone(stare.documentRaportCurent),pdf:rapoarteSursa.pdf,token:stare.ultimTokenRaport,nume_fisier:'raport-demo.pdf',pagini:4,eroare:null};
         },
         SalveazaPDFRaport: async token => { if(token!==stare.ultimTokenRaport) return {eroare:{cod:'rapoarte.expirat'}};stare.exporturiRaport=(stare.exporturiRaport||0)+1;raspuns();return {anulat:false,cale:'raport-demo.pdf',eroare:null}; },
         DeschidePDFPentruTiparire: async token => { if(token!==stare.ultimTokenRaport) return {eroare:{cod:'rapoarte.expirat'}};stare.tipaririRaport=(stare.tipaririRaport||0)+1;raspuns();return {anulat:false,cale:'raport-demo.pdf',eroare:null}; },
@@ -238,6 +253,11 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
             const lipsa = calendarSursa.filter(s => !stare.sarbatori.some(v => v.data === s.data));
             stare.sarbatori.push(...structuredClone(lipsa)); raspuns(); return {...calendar(2026), adaugate: lipsa.length};
         },
+        CitestePlanificare:async(an,luna)=>({planificare:{an,luna,stare:'DESCHISA',pozitii:structuredClone((stare.planificare||[]).filter(p=>p.data.startsWith(`${an}-${String(luna).padStart(2,'0')}`)))},eroare:null}),
+        SalveazaPlanificare:async(an,luna,pozitii)=>{stare.planificare??=[];for(const p of pozitii){const i=stare.planificare.findIndex(v=>p.id&&v.id===p.id);const n={...p,id:p.id||crypto.randomUUID(),revizie:String(i<0?1:Number(stare.planificare[i].revizie)+1)};if(i<0)stare.planificare.push(n);else stare.planificare[i]=n;}raspuns();return {planificare:{an,luna,stare:'DESCHISA',pozitii:structuredClone(stare.planificare)},eroare:null};},
+        CitesteAcoperirePlanificare:async()=>({acoperire:null,eroare:null}),
+        CitesteEchitatePlanificare:async()=>({avertismente:[],eroare:null}),
+        VerificaReguliPlanificare:async()=>({incalcari:[],eroare:null}),
         ListaSchimburi: async () => ({schimburi: structuredClone(stare.schimburi), eroare: null}),
         CompleteazaSchimburiInitiale: async categorie => {
             const cat = (categorie || 'LAB').toUpperCase();
@@ -254,7 +274,11 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
         },
         SchimbaActivSchimb: async (id, activ) => { stare.schimburi.find(s => s.id === id).activ = activ; raspuns(); return {schimburi: structuredClone(stare.schimburi), eroare: null}; },
         CitesteAbsente: async an => absente(an),
+        // F16-T31: simulare UI fara mutatii; rollbackul real este testat in Go.
+        PrevizualizeazaEfecteAbsente: async zile => ({efecte:zile.map(z=>({sursa:'absente_zile',id:z.angajat_id+'/'+z.data,inainte:stare.absente.find(a=>a.angajat_id===z.angajat_id&&a.data===z.data)||{},dupa:z})),eroare:null}),
+        SalveazaCategorieAbsenta:async(c,an)=>{const i=stare.categoriiAbsenta.findIndex(v=>v.cod===c.cod);if(i>=0&&stare.categoriiAbsenta[i].revizie!==c.revizie)return {eroare:{cod:'absente.conflict'}};const nou={...c,revizie:String(i<0?1:Number(c.revizie)+1)};if(i<0)stare.categoriiAbsenta.push(nou);else stare.categoriiAbsenta[i]=nou;for(const tip of stare.tipuriAbsenta){if(tip.categorie_id===c.cod){tip.categorie=c.natura;tip.efect_ore=c.efect_ore;}}raspuns();return absente(an);},
         SalveazaTipAbsenta: async (initial,tip,an) => {
+            if(tip.categorie_id){const c=stare.categoriiAbsenta.find(c=>c.cod===tip.categorie_id);if(!c)return {eroare:{cod:'absente.tip_invalid'}};tip.categorie=c.natura;tip.efect_ore=c.efect_ore;}
             tip.cod = tip.cod.trim().toUpperCase();
             if (stare.schimburi.some(s => s.cod === tip.cod) || (!initial && stare.tipuriAbsenta.some(t => t.cod === tip.cod))) return {absente:null,eroare:{cod:'absente.cod_duplicat'}};
             const i = stare.tipuriAbsenta.findIndex(t => t.cod === initial);
@@ -298,6 +322,18 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
             const d = stare.documenteAbsenta.find(x => x.id === id);
             return d ? {document: structuredClone(d), eroare: null} : {document: null, eroare: {cod: 'absente.document_inexistent'}};
         },
+        InlocuiestePontajCuAbsente: async (an,luna,zile,celule) => {
+            if(window.__refuzaConversie) return {schita:null,eroare:{cod:'absente.tip_invalid'}};
+            const vechi=structuredClone(stare.ciorne),absenteVechi=structuredClone(stare.absente);
+            for(const c of celule) {
+                const v=stare.ciorne.find(v=>v.angajat_id===c.angajat_id&&v.data===c.data);
+                if((v?.revizie||'')!==c.revizie||(v?.valoare||'')!==c.valoare) return {schita:null,eroare:{cod:'pontaj.conflict'}};
+            }
+            for(const c of celule) {const v=stare.ciorne.find(v=>v.angajat_id===c.angajat_id&&v.data===c.data);if(v){v.valoare='';v.revizie=String(Number(v.revizie)+1);}}
+            const r=await window.go.main.App.SalveazaAbsente(zile,an);
+            if(r.eroare){stare.ciorne=vechi;stare.absente=absenteVechi;raspuns();return {schita:null,eroare:r.eroare};}
+            raspuns();return schita(an,luna);
+        },
         CitesteSchita: async (an,luna)=>schita(an,luna),
         SalveazaSchita: async (an, luna, celule) => {
             if (celule.some(c => stare.absente.some(z => z.activ && z.angajat_id === c.angajat_id && z.data === c.data))) return {schita:null,eroare:{cod:'absente.celula_protejata'}};
@@ -335,13 +371,27 @@ try {
     await cdp('Page.enable'); await cdp('Runtime.enable');
     await cdp('Emulation.setDeviceMetricsOverride', {width: 1440, height: 960, deviceScaleFactor: 1, mobile: false});
     const injectat = await cdp('Page.addScriptToEvaluateOnNewDocument', {source: `(${simulare})(${JSON.stringify(demo)},${JSON.stringify(cataloage)},'ro',${JSON.stringify(calendarSursa)},${JSON.stringify(versiuneAplicatie)},${JSON.stringify(schimburiSursa)},${JSON.stringify(rapoarteSursa)})`});
-    if (process.argv.includes('--ajutor')) {
+    if (process.argv.includes('--programe-multiple') || process.argv.includes('--rapoarte-flexibile') || process.argv.includes('--rapoarte-pdfme') || process.argv.includes('--ux30') || process.argv.includes('--stergere-admin') || process.argv.includes('--pontaj-absente') || process.argv.includes('--ajutor') || process.argv.includes('--focus') || process.argv.includes('--nomenclatoare')) {
         const limba=process.argv.includes('--en')?'en':'ro';
         await cdp('Emulation.setDeviceMetricsOverride',{width:1024,height:640,deviceScaleFactor:1,mobile:false});
         await cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(${simulareAjutor})(${JSON.stringify(catalogAjutor)},${JSON.stringify(cataloage)},${JSON.stringify(versiuneAplicatie)},${JSON.stringify(limba)})`});
     }
+    if(process.argv.includes('--stergere-admin')) await cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(${simulareStergereConfigurari})()`});
+    if(process.argv.includes('--programe-multiple')||process.argv.includes('--nomenclatoare')||process.argv.includes('--ux30')||process.argv.includes('--rapoarte-flexibile')||process.argv.includes('--rapoarte-pdfme')) await cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(${simulareNomenclatoare})()`});
+    if(process.argv.includes('--rapoarte-pdfme')) await cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(${simularePdfme})(${JSON.stringify(fonturiPdfmeTest())})`});
     await cdp('Page.navigate', {url});
-    if (process.argv.includes('--ajutor')) {
+    if(process.argv.includes('--rapoarte-pdfme')){const masuri=await verificaRapoartePdfme({cdp,evalueaza,asteapta,apasa,completeaza,cataloage,limba:process.argv.includes('--en')?'en':'ro',salveazaPdf:b64=>writeFileSync(join(capturi,'raport-pdfme.pdf'),Buffer.from(b64,'base64')),captura:async nume=>{const r=await cdp('Page.captureScreenshot',{format:'png'});writeFileSync(join(capturi,nume),Buffer.from(r.data,'base64'));}});writeFileSync(join(capturi,'masuratori-pdfme.json'),JSON.stringify({masuri,erori},null,2));assert.deepEqual(erori,[],'Erori JS');console.log('Rapoarte pdfme verificate: '+capturi);}
+    else if(process.argv.includes('--rapoarte-flexibile')){await verificaRapoarteFlexibile({cdp,evalueaza,asteapta,apasa,completeaza,cataloage,limba:process.argv.includes('--en')?'en':'ro'});assert.deepEqual(erori,[],'Erori JS');console.log('Rapoarte flexibile verificate: '+capturi);}
+    else if(process.argv.includes('--programe-multiple')) {await verificaProgrameMultiple({cdp,evalueaza,asteapta,apasa,completeaza,cataloage,limba:process.argv.includes('--en')?'en':'ro'});assert.deepEqual(erori,[],'Erori JS');console.log('Programe multiple UI verificate: '+capturi);}
+    else if(process.argv.includes('--ux30')) {await verificaUX30({cdp,evalueaza,asteapta,apasa,completeaza,cataloage,limba:process.argv.includes('--en')?'en':'ro'});assert.deepEqual(erori,[],'Erori JS');console.log('UX30 verificat: '+capturi);}
+    else if(process.argv.includes('--stergere-admin')) {await verificaStergereConfigurari({cdp,evalueaza,asteapta,apasa,completeaza,cataloage,limba:process.argv.includes('--en')?'en':'ro',captura:async nume=>{const r=await cdp('Page.captureScreenshot',{format:'png'});writeFileSync(join(capturi,nume),Buffer.from(r.data,'base64'));}});assert.deepEqual(erori,[],'Erori JS');console.log('Stergere admin verificata: '+capturi);}
+    else if(process.argv.includes('--pontaj-absente')) {await verificaAbsentePontaj({cdp,evalueaza,asteapta,apasa,completeaza,cataloage,limba:process.argv.includes('--en')?'en':'ro',captura:async nume=>{const r=await cdp('Page.captureScreenshot',{format:'png'});writeFileSync(join(capturi,nume),Buffer.from(r.data,'base64'));}});assert.deepEqual(erori,[],'Erori JS');console.log('Absente din Pontaj verificate: '+capturi);}
+    else if(process.argv.includes('--nomenclatoare')){await verificaNomenclatoare({cdp,evalueaza,asteapta,apasa,completeaza,cataloage,limba:process.argv.includes('--en')?'en':'ro',captura:async nume=>{const r=await cdp('Page.captureScreenshot',{format:'png'});writeFileSync(join(capturi,nume),Buffer.from(r.data,'base64'));}});assert.deepEqual(erori,[],'Erori JS');console.log('Nomenclatoare UI verificate: '+capturi);}
+    else if (process.argv.includes('--focus')) {
+        await verificaFocus({cdp,evalueaza,asteapta,apasa,cataloage,limba:process.argv.includes('--en')?'en':'ro',captura:async nume=>{const r=await cdp('Page.captureScreenshot',{format:'png'});writeFileSync(join(capturi,nume),Buffer.from(r.data,'base64'));}});
+        assert.deepEqual(erori,[],'Erori JavaScript.');
+        console.log('Focus/cursor si zoom verificate: '+capturi);
+    } else if (process.argv.includes('--ajutor')) {
         if (process.argv.includes('--en')) await evalueaza("document.documentElement.setAttribute('data-theme','dark')");
         await verificaAjutor({cdp,evalueaza,asteapta,completeaza,apasa,cataloage,limba:process.argv.includes('--en')?'en':'ro',
             captura:async nume=>{const r=await cdp('Page.captureScreenshot',{format:'png'});writeFileSync(join(capturi,nume),Buffer.from(r.data,'base64'));}});
@@ -370,6 +420,7 @@ try {
     await completeaza('dialog input[type="number"]', '4.5');
     await apasa('Salvează');
     await asteapta(() => evalueaza(`!document.querySelector('dialog') && document.querySelector('tbody').textContent.includes('4 h 30 min')`), 'Norma parțială nu se salvează.');
+    await completeaza('select[aria-label="Stare"]','toti');
     await apasa('Dezactivează');
     await asteapta(() => evalueaza(`document.querySelector('tbody').textContent.includes('Inactiv')`), 'Dezactivarea nu se vede.');
     await apasa('Reactivează');
@@ -476,7 +527,7 @@ try {
     await completeaza('dialog .campuri label:nth-child(1) input', 'test_n12');
     await completeaza('dialog .campuri label:nth-child(2) select', 'NOAPTE');
     await completeaza('dialog .campuri label:nth-child(3) input', 'Tură de test');
-    await completeaza('dialog input[type="time"]', '19:00');
+    await completeaza('dialog input[name="ora_inceput"]', '19:00');
     await completeaza('dialog .campuri label:nth-child(6) input', '720');
     await completeaza('dialog .campuri label:nth-child(7) input', '30'); await apasa('Salvează');
     await asteapta(() => evalueaza(`!document.querySelector('dialog') && document.querySelector('.tabel-schimburi').textContent.includes('TEST_N12')`), 'Schimb nesalvat.');
@@ -484,6 +535,7 @@ try {
     assert.deepEqual(await evalueaza(`[...document.querySelectorAll('.tabel-schimburi tbody tr')].map(r => r.cells[0].textContent)`),['TEST_N12'],'Filtrul categoriei Custom nu afișează schimbul nou.');
     await completeaza('.schimburi select[aria-label="Categorie"]','');
     assert(await evalueaza(`document.querySelector('.tabel-schimburi').textContent.includes('19:00') && document.querySelector('.tabel-schimburi').textContent.includes('12 h')`), 'Intervalul schimbului diferă.');
+    await completeaza('select[name=filtru_stare_schimburi]','TOATE');
     await evalueaza(`[...document.querySelectorAll('.tabel-schimburi tbody tr')].find(r => r.cells[0].textContent === 'TEST_N12').querySelectorAll('button')[1].click()`);
     await asteapta(() => evalueaza(`[...document.querySelectorAll('.tabel-schimburi tbody tr')].find(r => r.cells[0].textContent === 'TEST_N12').textContent.includes('Inactiv')`), 'Schimbul nu se dezactivează.');
     await apasa('Reactivează');
@@ -492,7 +544,7 @@ try {
     await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog[open]'))`), 'Formular duplicat lipsă.');
     await completeaza('dialog .campuri label:nth-child(1) input', 'TEST_N12');
     await completeaza('dialog .campuri label:nth-child(3) input', 'Duplicat');
-    await completeaza('dialog input[type="time"]', '20:00');
+    await completeaza('dialog input[name="ora_inceput"]', '20:00');
     await completeaza('dialog .campuri label:nth-child(6) input', '720'); await apasa('Salvează');
     await asteapta(() => evalueaza(`document.querySelector('dialog [role="alert"]')?.textContent.includes('acest cod')`), 'Codul duplicat nu este semnalat.');
     await apasa('Anulează');
@@ -524,6 +576,7 @@ try {
     assert.deepEqual(await evalueaza(`[...document.querySelectorAll('.sumar-absente tbody tr:first-child td')].slice(2).map(c => c.textContent)`),['2','2','1'],'Sumar incorect pe categorii.');
     await completeaza('.filtre-absente select[aria-label="Categorie"]','SPECIAL');
     assert.equal(await evalueaza(`document.querySelectorAll('.tabel-absente tbody tr').length`),1,'Filtrul categoriei nu funcționează.');
+    await completeaza('select[name=filtru_stare_tipuri_absenta]','TOATE');
     await evalueaza(`[...document.querySelectorAll('.tabel-tipuri-absenta tbody tr')].find(r => r.cells[0].textContent === 'EV').querySelector('button').click()`);
     await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog input[name="activ"]'))`),'Editare tip lipsă.');
     await evalueaza(`document.querySelector('dialog input[name="activ"]').click()`); await apasa('Salvează');
@@ -652,6 +705,7 @@ try {
     assert.equal(modeleDupaEditare.find(d=>d.id==='raport-pontaj').subsol.imagini.dreapta.nume,'subsol-demo.jpg','Imaginea din subsol nu este salvata.');
     assert.equal(modeleDupaEditare.find(d=>d.id==='raport-fisa').antet.stanga.ro,'','Editarea unui raport a schimbat alt model.');
     assert(modeleDupaEditare.find(d=>d.id==='raport-pontaj').continut.coloane.includes('functie'),'Coloana configurată s-a pierdut.');
+    await completeaza('select[name=filtru_stare_modele_rapoarte]','TOATE');
     await evalueaza(`[...document.querySelectorAll('.tabel-modele-rapoarte tbody tr')].find(r=>r.cells[0].textContent==='Pontaj lunar').querySelectorAll('button')[1].click()`);
     await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog input[name="denumire_ro"]'))`),'Duplicarea nu deschide editorul.');
     await completeaza('dialog input[name="denumire_ro"]','Raport demo separat');

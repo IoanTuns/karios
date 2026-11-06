@@ -213,7 +213,7 @@ func AnalizeazaComandaGrup(mesaj string, info ContextPontix) (RaspunsAsistent, b
 	if an <= 0 || luna < 1 || luna > 12 {
 		return RaspunsAsistent{}, false
 	}
-	filtru, textFiltru := "lucratoare", "doar zile lucrătoare (L–V)"
+	filtru, textFiltru := "lucratoare", "doar zile lucratoare (L-V fara sarbatori legale)"
 	switch {
 	case strings.Contains(m, "inclusiv weekend") || strings.Contains(m, "toate zilele") || strings.Contains(m, "in fiecare zi") || strings.Contains(m, "si in weekend"):
 		filtru, textFiltru = "toate", "toate zilele"

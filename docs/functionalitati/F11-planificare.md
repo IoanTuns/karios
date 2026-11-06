@@ -16,3 +16,7 @@ Graficul planificat se face separat de ce s-a lucrat efectiv, iar diferențele s
 | F11-T05 | Raport de acoperire weekend și zile nelucrătoare (G24, Z12, N12, IN9) | gata | Antigravity | Cerință confirmată prin I059 și D039. Verificare automată acoperire pe sâmbete, duminici și sărbători legale, badge-uri alocare/lipsă, carduri sintetice și filtru doar deficit. Versiunea 0.32.0. |
 | F11-T06 | Verificare echitate sărbători (Crăciun/Revelion/Paști) și marcaje ture consecutive | gata | Antigravity | Cerință confirmată prin I060 și D039. Corelare rotație Crăciun/Revelion/Paști între ani și marcaje vizuale neblocante (celula-atentie, tooltip, inspecție poziție) pentru ture consecutive. Versiunea 0.32.0. |
 | F11-T02 | Raportul planificat vs. realizat | de făcut | | |
+
+| F11-T20 | Prioritate Planificare - concedii - medical in Pontaj | gata | Codex | Cerinta confirmata explicit. Planificarea publicata inlocuieste valorile de pontaj; absentele si medicalul raman prioritare. [Plan](../plan-F11-T20.md). |
+
+| F11-T21 | Mai multe programe in aceeasi zi si pe aceeasi marca | gata | Codex | Aplicatie0.92.31, migrare0031. [Specificatie](../cerinte-F11-T21.md), [rezultate](../rezultate-F11-T21.md). Pozitii distincte, publicare/calcul/sincronizare fara pierderi, absente prioritare; Go/vet, UI RO/EN trecute. Pas urmator: proba operator si review. |

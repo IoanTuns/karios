@@ -11,6 +11,10 @@ export function simulareAjutor(catalog, texte, versiune, limba) {
     api.StareRecuperare = async () => ({necesara:false});
     api.SeteazaLimbaInterfata = async () => {};
     api.SeteazaModificariNesalvate = async () => {};
+    api.CitestePlanificare ??= async (an,luna) => ({planificare:{an,luna,pozitii:[]}});
+    api.CitesteAcoperirePlanificare = async () => ({acoperire:{zile:[]}});
+    api.CitesteEchitatePlanificare = async () => ({avertismente:[]});
+    api.VerificaReguliPlanificare = async () => ({incalcari:[]});
     api.UltimaModificareCelula = async () => ({intrare:null});
     api.SarcinaAIActiva = async () => '';
     api.StareAI = async () => ({stare:{activ:false,instalat:false}});

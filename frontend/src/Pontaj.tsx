@@ -1,8 +1,15 @@
+import {useSalvareParasire,confirmaParasire} from './Parasire';
+import {SelectieRezumat} from './SelectieRezumat';
+import {FiltruStare,corespundeStare,type StareLista} from './FiltruStare';
+import {FormularAbsente} from './Absente';
+import {numeAngajatFaraPrefix} from './numeAngajat';
+import {factorZoomInterfata} from './ZoomInterfata';
+import {FiltreProfesionale,filtruProfesionalGol,corespundeProfesional} from './FiltreProfesionale';
 import {memo, useEffect, useLayoutEffect, useMemo, useRef, useState, type ClipboardEvent, type KeyboardEvent, type MouseEvent, type RefObject} from 'react';
 import {useTranslation} from 'react-i18next';
 import {autorJurnal} from './autorJurnal';
 import {semnaleazaModificari} from './modificariNesalvate';
-import {UltimaModificareCelula, CitesteCalendar, CitesteSchita, ListaSchimburi, SalveazaSchita, PrevizualizeazaSchita, PrevizualizeazaPrecompletare, ExportaPontajExcel, CitesteStareLuna, SeteazaStareLuna} from '../wailsjs/go/main/App';
+import {CitesteAbsente, InlocuiestePontajCuAbsente, UltimaModificareCelula, CitesteCalendar, CitesteSchita, ListaSchimburi, SalveazaSchita, PrevizualizeazaSchita, PrevizualizeazaPrecompletare, ExportaPontajExcel, CitesteStareLuna, SeteazaStareLuna} from '../wailsjs/go/main/App';
 import {calcul, datebaza} from '../wailsjs/go/models';
 import {AmprentaLuna} from './Audit';
 import {Dialog, denumireSectie, denumireDepartament} from './Formulare';
@@ -18,7 +25,7 @@ export type ContextPontaj = {
     selectie: {inceput: {angajatId: string; data: string}; sfarsit: {angajatId: string; data: string}} | null;
     derulareX: number; derulareY: number;
 };
-const totaluri = ['ore_lucrate', 'T', 'ZNL', 'CO', 'CEV', 'CFS', 'ore_norma', 'form_prof', 'CM', 'L_FIN', 'deleg', 'ore_garda'];
+const totaluri = ['ore_lucratoare', 'T', 'ZNL', 'CO', 'CEV', 'CFS', 'ore_norma', 'form_prof', 'CM', 'L_FIN', 'deleg', 'ore_garda'];
 const cheie = (id: string, data: string) => JSON.stringify([id, data]);
 const oreText = (minute: number) => String(Number((minute/60).toFixed(4)));
 const valoareText = (v?: calcul.ValoarePontaj) => v?.definita ? String(Number((v.sutimi/(v.unitate==='ORE'?6000:100)).toFixed(4))) : '—';
@@ -49,15 +56,15 @@ type PropsRand = {
     modificari: Map<string, datebaza.CelulaSchita>; originale: Map<string, datebaza.CelulaSchita>;
     absente: Map<string, datebaza.ZiAbsenta>; inlocuiri: Map<string, datebaza.ZiAbsenta[]>;
     oreCalculate: Map<string, calcul.OreZi>; valori?: Record<string, calcul.ValoarePontaj>;
-    reguli?: calcul.RegulaColoana[]; angajati: datebaza.Angajat[];
+    functie:string; reguli?: calcul.RegulaColoana[]; angajati: datebaza.Angajat[];
     ocupat: boolean; calculare: boolean; areCalcul: boolean; actiuni: RefObject<ActiuniCelula>;
 };
 
-const RandPontaj = memo(function RandPontaj({a, r, zile, weekend, sarbatori, selDe, selPana, modificari, originale, absente, inlocuiri, oreCalculate, valori, reguli, angajati, ocupat, calculare, areCalcul, actiuni}: PropsRand) {
+const RandPontaj = memo(function RandPontaj({a, r, zile, weekend, sarbatori, selDe, selPana, modificari, originale, absente, inlocuiri, oreCalculate, valori, reguli, angajati, functie, ocupat, calculare, areCalcul, actiuni}: PropsRand) {
     const {t} = useTranslation();
-    const numeColeg = (id: string) => { const coleg = angajati.find(x => x.id === id); return coleg ? `${coleg.nume} ${coleg.prenume}` : id; };
+    const numeColeg = (id: string) => { const coleg = angajati.find(x => x.id === id); return coleg ? `${numeAngajatFaraPrefix(coleg)}` : id; };
     const valoareBruta = (z: number) => { const k = cheie(a.id, zile[z]); return modificari.get(k)?.valoare ?? originale.get(k)?.valoare ?? ''; };
-    return <tr><th scope="row" className="fix-nume"><strong>{a.nume} {a.prenume}</strong>{!a.activ && <small>{t('ui.inactiv')}</small>}</th><td className="fix-marca">{a.marca}</td>
+    return <tr><th scope="row" className="fix-nume"><strong>{numeAngajatFaraPrefix(a)}</strong>{functie&&<small>{functie}</small>}{!a.activ && <small>{t('ui.inactiv')}</small>}</th><td className="fix-marca">{a.marca}</td>
         {zile.map((data, z) => {
             const selectata = z >= selDe && z <= selPana;
             const k = cheie(a.id, data);
@@ -72,10 +79,10 @@ const RandPontaj = memo(function RandPontaj({a, r, zile, weekend, sarbatori, sel
             const dupaG24 = z > 0 && valoareBruta(z - 1).trim().toUpperCase() === 'G24' && areLucruZi;
             const peste24h = minuteZi > 1440;
             const titluAvertisment = [dupaG24 ? t('pontaj.avertisment_dupa_g24') : '', peste24h ? t('pontaj.avertisment_peste_24h', {ore: oreText(minuteZi)}) : ''].filter(Boolean).join(' · ');
-            const valoare = calculare ? '…' : calc ? (calc.calculabil ? oreText(calc.minute) : '—') : areCalcul ? '' : '—';
+            const valoare = absenta ? absenta.cod : calculare ? '…' : calc ? (calc.calculabil ? oreText(calc.minute) : '—') : areCalcul ? '' : '—';
             return <td key={data} className={`${sarbatori.has(data) ? 'zi-sarbatoare' : weekend[z] ? 'zi-weekend' : ''} ${selectata ? 'celula-selectata' : ''} ${modificari.has(k) ? 'celula-modificata' : ''} ${colegiInlocuiti?.length ? 'celula-inlocuitor' : ''} ${titluAvertisment ? 'celula-avertisment' : ''}`}>
-            <input data-rand={r} data-zi={z} aria-label={t('pontaj.celula', {nume: `${a.nume} ${a.prenume}`, data})} title={[
-                t('ui.tooltip_marca', {nume: `${a.nume} ${a.prenume}`, marca: a.marca || '—'}),
+            <input data-rand={r} data-zi={z} aria-label={t('pontaj.celula', {nume: `${numeAngajatFaraPrefix(a)}`, data})} title={[
+                t('ui.tooltip_marca', {nume: `${numeAngajatFaraPrefix(a)}`, marca: a.marca || '—'}),
                 t('ui.tooltip_data', {data}) + (weekend[z] ? ` [${t('ui.tooltip_weekend')}]` : '') + (sarbatori.has(data) ? ` [${sarbatori.get(data)}]` : ''),
                 t('ui.tooltip_schimb', {schimb: valoare || t('ui.tooltip_liber')}),
                 titluAbsenta,
@@ -99,9 +106,11 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
     const restaurare = useRef(Boolean(initial.current));
     const primulFiltru = useRef(true);
     const stareCurenta = useRef(context.current);
+    const [stareLista,setStareLista]=useState<StareLista>('ACTIVE');
     const [an, setAn] = useState(initial.current?.an ?? acum.current.getFullYear());
     const [luna, setLuna] = useState(initial.current?.luna ?? acum.current.getMonth() + 1);
     const [anText, setAnText] = useState(String(an));
+    const [filtruProfesional,setFiltruProfesional]=useState({...filtruProfesionalGol});
     const [sectie, setSectie] = useState(initial.current?.sectie ?? '');
     const [departament, setDepartament] = useState(initial.current?.departament ?? '');
     const [categorieProgram,setCategorieProgram]=useState(initial.current?.categorieProgram??'');
@@ -113,6 +122,8 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
     const unelte = useRef<HTMLDivElement>(null);
     const butoanePanouri = useRef<Record<string, HTMLButtonElement | null>>({});
     const [schita, setSchita] = useState<datebaza.SchitaLuna | null>(null);
+    const [conversieAbsenta,setConversieAbsenta] = useState<{date:datebaza.AbsenteAn; zile:datebaza.ZiAbsenta[]; celule:datebaza.CelulaSchita[]}|null>(null);
+    const [eroareAbsenta,setEroareAbsenta] = useState('');
     const [calendar, setCalendar] = useState<datebaza.CalendarAn | null>(null);
     const [schimburi, setSchimburi] = useState<datebaza.Schimb[]>([]);
     const [modificari, setModificari] = useState<Map<string, datebaza.CelulaSchita>>(new Map());
@@ -216,14 +227,12 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
         return modificari.get(k)?.valoare ?? originale.get(k)?.valoare ?? '';
     };
     const randuri = useMemo(() => {
-        const cuSchite = new Set((schita?.celule ?? []).map(c => c.angajat_id));
-        for (const z of schita?.absente ?? []) if (z.activ) cuSchite.add(z.angajat_id);
-        for (const z of calculat?.celule ?? []) cuSchite.add(z.angajat_id);
         const termen = normalizat(cautare.trim());
         return date.angajati.filter(a => {
-            if (!(a.activ || cuSchite.has(a.id)) || (sectie && a.sectie_id !== sectie) || (departament && a.departament_id !== departament)) return false;
+ if(!corespundeProfesional(a,filtruProfesional))return false;
+            if (!corespundeStare(a.activ,stareLista) || (sectie && a.sectie_id !== sectie) || (departament && a.departament_id !== departament)) return false;
             if(categorieProgram && (categorieProgram==='__fara__'?Boolean(a.categorie_program_id):a.categorie_program_id!==categorieProgram))return false;
-            if (termen && !normalizat(`${a.nume} ${a.prenume} ${a.marca}`).includes(termen)) return false;
+            if (termen && !normalizat(`${numeAngajatFaraPrefix(a)} ${a.marca}`).includes(termen)) return false;
             if (filtruRanduri === 'modificate') return zile.some(data => modificari.has(cheie(a.id, data)));
             if (filtruRanduri === 'inlocuitori') return zile.some(data => (inlocuiri.get(cheie(a.id, data))?.length ?? 0) > 0);
             if (filtruRanduri === 'avertismente') {
@@ -236,7 +245,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
             }
             return true;
         });
-    }, [date.angajati, schita, calculat, sectie, departament, categorieProgram, cautare, filtruRanduri, modificari, inlocuiri, totaluriCalculate, oreCalculate, absente, originale, zile]);
+    }, [stareLista,filtruProfesional,date.angajati, schita, calculat, sectie, departament, categorieProgram, cautare, filtruRanduri, modificari, inlocuiri, totaluriCalculate, oreCalculate, absente, originale, zile]);
     const sarbatori = useMemo(() => new Map((calendar?.sarbatori ?? []).map(s => [s.data, s.denumire[i18n.language] || s.denumire.ro || Object.values(s.denumire).find(Boolean) || ''])), [calendar, i18n.language]);
     const acoperireZile = useMemo(() => {
         return zile.map((data, z) => {
@@ -291,7 +300,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
         if (primulFiltru.current) { primulFiltru.current = false; return; }
         restaurare.current = false;
         setSelectie({inceput: {rand: 0, zi: 0}, sfarsit: {rand: 0, zi: 0}});
-    }, [sectie, departament, categorieProgram, cautare, filtruRanduri, an, luna]);
+    }, [filtruProfesional,sectie, departament, categorieProgram, cautare, filtruRanduri, an, luna]);
     useLayoutEffect(() => {
         if (!schita || !restaurare.current) return;
         restaurare.current = false;
@@ -321,8 +330,8 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
             if (!inSel) {
                 setSelectie({inceput: {rand: r, zi: z}, sfarsit: {rand: r, zi: z}});
             }
-            const x = Math.min(e.clientX, window.innerWidth - 240);
-            const y = Math.min(e.clientY, window.innerHeight - 340);
+            const x = Math.max(0, Math.min(e.clientX / factorZoomInterfata(), window.innerWidth / factorZoomInterfata() - 240));
+            const y = Math.max(0, Math.min(e.clientY / factorZoomInterfata(), window.innerHeight / factorZoomInterfata() - 340));
             setMeniuCtx({x, y, rand: r, zi: z});
         },
     };
@@ -334,13 +343,13 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
 
     function aplicaCelule(celule: {rand: number; zi: number; text: string}[]) {
         if (lunaBlocata) { setEroare(t('pontaj.luna_inchisa')); return; }
-        if (celule.some(c => !randuri[c.rand] || !zile[c.zi] || Array.from(c.text).length > 16 || /[\0\t\r\n]/.test(c.text))) { setEroare(t('pontaj.lipire_invalida')); return; }
+        if (celule.some(c => !randuri[c.rand] || !zile[c.zi] || Array.from(c.text).length > (c.text.includes('+')?1024:16) || /[\0\t\r\n]/.test(c.text))) { setEroare(t('pontaj.lipire_invalida')); return; }
         if (celule.some(c => absente.has(cheie(randuri[c.rand].id,zile[c.zi])))) { setEroare(t('absente.celula_protejata')); return; }
         for(const c of celule){
             if(c.text===(originale.get(cheie(randuri[c.rand].id,zile[c.zi]))?.valoare??''))continue;
             const program=schimburi.find(s=>s.cod.toUpperCase()===c.text.trim().toUpperCase());
             const categorie=date.categorii_program?.find(p=>p.id===randuri[c.rand].categorie_program_id);
-            if(program&&categorie?.activ&&!categorie.schimburi_id.includes(program.id)){setEroare(t('program.nepermis',{nume:`${randuri[c.rand].nume} ${randuri[c.rand].prenume}`,cod:program.cod}));return;}
+            if(program&&categorie?.activ&&!categorie.schimburi_id.includes(program.id)){setEroare(t('program.nepermis',{nume:`${numeAngajatFaraPrefix(randuri[c.rand])}`,cod:program.cod}));return;}
         }
         setIstoricInapoi(stiva => [...stiva.slice(-49), new Map(modificari)]);
         setIstoricInainte([]);
@@ -512,8 +521,8 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
         input?.scrollIntoView({block: 'nearest', inline: 'nearest'});
     }
 
-    function schimbaLunaRelativ(delta: number) {
-        if (ocupat || !poateAbandona()) return;
+    async function schimbaLunaRelativ(delta: number) {
+        if (ocupat || !await poateAbandona()) return;
         let nouAn = an, nouaLuna = luna + delta;
         if (nouaLuna < 1) { nouAn--; nouaLuna = 12; }
         else if (nouaLuna > 12) { nouAn++; nouaLuna = 1; }
@@ -527,7 +536,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
             origineMeniu.current = e.currentTarget;
             const rect = e.currentTarget.getBoundingClientRect();
             setSelectie({inceput: {rand:r, zi:z}, sfarsit: {rand:r, zi:z}});
-            setMeniuCtx({x:Math.max(0, Math.min(rect.left, innerWidth - 280)), y:Math.max(0, Math.min(rect.bottom, innerHeight - 340)), rand:r, zi:z});
+            setMeniuCtx({x:Math.max(0, Math.min(rect.left / factorZoomInterfata(), innerWidth / factorZoomInterfata() - 280)), y:Math.max(0, Math.min(rect.bottom / factorZoomInterfata(), innerHeight / factorZoomInterfata() - 340)), rand:r, zi:z});
             return;
         }
         if ((e.ctrlKey || e.metaKey) && !e.altKey && e.key.toLowerCase() === 'z') { e.preventDefault(); if (e.shiftKey) refaPas(); else anuleazaPas(); return; }
@@ -559,7 +568,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
         }
     }
 
-    function poateAbandona() { return !modificari.size || window.confirm(t('ui.renunta')); }
+    async function poateAbandona() { return !modificari.size || await confirmaParasire(); }
     const lunaBlocata = schita?.stare === 'INCHISA' || schita?.stare === 'BLOCATA';
     const [stareLuna, setStareLuna] = useState<datebaza.StareLuna | null>(null);
     useEffect(() => {
@@ -603,17 +612,55 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
         }
     }
 
+    async function deschideAbsentaSelectie() {
+        if (ocupat || lunaBlocata || !randuri.length) return;
+        const celule:datebaza.CelulaSchita[]=[];
+        for(let r=inceputRand;r<=sfarsitRand;r++)for(let z=inceputZi;z<=sfarsitZi;z++) {
+            if(!randuri[r]||!zile[z])continue;
+            const id=randuri[r].id,data=zile[z];
+            if([0,6].includes(new Date(`${data}T12:00:00Z`).getUTCDay()) || calendar?.sarbatori.some(s=>s.data===data))continue;
+            celule.push(new datebaza.CelulaSchita(originale.get(cheie(id,data))||{angajat_id:id,data,valoare:'',revizie:''}));
+        }
+        if(!celule.length){setEroare(t('absente.zi_nelucratoare'));return;}
+        setOcupat(true);onOcupat(true);setEroare('');setEroareAbsenta('');
+        try {
+            const r=await CitesteAbsente(an);
+            if(r.eroare){setEroare(t(r.eroare.cod,r.eroare.param||{}));return;}
+            if(!r.absente){setEroare(t('date.eroare'));return;}
+            const existente=new Map(r.absente.zile.map(z=>[cheie(z.angajat_id,z.data),z]));
+            setConversieAbsenta({date:r.absente,celule,zile:celule.map(c=>new datebaza.ZiAbsenta(existente.get(cheie(c.angajat_id,c.data))||{angajat_id:c.angajat_id,data:c.data,cod:'',activ:true,revizie:'',stare_aprobare:'IN_ASTEPTARE'}))});
+        } catch {setEroare(t('date.eroare'));}
+        finally {setOcupat(false);onOcupat(false);}
+    }
+
+    async function salveazaAbsentaSelectie(zileAbsenta:datebaza.ZiAbsenta[]) {
+        if(!conversieAbsenta||blocat.current)return;
+        blocat.current=true;setOcupat(true);onOcupat(true);setEroareAbsenta('');
+        try {
+            const r=await InlocuiestePontajCuAbsente(an,luna,zileAbsenta,conversieAbsenta.celule.filter(c=>zileAbsenta.some(z=>z.angajat_id===c.angajat_id&&z.data===c.data)));
+            if(r.eroare){setEroareAbsenta(t(r.eroare.cod,r.eroare.param||{}));return;}
+            if(!r.schita){setEroareAbsenta(t('date.eroare'));return;}
+            const inlocuite=new Set(zileAbsenta.map(c=>cheie(c.angajat_id,c.data)));
+            for(const c of r.schita.celule){const k=cheie(c.angajat_id,c.data);const veche=originale.get(k);if(veche && veche.revizie!==c.revizie)inlocuite.add(k);}
+            setModificari(vechi=>new Map([...vechi].filter(([k])=>!inlocuite.has(k))));
+            setSchita(r.schita);setCalculat(r.schita.calcul);setIstoricInapoi([]);setIstoricInainte([]);setConversieAbsenta(null);
+            setMesaj(t('pontaj.absenta_salvata'));notifica(t('pontaj.absenta_salvata'),'succes');
+        }catch {setEroareAbsenta(t('date.eroare'));}
+        finally {blocat.current=false;setOcupat(false);onOcupat(false);}
+    }
+
     async function salveaza(celulaPlan?: datebaza.CelulaSchita) {
-        if (lunaBlocata) { setEroare(t('pontaj.luna_inchisa')); return; }
-        if (blocat.current) return;
+        if (lunaBlocata) { setEroare(t('pontaj.luna_inchisa')); return false; }
+        if (blocat.current) return false;
         blocat.current = true; setOcupat(true); onOcupat(true); setEroare(''); setMesaj('');
         try {
             const r = await SalveazaSchita(an, luna, celulaPlan ? [celulaPlan] : [...modificari.values()]);
             if (r.eroare) { setEroare(t(r.eroare.cod, r.eroare.param ?? {})); notifica(t(r.eroare.cod, r.eroare.param ?? {}), 'eroare'); }
-            else if (r.schita) { setSchita(r.schita); setCalculat(r.schita.calcul); setModificari(new Map()); setIstoricInapoi([]); setIstoricInainte([]); setMesaj(t(celulaPlan ? 'pontaj.plan_actualizat' : 'pontaj.salvat')); notifica(t(celulaPlan ? 'pontaj.plan_actualizat' : 'pontaj.salvat'), 'succes'); }
+            else if (r.schita) { setSchita(r.schita); setCalculat(r.schita.calcul); setModificari(new Map()); setIstoricInapoi([]); setIstoricInainte([]); setMesaj(t(celulaPlan ? 'pontaj.plan_actualizat' : 'pontaj.salvat')); notifica(t(celulaPlan ? 'pontaj.plan_actualizat' : 'pontaj.salvat'), 'succes'); return true; }
             else setEroare(t('date.eroare'));
         } catch { setEroare(t('date.eroare')); }
         finally { blocat.current = false; setOcupat(false); onOcupat(false); }
+        return false;
     }
 
     async function exportaExcel() {
@@ -639,7 +686,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
-                URL.revokeObjectURL(url);
+                setTimeout(()=>URL.revokeObjectURL(url),30000);
                 setMesaj(t('pontaj.export_excel_succes'));
             }
         } catch {
@@ -691,12 +738,13 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
     };
     const numarFiltre = [sectie, departament, categorieProgram, cautare.trim(), filtruRanduri].filter(Boolean).length;
 
-    return <section className="pontaj-lunar">
-        <div className="unelte-calendar unelte-perioada"><form onSubmit={e => { e.preventDefault(); const nou = Number(anText); if (!Number.isInteger(nou) || nou < 1 || nou > 9999) { setEroare(t('sarbatori.an_invalid')); return; } if (nou !== an) { if (poateAbandona()) setAn(nou); else setAnText(String(an)); } }}>
+    useSalvareParasire('pontaj',modificari.size,()=>salveaza(),()=>{setModificari(new Map());setIstoricInapoi([]);setIstoricInainte([]);});
+    return <section className="pontaj-lunar"><SelectieRezumat persoane={randuri.slice(inceputRand,sfarsitRand+1)} deLa={zile[inceputZi]} panaLa={zile[sfarsitZi]}/><FiltruStare nume="angajati_pontaj" valoare={stareLista} schimba={s=>{setStareLista(s);setSelectie({inceput:{rand:0,zi:0},sfarsit:{rand:0,zi:0}});}} disabled={ocupat}/><FiltreProfesionale numarRezultate={randuri.length} date={date} value={filtruProfesional} onChange={f=>{setFiltruProfesional(f);setSelectie({inceput:{rand:0,zi:0},sfarsit:{rand:0,zi:0}});}}/>
+        <div className="unelte-calendar unelte-perioada"><form onSubmit={async e => { e.preventDefault(); const nou = Number(anText); if (!Number.isInteger(nou) || nou < 1 || nou > 9999) { setEroare(t('sarbatori.an_invalid')); return; } if (nou !== an) { if (await poateAbandona()) setAn(nou); else setAnText(String(an)); } }}>
             <label>{t('sarbatori.an')}<input aria-label={t('sarbatori.an')} type="number" min="1" max="9999" required disabled={ocupat} value={anText} onChange={e => setAnText(e.target.value)}/></label>
             <button className="buton secundar" disabled={ocupat}>{t('sarbatori.arata')}</button>
             <button type="button" className="buton secundar buton-luna-nav" aria-label={t('pontaj.luna_precedenta')} disabled={ocupat} onClick={() => schimbaLunaRelativ(-1)}>◀</button>
-            <label>{t('pontaj.luna')}<select aria-label={t('pontaj.luna')} value={luna} disabled={ocupat} onChange={e => { if (poateAbandona()) setLuna(Number(e.target.value)); }}>
+            <label>{t('pontaj.luna')}<select aria-label={t('pontaj.luna')} value={luna} disabled={ocupat} onChange={async e => { const l=Number(e.target.value);if (await poateAbandona()) setLuna(l); }}>
                 {Array.from({length: 12}, (_, i) => <option key={i} value={i + 1}>{formatData(i18n.language, {month: 'long', timeZone: 'UTC'}).format(new Date(`2026-${String(i + 1).padStart(2, '0')}-01T12:00:00Z`))}</option>)}
             </select></label>
             <button type="button" className="buton secundar buton-luna-nav" aria-label={t('pontaj.luna_urmatoare')} disabled={ocupat} onClick={() => schimbaLunaRelativ(1)}>▶</button></form>
@@ -744,9 +792,9 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                 </button>
                 <div className="grup-zoom-grila" role="group" aria-label={t('ui.densitate_grila')}>
                     <span className="eticheta-zoom">🔎 {t('ui.zoom')}</span>
-                    <button type="button" className={`buton-zoom ${zoomGrila === 'compact' ? 'activ' : ''}`} title={t('ui.zoom_compact')} onClick={() => schimbaZoom('compact')}>S</button>
-                    <button type="button" className={`buton-zoom ${zoomGrila === 'normal' ? 'activ' : ''}`} title={t('ui.zoom_normal')} onClick={() => schimbaZoom('normal')}>M</button>
-                    <button type="button" className={`buton-zoom ${zoomGrila === 'extins' ? 'activ' : ''}`} title={t('ui.zoom_extins')} onClick={() => schimbaZoom('extins')}>L</button>
+                    <button type="button" className={`buton-zoom ${zoomGrila === 'compact' ? 'activ' : ''}`} title={t('ui.zoom_compact')} onClick={() => schimbaZoom('compact')}>{t('ux30.compact')}</button>
+                    <button type="button" className={`buton-zoom ${zoomGrila === 'normal' ? 'activ' : ''}`} title={t('ui.zoom_normal')} onClick={() => schimbaZoom('normal')}>{t('ux30.normal')}</button>
+                    <button type="button" className={`buton-zoom ${zoomGrila === 'extins' ? 'activ' : ''}`} title={t('ui.zoom_extins')} onClick={() => schimbaZoom('extins')}>{t('ux30.aerisit')}</button>
                 </div>
                 <span className="stare-modificari" aria-live="polite">{t('pontaj.modificate', {numar: modificari.size})}</span>
                 <div id="pontaj-panou-filtre" className="panou-unelte" hidden={panou !== 'filtre'}>
@@ -764,11 +812,12 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                 <button type="button" className="legatura" disabled={ocupat || !numarFiltre} onClick={() => { setSectie(''); setDepartament(''); setCategorieProgram(''); setCautare(''); setFiltruRanduri(''); }}>{t('pontaj.reseteaza_filtre')}</button>
                 </div>
                 <div id="pontaj-panou-completare" className="panou-unelte" hidden={panou !== 'completare'}>
-                <select aria-label={t('pontaj.program_completare')} value={programCompletare} disabled={ocupat} onChange={e=>setProgramCompletare(e.target.value)}><option value="">{t('pontaj.program_completare')}</option>{schimburi.filter(s=>s.activ).map(s=><option key={s.id} value={s.cod}>{s.denumire[i18n.language]||s.denumire.ro} {t(`schimburi.regim_${s.regim||'GENERAL'}`)} · {s.ora_start<0?t('pontaj.fara_ora'): `${String(Math.floor(s.ora_start/60)).padStart(2,'0')}:${String(s.ora_start%60).padStart(2,'0')}`} · {t('pontaj.durata_ore',{ore:oreText(s.durata_minute)})}</option>)}</select>
+                <select aria-label={t('pontaj.program_completare')} value={programCompletare} disabled={ocupat} onChange={e=>setProgramCompletare(e.target.value)}><option value="">{t('pontaj.program_completare')}</option>{schimburi.filter(s=>s.activ).map(s=><option key={s.id} value={s.cod}>{s.denumire[i18n.language]||s.denumire.ro} {date.regimuri_program?.find(r=>r.id===(s.regim_id||s.regim))?.denumire[i18n.language]||date.regimuri_program?.find(r=>r.id===(s.regim_id||s.regim))?.denumire.ro||t(`schimburi.regim_${s.regim||'LUCRATOARE'}`)} · {s.ora_start<0?t('pontaj.fara_ora'): `${String(Math.floor(s.ora_start/60)).padStart(2,'0')}:${String(s.ora_start%60).padStart(2,'0')}`} · {t('pontaj.durata_ore',{ore:oreText(s.durata_minute)})}</option>)}</select>
                 <button className="buton secundar" disabled={ocupat || !randuri.length || !programCompletare} onClick={()=>completeaza(programCompletare)}>{t('pontaj.aplica_program')}</button>
                 <button type="button" className="buton secundar" disabled={ocupat || !randuri.length || !programCompletare} onClick={precompleteazaSelectieLV}>{t('pontaj.precompleteaza_rand_lv')}</button>
                 <input name="ore_manuale" ref={manualInput} aria-label={t('pontaj.valoare_completare')} placeholder={t('pontaj.valoare_completare')} inputMode="decimal" maxLength={16} value={valoareCompletare} disabled={ocupat} onChange={e => setValoareCompletare(e.target.value)}/>
                 <button className="buton secundar" disabled={ocupat || !randuri.length} onClick={() => {const v=manual(valoareCompletare);if(v===null)setEroare(t('pontaj.ore_invalide'));else completeaza(v);}}>{t('pontaj.completeaza_selectia')}</button>
+                <button type="button" className="buton secundar" data-absenta-selectie disabled={ocupat||lunaBlocata||!randuri.length} onClick={()=>void deschideAbsentaSelectie()}>{t('pontaj.absenta_titlu')}</button>
                 <div className="paleta-schimburi">
                     <span className="text-discret">{t('pontaj.paleta_rapida')}</span>
                     {schimburi.filter(s => s.activ).map(s => <button key={s.id} type="button" className="cip-schimb" disabled={ocupat || !randuri.length} onClick={() => completeaza(s.cod)}>{s.cod}</button>)}
@@ -777,7 +826,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                 <button type="button" className="buton secundar" disabled={ocupat || !istoricInapoi.length} onClick={anuleazaPas}>{t('pontaj.anuleaza_pas')}</button>
                 <button type="button" className="buton secundar" disabled={ocupat || !istoricInainte.length} onClick={refaPas}>{t('pontaj.refa_pas')}</button>
                 <button className="buton secundar" disabled={ocupat || calculare || !calculat || !randuri.length} onClick={async () => { try { await navigator.clipboard.writeText(textSelectat()); notifica(t('pontaj.selectie_copiata'), 'info'); } catch { setEroare(t('pontaj.clipboard')); } }}>{t('pontaj.copiaza')}</button>
-                <button className="legatura" disabled={ocupat} onClick={() => { if (poateAbandona()) setReincarcare(x => x + 1); }}>{t('pontaj.reincarca')}</button>
+                <button className="legatura" disabled={ocupat} onClick={async () => { if (await poateAbandona()) setReincarcare(x => x + 1); }}>{t('pontaj.reincarca')}</button>
                 </div>
                 <div id="pontaj-panou-ajutor" className="panou-unelte ajutor-pontaj" hidden={panou !== 'ajutor'}>
                     <p>{t('pontaj.schita_indiciu')}</p><p>{t('pontaj.tastatura')}</p><p>{t('pontaj.ore_norm_explicatie')}</p><p>{t('pontaj.necalculat')}</p>
@@ -785,20 +834,20 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
             </div>
             {randActiv && dataActiva && <div className="inspectie-celula" role="region" aria-label={t('pontaj.inspectie_titlu')}>
                 <div className="detalii-celula-activa">
-                    <strong>{randActiv.nume} {randActiv.prenume}</strong>
+                    <strong>{numeAngajatFaraPrefix(randActiv)}</strong>
                     <span>{dataActiva}{sarbatori.get(dataActiva) ? ` · ${sarbatori.get(dataActiva)}` : ''}</span>
                     <span className="eticheta-contract">{textCodActiv}</span>
                     {schimbActiv && programPlanificat(schimbActiv) && <button type="button" className="legatura"
-                        title={t('pontaj.plan_actualizeaza_indiciu', {nume: `${randActiv.nume} ${randActiv.prenume}`, data: dataActiva})}
+                        title={t('pontaj.plan_actualizeaza_indiciu', {nume: `${numeAngajatFaraPrefix(randActiv)}`, data: dataActiva})}
                         disabled={ocupat || incarcare || calculare || lunaBlocata || modificari.size > 0 || !!absentaActiva || !originale.has(cheieActiva)}
                         onClick={() => void salveaza(originale.get(cheieActiva))}>{t('pontaj.plan_actualizeaza')}</button>}
                     {calcActiva?.calculabil && <span>{t('pontaj.inspectie_calculat', {ore: oreText(calcActiva.minute)})}</span>}
-                    {inlocuiriActive?.length ? <span className="insigna-inlocuitor">{t('pontaj.inlocuieste_pe', {persoane: inlocuiriActive.map(z => { const coleg = date.angajati.find(x => x.id === z.angajat_id); return `${coleg ? `${coleg.nume} ${coleg.prenume}` : z.angajat_id} (${z.cod})`; }).join(', ')})}</span> : null}
+                    {inlocuiriActive?.length ? <span className="insigna-inlocuitor">{t('pontaj.inlocuieste_pe', {persoane: inlocuiriActive.map(z => { const coleg = date.angajati.find(x => x.id === z.angajat_id); return `${coleg ? `${numeAngajatFaraPrefix(coleg)}` : z.angajat_id} (${z.cod})`; }).join(', ')})}</span> : null}
                     {avertismentActiv && <span className="avertisment-text">{avertismentActiv}</span>}
                     {ultimaModificare?.cheie === cheieActiva && ultimaModificare.intrare && <span className="ultima-modificare" title={t('pontaj.ultima_modificare_indiciu')}>
-                        {t('pontaj.ultima_modificare', {cine: autorJurnal(t, ultimaModificare.intrare.cine), cand: new Date(ultimaModificare.intrare.cand).toLocaleString(i18n.language)})}
+                        {t('pontaj.ultima_modificare', {cine: autorJurnal(t, ultimaModificare.intrare.cine), cand: formatData(i18n.language, {dateStyle: 'short', timeStyle: 'medium'}).format(new Date(ultimaModificare.intrare.cand))})}
                     </span>}
-                    {onDeschideAbsente && <button type="button" className="legatura" disabled={ocupat} onClick={() => { if (poateAbandona()) onDeschideAbsente(an, randActiv.id); }}>{t('pontaj.deschide_absente')}</button>}
+                    {onDeschideAbsente && <button type="button" className="legatura" disabled={ocupat} onClick={async () => { if (await poateAbandona()) onDeschideAbsente(an, randActiv.id); }}>{t('pontaj.deschide_absente')}</button>}
                 </div>
             </div>}
             <div className="legenda-grila" aria-label={t('pontaj.legenda')}>
@@ -827,7 +876,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                                 {totaluri.map(c => <th key={`heat-tot-${c}`} className={`celula-heat-total ${c === 'T' ? 'fix-total-t' : ''}`} />)}
                             </tr>
                         </thead><tbody>
-                            {randuri.map((a, r) => <RandPontaj key={a.id} a={a} r={r} zile={zile} weekend={weekend} sarbatori={sarbatori}
+                            {randuri.map((a, r) => <RandPontaj key={a.id} functie={date.functii?.find(f=>f.id===a.functie_id)?.denumire[i18n.language]||a.functie} a={a} r={r} zile={zile} weekend={weekend} sarbatori={sarbatori}
                                 selDe={r >= inceputRand && r <= sfarsitRand ? inceputZi : -1} selPana={r >= inceputRand && r <= sfarsitRand ? sfarsitZi : -1}
                                 modificari={modificari} originale={originale} absente={absente} inlocuiri={inlocuiri} oreCalculate={oreCalculate}
                                 valori={totaluriCalculate.get(a.id)} reguli={schita?.configuratie.reguli} angajati={date.angajati}
@@ -864,8 +913,8 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                                 date={date}
                                 onAjutor={onAjutor}
                                 perioadaEcran={{an, luna}}
-                                onDeschidePontaj={(a, l) => { if (ocupat || ((a !== an || l !== luna) && !poateAbandona())) return; setAn(a); setAnText(String(a)); setLuna(l); }}
-                                onDeschideConcediu={onDeschideAbsente ? c => { if (!ocupat && poateAbandona()) onDeschideAbsente(Number(c.deLa.slice(0, 4)), c.angajatId); } : undefined}
+                                onDeschidePontaj={async (a, l) => { if (ocupat || ((a !== an || l !== luna) && !await poateAbandona())) return; setAn(a); setAnText(String(a)); setLuna(l); }}
+                                onDeschideConcediu={onDeschideAbsente ? async c => { if (!ocupat && await poateAbandona()) onDeschideAbsente(Number(c.deLa.slice(0, 4)), c.angajatId); } : undefined}
                             />
                         </div>
                     </aside>
@@ -873,17 +922,18 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
             </div>
             <p className="indiciu-grila">{t('pontaj.dimensiuni', {randuri: randuri.length, zile: numarZile})} · {t('pontaj.inactivi_indiciu')}</p>
         </>}
+        {conversieAbsenta&&<FormularAbsente celuleConversie={conversieAbsenta.celule} dinPontaj zi={null} lot={conversieAbsenta.zile} date={date} absente={conversieAbsenta.date} angajatImplicit="" ocupat={ocupat} eroare={eroareAbsenta} inchide={()=>setConversieAbsenta(null)} salveaza={salveazaAbsentaSelectie}/>}
         {plan&&<Dialog titlu={t('program.previzualizare')} ocupat={ocupat} inchide={()=>setPlan(null)}><div className="corp-dialog plan-precompletare">
             <p>{t('program.plan_indiciu')}</p>
             <label className="bifa"><input type="checkbox" checked={numaiSelectiaPlan} disabled={ocupat} onChange={e=>void previzualizeazaCategorii(e.target.checked)}/>{t('program.numai_selectia')}</label>
             <p><strong>{t('program.propuneri',{numar:plan.celule.length})}</strong></p>
             <ul>{Object.entries(plan.omise).sort(([a],[b])=>a.localeCompare(b)).map(([motiv,numar])=><li key={motiv}>{t(`program.omise_${motiv}`,{numar})}</li>)}</ul>
-            {plan.celule.length>0&&<div className="tabel-derulant"><table><thead><tr><th>{t('ui.angajat')}</th><th>{t('program.data')}</th><th>{t('program.program')}</th></tr></thead><tbody>{plan.celule.slice(0,100).map(c=><tr key={`${c.angajat_id}/${c.data}`}><td>{date.angajati.find(a=>a.id===c.angajat_id)?.nume} {date.angajati.find(a=>a.id===c.angajat_id)?.prenume}</td><td>{c.data}</td><td>{schimburi.find(s=>s.cod===c.valoare)?.denumire[i18n.language]||c.valoare}</td></tr>)}</tbody></table>{plan.celule.length>100&&<p>{t('program.primele_propuneri')}</p>}</div>}
+            {plan.celule.length>0&&<div className="tabel-derulant"><table><thead><tr><th>{t('ui.angajat')}</th><th>{t('program.data')}</th><th>{t('program.program')}</th></tr></thead><tbody>{plan.celule.slice(0,100).map(c=><tr key={`${c.angajat_id}/${c.data}`}><td>{numeAngajatFaraPrefix(date.angajati.find(a=>a.id===c.angajat_id))}</td><td>{c.data}</td><td>{schimburi.find(s=>s.cod===c.valoare)?.denumire[i18n.language]||c.valoare}</td></tr>)}</tbody></table>{plan.celule.length>100&&<p>{t('program.primele_propuneri')}</p>}</div>}
         </div><footer className="subsol-dialog"><button className="buton secundar" disabled={ocupat} onClick={()=>setPlan(null)}>{t('ui.anuleaza')}</button><button className="buton primar" disabled={ocupat||!plan.celule.length} onClick={aplicaPlan}>{t('program.aplica_plan')}</button></footer></Dialog>}
         {meniuCtx && (
             <div ref={meniuElement} className="meniu-contextual-grila" style={{top: meniuCtx.y, left: meniuCtx.x}} role="group" aria-label={t('pontaj.meniu_contextual')} onPointerDown={e => e.stopPropagation()}>
                 <div className="antet-meniu-ctx">
-                    <strong>{randuri[meniuCtx.rand]?.nume} {randuri[meniuCtx.rand]?.prenume}</strong>
+                    <strong>{numeAngajatFaraPrefix(randuri[meniuCtx.rand])}</strong>
                     <small>{zile[meniuCtx.zi] ? `${zile[meniuCtx.zi]} (ziua ${meniuCtx.zi + 1})` : ''}</small>
                 </div>
                 <div className="separator-meniu-ctx" />
@@ -908,10 +958,10 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                 {onDeschideAbsente && randuri[meniuCtx.rand] && (
                     <>
                         <div className="separator-meniu-ctx" />
-                        <button type="button" className="element-meniu-ctx" onClick={() => {
+                        <button type="button" className="element-meniu-ctx" onClick={async () => {
                             const ang = randuri[meniuCtx.rand];
                             setMeniuCtx(null);
-                            if (poateAbandona()) onDeschideAbsente(an, ang.id);
+                            if (await poateAbandona()) onDeschideAbsente(an, ang.id);
                         }}>
                             <span>🗓️</span> {t('pontaj.deschide_absente')}
                         </button>

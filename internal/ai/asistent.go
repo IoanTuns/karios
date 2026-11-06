@@ -201,7 +201,7 @@ var definitiiUnelte = []map[string]any{
 					"filtru_zile": map[string]any{
 						"type":        "string",
 						"enum":        []string{"toate", "lucratoare", "weekend", "tot_al_doilea_weekend"},
-						"description": "Filtru aplicat zilelor: 'lucratoare' (L–V), 'weekend' (doar S–D), 'tot_al_doilea_weekend' (la fiecare două săptămâni începând cu primul weekend din interval), 'toate' (zilnic).",
+						"description": "Filtru aplicat zilelor: 'lucratoare' (L–V fara sarbatori legale), 'weekend' (doar S–D), 'tot_al_doilea_weekend' (la fiecare două săptămâni începând cu primul weekend din interval), 'toate' (zilnic).",
 					},
 				},
 				"required": []string{"marca", "data_inceput", "data_sfarsit", "cod_schimb"},
@@ -888,7 +888,7 @@ func promptInstructiuni() string {
 	sb.WriteString("Dacă utilizatorul îți cere să planifici, să modifici sau să ștergi ture, apelează uneltele puse la dispoziție.\n")
 	sb.WriteString("IMPORTANT PENTRU PERIOADE / LUNI / INTERVALE:\n")
 	sb.WriteString("- Când utilizatorul menționează o lună ('în octombrie', 'in octombrie', 'pe octombrie', 'luna octombrie') sau o perioadă ('toată luna', 'toata luna', 'tata luna', 'toată săptămâna') FĂRĂ o zi anume (fără 'pe 15' etc.), înseamnă ÎNTREAGA LUNĂ! Folosește neapărat unealta `planifica_interval` cu data_inceput (ex: 2026-10-01) și data_sfarsit (ex: 2026-10-31), și doar_lucratoare: true. NU apela `planifica_tura` pentru o singură zi când se cere toată luna!\n")
-	sb.WriteString("- Pentru ture normale de zi ('toată luna', '7 la 14', etc.), setează ÎNTOTDEAUNA `doar_lucratoare: true` pentru a exclude weekendurile!\n")
+	sb.WriteString("- Pentru ture normale de zi ('toată luna', '7 la 14', etc.), setează ÎNTOTDEAUNA `doar_lucratoare: true` pentru a exclude weekendurile si sarbatorile legale din calendar!\n")
 	sb.WriteString("- Pentru comenzi pe weekend ('în weekend', 'tot al doilea weekend'), setează `filtru_zile: 'tot_al_doilea_weekend'` sau `'weekend'` și setează `doar_lucratoare: false`!\n")
 	sb.WriteString("- ALEGEREA SCHIMBURILOR DUPĂ INTERVAL SAU ORE:\n")
 	sb.WriteString("  * '7 la 14', '07:00–14:00', 'dimineața', 'pe zi' -> codul este Z7 (Zi 07–14). NICIODATĂ nu alege S7 pentru 7 la 14!\n")

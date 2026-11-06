@@ -14,7 +14,7 @@ func ProgramInSectiune(p ProgramPrecompletare, sectiune string) bool {
 	if sectiune == "GARZI" {
 		return p.Tip == "GARDA" || p.Tip == "NOAPTE" || p.Regim == "NELUCRATOARE" || p.Regim == "INTRARE_ZI_LIBERA"
 	}
-	return sectiune == "DUPA_AMIAZA" && p.Tip != "GARDA" && p.Tip != "NOAPTE" && p.Regim != "NELUCRATOARE" && p.Regim != "INTRARE_ZI_LIBERA" && p.OraStart >= 720 && p.OraStart < 1320
+	return sectiune == "DUPA_AMIAZA" && p.Tip != "GARDA" && p.Tip != "NOAPTE" && p.Regim != "NELUCRATOARE" && p.Regim != "INTRARE_ZI_LIBERA" && ((p.Tip == "NORMAL" && p.OraStart >= 0 && p.OraStart < 1440) || (p.OraStart >= 720 && p.OraStart < 1320))
 }
 
 type IntervalPlanificare struct {

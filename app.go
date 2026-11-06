@@ -16,17 +16,23 @@ import (
 
 // App conține metodele apelate din interfața React.
 type App struct {
-	ctx           context.Context
-	db            *sql.DB
-	radacina      string
-	raportMu      sync.Mutex
-	raportCache   map[string]raportPregatit
-	raportOrdine  []string
-	aiManager     *ai.Manager
-	aiManagerOnce sync.Once
-	aiMu          sync.Mutex
-	aiSarcina     *sarcinaAI
-	paza          *audit.Paza
+	// doarCitire: alta instanta tine folderul de date (D002 punctul 6, F05-T11).
+	doarCitire bool
+	detinator  *stocare.InfoBlocare
+	// conversia modelelor de raport vechi (F09-T23), o data pe sesiune
+	conversieMu        sync.Mutex
+	rapoarteConvertite bool
+	ctx                context.Context
+	db                 *sql.DB
+	radacina           string
+	raportMu           sync.Mutex
+	raportCache        map[string]raportPregatit
+	raportOrdine       []string
+	aiManager          *ai.Manager
+	aiManagerOnce      sync.Once
+	aiMu               sync.Mutex
+	aiSarcina          *sarcinaAI
+	paza               *audit.Paza
 	// seif e seiful deschis la pornire sau la deblocare (D054); codRecuperare, cheia de
 	// recuperare încă neconfirmată, de afișat administratorului.
 	seif          *seif.Seif
@@ -57,7 +63,8 @@ func (a *App) oprire(ctx context.Context) {
 	if a.db == nil {
 		return // datele nu au fost deblocate
 	}
-	if a.seif != nil && !a.paza.Blocata() {
+	// Doar instanta care scrie actualizeaza contorul din seif (F05-T11).
+	if a.seif != nil && !a.paza.Blocata() && !a.doarCitire {
 		_ = stocare.ActualizeazaSecventa(context.Background(), a.db, a.seif)
 	}
 	a.db.Close()

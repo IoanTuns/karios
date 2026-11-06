@@ -47,6 +47,14 @@ func (s *Serviciu) PrevizualizeazaPrecompletare(ctx context.Context, an, luna in
 		}
 		selectati[id] = true
 	}
+	contracte, err := citesteContracteAngajati(ctx, tx)
+	if err != nil {
+		return gol, traduceEroare(err)
+	}
+	tipuriContract, err := citesteNomenclator(ctx, tx, "contracte")
+	if err != nil {
+		return gol, traduceEroare(err)
+	}
 	angajati := []calcul.AngajatPrecompletare{}
 	for _, a := range oameni {
 		if !selectati[a.ID] {
@@ -56,7 +64,28 @@ func (s *Serviciu) PrevizualizeazaPrecompletare(ctx context.Context, an, luna in
 		if a.TipContract == "PARTIALA" && a.NormaPartialaMinute != nil {
 			minute = *a.NormaPartialaMinute
 		}
-		angajati = append(angajati, calcul.AngajatPrecompletare{ID: a.ID, CategorieID: textSauGol(a.CategorieProgramID), NormaMinute: minute, Activ: a.Activ == 1})
+		categorie := textSauGol(a.CategorieProgramID)
+		for _, c := range tipuriContract {
+			if c.ID == contracte[a.ID] {
+				switch c.Normare {
+				case "GLOBALA":
+					minute = normaIntreaga
+				case "INDIVIDUALA":
+					minute = 0
+					if a.NormaPartialaMinute != nil {
+						minute = *a.NormaPartialaMinute
+					}
+				case "FARA", "LUNARA":
+					minute = 0
+				case "ZILNICA":
+					minute = *c.NormaMinute
+				}
+				if c.CategorieProgramID != "" {
+					categorie = c.CategorieProgramID
+				}
+			}
+		}
+		angajati = append(angajati, calcul.AngajatPrecompletare{ID: a.ID, CategorieID: categorie, NormaMinute: minute, Activ: a.Activ == 1})
 	}
 	if len(angajati) != len(ids) {
 		return gol, eroare("pontaj.celula_invalida")

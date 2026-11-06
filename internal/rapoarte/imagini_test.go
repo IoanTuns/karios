@@ -12,13 +12,11 @@ import (
 	"image/jpeg"
 	"image/png"
 	"io/fs"
-	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 	"testing/fstest"
 
-	"github.com/pdfcpu/pdfcpu/pkg/api"
 	"pontix/internal/bd"
 )
 
@@ -158,84 +156,6 @@ func TestImaginiValidarePersistentaSiIndependenta(t *testing.T) {
 	codEroare(t, err, "rapoarte.imagine_invalida")
 }
 
-func TestPDFImaginiPeFiecarePagina(t *testing.T) {
-	m := pregateste(t)
-	fixture(t, m)
-	model := initiala(t, m, "raport-pontaj")
-	model.Antet.Imagini = map[string]Imagine{"stanga": imagineFictiva(t, "png")}
-	model.Subsol.Imagini = map[string]Imagine{"dreapta": imagineFictiva(t, "jpeg")}
-	if *directorDemo != "" {
-		if err := os.MkdirAll(*directorDemo, 0700); err != nil {
-			t.Fatal(err)
-		}
-		for nume, i := range map[string]Imagine{"antet-demo.png": model.Antet.Imagini["stanga"], "subsol-demo.jpg": model.Subsol.Imagini["dreapta"]} {
-			date, _ := base64.StdEncoding.DecodeString(i.Date)
-			if err := os.WriteFile(filepath.Join(*directorDemo, nume), date, 0600); err != nil {
-				t.Fatal(err)
-			}
-		}
-	}
-	if _, err := m.s.Salveaza(context.Background(), model); err != nil {
-		t.Fatal(err)
-	}
-	doc, err := m.s.Pregateste(context.Background(), Cerere{ModelID: model.ID, An: 2026, Luna: 10, Limba: "ro"}, momentFix)
-	if err != nil {
-		t.Fatal(err)
-	}
-	for _, lung := range []bool{false, true} {
-		t.Run(map[bool]string{false: "o pagina", true: "mai multe pagini"}[lung], func(t *testing.T) {
-			d := doc
-			if lung {
-				d.Randuri = nil
-				for i := 0; i < 150; i++ {
-					d.Randuri = append(d.Randuri, doc.Randuri[0])
-				}
-			}
-			pdf, err := GenereazaPDF(d)
-			if err != nil {
-				t.Fatal(err)
-			}
-			if err := api.Validate(context.Background(), bytes.NewReader(pdf), nil, nil); err != nil {
-				t.Fatal(err)
-			}
-			pagini, err := NumaraPaginiPDF(context.Background(), pdf)
-			if err != nil || (!lung && pagini != 1) || (lung && pagini < 2) {
-				t.Fatalf("paginare: %d %v", pagini, err)
-			}
-			imagini, err := api.ExtractImagesRaw(context.Background(), bytes.NewReader(pdf), nil, nil)
-			if err != nil || len(imagini) != pagini {
-				t.Fatalf("imagini/pagini: %d %d %v", len(imagini), pagini, err)
-			}
-			for p, resurse := range imagini {
-				antet, subsol := false, false
-				for _, i := range resurse {
-					cfg, format, err := image.DecodeConfig(i.Reader)
-					if err != nil {
-						t.Fatal(err)
-					}
-					antet = antet || cfg.Width == 80 && cfg.Height == 32 && format == "png"
-					subsol = subsol || cfg.Width == 110 && cfg.Height == 20 && format == "jpeg"
-				}
-				if !antet || !subsol {
-					t.Fatalf("imagine lipsa pe pagina %d: antet %v, subsol %v", p+1, antet, subsol)
-				}
-			}
-			if *directorDemo != "" {
-				if err := os.MkdirAll(*directorDemo, 0700); err != nil {
-					t.Fatal(err)
-				}
-				nume := "imagini-o-pagina-demo.pdf"
-				if lung {
-					nume = "imagini-mai-multe-pagini-demo.pdf"
-				}
-				if err := os.WriteFile(filepath.Join(*directorDemo, nume), pdf, 0600); err != nil {
-					t.Fatal(err)
-				}
-			}
-		})
-	}
-}
-
 func TestMigrareImaginiPastreazaDefinitiile(t *testing.T) {
 	m := pregateste(t)
 	db, err := bd.Deschide(filepath.Join(t.TempDir(), "modele-vechi.db"), m.cheie)
@@ -264,7 +184,7 @@ func TestMigrareImaginiPastreazaDefinitiile(t *testing.T) {
 	if _, err := db.Exec(`UPDATE definitii_rapoarte SET antet=json_set(antet,'$.stanga.ro','Unitate personalizata'), revizie=7,modificat_la='moment-neschimbat' WHERE id='raport-pontaj'`); err != nil {
 		t.Fatal(err)
 	}
-	if n, err := bd.Migreaza(context.Background(), db, bd.Migrari); err != nil || n != 10 {
+	if n, err := bd.Migreaza(context.Background(), db, bd.Migrari); err != nil || n != 21 {
 		t.Fatalf("migrare imagini: %d %v", n, err)
 	}
 	d := initiala(t, &mediu{s: Nou(db)}, "raport-pontaj")
@@ -313,7 +233,7 @@ func TestActualizareDinProbaRapoarte020(t *testing.T) {
 	if err != nil || versiune != 13 || !inAsteptare {
 		t.Fatalf("starea actualizarii 0.20: %d %v %v", versiune, inAsteptare, err)
 	}
-	if n, err := bd.Migreaza(context.Background(), db, bd.Migrari); err != nil || n != 11 {
+	if n, err := bd.Migreaza(context.Background(), db, bd.Migrari); err != nil || n != 22 {
 		t.Fatalf("actualizarea 0.20: %d %v", n, err)
 	}
 	d := initiala(t, &mediu{s: Nou(db)}, "raport-pontaj")

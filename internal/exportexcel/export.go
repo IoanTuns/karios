@@ -4,17 +4,18 @@ import (
 	"bytes"
 	"fmt"
 	"sort"
-	"strings"
 	"time"
 
 	"github.com/xuri/excelize/v2"
 
 	"pontix/internal/calcul"
 	"pontix/internal/datebaza"
+	"pontix/internal/i18n"
+	"pontix/internal/identitate"
 )
 
 // VersiuneExport reprezintă versiunea formatului de export Excel (D009).
-const VersiuneExport = "1.0.0"
+const VersiuneExport = "1.2.0"
 
 // OptiuniExport conține parametrii pentru generarea registrului Excel.
 type OptiuniExport struct {
@@ -203,7 +204,7 @@ func GenereazaRegistruExcel(opt OptiuniExport) ([]byte, error) {
 
 		// Nume
 		cName, _ = excelize.CoordinatesToCellName(cIdx, randCurent)
-		_ = f.SetCellValue(numeFoaiePontaj, cName, strings.TrimSpace(a.Nume+" "+a.Prenume))
+		_ = f.SetCellValue(numeFoaiePontaj, cName, identitate.Nume(a.Nume, a.Prenume, a.Garda || a.AngajatPrincipalID != "", i18n.Romana))
 		_ = f.SetCellStyle(numeFoaiePontaj, cName, cName, stilTextStanga)
 		cIdx++
 
@@ -341,7 +342,7 @@ func GenereazaRegistruExcel(opt OptiuniExport) ([]byte, error) {
 			}
 
 			_ = f.SetCellValue(numeFoaieCentralizator, fmt.Sprintf("A%d", rC), nrC)
-			_ = f.SetCellValue(numeFoaieCentralizator, fmt.Sprintf("B%d", rC), strings.TrimSpace(a.Nume+" "+a.Prenume))
+			_ = f.SetCellValue(numeFoaieCentralizator, fmt.Sprintf("B%d", rC), identitate.Nume(a.Nume, a.Prenume, a.Garda || a.AngajatPrincipalID != "", i18n.Romana))
 			_ = f.SetCellValue(numeFoaieCentralizator, fmt.Sprintf("C%d", rC), a.Marca)
 			_ = f.SetCellValue(numeFoaieCentralizator, fmt.Sprintf("D%d", rC), a.Functie)
 			_ = f.SetCellValue(numeFoaieCentralizator, fmt.Sprintf("E%d", rC), a.TipContract)

@@ -160,11 +160,13 @@ func (s *Serviciu) VerificaPontajAI(ctx context.Context, i ai.IntentiePlan) (Ver
 			if !ok || !strings.HasPrefix(c.Data, luna) {
 				continue
 			}
-			pr, ok := surse.coduri[strings.ToUpper(strings.TrimSpace(c.Valoare))]
-			if !ok {
-				continue
+			for _, cod := range calcul.CoduriPrograme(c.Valoare) {
+				pr, ok := surse.coduri[cod]
+				if !ok {
+					continue
+				}
+				pozitii = append(pozitii, calcul.PozitiePentruRegula{AngajatID: a.ID, Nume: a.Nume, Data: c.Data, CodSchimb: pr.Cod, OraStart: int(pr.OraStart), DurataMin: int(pr.DurataMinute), Activ: true})
 			}
-			pozitii = append(pozitii, calcul.PozitiePentruRegula{AngajatID: a.ID, Nume: a.Nume, Data: c.Data, CodSchimb: pr.Cod, OraStart: int(pr.OraStart), DurataMin: int(pr.DurataMinute), Activ: true})
 		}
 		for _, v := range calcul.EvalueazaReguli(reguli, pozitii) {
 			a := selectati[v.AngajatID]

@@ -28,7 +28,8 @@ func main() {
 	}
 	diagnoza.Initializeaza(foldere.Radacina)
 
-	deschidere, err := stocare.Deschide(context.Background(), foldere.Radacina)
+	// A doua instanta pe acelasi folder porneste doar in citire (D002 punctul 6).
+	deschidere, err := stocare.DeschideCuBlocare(context.Background(), foldere.Radacina)
 	if err != nil {
 		diagnoza.ObtineManager().InregistreazaEroare("pornire/stocare", err)
 		oprireCuEroare(err)
@@ -40,12 +41,13 @@ func main() {
 	app.radacina = foldere.Radacina
 	app.aplicaDeschiderea(deschidere)
 
+	latime, inaltime, minimLatime, minimInaltime := dimensiuniPornire()
 	err = wails.Run(&options.App{
 		Title:     i18n.T(i18n.Implicita, "aplicatie.titlu", nil),
-		Width:     1280,
-		Height:    800,
-		MinWidth:  1024,
-		MinHeight: 640,
+		Width:     latime,
+		Height:    inaltime,
+		MinWidth:  minimLatime,
+		MinHeight: minimInaltime,
 		AssetServer: &assetserver.Options{
 			Assets: resurse,
 		},

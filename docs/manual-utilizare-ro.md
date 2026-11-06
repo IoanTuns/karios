@@ -65,7 +65,7 @@ La avertizarea despre modificări nesalvate, salvează sau confirmă abandonarea
 1. Deschide **Angajați** și apasă butonul pentru adăugare.
 2. Introdu numele, prenumele și marca. Folosește o marcă unică.
 3. Alege tipul contractului. Pentru normă parțială completează orele zilnice; pentru normă întreagă verifică norma globală din Setări.
-4. Alege secția, departamentul și categoria de program corespunzătoare.
+4. Alege secția, compartimentul și categoria de program corespunzătoare.
 5. Completează celelalte informații necesare, inclusiv dreptul anual de concediu dacă este cunoscut.
 6. Salvează și verifică în listă persoana și marca.
 
@@ -84,9 +84,9 @@ Datele demonstrative sunt pentru testare. Încarcă-le doar într-o copie separa
 
 ## 5. Pregătirea programelor și calendarului
 
-### Secții, departamente și categorii
+### Secții, compartimente și categorii
 
-În **Setări**, pregătește secțiile și departamentele. Atribuie angajatului categoria de program potrivită. Categoria stabilește programele permise și, dacă este definit, programul implicit folosit la completare. O categorie nu este o regulă salarială.
+În **Setări**, pregătește secțiile și compartimentele. Atribuie angajatului categoria de program potrivită. Categoria stabilește programele permise și, dacă este definit, programul implicit folosit la completare. O categorie nu este o regulă salarială.
 
 Pentru schimbarea categoriei mai multor angajați, folosește selecția și atribuirea în lot din lista angajaților, verificând persoanele bifate înainte de aplicare.
 
@@ -254,6 +254,8 @@ Exemplu fictiv de planificare:
 4. Alege zilele și păstrarea ori înlocuirea celulelor existente.
 5. Apasă **Arată modificările** și verifică rezumatele și tabelul.
 6. Bifează verificarea și confirmă aplicarea.
+
+În editorul persoanelor, folosește **Arată doar selectați** pentru a verifica lista aleasă. În previzualizare, **Doar excepții** izolează celulele ocupate, blocate sau identice; dezactivează filtrul pentru a revedea toate rândurile. Rezumatul arată distinct persoanele efectiv afectate de modificări; numărul nu este neapărat egal cu numărul persoanelor selectate. Verifică aceste diferențe înainte de confirmare.
 7. Verifică rezultatul și deschide pontajul lunii indicate.
 
 **Salvat**, **Păstrat**, **Neaplicat** și **Deja identic** descriu rezultate diferite. Cererea „toți angajații” nu garantează modificarea tuturor celulelor: pot exista absențe, programe nepermise, celule păstrate sau luni închise. Verifică explicațiile de selecție și motivele pe zile.
@@ -394,7 +396,7 @@ Pentru suport, notează versiunea aplicației, ecranul, anul/luna, pașii și er
 
 ## 19. Despre acest manual
 
-Acoperire: meniurile principale și subsecțiunile din Setări, fluxurile de date și instrumentele AI din versiunea {{VERSIUNE}}. Revizia editorială 1.5 include optimizările UI din Pontaj: meniul contextual clic dreapta, clipboardul avansat, mini-harta de acoperire pe zile și panoul drawer pentru Asistentul AI. Include ajutorul contextual pe toate ecranele, 21 de articole comune manualului și AI, sincronizarea Pontaj → Planificare și formatarea cheii de recuperare. Referința exactă a livrării este commitul de pe copertă. Actualizarea versiunii nu înlocuiește revizuirea instrucțiunilor: buildul cere confirmarea versiunii revizuite în sursele manualului.
+Acoperire: meniurile principale și subsecțiunile din Setări, fluxurile de date și instrumentele AI din versiunea {{VERSIUNE}}. Revizia editorială 1.8 include optimizările UI din Pontaj: meniul contextual clic dreapta, clipboardul avansat, mini-harta de acoperire pe zile și panoul drawer pentru Asistentul AI. Include ajutorul contextual pe toate ecranele, 21 de articole comune manualului și AI, sincronizarea Pontaj → Planificare și formatarea cheii de recuperare. Referința exactă a livrării este commitul de pe copertă. Actualizarea versiunii nu înlocuiește revizuirea instrucțiunilor: buildul cere confirmarea versiunii revizuite în sursele manualului.
 
 Manualul nu substituie regulile de salarizare și aprobările organizației. Nu certifică validarea interactivă a fiecărui ecran pe calculatorul utilizatorului. În cazul unei diferențe între instrucțiuni și aplicație, notează versiunea și cere verificarea fluxului înainte de aplicări în lot.
 
@@ -419,3 +421,422 @@ Buildul include o arhiva ZIP cu executabilul, manualele, manifestul, LICENSE, in
 ### Raporteaza o problema sau trimite o parere
 
 Din meniul lateral alege Raporteaza o problema. Selecteaza tipul, descrie situatia si adauga pasii de reproducere. Jurnalul de diagnoza este optional. Genereaza raportul si verifica textul inainte de a-l trimite; elimina orice date personale ramase. Salveaza fisierul pentru trimitere pe canalul organizatiei sau deschide formularul GitHub precompletat. Publicarea pe GitHub este confirmata de tine in browser si necesita contul tau; aplicatia nu trimite automat raportul. Pentru descrieri lungi, pastreaza fisierul complet, deoarece formularul GitHub poate contine text scurtat.
+
+### Mesaje de eroare si date indisponibile
+
+Panoul de eroare urmeaza limba interfetei. O data absenta sau invalida nu trebuie interpretata ca o data calendaristica valida; verifica inregistrarea sursa in Jurnal, Restaurare sau Planificare. Daca apare o eroare, pastreaza contextul si foloseste raportarea problemei, fara date personale.
+
+### Introducere, import si vizualizare (0.89.4)
+
+Dialogurile pastreaza focusul si cursorul la tastare. Butonul din antet permite marire/restaurare; S/M/L schimba densitatea grilelor Pontaj si Planificare (mod grila). Importul angajatilor recunoaste Zile_Concediu_An ca numar anual de zile si Norma_Ore_Zi din sablonul oficial CSV/XLSX. Acest camp nu creeaza cereri de concediu cu date calendaristice: acestea se inregistreaza in Concedii si absente.
+
+### Categorii de schimburi si functii predefinite (0.90.0)
+
+In Setari -> Schimburi, zona Categorii de schimburi permite adaugarea si editarea denumirilor RO/EN si a starii active. Apoi editeaza sau adauga programul si alege categoria lui. O categorie poate contine mai multe programe. LAB si CUSTOM sunt pastrate la actualizare. Precompletarea cu sabloane ramane pentru LAB; o categorie noua nu primeste automat programe.
+
+In Setari (pagina generala), zona Functii permite predefinirea listei. La adaugarea sau editarea angajatului, alege Functie din selector; functia aleasa apare si sub nume in Pontaj. Functiile existente sunt preluate automat la migrare. O valoare text importata care nu are inca o asociere in nomenclator este pastrata la angajat; pentru standardizare, defineste functia si selecteaz-o explicit.
+
+Dezactivarea nu sterge datele sau asocierile curente, dar impiedica noi asocieri. Redenumirea functiei actualizeaza eticheta curenta a angajatilor asociati, cu jurnal; asocierea este curenta si nu reprezinta istoricul contractual pe luni. Un conflict de revizie cere reincarcarea sectiunii inainte de o noua editare. Verifica inainte modificarile nesalvate: formularul listei este local sectiunii.
+
+## Marca de garda si raportul detaliat
+
+1. In Angajati, pastrati inregistrarea principala cu marca de program normal.
+2. Adaugati sau editati inregistrarea cu marca distincta de garda. La Angajat principal selectati inregistrarea de program normal, identificata si prin marca. Nu se face asociere automata dupa nume.
+3. In Planificare introduceti garzile pe marca de garda, in sectiunea GARZI.
+4. Generati Pontaj detaliat cu totaluri. Marca principala si marca de garda apar pe randuri separate, grupate. Selectarea unei persoane include si marcile asociate, cu respectarea filtrelor de sectie/compartiment.
+
+Planificarea GARZI activa completeaza numai intrarile lipsa din Pontaj. O inregistrare Pontaj existenta (inclusiv goala) si absentele au prioritate; publicarea nu dubleaza orele. Raportul nu modifica Pontajul. Orele si trecerea intre zile folosesc configuratia de calcul existenta; nu se deduc sporuri sau procente. Legatura marcilor este curenta, nu istoric contractual.
+
+## Fereastra la pornire
+
+Dimensiunea initiala se adapteaza zonei de lucru a monitorului principal si scalarii Windows. Pe ecrane mici se reduce si limita minima, astfel incat fereastra sa poata incapea. Puteti redimensiona sau maximiza manual. Adaptarea se recalculeaza la fiecare pornire.
+
+## Grupuri profesionale, pozitii si contracte (0.92.0)
+
+In Setari configurati Grupuri profesionale (ex. Medici, Asistenti), cu ordinea numerica de afisare; numerele mici apar primele. In Functii atribuiti grupul si bifati Conducere/sef pentru functiile de conducere. In Angajati selectati functia. Sectia si compartimentul delimiteaza echipa; in rapoartele filtrate sefii acelei echipe apar primii, urmati alfabetic de personal. La egalitate de nume se foloseste marca. Marcile normale si de garda ale aceleiasi persoane raman impreuna. In lipsa unei functii proprii, marca de garda foloseste functia principala pentru filtrare/incadrare, prin legatura explicita.
+
+Tipuri de contract: norma globala, individuala, zilnica fixa, lunara sau fara norma prestabilita. Norma fixa se introduce in minute (420 = 7 ore, 300 = 5 ore). Garda este un tip predefinit fara norma. Selectati contractul fiecarei marci. Asocierea unei marci de garda in formular selecteaza contractul GARDA daca acesta este activ. Migrarea actualizeaza numai marcile deja legate explicit ca garzi; nu identifica persoane dupa nume. Contractele si functiile pot fi dezactivate fara stergerea istoricului de modificari.
+
+Categoria de programe a contractului, daca este stabilita, are prioritate fata de categoria angajatului si limiteaza programele permise la salvarea Pontajului si Planificarii. Precompletarea dupa categorii nu completeaza norme lunare sau contracte fara norma cu ore zilnice presupuse. In Definire rapoarte puteti adauga coloanele Tip de contract si Norma contractuala. Coloana existenta Ore norm isi pastreaza semnificatia de ore lucrate in zile normale, nu devine norma contractuala.
+
+Angajati, Pontaj, Planificare si Rapoarte au filtre pentru grup, functie, pozitie conducere/executie, contract si garda. Garda inseamna incadrarea marcii/contractului, nu existenta unei ture in luna aleasa. Butonul Reseteaza filtrele elimina doar aceste filtre profesionale. Filtrele de sectie/compartiment si perioada raman independente.
+
+## Reguli conditionate si plata totala 200%
+
+In Configurare pontaj, regulile generale raman baza. Adaugati o regula conditionata si alegeti profilul: grup/functie, contract, pozitie si conditie de garda. Lasarea unui filtru gol inseamna toate valorile. Regula este initial inactiva; activati-o dupa verificarea selectiei si salvati configuratia.
+
+Exemplul confirmat pentru medici: alegeti grupul corespunzator, Garda, contractul relevant, coloana Ore garda, sursa Ore din programele selectate in weekend/sarbatori, codurile eligibile (ex. G24) si factorul total 2. O ora eligibila produce doua ore echivalente; factorul reprezinta plata TOTALA 200%, nu inca 200% adaugat bazei. Orele efectiv lucrate din T nu se dubleaza. Aceasta coloana este o echivalare in ore, nu o suma in lei; baza valorica nu este definita inca.
+
+Pentru asistenti, selectati grupul lor si coloana ZNL cu sursa Ore ZNL si factorul 1. Evidenta arata orele de weekend/sarbatoare; nu scade aceste ore ca zile libere deja efectuate si nu deduce o conversie in zile. Conversia, acumularea dreptului si acordarea timpului liber necesita o regula confirmata separat.
+
+Clasificarea weekend/sarbatoare se face pe fragmente calendaristice 00-24, inclusiv la trecerea peste miezul noptii, fara dubla numarare cand sarbatoarea cade in weekend. Se respecta optiunea existenta de atribuire intre zile/luni. Doua reguli conditionate active care se aplica aceleiasi coloane si aceleiasi persoane sunt refuzate la calcul; nu se alege arbitrar una dintre ele.
+
+Regulile si incadrarile sunt curente. Modificarea lor poate schimba regenerarea rapoartelor vechi; pastrati exporturile validate. Nu este implementat un istoric contractual cu perioade de valabilitate.
+
+In Rapoarte generati mai intai previzualizarea, apoi exportati PDF sau Excel. Excel-ul foloseste exact documentul previzualizat, cu aceleasi filtre, grupuri si randuri. Exportul clasic din grila Pontaj ramane registrul lunar complet.
+
+Din 0.92.1, salvarea unei marci de garda care foloseste functia principala pastreaza mostenirea. O functie principala dezactivata nu impiedica editarea celorlalte date ale marcii de garda. Atribuirea unei functii proprii diferite ramane explicita.
+
+## Precizari pentru norma datorata (implementare in curs)
+
+CO, CEV, CFS si CM aprobate sunt reducerile confirmate ale normei. Formarea profesionala si delegatia nu sunt in aceasta lista. Zilele libere compensatorii nu sunt scazute automat, deoarece regula lor nu este stabilita.
+
+Motorul de baza pentru contracte cu norma zilnica si calendar luni-vineri exclude zilele libere calendaristice si concediile aprobate fara scadere dubla. Norma zilnica absenta ramane nedefinita, distincta de o norma calculata de zero ore. Acest calcul nu este inca legat de coloanele raportului: semnificatia finala a T si a soldurilor L FIN/L Inceput, respectiv identificarea zilelor programate pentru ture sunt in clarificare. Raportul existent nu trebuie considerat modificat doar pe baza acestei precizari.
+
+## Legenda coloanelor in rapoarte (0.92.3)
+
+Raportul detaliat nu mai afiseaza coloana Ore norma. Eliminarea este numai de prezentare; nu modifica sursele motorului sau grila Pontaj.
+
+Subsolul PDF explica fiecare coloana vizibila, pe rand separat: semnificatie, sursa de calcul activa, coduri selectate, factor si filtrul de aprobare, unde sunt aplicabile. Zilele lunii au o explicatie comuna. Regulile conditionate sunt prezentate cu profilurile carora li se aplica. Legenda se repeta pe fiecare pagina; exportul Excel din Rapoarte o include sub tabel.
+
+O regula neconfigurata produce liniuta, nu zero. Legenda descrie configuratia executata, inclusiv limitarile existente: norma datorata, marcajul T, noua separare a orelor de garda si soldurile lunare nu sunt inca integrate in acest raport. Explicatiile nu confirma automat o regula de plata.
+
+## Zoom pentru intreaga interfata
+
+In antetul fiecarui ecran folositi minus pentru micsorare, plus pentru marire si butonul procentual pentru revenire la 100%. Sunt disponibile niveluri intre 75% si 200%; alegerea este pastrata local. Scurtaturi: Ctrl+- (micsorare), Ctrl++ (marire), Ctrl+0 (resetare), inclusiv in dialoguri. Zoomul global este independent de densitatea S/M/L din Pontaj si Planificare. PDF-urile si Excel-urile exportate isi pastreaza dimensiunile.
+
+## Marcarea automata a marcilor subordonate
+
+O marca de garda asociata explicit unei persoane principale este afisata ca Nume Prenume (Garda), cu marcaj tradus in limba aleasa. Marcajul apare in liste, selectii, Pontaj, Planificare, absente/Gantt, AI si rapoarte PDF/Excel. Numele si prenumele editabile nu se modifica; nu adaugati manual sufixul. Marca principala si persoanele cu acelasi nume, fara legatura, nu primesc marcajul. Un contract de garda independent nu este considerat automat marca subordonata.
+
+La schimbarea sau eliminarea asocierii, afisarea curenta se actualizeaza dupa salvare. Fisierele deja exportate si instantaneele AI salvate pastreaza continutul istoric; o noua generare foloseste incadrarea curenta. In prezent, singurul subtip ierarhic disponibil este marca de garda.
+
+## Program normal si calendarul zilelor lucratoare
+
+Programul normal luni-vineri se aplica numai zilelor lucratoare: sambata, duminica si sarbatorile legale din calendar sunt excluse. Filtrul AI Zile lucratoare si precompletarea folosesc aceasta regula. Verificati calendarul de sarbatori pentru fiecare an vizat, inclusiv cand intervalul trece in anul urmator.
+
+Weekend inseamna strict sambata-duminica; o sarbatoare de marti nu este inclusa automat intr-o cerere doar pentru weekend. Optiunea Toate zilele sau o data explicita permite planificarea distincta a unei garzi/ture in acea zi. Munca efectiva in weekend sau sarbatoare nu este stearsa: este clasificata separat conform regulilor configurate, pe fragmente calendaristice 00-24. Suprapunerea sarbatoare-weekend se numara o singura data.
+
+Pentru contractul normal, norma exclude aceste zile. Pentru garzi si ture se folosesc incadrarea si regulile lor specifice; programul normal nu se aplica automat. Interpretarea 200%, ZNL si timpul liber compensatoriu sunt tratate prin regulile confirmate separat; aceasta corectie de calendar nu defineste noi procente sau conversii in zile. Regula compensatoriilor ramane neprecizata.
+
+Schimbarea calendarului impune regenerarea previzualizarii AI. Exporturile deja salvate raman neschimbate; regenerarea rapoartelor foloseste calendarul curent.
+
+## Concediu sau alt tip de absenta direct din Pontaj
+
+1. Selectati celula sau intervalul de zile si persoane in grila Pontaj.
+2. Deschideti Completare si alegeti Concediu / alt tip de absenta.
+3. Alegeti unul dintre tipurile configurate (de exemplu CO sau CM), completati aprobarea, numarul de inregistrare, inlocuitorul si documentul, dupa caz.
+4. Verificati selectia din formular, apoi Salvati. Se folosesc numai zilele lucratoare din selectie; weekendurile si sarbatorile sunt excluse.
+
+Operatia inlocuieste programul din schita si salveaza imediat absenta. Nu mai este necesara salvarea schitei pentru aceste zile. Codul concediului este afisat in celula; aceeasi inregistrare apare in Concedii si absente. Puteti redeschide meniul pentru a schimba tipul unei absente existente. Aprobarea nu este acordata automat: pentru o absenta noua starea initiala este In asteptare.
+
+Modificarile nesalvate din afara selectiei se pastreaza. Istoricul local Anuleaza/Refa se reinitializeaza dupa conversia salvata; corectiile ulterioare se fac prin formularul de absente. Programul planificat suprapus este anulat conform prioritatii concediilor; medicalul poate afecta si tura precedenta sau marcile asociate. Lunile inchise si pontajul efectiv inregistrat sunt protejate. O eroare de validare sau un conflict de revizie anuleaza intregul lot si pastreaza schita initiala.
+
+Pentru revenire de la absenta la program de lucru, anulati absenta din evidenta Concedii si absente si apoi aplicati programul dorit in Pontaj; simpla aplicare a unui program nu suprascrie o absenta activa.
+
+
+## Prioritatea concediilor si a medicalului
+
+Orice concediu, inclusiv medical, se inregistreaza numai luni-vineri, fara sarbatorile din calendarul aplicatiei. Verificati calendarul pentru anul folosit. Formularul exclude automat weekendurile si sarbatorile; serviciul refuza si cererile directe care contin aceste zile.
+
+Concediul inlocuieste programul din schita si planificarea acelei zile. Medicalul are prioritate fata de celelalte concedii si programe. Daca o tura inceputa in ziua precedenta intra in ziua medicalului, se anuleaza intreaga tura. Sunt anulate si programele marcilor asociate explicit aceleiasi persoane, inclusiv garzile. Absenta medicala nu se dubleaza pe aceste marci. O cerere noua nu suprascrie automat medicalul. Pentru corectarea explicita folositi Editeaza sau formularul din Pontaj pe absenta existenta; revizia inregistrarii este verificata.
+
+Salvarea este atomica si jurnalizata. O luna inchisa, inclusiv luna precedenta afectata de o tura de noapte, blocheaza operatia intreaga. Pontajele efective cu ore de inceput/sfarsit nu se sterg automat; un conflict trebuie verificat de operator. Programele anulate nu se restaureaza automat la anularea concediului. Inregistrarile istorice din weekend/sarbatori nu sunt migrate automat; verificati-le separat.
+
+
+## Corectarea si anularea concediilor, inclusiv medicale
+
+In Concedii si absente, folositi Editeaza pe rand pentru schimbarea tipului si a detaliilor. Pentru mai multe zile, selectati randurile si alegeti editarea selectiei. Aceste actiuni permit inclusiv corectarea unui medical in alt tip de concediu.
+
+Pentru eliminare, folositi Anuleaza ziua sau Anuleaza zilele selectate si confirmati. Absenta devine inactiva si nu mai blocheaza programul; istoricul ramane disponibil. Anularea medicalului nu reface automat programele pe care le-a anulat. Pentru revenire la lucru aplicati din nou programul corect.
+
+O corectie facuta intre timp de alt operator produce un conflict: reincarcati datele inainte de a repeta. Lunile inchise trebuie redeschise prin fluxul autorizat. Prioritatea medicalului protejeaza fata de suprascrieri automate, fara sa impiedice corectarea explicita a unei inregistrari curente.
+
+
+## Formatul orelor
+
+Aplicatia afiseaza orele in format de 24 de ore: 00:00, 07:00, 19:00, 23:59. Nu se foloseste AM/PM, indiferent de limba interfetei sau a sistemului. Regula se aplica si jurnalului, auditului, restaurarii, blocarii conturilor si ultimei modificari din Pontaj. Datele raman localizate; fusul orar si duratele/totalurile de ore nu se modifica. Rapoartele folosesc deja formatul 24h.
+
+La definirea unui schimb, introduceti ora de inceput ca HH:MM, de exemplu 07:00 sau 19:00; sunt acceptate ore de la 00:00 la 23:59.
+
+
+## Tipuri de schimb si regimuri configurabile
+
+In Setari > Schimburi sunt disponibile listele Tipuri de schimb si Regimuri de lucru. Puteti adauga definitii, edita denumirile in romana/engleza si dezactiva intrarile. La adaugare selectati comportamentul in aplicatie. Tipurile folosesc Normal, Tura, Noapte sau Garda; regimurile folosesc Normal, Weekend/sarbatoare sau Intrare speciala in zi libera.
+
+Regimul General/anterior este convertit automat la Normal la actualizarea bazei. Tipul schimbului ramane distinct: un schimb Noapte sau Garda nu devine Normal prin aceasta conversie. Intervalele, duratele, identitatile si legaturile existente se pastreaza.
+
+In Adauga/Editeaza program selectati tipul si regimul din listele configurate. Acelasi program este folosit in categoriile de program, contractele asociate acelor categorii, pontaj, planificare, precompletare si calcul. Denumirea personalizata nu determina singura comportamentul; se foloseste comportamentul selectat explicit. Noapte/Garda si regimurile speciale raman gestionate conform motorului existent. Configuratia nu stabileste automat procente noi de spor.
+
+Puteti redenumi o definitie deja folosita. Pentru schimbarea comportamentului creati o definitie noua si alegeti-o explicit in program; comportamentul unei definitii deja folosite este protejat pentru a evita reclasificarea retroactiva implicita. Dezactivarea ascunde definitia din alegerile noi; programele existente isi pastreaza asocierea si pot fi editate. Listele se anuleaza prin dezactivare, pastrand referintele si istoricul.
+
+
+## Schimbarea datei si reactivarea unei absente
+
+In Concedii si absente, pe randul zilei alegeti Editeaza. Puteti schimba data; cele doua campuri de data raman sincronizate pentru editarea unei singure zile. La salvare vechea zi se anuleaza si noua zi se inregistreaza atomic. Daca noua zi este ocupata, nelucratoare, intr-o luna inchisa sau apare un conflict, operatia intreaga este refuzata. Pastrati Activ bifat pentru mutare.
+
+Sterge ziua elimina ziua din evidenta activa prin anulare cu istoric. Bifati Arata si zilele anulate pentru a o vedea din nou si folositi Reactiveaza. In formular puteti debifa Activ pentru dezactivare sau bifa pentru reactivare. Reaparitia programelor anulate anterior de concediu nu este automata. In lista Tipuri de absenta sunt disponibile butoane Dezactiveaza/Reactiveaza, precum si starea Activ din editor. Dezactivarea unui tip nu anuleaza zilele existente.
+
+
+## Filtrarea dupa starea activa
+
+Listele cu stare au filtru Active / Inactive / Toate, implicit Active. Este disponibil pentru nomenclatoare (functii, grupuri, contracte, categorii de schimb, tipuri si regimuri), programe de lucru, categorii de program, zile si tipuri de absenta, conturi, modele de raport si reguli conditionate. Lista Angajati porneste pe activi.
+
+In Pontaj filtrul controleaza angajatii afisati; alegeti Inactive sau Toate pentru istoricul persoanelor dezactivate. In Planificare exista un filtru pentru angajati si, in modul Lista, unul separat pentru pozitiile active/retrase. Filtrarea nu sterge datele si nu modifica totalurile salvate sau formulele rapoartelor. Un program, tip sau model dezactivat se regaseste prin filtrul Inactive; reactivati-l din editorul sau. Regula noua, creata initial inactiva, este afisata prin trecerea explicita la Toate.
+
+In evidenta absentelor, Inactive inlocuieste vechiul filtru Arata si zilele anulate; Toate afiseaza ambele stari. Pentru reactivare folositi butonul de pe rand. Ecranele fara stare activ/inactiv (de exemplu jurnal, backupuri si calendarul sarbatorilor) isi pastreaza filtrele proprii; nu se introduc stari artificiale pentru aceste date. Optiunile din formularele de creare raman active, iar la editare este pastrata si valoarea inactiva deja asociata, pentru a nu pierde referinta.
+
+
+## Stergere definitiva a configurarilor nefolosite - administrator
+
+Autentificati-va ca administrator. In lista configurarii alegeti Stare > Inactive (sau Toate), apoi Sterge definitiv pe randul dorit si confirmati numele. Inregistrarile active trebuie mai intai dezactivate. Operatorii nu au buton, iar endpointul refuza si apelurile directe fara administrator autentificat.
+
+Disponibil pentru programe, categorii de program, tipuri de absenta, functii, grupuri, tipuri de contract, categorii de schimb, tipuri/regimuri de lucru si modele de raport. Definitii de baza necesare compatibilitatii raman protejate. O configurare folosita de pontaj, planificare, concedii, angajati, reguli, sabloane sau operatii AI nu poate fi stearsa; mesajul indica sursa utilizarii. Modificati configurarea care o refera sau pastrati-o inactiva daca exista istoric.
+
+Stergerea unei categorii neatribuite elimina numai lista ei proprie de programe permise; programele nu sunt sterse. Stergerea unui program nefolosit elimina numai metadatele sale de clasificare. Nu se elimina asocieri din alte configurari pentru a forta stergerea. Pontajele, concediile, planificarile, angajatii si conturile nu se sterg prin aceasta actiune. Jurnalul pastreaza snapshotul configurarii eliminate. Stergerea este definitiva; nu exista buton de restaurare pentru configurarea stearsa.
+
+### Prioritatea Planificarii, concediilor si medicalului
+
+La publicarea Planificarii, programele si orele manuale existente in schita Pontaj sunt inlocuite implicit; nu mai trebuie bifata o permisiune de inlocuire. Previzualizarea arata valoarea veche si cea noua. Daca datele se modifica intre previzualizare si confirmare, repetati previzualizarea.
+
+Concediile si zilele libere au prioritate fata de program si anuleaza planificarea aferenta. Medicalul are prioritate maxima si anuleaza intreaga tura de noapte intersectata pe toate marcile asociate. Absentele se inregistreaza numai in zile lucratoare, fara weekend si sarbatori legale. Lunile inchise raman protejate.
+
+#### Suprascrierea pontajelor efective
+
+La publicarea Planificarii sunt inlocuite si pontajele efective ale aceleiasi marci si date. Previzualizarea indica numarul lor. Inregistrarile vechi sunt retrase din calcul si pastrate in audit; nu se sterg fizic. Concediile retrag pontajele efective intersectate, iar medicalul aplica regula tuturor marcilor asociate si intregii ture intersectate. O luna inchisa sau blocata impiedica operatia, inclusiv pentru o tura inceputa in luna precedenta. Anularea concediului nu restaureaza automat programul retras: programul dorit trebuie reaplicat explicit.
+
+### Solduri lunare si initializarea pontajului
+
+In Angajati > Editeaza completati Luna de initializare, L Inceput initial (ore cu semn) si CO efectuat anterior (zile). Soldul orelor este valabil la inceputul lunii alese. Zilele CO initiale reprezinta consumul din acelasi an, anterior acelei luni; nu le mai introduceti ca absente datate. Dreptul anual contractual ramane separat. Pentru corectie editati valorile; pentru anularea valorilor initiale introduceti zero. Modificarile care ar afecta luni inchise/blocate sunt refuzate.
+
+Ore lucratoare = (zile luni-vineri fara sarbatori legale - zile CO/CEV/CFS/CM aprobate) x norma zilnica. CEV/CFS folosesc codurile atribuite in regulile de pontaj; celelalte tipuri speciale nu se scad automat. Formarea profesionala si delegatiile nu reduc norma prin simpla incadrare la Special.
+
+Raportul detaliat afiseaza L Inceput imediat dupa Marca. L Fin = L Inceput + total ore efectiv lucrate - Ore lucratoare. L Inceput al lunii urmatoare este L Fin al lunii precedente, inclusiv la trecerea dintre ani. Sunt acceptate solduri negative. Daca exista ore neinterpretabile, soldul final ramane nedefinit pana la corectarea lor. Marcile de garda raman fara norma prestabilita si fara sold de norma calculat. Formulele sunt explicate si in subsolul raportului.
+
+Fara initializare explicita, calculul incepe cu sold zero in prima luna cu date a marcii. Soldurile se recalculeaza din datele existente; pentru un istoric anterior folosirii aplicatiei, introduceti soldul la luna de referinta. Norma contractuala folosita este cea configurata curent; nu se presupun modificari contractuale istorice neinregistrate.
+
+### Claritate si navigare in interfata (0.92.19)
+
+Marcajul Garda apare in nume atat pentru contractele cu atribut de garda, cat si pentru marcile asociate unui angajat principal. Numele salvat ramane nemodificat. In lista angajatilor sunt distincte asocierea cu marca principala si contractul de garda independent. Un contract independent nu creeaza automat o legatura intre persoane.
+
+Formularul angajatului este grupat in Identitate, Incadrare, Contract/program si Stare. Soldurile initiale se deschid separat; rezumatul arata valorile existente. Filtrele profesionale sunt intr-un panou retractabil; filtrele active raman afisate deasupra lui. Cautarea, perioada si starea activa/inactiva raman disponibile.
+
+Tabelele au repere fixe pentru identificare si antete la derulare. In Angajati raman vizibile numele si marca; grilele isi pastreaza identificarea si totalul fix. Focalizati zona tabelului pentru derulare cu tastatura; Alt+Home revine la inceput, Alt+End merge la capatul din dreapta. La zoom mare reperele grilelor se compacteaza pentru a pastra accesul la date.
+
+In sumarul Planificarii, De ce lipsesc programe explica excluderea prin stare, tip/regim sau categorie si ofera acces spre configurare/ajutor. Programul de noapte trebuie clasificat ca Noapte, nu doar denumit astfel. Etapele Nesalvat, Salvat in plan si Publicat in Pontaj sunt afisate textual; previzualizarea arata si numarul pontajelor efective retrase. Modificarile nesalvate sunt semnalate la navigare si inchidere.
+
+Formularul de absente afiseaza zilele selectate, marcile afectate si prioritatea program/concediu/medical. La anulare sau respingere nu se retrag programe si nu se restaureaza automat orele retrase anterior. Weekendurile si sarbatorile legale sunt excluse din absente.
+
+Setari contine o verificare ghidata a configurarilor, cu legaturi catre angajati, schimburi, categorii si regulile de pontaj. Aceasta semnaleaza puncte de verificat, nu declara automat gresite contractele independente sau lipsa unei categorii. Stergerea definitiva este o actiune rara pentru administratori, disponibila la configurari inactive in Alte actiuni. Referintele blocante ofera, unde este posibil, acces spre sursa folosirii.
+
+Salvarea Excel verifica registrul si continutul scris temporar inainte de a inlocui destinatia; erorile nu mai sunt mascate printr-o descarcare alternativa. Investigarea blocajului de deschidere raportat de utilizator este amanata la cererea lui; nu se declara remediata cauza acelui blocaj.
+
+## Activitatile lunii si configurarea asistata (0.92.20)
+
+Butonul Activitatile lunii din antet deschide situatia datelor salvate pentru anul si luna alese: configurari lipsa, pozitii nepublicate, zile de absenta in asteptare si acces la verificarea Pontajului, raport si inchiderea lunii. Contoarele nu includ modificarile nesalvate si nu reprezinta o validare contabila. Legaturile pastreaza perioada aleasa; inchiderea se face in continuare din Pontaj, cu motiv si verificarile existente.
+
+In Setari, Verificarea configurarii deschide Angajati cu criteriul selectat, de exemplu lipsa categoriei. Poti elimina criteriul sau reveni la verificari. Garda independenta este informatie de revizuit, nu eroare. In formularul angajatului si al categoriei, deschide Programe disponibile in Planificare pentru lista programelor permise si motivele de excludere. Lista explica eligibilitatea pentru Planificare, nu publica si nu completeaza automat programul normal.
+
+## Revizuirea modificarilor si navigarea (0.92.20)
+
+La adaugarea sau editarea concediilor/absentelor, completeaza formularul si apasa Previzualizeaza modificarile. Simularea foloseste aceeasi operatie ca salvarea, intr-o tranzactie anulata: arata schita, programul planificat, absenta si pontajul efectiv afectate. Pentru medical se includ marcile asociate si intreaga tura intersectata, dupa regulile existente. Confirmarea revalideaza datele; daca intre timp se schimba datele sau apare un blocaj, poate fi necesara o noua previzualizare. Modificarea formularului invalideaza comparatia. Apasa Confirma si salveaza pentru aplicare; inchiderea previzualizarii nu salveaza. Anularea unei absente nu restaureaza automat programele retrase.
+
+Grilele arata marcile si intervalul selectat langa comenzi. La schimbarea lunii sau navigarea dintr-o grila cu modificari, poti alege Ramai aici, Renunta la modificari sau Salveaza si continua. O salvare esuata nu continua navigarea. Salvarea Planificarii ramane separata de publicarea in Pontaj. Protectia nativa la inchiderea ferestrei Windows ramane cea existenta. Alte formulare isi pastreaza propriile validari si confirmari de abandon.
+
+Filtrele profesionale active au eticheta si valoare si se pot elimina individual din butonul lor; celelalte criterii si perioada raman neschimbate. In Rapoarte, daca persoana selectata nu mai corespunde filtrelor, selectia se goleste cu mesaj explicativ. Compact/Normal/Aerisit controleaza densitatea grilei; procentul din antet controleaza zoomul intregii aplicatii. Regiunile de tabel au denumiri specifice pentru accesul prin tastatura; Alt+Home/End deruleaza la capetele tabelului cand regiunea are focus. Aceste facilitati nu reprezinta certificare de accesibilitate cu cititor de ecran.
+
+## Anexa finala a rapoartelor PDF (0.92.21)
+
+Modul de calcul, semnificatia coloanelor si istoricul tehnic de generare/revizii apar dupa tabel, intr-o anexa care incepe pe pagina noua. Nu se mai repeta in subsolul fiecarei pagini de pontaj. Numerotarea continua pana la final. Daca explicatiile depasesc o pagina, anexa continua fara trunchiere; istoricul de generare este la sfarsit. Istoricul nominal al operatiunilor ramane in Jurnal modificari.
+
+
+## Tipuri de absenta si introducere din Planificare
+
+In **Concedii si absente > Categorii de absenta > Adauga categorie de absenta**, definiti codul, denumirea si natura. La **Efect asupra orelor** alegeti:
+
+- **Fara ore lucrate; reduce obligatia lunara**: ziua aprobata nu produce ore lucrate si scade o norma zilnica din Ore lucratoare.
+- **Ore lucrate din norma zilnica**: ziua aprobata produce norma zilnica din contract, fara reducerea obligatiei lunare (de exemplu deplasare).
+- **Ore lucrate din programul planificat**: ziua aprobata produce durata programului salvat anterior pe acea zi, fara reducerea obligatiei lunare.
+
+Ultimele doua optiuni sunt disponibile pentru natura Alta absenta / deplasare. Pentru odihna si medical nu se acorda ore lucrate. Apoi folositi **Adauga tip de absenta**, completati codul si denumirea si selectati categoria definita. Tipul preia automat regula categoriei; aceasta este afisata in formular.
+
+Categoriile pot fi adaugate, redenumite, dezactivate si reactivate. Lista are filtrul Active/Inactive/Toate, implicit Active. O categorie inactiva nu se poate atribui unor tipuri noi; asocierile existente si istoricul se pastreaza. Denumirea este folosita in selector, filtre, sumar si raportul de absente. Natura (odihna/medical/alta) stabileste evidenta concediului contractual si prioritatea medicalului, independent de numele categoriei. Natura si regula unei categorii folosite in istoric nu se modifica retroactiv; pentru alta regula creati o categorie noua. Categoriile initiale pastreaza regulile existente; migrarea separa automat categoriile cu efecte diferite deja configurate. Orele creditate nu definesc plata sau sporul.
+
+In **Planificare > Grila lunara**, selectati angajatul/angajatii si zilele, apoi **Concediu / absenta pe selectie**. Salvati sau anulati mai intai modificarile nesalvate ale planului. Formularul comun permite alegerea tipului, aprobarii si documentelor, apoi previzualizarea efectelor si confirmarea salvarii. Weekendurile si sarbatorile legale sunt excluse. Efectul medicalului ramane prioritar, inclusiv pe marcile asociate si turele de noapte intersectate.
+
+Programul necesar creditarii trebuie salvat inaintea absentei. Daca lipseste programul ori norma, salvarea este refuzata, fara modificari partiale. Durata creditata se pastreaza chiar daca programul este anulat de absenta; schimbarea aprobarii sau reactivarea nu recalculeaza durata din setarile curente. Zilele in asteptare/respinse nu produc ore creditate. Anularea elimina efectul din totaluri si nu restaureaza programul vechi automat.
+
+
+## Rapoarte flexibile: SQL, Markdown si coloane proprii
+
+Din **Setari > Definire rapoarte**, adaugati sau duplicati un model. La **Datele raportului** alegeti **Lista garzilor - un rand pe garda**, **Totaluri lunare si coloane calculate** sau **Raport SQL personalizat**. Folositi **Campuri disponibile pentru raport** pentru schema si completati un singur SELECT, ori lasati SQL gol pentru modelul implicit.
+
+Exemplu pentru angajat si data garzii pe fiecare rand:
+
+```sql
+SELECT angajat, marca, data, program, inceput, sfarsit, ore
+FROM garzi
+ORDER BY angajat, data
+```
+
+Datele sunt limitate la perioada si filtrele raportului. Parametrii :an, :luna, :angajat_id, :sectie_id, :compartiment_id, :de_la si :pana_la sunt disponibili; :pana_la este prima zi a lunii urmatoare, exclusiva. SQL foloseste vederi de raportare locale, fara conturi, parole sau documente atasate. Nu se pot executa scrieri, PRAGMA ori ATTACH.
+
+**Adauga coloana calculata** defineste codul, denumirea, unitatea, precizia si o formula sau SELECT scalar. Formule acceptate: + - * /, paranteze, ABS, MIN, MAX si ROUND. Exemplu: ROUND(total_ore_lucrate - total_ore_lucratoare, 2). Coloanele se evalueaza in ordinea afisata. O valoare lipsa ramane nedefinita daca nu alegeti explicit rezultatul zero. Pentru SQL per angajat includeti angajat_id in SELECT; il puteti trece la **Coloane ascunse in tabel**.
+
+Catalogul lunar contine zile/ore conform contractului, ore lucratoare/lucrate, total concedii selectabil pe tipuri si categorii, total ore garda si ore eligibile weekend/sarbatori. Numai concediile aprobate din zile lucratoare intra in totaluri. Tipurile de concediu nou definite produc automat campuri concediu_* in catalog. Totalul selectat nu schimba obligatia lunara: deplasarile creditate nu se scad. Garda fara norma nu primeste obligatii de ore inventate.
+
+Alegeti **Tabel automat**, **Markdown** sau **Pozitionare libera**. Markdown suporta titluri, paragrafe, liste, evidentiere si tabele simple; {{tabel}} insereaza lista rezultata. Nu este HTML executabil. Editorul liber permite tragerea campurilor si coordonate exacte in mm. Campurile obisnuite folosesc prima inregistrare; bifati **Repeta elementul pentru fiecare rand de date** si configurati pasul randurilor pentru o structura proprie pe toate inregistrarile. {{tabel}} si campurile repetate sunt alternative, pentru a evita dublarea.
+
+Apasati **Verifica datele si previzualizeaza PDF**, verificati rezultatul, apoi **Salveaza**. Orice modificare necesita reverificare. Modelul activ apare in **Rapoarte**; datele se citesc din nou la generare. Formulele apar optional in anexa finala, conform bifei din Continut; istoricul tehnic ramane la final. Exportul Excel pastreaza tabelul, nu coordonatele vizuale.
+
+Ghidul tehnic din repo, docs/ghid-rapoarte-flexibile.md, contine campurile, exemplele si limitele. Maximum 80 coloane/10000 randuri, cu limite de timp si volum; un aspect care nu incape este refuzat, fara decupare tacita.
+
+### Explicatii optionale in raport
+
+In Setari > Definire rapoarte > Editeaza > Continut, bifa Afiseaza modul de calcul si semnificatia coloanelor include explicatiile in anexa finala PDF si in Excel. Debifati pentru un raport fara explicatii, formule sau SQL. Salvati modelul; la modelele flexibile refaceti previzualizarea inainte de salvare. Modelele noi pornesc debifate; duplicarea pastreaza alegerea, iar modelele existente pastreaza afisarea pana la debifare. Istoricul tehnic ramane separat la final.
+
+### Alinierea antetului si a subsolului PDF flexibil
+
+In Tabel automat si Markdown, cele trei texte din antet apar simultan: stanga, centrat pe pagina si dreapta, fiecare in treimea lui. Textul se imparte automat pe linii in zona aleasa; tabelul incepe dupa cea mai inalta zona. Imaginile isi pastreaza proportiile si se aliniaza in zona lor. Subsolul respecta aceleasi alinieri. Antetul si imaginile se repeta si pe anexa finala, fara suprapunerea calculului/istoricului cu antetul. Pozitionarea libera continua sa foloseasca elementele si coordonatele explicite pentru textul din corp; nu se muta automat elementele deja configurate.
+
+Pentru titlul central al listei de garzi, introduceti textul in Antet > Centru. In Markdown folositi doar {{tabel}} daca nu doriti un al doilea titlu in corp. Etichetele {{an}}, {{luna}} si {{perioada}} se inlocuiesc in texte; pentru sursa flexibila luna este numerica, iar perioada are forma AAAA-LL.
+
+## Formatare si editare libera a rapoartelor
+
+In Setari > Definire rapoarte > Editeaza, deschideti Formatare texte si etichete. Alegeti campul: titlu, introducere/paragrafe Markdown, cele sase zone antet/subsol, corpul tabelului sau capetele de tabel. Puteti alege bold, italic, marime 6-40 pt si aliniere. Marimea0 si alegerea Implicit mostenesc stilul existent. Reseteaza stilul elimina particularizarea campului. Stilurile se pastreaza in model, impreuna cu revizia lui. Pentru o eticheta proprie adaugati codul exact al coloanei din rezultatul SQL (sau codul coloanei raportului standard), apoi denumirile RO/EN. Coloana si eticheta ei pot fi formatate separat. In Pozitionare libera, elementele au si bold/italic/aliniere, iar marimea ramane in campul Font al elementului. Formatarea este pe camp/celula, nu un editor Word pentru fragmente arbitrare de caractere.
+
+Pentru un raport deja generat: Rapoarte > Genereaza si previzualizeaza > Editeaza textele si celulele raportului. Modificati titlul, antetul/subsolul, introducerea, etichetele sau celulele. Focalizati un camp pentru a-i alege stilul. Tabelul de editare are25 randuri pe pagina; modificarile se pastreaza cand navigati intre paginile editorului. Celulele accepta text pe mai multe linii.
+
+Aplica si actualizeaza PDF valideaza toate modificarile impreuna si creeaza o copie noua pentru exportul PDF/Excel. Pana la aplicare, PDF-ul afisat este cel anterior si exportul este dezactivat. Renunta la modificari restabileste ultima copie aplicata. Copia este marcata drept personalizata; detaliile autor/moment/identificator sunt in istoricul de la final si in jurnalul aplicatiei, cu valorile/stilurile inainte si dupa. Istoricul si calculele nu pot fi sterse din editorul de celule. Maximum1000 schimbari si2MiB per aplicare,4000 caractere per camp. O copie care nu incape pe pagina este refuzata; originalul ramane disponibil.
+
+Modificarea unei celule din raport nu actualizeaza pontajul sau planificarea si nu recalculeaza alte celule/totaluri. Pentru corectarea datelor operationale folositi meniul lor si regenerati raportul. Editarile copiei apartin acestei livrari, nu modelului; salvati PDF/Excel inainte de inchidere. Regenerarea din model produce din nou valorile sursa. Stilurile si etichetele salvate in model se reutilizeaza la generari viitoare.
+
+## Bold pentru weekend/sarbatori si grupuri la limita lunii
+
+In definitia raportului flexibil, zona Zile speciale si intervalul raportului:
+
+1. Folositi SQL-ul actualizat exemplul SQL de mai jos (garzi-lunar.sql), care include data completa in data_calendar.
+2. Introduceti data_calendar la Coloane ascunse pentru a pastra doar Data, Ziua, Nume si prenume, Observatii pe document.
+3. La Coloana cu data completa alegeti/scrieti data_calendar.
+4. Bifati Bold pentru sambata si duminica si/sau Bold pentru sarbatori configurate. Se evidentiaza randul pe baza datei complete, inclusiv cand coloana este ascunsa; nu se deduce data din textul zilei sau din numarul1-31. Stilurile explicite ale unei coloane/celule pot suprascrie stilul mostenit.
+5. Bifati Include grupurile de zile libere la ambele margini ale lunii pentru grupurile consecutive care ating prima/ultima zi a lunii. SQL-ul trebuie sa foloseasca :de_la si :pana_la pentru interval. Doar filtrele :an/:luna nu includ automat datele din alta luna.
+6. Refaceti previzualizarea si salvati modelul.
+
+Calendarul de sarbatori configurat este sursa regulii. Pentru noiembrie2026, intervalul complet este31octombrie-1decembrie (inceputul lunii este duminica). Pentru decembrie2026 este28noiembrie-31decembrie: grupul28-30noiembrie/1decembrie se pastreaza integral. Nu se sare peste o zi lucratoare pentru a adauga alte sarbatori indepartate. Limita tehnica este366 zile suplimentare, cu eroare explicita pentru un calendar excesiv. Textul {{de_la}} arata prima data inclusa si {{pana_la}} ultima data inclusa; parametrul SQL :pana_la este prima data exclusa. Titlul poate continua sa indice luna aleasa. Totalurile contractuale si cele din catalogul lunar raman ale lunii selectate; lista garzilor poate acoperi intervalul extins.
+
+exemplul SQL de mai jos (garzi-lunar.sql) arata zilele cu garzi inregistrate. Pentru un tabel care arata toate zilele intervalului, inclusiv randuri goale unde nu exista garda, folositi varianta exemplul calendarului complet de mai jos (garzi-lunar-calendar.sql). Ambele folosesc data_calendar pentru bold si aceiasi parametri de interval.
+
+### SQL complet: numai zilele cu garzi
+
+```sql
+SELECT
+  CAST(strftime('%d', g.data) AS INTEGER) AS data,
+  CASE strftime('%w', g.data)
+    WHEN '0' THEN 'Duminică'
+    WHEN '1' THEN 'Luni'
+    WHEN '2' THEN 'Marți'
+    WHEN '3' THEN 'Miercuri'
+    WHEN '4' THEN 'Joi'
+    WHEN '5' THEN 'Vineri'
+    WHEN '6' THEN 'Sâmbătă'
+  END AS ziua,
+  g.angajat AS nume_si_prenume,
+  substr(g.inceput, 12, 5) || ' - ' || substr(g.sfarsit, 12, 5)
+    || CASE WHEN substr(g.sfarsit, 1, 10) <> g.data
+       THEN ' (' || strftime('%d.%m.%Y', g.sfarsit) || ')'
+       ELSE '' END AS observatii,
+  g.data AS data_calendar
+FROM garzi g
+WHERE g.data >= :de_la AND g.data < :pana_la
+ORDER BY g.inceput, g.angajat, g.marca, g.rowid;
+```
+
+### SQL complet: toate zilele, inclusiv cele fara garda
+
+```sql
+SELECT
+  CAST(strftime('%d', c.data) AS INTEGER) AS data,
+  CASE strftime('%w', c.data)
+    WHEN '0' THEN 'Duminică'
+    WHEN '1' THEN 'Luni'
+    WHEN '2' THEN 'Marți'
+    WHEN '3' THEN 'Miercuri'
+    WHEN '4' THEN 'Joi'
+    WHEN '5' THEN 'Vineri'
+    WHEN '6' THEN 'Sâmbătă'
+  END AS ziua,
+  COALESCE(g.angajat, '') AS nume_si_prenume,
+  CASE WHEN g.inceput IS NULL THEN '' ELSE substr(g.inceput, 12, 5) || ' - ' || substr(g.sfarsit, 12, 5)
+    || CASE WHEN substr(g.sfarsit, 1, 10) <> c.data
+       THEN ' (' || strftime('%d.%m.%Y', g.sfarsit) || ')'
+       ELSE '' END END AS observatii,
+  c.data AS data_calendar
+FROM calendar c
+LEFT JOIN garzi g ON g.data = c.data
+WHERE c.data >= :de_la AND c.data < :pana_la
+ORDER BY c.data, g.inceput, g.angajat, g.marca, g.rowid;
+```
+
+
+## Mai multe programe in aceeasi zi (0.92.31)
+
+In Planificare deschide sumarul angajatului (butonul de langa nume sau Adauga program pe zi). Pentru data dorita apasa Adauga program pe zi, alege programul si salveaza. Repeta pentru al doilea interval. Fiecare program are selector si eliminare separate. De exemplu15:00-22:00 si22:00-07:00 pot coexista pe aceeasi marca; intervalele care se suprapun sunt refuzate inclusiv peste miezul noptii si limita lunii. Categoria angajatului trebuie sa permita fiecare program.
+
+Grila afiseaza codurile impreuna, de exemplu IN9+S7; calculul foloseste intervalele individuale, nu un total manual. Pentru o celula cu mai multe programe, foloseste sumarul pentru modificare, astfel incat o actiune rapida sa nu inlocuiasca accidental celelalte pozitii.
+
+Previzualizeaza si publica planul. Publicarea oricarei pozitii include toate programele active ale aceleiasi marci si zile, chiar daca sunt din sectiuni diferite. Repetarea publicarii nu dubleaza orele. Anularea unui program publicat retrage numai acel cod din Pontaj, daca proiectia publicata nu a fost modificata manual. Restul programelor se pastreaza. Modificarea unui program necesita republicarea setului.
+
+Concediile si medicalul isi pastreaza prioritatea. Medicalul elimina toate intervalele afectate ale persoanei, inclusiv intreaga tura nocturna intersectata, pe toate marcile asociate. Un interval din ziua precedenta care nu intersecteaza medicalul ramane. Absenta cu ore creditate dupa PROGRAM insumeaza duratele programelor zilei.
+
+Rapoartele flexibile pe sursa garzi afiseaza cate o inregistrare per interval. In graficul lunar codurile aceleiasi zile apar impreuna; totalurile insumeaza toate intervalele. Nu se schimba procentele si regulile de plata.
+
+Programele normale explicite pot fi selectate impreuna cu alte programe permise, dar NORMAL/LUCRATOARE se aplica numai in zile lucratoare, fara weekend si sarbatori legale. Codurile individuale raman de maximum16 caractere; proiectia mai multor programe poate avea maximum1024.
+
+## Editor vizual pentru rapoarte (0.92.33)
+
+Rapoartele SQL (Setari > Definire rapoarte, sursele SQL liber, Lista garzi si Calcule lunare) au un aspect nou: **Editor vizual (pdfme)**.
+
+1. Scrieti interogarea SQL.
+2. La **Aspect** alegeti **Editor vizual (pdfme)**. Aplicatia ruleaza SQL-ul si pregateste singura un sablon de pornire: antet in trei zone, titlu, tabelul cu datele si numarul paginii jos, pe fiecare pagina. Identificatorul intern `angajat_id` se ascunde din tabel.
+3. Apasati **Deschide editorul vizual**. Editorul se deschide pe tot ecranul. Pe pagina trageti si redimensionati elementele; proprietatile (font, marime, aliniere, culori) sunt in panoul din dreapta, **Elementele paginii**. Elemente noi (text, imagine, linie, dreptunghi) se adauga din bara din stanga. Bara de sus are **Campuri disponibile** (clic pe un camp il copiaza, apoi il lipiti in text), **Fonturi din Windows**, **Actualizeaza tabelul din SQL** si **Verifica datele si previzualizeaza PDF**, care arata PDF-ul in fila **Previzualizare PDF**. **Gata** va intoarce la formular.
+4. Tabelul numit `tabel` primeste randurile din SQL si continua singur pe paginile urmatoare, cu antetul repetat. Numarul de coloane din capul tabelului trebuie sa fie egal cu numarul de coloane din SQL. Daca schimbati SQL-ul, apasati **Actualizeaza tabelul din SQL**: coloanele ramase isi pastreaza titlul si latimea, cele noi se adauga, iar restul paginii nu se schimba. **Sablon nou din coloanele SQL** reface toata pagina.
+5. In texte puteti folosi variabile intre acolade: `{titlu}`, `{perioada}`, `{an}`, `{luna}`, `{generat_la}`, `{antet_stanga}`, `{antet_centru}`, `{antet_dreapta}`, `{subsol_stanga}`, `{subsol_centru}`, `{subsol_dreapta}` si orice coloana din SQL (valoarea de pe primul rand). `{currentPage}` si `{totalPages}` dau pagina curenta si numarul de pagini.
+6. Apasati **Verifica raportul** pentru previzualizare, apoi salvati modelul.
+
+**Fonturi din Windows (0.92.34).** In bara editorului, la **Fonturi din Windows**, scrieti sau alegeti un font instalat (de exemplu Arial, Calibri, Times New Roman) si apasati **Adauga fontul**. Fontul apare apoi in lista de fonturi din panoul elementului. Pentru bold sau italic alegeti varianta fontului, de exemplu **Arial Bold**. Lista arata doar fonturile a caror licenta permite includerea in PDF. Fontul este inclus in PDF, deci documentul arata la fel pe orice calculator. Daca deschideti raportul pe un calculator care nu are fontul, aplicatia foloseste fontul Go si afiseaza un avertisment.
+
+PDF-ul arata la fel ca in editor. Explicatiile si istoricul tehnic sunt adaugate de aplicatie intr-o anexa la final si nu pot fi sterse din editor. Exportul Excel ramane din rezultatul SQL. Din 0.92.36 editorul este in romana. In acest aspect formularul ascunde formatarea pe campuri: fonturile si stilurile se aleg pe pagina; raman etichetele coloanelor, care dau titlurile tabelului. Din 0.92.37 boldul pentru weekend si sarbatori (Continut > Zile speciale) si celulele editate in raportul generat apar si in PDF-ul editorului vizual. Varianta aldina a unui font Windows (de exemplu Arial Bold) se foloseste automat daca este instalata; altfel textul ramane in fontul normal.
+
+## Prefixul angajatului (0.92.35)
+
+Fiecare angajat poate avea un prefix (titulatura) afisat inaintea numelui, de exemplu **Dr. Popescu Ion**.
+
+1. **Lista de prefixe** este in Setari, langa Functii, la **Prefixe**. Aplicatia porneste cu Dr., Biol., Chim., Farm., As., Ing., Ec. si Psih. Le puteti redenumi, adauga altele sau dezactiva. Forma engleza porneste identica cu cea romana; completati-o daca rapoartele in engleza au nevoie de alta forma.
+2. **In fisa angajatului**, campul **Prefix** sta inaintea numelui. Prefixul este optional: alegeti **Fara prefix** pentru personalul fara titulatura.
+3. **Unde apare:** in rapoarte (PDF si Excel), in lista de angajati si in selectoarele cu angajati. In grilele Pontaj si Planificare apare doar numele.
+4. **Marca de garda** fara prefix propriu il afiseaza pe al marcii principale. Daca alegeti un prefix chiar pe marca de garda, se foloseste acela.
+5. Un prefix dezactivat ramane la angajatii care il au deja, dar nu mai poate fi ales pentru altii. Un prefix folosit nu poate fi sters.
+
+In rapoartele SQL, tabelul `angajati` are coloana `prefix`, iar coloana `angajat` contine numele cu prefix. Coloanele `nume` si `prenume` raman fara prefix.
+
+## Rapoartele standard in SQL (0.92.38)
+
+In rapoartele SQL puteti folosi acum rezultatul rapoartelor standard ca tabele: `pontaj_lunar`, `pontaj_detaliat`, `fisa_individuala` (cere un angajat ales), `absente_anuale` si `grafic_garzi`. Valorile sunt calculate exact ca in rapoartele standard; SQL-ul doar alege coloanele, ordinea si randurile. Zilele lunii sunt coloanele `z01` ... `z31` (in lunile mai scurte ultimele sunt goale).
+
+Exemplu: `SELECT rand, angajat, marca, z01, z02, z03 FROM pontaj_lunar ORDER BY rand`. Pastrati coloana `rand` si treceti-o la **Coloane ascunse**: asa raportul preia titlurile coloanelor, culorile de weekend si absenta, randurile de grup si explicatiile coloanelor.
+
+### Modelele standard in editorul vizual (0.92.39)
+
+In lista de modele apar cinci modele noi, cu „(editor vizual)” in nume: pontaj lunar, pontaj detaliat, fisa individuala, evidenta absentelor si grafic garzi. Dau aceleasi valori ca modelele vechi, dar pagina se poate schimba in editorul vizual, iar coloanele din SQL. Titlurile coloanelor apar in limba raportului, zilele de weekend si sarbatorile sunt colorate ca inainte, iar in lunile cu mai putin de 31 de zile coloanele in plus nu apar. Imaginile din antetul modelelor vechi nu sunt preluate; le puteti adauga ca imagine in editorul vizual. Modelele vechi raman disponibile pana la conversia lor.
+
+## Toate rapoartele in editorul vizual (0.92.42)
+
+Din aceasta versiune toate rapoartele folosesc editorul vizual. La prima deschidere a rapoartelor dupa actualizare, aplicatia trece automat modelele vechi pe editorul vizual si afiseaza un anunt cu numarul lor:
+
+- **modelele standard** (pontaj lunar, detaliat, fisa individuala, absente, grafic garzi) dau aceleasi valori, titluri si antete, cu aspectul clasic;
+- **modelele cu aspect Tabel** primesc un sablon care urmeaza singur coloanele SQL;
+- **modelele cu Markdown sau Pozitionare libera** se transforma aproximativ: titlurile, paragrafele si listele devin texte, iar elementele repetate pe fiecare rand devin un tabel. Anuntul spune ce s-a aproximat; verificati aceste modele in editorul vizual.
+
+Versiunea veche a fiecarui model ramane in **Jurnal modificari**. Daca un model nu se poate converti, anuntul il numeste si conversia se reia la urmatoarea deschidere. Modelele noi folosesc o sursa SQL; daca un model nu are inca sablon, **Verifica raportul** il creeaza din coloanele SQL.
+
+### Antetul pe fiecare pagina (0.92.43)
+
+In rapoartele din editorul vizual, antetul (stanga, centru, dreapta) si titlul apar pe fiecare pagina, iar tabelul continua sub ele, ca in rapoartele de dinainte. Sablonul nou din coloanele SQL le pune automat astfel; intr-un sablon facut inainte de aceasta versiune puteti apasa **Sablon nou din coloanele SQL** pentru acelasi aspect.
+
+### Baza deschisa cu o versiune mai veche (0.92.44)
+
+Daca porniti o versiune mai veche a aplicatiei pe date deja folosite de o versiune mai noua, aplicatia nu le deschide si afiseaza un mesaj: o versiune veche nu cunoaste schimbarile facute de cea noua si ar putea strica datele. Porniti versiunea mai noua. Fiecare actualizare a bazei este notata, cu versiunea aplicatiei care a facut-o.
+
+### Aplicatia deschisa de doua ori (0.92.45)
+
+Daca porniti aplicatia a doua oara pe acelasi folder (de exemplu de pe alt calculator, din acelasi stick sau folder partajat), a doua copie se deschide **doar in citire**: un banner arata pe ce calculator, de catre cine si de cand este deschisa prima. In a doua copie puteti consulta datele si rapoartele, dar nu puteti salva. Inchideti prima copie, apoi reporniti-o pe a doua pentru a lucra normal. Daca prima copie abia porneste sau actualizeaza datele, a doua cere sa asteptati.

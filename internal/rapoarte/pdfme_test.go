@@ -1,0 +1,237 @@
+package rapoarte
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"errors"
+	"strings"
+	"testing"
+	"time"
+
+	"github.com/phpdave11/gofpdf"
+
+	"pontix/internal/i18n"
+)
+
+const sablonPdfmeTest = `{"basePdf":{"width":210,"height":297,"padding":[10,10,10,10]},"schemas":[[
+{"name":"titlu","type":"text","readOnly":true,"content":"{titlu}","position":{"x":10,"y":10},"width":100,"height":10},
+{"name":"tabel","type":"table","head":["Angajat","Ore"],"position":{"x":10,"y":30},"width":190,"height":20}]]}`
+
+func documentPdfmeTest(sablon string) Document {
+	return Document{
+		Flexibil:        &RaportFlexibil{ModAspect: ModPdfme, Sablon: sablon},
+		Titlu:           "Gărzi noiembrie",
+		VariabileRaport: map[string]string{"an": "2026", "luna": "11", "perioada": "2026-11"},
+		Antet:           []string{"Spital {{an}}", "", "Secția {{luna}}"},
+		Subsol:          []string{"", "", ""},
+		Coloane:         []Coloana{{Cod: "angajat", Titlu: "Angajat"}, {Cod: "ore", Titlu: "Ore"}},
+		Randuri:         []Rand{{Valori: []string{"Popescu Ș.", "12"}}, {Valori: []string{"Ionescu Ț.", "24"}}},
+		Pagina:          Pagina{Format: "A4", Orientare: "PORTRET", MargineMM: 10, FontPT: 9},
+		Limba:           i18n.Limba("ro"),
+		Legenda:         []string{"SQL: SELECT angajat, ore FROM garzi"},
+		Metadate:        "Gărzi | rev | 0.92.33 | test",
+		GeneratLa:       time.Date(2026, 11, 5, 10, 30, 0, 0, time.UTC),
+	}
+}
+
+func codEroarePdfme(err error) string {
+	var e *i18n.Eroare
+	if errors.As(err, &e) {
+		return e.Cod
+	}
+	return ""
+}
+
+func TestSablonPdfmeValidare(t *testing.T) {
+	if _, err := citesteSablonPdfme(sablonPdfmeTest); err != nil {
+		t.Fatalf("sablon valid refuzat: %v", err)
+	}
+	gresite := map[string]string{
+		"gol":          ``,
+		"json invalid": `{`,
+		"pdf extern":   `{"basePdf":"data:application/pdf;base64,AAAA","schemas":[[]]}`,
+		"fara margini": `{"basePdf":{"width":210,"height":297},"schemas":[[]]}`,
+		"fara pagini":  `{"basePdf":{"width":210,"height":297,"padding":[0,0,0,0]},"schemas":[]}`,
+		"pagina mica":  `{"basePdf":{"width":10,"height":297,"padding":[0,0,0,0]},"schemas":[[]]}`,
+		"tip svg":      `{"basePdf":{"width":210,"height":297,"padding":[0,0,0,0]},"schemas":[[{"name":"x","type":"svg"}]]}`,
+		"fara nume":    `{"basePdf":{"width":210,"height":297,"padding":[0,0,0,0]},"schemas":[[{"name":"","type":"text"}]]}`,
+		"doua tabele":  `{"basePdf":{"width":210,"height":297,"padding":[0,0,0,0]},"schemas":[[{"name":"tabel","type":"table"}],[{"name":"tabel","type":"table"}]]}`,
+		"prea mare":    `{"basePdf":{"width":210,"height":297,"padding":[0,0,0,0]},"schemas":[[]],"x":"` + strings.Repeat("a", maxSablonPdfme) + `"}`,
+	}
+	for nume, s := range gresite {
+		if _, err := citesteSablonPdfme(s); codEroarePdfme(err) != "rapoarte.pdfme_invalid" {
+			t.Errorf("%s: astept pdfme_invalid, primit %v", nume, err)
+		}
+	}
+}
+
+func TestValideazaFlexibilPdfme(t *testing.T) {
+	f := &RaportFlexibil{ModAspect: ModPdfme, Sablon: sablonPdfmeTest}
+	if err := valideazaFlexibil(f); err != nil {
+		t.Fatalf("model pdfme valid refuzat: %v", err)
+	}
+	f.Sablon = `{}`
+	if codEroarePdfme(valideazaFlexibil(f)) != "rapoarte.pdfme_invalid" {
+		t.Fatal("sablon gol acceptat")
+	}
+	// Un sablon ramas pe alt mod de aspect nu se pastreaza tacit.
+	if codEroarePdfme(valideazaFlexibil(&RaportFlexibil{ModAspect: "TABEL", Sablon: sablonPdfmeTest})) != "rapoarte.pdfme_invalid" {
+		t.Fatal("sablon acceptat pe modul TABEL")
+	}
+}
+
+func TestDatePdfme(t *testing.T) {
+	d := documentPdfmeTest(sablonPdfmeTest)
+	intrari, err := DatePdfme(d)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if intrari["titlu"] != "Gărzi noiembrie" || intrari["perioada"] != "2026-11" || intrari["generat_la"] != "05.11.2026 10:30" {
+		t.Fatalf("variabile gresite: %v", intrari)
+	}
+	if intrari["antet_stanga"] != "Spital 2026" || intrari["antet_dreapta"] != "Secția 11" {
+		t.Fatalf("antet neinlocuit: %q %q", intrari["antet_stanga"], intrari["antet_dreapta"])
+	}
+	var randuri [][]string
+	if err := json.Unmarshal([]byte(intrari[TabelPdfme]), &randuri); err != nil || len(randuri) != 2 || randuri[1][0] != "Ionescu Ț." {
+		t.Fatalf("tabel gresit: %v %v", randuri, err)
+	}
+}
+
+func TestDatePdfmeColoaneDiferite(t *testing.T) {
+	d := documentPdfmeTest(strings.Replace(sablonPdfmeTest, `["Angajat","Ore"]`, `["Angajat"]`, 1))
+	_, err := DatePdfme(d)
+	var e *i18n.Eroare
+	if !errors.As(err, &e) || e.Cod != "rapoarte.pdfme_coloane" || e.Param["sablon"] != "1" || e.Param["date"] != "2" {
+		t.Fatalf("astept pdfme_coloane 1/2, primit %v", err)
+	}
+}
+
+// pdfSimplu tine locul PDF-ului generat de pdfme in interfata.
+func pdfSimplu(t *testing.T, pagini int) []byte {
+	t.Helper()
+	f := gofpdf.New("P", "mm", "A4", "")
+	for range pagini {
+		f.AddPage()
+	}
+	var b bytes.Buffer
+	if err := f.Output(&b); err != nil {
+		t.Fatal(err)
+	}
+	return b.Bytes()
+}
+
+func TestFinalizeazaPdfmeAdaugaAnexa(t *testing.T) {
+	ctx := context.Background()
+	d := documentPdfmeTest(sablonPdfmeTest)
+	pdf, pagini, err := FinalizeazaPdfme(ctx, d, pdfSimplu(t, 2))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if pagini != 3 {
+		t.Fatalf("astept 2 pagini pdfme + 1 anexa, primit %d", pagini)
+	}
+	if n, err := NumaraPaginiPDF(ctx, pdf); err != nil || n != 3 {
+		t.Fatalf("PDF final: %d pagini, %v", n, err)
+	}
+	// Fara explicatii si istoric nu se adauga anexa.
+	d.Legenda, d.Metadate = nil, ""
+	if _, pagini, err = FinalizeazaPdfme(ctx, d, pdfSimplu(t, 1)); err != nil || pagini != 1 {
+		t.Fatalf("fara anexa: %d pagini, %v", pagini, err)
+	}
+}
+
+func TestFinalizeazaPdfmeRefuzaDateInvalide(t *testing.T) {
+	ctx := context.Background()
+	d := documentPdfmeTest(sablonPdfmeTest)
+	for nume, pdf := range map[string][]byte{"gol": nil, "text": []byte("nu este pdf"), "prea mare": make([]byte, maxPDFPdfme+1)} {
+		if _, _, err := FinalizeazaPdfme(ctx, d, pdf); codEroarePdfme(err) != "rapoarte.pdfme_pdf_invalid" {
+			t.Errorf("%s: astept pdfme_pdf_invalid, primit %v", nume, err)
+		}
+	}
+	d.Flexibil.ModAspect = "TABEL"
+	if _, _, err := FinalizeazaPdfme(ctx, d, pdfSimplu(t, 1)); codEroarePdfme(err) != "rapoarte.pdfme_pdf_invalid" {
+		t.Fatalf("document fara pdfme acceptat: %v", err)
+	}
+}
+
+func TestDatePdfmeStiluriPeRandSiCelula(t *testing.T) {
+	d := documentPdfmeTest(sablonPdfmeTest)
+	// Fara stiluri se trimit doar titlurile coloanelor (pentru sabloanele predefinite).
+	var gol stiluriTabelPdfme
+	if err := json.Unmarshal([]byte(mustDate(t, d)[IntrareStiluriPdfme]), &gol); err != nil {
+		t.Fatal(err)
+	}
+	if len(gol.Randuri)+len(gol.Celule)+len(gol.Ascunse)+len(gol.CapColoane) != 0 || gol.Cap != nil || gol.Corp != nil || len(gol.Titluri) != 2 {
+		t.Fatalf("fara stiluri: %+v", gol)
+	}
+	adevarat := true
+	d.Randuri[1].Aldin = true
+	d.Stiluri = map[string]StilText{
+		"celula:0:ore":   {Cursiv: &adevarat, Aliniere: "R"},
+		"antet_tabel":    {FontPT: 11},
+		"celula:9:ore":   {Aldin: &adevarat}, // rand inexistent: ignorat
+		"celula:0:lipsa": {Aldin: &adevarat}, // coloana inexistenta: ignorata
+		"titlu":          {Aldin: &adevarat}, // nu tine de tabel
+	}
+	var st stiluriTabelPdfme
+	if err := json.Unmarshal([]byte(mustDate(t, d)[IntrareStiluriPdfme]), &st); err != nil {
+		t.Fatal(err)
+	}
+	if len(st.Randuri) != 1 || st.Randuri["1"].Aldin == nil || !*st.Randuri["1"].Aldin {
+		t.Fatalf("randuri: %+v", st.Randuri)
+	}
+	if len(st.Celule) != 1 || st.Celule["0:1"].Aliniere != "R" || st.Celule["0:1"].Cursiv == nil {
+		t.Fatalf("celule: %+v", st.Celule)
+	}
+	if st.Cap == nil || st.Cap.FontPT != 11 || st.Corp != nil || len(st.Titluri) != 2 || st.Titluri[1] != "Ore" {
+		t.Fatalf("cap/corp: %+v %+v", st.Cap, st.Corp)
+	}
+}
+
+func mustDate(t *testing.T, d Document) map[string]string {
+	t.Helper()
+	v, err := DatePdfme(d)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return v
+}
+
+func TestDatePdfmeCuloriGrupuriSiZileInexistente(t *testing.T) {
+	d := documentPdfmeTest(strings.Replace(sablonPdfmeTest, `["Angajat","Ore"]`, `["Angajat","Ore","29","30","31"]`, 1))
+	d.Coloane = append(d.Coloane, Coloana{Cod: "z29", Titlu: "29", Culoare: "WEEKEND"}, Coloana{Cod: "z30", Titlu: "30"}, Coloana{Cod: "z31", Titlu: "31"})
+	for i := range d.Randuri {
+		d.Randuri[i].Valori = append(d.Randuri[i].Valori, "", "", "")
+	}
+	d.Randuri[0].Culori = []string{"", "ABSENTA", "WEEKEND", "", ""}
+	d.Randuri[1].Grup = true
+	d.zileLuna = 29 // februarie intr-un an bisect
+	var st stiluriTabelPdfme
+	if err := json.Unmarshal([]byte(mustDate(t, d)[IntrareStiluriPdfme]), &st); err != nil {
+		t.Fatal(err)
+	}
+	if st.Celule["0:1"].Fundal != "#DFEFE4" || st.Celule["0:2"].Fundal != "#E7EAE7" {
+		t.Fatalf("culori celule: %+v", st.Celule)
+	}
+	if st.Randuri["1"].Fundal != fundalGrupPdfme || st.Randuri["1"].Aldin == nil {
+		t.Fatalf("rand de grup: %+v", st.Randuri)
+	}
+	if st.CapColoane["2"].Fundal != "#E7EAE7" {
+		t.Fatalf("culoare coloana: %+v", st.CapColoane)
+	}
+	if len(st.Ascunse) != 2 || st.Ascunse[0] != 3 || st.Ascunse[1] != 4 {
+		t.Fatalf("zile ascunse: %v", st.Ascunse)
+	}
+	// O celula editata pastreaza fundalul calculat.
+	adevarat := true
+	d.Stiluri = map[string]StilText{"celula:0:ore": {Aldin: &adevarat}}
+	st = stiluriTabelPdfme{}
+	if err := json.Unmarshal([]byte(mustDate(t, d)[IntrareStiluriPdfme]), &st); err != nil {
+		t.Fatal(err)
+	}
+	if st.Celule["0:1"].Fundal != "#DFEFE4" || st.Celule["0:1"].Aldin == nil {
+		t.Fatalf("celula editata: %+v", st.Celule["0:1"])
+	}
+}

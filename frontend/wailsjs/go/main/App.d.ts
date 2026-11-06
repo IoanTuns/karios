@@ -105,6 +105,12 @@ export function ExportaPlanAICSV(arg1:ai.IntentiePlan,arg2:string,arg3:string,ar
 
 export function ExportaPontajExcel(arg1:number,arg2:number):Promise<main.RaspunsExportExcel>;
 
+export function FinalizeazaRaportPdfme(arg1:string,arg2:string):Promise<main.RaspunsRaport>;
+
+export function FontSistem(arg1:string):Promise<main.RaspunsFontSistem>;
+
+export function FonturiRapoarte():Promise<Record<string, string>>;
+
 export function GenereazaCheieRecuperareNoua():Promise<main.RaspunsRecuperare>;
 
 export function IesireDinCont():Promise<main.RaspunsStareCont>;
@@ -114,6 +120,8 @@ export function IncarcaDemo():Promise<main.RaspunsDate>;
 export function InchideAplicatia():Promise<void>;
 
 export function Informatii():Promise<main.Informatii>;
+
+export function InlocuiestePontajCuAbsente(arg1:number,arg2:number,arg3:Array<datebaza.ZiAbsenta>,arg4:Array<datebaza.CelulaSchita>):Promise<main.RaspunsSchita>;
 
 export function InregistreazaEroareFrontend(arg1:string,arg2:string,arg3:string):Promise<void>;
 
@@ -126,6 +134,8 @@ export function Limbi():Promise<Array<string>>;
 export function ListaBackupuri():Promise<main.RaspunsBackupuri>;
 
 export function ListaConturi():Promise<main.RaspunsConturi>;
+
+export function ListaFonturiSistem():Promise<main.RaspunsFonturiSistem>;
 
 export function ListaModeleRapoarte():Promise<main.RaspunsModeleRapoarte>;
 
@@ -141,6 +151,8 @@ export function OpresteAI():Promise<main.RaspunsStareAI>;
 
 export function OpresteSarcinaAI():Promise<boolean>;
 
+export function PersonalizeazaRaport(arg1:string,arg2:Array<rapoarte.EditareTextRaport>):Promise<main.RaspunsRaport>;
+
 export function PornesteAI(arg1:string):Promise<main.RaspunsStareAI>;
 
 export function PornesteSarcinaAI(arg1:main.CerereInterogareAI):Promise<main.RaspunsSarcinaAI>;
@@ -150,6 +162,10 @@ export function PregatesteRaport(arg1:rapoarte.Cerere):Promise<main.RaspunsRapor
 export function PregatesteRaportProblema(arg1:raportare.Cerere):Promise<main.RaspunsRaportProblema>;
 
 export function PrevizualizeazaAnulareAI():Promise<main.RaspunsInstrumenteAI>;
+
+export function PrevizualizeazaEfecteAbsente(arg1:Array<datebaza.ZiAbsenta>,arg2:number,arg3:number,arg4:Array<datebaza.CelulaSchita>):Promise<main.RaspunsEfecteAbsente>;
+
+export function PrevizualizeazaModelRaport(arg1:rapoarte.Definitie,arg2:rapoarte.Cerere):Promise<main.RaspunsRaport>;
 
 export function PrevizualizeazaPlanAI(arg1:ai.IntentiePlan):Promise<main.RaspunsPlanAI>;
 
@@ -171,9 +187,15 @@ export function SalveazaAbsente(arg1:Array<datebaza.ZiAbsenta>,arg2:number):Prom
 
 export function SalveazaAngajat(arg1:datebaza.Angajat):Promise<main.RaspunsDate>;
 
+export function SalveazaCategorieAbsenta(arg1:datebaza.CategorieAbsenta,arg2:number):Promise<main.RaspunsAbsente>;
+
 export function SalveazaCategorieProgram(arg1:datebaza.CategorieProgram):Promise<main.RaspunsDate>;
 
 export function SalveazaConfiguratiePontaj(arg1:calcul.ConfiguratiePontaj):Promise<main.RaspunsConfiguratiePontaj>;
+
+export function SalveazaElementNomenclator(arg1:string,arg2:datebaza.ElementNomenclator):Promise<main.RaspunsDate>;
+
+export function SalveazaExcelRaport(arg1:string):Promise<main.RaspunsFisierRaport>;
 
 export function SalveazaModelRaport(arg1:rapoarte.Definitie):Promise<main.RaspunsModeleRapoarte>;
 
@@ -223,11 +245,15 @@ export function StareAudit():Promise<main.RaspunsAudit>;
 
 export function StareCont():Promise<main.RaspunsStareCont>;
 
+export function StareInstanta():Promise<main.RaspunsStareInstanta>;
+
 export function StareRecuperare():Promise<main.RaspunsRecuperare>;
 
 export function StareSeif():Promise<main.RaspunsStareSeif>;
 
 export function StatisticiDiagnoza():Promise<diagnoza.StatisticiDiagnoza>;
+
+export function StergeConfigurare(arg1:string,arg2:string,arg3:string):Promise<main.RaspunsDate>;
 
 export function StergeSablonAI(arg1:string):Promise<main.RaspunsInstrumenteAI>;
 

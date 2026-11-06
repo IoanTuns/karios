@@ -158,7 +158,7 @@ func pregatesteAnulareAI(ctx context.Context, tx *sql.Tx) (AnulareAI, []Instanta
 		// trebuie ocolită prin restaurarea unui program anterior.
 		valori := []string{}
 		if strings.TrimSpace(rand.Restaurat) != "" {
-			valori = append(valori, rand.Restaurat)
+			valori = append(valori, calcul.CoduriPrograme(rand.Restaurat)...)
 		}
 		for _, poz := range v.Pozitii {
 			if poz.Activ == 1 {

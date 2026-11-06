@@ -3,6 +3,8 @@ package datebaza
 import (
 	"context"
 	"database/sql"
+	"pontix/internal/i18n"
+	"pontix/internal/identitate"
 	"strings"
 	"time"
 
@@ -139,7 +141,7 @@ func (s *Serviciu) VerificaReguliPlanificare(ctx context.Context, an, luna int) 
 			continue
 		}
 		ang := hartaAngajati[p.AngajatID]
-		numeComplet := strings.TrimSpace(ang.Nume + " " + ang.Prenume)
+		numeComplet := identitate.Nume(ang.Nume, ang.Prenume, ang.Garda || ang.AngajatPrincipalID != "", i18n.Romana)
 		if numeComplet == "" {
 			numeComplet = p.AngajatID
 		}

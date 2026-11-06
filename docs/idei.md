@@ -6,6 +6,12 @@ Stări: `nouă`, `în analiză`, `transformată` (în task sau decizie), `amâna
 
 | ID | Data | Idee | Cine | Stare | Legături / motiv |
 | --- | --- | --- | --- | --- | --- |
+| I117 | 2026-11-06 | Scenariul Edge --ajutor pica: navigarea ceruta din asistentul AI (deschide Pontaj / formular concediu) nu cere confirmarea modificarilor nesalvate (0 confirmari in loc de 2); posibil defect real cu pierdere de modificari | Claude | nouă | Gasit la pregatirea integrarii; pica identic pe 07dc462, deci anterior lucrului din 2026-11-05/06. [Integrare](integrare-main-2026-11-06.md) |
+| I116 | 2026-11-06 | Testul vitest raportPdfme incarca pdfme in primul test si poate depasi 30 s sub sarcina (a picat o data dupa repausul calculatorului); preincarcare in beforeAll cu limita mai mare | Claude | transformată | Observat la F07-T40; testul trece singur (7-11 s) si in rularea completa repetata Rezolvat in F09-T26: preincarcare in beforeAll cu limita de 120 s. |
+| I115 | 2026-11-05 | Prefix (titulatura) pentru fiecare angajat: Dr., Biol. etc. | Ioan Tuns | transformată | F07-T40, [D089](decizii/D089-prefix-angajat.md); lista predefinita, optional, rapoarte si liste |
+| I114 | 2026-11-05 | Fonturile instalate in Windows (C:\Windows\Fonts si fonturile utilizatorului) disponibile in editorul pdfme, incarcate la cerere | Ioan Tuns, Claude | transformată | F09-T24, [D088](decizii/D088-fonturi-windows-rapoarte.md); D087; de verificat permisiunea de includere in PDF (fsType) si colectiile .ttc; fonturile Go raman rezerva |
+| I113 | 2026-11-05 | Editor vizual open-source (pdfme) pentru rapoarte si toate rapoartele generate din SQL, pentru flexibilitate | Ioan Tuns, Claude | transformată | F09-T20...F09-T23, [D087](decizii/D087-rapoarte-sql-pdfme.md) |
+| I101 | 2026-10-31 | Consecventa statutului Garda, explicatii pentru programe excluse, stari clare salvare/publicare, formulare grupate, capete de tabele vizibile si exporturi Excel utilizabile; loturile 0 si A-D din auditul UI28 | Codex | transformata | F16-T29; [rezultate](plan-F16-T29.md), UI28-14 amanata la cererea utilizatorului |
 | I100 | 2026-10-30 | Livrare reproductibila ZIP si documente operator, cu verificari traduceri si legaturi | Codex, utilizator | transformată | F02-T22; toate cele cinci propuneri autorizate explicit |
 | I099 | 2026-10-30 | Lot UX pentru pilot: protectie context AI, indicator neutru de prezenta, ajutor fara model, drawer compact si validare actualizare/recuperare | Codex | transformată | F16-T21; rezultate-ux-F16-T21.md |
 | I098 | 2026-10-30 | Panou lateral retractabil (Drawer) pentru Asistentul AI integrat direct în ecranul de Pontaj | Utilizator, Antigravity | transformată | F16-T19 |
@@ -113,3 +119,23 @@ Stări: `nouă`, `în analiză`, `transformată` (în task sau decizie), `amâna
 | I086 | 2026-10-29 | Export local al propunerii și rezultatului AI, verificat de backend, fără transmitere automată | Codex, cerere Ioan Tuns | transformată | F14-T25, D050 propusă |
 
 F14-T25 implementează sumarul și filtrele din I075 și detaliile model/context din I080, fără măsurători inventate de utilizare. Din I076 sunt implementate căutarea și selectarea rezultatelor; vederea exclusiv pentru cei selectați rămâne posibilă ulterior. Din I077 sunt implementate validarea selecției/perioadei și recuperarea la token expirat; validarea detaliată a fiecărui câmp rămâne separată. I078 privind păstrarea previzualizării între planuri nu este înlocuită de anularea operațiilor aplicate; I079 beneficiază de noile rezumate.
+
+| I102 | 2026-10-31 | UX dupa 0.92.19: configurare cu rezultate filtrate, eligibilitate vizibila, erori inteligibile, selectie coerenta in rapoarte, comparatie inainte/dupa, flux lunar si accesibilitate | Codex | transformata | F16-T31 implementeaza cele sase recomandari agregate; F16-T30; [UX30-01...12](analiza-ux-0.92.19.md), propuneri fara implementare; Excel ramane amanat |
+
+| I103 | 2026-10-31 | Explicatiile de calcul si istoricul tehnic al raportului pe o anexa finala, fara repetare pe fiecare pagina | Codex, utilizator | transformata | F16-T32; cerere explicita, fara schimbare de calcul |
+
+| I104 | 2026-11-02 | Efecte configurabile absente: reducere obligatie sau creditare din norma/program, acces comun din Planificare | Codex, utilizator | transformata | F07-T38, D080 propusa |
+
+| I105 | 2026-11-02 | Categorii de absenta administrabile cu natura si regula de ore mostenita de tipuri, distincte de cele trei naturi tehnice | Codex, utilizator | transformata | F07-T39, D081 propusa |
+
+| I106 | 2026-11-02 | Editor de rapoarte cu campuri din baza/SQL, Markdown si structura configurabila, inclusiv lista garzilor angajat-data | Codex, utilizator | transformata | F09-T13 implementat in 0.92.25; [ghid](ghid-rapoarte-flexibile.md), Markdown subset si pozitionare libera, fara HTML executabil |
+| I107 | 2026-11-02 | Coloane calculate configurabile, totaluri contractuale/concedii/garzi si generarea unei coloane pentru fiecare tip nou de concediu | Codex, utilizator | transformata | F09-T14 implementat in 0.92.25; regulile pentru obligatie lunara, intersectii garzi si concedii deduplicate confirmate in F01 |
+
+| I108 | 2026-11-02 | Explicatiile de calcul si semnificatia coloanelor sunt optionale per model de raport | Codex, utilizator | transformata | F09-T15; cerere explicita |
+
+| I109 | 2026-11-03 | Antet/subsol flexibil cu trei zone simultane aliniate stanga/centru/dreapta, inclusiv imagini | Codex, captura utilizator | transformata | F09-T18, defect PDF confirmat in cod |
+
+| I110 | 2026-11-03 | Editare texte si celule in raportul generat, stiluri vizuale si randuri bold pentru weekend/sarbatori | Codex, utilizator | transformata | F09-T19; confirmare explicita inclusiv celule |
+| I111 | 2026-11-03 | Raportul de garzi include grupurile consecutive de zile libere care traverseaza limita lunii | Codex, utilizator | transformata | F09-T19; exemplu28-30noiembrie/1decembrie2026, margini in clarificare |
+
+| I112 | 2026-11-04 | Mai multe programe pe aceeasi marca si zi, adaugare fara inlocuire, fara suprapuneri | Codex, utilizator | transformata | F11-T21; confirmare explicita a marcii comune si a intervalelor distincte |

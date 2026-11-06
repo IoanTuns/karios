@@ -1,14 +1,32 @@
+import {EditorPrezentare,EditorCopieRaport,stilCSS} from './PrezentareRaport';
+import {EditorFlexibil,esteFlexibil,flexibilInitial} from './RaportFlexibil';
+import {ButonStergereAdmin} from './ButonStergereAdmin';
+import {FiltruStare,corespundeStare,type StareLista} from './FiltruStare';
+import {numeAngajat} from './numeAngajat';
+import {FiltreProfesionale,filtruProfesionalGol,corespundeProfesional} from './FiltreProfesionale';
 import {useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {semnaleazaModificari} from './modificariNesalvate';
-import {ListaModeleRapoarte, SalveazaModelRaport, PregatesteRaport, SalveazaPDFRaport, DeschidePDFPentruTiparire, ExportaPontajExcel} from '../wailsjs/go/main/App';
+import {ListaModeleRapoarte, SalveazaModelRaport, PregatesteRaport, SalveazaPDFRaport, DeschidePDFPentruTiparire, SalveazaExcelRaport} from '../wailsjs/go/main/App';
 import {datebaza, main, rapoarte} from '../wailsjs/go/models';
 import {Dialog, denumireDepartament, denumireSectie} from './Formulare';
+import {completeazaRaport} from './raportPdfme';
+import {notifica} from './Toast';
 
 const copiaza = <T,>(v: T): T => JSON.parse(JSON.stringify(v));
-type DateSimple<T> = T extends Array<infer V> ? DateSimple<V>[] : T extends object ? {[K in keyof T as T[K] extends Function ? never : K]: DateSimple<T[K]>} : T;
+export type DateSimple<T> = T extends Array<infer V> ? DateSimple<V>[] : T extends object ? {[K in keyof T as T[K] extends Function ? never : K]: DateSimple<T[K]>} : T;
 const textIn = (v: {[limba: string]: string} | undefined, limba: string) => v?.[limba] || v?.ro || Object.values(v || {}).find(Boolean) || '';
 const adresaImagine = (i: DateSimple<rapoarte.Imagine>) => `data:image/${i.date.startsWith('iVBOR') ? 'png' : 'jpeg'};base64,${i.date}`;
+
+// F09-T23: modelele vechi trec pe editorul vizual la primul acces; anuntul spune cate
+// si ce s-a aproximat (originalele raman in jurnal).
+function anuntaConversia(conv: rapoarte.RezultatConversie[] | undefined, t: (k: string, p?: Record<string, unknown>) => string) {
+    if (!conv?.length) return;
+    const erori = conv.filter(c => c.eroare);
+    const note = conv.flatMap(c => (c.note || []).map(n => `${c.denumire.ro || c.id}: ${n}`));
+    notifica(t('rapoarte.conversie_anunt', {numar: conv.length - erori.length}) + (note.length ? ' ' + note.join(' ') : ''), note.length ? 'avertisment' : 'info', 12000);
+    if (erori.length) notifica(t('rapoarte.conversie_erori', {modele: erori.map(c => c.denumire.ro || c.id).join(', ')}), 'eroare', 12000);
+}
 
 function useModele() {
     const {t} = useTranslation();
@@ -16,12 +34,13 @@ function useModele() {
     const [incarcare, setIncarcare] = useState(true);
     const [eroare, setEroare] = useState('');
     const [revizie, setRevizie] = useState(0);
-    function aplica(r: main.RaspunsModeleRapoarte) { if (r.eroare) { setEroare(t(r.eroare.cod,r.eroare.param || {})); return false; } if (!r.configuratie) { setEroare(t('rapoarte.eroare')); return false; } setConfiguratie(r.configuratie); return true; }
+    function aplica(r: main.RaspunsModeleRapoarte) { anuntaConversia(r.conversie, t); if (r.eroare) { setEroare(t(r.eroare.cod,r.eroare.param || {})); return false; } if (!r.configuratie) { setEroare(t('rapoarte.eroare')); return false; } setConfiguratie(r.configuratie); return true; }
     useEffect(() => { let activ = true; setIncarcare(true); setEroare(''); ListaModeleRapoarte().then(r => { if (activ) aplica(r); }).catch(() => { if (activ) setEroare(t('rapoarte.eroare')); }).finally(() => { if (activ) setIncarcare(false); }); return () => { activ = false; }; },[revizie]);
     return {configuratie,incarcare,eroare,setEroare,aplica,reincarca:() => setRevizie(r => r+1)};
 }
 
 export function DefinireRapoarte() {
+ const [stareLista,setStareLista]=useState<StareLista>('ACTIVE');
     const {t,i18n} = useTranslation();
     const {configuratie,incarcare,eroare,setEroare,aplica,reincarca} = useModele();
     const [editare,setEditare] = useState<rapoarte.Definitie | null>(null);
@@ -32,7 +51,7 @@ export function DefinireRapoarte() {
     function nou(d?: rapoarte.Definitie) {
         const baza = d || modele[0]; if (!baza) return;
         setEroare(''); setMesaj('');
-        setEditare(new rapoarte.Definitie({...copiaza(baza),id:'',revizie:'',activ:true,denumire:d ? copiaza(d.denumire) : {ro:'',en:''}}));
+        setEditare(new rapoarte.Definitie({...copiaza(baza),id:'',revizie:'',activ:true,continut:{...copiaza(baza.continut),ascunde_explicatii:d ? !!d.continut.ascunde_explicatii : true},denumire:d ? copiaza(d.denumire) : {ro:'',en:''}}));
     }
     async function salveaza(d: rapoarte.Definitie) {
         if (blocat.current) return;
@@ -41,11 +60,11 @@ export function DefinireRapoarte() {
         catch { setEroare(t('rapoarte.eroare')); }
         finally { blocat.current = false; setOcupat(false); }
     }
-    return <section className="definitii-rapoarte">
+    return <section className="definitii-rapoarte"><FiltruStare nume="modele_rapoarte" valoare={stareLista} schimba={setStareLista} disabled={ocupat}/>
         <div className="unelte-calendar"><p className="nota-calendar">{t('rapoarte.modele_indiciu')}</p><div className="actiuni-calendar"><button className="legatura" disabled={ocupat || incarcare} onClick={reincarca}>{t('rapoarte.reincarca')}</button><button className="buton primar" disabled={ocupat || incarcare || !modele.length} onClick={() => nou()}>{t('rapoarte.model_nou')}</button></div></div>
         {mesaj && <p className="mesaj succes" role="status">{mesaj}</p>}{eroare && !editare && <p className="mesaj eroare" role="alert">{eroare}</p>}
         {incarcare ? <p role="status">{t('ui.incarcare')}</p> : <div className="panou tabel-derulant"><table className="tabel-modele-rapoarte"><thead><tr>{['schimburi.denumire','rapoarte.sursa','rapoarte.revizie','rapoarte.pagina','ui.stare','ui.actiuni'].map(k => <th key={k}>{t(k)}</th>)}</tr></thead><tbody>
-            {modele.map(d => <tr key={d.id}><td><strong>{textIn(d.denumire,i18n.language)}</strong></td><td>{t(`rapoarte.sursa_${d.continut.sursa}`)}</td><td>{d.revizie}</td><td>{d.pagina.format} · {t(`rapoarte.${d.pagina.orientare}`)}</td><td>{t(d.activ ? 'ui.activ':'ui.inactiv')}</td><td><div className="actiuni-rand"><button className="legatura" disabled={ocupat} onClick={() => { setEroare(''); setEditare(copiaza(d)); }}>{t('ui.editeaza')}</button><button className="legatura discreta" disabled={ocupat} onClick={() => nou(d)}>{t('rapoarte.duplica')}</button></div></td></tr>)}
+            {modele.filter(d=>corespundeStare(d.activ,stareLista)).map(d => <tr key={d.id}><td><strong>{textIn(d.denumire,i18n.language)}</strong></td><td>{t(`rapoarte.sursa_${d.continut.sursa}`)}</td><td>{d.revizie}</td><td>{d.pagina.format} · {t(`rapoarte.${d.pagina.orientare}`)}</td><td>{t(d.activ ? 'ui.activ':'ui.inactiv')}</td><td><div className="actiuni-rand"><button className="legatura" disabled={ocupat} onClick={() => { setEroare(''); setEditare(copiaza(d)); }}>{t('ui.editeaza')}</button><button className="legatura discreta" disabled={ocupat} onClick={() => nou(d)}>{t('rapoarte.duplica')}</button><ButonStergereAdmin tip="modele_raport" id={d.id} revizie={d.revizie} activ={d.activ} nume={textIn(d.denumire,i18n.language)} disabled={ocupat||!!editare} onOcupat={setOcupat} onSters={()=>{reincarca();}}/></div></td></tr>)}
         </tbody></table>{!modele.length && <p className="fara-rezultate">{t('rapoarte.lista_goala')}</p>}</div>}
         {!incarcare && !configuratie && <button className="buton secundar" onClick={reincarca}>{t('ui.reincearca')}</button>}
         {editare && configuratie && <EditorModel key={editare.id || 'nou'} initial={editare} configuratie={configuratie} ocupat={ocupat} eroare={eroare} inchide={() => { setEditare(null);setEroare(''); }} salveaza={salveaza}/>}
@@ -57,10 +76,10 @@ function EditorModel({initial,configuratie,ocupat:salvareInCurs,eroare,inchide,s
     const [model,setModel] = useState<DateSimple<rapoarte.Definitie>>(copiaza(initial));
     const [limba,setLimba] = useState(i18n.language === 'en' ? 'en' : 'ro');
     const [validare,setValidare] = useState('');
+ const [validatFlex,setValidatFlex]=useState('');
     const [citireImagine,setCitireImagine] = useState(false);
     const importInCurs = useRef(false);
     const ocupat = salvareInCurs || citireImagine;
-    const sursa = configuratie.surse.find(s => s.cod === model.continut.sursa)!;
     const modificate = JSON.stringify(model) !== JSON.stringify(initial);
     useEffect(() => semnaleazaModificari('rapoarte', modificate), [modificate]);
     function renunta() { if (!modificate || window.confirm(t('ui.renunta'))) inchide(); }
@@ -81,8 +100,6 @@ function EditorModel({initial,configuratie,ocupat:salvareInCurs,eroare,inchide,s
         } catch(e) { setValidare(t(e instanceof Error && e.message.startsWith('rapoarte.') ? e.message : 'rapoarte.imagine_invalida')); }
         finally { importInCurs.current=false;setCitireImagine(false); }
     }
-    function selecteazaColoana(cod: string,bifat: boolean) { setModel(m => ({...m,continut:{...m.continut,coloane:bifat ? [...m.continut.coloane.filter(c=>c!=='totaluri'),cod,...(m.continut.coloane.includes('totaluri')?['totaluri']:[])] : m.continut.coloane.filter(c => c!==cod)}})); }
-    function muta(cod: string,sens: number) { setModel(m => { const coloane=[...m.continut.coloane],i=coloane.indexOf(cod),j=i+sens;if (i<0 || j<0 || j>=coloane.length || cod==='totaluri' || coloane[j]==='totaluri') return m;[coloane[i],coloane[j]]=[coloane[j],coloane[i]];return {...m,continut:{...m.continut,coloane}}; }); }
     const zone = (bloc: 'antet'|'subsol') => <div className="zone-raport">{(['stanga','centru','dreapta'] as const).map(z => {
         const imagine=model[bloc].imagini?.[z];
         return <div className="zona-model-raport" key={z}>
@@ -91,42 +108,57 @@ function EditorModel({initial,configuratie,ocupat:salvareInCurs,eroare,inchide,s
             {imagine && <div className="imagine-model-raport"><img src={adresaImagine(imagine)} alt={imagine.nume}/><span>{imagine.nume}</span><label>{t('rapoarte.inaltime_imagine')}<input name={`${bloc}_inaltime_${z}`} type="number" min="5" max="35" required value={imagine.inaltime_mm} onChange={e=>seteazaImagine(bloc,z,{...imagine,inaltime_mm:Number(e.target.value)})}/></label><button type="button" className="legatura" onClick={()=>seteazaImagine(bloc,z)}>{t('rapoarte.elimina_imagine',{zona:t(`rapoarte.${z}`)})}</button></div>}
         </div>;
     })}</div>;
-    const previewBloc = (bloc: 'antet'|'subsol') => <div className="zone-previzualizare">{(['stanga','centru','dreapta'] as const).map(z => {const imagine=model[bloc].imagini?.[z];return <div key={z}>{imagine && <img className="imagine-structura" style={{height:`${imagine.inaltime_mm}mm`}} src={adresaImagine(imagine)} alt={imagine.nume}/>}<span>{textIn(model[bloc][z],limba)}</span></div>;})}</div>;
-    return <Dialog titlu={t(initial.id ? 'rapoarte.editeaza_model':'rapoarte.model_nou')} ocupat={ocupat} inchide={renunta}><form className="formular-model-raport" onSubmit={e => { e.preventDefault(); if (!Object.values(model.denumire).some(v => v.trim())) { setValidare(t('rapoarte.nume_invalid'));return; } if (!model.continut.coloane.length) { setValidare(t('rapoarte.continut_invalid'));return; } setValidare('');salveaza(new rapoarte.Definitie(model)); }}>
+    const previewBloc = (bloc: 'antet'|'subsol') => <div className="zone-previzualizare">{(['stanga','centru','dreapta'] as const).map(z => {const imagine=model[bloc].imagini?.[z];return <div key={z}>{imagine && <img className="imagine-structura" style={{height:`${imagine.inaltime_mm}mm`}} src={adresaImagine(imagine)} alt={imagine.nume}/>}<span style={{display:'block',...stilCSS(model.continut.prezentare?.stiluri?.[bloc+'_'+z])}}>{textIn(model[bloc][z],limba)}</span></div>;})}</div>;
+    // In editorul vizual pagina se construieste in pdfme; formularul pastreaza doar ce are efect (UIR-02).
+    const vizual = model.continut.flexibil?.mod_aspect === 'PDFME';
+    return <Dialog titlu={t(initial.id ? 'rapoarte.editeaza_model':'rapoarte.model_nou')} ocupat={ocupat} inchide={renunta}><form className="formular-model-raport" onSubmit={e => { e.preventDefault(); if(esteFlexibil(model.continut.sursa)&&validatFlex!==JSON.stringify(model)){setValidare(t('rapoarte.flex_previz_obligatorie'));return;} if (!Object.values(model.denumire).some(v => v.trim())) { setValidare(t('rapoarte.nume_invalid'));return; } if (!model.continut.coloane.length) { setValidare(t('rapoarte.continut_invalid'));return; } setValidare('');salveaza(new rapoarte.Definitie(model)); }}>
         <div className="corp-dialog">{(eroare || validare) && <p className="mesaj eroare" role="alert">{validare || eroare}</p>}
             <fieldset className="campuri" disabled={ocupat}><label>{t('sarbatori.denumire_ro')} *<input name="denumire_ro" maxLength={100} value={model.denumire.ro || ''} onChange={e => setModel(m => ({...m,denumire:{...m.denumire,ro:e.target.value}}))}/></label><label>{t('sarbatori.denumire_en')}<input name="denumire_en" maxLength={100} value={model.denumire.en || ''} onChange={e => setModel(m => ({...m,denumire:{...m.denumire,en:e.target.value}}))}/></label>
                 <label>{t('rapoarte.limba_texte')}<select name="limba_texte" value={limba} onChange={e => setLimba(e.target.value)}><option value="ro">{t('rapoarte.ro')}</option><option value="en">{t('rapoarte.en')}</option></select></label><label className="bifa"><input name="activ_model" type="checkbox" checked={model.activ} onChange={e => setModel(m => ({...m,activ:e.target.checked}))}/>{t('rapoarte.model_activ')}</label></fieldset>
+            {vizual && <p className="nota-calendar">{t('rapoarte.pdfme_texte_formular')}</p>}
             <p className="variabile-raport"><strong>{t('rapoarte.variabile')}: </strong>{configuratie.variabile.map(v => <code key={v}>{`{{${v}}}`}</code>)}</p>
             <p className="nota-calendar">{t('rapoarte.imagini_indiciu')}</p>{citireImagine && <p role="status">{t('ui.incarcare')}</p>}
             <fieldset className="componenta-raport" disabled={ocupat}><legend>1 · {t('rapoarte.antet')}</legend>{zone('antet')}</fieldset>
-            <fieldset className="componenta-raport" disabled={ocupat}><legend>2 · {t('rapoarte.continut')}</legend><label>{t('rapoarte.sursa')}<select name="sursa" value={model.continut.sursa} onChange={e => { const cod=e.target.value,coloane=configuratie.surse.find(s => s.cod===cod)!.coloane;setModel(m => ({...m,continut:{...m.continut,sursa:cod,coloane:[...coloane]},pagina:{...m.pagina,format:cod.startsWith('PONTAJ_')?'A3':'A4',font_pt:cod==='PONTAJ_DETALIAT'?6:m.pagina.font_pt,orientare:cod==='FISA_INDIVIDUALA'?'PORTRET':'PEISAJ'}})); }}>{configuratie.surse.map(s => <option key={s.cod} value={s.cod}>{t(`rapoarte.sursa_${s.cod}`)}</option>)}</select></label>
+            <fieldset className="componenta-raport" disabled={ocupat}><legend>2 · {t('rapoarte.continut')}</legend><label>{t('rapoarte.sursa')}<select name="sursa" value={model.continut.sursa} onChange={e => { const cod=e.target.value,coloane=configuratie.surse.find(s => s.cod===cod)!.coloane;setModel(m => ({...m,continut:{...m.continut,sursa:cod,coloane:[...coloane],flexibil:esteFlexibil(cod)?m.continut.flexibil||flexibilInitial():undefined},pagina:{...m.pagina,format:cod.startsWith('PONTAJ_')?'A3':'A4',font_pt:cod==='PONTAJ_DETALIAT'?6:m.pagina.font_pt,orientare:cod==='FISA_INDIVIDUALA'?'PORTRET':'PEISAJ'}})); }}>{configuratie.surse.filter(s => esteFlexibil(s.cod) || s.cod === model.continut.sursa).map(s => <option key={s.cod} value={s.cod}>{t(`rapoarte.sursa_${s.cod}`)}</option>)}</select></label>{esteFlexibil(model.continut.sursa)&&<EditorFlexibil model={model} schimba={flexibil=>setModel(m=>({...m,continut:{...m.continut,flexibil}}))} validat={()=>setValidatFlex(JSON.stringify(model))} invalideaza={()=>setValidatFlex('')}/>}
+                <label className="bifa"><input type="checkbox" name="afiseaza_explicatii" checked={!model.continut.ascunde_explicatii} onChange={e=>setModel(m=>({...m,continut:{...m.continut,ascunde_explicatii:!e.target.checked}}))}/>{t('rapoarte.afiseaza_explicatii')}</label>
+                <p className="nota-calendar">{t('rapoarte.explicatii_indiciu')}</p>
                 <label>{t('rapoarte.introducere')}<textarea name="introducere" rows={2} maxLength={1000} value={model.continut.text?.[limba] || ''} onChange={e => setModel(m => ({...m,continut:{...m.continut,text:{...m.continut.text,[limba]:e.target.value}}}))}/></label>
-                <p>{t('rapoarte.coloane')}</p><div className="coloane-raport">{[...model.continut.coloane,...sursa.coloane.filter(c => !model.continut.coloane.includes(c))].map(c => { const i=model.continut.coloane.indexOf(c);return <div key={c}><label><input type="checkbox" name={`coloana_${c}`} checked={i>=0} disabled={(model.continut.sursa==='PONTAJ_LUNAR' && c==='angajat') || (model.continut.sursa==='PONTAJ_DETALIAT' && ['angajat','zile','totaluri'].includes(c))} onChange={e => selecteazaColoana(c,e.target.checked)}/>{t(`rapoarte.coloana_${c}`)}</label><button type="button" className="legatura" aria-label={t('rapoarte.muta_sus',{coloana:t(`rapoarte.coloana_${c}`)})} disabled={i<=0 || c==='totaluri'} onClick={() => muta(c,-1)}>↑</button><button type="button" className="legatura" aria-label={t('rapoarte.muta_jos',{coloana:t(`rapoarte.coloana_${c}`)})} disabled={i<0 || i===model.continut.coloane.length-1 || model.continut.coloane[i+1]==='totaluri'} onClick={() => muta(c,1)}>↓</button></div>; })}</div></fieldset>
+</fieldset>
             <fieldset className="componenta-raport" disabled={ocupat}><legend>3 · {t('rapoarte.subsol')}</legend>{zone('subsol')}</fieldset>
+            <EditorPrezentare disabled={ocupat} doarEtichete={vizual} value={model.continut.prezentare} schimba={prezentare=>setModel(m=>({...m,continut:{...m.continut,prezentare}}))}/>
             <fieldset className="componenta-raport" disabled={ocupat}><legend>{t('rapoarte.pagina')}</legend><div className="campuri"><label>{t('rapoarte.format')}<select name="format" value={model.pagina.format} onChange={e => setModel(m => ({...m,pagina:{...m.pagina,format:e.target.value}}))}><option value="A4">A4</option><option value="A3">A3</option></select></label><label>{t('rapoarte.orientare')}<select name="orientare" value={model.pagina.orientare} onChange={e => setModel(m => ({...m,pagina:{...m.pagina,orientare:e.target.value}}))}>{['PORTRET','PEISAJ'].map(o => <option key={o} value={o}>{t(`rapoarte.${o}`)}</option>)}</select></label>
                 <label>{t('rapoarte.margine')}<input name="margine_mm" type="number" min="5" max="25" required value={model.pagina.margine_mm} onChange={e => setModel(m => ({...m,pagina:{...m.pagina,margine_mm:Number(e.target.value)}}))}/></label><label>{t('rapoarte.font')}<input name="font_pt" type="number" min="6" max="14" required value={model.pagina.font_pt} onChange={e => setModel(m => ({...m,pagina:{...m.pagina,font_pt:Number(e.target.value)}}))}/></label></div></fieldset>
-            <div className="structura-model" aria-label={t('rapoarte.previzualizare')}><h3>{t('rapoarte.antet')}</h3>{previewBloc('antet')}<h3>{t('rapoarte.continut')}</h3><p>{textIn(model.continut.text,limba)}</p><div className="mostra-coloane">{model.continut.coloane.map(c => <span key={c}>{t(`rapoarte.coloana_${c}`)}</span>)}</div><h3>{t('rapoarte.subsol')}</h3>{previewBloc('subsol')}</div>
+            {!vizual && <div className="structura-model" aria-label={t('rapoarte.previzualizare')}><h3>{t('rapoarte.antet')}</h3>{previewBloc('antet')}<h3>{t('rapoarte.continut')}</h3><p>{textIn(model.continut.text,limba)}</p><div className="mostra-coloane">{model.continut.coloane.map(c => <span key={c}>{t(`rapoarte.coloana_${c}`)}</span>)}</div><h3>{t('rapoarte.subsol')}</h3>{previewBloc('subsol')}</div>}
         </div><footer className="subsol-dialog"><button type="button" className="buton secundar" disabled={ocupat} onClick={renunta}>{t('ui.anuleaza')}</button><button className="buton primar" disabled={ocupat}>{t('ui.salveaza')}</button></footer>
     </form></Dialog>;
 }
 
-export function GenerareRapoarte({date}: {date: datebaza.Date}) {
+// Fisa individuala cere un angajat, si cand e folosita din SQL (tabelul fisa_individuala, D090).
+const ceAngajat=(m?:rapoarte.Definitie|null)=>m?.continut.sursa==='FISA_INDIVIDUALA'||/fisa_individuala/i.test(m?.continut.flexibil?.sql||'');
+
+export function GenerareRapoarte({date,initial,onPerioada}: {date: datebaza.Date;initial?:{an:number;luna:number};onPerioada?:(p:{an:number;luna:number})=>void}) {
     const {t,i18n} = useTranslation();
     const {configuratie,incarcare,eroare,setEroare,reincarca} = useModele();
-    const [selectie,setSelectie] = useState({model:'',an:new Date().getFullYear(),luna:new Date().getMonth()+1,sectie:'',departament:'',angajat:'',limba:i18n.language==='en'?'en':'ro'});
+    const [filtruProfesional,setFiltruProfesional]=useState({...filtruProfesionalGol});
+    const [selectie,setSelectie] = useState({model:'',an:initial?.an??new Date().getFullYear(),luna:initial?.luna??new Date().getMonth()+1,sectie:'',departament:'',angajat:'',limba:i18n.language==='en'?'en':'ro'});
+    useEffect(()=>onPerioada?.({an:selectie.an,luna:selectie.luna}),[selectie.an,selectie.luna,onPerioada]);
     const [ocupat,setOcupat] = useState(false);
+ const [stareCopie,setStareCopie]=useState({modificat:false,ocupat:false});
     const blocat = useRef(false);
     const [rezultat,setRezultat] = useState<main.RaspunsRaport | null>(null);
     const [url,setURL] = useState('');
     const [mesaj,setMesaj] = useState('');
     const modele = (configuratie?.modele || []).filter(d => d.activ);
     const model = modele.find(d => d.id===(selectie.model || modele[0]?.id));
+    const persoaneRaport=date.angajati.filter(a=>corespundeProfesional(a,filtruProfesional)&&(!selectie.sectie||a.sectie_id===selectie.sectie)&&(!selectie.departament||a.departament_id===selectie.departament));
+    useEffect(()=>{if(selectie.angajat&&!persoaneRaport.some(a=>a.id===selectie.angajat)){setSelectie(s=>({...s,angajat:''}));setRezultat(null);setMesaj(t('ux30.angajat_resetat'));}},[date,filtruProfesional,selectie.angajat,selectie.sectie,selectie.departament]);
+
     function seteaza<K extends keyof typeof selectie>(k: K,v: typeof selectie[K]) { setSelectie(s => ({...s,[k]:v,...(k==='sectie'?{departament:'',angajat:''}:k==='departament'?{angajat:''}:{})}));setRezultat(null);setEroare('');setMesaj(''); }
     useEffect(() => { if (!rezultat?.pdf) { setURL('');return; } const octeti=Uint8Array.from(atob(rezultat.pdf),c => c.charCodeAt(0)),nou=URL.createObjectURL(new Blob([octeti],{type:'application/pdf'}));setURL(nou);return () => URL.revokeObjectURL(nou); },[rezultat]);
     async function genereaza() {
-        if (!model || blocat.current) return;
+        if (!model || blocat.current || (selectie.angajat&&!persoaneRaport.some(a=>a.id===selectie.angajat))) return;
         blocat.current = true;setOcupat(true);setEroare('');setMesaj('');setRezultat(null);
-        try { const r=await PregatesteRaport(new rapoarte.Cerere({model_id:model.id,revizie:model.revizie,an:selectie.an,luna:selectie.luna,sectie_id:selectie.sectie,departament_id:selectie.departament,angajat_id:selectie.angajat,limba:selectie.limba}));if (r.eroare) setEroare(t(r.eroare.cod,r.eroare.param || {}));else setRezultat(r); }
+        try { const r=await completeazaRaport(await PregatesteRaport(new rapoarte.Cerere({model_id:model.id,revizie:model.revizie,an:selectie.an,luna:selectie.luna,sectie_id:selectie.sectie,departament_id:selectie.departament,...filtruProfesional,angajat_id:selectie.angajat,limba:selectie.limba})));if (r.eroare) setEroare(t(r.eroare.cod,r.eroare.param || {}));else setRezultat(r); }
         catch { setEroare(t('rapoarte.eroare')); } finally { blocat.current=false;setOcupat(false); }
     }
     async function fisier(tipareste: boolean) {
@@ -135,42 +167,20 @@ export function GenerareRapoarte({date}: {date: datebaza.Date}) {
         try { const r=await (tipareste?DeschidePDFPentruTiparire:SalveazaPDFRaport)(rezultat.token);if(r.eroare)setEroare(t(r.eroare.cod,r.eroare.param||{}));else if(!r.anulat)setMesaj(t(tipareste?'rapoarte.deschis':'rapoarte.fisier_salvat',{cale:r.cale})); }
         catch { setEroare(t('rapoarte.eroare')); } finally { blocat.current=false;setOcupat(false); }
     }
-    async function exportaExcelPontaj() {
-        if (blocat.current) return;
-        blocat.current=true;setOcupat(true);setEroare('');setMesaj('');
-        try {
-            const r = await ExportaPontajExcel(selectie.an, selectie.luna);
-            if (r.eroare) setEroare(t(r.eroare.cod, r.eroare.param||{}));
-            else if (r.cale) setMesaj(t('rapoarte.fisier_salvat', {cale: r.cale}));
-            else if (!r.anulat && r.continut) {
-                const octeti = Uint8Array.from(atob(r.continut), c => c.charCodeAt(0));
-                const blob = new Blob([octeti], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
-                const urlFisier = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = urlFisier;
-                a.download = r.nume_fisier || `Pontix_Pontaj_${selectie.an}_${String(selectie.luna).padStart(2, '0')}.xlsx`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(urlFisier);
-                setMesaj(t('pontaj.export_excel_succes'));
-            }
-        } catch { setEroare(t('rapoarte.eroare')); }
-        finally { blocat.current=false;setOcupat(false); }
-    }
-    return <section className="generare-rapoarte">{eroare && <p className="mesaj eroare" role="alert">{eroare}</p>}{mesaj && <p className="mesaj succes" role="status">{mesaj}</p>}
+    async function exportaExcelPontaj(){if(!rezultat||blocat.current)return;blocat.current=true;setOcupat(true);setEroare('');try{const r=await SalveazaExcelRaport(rezultat.token);if(r.eroare)setEroare(t(r.eroare.cod,r.eroare.param||{}));else if(!r.anulat)setMesaj(t('rapoarte.fisier_salvat',{cale:r.cale}));}catch{setEroare(t('rapoarte.eroare'));}finally{blocat.current=false;setOcupat(false);}}
+    return <section className="generare-rapoarte"><FiltreProfesionale numarRezultate={persoaneRaport.length} disabled={ocupat||stareCopie.modificat||stareCopie.ocupat} date={date} value={filtruProfesional} onChange={f=>{setFiltruProfesional(f);setRezultat(null);setMesaj('');setEroare('');}}/>{eroare && <p className="mesaj eroare" role="alert">{eroare}</p>}{mesaj && <p className="mesaj succes" role="status">{mesaj}</p>}
         <p className="nota-calendar">{t('rapoarte.paginare_indiciu')}</p>
-        {incarcare ? <p role="status">{t('ui.incarcare')}</p> : <><form className="panou filtre-raport" onSubmit={e => { e.preventDefault();genereaza(); }}><fieldset disabled={ocupat}><label className="alegere-model">{t('rapoarte.model')}<select name="model_raport" required value={model?.id || ''} onChange={e => seteaza('model',e.target.value)}>{!modele.length && <option value="">{t('rapoarte.selecteaza_model')}</option>}{modele.map(d => <option key={d.id} value={d.id}>{textIn(d.denumire,i18n.language)}</option>)}</select></label>
+        {incarcare ? <p role="status">{t('ui.incarcare')}</p> : <><form className="panou filtre-raport" onSubmit={e => { e.preventDefault();genereaza(); }}><fieldset disabled={ocupat||stareCopie.modificat||stareCopie.ocupat}><label className="alegere-model">{t('rapoarte.model')}<select name="model_raport" required value={model?.id || ''} onChange={e => seteaza('model',e.target.value)}>{!modele.length && <option value="">{t('rapoarte.selecteaza_model')}</option>}{modele.map(d => <option key={d.id} value={d.id}>{textIn(d.denumire,i18n.language)}</option>)}</select></label>
             <label>{t('sarbatori.an')}<input name="an_raport" type="number" min="1" max="9999" required value={selectie.an} onChange={e => seteaza('an',Number(e.target.value))}/></label>
             {model?.continut.sursa!=='ABSENTE_ANUALE' && <label>{t('pontaj.luna')}<select name="luna_raport" value={selectie.luna} onChange={e => seteaza('luna',Number(e.target.value))}>{Array.from({length:12},(_,i) => <option key={i} value={i+1}>{t(`rapoarte.luna_${String(i+1).padStart(2,'0')}`)}</option>)}</select></label>}
             <label>{t('rapoarte.limba')}<select name="limba_raport" value={selectie.limba} onChange={e => seteaza('limba',e.target.value)}><option value="ro">{t('rapoarte.ro')}</option><option value="en">{t('rapoarte.en')}</option></select></label>
             <label>{t('ui.sectie')}<select name="sectie_raport" value={selectie.sectie} onChange={e => seteaza('sectie',e.target.value)}><option value="">{t('ui.toate_sectiile')}</option>{date.sectii.map(s => <option key={s.id} value={s.id}>{denumireSectie(s,i18n.language)}</option>)}</select></label>
             <label>{t('ui.departament')}<select name="departament_raport" value={selectie.departament} onChange={e => seteaza('departament',e.target.value)}><option value="">{t('ui.toate_departamentele')}</option>{(date.departamente||[]).filter(d => !selectie.sectie || d.sectie_id===selectie.sectie).map(d => <option key={d.id} value={d.id}>{denumireDepartament(d,i18n.language)}</option>)}</select></label>
-            <label>{t('ui.angajat')}<select name="angajat_raport" required={model?.continut.sursa==='FISA_INDIVIDUALA'} value={selectie.angajat} onChange={e => seteaza('angajat',e.target.value)}><option value="">{t(model?.continut.sursa==='FISA_INDIVIDUALA'?'absente.alege_angajat':'absente.toti_angajatii')}</option>{date.angajati.filter(a => (!selectie.sectie||a.sectie_id===selectie.sectie)&&(!selectie.departament||a.departament_id===selectie.departament)).map(a => <option key={a.id} value={a.id}>{a.nume} {a.prenume} · {a.marca}</option>)}</select></label>
+            <label>{t('ui.angajat')}<select name="angajat_raport" required={ceAngajat(model)} value={selectie.angajat} onChange={e => seteaza('angajat',e.target.value)}><option value="">{t(ceAngajat(model)?'absente.alege_angajat':'absente.toti_angajatii')}</option>{persoaneRaport.map(a => <option key={a.id} value={a.id}>{numeAngajat(a)} · {a.marca}</option>)}</select></label>
             <button className="buton primar" disabled={!model}>{t('rapoarte.genereaza')}</button>
-            <button type="button" className="buton secundar" title={t('pontaj.export_excel_titlu')} disabled={ocupat} onClick={exportaExcelPontaj}>📊 {t('pontaj.export_excel')}</button></fieldset></form>
-            {!modele.length && <p className="fara-rezultate">{t('rapoarte.lista_goala')}</p>}<button className="legatura" disabled={ocupat} onClick={() => { setRezultat(null);reincarca(); }}>{t('rapoarte.reincarca')}</button>
-            {rezultat?.document && <div className="rezultat-raport"><div className="unelte-calendar"><p role="status">{t('rapoarte.generat',{randuri:rezultat.document.randuri.length,versiune:rezultat.document.versiune_raport,revizie:rezultat.document.revizie_model})} · {t('rapoarte.numar_pagini',{numar:rezultat.pagini})}</p><div className="actiuni-calendar"><button className="buton secundar" disabled={ocupat} onClick={() => fisier(false)}>{t('rapoarte.salveaza_pdf')}</button><button className="buton primar" disabled={ocupat} onClick={() => fisier(true)}>{t('rapoarte.tipareste')}</button></div></div><p className="nota-calendar">{t('rapoarte.tiparire_indiciu')}</p>{url && <iframe className="previzualizare-pdf" title={t('rapoarte.previzualizare')} src={`${url}#view=FitH`}/>}</div>}
+            <button type="button" className="buton secundar" title={t('pontaj.export_excel_titlu')} disabled={ocupat||stareCopie.modificat||stareCopie.ocupat||!rezultat} onClick={exportaExcelPontaj}>📊 {t('pontaj.export_excel')}</button></fieldset></form>
+            {!modele.length && <p className="fara-rezultate">{t('rapoarte.lista_goala')}</p>}<button className="legatura" disabled={ocupat||stareCopie.modificat||stareCopie.ocupat} onClick={() => { setRezultat(null);reincarca(); }}>{t('rapoarte.reincarca')}</button>
+            {rezultat?.document && <div className="rezultat-raport"><div className="unelte-calendar"><p role="status">{t('rapoarte.generat',{randuri:rezultat.document.randuri.length,versiune:rezultat.document.versiune_raport,revizie:rezultat.document.revizie_model})} · {t('rapoarte.numar_pagini',{numar:rezultat.pagini})}</p><div className="actiuni-calendar"><button className="buton secundar" disabled={ocupat||stareCopie.modificat||stareCopie.ocupat} onClick={() => fisier(false)}>{t('rapoarte.salveaza_pdf')}</button><button className="buton primar" disabled={ocupat||stareCopie.modificat||stareCopie.ocupat} onClick={() => fisier(true)}>{t('rapoarte.tipareste')}</button></div></div><p className="nota-calendar">{t('rapoarte.tiparire_indiciu')}</p><EditorCopieRaport key={rezultat.token} rezultat={rezultat} disabled={ocupat} onActualizat={setRezultat} onStare={(modificat,ocupat)=>setStareCopie(v=>v.modificat===modificat&&v.ocupat===ocupat?v:{modificat,ocupat})}/>{url && <iframe className="previzualizare-pdf" title={t('rapoarte.previzualizare')} src={`${url}#view=FitH`}/>}</div>}
         </>}
     </section>;
 }

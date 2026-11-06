@@ -27,9 +27,12 @@ type Bloc struct {
 	Imagini map[string]Imagine `json:"imagini,omitempty"`
 }
 type Continut struct {
-	Sursa   string    `json:"sursa"`
-	Coloane []string  `json:"coloane"`
-	Text    i18n.Text `json:"text"`
+	Prezentare        *PrezentareRaport `json:"prezentare,omitempty"`
+	AscundeExplicatii bool              `json:"ascunde_explicatii,omitempty"`
+	Flexibil          *RaportFlexibil   `json:"flexibil,omitempty"`
+	Sursa             string            `json:"sursa"`
+	Coloane           []string          `json:"coloane"`
+	Text              i18n.Text         `json:"text"`
 }
 type Pagina struct {
 	Format    string `json:"format"`
@@ -61,11 +64,12 @@ type Serviciu struct{ db *sql.DB }
 func Nou(db *sql.DB) *Serviciu { return &Serviciu{db: db} }
 
 var surse = []Sursa{
-	{Cod: "PONTAJ_LUNAR", Coloane: []string{"angajat", "marca", "sectie", "departament", "functie", "zile"}},
-	{Cod: "PONTAJ_DETALIAT", Coloane: []string{"angajat", "marca", "sectie", "departament", "functie", "zile", "totaluri"}},
+	{Cod: "SQL_LIBER", Coloane: []string{"rezultat"}}, {Cod: "LISTA_GARZI", Coloane: []string{"rezultat"}}, {Cod: "CALCULATE_LUNAR", Coloane: []string{"rezultat"}},
+	{Cod: "PONTAJ_LUNAR", Coloane: []string{"angajat", "marca", "sectie", "departament", "functie", "contract", "norma_contract", "zile"}},
+	{Cod: "PONTAJ_DETALIAT", Coloane: []string{"angajat", "marca", "sectie", "departament", "functie", "contract", "norma_contract", "zile", "totaluri"}},
 	{Cod: "FISA_INDIVIDUALA", Coloane: []string{"data", "zi", "ore", "descriere", "categorie"}},
-	{Cod: "ABSENTE_ANUALE", Coloane: []string{"data", "angajat", "marca", "sectie", "departament", "cod", "descriere", "categorie"}},
-	{Cod: "GRAFIC_GARZI", Coloane: []string{"angajat", "marca", "sectie", "departament", "functie", "zile", "total_garzi", "total_ore"}},
+	{Cod: "ABSENTE_ANUALE", Coloane: []string{"data", "angajat", "marca", "sectie", "departament", "contract", "norma_contract", "cod", "descriere", "categorie"}},
+	{Cod: "GRAFIC_GARZI", Coloane: []string{"angajat", "marca", "sectie", "departament", "functie", "contract", "norma_contract", "zile", "total_garzi", "total_ore"}},
 }
 var variabile = []string{"titlu", "an", "luna", "perioada", "sectie", "departament", "angajat", "generat_la"}
 var variabila = regexp.MustCompile(`\{\{([^{}]+)\}\}`)
@@ -80,7 +84,7 @@ func traduce(err error) error {
 		return err
 	}
 	if audit.EsteEditareBlocata(err) {
-		return eroare(audit.CodEditareBlocata)
+		return eroare(audit.CodBlocare(err))
 	}
 	return eroare("rapoarte.eroare")
 }
@@ -109,6 +113,9 @@ func contine(lista []string, valoare string) bool {
 }
 
 func Valideaza(d Definitie) error {
+	if e := valideazaPrezentare(d.Continut.Prezentare); e != nil {
+		return e
+	}
 	for _, bloc := range []Bloc{d.Antet, d.Subsol} {
 		for zona, imagine := range bloc.Imagini {
 			if !contine([]string{"stanga", "centru", "dreapta"}, zona) {
@@ -130,6 +137,11 @@ func Valideaza(d Definitie) error {
 	}
 	if !nume {
 		return eroare("rapoarte.nume_invalid")
+	}
+	if esteFlexibil(d.Continut.Sursa) {
+		if err := valideazaFlexibil(d.Continut.Flexibil); err != nil {
+			return err
+		}
 	}
 	sursa := SursaPentru(d.Continut.Sursa)
 	if sursa == nil || len(d.Continut.Coloane) == 0 {
@@ -160,7 +172,7 @@ func Valideaza(d Definitie) error {
 				return eroare("rapoarte.text_invalid")
 			}
 			for _, m := range variabila.FindAllStringSubmatch(v, -1) {
-				if !contine(variabile, m[1]) {
+				if !contine(variabile, m[1]) && !esteFlexibil(d.Continut.Sursa) {
 					return eroare("rapoarte.variabila_invalida")
 				}
 			}

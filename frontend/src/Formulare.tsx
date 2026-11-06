@@ -1,5 +1,8 @@
-import {useEffect, useRef, useState, type FormEvent, type ReactNode} from 'react';
+import {EligibilitateProgram} from './PanouEligibilitate';
+import {numeAngajat} from './numeAngajat';
+import {useEffect, useRef, useState, useId, type FormEvent, type ReactNode} from 'react';
 import {useTranslation} from 'react-i18next';
+import {EditorNomenclator} from './Nomenclatoare';
 import {notifica} from './Toast';
 import {RestaurareBackup} from './Restaurare';
 import {useCont} from './Conturi';
@@ -25,24 +28,28 @@ function minuteDinOre(valoare: string): number | null {
     return valoare.trim() && Number.isFinite(minute) && Math.abs(minute - intreg) < 0.00001 && intreg >= 1 && intreg <= 1440 ? intreg : null;
 }
 
-export function Dialog({titlu, ocupat, inchide, children, permiteMaximizare, clasa}: {
+export function Dialog({titlu, ocupat, inchide, children, permiteMaximizare = true, clasa, maximizatInitial = false}: {
     titlu: string;
     ocupat: boolean;
     inchide: () => void;
     children: ReactNode;
     permiteMaximizare?: boolean;
     clasa?: string;
+    maximizatInitial?: boolean;
 }) {
     const ref = useRef<HTMLDialogElement>(null);
-    const [maximizat, setMaximizat] = useState(false);
+    const titluId=useId();
+    const [maximizat, setMaximizat] = useState(maximizatInitial);
+    const stareCurenta = useRef({ocupat, inchide});
+    useEffect(() => { stareCurenta.current = {ocupat, inchide}; }, [ocupat, inchide]);
     const {t} = useTranslation();
     useEffect(() => {
         const dialog = ref.current;
         dialog?.showModal();
         const laTasta = (e: KeyboardEvent) => {
-            if (e.key === 'Escape' && !ocupat) {
+            if (e.key === 'Escape' && !stareCurenta.current.ocupat && document.activeElement?.closest('dialog')===dialog) {
                 e.preventDefault();
-                inchide();
+                stareCurenta.current.inchide();
             }
         };
         window.addEventListener('keydown', laTasta);
@@ -50,11 +57,11 @@ export function Dialog({titlu, ocupat, inchide, children, permiteMaximizare, cla
             dialog?.close();
             window.removeEventListener('keydown', laTasta);
         };
-    }, [ocupat, inchide]);
-    return <dialog ref={ref} className={`dialog ${clasa||''} ${maximizat?'dialog-maximizat':''}`} aria-labelledby="titlu-dialog"
+    }, []);
+    return <dialog ref={ref} className={`dialog ${clasa||''} ${maximizat?'dialog-maximizat':''}`} aria-labelledby={titluId}
         onCancel={e => { e.preventDefault(); if (!ocupat) inchide(); }}>
         <div className="antet-dialog">
-            <h2 id="titlu-dialog">{titlu}</h2>
+            <h2 id={titluId}>{titlu}</h2>
             <div className="actiuni-antet-dialog">
                 {permiteMaximizare && (
                     <button
@@ -83,34 +90,43 @@ export function FormularAngajat({angajat, date, ocupat, eroare, inchide, salveaz
     const [prenume, setPrenume] = useState(angajat.prenume);
     const [marca, setMarca] = useState(angajat.marca);
     const [functie, setFunctie] = useState(angajat.functie);
+    const [functieId,setFunctieId]=useState(angajat.functie_id||'');
+    const [prefixId,setPrefixId]=useState(angajat.prefix_id||'');
+    const [principalId,setPrincipalId]=useState(angajat.angajat_principal_id||'');
     const [sectie, setSectie] = useState(angajat.sectie_id);
     const [departament, setDepartament] = useState(angajat.departament_id || '');
     const [categorieProgram,setCategorieProgram]=useState(angajat.categorie_program_id||'');
-    const [contract, setContract] = useState(angajat.tip_contract);
+    const [contract, setContract] = useState(angajat.contract_id||angajat.tip_contract);
     const [ore, setOre] = useState(angajat.norma_partiala_minute == null ? '' : String(angajat.norma_partiala_minute / 60));
     const [concediu, setConcediu] = useState(angajat.concediu_zile_an == null ? '' : String(angajat.concediu_zile_an));
+    const [lunaSold,setLunaSold]=useState(angajat.initializare?.luna||'');
+    const [oreSold,setOreSold]=useState(String((angajat.initializare?.minute||0)/60));
+    const [coInitial,setCoInitial]=useState(String(angajat.initializare?.co_zile||0));
     const [activ, setActiv] = useState(angajat.activ);
     const [validare, setValidare] = useState('');
-    const initial = useRef(JSON.stringify([nume, prenume, marca, functie, sectie, departament, categorieProgram, contract, ore, concediu, activ]));
+    const initial = useRef(JSON.stringify([prefixId, nume, prenume, marca, functie, functieId, principalId, sectie, departament, categorieProgram, contract, ore, concediu, activ,lunaSold,oreSold,coInitial]));
 
     function inchideCuVerificare() {
-        const modificat = initial.current !== JSON.stringify([nume, prenume, marca, functie, sectie, departament, categorieProgram, contract, ore, concediu, activ]);
+        const modificat = initial.current !== JSON.stringify([prefixId, nume, prenume, marca, functie, functieId, principalId, sectie, departament, categorieProgram, contract, ore, concediu, activ,lunaSold,oreSold,coInitial]);
         if (!ocupat && (!modificat || window.confirm(t('ui.renunta')))) inchide();
     }
 
     async function trimite(e: FormEvent) {
         e.preventDefault(); setValidare('');
         if (!nume.trim() || !prenume.trim() || !marca.trim()) { setValidare(t('date.campuri_obligatorii')); return; }
-        const minute = contract === 'PARTIALA' ? minuteDinOre(ore) : null;
-        if (contract === 'PARTIALA' && minute === null) { setValidare(t('date.norma_invalida')); return; }
+        const modNormare=date.tipuri_contract?.find(c=>c.id===contract)?.normare||(contract==='PARTIALA'?'INDIVIDUALA':'GLOBALA');
+        const minute = modNormare === 'INDIVIDUALA' ? minuteDinOre(ore) : null;
+        if (modNormare === 'INDIVIDUALA' && minute === null) { setValidare(t('date.norma_invalida')); return; }
         const zile = concediu === '' ? null : Number(concediu);
         if (zile !== null && (!Number.isSafeInteger(zile) || zile < 0)) { setValidare(t('date.concediu_invalid')); return; }
-        await salveaza(new datebaza.Angajat({...angajat, nume, prenume, marca, functie, sectie_id: sectie, departament_id: departament,
-            categorie_program_id:categorieProgram, tip_contract: contract, norma_partiala_minute: minute, concediu_zile_an: zile, activ}));
+        const minuteSold=Math.round(Number(oreSold.replace(',','.'))*60),zileInitiale=Number(coInitial);
+        if((!lunaSold&&(!!angajat.initializare||Number(oreSold.replace(',','.'))!==0||zileInitiale!==0))||(lunaSold&&(!Number.isSafeInteger(minuteSold)||!Number.isSafeInteger(zileInitiale)||zileInitiale<0))){setValidare(t('sold.initializare_invalida'));return;}
+        await salveaza(new datebaza.Angajat({...angajat, prefix_id:prefixId, nume, prenume, marca, functie, functie_id:functieId, angajat_principal_id:principalId, sectie_id: sectie, departament_id: departament,
+            categorie_program_id:categorieProgram, contract_id:contract, tip_contract: modNormare==='INDIVIDUALA'?'PARTIALA':'INTREAGA', norma_partiala_minute: minute, concediu_zile_an: zile, activ,initializare:lunaSold?{luna:lunaSold,minute:minuteSold,co_zile:zileInitiale,revizie:angajat.initializare?.revizie||0}:undefined}));
     }
 
     return <Dialog titlu={t(angajat.id ? 'ui.editare_angajat' : 'ui.adauga_angajat')} ocupat={ocupat} inchide={inchideCuVerificare}>
-        <form onSubmit={trimite} onKeyDown={e => {
+        <form onSubmit={trimite} onInvalidCapture={e=>(e.target as HTMLElement).closest('details')?.setAttribute('open','')} onKeyDown={e => {
             if (e.ctrlKey && e.key === 'Enter') {
                 e.preventDefault();
                 (e.currentTarget as HTMLFormElement).requestSubmit();
@@ -118,25 +134,31 @@ export function FormularAngajat({angajat, date, ocupat, eroare, inchide, salveaz
         }}>
             <div className="corp-dialog"><p className="text-discret">{t('ui.formular_indiciu')}</p>
                 {(validare || eroare) && <div className="mesaj eroare" role="alert">{validare || eroare}</div>}
-                <fieldset disabled={ocupat} className="campuri">
-                    <label>{t('ui.nume')} *<input autoFocus required value={nume} onChange={e => setNume(e.target.value)}/></label>
-                    <label>{t('ui.prenume')} *<input required value={prenume} onChange={e => setPrenume(e.target.value)}/></label>
-                    <label>{t('ui.marca')} *<input required value={marca} onChange={e => setMarca(e.target.value)}/></label>
-                    <label>{t('ui.functie')}<input value={functie} onChange={e => setFunctie(e.target.value)}/></label>
+                <fieldset disabled={ocupat} className="campuri grup-formular"><legend>{t('ui28.identitate')}</legend>
+                    <label>{t('nomenclator.prefix')}<select name="angajat_prefix" value={prefixId} onChange={e=>setPrefixId(e.target.value)}><option value="">{t('nomenclator.fara_prefix')}</option>{(date.prefixe??[]).filter(p=>p.activ||p.id===prefixId).map(p=><option key={p.id} value={p.id}>{p.denumire[i18n.language]||p.denumire.ro||p.denumire.en}{!p.activ?` (${t('ui.inactiv')})`:''}</option>)}</select>{angajat.angajat_principal_id&&!prefixId&&angajat.prefix&&<small>{t('nomenclator.prefix_mostenit')}</small>}</label>
+                    <label>{t('ui.nume')} *<input autoFocus required name="angajat_nume" value={nume} onChange={e => setNume(e.target.value)}/></label>
+                    <label>{t('ui.prenume')} *<input required name="angajat_prenume" value={prenume} onChange={e => setPrenume(e.target.value)}/></label>
+                    <label>{t('ui.marca')} *<input required name="angajat_marca" value={marca} onChange={e => setMarca(e.target.value)}/></label>
+                    <label className="latime-completa">{t('ui.garda_principal')}<select name="angajat_principal" value={principalId} onChange={e=>{setPrincipalId(e.target.value);if(e.target.value&&date.tipuri_contract?.some(c=>c.id==='GARDA'&&c.activ))setContract('GARDA');}}><option value="">{t('ui.garda_fara_principal')}</option>{date.angajati.filter(a=>a.id!==angajat.id&&!a.angajat_principal_id&&(a.activ||a.id===principalId)).map(a=><option key={a.id} value={a.id}>{numeAngajat(a)} · {a.marca}</option>)}</select><small>{t('ui.garda_principal_indiciu')}</small>{(principalId||date.tipuri_contract?.find(c=>c.id===contract)?.garda||contract==='GARDA')&&<small>{t(principalId?'ui28.marca_principala':'ui28.garda_independenta')}</small>}</label>
+</fieldset><fieldset disabled={ocupat} className="campuri grup-formular"><legend>{t('ui28.incadrare')}</legend><label>{t('ui.functie')}<select name="angajat_functie" value={functieId|| (functie?'__anterioara':'')} onChange={e=>{const id=e.target.value;if(id==='__anterioara')return;setFunctieId(id);setFunctie('');}}><option value="">{t('nomenclator.fara_functie')}</option>{!functieId&&functie&&<option value="__anterioara">{functie}</option>}{(date.functii??[]).filter(f=>f.activ||f.id===functieId).map(f=><option key={f.id} value={f.id}>{f.denumire[i18n.language]||f.denumire.ro||f.denumire.en}{!f.activ?` (${t('ui.inactiv')})`:''}</option>)}</select><small>{t('nomenclator.functii_indiciu')}</small></label>
                     <label>{t('ui.sectie')}<select value={sectie} onChange={e => { setSectie(e.target.value); setDepartament(''); }}>
                         <option value="">{t('ui.fara_sectie')}</option>{date.sectii.map(s => <option value={s.id} key={s.id}>{denumireSectie(s, i18n.language)}</option>)}
                     </select></label>
                     <label>{t('ui.departament')}<select aria-label={t('ui.departament')} value={departament} disabled={!sectie} onChange={e => setDepartament(e.target.value)}>
                         <option value="">{t('ui.fara_departament')}</option>{(date.departamente ?? []).filter(d => d.sectie_id === sectie).map(d => <option value={d.id} key={d.id}>{denumireDepartament(d, i18n.language)}</option>)}
                     </select></label>
-                    <label>{t('ui.contract')} *<select value={contract} onChange={e => setContract(e.target.value)}>
-                        <option value="INTREAGA">{t('ui.intreaga')}</option><option value="PARTIALA">{t('ui.partiala')}</option></select></label>
-                    {contract === 'PARTIALA' ? <label>{t('ui.norma_partiala')}<input type="number" min="0" max="24" step="any" required value={ore} onChange={e => setOre(e.target.value)}/></label>
-                        : <div className="norma-preluata"><span>{t('ui.norma')}</span><strong>{durata(date.norma_intreaga_minute, t)}</strong><small>{t('ui.norma_globala_indiciu')}</small></div>}
-                    <label className="latime-completa">{t('program.categorie')}<select name="angajat_categorie_program" value={categorieProgram} onChange={e=>setCategorieProgram(e.target.value)}><option value="">{t('program.fara_categorie')}</option>{(date.categorii_program??[]).filter(c=>c.activ||c.id===categorieProgram).map(c=><option key={c.id} value={c.id}>{c.denumire[i18n.language]||c.denumire.ro}{!c.activ?` · ${t('ui.inactiv')}`:''}</option>)}</select><small>{t('program.atribuire_indiciu')}</small></label>
+</fieldset><fieldset disabled={ocupat} className="campuri grup-formular"><legend>{t('ui28.program_contract')}</legend><label>{t('ui.contract')} *<select value={contract} onChange={e => setContract(e.target.value)}>
+                        {(date.tipuri_contract?.length?date.tipuri_contract:[{id:'INTREAGA',denumire:{ro:t('ui.intreaga')},activ:true},{id:'PARTIALA',denumire:{ro:t('ui.partiala')},activ:true}]).filter(c=>c.activ||c.id===contract).map(c=><option key={c.id} value={c.id}>{(c.denumire as Record<string,string>)[i18n.language]||c.denumire.ro}</option>)}</select></label>
+                    {(date.tipuri_contract?.find(c=>c.id===contract)?.normare||(contract==='PARTIALA'?'INDIVIDUALA':'GLOBALA')) === 'INDIVIDUALA' ? <label>{t('ui.norma_partiala')}<input type="number" min="0" max="24" step="any" required value={ore} onChange={e => setOre(e.target.value)}/></label>
+                        : <div className="norma-preluata"><span>{t('ui.norma')}</span><strong>{(()=>{const c=date.tipuri_contract?.find(c=>c.id===contract);return c?.normare==='FARA'?t('structura.normare_FARA'):c?.normare==='LUNARA'?`${durata(c.norma_minute??0,t)} / ${t('structura.luna')}`:durata(c?.normare==='ZILNICA'?(c.norma_minute??0):date.norma_intreaga_minute,t)})()}</strong><small>{t('ui.norma_globala_indiciu')}</small></div>}
+                    <label className="latime-completa">{t('program.categorie')}<select name="angajat_categorie_program" value={categorieProgram} onChange={e=>setCategorieProgram(e.target.value)}><option value="">{t('program.fara_categorie')}</option>{(date.categorii_program??[]).filter(c=>c.activ||c.id===categorieProgram).map(c=><option key={c.id} value={c.id}>{c.denumire[i18n.language]||c.denumire.ro}{!c.activ?` · ${t('ui.inactiv')}`:''}</option>)}</select><small>{t('program.atribuire_indiciu')}</small></label><EligibilitateProgram categorie={date.categorii_program?.find(c=>c.id===categorieProgram)}/>
                     <label className="latime-completa">{t('ui.concediu')}<input type="number" min="0" step="1" value={concediu} onChange={e => setConcediu(e.target.value)} aria-describedby="indiciu-concediu"/>
                         <small id="indiciu-concediu">{t('ui.concediu_indiciu')}</small></label>
-                    <label className="bifa latime-completa"><input type="checkbox" checked={activ} onChange={e => setActiv(e.target.checked)}/>{t('ui.activ_indiciu')}</label>
+</fieldset><details className="detalii-configurare solduri-initiale"><summary>{t('ui28.solduri_initiale')} {lunaSold&&t('ui28.sold_rezumat',{luna:lunaSold,ore:oreSold,co:coInitial})}</summary><fieldset disabled={ocupat} className="campuri"><p className="latime-completa">{t('ui28.formula_sold')}</p><label>{t('sold.luna')}<input type="month" name="initializare_luna" min="2000-01" max="2100-12" value={lunaSold} onChange={e=>setLunaSold(e.target.value)}/></label>
+                    <label>{t('sold.ore')}<input name="initializare_ore" inputMode="decimal" value={oreSold} onChange={e=>setOreSold(e.target.value)}/></label>
+                    <label>{t('sold.co')}<input name="initializare_co" type="number" min="0" max="366" step="1" value={coInitial} onChange={e=>setCoInitial(e.target.value)}/></label>
+                    <p className="latime-completa">{t('sold.indiciu')}</p><button type="button" className="legatura" onClick={()=>window.dispatchEvent(new CustomEvent('pontix-ajutor-contextual',{detail:'angajati'}))}>{t('ajutor.buton')}</button>
+</fieldset></details><fieldset disabled={ocupat} className="campuri grup-formular"><legend>{t('ui.stare')}</legend>                    <label className="bifa latime-completa"><input type="checkbox" checked={activ} onChange={e => setActiv(e.target.checked)}/>{t('ui.activ_indiciu')}</label>
                 </fieldset>
             </div>
             <footer className="subsol-dialog"><button type="button" className="buton secundar" disabled={ocupat} onClick={inchideCuVerificare}>{t('ui.anuleaza')}</button>
@@ -155,7 +177,7 @@ export function DialogDemo({ocupat, eroare, inchide, confirma}: {ocupat: boolean
     </Dialog>;
 }
 
-export function Setari({date, ocupat, salveazaNorma, adaugaSectie, adaugaDepartament}: {date: datebaza.Date; ocupat: boolean;
+export function Setari({date, onDate, ocupat, salveazaNorma, adaugaSectie, adaugaDepartament}: {onDate:(date:datebaza.Date)=>void;date: datebaza.Date; ocupat: boolean;
     salveazaNorma: (minute: number) => Promise<boolean>; adaugaSectie: (denumire: string) => Promise<boolean>;
     adaugaDepartament: (sectieID: string, denumire: string) => Promise<boolean>;
 }) {
@@ -234,6 +256,7 @@ export function Setari({date, ocupat, salveazaNorma, adaugaSectie, adaugaDeparta
             <button type="button" className="buton secundar" disabled={ocupat || ocupatBackup} onClick={creeazaBackup}>{t(ocupatBackup ? 'ui.salvare' : 'ui.creeaza_backup')}</button>
             {esteAdministrator && <RestaurareBackup reimprospatare={backupuriCreate} ocupat={ocupat || ocupatBackup}/>}
         </section>
+        <EditorNomenclator tip="grupuri" lista={date.grupuri_profesionale??[]} onDate={onDate} date={date}/><EditorNomenclator tip="functii" lista={date.functii??[]} onDate={onDate} date={date}/><EditorNomenclator tip="prefixe" lista={date.prefixe??[]} onDate={onDate} date={date}/><EditorNomenclator tip="contracte" lista={date.tipuri_contract??[]} onDate={onDate} date={date}/>
         <section className="panou card-setari card-despre">
             <h2>{t('ui.despre_titlu')}</h2>
             <p>{t('ui.despre_descriere')}</p>

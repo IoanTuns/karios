@@ -1,3 +1,6 @@
+import {EligibilitateProgram} from './PanouEligibilitate';
+import {ButonStergereAdmin} from './ButonStergereAdmin';
+import {FiltruStare,corespundeStare,type StareLista} from './FiltruStare';
 import {useEffect, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {ListaSchimburi} from '../wailsjs/go/main/App';
@@ -9,6 +12,7 @@ export function CategoriiProgram({date,ocupat,eroare,salveaza,reincarca,curataEr
     date:datebaza.Date;ocupat:boolean;eroare:string;salveaza:(c:datebaza.CategorieProgram)=>Promise<boolean>;reincarca:()=>Promise<boolean>;curataEroare:()=>void;
 }) {
     const {t,i18n}=useTranslation();
+ const [stareLista,setStareLista]=useState<StareLista>('ACTIVE');
     const [schimburi,setSchimburi]=useState<datebaza.Schimb[]>([]);
     const [eroareCitire,setEroareCitire]=useState('');
     const [incarcare,setIncarcare]=useState(true);
@@ -28,11 +32,11 @@ export function CategoriiProgram({date,ocupat,eroare,salveaza,reincarca,curataEr
         catch{setEroareCitire(t('date.eroare'));}finally{setIncarcare(false);}
     }
     return <section className="categorii-program">
-        <p className="nota-calendar">{t('program.indiciu')}</p>
+        <FiltruStare nume="categorii_program" valoare={stareLista} schimba={setStareLista} disabled={ocupat}/><p className="nota-calendar">{t('program.indiciu')}</p>
         {eroareCitire&&<p role="alert" className="mesaj eroare">{eroareCitire}</p>}
         <div className="unelte-calendar"><button type="button" className="buton primar" disabled={ocupat||incarcare||Boolean(eroareCitire)} onClick={()=>deschide(new datebaza.CategorieProgram({id:'',denumire:{ro:'',en:''},schimburi_id:[],schimb_implicit_id:'',activ:true,revizie:''}))}>{t('program.adauga')}</button><button className="buton secundar" disabled={ocupat||incarcare} onClick={()=>void reincarcaTot()}>{t('program.reincarca')}</button></div>
         <div className="panou tabel-derulant"><table className="tabel-categorii-program"><thead><tr>{['denumire','programe','implicit','stare','actiuni'].map(c=><th key={c}>{t(c==='stare'||c==='actiuni'?`ui.${c}`:`program.${c}`)}</th>)}</tr></thead><tbody>
-            {(date.categorii_program??[]).map(c=><tr key={c.id}><th scope="row">{nume(c)}</th><td>{c.schimburi_id.map(program).join(', ')}</td><td>{c.schimb_implicit_id?program(c.schimb_implicit_id):t('program.fara_implicit')}</td><td>{t(c.activ?'ui.activ':'ui.inactiv')}</td><td><button type="button" className="legatura" disabled={ocupat||incarcare||Boolean(eroareCitire)} onClick={()=>deschide(c)}>{t('ui.editeaza')}</button></td></tr>)}
+            {(date.categorii_program??[]).filter(c=>corespundeStare(c.activ,stareLista)).map(c=><tr key={c.id}><th scope="row">{nume(c)}</th><td>{c.schimburi_id.map(program).join(', ')}</td><td>{c.schimb_implicit_id?program(c.schimb_implicit_id):t('program.fara_implicit')}</td><td>{t(c.activ?'ui.activ':'ui.inactiv')}</td><td><button type="button" className="legatura" disabled={ocupat||incarcare||Boolean(eroareCitire)} onClick={()=>deschide(c)}>{t('ui.editeaza')}</button><ButonStergereAdmin tip="categorii_program" id={c.id} revizie={c.revizie} activ={c.activ} nume={nume(c)} disabled={ocupat||!!editare} onSters={async()=>{await reincarcaTot();}}/></td></tr>)}
         </tbody></table></div>
         {editare&&<FormularCategorie key={editare.id||'nou'} categorie={editare} schimburi={schimburi} ocupat={ocupat} eroare={eroare} inchide={()=>setEditare(null)} salveaza={async c=>{if(await salveaza(c))setEditare(null);}}/>}
     </section>;
@@ -53,7 +57,7 @@ function FormularCategorie({categorie,schimburi,ocupat,eroare,inchide,salveaza}:
         {(validare||eroare)&&<p role="alert" className="mesaj eroare">{validare||eroare}</p>}
         <fieldset disabled={ocupat} className="campuri">
             {['ro','en'].map(l=><label key={l}>{t(`program.denumire_${l}`)}<input name={`categorie_denumire_${l}`} autoFocus={l==='ro'} value={c.denumire[l]??''} onChange={e=>setC(new datebaza.CategorieProgram({...c,denumire:{...c.denumire,[l]:e.target.value}}))}/></label>)}
-            <fieldset className="latime-completa selectie-programe"><legend>{t('program.programe')}</legend>
+            <EligibilitateProgram categorie={c} schimburi={schimburi}/><fieldset className="latime-completa selectie-programe"><legend>{t('program.programe')}</legend>
                 {schimburi.map(s=><label key={s.id} className="bifa"><input type="checkbox" name={`categorie_schimb_${s.cod}`} checked={c.schimburi_id.includes(s.id)} disabled={!s.activ&&!c.schimburi_id.includes(s.id)} onChange={e=>setC(new datebaza.CategorieProgram({...c,schimburi_id:e.target.checked?[...c.schimburi_id,s.id]:c.schimburi_id.filter(id=>id!==s.id),schimb_implicit_id:!e.target.checked&&c.schimb_implicit_id===s.id?'':c.schimb_implicit_id}))}/><span>{textSchimb(s)}<small>{s.denumire[i18n.language]||s.denumire.ro}</small></span></label>)}
             </fieldset>
             <label className="latime-completa">{t('program.implicit')}<select name="categorie_implicit" value={c.schimb_implicit_id} onChange={e=>setC(new datebaza.CategorieProgram({...c,schimb_implicit_id:e.target.value}))}>

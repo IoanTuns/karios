@@ -10,6 +10,10 @@ Sistem integrat de diagnoză locală, captare robustă a erorilor pe frontend ș
 
 | ID | Task | Responsabil | Stare | Legături | Note |
 | --- | --- | --- | --- | --- | --- |
+| F16-T33 | Analiza UI a rapoartelor cu editor vizual pdfme (0.92.34) | Claude | gata | [Analiza](../analiza-ui-rapoarte-pdfme-0.92.34.md), D087, D088 | Cerere utilizator. Scenariu Edge nou `--rapoarte-pdfme`, 12 constatari UIR-01..12, fara implementare. Pas urmator: utilizatorul alege ce se implementeaza; recomandat UIR-01+02. |
+| F16-T27 | Filtre Active/Inactive/Toate, implicit Active, in listele cu stare | Codex | gata | [D074](../decizii/D074-filtre-stare.md) | [Rezultate](../rezultate-F16-T27.md); proba operator. |
+| F16-T26 | Afisare unitara a orelor in format 24h | Codex | gata | [D071](../decizii/D071-format-ore-24h.md) | [Rezultate](../rezultate-F16-T26.md); proba operator. |
+| F16-T25 | Zoom global cu butoane minus/plus, resetare, tastatura si memorare locala | Codex | gata | [D065](../decizii/D065-zoom-interfata.md) | [Rezultate](../rezultate-F16-T25.md); proba operator pe monitorul propriu. |
 | F16-T01 | Backend diagnoză, rotire jurnale și profilare interogări | Antigravity | gata | D043 | `internal/diagnoza` |
 | F16-T02 | Frontend ErrorBoundary și captare globală a excepțiilor | Antigravity | gata | D043 | `ErrorBoundary.tsx` |
 | F16-T03 | Afișare metrici diagnoză și export jurnale în Setări | Antigravity | gata | D043 | `Formulare.tsx` |
@@ -34,3 +38,21 @@ Sistem integrat de diagnoză locală, captare robustă a erorilor pe frontend ș
 
 | F16-T21 | Remedieri UX01-UX08 din auditul release pilot | Codex | gata | analiza-ux-release-0.88.14.md | Protectie navigare AI, indicator neutru, ajutor fara model, drawer, cautare si tastatura; validare recuperare pe date fictive. |
 | F16-T22 | Internaționalizare panou eroare (ErrorBoundary, I095) și formatare defensivă a datelor în UI (I094) | Antigravity | gata | D004, I094, I095 | `ErrorBoundary.tsx`, `formatare.ts`, `Jurnal.tsx`, `Restaurare.tsx` |
+
+| F16-T23 | Corectarea focusului/cursorului din formulare si verificarea controalelor zoom | Codex | gata | Formulare.tsx; verificari UI | Reproducere tastare reala si modificare in mijlocul textului, controale vizibile la rezolutii mici si mari. Cerere suplimentara: importul zilelor anuale de concediu; antetul oficial nu era recunoscut, nici Norma_Ore_Zi. Probe CSV/XLSX si previzualizare cu concediu. |
+
+Predare F16-T23: cod 6f046a2, build complet 0.89.4 in build/bin/pontix-0.89.4-20261031-103113-d2f322809c2845d185e2bd69d4b8abb0, manual 1.7 si ZIP verificate. Pas urmator: proba operator si review PR daca se solicita. Fara push.
+
+| F16-T24 | Dimensiunea initiala a ferestrei adaptata ecranului si DPI | gata | Codex | Limite dinamice dupa zona de lucru Windows, fara acoperirea barei de activitati. |
+
+F16-T24: [rezultate si limite](../rezultate-F16-T24.md). Pas urmator: build oficial si proba utilizator la rezolutia/scalarea sa.
+
+| F16-T28 | Audit UI/UX 0.92.18: avantaje, probleme si recomandari | gata | Codex | Capturi utilizator si inspectie cod; completat cu UI28-13 capete tabele la derulare si UI28-14 exporturi Excel care nu se deschid, raportate de utilizator si inca nereproduse. Fara modificari de interfata. [Audit](../analiza-ui-0.92.18.md). |
+
+| F16-T29 | Implementarea tuturor remediilor UI28-01 ... UI28-14 | gata | Codex | 0.92.19: UI28-01...13 implementate/verificate; investigatia blocajului Excel UI28-14 amanata explicit de utilizator, protectiile de salvare deja implementate pastrate. Urmeaza build/proba operator, fara push/merge. [Plan si verificari](../plan-F16-T29.md). |
+
+| F16-T30 | Analiza UX dupa remediile 0.92.19 | Codex | gata | [Audit si prioritati](../analiza-ux-0.92.19.md). 12 recomandari, limite explicite; pas urmator: lot de implementare, fara push/merge. |
+
+| F16-T31 | Implementarea celor sase recomandari UX30 | Codex | gata | 0.92.20/manual 1.31. [Implementare si verificari](../plan-F16-T31.md). Urmeaza build/proba operator; fara push/merge, Excel amanat. |
+
+| F16-T32 | Istoric si mod de calcul la sfarsitul rapoartelor | Codex | gata | 0.92.21: anexa finala PDF verificata RO/EN, rapoarte versionate, manual 1.32. [Rezultate](../plan-F16-T32.md). Urmeaza build/proba operator; fara push/merge. |

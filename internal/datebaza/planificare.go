@@ -42,18 +42,19 @@ type CererePublicarePlan struct {
 	Token       string   `json:"token"`
 }
 type RandPublicarePlan struct {
-	PozitieID     string `json:"pozitie_id"`
-	AngajatID     string `json:"angajat_id"`
-	Data          string `json:"data"`
-	SchimbID      string `json:"schimb_id"`
-	Valoare       string `json:"valoare"`
-	Inainte       string `json:"inainte"`
-	ReviziePlan   string `json:"revizie_plan"`
-	ReviziePontaj string `json:"revizie_pontaj"`
-	OraStart      int64  `json:"ora_start"`
-	DurataMinute  int64  `json:"durata_minute"`
-	Stare         string `json:"stare"`
-	Motiv         string `json:"motiv"`
+	PontajeEfective int    `json:"pontaje_efective"`
+	PozitieID       string `json:"pozitie_id"`
+	AngajatID       string `json:"angajat_id"`
+	Data            string `json:"data"`
+	SchimbID        string `json:"schimb_id"`
+	Valoare         string `json:"valoare"`
+	Inainte         string `json:"inainte"`
+	ReviziePlan     string `json:"revizie_plan"`
+	ReviziePontaj   string `json:"revizie_pontaj"`
+	OraStart        int64  `json:"ora_start"`
+	DurataMinute    int64  `json:"durata_minute"`
+	Stare           string `json:"stare"`
+	Motiv           string `json:"motiv"`
 }
 type PublicarePlan struct {
 	Randuri     []RandPublicarePlan `json:"randuri"`
@@ -63,14 +64,18 @@ type PublicarePlan struct {
 	Blocate     int                 `json:"blocate"`
 }
 type sursePlanificare struct {
-	pozitii   []acces.Planificare
-	oameni    map[string]acces.ListaAngajatiRow
-	schimburi map[string]calcul.ProgramPrecompletare
-	coduri    map[string]calcul.ProgramPrecompletare
-	categorii map[string]CategorieProgram
-	absente   map[string]bool
-	ciorne    map[string]acces.PontajCiorne
-	intervale []calcul.IntervalPlanificare
+	sarbatori    map[string]bool
+	cheiEfective map[string]string
+	efective     []acces.PontajPrioritate
+	principali   map[string]string
+	pozitii      []acces.Planificare
+	oameni       map[string]acces.ListaAngajatiRow
+	schimburi    map[string]calcul.ProgramPrecompletare
+	coduri       map[string]calcul.ProgramPrecompletare
+	categorii    map[string]CategorieProgram
+	absente      map[string]bool
+	ciorne       map[string]acces.PontajCiorne
+	intervale    []calcul.IntervalPlanificare
 }
 
 func sursePentruPlanificare(ctx context.Context, q *acces.Queries, deLa, panaLa string) (sursePlanificare, error) {
@@ -78,7 +83,18 @@ func sursePentruPlanificare(ctx context.Context, q *acces.Queries, deLa, panaLa 
 	prima, _ := time.Parse(time.DateOnly, deLa)
 	ultima, _ := time.Parse(time.DateOnly, panaLa)
 	extDeLa, extPanaLa := prima.AddDate(0, 0, -2).Format(time.DateOnly), ultima.AddDate(0, 0, 2).Format(time.DateOnly)
-	var err error
+	s.sarbatori = map[string]bool{}
+	calendar, err := q.ListaToateSarbatori(ctx)
+	if err != nil {
+		return s, err
+	}
+	for _, zi := range calendar {
+		s.sarbatori[zi.Data] = true
+	}
+	s.principali, err = q.ListaLegaturiIerarhice(ctx)
+	if err != nil {
+		return s, err
+	}
 	s.pozitii, err = q.ListaPlanificare(ctx, acces.ListaPlanificareParams{DataDeLa: extDeLa, DataPanaLa: extPanaLa})
 	if err != nil {
 		return s, err
@@ -88,6 +104,11 @@ func sursePentruPlanificare(ctx context.Context, q *acces.Queries, deLa, panaLa 
 		return s, err
 	}
 	for _, a := range oameni {
+		categorie, err := q.CategorieContractAngajat(ctx, a.ID)
+		if err != nil {
+			return s, err
+		}
+		a.CategorieProgramID = textOptional(categorie)
 		s.oameni[a.ID] = a
 	}
 	categorii, err := citesteCategoriiProgram(ctx, q)
@@ -115,6 +136,13 @@ func sursePentruPlanificare(ctx context.Context, q *acces.Queries, deLa, panaLa 
 			s.absente[a.AngajatID+"/"+a.Data] = true
 		}
 	}
+	medical, err := zileMedicalFamilie(ctx, q, extDeLa, extPanaLa)
+	if err != nil {
+		return s, err
+	}
+	for cheie := range medical {
+		s.absente[cheie] = true
+	}
 	ciorne, err := q.ListaCiorneLuna(ctx, acces.ListaCiorneLunaParams{DataDeLa: extDeLa, DataPanaLa: extPanaLa})
 	if err != nil {
 		return s, err
@@ -125,21 +153,30 @@ func sursePentruPlanificare(ctx context.Context, q *acces.Queries, deLa, panaLa 
 		if strings.TrimSpace(c.Valoare) == "" {
 			continue
 		}
-		d, _ := time.Parse(time.DateOnly, c.Data)
-		start, stop := d, d.AddDate(0, 0, 1)
-		if p, ok := s.coduri[strings.ToUpper(strings.TrimSpace(c.Valoare))]; ok && p.OraStart >= 0 && p.DurataMinute > 0 {
-			start = d.Add(time.Duration(p.OraStart) * time.Minute)
-			stop = start.Add(time.Duration(p.DurataMinute) * time.Minute)
-		} else if _, manual := calcul.OreManuale(c.Valoare); !manual {
-			stop = d.AddDate(0, 0, 3)
+		for _, cod := range calcul.CoduriPrograme(c.Valoare) {
+			d, _ := time.Parse(time.DateOnly, c.Data)
+			start, stop := d, d.AddDate(0, 0, 1)
+			if p, ok := s.coduri[cod]; ok && p.OraStart >= 0 && p.DurataMinute > 0 {
+				start = d.Add(time.Duration(p.OraStart) * time.Minute)
+				stop = start.Add(time.Duration(p.DurataMinute) * time.Minute)
+			} else if _, manual := calcul.OreManuale(cod); !manual {
+				stop = d.AddDate(0, 0, 3)
+			}
+			s.intervale = append(s.intervale, calcul.IntervalPlanificare{AngajatID: c.AngajatID, Cheie: "c/" + k, Inceput: start, Sfarsit: stop})
 		}
-		s.intervale = append(s.intervale, calcul.IntervalPlanificare{AngajatID: c.AngajatID, Cheie: "c/" + k, Inceput: start, Sfarsit: stop})
+	}
+	s.efective, err = q.ListaPontajePrioritate(ctx, extDeLa, extPanaLa)
+	if err != nil {
+		return s, err
 	}
 	efective, err := q.ListaPontajePrecompletare(ctx, acces.ListaPontajePrecompletareParams{DataDeLa: extDeLa, DataPanaLa: extPanaLa})
 	if err != nil {
 		return s, err
 	}
+	s.cheiEfective = map[string]string{}
 	for i, p := range efective {
+		s.cheiEfective["e/"+strconv.Itoa(i)] = p.AngajatID + "/" + p.Data
+		s.cheiEfective["e/zi/"+strconv.Itoa(i)] = p.AngajatID + "/" + p.Data
 		d, _ := time.Parse(time.DateOnly, p.Data)
 		start, stop := d, d.AddDate(0, 0, 1)
 		if p.Start != nil && p.Sfarsit != nil {
@@ -168,6 +205,12 @@ func (s sursePlanificare) verifica(p acces.Planificare, cuPontaj bool, ignoraCel
 	program, ok := s.schimburi[p.SchimbID]
 	if !ok || !program.Activ {
 		return "program_inactiv"
+	}
+	if program.Tip == "NORMAL" && program.Regim == "LUCRATOARE" {
+		d, _ := time.Parse(time.DateOnly, p.Data)
+		if d.Weekday() == time.Saturday || d.Weekday() == time.Sunday || s.sarbatori[p.Data] {
+			return "zi_nelucratoare"
+		}
 	}
 	if !calcul.ProgramInSectiune(program, p.Sectiune) {
 		return "sectiune_program"
@@ -205,6 +248,7 @@ func (s sursePlanificare) verifica(p acces.Planificare, cuPontaj bool, ignoraCel
 	ignora := map[string]bool{}
 	if ignoraCelula {
 		ignora["c/"+p.AngajatID+"/"+p.Data] = true
+
 	}
 	return calcul.VerificaTuraPlanificata(p.AngajatID, p.Data, program, s.absente, intervale, ignora)
 }
@@ -234,7 +278,7 @@ func (s *Serviciu) CitestePlanificare(ctx context.Context, an, luna int) (Planif
 		if p.PublicatLa != "" {
 			stare = "MODIFICATA"
 		}
-		if p.PublicatPlanRevizie == p.Revizie && p.PublicatPontajRevizie == c.Revizie && strings.EqualFold(p.PublicatValoare, strings.TrimSpace(c.Valoare)) && p.PublicatValoare == surse.schimburi[p.SchimbID].Cod {
+		if p.PublicatPlanRevizie == p.Revizie && p.PublicatPontajRevizie == c.Revizie && strings.EqualFold(p.PublicatValoare, strings.TrimSpace(c.Valoare)) && calcul.AceleasiPrograme(p.PublicatValoare, valoareZiPlan(surse, p.AngajatID, p.Data)) {
 			stare = "PUBLICATA"
 		}
 		if p.Activ != 1 {
@@ -268,6 +312,10 @@ func (s *Serviciu) SalveazaPlanificare(ctx context.Context, an, luna int, poziti
 		if err != nil {
 			return err
 		}
+		valoriInitiale := map[string]string{}
+		for k, c := range surse.ciorne {
+			valoriInitiale[k] = c.Valoare
+		}
 		vechi := map[string]acces.Planificare{}
 		for _, p := range surse.pozitii {
 			vechi[p.ID] = p
@@ -296,7 +344,7 @@ func (s *Serviciu) SalveazaPlanificare(ctx context.Context, an, luna int, poziti
 				if !ok || strconv.FormatInt(v.Revizie, 10) != p.Revizie {
 					return eroare("planificare.conflict")
 				}
-				if v.AngajatID != p.AngajatID || v.Data != p.Data || v.Sectiune != p.Sectiune {
+				if v.AngajatID != p.AngajatID || v.Data != p.Data {
 					return eroare("planificare.lot_invalid")
 				}
 			}
@@ -322,16 +370,6 @@ func (s *Serviciu) SalveazaPlanificare(ctx context.Context, an, luna int, poziti
 			finale = append(finale, p)
 		}
 		surse.pozitii = finale
-		ocupate := map[string]bool{}
-		for _, p := range finale {
-			if p.Activ == 1 {
-				k := p.AngajatID + "/" + p.Data
-				if ocupate[k] {
-					return eroare("planificare.duplicat")
-				}
-				ocupate[k] = true
-			}
-		}
 		for _, p := range schimbate {
 			if p.Activ == 1 {
 				if motiv := surse.verifica(p, false, true); motiv != "" {
@@ -339,7 +377,7 @@ func (s *Serviciu) SalveazaPlanificare(ctx context.Context, an, luna int, poziti
 				}
 			}
 			v, exista := vechi[p.ID]
-			if exista && v.SchimbID == p.SchimbID && v.Activ == p.Activ {
+			if exista && v.SchimbID == p.SchimbID && v.Activ == p.Activ && v.Sectiune == p.Sectiune {
 				continue
 			}
 			if exista {
@@ -351,11 +389,21 @@ func (s *Serviciu) SalveazaPlanificare(ctx context.Context, an, luna int, poziti
 					return eroare("planificare.conflict")
 				}
 				p.Revizie = v.Revizie + 1
+				if v.Sectiune != p.Sectiune {
+					if err := q.ActualizeazaSectiunePozitie(ctx, p.ID, p.Sectiune, p.Revizie); err != nil {
+						return err
+					}
+				}
 			} else {
 				if err := q.AdaugaPozitiePlanificare(ctx, acces.AdaugaPozitiePlanificareParams{ID: p.ID, AngajatID: p.AngajatID, Data: p.Data, SchimbID: p.SchimbID, Sectiune: p.Sectiune, Activ: p.Activ, CreatLa: moment(), ModificatLa: moment()}); err != nil {
 					return err
 				}
 				p.Revizie = 1
+			}
+			if exista && v.Activ == 1 && p.Activ == 0 && calcul.AceleasiPrograme(valoriInitiale[v.AngajatID+"/"+v.Data], v.PublicatValoare) {
+				if err := retrageProgramPublicat(ctx, q, surse, v); err != nil {
+					return err
+				}
 			}
 			var inainte any
 			if exista {
@@ -393,31 +441,54 @@ func pregatestePublicare(ctx context.Context, q *acces.Queries, c CererePublicar
 	if err != nil {
 		return rez, err
 	}
+	zileSelectate := map[string]bool{}
+	for _, p := range surse.pozitii {
+		if ids[p.ID] {
+			zileSelectate[p.AngajatID+"/"+p.Data] = true
+		}
+	}
+	for _, p := range surse.pozitii {
+		if p.Activ == 1 && zileSelectate[p.AngajatID+"/"+p.Data] {
+			ids[p.ID] = true
+		}
+	}
 	for _, p := range surse.pozitii {
 		if !ids[p.ID] {
 			continue
 		}
-		if p.Data < deLa || p.Data > panaLa || (sectiuneFiltru != "" && p.Sectiune != sectiuneFiltru) || p.Activ != 1 {
+		if p.Data < deLa || p.Data > panaLa || p.Activ != 1 {
 			return rez, eroare("planificare.lot_invalid")
 		}
 		program := surse.schimburi[p.SchimbID]
 		veche := surse.ciorne[p.AngajatID+"/"+p.Data]
-		r := RandPublicarePlan{PozitieID: p.ID, AngajatID: p.AngajatID, Data: p.Data, SchimbID: p.SchimbID, Valoare: program.Cod, Inainte: veche.Valoare, ReviziePlan: strconv.FormatInt(p.Revizie, 10), OraStart: program.OraStart, DurataMinute: program.DurataMinute, Stare: "NOUA"}
+		r := RandPublicarePlan{PozitieID: p.ID, AngajatID: p.AngajatID, Data: p.Data, SchimbID: p.SchimbID, Valoare: valoareZiPlan(surse, p.AngajatID, p.Data), Inainte: veche.Valoare, ReviziePlan: strconv.FormatInt(p.Revizie, 10), OraStart: program.OraStart, DurataMinute: program.DurataMinute, Stare: "NOUA"}
 		if veche.Revizie > 0 {
 			r.ReviziePontaj = strconv.FormatInt(veche.Revizie, 10)
 		}
-		r.Motiv = surse.verifica(p, true, true)
+		for _, ef := range surse.efective {
+			if ef.AngajatID == p.AngajatID && ef.Data == p.Data {
+				r.PontajeEfective++
+			}
+		}
+		validare := surse
+		validare.intervale = nil
+		for _, interval := range surse.intervale {
+			if surse.cheiEfective[interval.Cheie] != p.AngajatID+"/"+p.Data {
+				validare.intervale = append(validare.intervale, interval)
+			}
+		}
+		r.Motiv = validare.verifica(p, true, true)
+		if len(r.Valoare) > 1024 {
+			return rez, eroare("planificare.lot_invalid")
+		}
 		if r.Motiv != "" {
 			r.Stare = "BLOCATA"
-		} else if strings.EqualFold(strings.TrimSpace(veche.Valoare), program.Cod) {
+		} else if r.PontajeEfective > 0 {
+			r.Stare = "INLOCUIRE"
+		} else if calcul.AceleasiPrograme(veche.Valoare, r.Valoare) {
 			r.Stare = "IDENTIC"
 		} else if strings.TrimSpace(veche.Valoare) != "" {
-			if c.Inlocuieste {
-				r.Stare = "INLOCUIRE"
-			} else {
-				r.Stare = "BLOCATA"
-				r.Motiv = "celula_ocupata"
-			}
+			r.Stare = "INLOCUIRE"
 		}
 		switch r.Stare {
 		case "IDENTIC":
@@ -429,6 +500,29 @@ func pregatestePublicare(ctx context.Context, q *acces.Queries, c CererePublicar
 		}
 		rez.Randuri = append(rez.Randuri, r)
 	}
+	// Publicarea este atomica pe marca/zi: un program neeligibil blocheaza intregul set.
+	motiveZi := map[string]string{}
+	for _, r := range rez.Randuri {
+		if r.Stare == "BLOCATA" {
+			motiveZi[r.AngajatID+"/"+r.Data] = r.Motiv
+		}
+	}
+	rez.Publicabile, rez.Identice, rez.Blocate = 0, 0, 0
+	for i := range rez.Randuri {
+		r := &rez.Randuri[i]
+		if motiv := motiveZi[r.AngajatID+"/"+r.Data]; motiv != "" {
+			r.Stare = "BLOCATA"
+			r.Motiv = motiv
+		}
+		switch r.Stare {
+		case "BLOCATA":
+			rez.Blocate++
+		case "IDENTIC":
+			rez.Identice++
+		default:
+			rez.Publicabile++
+		}
+	}
 	if len(rez.Randuri) != len(ids) {
 		return rez, eroare("planificare.conflict")
 	}
@@ -438,7 +532,8 @@ func pregatestePublicare(ctx context.Context, q *acces.Queries, c CererePublicar
 		Sectiune    string
 		Inlocuieste bool
 		Randuri     []RandPublicarePlan
-	}{c.An, c.Luna, c.Sectiune, c.Inlocuieste, rez.Randuri})
+		Efective    []acces.PontajPrioritate
+	}{c.An, c.Luna, c.Sectiune, c.Inlocuieste, rez.Randuri, surse.efective})
 	if err != nil {
 		return rez, err
 	}
@@ -469,12 +564,28 @@ func (s *Serviciu) PublicaPlanificare(ctx context.Context, c CererePublicarePlan
 		if c.Token == "" || c.Token != rez.Token {
 			return eroare("planificare.conflict_publicare")
 		}
+		deLa, panaLa, _ := limiteLuna(c.An, c.Luna)
+		efective, err := q.ListaPontajePrioritate(ctx, deLa, panaLa)
+		if err != nil {
+			return err
+		}
+		reviziiZi := map[string]int64{}
 		for _, r := range rez.Randuri {
 			if r.Stare == "BLOCATA" {
 				continue
 			}
+			for _, p := range efective {
+				if _, deja := reviziiZi[r.AngajatID+"/"+r.Data]; !deja && p.AngajatID == r.AngajatID && p.Data == r.Data {
+					if err := retragePontajPrioritar(ctx, q, p); err != nil {
+						return err
+					}
+				}
+			}
 			revizie, _ := strconv.ParseInt(r.ReviziePontaj, 10, 64)
-			if r.Stare != "IDENTIC" {
+			cheieZi := r.AngajatID + "/" + r.Data
+			if deja, ok := reviziiZi[cheieZi]; ok {
+				revizie = deja
+			} else if r.Stare != "IDENTIC" {
 				revizie, err = q.SalveazaCiorna(ctx, acces.SalveazaCiornaParams{AngajatID: r.AngajatID, Data: r.Data, Valoare: r.Valoare, ModificatLa: moment()})
 				if err != nil {
 					return err
@@ -483,6 +594,7 @@ func (s *Serviciu) PublicaPlanificare(ctx context.Context, c CererePublicarePlan
 					return err
 				}
 			}
+			reviziiZi[cheieZi] = revizie
 			planRev, _ := strconv.ParseInt(r.ReviziePlan, 10, 64)
 			n, err := q.MarcheazaPlanificarePublicata(ctx, acces.MarcheazaPlanificarePublicataParams{ID: r.PozitieID, Revizie: planRev, PublicatPlanRevizie: planRev, PublicatPontajRevizie: revizie, PublicatValoare: r.Valoare, PublicatLa: moment()})
 			if err != nil {
@@ -661,7 +773,10 @@ func (s *Serviciu) CitestePlanificatVsRealizat(ctx context.Context, an, luna int
 		if val == "" {
 			continue
 		}
-		ore := oreSchimb[strings.ToUpper(val)]
+		ore := 0
+		for _, cod := range calcul.CoduriPrograme(val) {
+			ore += oreSchimb[cod]
+		}
 		if ore == 0 {
 			if h, manual := calcul.OreManuale(val); manual {
 				ore = int(h / 60)

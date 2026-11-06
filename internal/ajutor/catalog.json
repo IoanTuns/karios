@@ -22,7 +22,10 @@
       "personal",
       "import",
       "employee",
-      "staff"
+      "staff",
+      "marca garda",
+      "marca principala",
+      "on-call number"
     ]
   },
   {
@@ -106,7 +109,10 @@
       "tipar",
       "report",
       "export",
-      "print"
+      "print",
+      "marca garda",
+      "marca principala",
+      "on-call number"
     ]
   },
   {
@@ -132,8 +138,19 @@
       "norma",
       "sectii",
       "departamente",
+      "compartiment",
+      "compartimente",
       "settings",
-      "department"
+      "department",
+      "functii",
+      "functie",
+      "job functions",
+      "grup profesional",
+      "pozitie",
+      "contract garda",
+      "norma lunara",
+      "professional group",
+      "contract type"
     ]
   },
   {
@@ -146,7 +163,9 @@
       "interval",
       "durata",
       "shift code",
-      "schedule code"
+      "schedule code",
+      "categorii schimburi",
+      "shift categories"
     ]
   },
   {

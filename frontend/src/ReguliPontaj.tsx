@@ -1,14 +1,15 @@
+import {ReguliConditionate} from './ReguliConditionate';
 import {useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {semnaleazaModificari} from './modificariNesalvate';
 import {CitesteConfiguratiePontaj, SalveazaConfiguratiePontaj} from '../wailsjs/go/main/App';
 import {calcul, datebaza} from '../wailsjs/go/models';
 
-const surse = ['NEDEFINITA','TOTAL_ORE','ORE_ZNL','ORE_NORMA','ORE_SCHIMBURI','ZILE_ABSENTA'];
+const surse = ['NEDEFINITA','TOTAL_ORE','ORE_ZNL','ORE_NORMA','ORE_SCHIMBURI','ORE_SCHIMBURI_ZNL','ZILE_ABSENTA'];
 const zile = ['CO','CEV','CFS','CM','deleg'];
 const ore = ['ore_lucrate','T','ZNL','ore_norma','ore_garda'];
 
-export function ReguliPontaj({onModificari,onOcupat}: {onModificari:(v:boolean)=>void;onOcupat:(v:boolean)=>void}) {
+export function ReguliPontaj({onModificari,onOcupat,date}: {date:datebaza.Date;onModificari:(v:boolean)=>void;onOcupat:(v:boolean)=>void}) {
     const {t,i18n} = useTranslation();
     const [config,setConfig] = useState<calcul.ConfiguratiePontaj | null>(null);
     const [original,setOriginal] = useState('');
@@ -39,9 +40,9 @@ export function ReguliPontaj({onModificari,onOcupat}: {onModificari:(v:boolean)=
         <button className="buton primar" disabled={ocupat||!modificat} onClick={salveaza}>{t('ui.salveaza')}</button></div>
         {config&&<><label className="camp-atribuire">{t('pontaj.atribuire')}<select name="atribuire" disabled={ocupat} value={config.atribuire} onChange={e=>setConfig(new calcul.ConfiguratiePontaj({...config,atribuire:e.target.value}))}>
             <option value="ZI_INCEPUT">{t('pontaj.atribuire_ZI_INCEPUT')}</option><option value="ZILE_CALENDARISTICE">{t('pontaj.atribuire_ZILE_CALENDARISTICE')}</option></select></label>
-        <p className="nota-calendar">{t('pontaj.calendar_indiciu')}</p>
+        <p className="nota-calendar">{t('pontaj.calendar_indiciu')}</p><ReguliConditionate date={date} lista={config.conditionate??[]} ocupat={ocupat} onChange={r=>setConfig(new calcul.ConfiguratiePontaj({...config,conditionate:r}))}/>
         <div className="panou tabel-derulant"><table><thead><tr>{['coloana_regula','sursa_regula','selectie_regula','factor_regula','aprobare_regula'].map(c=><th key={c}>{t(`pontaj.${c}`)}</th>)}</tr></thead><tbody>
-            {config.reguli.map((r,i)=>{const selectie=r.sursa==='ORE_SCHIMBURI'||r.sursa==='ZILE_ABSENTA';return <tr key={r.coloana}><th>{t(`pontaj.total_${r.coloana}`)}</th><td><select name={`sursa_${r.coloana}`} aria-label={t('pontaj.sursa_pentru',{coloana:t(`pontaj.total_${r.coloana}`)})} disabled={ocupat} value={r.sursa} onChange={e=>schimba(i,{sursa:e.target.value,coduri:[],factor_sutimi:100,numai_aprobate:false})}>
+            {config.reguli.map((r,i)=>{const selectie=r.sursa==='ORE_SCHIMBURI'||r.sursa==='ORE_SCHIMBURI_ZNL'||r.sursa==='ZILE_ABSENTA';return <tr key={r.coloana}><th>{t(`pontaj.total_${r.coloana}`)}</th><td><select name={`sursa_${r.coloana}`} aria-label={t('pontaj.sursa_pentru',{coloana:t(`pontaj.total_${r.coloana}`)})} disabled={ocupat} value={r.sursa} onChange={e=>schimba(i,{sursa:e.target.value,coduri:[],factor_sutimi:100,numai_aprobate:false})}>
                 {surse.filter(s=>s==='NEDEFINITA'||(!zile.includes(r.coloana)||s==='ZILE_ABSENTA')&&(!ore.includes(r.coloana)||s!=='ZILE_ABSENTA')).map(s=><option key={s} value={s}>{t(`pontaj.sursa_${s}`)}</option>)}</select></td>
                 <td>{selectie?<><select name={`coduri_${r.coloana}`} aria-label={t('pontaj.selectie_pentru',{coloana:t(`pontaj.total_${r.coloana}`)})} multiple required disabled={ocupat} value={r.coduri} onChange={e=>schimba(i,{coduri:Array.from(e.target.selectedOptions,o=>o.value)})}>
                     {optiuni.filter(o=>o.tip===(r.sursa==='ZILE_ABSENTA'?'ABSENTA':'SCHIMB')).map(o=><option key={o.cod} value={o.cod}>{o.denumire[i18n.language]||o.denumire.ro||o.cod} ({o.cod})</option>)}</select>

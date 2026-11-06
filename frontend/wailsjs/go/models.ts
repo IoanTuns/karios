@@ -1,3 +1,26 @@
+export namespace acces {
+
+	export class InitializarePontaj {
+	    luna: string;
+	    minute: number;
+	    co_zile: number;
+	    revizie: number;
+
+	    static createFrom(source: any = {}) {
+	        return new InitializarePontaj(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.luna = source["luna"];
+	        this.minute = source["minute"];
+	        this.co_zile = source["co_zile"];
+	        this.revizie = source["revizie"];
+	    }
+	}
+
+}
+
 export namespace ai {
 
 	export class SelectiePlan {
@@ -290,7 +313,50 @@ export namespace calcul {
 	        this.numai_aprobate = source["numai_aprobate"];
 	    }
 	}
+	export class RegulaConditionata {
+	    regula: RegulaColoana;
+	    grup_id: string;
+	    functie_id: string;
+	    contract_id: string;
+	    pozitie: string;
+	    garda: string;
+	    activ: boolean;
+
+	    static createFrom(source: any = {}) {
+	        return new RegulaConditionata(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.regula = this.convertValues(source["regula"], RegulaColoana);
+	        this.grup_id = source["grup_id"];
+	        this.functie_id = source["functie_id"];
+	        this.contract_id = source["contract_id"];
+	        this.pozitie = source["pozitie"];
+	        this.garda = source["garda"];
+	        this.activ = source["activ"];
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 	export class ConfiguratiePontaj {
+	    conditionate?: RegulaConditionata[];
 	    atribuire: string;
 	    reguli: RegulaColoana[];
 	    revizie: string;
@@ -301,6 +367,7 @@ export namespace calcul {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.conditionate = this.convertValues(source["conditionate"], RegulaConditionata);
 	        this.atribuire = source["atribuire"];
 	        this.reguli = this.convertValues(source["reguli"], RegulaColoana);
 	        this.revizie = source["revizie"];
@@ -399,6 +466,26 @@ export namespace calcul {
 		    }
 		    return a;
 		}
+	}
+	export class ProfilPontaj {
+	    GrupID: string;
+	    FunctieID: string;
+	    ContractID: string;
+	    Conducere: boolean;
+	    Garda: boolean;
+
+	    static createFrom(source: any = {}) {
+	        return new ProfilPontaj(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.GrupID = source["GrupID"];
+	        this.FunctieID = source["FunctieID"];
+	        this.ContractID = source["ContractID"];
+	        this.Conducere = source["Conducere"];
+	        this.Garda = source["Garda"];
+	    }
 	}
 	export class ZiComparativ {
 	    data: string;
@@ -583,6 +670,7 @@ export namespace calcul {
 		}
 	}
 
+
 	export class RegulaConfigurabila {
 	    id: string;
 	    cod: string;
@@ -749,8 +837,29 @@ export namespace conturi {
 }
 
 export namespace datebaza {
+	export class EfectAbsenta {
+	    sursa: string;
+	    id: string;
+	    inainte: Record<string, any>;
+	    dupa: Record<string, any>;
+
+	    static createFrom(source: any = {}) {
+	        return new EfectAbsenta(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.sursa = source["sursa"];
+	        this.id = source["id"];
+	        this.inainte = source["inainte"];
+	        this.dupa = source["dupa"];
+	    }
+	}
+
+
 
 	export class ZiAbsenta {
+	    minute_creditate?: number;
 	    angajat_id: string;
 	    data: string;
 	    cod: string;
@@ -771,6 +880,7 @@ export namespace datebaza {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.minute_creditate = source["minute_creditate"];
 	        this.angajat_id = source["angajat_id"];
 	        this.data = source["data"];
 	        this.cod = source["cod"];
@@ -787,6 +897,9 @@ export namespace datebaza {
 	    }
 	}
 	export class TipAbsenta {
+	    categorie_id: string;
+	    efect_ore: string;
+	    revizie: string;
 	    cod: string;
 	    denumire: Record<string, string>;
 	    categorie: string;
@@ -798,13 +911,40 @@ export namespace datebaza {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.categorie_id = source["categorie_id"];
+	        this.efect_ore = source["efect_ore"];
+	        this.revizie = source["revizie"];
 	        this.cod = source["cod"];
 	        this.denumire = source["denumire"];
 	        this.categorie = source["categorie"];
 	        this.activ = source["activ"];
 	    }
 	}
+	export class CategorieAbsenta {
+	    cod: string;
+	    denumire: Record<string, string>;
+	    natura: string;
+	    efect_ore: string;
+	    activ: boolean;
+	    revizie: string;
+
+	    static createFrom(source: any = {}) {
+	        return new CategorieAbsenta(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.cod = source["cod"];
+	        this.denumire = source["denumire"];
+	        this.natura = source["natura"];
+	        this.efect_ore = source["efect_ore"];
+	        this.activ = source["activ"];
+	        this.revizie = source["revizie"];
+	    }
+	}
+
 	export class AbsenteAn {
+	    categorii: CategorieAbsenta[];
 	    an: number;
 	    tipuri: TipAbsenta[];
 	    zile: ZiAbsenta[];
@@ -815,6 +955,7 @@ export namespace datebaza {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.categorii = this.convertValues(source["categorii"], CategorieAbsenta);
 	        this.an = source["an"];
 	        this.tipuri = this.convertValues(source["tipuri"], TipAbsenta);
 	        this.zile = this.convertValues(source["zile"], ZiAbsenta);
@@ -839,11 +980,19 @@ export namespace datebaza {
 		}
 	}
 	export class Angajat {
+	    initializare?: acces.InitializarePontaj;
+	    contract_id: string;
+	    grup_id: string;
+	    conducere: boolean;
+	    garda: boolean;
+	    norma_definita: boolean;
 	    id: string;
 	    nume: string;
 	    prenume: string;
 	    marca: string;
 	    functie: string;
+	    functie_id: string;
+	    angajat_principal_id: string;
 	    sectie_id: string;
 	    departament_id: string;
 	    categorie_program_id: string;
@@ -852,6 +1001,8 @@ export namespace datebaza {
 	    norma_minute: number;
 	    concediu_zile_an?: number;
 	    activ: boolean;
+	    prefix_id: string;
+	    prefix?: Record<string, string>;
 
 	    static createFrom(source: any = {}) {
 	        return new Angajat(source);
@@ -859,11 +1010,19 @@ export namespace datebaza {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.initializare = this.convertValues(source["initializare"], acces.InitializarePontaj);
+	        this.contract_id = source["contract_id"];
+	        this.grup_id = source["grup_id"];
+	        this.conducere = source["conducere"];
+	        this.garda = source["garda"];
+	        this.norma_definita = source["norma_definita"];
 	        this.id = source["id"];
 	        this.nume = source["nume"];
 	        this.prenume = source["prenume"];
 	        this.marca = source["marca"];
 	        this.functie = source["functie"];
+	        this.functie_id = source["functie_id"];
+	        this.angajat_principal_id = source["angajat_principal_id"];
 	        this.sectie_id = source["sectie_id"];
 	        this.departament_id = source["departament_id"];
 	        this.categorie_program_id = source["categorie_program_id"];
@@ -872,7 +1031,27 @@ export namespace datebaza {
 	        this.norma_minute = source["norma_minute"];
 	        this.concediu_zile_an = source["concediu_zile_an"];
 	        this.activ = source["activ"];
+	        this.prefix_id = source["prefix_id"];
+	        this.prefix = source["prefix"];
 	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
 	}
 	export class RandAnulareAI {
 	    angajat_id: string;
@@ -1200,7 +1379,50 @@ export namespace datebaza {
 	        this.denumire = source["denumire"];
 	    }
 	}
+	export class ElementNomenclator {
+	    comportament: string;
+	    utilizari: number;
+	    grup_id: string;
+	    ordine: number;
+	    conducere: boolean;
+	    normare: string;
+	    norma_minute?: number;
+	    categorie_program_id: string;
+	    garda: boolean;
+	    id: string;
+	    denumire: Record<string, string>;
+	    activ: boolean;
+	    revizie: string;
+
+	    static createFrom(source: any = {}) {
+	        return new ElementNomenclator(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.comportament = source["comportament"];
+	        this.utilizari = source["utilizari"];
+	        this.grup_id = source["grup_id"];
+	        this.ordine = source["ordine"];
+	        this.conducere = source["conducere"];
+	        this.normare = source["normare"];
+	        this.norma_minute = source["norma_minute"];
+	        this.categorie_program_id = source["categorie_program_id"];
+	        this.garda = source["garda"];
+	        this.id = source["id"];
+	        this.denumire = source["denumire"];
+	        this.activ = source["activ"];
+	        this.revizie = source["revizie"];
+	    }
+	}
 	export class Date {
+	    tipuri_program: ElementNomenclator[];
+	    regimuri_program: ElementNomenclator[];
+	    grupuri_profesionale: ElementNomenclator[];
+	    tipuri_contract: ElementNomenclator[];
+	    categorii_schimburi: ElementNomenclator[];
+	    functii: ElementNomenclator[];
+	    prefixe: ElementNomenclator[];
 	    angajati: Angajat[];
 	    sectii: Sectie[];
 	    departamente: Departament[];
@@ -1214,6 +1436,13 @@ export namespace datebaza {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.tipuri_program = this.convertValues(source["tipuri_program"], ElementNomenclator);
+	        this.regimuri_program = this.convertValues(source["regimuri_program"], ElementNomenclator);
+	        this.grupuri_profesionale = this.convertValues(source["grupuri_profesionale"], ElementNomenclator);
+	        this.tipuri_contract = this.convertValues(source["tipuri_contract"], ElementNomenclator);
+	        this.categorii_schimburi = this.convertValues(source["categorii_schimburi"], ElementNomenclator);
+	        this.functii = this.convertValues(source["functii"], ElementNomenclator);
+	        this.prefixe = this.convertValues(source["prefixe"], ElementNomenclator);
 	        this.angajati = this.convertValues(source["angajati"], Angajat);
 	        this.sectii = this.convertValues(source["sectii"], Sectie);
 	        this.departamente = this.convertValues(source["departamente"], Departament);
@@ -1259,6 +1488,7 @@ export namespace datebaza {
 	        this.continut_b64 = source["continut_b64"];
 	    }
 	}
+
 	export class ExplicatieSelectieAI {
 	    id: string;
 	    marca: string;
@@ -1577,6 +1807,7 @@ export namespace datebaza {
 	}
 
 	export class RandPublicarePlan {
+	    pontaje_efective: number;
 	    pozitie_id: string;
 	    angajat_id: string;
 	    data: string;
@@ -1596,6 +1827,7 @@ export namespace datebaza {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.pontaje_efective = source["pontaje_efective"];
 	        this.pozitie_id = source["pozitie_id"];
 	        this.angajat_id = source["angajat_id"];
 	        this.data = source["data"];
@@ -1773,6 +2005,9 @@ export namespace datebaza {
 	}
 
 	export class Schimb {
+	    revizie: string;
+	    tip_id: string;
+	    regim_id: string;
 	    id: string;
 	    cod: string;
 	    denumire: Record<string, string>;
@@ -1790,6 +2025,9 @@ export namespace datebaza {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.revizie = source["revizie"];
+	        this.tip_id = source["tip_id"];
+	        this.regim_id = source["regim_id"];
 	        this.id = source["id"];
 	        this.cod = source["cod"];
 	        this.denumire = source["denumire"];
@@ -1975,7 +2213,63 @@ export namespace diagnoza {
 
 }
 
+export namespace fonturi {
+
+	export class Font {
+	    nume: string;
+	    familie: string;
+	    stil: string;
+	    subset: boolean;
+
+	    static createFrom(source: any = {}) {
+	        return new Font(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.nume = source["nume"];
+	        this.familie = source["familie"];
+	        this.stil = source["stil"];
+	        this.subset = source["subset"];
+	    }
+	}
+
+}
+
 export namespace main {
+	export class RaspunsEfecteAbsente {
+	    efecte: datebaza.EfectAbsenta[];
+	    eroare?: MesajEroare;
+
+	    static createFrom(source: any = {}) {
+	        return new RaspunsEfecteAbsente(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.efecte = this.convertValues(source["efecte"], datebaza.EfectAbsenta);
+	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+
 
 	export class CerereAplicaPropunereAI {
 	    an: number;
@@ -2848,6 +3142,73 @@ export namespace main {
 		    return a;
 		}
 	}
+	export class RaspunsFontSistem {
+	    nume: string;
+	    date: string;
+	    subset: boolean;
+	    eroare?: MesajEroare;
+
+	    static createFrom(source: any = {}) {
+	        return new RaspunsFontSistem(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.nume = source["nume"];
+	        this.date = source["date"];
+	        this.subset = source["subset"];
+	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class RaspunsFonturiSistem {
+	    fonturi: fonturi.Font[];
+
+	    static createFrom(source: any = {}) {
+	        return new RaspunsFonturiSistem(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.fonturi = this.convertValues(source["fonturi"], fonturi.Font);
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+
 	export class RaspunsInstrumenteAI {
 	    anulare?: datebaza.AnulareAI;
 	    sabloane: datebaza.SablonAI[];
@@ -3013,6 +3374,7 @@ export namespace main {
 		}
 	}
 	export class RaspunsModeleRapoarte {
+	    conversie?: rapoarte.RezultatConversie[];
 	    configuratie?: rapoarte.Configuratie;
 	    salvat_id: string;
 	    eroare?: MesajEroare;
@@ -3023,6 +3385,7 @@ export namespace main {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.conversie = this.convertValues(source["conversie"], rapoarte.RezultatConversie);
 	        this.configuratie = this.convertValues(source["configuratie"], rapoarte.Configuratie);
 	        this.salvat_id = source["salvat_id"];
 	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
@@ -3244,6 +3607,9 @@ export namespace main {
 	    token: string;
 	    nume_fisier: string;
 	    pagini: number;
+	    generare_pdfme: boolean;
+	    sablon: string;
+	    intrari: Record<string, string>;
 	    eroare?: MesajEroare;
 
 	    static createFrom(source: any = {}) {
@@ -3257,6 +3623,9 @@ export namespace main {
 	        this.token = source["token"];
 	        this.nume_fisier = source["nume_fisier"];
 	        this.pagini = source["pagini"];
+	        this.generare_pdfme = source["generare_pdfme"];
+	        this.sablon = source["sablon"];
+	        this.intrari = source["intrari"];
 	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
 	    }
 
@@ -3550,6 +3919,25 @@ export namespace main {
 		    return a;
 		}
 	}
+	export class RaspunsStareInstanta {
+	    doar_citire: boolean;
+	    calculator: string;
+	    utilizator: string;
+	    de_la: string;
+
+	    static createFrom(source: any = {}) {
+	        return new RaspunsStareInstanta(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.doar_citire = source["doar_citire"];
+	        this.calculator = source["calculator"];
+	        this.utilizator = source["utilizator"];
+	        this.de_la = source["de_la"];
+	    }
+	}
+
 	export class RaspunsStareLuna {
 	    stare: datebaza.StareLuna;
 	    eroare?: MesajEroare;
@@ -3694,6 +4082,175 @@ export namespace main {
 }
 
 export namespace rapoarte {
+	export class RezultatConversie {
+	    id: string;
+	    denumire: Record<string, string>;
+	    note?: string[];
+	    eroare?: string;
+
+	    static createFrom(source: any = {}) {
+	        return new RezultatConversie(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.denumire = source["denumire"];
+	        this.note = source["note"];
+	        this.eroare = source["eroare"];
+	    }
+	}
+
+	export class TabelRaport {
+	    cod: string;
+	    campuri: string[];
+
+	    static createFrom(source: any = {}) {
+	        return new TabelRaport(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.cod = source["cod"];
+	        this.campuri = source["campuri"];
+	    }
+	}
+
+	export class RaportFlexibil {
+	    extinde_zile_libere?: boolean;
+	    bold_weekend?: boolean;
+	    bold_sarbatori?: boolean;
+	    coloana_data?: string;
+	    inaltime_rand: number;
+	    ascunse: string[];
+	    sql: string;
+	    mod_aspect: string;
+	    markdown: string;
+	    sablon?: string;
+	    elemente: ElementRaport[];
+	    calculate: ColoanaCalculata[];
+	    concedii_tipuri: string[];
+	    concedii_categorii: string[];
+	    weekend: boolean;
+	    sarbatori: boolean;
+
+	    static createFrom(source: any = {}) {
+	        return new RaportFlexibil(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.extinde_zile_libere = source["extinde_zile_libere"];
+	        this.bold_weekend = source["bold_weekend"];
+	        this.bold_sarbatori = source["bold_sarbatori"];
+	        this.coloana_data = source["coloana_data"];
+	        this.inaltime_rand = source["inaltime_rand"];
+	        this.ascunse = source["ascunse"];
+	        this.sql = source["sql"];
+	        this.mod_aspect = source["mod_aspect"];
+	        this.markdown = source["markdown"];
+	        this.sablon = source["sablon"];
+	        this.elemente = this.convertValues(source["elemente"], ElementRaport);
+	        this.calculate = this.convertValues(source["calculate"], ColoanaCalculata);
+	        this.concedii_tipuri = source["concedii_tipuri"];
+	        this.concedii_categorii = source["concedii_categorii"];
+	        this.weekend = source["weekend"];
+	        this.sarbatori = source["sarbatori"];
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+
+	export class ElementRaport {
+	    stil?: StilText;
+	    repeta_rand: boolean;
+	    id: string;
+	    text: string;
+	    x: number;
+	    y: number;
+	    latime: number;
+	    inaltime: number;
+	    font: number;
+
+	    static createFrom(source: any = {}) {
+	        return new ElementRaport(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.stil = this.convertValues(source["stil"], StilText);
+	        this.repeta_rand = source["repeta_rand"];
+	        this.id = source["id"];
+	        this.text = source["text"];
+	        this.x = source["x"];
+	        this.y = source["y"];
+	        this.latime = source["latime"];
+	        this.inaltime = source["inaltime"];
+	        this.font = source["font"];
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+
+	export class ColoanaCalculata {
+	    cod: string;
+	    denumire: Record<string, string>;
+	    unitate: string;
+	    mod: string;
+	    expresie: string;
+	    zecimale: number;
+	    lipsa_zero: boolean;
+	    activ: boolean;
+
+	    static createFrom(source: any = {}) {
+	        return new ColoanaCalculata(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.cod = source["cod"];
+	        this.denumire = source["denumire"];
+	        this.unitate = source["unitate"];
+	        this.mod = source["mod"];
+	        this.expresie = source["expresie"];
+	        this.zecimale = source["zecimale"];
+	        this.lipsa_zero = source["lipsa_zero"];
+	        this.activ = source["activ"];
+	    }
+	}
+
 
 	export class Imagine {
 	    nume: string;
@@ -3748,6 +4305,11 @@ export namespace rapoarte {
 		}
 	}
 	export class Cerere {
+	    grup_id: string;
+	    functie_id: string;
+	    contract_id: string;
+	    pozitie: string;
+	    garda: string;
 	    model_id: string;
 	    revizie: string;
 	    an: number;
@@ -3763,6 +4325,11 @@ export namespace rapoarte {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.grup_id = source["grup_id"];
+	        this.functie_id = source["functie_id"];
+	        this.contract_id = source["contract_id"];
+	        this.pozitie = source["pozitie"];
+	        this.garda = source["garda"];
 	        this.model_id = source["model_id"];
 	        this.revizie = source["revizie"];
 	        this.an = source["an"];
@@ -3824,6 +4391,9 @@ export namespace rapoarte {
 	    }
 	}
 	export class Continut {
+	    prezentare?: PrezentareRaport;
+	    ascunde_explicatii?: boolean;
+	    flexibil?: RaportFlexibil;
 	    sursa: string;
 	    coloane: string[];
 	    text: Record<string, string>;
@@ -3834,10 +4404,31 @@ export namespace rapoarte {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.prezentare = this.convertValues(source["prezentare"], PrezentareRaport);
+	        this.ascunde_explicatii = source["ascunde_explicatii"];
+	        this.flexibil = this.convertValues(source["flexibil"], RaportFlexibil);
 	        this.sursa = source["sursa"];
 	        this.coloane = source["coloane"];
 	        this.text = source["text"];
 	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
 	}
 	export class Definitie {
 	    id: string;
@@ -3920,6 +4511,8 @@ export namespace rapoarte {
 
 
 	export class Rand {
+	    aldin?: boolean;
+	    grup?: boolean;
 	    valori: string[];
 	    culori: string[];
 
@@ -3929,11 +4522,19 @@ export namespace rapoarte {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.aldin = source["aldin"];
+	        this.grup = source["grup"];
 	        this.valori = source["valori"];
 	        this.culori = source["culori"];
 	    }
 	}
 	export class Document {
+	    stiluri?: Record<string, StilText>;
+	    personalizat?: boolean;
+	    variabile_raport?: Record<string, string>;
+	    flexibil?: RaportFlexibil;
+	    schema?: TabelRaport[];
+	    legenda?: string[];
 	    titlu: string;
 	    sursa: string;
 	    versiune_raport: number;
@@ -3957,6 +4558,12 @@ export namespace rapoarte {
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.stiluri = this.convertValues(source["stiluri"], StilText, true);
+	        this.personalizat = source["personalizat"];
+	        this.variabile_raport = source["variabile_raport"];
+	        this.flexibil = this.convertValues(source["flexibil"], RaportFlexibil);
+	        this.schema = this.convertValues(source["schema"], TabelRaport);
+	        this.legenda = source["legenda"];
 	        this.titlu = source["titlu"];
 	        this.sursa = source["sursa"];
 	        this.versiune_raport = source["versiune_raport"];
@@ -3997,6 +4604,96 @@ export namespace rapoarte {
 
 
 
+
+
+
+
+	export class EditareTextRaport {
+	    cheie: string;
+	    text: string;
+	    stil?: StilText;
+
+	    static createFrom(source: any = {}) {
+	        return new EditareTextRaport(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.cheie = source["cheie"];
+	        this.text = source["text"];
+	        this.stil = this.convertValues(source["stil"], StilText);
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+
+	export class PrezentareRaport {
+	    stiluri?: Record<string, StilText>;
+	    etichete?: Record<string, any>;
+
+	    static createFrom(source: any = {}) {
+	        return new PrezentareRaport(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.stiluri = this.convertValues(source["stiluri"], StilText, true);
+	        this.etichete = source["etichete"];
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+
+	export class StilText {
+	    font_pt?: number;
+	    aliniere?: string;
+	    aldin?: boolean;
+	    cursiv?: boolean;
+
+	    static createFrom(source: any = {}) {
+	        return new StilText(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.font_pt = source["font_pt"];
+	        this.aliniere = source["aliniere"];
+	        this.aldin = source["aldin"];
+	        this.cursiv = source["cursiv"];
+	    }
+	}
 }
 
 export namespace raportare {

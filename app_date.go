@@ -112,3 +112,7 @@ func (a *App) raspunsDate(err error) RaspunsDate {
 	}
 	return RaspunsDate{Date: &date}
 }
+
+func (a *App) SalveazaElementNomenclator(tip string, element datebaza.ElementNomenclator) RaspunsDate {
+	return a.raspunsDate(datebaza.Nou(a.db).SalveazaElementNomenclator(a.contextLucru(), tip, element))
+}

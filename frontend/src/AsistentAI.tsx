@@ -1,3 +1,5 @@
+import {numeAngajat} from './numeAngajat';
+import {factorZoomInterfata} from './ZoomInterfata';
 import {useEffect, useLayoutEffect, useRef, useState, type FormEvent} from 'react';
 import {PlanAsistentAI} from './PlanAsistentAI';
 import {InstrumenteAsistentAI} from './InstrumenteAsistentAI';
@@ -115,7 +117,7 @@ export function AsistentAI({
         const dimensioneaza = () => {
             const parinte = panou.closest('main');
             const subsol = parinte ? parseFloat(getComputedStyle(parinte).paddingBottom) || 0 : 0;
-            const inaltime = Math.max(260, window.innerHeight - (panou.getBoundingClientRect().top + window.scrollY) - subsol - 12);
+            const inaltime = Math.max(260, (window.innerHeight - (panou.getBoundingClientRect().top + window.scrollY)) / factorZoomInterfata() - subsol - 12);
             panou.style.setProperty('--inaltime-asistent', `${inaltime}px`);
         };
         dimensioneaza();
@@ -397,7 +399,7 @@ export function AsistentAI({
             {mesaj && <div className="mesaj succes" role="status">{mesaj}</div>}
 
             <div className="zona-plan-ai" hidden={vizualizare !== 'instrumente'}>
-                {vizualizare === 'instrumente' && <InstrumenteAsistentAI blocat={blocat} onOcupat={setOcupat} onIncarca={incarcaPlan} onAnulat={id => seteazaConversatie(prev => prev.map(m => m.rezultatPlan?.operatie_id === id ? {...m, rezultatPlan: new datebaza.PlanAI({...m.rezultatPlan, anulat: true})} : m))}/>}
+                {vizualizare === 'instrumente' && <InstrumenteAsistentAI date={date} blocat={blocat} onOcupat={setOcupat} onIncarca={incarcaPlan} onAnulat={id => seteazaConversatie(prev => prev.map(m => m.rezultatPlan?.operatie_id === id ? {...m, rezultatPlan: new datebaza.PlanAI({...m.rezultatPlan, anulat: true})} : m))}/>}
             </div>
 
             <div className="zona-plan-ai" hidden={vizualizare !== 'plan'}>
@@ -465,7 +467,7 @@ export function AsistentAI({
                                                         👤 {(() => {
                                                             const ang = gasesteAngajat(String(p.parametri.marca), date.angajati);
                                                             if (ang) {
-                                                                return `${ang.nume} ${ang.prenume} (${ang.marca})`;
+                                                                return `${numeAngajat(ang)} (${ang.marca})`;
                                                             }
                                                             return t('ai.eticheta_marca', {marca: String(p.parametri.marca)});
                                                         })()}
@@ -485,7 +487,7 @@ export function AsistentAI({
                                                 {p.parametri?.data_inceput && p.parametri?.data_sfarsit && (
                                                     <span className="insigna-detaliu data">
                                                         📅 {t('ai.eticheta_interval')} <strong>{String(p.parametri.data_inceput)} → {String(p.parametri.data_sfarsit)}</strong>
-                                                        {p.parametri?.doar_lucratoare ? ' (L–V)' : ''}
+                                                        {p.parametri?.doar_lucratoare ? ` (${t('ai.plan_zile_lucratoare')})` : ''}
                                                     </span>
                                                 )}
                                             </div>

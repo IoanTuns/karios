@@ -50,12 +50,13 @@ func TestProgrameConfirmateSiIntrareSeparata(t *testing.T) {
 			t.Fatalf("codul %s nu este încadrat în CUSTOM: %+v", codVechi, dupaCod[codVechi])
 		}
 	}
-	if dupaCod["12"].OraStart != 840 || dupaCod["S3"].DurataMinute != 480 || dupaCod["7"].Regim != "GENERAL" {
+	if dupaCod["12"].OraStart != 840 || dupaCod["S3"].DurataMinute != 480 || dupaCod["7"].Regim != "LUCRATOARE" {
 		t.Fatal("codurile vechi au fost reinterpretate")
 	}
 	s := dupaCod["IN9"]
 	s.Denumire["ro"] = "Intrare personalizată"
 	s.Regim = "NELUCRATOARE"
+	s.RegimID = "NELUCRATOARE"
 	s.Categorie = "CUSTOM"
 	if err := m.serviciu.SalveazaSchimb(context.Background(), s); err != nil {
 		t.Fatal(err)
@@ -80,6 +81,7 @@ func TestProgrameConfirmateSiIntrareSeparata(t *testing.T) {
 	s.Regim = "INVENTAT"
 	verificaCod(t, m.serviciu.SalveazaSchimb(context.Background(), s), "schimburi.regim_invalid")
 	s.Regim = "NELUCRATOARE"
+	s.RegimID = "NELUCRATOARE"
 	s.Categorie = "INVENTATA"
 	verificaCod(t, m.serviciu.SalveazaSchimb(context.Background(), s), "schimburi.categorie_invalida")
 }
@@ -141,11 +143,11 @@ func TestMigrareProgramePastreazaPersonalizariSiPontaj(t *testing.T) {
 	for _, s := range lista {
 		switch s.Cod {
 		case "N12":
-			if s.OraStart != 1200 || s.DurataMinute != 660 || s.Activ || s.Regim != "GENERAL" || s.Categorie != "LAB" {
+			if s.OraStart != 1200 || s.DurataMinute != 660 || s.Activ || s.Regim != "LUCRATOARE" || s.Categorie != "LAB" {
 				t.Fatalf("N12 personalizat schimbat: %+v", s)
 			}
 		case "in9":
-			if s.ID != "intrare-config" || s.OraStart != 1260 || s.Regim != "GENERAL" || s.Categorie != "LAB" || s.Activ {
+			if s.ID != "intrare-config" || s.OraStart != 1260 || s.Regim != "LUCRATOARE" || s.Categorie != "LAB" || s.Activ {
 				t.Fatalf("intrare existentă schimbată: %+v", s)
 			}
 		case "7", "12", "S1", "S3":
