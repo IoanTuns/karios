@@ -184,3 +184,7 @@ Aspectul `PDFME` pastreaza SQL-ul, calculele si filtrele de mai sus; se schimba 
 ### Prefixul angajatului (0.92.35, D089)
 
 `angajati.prefix` contine titulatura in limba raportului (gol daca lipseste; marca de garda o preia pe a marcii principale). `angajati.angajat` si numele din celelalte seturi contin numele cu prefix; `nume` si `prenume` raman fara prefix. Exemplu: `SELECT prefix, nume, prenume, marca FROM angajati WHERE prefix='Dr.' ORDER BY nume`.
+
+### Spatiul de lucru si actualizarea tabelului (0.92.36, F09-T25)
+
+Tabelul `tabel` din sablon pastreaza in proprietatea `pontixColoane` codurile coloanelor SQL din care a fost facut; Go ignora proprietatea. **Actualizeaza tabelul din SQL** compara aceste coduri cu coloanele vizibile curente: pastreaza titlul si latimea coloanelor ramase, adauga coloanele noi cu latimea medie, scoate coloanele disparute si normalizeaza latimile la 100%. Sabloanele mai vechi, fara coduri, sunt potrivite dupa titlul coloanei. Alegerea aspectului vizual pe un model fara sablon ruleaza SQL-ul in modul tabel si adauga `angajat_id` la coloanele ascunse daca exista si alte coloane.

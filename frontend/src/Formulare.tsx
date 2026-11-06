@@ -28,17 +28,18 @@ function minuteDinOre(valoare: string): number | null {
     return valoare.trim() && Number.isFinite(minute) && Math.abs(minute - intreg) < 0.00001 && intreg >= 1 && intreg <= 1440 ? intreg : null;
 }
 
-export function Dialog({titlu, ocupat, inchide, children, permiteMaximizare = true, clasa}: {
+export function Dialog({titlu, ocupat, inchide, children, permiteMaximizare = true, clasa, maximizatInitial = false}: {
     titlu: string;
     ocupat: boolean;
     inchide: () => void;
     children: ReactNode;
     permiteMaximizare?: boolean;
     clasa?: string;
+    maximizatInitial?: boolean;
 }) {
     const ref = useRef<HTMLDialogElement>(null);
     const titluId=useId();
-    const [maximizat, setMaximizat] = useState(false);
+    const [maximizat, setMaximizat] = useState(maximizatInitial);
     const stareCurenta = useRef({ocupat, inchide});
     useEffect(() => { stareCurenta.current = {ocupat, inchide}; }, [ocupat, inchide]);
     const {t} = useTranslation();

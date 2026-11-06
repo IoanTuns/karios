@@ -1327,7 +1327,32 @@ fieldset.filtre-profesionale{border:0;padding:0;min-width:0}
 [data-tabel-accesibil]:focus-visible,.filtre-active button:focus-visible {outline:3px solid var(--text);outline-offset:2px;}
 
 .editor-flexibil {display:grid;gap:12px;min-width:0}.editor-flexibil textarea{width:100%;box-sizing:border-box;font-family:monospace}.editor-flexibil fieldset{border:1px solid var(--bordura,#cad6d0);padding:12px}.schema-flexibila code{display:inline-block;padding:2px 4px}.panza-raport{width:100%;max-height:520px;touch-action:none;background:white;border:1px solid #8aa89c}.panza-raport g{cursor:move}.editor-flexibil .cadru-raport{width:100%;height:520px;border:1px solid #cad6d0}.flex-date td,.flex-date th{white-space:nowrap}
-.editor-pdfme{width:100%;height:75vh;min-height:520px;border:1px solid #cad6d0;background:white}
+/* F09-T25: editorul vizual are spatiul lui de lucru, marit, cu o singura derulare (UIR-01). */
+.editor-pdfme{width:100%;height:100%;min-height:360px;border:1px solid var(--linie,#cad6d0);background:white}
+.dialog.dialog-pdfme[open]{display:flex;flex-direction:column}
+.spatiu-pdfme{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px;padding:8px 16px 16px}
+.bara-pdfme{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.file-pdfme{display:flex;gap:2px;border:1px solid var(--linie,#cad6d0);border-radius:8px;padding:2px}
+.file-pdfme button{border:0;background:transparent;padding:6px 12px;border-radius:6px;font:inherit;color:inherit;cursor:pointer}
+.file-pdfme button.activ{background:#2b4f81;color:#fff}
+.file-pdfme button:disabled{opacity:.5;cursor:default}
+.bara-pdfme details{position:relative}
+.bara-pdfme summary{cursor:pointer;padding:6px 10px;border:1px solid var(--linie,#cad6d0);border-radius:8px;list-style:none}
+.bara-pdfme summary::-webkit-details-marker{display:none}
+.panou-pdfme{position:absolute;z-index:20;top:calc(100% + 6px);left:0;width:min(520px,80vw);padding:12px;border:1px solid var(--linie,#cad6d0);border-radius:10px;background:#fff;box-shadow:0 12px 40px #103b2b33}
+.lista-campuri-pdfme{display:flex;flex-wrap:wrap;gap:6px;max-height:40vh;overflow:auto}
+.eticheta-camp{font:12px/1.4 monospace;padding:3px 6px;border:1px solid var(--linie,#cad6d0);border-radius:6px;background:#f3f6f4;color:#243c3a;cursor:pointer}
+.eticheta-camp.sql{background:#e1f2e8;border-color:#9ccfb2}
+.actiuni-pdfme{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap}
+.corp-pdfme{flex:1;min-height:0}
+.corp-pdfme[hidden]{display:none}
+.cadru-pdfme{flex:1;min-height:0;width:100%;border:1px solid var(--linie,#cad6d0)}
+.rezumat-pdfme{display:grid;gap:8px;padding:12px;border:1px dashed var(--linie,#cad6d0);border-radius:10px}
+.actiuni-rezumat-pdfme{display:flex;flex-wrap:wrap;gap:8px}
+[data-theme="dark"] .panou-pdfme{background:#1a2522;border-color:#2a3a35;color:#e2ede8}
+[data-theme="dark"] .eticheta-camp{background:#22302c;color:#e2ede8;border-color:#35473f}
+[data-theme="dark"] .eticheta-camp.sql{background:#1f3a2c;border-color:#3d6b52}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .panou-pdfme{background:#1a2522;border-color:#2a3a35;color:#e2ede8}:root:not([data-theme="light"]) .eticheta-camp{background:#22302c;color:#e2ede8;border-color:#35473f}}
 
 .unelte-stil-raport{display:flex;gap:.75rem;flex-wrap:wrap;align-items:end;margin:.75rem 0}.unelte-stil-raport label{min-width:8rem}.editor-prezentare,.editor-copie-raport{border:1px solid var(--bordura,#ccd7d2);border-radius:.5rem;padding:1rem;margin:1rem 0}.editor-prezentare summary,.editor-copie-raport summary{font-weight:600;cursor:pointer}.tabel-copie-raport input{min-width:8rem;width:100%;box-sizing:border-box}.editor-copie-raport fieldset{min-width:0}.tabel-copie-raport th{position:sticky;top:0;z-index:1}
 

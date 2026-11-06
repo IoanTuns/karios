@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.36 - 2026-11-06
+
+F09-T25: remediile analizei UI a editorului vizual (UIR-01..11). Editorul se deschide intr-un spatiu de lucru separat, marit, cu file Pagina/Previzualizare PDF, campuri copiabile, fonturi Windows, actualizarea tabelului si verificarea in aceeasi bara. In modul vizual formularul ascunde stilurile si boldul pe zile (fara efect in pdfme) si explica unde apar textele de antet/subsol. Alegerea aspectului vizual creeaza singura sablonul din SQL, ascunde implicit angajat_id si da capete lizibile. Tabelul tine minte coloanele SQL si se poate actualiza pastrand titlurile, latimile si restul paginii. Editorul este tradus integral in romana (126 de etichete pdfme, tipuri si nume de elemente). Zoom potrivit latimii si panou de proprietati deschis de la 1280 px. Fara schimbari Go, ale calculului sau ale rapoartelor; versiunile rapoartelor raman. Manual 1.46.
+
 ## 0.92.35 - 2026-11-06
 
 F07-T40 (D089): prefixul (titulatura) angajatului. Nomenclator nou Prefixe in Setari, cu lista de pornire Dr., Biol., Chim., Farm., As., Ing., Ec., Psih. (RO/EN editabile); prefix optional in fisa angajatului, cu jurnal. Afisat inaintea numelui in rapoarte, liste si selectoare, nu in grilele Pontaj si Planificare. Marca de garda fara prefix propriu il afiseaza pe al marcii principale. Instantaneul SQL al rapoartelor are coloana prefix in tabelul angajati. Migrare 0032_prefixe. Rapoarte: pontaj 17, detaliat 18, individual 17, absente 14, garzi 14, flexibil 8 (referintele difera doar prin versiune; datele de test nu au prefix). Manual 1.45.

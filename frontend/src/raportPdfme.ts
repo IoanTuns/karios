@@ -6,11 +6,24 @@ import {FinalizeazaRaportPdfme, FontSistem, FonturiRapoarte} from '../wailsjs/go
 import {notifica} from './Toast';
 import {main} from '../wailsjs/go/models';
 
+import cheiPdfme from './cheiPdfme.json';
+
+// Tipurile de elemente, in ordinea din bara editorului; numele afisate vin din cataloage (UIR-11).
+export const TIPURI_PDFME = ['text', 'multiVariableText', 'table', 'image', 'line', 'rectangle', 'ellipse'] as const;
+export type TipPdfme = typeof TIPURI_PDFME[number];
+
 // pdfme (cativa MB) se incarca la cerere, numai cand un raport il foloseste.
-// Aceleasi tipuri ca lista acceptata de Go (internal/rapoarte/pdfme.go).
-export async function pluginuriPdfme() {
-    const {ellipse, image, line, multiVariableText, rectangle, table, text} = await import('@pdfme/schemas');
-    return {Text: text, 'Multi-Variable Text': multiVariableText, Table: table, Image: image, Line: line, Rectangle: rectangle, Ellipse: ellipse};
+// Aceleasi tipuri ca lista acceptata de Go (internal/rapoarte/pdfme.go). Cheile
+// obiectului sunt etichetele din bara editorului; generarea nu le foloseste.
+export async function pluginuriPdfme(etichete?: Partial<Record<TipPdfme, string>>) {
+    const m = await import('@pdfme/schemas');
+    const plugin: Record<TipPdfme, unknown> = {text: m.text, multiVariableText: m.multiVariableText, table: m.table, image: m.image, line: m.line, rectangle: m.rectangle, ellipse: m.ellipse};
+    return Object.fromEntries(TIPURI_PDFME.map(tip => [etichete?.[tip] || tip, plugin[tip]])) as Record<string, never>;
+}
+
+// etichetePdfme traduce interfata editorului din cataloagele aplicatiei (UIR-06, D004).
+export function etichetePdfme(t: (k: string) => string): Record<string, string> {
+    return Object.fromEntries((cheiPdfme as string[]).map(k => [k, t('pdfme.' + k)]));
 }
 
 export const TABEL_PDFME = 'tabel';
@@ -118,6 +131,14 @@ export async function completeazaRaport(r: main.RaspunsRaport): Promise<main.Ras
 
 export interface PaginaRaport {format: string; orientare: string; margine_mm: number; font_pt: number}
 export interface ColoanaSablon {cod: string; titlu: string}
+// Numele elementelor din sablonul de pornire, afisate in lista elementelor (UIR-06).
+export type NumeElementeSablon = Partial<Record<'antet_stanga' | 'antet_centru' | 'antet_dreapta' | 'titlu' | 'subsol_stanga' | 'subsol_centru' | 'pagina', string>>;
+
+// Prima litera mare, fara a schimba restul ("angajat id" -> "Angajat id").
+export function titluColoana(c: ColoanaSablon): string {
+    const t = (c.titlu || c.cod).trim();
+    return t.charAt(0).toLocaleUpperCase() + t.slice(1);
+}
 
 type SchemaPdfme = Record<string, unknown>;
 
@@ -127,8 +148,10 @@ function dinPlugin(plugin: {propPanel: {defaultSchema: SchemaPdfme}}, extra: Sch
 
 // sablonDinColoane face un sablon de pornire: antet in trei zone, titlu,
 // tabelul cu coloanele SQL si subsol cu numarul paginii pe fiecare pagina.
-export async function sablonDinColoane(coloane: ColoanaSablon[], pagina: PaginaRaport, textPagina: string): Promise<string> {
-    const {table, text} = await pluginuriPdfme().then(p => ({table: p.Table, text: p.Text}));
+export async function sablonDinColoane(coloane: ColoanaSablon[], pagina: PaginaRaport, textPagina: string, nume: NumeElementeSablon = {}): Promise<string> {
+    const p = await pluginuriPdfme();
+    const text = p.text, table = p.table;
+    const n = (k: keyof NumeElementeSablon, implicit: string) => nume[k] || implicit;
     const [l, h] = pagina.format === 'A3' ? [297, 420] : [210, 297];
     const [W, H] = pagina.orientare === 'PEISAJ' ? [h, l] : [l, h];
     const m = Math.max(5, pagina.margine_mm || 10);
@@ -138,10 +161,10 @@ export async function sablonDinColoane(coloane: ColoanaSablon[], pagina: PaginaR
         dinPlugin(text as never, {name, content, readOnly: true, position: {x, y}, width, height: 8, alignment, fontSize: font, fontName: 'Go', ...extra});
     const treime = util / 3;
     const antet = [
-        textFix('antet_stanga_txt', '{antet_stanga}', m, m, treime, 'left'),
-        textFix('antet_centru_txt', '{antet_centru}', m + treime, m, treime, 'center'),
-        textFix('antet_dreapta_txt', '{antet_dreapta}', m + 2 * treime, m, treime, 'right'),
-        textFix('titlu_txt', '{titlu}', m, m + 10, util, 'center', {height: 10, fontSize: font + 5, fontName: 'GoBold'}),
+        textFix(n('antet_stanga', 'antet_stanga_txt'), '{antet_stanga}', m, m, treime, 'left'),
+        textFix(n('antet_centru', 'antet_centru_txt'), '{antet_centru}', m + treime, m, treime, 'center'),
+        textFix(n('antet_dreapta', 'antet_dreapta_txt'), '{antet_dreapta}', m + 2 * treime, m, treime, 'right'),
+        textFix(n('titlu', 'titlu_txt'), '{titlu}', m, m + 10, util, 'center', {height: 10, fontSize: font + 5, fontName: 'GoBold'}),
     ];
     const latime = coloane.length ? 100 / coloane.length : 100;
     const tabel = dinPlugin(table as never, {
@@ -151,19 +174,86 @@ export async function sablonDinColoane(coloane: ColoanaSablon[], pagina: PaginaR
         height: 20,
         showHead: true,
         repeatHead: true,
-        head: coloane.map(c => c.titlu),
+        head: coloane.map(titluColoana),
         headWidthPercentages: coloane.map(() => latime),
         content: JSON.stringify([coloane.map(() => '')]),
+        [COLOANE_SQL]: coloane.map(c => c.cod),
     });
     for (const [cheie, fontName] of [['headStyles', 'GoBold'], ['bodyStyles', 'Go']] as const) {
         tabel[cheie] = {...(tabel[cheie] as object), fontName, fontSize: font};
     }
     const jos = H - m - 6;
     const staticSchema = [
-        textFix('subsol_stanga_txt', '{subsol_stanga}', m, jos, treime, 'left', {fontSize: 8}),
-        textFix('subsol_centru_txt', '{subsol_centru}', m + treime, jos, treime, 'center', {fontSize: 8}),
-        textFix('pagina_txt', textPagina, m + 2 * treime, jos, treime, 'right', {fontSize: 8}),
+        textFix(n('subsol_stanga', 'subsol_stanga_txt'), '{subsol_stanga}', m, jos, treime, 'left', {fontSize: 8}),
+        textFix(n('subsol_centru', 'subsol_centru_txt'), '{subsol_centru}', m + treime, jos, treime, 'center', {fontSize: 8}),
+        textFix(n('pagina', 'pagina_txt'), textPagina, m + 2 * treime, jos, treime, 'right', {fontSize: 8}),
     ];
     const sablon = {basePdf: {width: W, height: H, padding: [m, m, m + 8, m], staticSchema}, schemas: [[...antet, tabel]]};
     return JSON.stringify(sablon);
+}
+
+// Codurile coloanelor SQL se pastreaza pe tabel, ca tabelul sa poata fi
+// actualizat dupa o schimbare a SQL-ului fara a pierde aspectul (UIR-05).
+export const COLOANE_SQL = 'pontixColoane';
+
+type TabelSablon = SchemaPdfme & {head?: string[]; headWidthPercentages?: number[]; content?: string; readOnly?: boolean};
+
+function tabelDate(template: {schemas?: SchemaPdfme[][]}): TabelSablon | undefined {
+    for (const pagina of template.schemas || []) {
+        for (const e of pagina) if (e.type === 'table' && e.name === TABEL_PDFME && !e.readOnly) return e as TabelSablon;
+    }
+    return undefined;
+}
+
+// StareTabel compara tabelul din sablon cu coloanele curente ale SQL-ului.
+export interface StareTabel {exista: boolean; potrivit: boolean; adaugate: string[]; eliminate: string[]}
+
+function coduriTabel(tabel: TabelSablon, coloane: ColoanaSablon[]): string[] {
+    const salvate = tabel[COLOANE_SQL];
+    if (Array.isArray(salvate) && salvate.length === (tabel.head || []).length) return salvate as string[];
+    // Sabloane fara coduri: potrivire dupa titlul afisat, apoi o cheie de pozitie.
+    return (tabel.head || []).map((h, i) => coloane.find(c => titluColoana(c) === h || c.titlu === h || c.cod === h)?.cod ?? '#' + i);
+}
+
+export function stareTabel(sablon: string, coloane: ColoanaSablon[]): StareTabel {
+    const tabel = tabelDate(JSON.parse(sablon));
+    if (!tabel) return {exista: false, potrivit: false, adaugate: coloane.map(c => c.cod), eliminate: []};
+    const vechi = coduriTabel(tabel, coloane), noi = coloane.map(c => c.cod);
+    const adaugate = noi.filter(c => !vechi.includes(c)), eliminate = vechi.filter(c => !noi.includes(c));
+    return {exista: true, potrivit: !adaugate.length && !eliminate.length && vechi.join('|') === noi.join('|'), adaugate, eliminate};
+}
+
+// actualizeazaTabel aduce tabelul la coloanele SQL curente, in ordinea lor:
+// coloanele pastrate isi pastreaza titlul si latimea, cele noi primesc latimea
+// medie, iar totalul se normalizeaza la 100%. Restul paginii ramane neatins.
+export function actualizeazaTabel(sablon: string, coloane: ColoanaSablon[]): string {
+    const template = JSON.parse(sablon);
+    const tabel = tabelDate(template);
+    if (!tabel) throw new Error('fara tabel');
+    const vechi = coduriTabel(tabel, coloane);
+    const head = tabel.head || [], latimi = tabel.headWidthPercentages || [];
+    const medie = latimi.length ? latimi.reduce((a, b) => a + b, 0) / latimi.length : 100 / Math.max(1, coloane.length);
+    const nouHead: string[] = [], nouLatimi: number[] = [];
+    for (const c of coloane) {
+        const i = vechi.indexOf(c.cod);
+        nouHead.push(i >= 0 ? head[i] : titluColoana(c));
+        nouLatimi.push(i >= 0 && latimi[i] > 0 ? latimi[i] : medie);
+    }
+    const total = nouLatimi.reduce((a, b) => a + b, 0) || 1;
+    tabel.head = nouHead;
+    tabel.headWidthPercentages = nouLatimi.map(l => (l * 100) / total);
+    tabel.content = JSON.stringify([coloane.map(() => '')]);
+    tabel[COLOANE_SQL] = coloane.map(c => c.cod);
+    return JSON.stringify(template);
+}
+
+// La zoom 1, pdfme potriveste pagina pe inaltimea zonei (masurat in Edge:
+// latimea paginii la 100% = inaltimea utila * latime/inaltime). Pentru
+// „potriveste latimea” zoomul este raportul dintre latimea disponibila si
+// aceasta latime; limitele sunt cele ale editorului (UIR-09).
+export function zoomPotrivit(latimeZona: number, inaltimeZona: number, latimePaginaMm: number, inaltimePaginaMm: number, panouDeschis: boolean): number {
+    const disponibil = latimeZona - (panouDeschis ? 420 : 40) - 90;
+    const latimeLa100 = Math.max(1, inaltimeZona - 40) * (latimePaginaMm / Math.max(1, inaltimePaginaMm));
+    const z = disponibil / latimeLa100;
+    return Math.max(0.5, Math.min(1.5, Math.floor(z * 20) / 20));
 }

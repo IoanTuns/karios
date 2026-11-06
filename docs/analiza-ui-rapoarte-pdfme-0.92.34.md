@@ -47,6 +47,10 @@ P1 = blocare sau rezultat neinteles; P2 = efort si descoperire; P3 = confort.
 | UIR-11 | P3 | Bara de elemente are doar pictograme (text cu variabile, text, tabel, imagine, linie, dreptunghi, elipsa); diferenta dintre cele doua tipuri de text nu e evidenta. | Etichete sau indicii in romana; eventual doar tipurile utile in rapoarte. | Fiecare pictograma are un nume accesibil in RO. |
 | UIR-12 | P3 | Lucrul cu mouse-ul domina; tastatura si cititorul de ecran nu au fost verificate pentru editor. Selectarea elementelor nu a putut fi automatizata. | Audit manual al tastaturii (selectie, mutare cu sagetile, panou de proprietati) si al numelor accesibile. | Un element se poate selecta, muta si redimensiona fara mouse, sau limita este documentata. |
 
+## Stare (0.92.36, F09-T25)
+
+UIR-01 pana la UIR-11 sunt rezolvate in F09-T25 si verificate cu scenariul `--rapoarte-pdfme` la 1024×640 si 1440×960. Spatiul de lucru separat are o singura derulare, iar editorul incape intreg (958×407 si 1374×776 px). Controalele fara efect sunt ascunse; sablonul se creeaza singur, cu capete lizibile si fara `angajat_id`. Tabelul se actualizeaza pastrand aspectul. Interfata e in romana, campurile se copiaza cu un clic, fonturile stau in bara editorului, zoomul se potriveste latimii, iar PDF-ul are fila lui. Criteriul UIR-09 este depasit la 1024 px: pagina umple latimea editorului (zoom 150%). UIR-12 (tastatura si cititor de ecran) ramane deschis: cere proba manuala. Afisarea PDF in WebView2 si selectarea elementelor raman neverificate automat.
+
 ## Ordine recomandata
 
 1. UIR-01 si UIR-02 impreuna: spatiul de lucru separat pentru aspect rezolva derularea si ascunde controalele fara efect.
