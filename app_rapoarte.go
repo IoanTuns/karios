@@ -111,8 +111,12 @@ func (a *App) raspunsPdfme(doc rapoarte.Document, c rapoarte.Cerere, tokenDat ..
 	if err != nil {
 		return RaspunsRaport{Eroare: mesajRaport(err)}
 	}
+	sablon, err := rapoarte.SablonPentruDocument(doc)
+	if err != nil {
+		return RaspunsRaport{Eroare: mesajRaport(err)}
+	}
 	r := a.raspunsRaportValidat(doc, c, nil, 0, tokenDat...)
-	r.GenerarePdfme, r.Sablon, r.Intrari = true, doc.Flexibil.Sablon, intrari
+	r.GenerarePdfme, r.Sablon, r.Intrari = true, sablon, intrari
 	return r
 }
 

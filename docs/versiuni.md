@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.40 - 2026-11-06
+
+F09-T23 pasii 1-2: constructorul de sabloane pdfme exista si in Go (pdfme_sablon.go, pe proprietatile implicite pdfme 6.2.8 din pdfme_baza.json) si reproduce exact sabloanele modelelor predefinite. Tabelul marcat pontixTitluri se adapteaza la generare la coloanele curente ale SQL-ului (latimi pastrate, coloane noi cu latimea medie). Fara schimbari vizibile pentru modelele existente. Manual revizuit, editia 1.49 neschimbata.
+
 ## 0.92.39 - 2026-11-06
 
 F09-T21 faza 2 (D090): cinci modele predefinite noi, „... (editor vizual)”, pentru pontaj lunar, pontaj detaliat, fisa individuala, evidenta absentelor si grafic garzi, cu SQL pe tabelele calculate si sablon pdfme in aspectul clasic (migrarea 0033, generata reproductibil din modelele initiale). Valorile, titlurile si culorile sunt identice cu modelele vechi (testat RO/EN). In PDF-ul pdfme: titlurile coloanelor vin din raport in limba lui, culorile de weekend/sarbatoare/absenta si randurile de grup apar ca in raportul vechi, iar zilele 29-31 inexistente in luna se ascund cu latimile redistribuite. Tabelele calculate au mereu z01-z31. Sablonul de pornire foloseste spatiere mica la tabelele cu multe coloane si centreaza zilele; un fundal deschis peste text alb trece textul pe negru. Fisa individuala din SQL cere angajatul la generare. Modelele vechi raman pana la F09-T23. Raport flexibil 11. Manual 1.49.

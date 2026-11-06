@@ -101,7 +101,11 @@ func DatePdfme(d Document) (map[string]string, error) {
 	if !EstePdfme(d) {
 		return nil, eroare("rapoarte.pdfme_invalid")
 	}
-	s, err := citesteSablonPdfme(d.Flexibil.Sablon)
+	text, err := SablonPentruDocument(d)
+	if err != nil {
+		return nil, err
+	}
+	s, err := citesteSablonPdfme(text)
 	if err != nil {
 		return nil, err
 	}
