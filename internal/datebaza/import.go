@@ -19,8 +19,10 @@ import (
 )
 
 type RandImportAngajat struct {
-	Nume           string `json:"nume"`
-	Prenume        string `json:"prenume"`
+	Nume    string `json:"nume"`
+	Prenume string `json:"prenume"`
+	// PrefixImport: titulatura din coloana optionala Prefix (D089, F07-T41).
+	PrefixImport   string `json:"prefix_import"`
 	Marca          string `json:"marca"`
 	Functie        string `json:"functie"`
 	Sectie         string `json:"sectie"`
@@ -30,7 +32,10 @@ type RandImportAngajat struct {
 	ConcediuZileAn *int64 `json:"concediu_zile_an"`
 	Valid          bool   `json:"valid"`
 	MesajEroare    string `json:"mesaj_eroare"`
-	ExistaDeja     bool   `json:"exista_deja"`
+	// CodEroare si ParamEroare: eroarea traductibila (D004), cand exista.
+	CodEroare   string            `json:"cod_eroare,omitempty"`
+	ParamEroare map[string]string `json:"param_eroare,omitempty"`
+	ExistaDeja  bool              `json:"exista_deja"`
 }
 
 type RezultatAnalizaImportAngajati struct {
@@ -131,6 +136,7 @@ func (s *Serviciu) AnalizeazaImportAngajati(ctx context.Context, continut []byte
 	colNume, colPrenume, colMarca := -1, -1, -1
 	colFunctie, colSectie, colDepartament := -1, -1, -1
 	colContract, colNorma, colConcediu := -1, -1, -1
+	colPrefix := -1
 
 	for i, h := range antet {
 		c := curataAntet(h)
@@ -139,6 +145,8 @@ func (s *Serviciu) AnalizeazaImportAngajati(ctx context.Context, continut []byte
 			colNume = i
 		case c == "prenume" || c == "firstname":
 			colPrenume = i
+		case c == "prefix" || c == "titulatura" || c == "titlu" || c == "title":
+			colPrefix = i
 		case c == "marca" || c == "nrmarca" || c == "cod" || c == "id" || c == "employeeid":
 			colMarca = i
 		case c == "functie" || c == "post" || c == "ocupatie" || c == "role" || c == "job":
@@ -168,6 +176,11 @@ func (s *Serviciu) AnalizeazaImportAngajati(ctx context.Context, continut []byte
 	hartaExistenti := map[string]bool{}
 	for _, a := range existenti {
 		hartaExistenti[strings.ToUpper(strings.TrimSpace(a.Marca))] = true
+	}
+
+	prefixe, err := citestePrefixeImport(ctx, s.db)
+	if err != nil {
+		return RezultatAnalizaImportAngajati{}, err
 	}
 
 	marciFisier := map[string]bool{}
@@ -203,6 +216,7 @@ func (s *Serviciu) AnalizeazaImportAngajati(ctx context.Context, continut []byte
 		tipContractStr := strings.ToUpper(getVal(linia, colContract))
 		normaStr := getVal(linia, colNorma)
 		concediuStr := getVal(linia, colConcediu)
+		prefixStr := getVal(linia, colPrefix)
 
 		tipContract := "INTREAGA"
 		if strings.Contains(tipContractStr, "PART") {
@@ -230,6 +244,7 @@ func (s *Serviciu) AnalizeazaImportAngajati(ctx context.Context, continut []byte
 		r := RandImportAngajat{
 			Nume:           nume,
 			Prenume:        prenume,
+			PrefixImport:   prefixStr,
 			Marca:          marca,
 			Functie:        functie,
 			Sectie:         sectie,
@@ -254,6 +269,13 @@ func (s *Serviciu) AnalizeazaImportAngajati(ctx context.Context, continut []byte
 			marciFisier[marcaUpper] = true
 			if hartaExistenti[marcaUpper] {
 				r.ExistaDeja = true
+			}
+			// Un prefix necunoscut sau inactiv se raporteaza; nu se creeaza (D089).
+			if _, cod := prefixe.rezolva(prefixStr, marcaUpper); cod != "" {
+				r.Valid = false
+				r.CodEroare = cod
+				r.ParamEroare = map[string]string{"prefix": prefixStr}
+				r.MesajEroare = i18n.T(i18n.Romana, cod, r.ParamEroare)
 			}
 		}
 
@@ -331,6 +353,11 @@ func (s *Serviciu) ExecutaImportAngajati(ctx context.Context, randuri []RandImpo
 	hartaAngajati := map[string]acces.ListaAngajatiRow{} // marca normalizata -> Angajat
 	for _, a := range angajatiExistenti {
 		hartaAngajati[strings.ToUpper(strings.TrimSpace(a.Marca))] = a
+	}
+
+	prefixe, err := citestePrefixeImport(ctx, tx)
+	if err != nil {
+		return 0, traduceEroare(err)
 	}
 
 	adaugatiSauModificati := 0
@@ -429,6 +456,10 @@ func (s *Serviciu) ExecutaImportAngajati(ctx context.Context, randuri []RandImpo
 			}); err != nil {
 				return 0, traduceEroare(err)
 			}
+			// Celula Prefix goala pastreaza prefixul existent, ca la functie.
+			if err := prefixe.salveaza(ctx, tx, q, exist.ID, r.PrefixImport, marcaUpper); err != nil {
+				return 0, traduceEroare(err)
+			}
 			adaugatiSauModificati++
 		} else {
 			// Adaugă angajat nou
@@ -452,6 +483,9 @@ func (s *Serviciu) ExecutaImportAngajati(ctx context.Context, randuri []RandImpo
 				CreatLa:             acum,
 				ModificatLa:         acum,
 			}); err != nil {
+				return 0, traduceEroare(err)
+			}
+			if err := prefixe.salveaza(ctx, tx, q, id, r.PrefixImport, marcaUpper); err != nil {
 				return 0, traduceEroare(err)
 			}
 			hartaAngajati[marcaUpper] = acces.ListaAngajatiRow{ID: id, Marca: r.Marca}
@@ -663,15 +697,15 @@ func GenereazaSablonAngajati(format string) ([]byte, string, error) {
 		defer f.Close()
 		sheet := "Angajati"
 		f.SetSheetName("Sheet1", sheet)
-		headers := []string{"Nume", "Prenume", "Marca", "Functie", "Sectie", i18n.T(i18n.Romana, "ui.departament", nil), "Tip_Contract", "Norma_Ore_Zi", "Zile_Concediu_An"}
+		headers := []string{"Nume", "Prenume", "Prefix", "Marca", "Functie", "Sectie", i18n.T(i18n.Romana, "ui.departament", nil), "Tip_Contract", "Norma_Ore_Zi", "Zile_Concediu_An"}
 		for colIdx, h := range headers {
 			cell, _ := excelize.CoordinatesToCellName(colIdx+1, 1)
 			_ = f.SetCellValue(sheet, cell, h)
 		}
 		mostre := [][]any{
-			{"Popescu", "Ion", "M001", "Medic specialist", "Laborator", "Biochimie", "INTREAGA", 7, 22},
-			{"Ionescu", "Maria", "M002", "Asistent medical", "Laborator", "Hematologie", "INTREAGA", 7, 21},
-			{"Radu", "Elena", "M003", "Biolog", "Radiologie", "Imagistică", "PARTIALA", 4, 21},
+			{"Popescu", "Ion", "Dr.", "M001", "Medic specialist", "Laborator", "Biochimie", "INTREAGA", 7, 22},
+			{"Ionescu", "Maria", "", "M002", "Asistent medical", "Laborator", "Hematologie", "INTREAGA", 7, 21},
+			{"Radu", "Elena", "Biol.", "M003", "Biolog", "Radiologie", "Imagistică", "PARTIALA", 4, 21},
 		}
 		for rIdx, r := range mostre {
 			for cIdx, v := range r {
@@ -691,10 +725,10 @@ func GenereazaSablonAngajati(format string) ([]byte, string, error) {
 	buf.Write([]byte("\xef\xbb\xbf")) // BOM
 	w := csv.NewWriter(&buf)
 	w.Comma = ';'
-	_ = w.Write([]string{"Nume", "Prenume", "Marca", "Functie", "Sectie", i18n.T(i18n.Romana, "ui.departament", nil), "Tip_Contract", "Norma_Ore_Zi", "Zile_Concediu_An"})
-	_ = w.Write([]string{"Popescu", "Ion", "M001", "Medic specialist", "Laborator", "Biochimie", "INTREAGA", "7", "22"})
-	_ = w.Write([]string{"Ionescu", "Maria", "M002", "Asistent medical", "Laborator", "Hematologie", "INTREAGA", "7", "21"})
-	_ = w.Write([]string{"Radu", "Elena", "M003", "Biolog", "Radiologie", "Imagistică", "PARTIALA", "4", "21"})
+	_ = w.Write([]string{"Nume", "Prenume", "Prefix", "Marca", "Functie", "Sectie", i18n.T(i18n.Romana, "ui.departament", nil), "Tip_Contract", "Norma_Ore_Zi", "Zile_Concediu_An"})
+	_ = w.Write([]string{"Popescu", "Ion", "Dr.", "M001", "Medic specialist", "Laborator", "Biochimie", "INTREAGA", "7", "22"})
+	_ = w.Write([]string{"Ionescu", "Maria", "", "M002", "Asistent medical", "Laborator", "Hematologie", "INTREAGA", "7", "21"})
+	_ = w.Write([]string{"Radu", "Elena", "Biol.", "M003", "Biolog", "Radiologie", "Imagistică", "PARTIALA", "4", "21"})
 	w.Flush()
 	return buf.Bytes(), "sablon_angajati.csv", nil
 }

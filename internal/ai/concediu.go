@@ -163,7 +163,7 @@ func AnalizeazaCerereConcediu(mesaj string, info ContextPontix) (RaspunsAsistent
 	if len(candidati) > 1 {
 		nume := make([]string, len(candidati))
 		for i, c := range candidati {
-			nume[i] = strings.TrimSpace(c.Nume+" "+c.Prenume) + " (" + c.Marca + ")"
+			nume[i] = numeAfisat(c) + " (" + c.Marca + ")"
 		}
 		return RaspunsAsistent{Mesaj: "Am găsit mai mulți angajați potriviți: " + strings.Join(nume, ", ") + ". Scrie marca sau numele complet."}, true
 	}
@@ -172,13 +172,13 @@ func AnalizeazaCerereConcediu(mesaj string, info ContextPontix) (RaspunsAsistent
 	}
 	deLa, panaLa, ok := intervalDin(m, info)
 	if !ok {
-		return RaspunsAsistent{Mesaj: fmt.Sprintf("Pentru ce zile este concediul lui %s %s? De exemplu: „din 26 până pe 31 octombrie”.", a.Nume, a.Prenume)}, true
+		return RaspunsAsistent{Mesaj: fmt.Sprintf("Pentru ce zile este concediul lui %s? De exemplu: „din 26 până pe 31 octombrie”.", numeAfisat(a))}, true
 	}
 	cod := "CO"
 	if contineOricare(m, []string{"medical", "boala", "cm"}) {
 		cod = "CM"
 	}
-	nume := strings.TrimSpace(a.Nume + " " + a.Prenume)
+	nume := numeAfisat(a)
 	interpretare := fmt.Sprintf("%s (%s) · %s · %s – %s", nume, a.Marca, cod, deLa.Format(time.DateOnly), panaLa.Format(time.DateOnly))
 	return RaspunsAsistent{
 		Mesaj: "Deschid formularul de concediu precompletat. Completează numărul de înregistrare și salvează; cererea rămâne în așteptare până la aprobare.",

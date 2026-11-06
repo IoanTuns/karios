@@ -66,7 +66,7 @@ func AnalizeazaStergere(mesaj string, info ContextPontix) (RaspunsAsistent, bool
 	if len(mai) > 1 {
 		var nume []string
 		for _, x := range mai {
-			nume = append(nume, fmt.Sprintf("%s %s (%s)", x.Nume, x.Prenume, x.Marca))
+			nume = append(nume, fmt.Sprintf("%s (%s)", numeAfisat(x), x.Marca))
 		}
 		return RaspunsAsistent{Mesaj: "Am găsit mai multe persoane potrivite: " + strings.Join(nume, ", ") + ". Scrie numele complet sau marca."}, true
 	}

@@ -809,6 +809,11 @@ Fiecare angajat poate avea un prefix (titulatura) afisat inaintea numelui, de ex
 
 In rapoartele SQL, tabelul `angajati` are coloana `prefix`, iar coloana `angajat` contine numele cu prefix. Coloanele `nume` si `prenume` raman fara prefix.
 
+### Prefixul la import si in asistentul AI (0.92.46)
+
+- **Import:** sablonul de angajati are coloana optionala **Prefix**. Scrieti prefixul asa cum apare in Setari › Prefixe; majusculele si punctul nu conteaza (Dr., dr, DR. sunt acelasi prefix). Un prefix care nu exista sau este dezactivat apare ca eroare pe rand si nu se creeaza automat: adaugati-l sau activati-l in Setari, apoi reluati importul. La actualizarea angajatilor existenti, o celula **Prefix** goala pastreaza prefixul pe care angajatul il are deja.
+- **Asistentul AI** gaseste angajatul si dupa nume cu prefix („Dr. Popescu Ion”), si fara prefix, si afiseaza prefixul in liste si in confirmari.
+
 ## Rapoartele standard in SQL (0.92.38)
 
 In rapoartele SQL puteti folosi acum rezultatul rapoartelor standard ca tabele: `pontaj_lunar`, `pontaj_detaliat`, `fisa_individuala` (cere un angajat ales), `absente_anuale` si `grafic_garzi`. Valorile sunt calculate exact ca in rapoartele standard; SQL-ul doar alege coloanele, ordinea si randurile. Zilele lunii sunt coloanele `z01` ... `z31` (in lunile mai scurte ultimele sunt goale).

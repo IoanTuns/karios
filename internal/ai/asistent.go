@@ -67,6 +67,9 @@ type InfoAngajat struct {
 	Prenume string `json:"prenume"`
 	Marca   string `json:"marca"`
 	Functie string `json:"functie"`
+	// Prefix: titulatura (Dr., Biol. …) afișată în răspunsuri (D089, F14-T33).
+	// Căutarea după nume nu depinde de el.
+	Prefix string `json:"prefix,omitempty"`
 	// Sectie și Categorie servesc comenzilor de grup (F14-T08); nu intră în prompt.
 	Sectie      string `json:"sectie,omitempty"`
 	Categorie   string `json:"categorie,omitempty"`
@@ -739,7 +742,11 @@ func gasesteAngajatInfo(marcaSauNume string, angajati []InfoAngajat) (InfoAngaja
 		}
 	}
 
-	// 3. Potrivire pe nume/prenume
+	// 3. Potrivire pe nume/prenume; „Dr. Ion” se caută ca „Ion” (F14-T33).
+	norm = faraPrefixe(norm, angajati)
+	if norm == "" {
+		return InfoAngajat{}, false
+	}
 	for _, a := range angajati {
 		numeComplet := strings.ToLower(strings.TrimSpace(a.Nume + " " + a.Prenume))
 		prenumeComplet := strings.ToLower(strings.TrimSpace(a.Prenume + " " + a.Nume))
@@ -755,7 +762,7 @@ func gasesteAngajatInfo(marcaSauNume string, angajati []InfoAngajat) (InfoAngaja
 
 func formateazaAngajat(marca string, angajati []InfoAngajat) string {
 	if a, gasit := gasesteAngajatInfo(marca, angajati); gasit {
-		numeComplet := strings.TrimSpace(a.Nume + " " + a.Prenume)
+		numeComplet := numeAfisat(a)
 		if a.Marca != "" {
 			return fmt.Sprintf("%s (marca %s)", numeComplet, a.Marca)
 		}
@@ -929,7 +936,7 @@ func promptDate(info ContextPontix) string {
 	if len(info.Angajati) > 0 {
 		sb.WriteString("Personal identificabil (Folosește marca corectă când apelezi funcții):\n")
 		for _, a := range info.Angajati {
-			sb.WriteString(fmt.Sprintf("- %s %s (Marca: %s, Funcție: %s)\n", a.Nume, a.Prenume, a.Marca, a.Functie))
+			sb.WriteString(fmt.Sprintf("- %s (Marca: %s, Funcție: %s)\n", numeAfisat(a), a.Marca, a.Functie))
 		}
 	}
 
@@ -1480,4 +1487,30 @@ func sintetizeazaStatisticiGarzi(info ContextPontix, numeLuna string) string {
 
 	sb.WriteString(fmt.Sprintf("\n📌 **Total secție:** %d gărzi, %d ore planificate în total.\n", totalGarziSectie, totalOreSectie))
 	return sb.String()
+}
+
+// numeAfisat: numele din răspunsuri, cu prefixul înainte (D089), ca în listele
+// aplicației. Ordonarea și căutarea folosesc numele fără prefix.
+func numeAfisat(a InfoAngajat) string {
+	nume := strings.TrimSpace(a.Nume + " " + a.Prenume)
+	if p := strings.TrimSpace(a.Prefix); p != "" && nume != "" {
+		return p + " " + nume
+	}
+	return nume
+}
+
+// faraPrefixe scoate de la începutul textului (deja cu litere mici) titulaturile
+// cunoscute ale angajaților, cu sau fără punct: „dr. ion” → „ion”.
+func faraPrefixe(text string, angajati []InfoAngajat) string {
+	prefixe := map[string]bool{}
+	for _, a := range angajati {
+		if p := strings.Trim(strings.ToLower(strings.TrimSpace(a.Prefix)), "."); p != "" {
+			prefixe[p] = true
+		}
+	}
+	cuvinte := strings.Fields(text)
+	for len(cuvinte) > 0 && prefixe[strings.Trim(cuvinte[0], ".")] {
+		cuvinte = cuvinte[1:]
+	}
+	return strings.Join(cuvinte, " ")
 }

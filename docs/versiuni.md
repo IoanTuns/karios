@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.46 - 2026-11-06
+
+F07-T41 si F14-T33 (D089). Importul angajatilor are coloana optionala Prefix (si in sablonul CSV/XLSX): valoarea se potriveste cu Setari › Prefixe dupa denumirea RO sau EN, fara diferente de majuscule, spatii sau punct; un prefix necunoscut sau inactiv face randul invalid, cu mesaj tradus, si nu se creeaza automat; un prefix inactiv e acceptat doar la angajatul care il are deja; celula goala pastreaza prefixul existent la actualizare. Asistentul AI primeste prefixul angajatilor: il afiseaza in liste, confirmari si cereri de concediu, iar „Dr. Ana” se cauta ca „Ana”. Scenariul Edge --ajutor verifica dialogul de parasire (F16-T34, fara schimbare de cod). Manual 1.54.
+
 ## 0.92.45 - 2026-11-06
 
 F05-T11 (D002 punctul 6): karios/pontix.lock ramane blocat cat ruleaza aplicatia (LockFileEx pe Windows, flock in rest) si retine calculatorul, utilizatorul si ora pornirii. A doua instanta pornita pe acelasi folder deschide datele doar in citire: nu scrie nimic la pornire (fara migrari, copii, restaurare, trecere sau contor in seif), refuza scrierile obisnuite cu un mesaj propriu si afiseaza un banner cu cine are aplicatia deschisa; autentificarea ramane posibila. Daca baza trebuie actualizata sau abia se creeaza, a doua instanta asteapta prima. Conversia rapoartelor nu ruleaza in doar citire. Manual 1.53.

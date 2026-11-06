@@ -57,7 +57,7 @@ func sintetizeazaListaAngajati(m string, info ContextPontix) string {
 		}
 		sb.WriteString(fmt.Sprintf("\n**%s** (%d)\n", titlu, len(lista)))
 		for _, a := range lista {
-			linie := fmt.Sprintf("- %s %s (%s)", a.Nume, a.Prenume, a.Marca)
+			linie := fmt.Sprintf("- %s (%s)", numeAfisat(a), a.Marca)
 			if a.Functie != "" {
 				linie += " · " + a.Functie
 			}
