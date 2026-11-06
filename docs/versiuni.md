@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.44 - 2026-11-06
+
+F06-T06 (D009 punctul 3): migrarea 0034 adauga tabelul istoric_migrari; fiecare migrare aplicata se noteaza cu versiunea aplicatiei si momentul. O versiune mai veche a aplicatiei refuza, cu mesaj tradus, o baza migrata de o versiune mai noua, inainte de backup si de orice schimbare. Testele cu numar fix de migrari crescute cu 1. Manual 1.52.
+
 ## 0.92.43 - 2026-11-06
 
 F09-T26: in sabloanele pdfme antetul (cele trei zone) si titlul se repeta pe fiecare pagina, ca in rapoartele standard vechi, iar tabelul continuat incepe sub ele. Se aplica sablonului de pornire, modelelor predefinite (migrarea 0033 regenerata, inca neadusa in main), modelelor convertite si imaginilor din antetul lor. La Markdown si Pozitionare libera se repeta doar antetul. Curatenie dupa conversie: sters din formular blocul de coloane al surselor standard, inaccesibil dupa F09-T23; ghidul marcheaza ca istorice aspectele vechi. Testele pdfme incarca pdfme o data, inainte (I116). Raport flexibil 13. Manual 1.51.

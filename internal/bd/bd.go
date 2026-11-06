@@ -97,6 +97,9 @@ func StareMigrari(ctx context.Context, db *sql.DB, surse fs.FS) (versiune int64,
 	if versiune, err = p.GetDBVersion(ctx); err != nil {
 		return 0, false, err
 	}
+	if err = verificaCompatibilitate(versiune, surse); err != nil {
+		return versiune, false, err
+	}
 	inAsteptare, err = p.HasPending(ctx)
 	return versiune, inAsteptare, err
 }
@@ -107,7 +110,23 @@ func Migreaza(ctx context.Context, db *sql.DB, surse fs.FS) (int, error) {
 	if err != nil {
 		return 0, err
 	}
+	actuala, err := p.GetDBVersion(ctx)
+	if err != nil {
+		return 0, err
+	}
+	if err := verificaCompatibilitate(actuala, surse); err != nil {
+		return 0, err
+	}
 	rezultate, err := p.Up(ctx)
+	aplicate := []int64{}
+	for _, r := range rezultate {
+		if r.Error == nil && r.Source != nil {
+			aplicate = append(aplicate, r.Source.Version)
+		}
+	}
+	if errIstoric := noteazaMigrari(ctx, db, aplicate); err == nil && errIstoric != nil {
+		err = errIstoric
+	}
 	return len(rezultate), err
 }
 

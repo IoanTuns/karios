@@ -2063,5 +2063,6 @@
   "rapoarte.model_neconvertit": "Acest model nu a putut fi trecut pe editorul vizual. Deschideți-l în Definire rapoarte și creați șablonul din coloanele SQL.",
   "rapoarte.doar_editor_vizual": "Modelele noi folosesc o sursă SQL și editorul vizual.",
   "rapoarte.conversie_anunt": "{{numar}} modele de raport au fost trecute pe editorul vizual. Verificați-le înainte de folosire; versiunile vechi sunt în Jurnal modificări.",
-  "rapoarte.conversie_erori": "Nu s-au putut converti: {{modele}}. Se reîncearcă la următoarea deschidere a rapoartelor."
+  "rapoarte.conversie_erori": "Nu s-au putut converti: {{modele}}. Se reîncearcă la următoarea deschidere a rapoartelor.",
+  "bd.baza_mai_noua": "Baza de date a fost actualizată de o versiune mai nouă a aplicației (migrarea {{baza}}); această versiune ({{aplicatie}}) cunoaște doar până la {{cunoscuta}} și nu o deschide, ca să nu strice datele. Folosiți versiunea mai nouă a aplicației."
 }

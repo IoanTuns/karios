@@ -832,3 +832,7 @@ Versiunea veche a fiecarui model ramane in **Jurnal modificari**. Daca un model 
 ### Antetul pe fiecare pagina (0.92.43)
 
 In rapoartele din editorul vizual, antetul (stanga, centru, dreapta) si titlul apar pe fiecare pagina, iar tabelul continua sub ele, ca in rapoartele de dinainte. Sablonul nou din coloanele SQL le pune automat astfel; intr-un sablon facut inainte de aceasta versiune puteti apasa **Sablon nou din coloanele SQL** pentru acelasi aspect.
+
+### Baza deschisa cu o versiune mai veche (0.92.44)
+
+Daca porniti o versiune mai veche a aplicatiei pe date deja folosite de o versiune mai noua, aplicatia nu le deschide si afiseaza un mesaj: o versiune veche nu cunoaste schimbarile facute de cea noua si ar putea strica datele. Porniti versiunea mai noua. Fiecare actualizare a bazei este notata, cu versiunea aplicatiei care a facut-o.
