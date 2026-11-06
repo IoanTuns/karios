@@ -2064,5 +2064,9 @@
   "rapoarte.doar_editor_vizual": "Modelele noi folosesc o sursă SQL și editorul vizual.",
   "rapoarte.conversie_anunt": "{{numar}} modele de raport au fost trecute pe editorul vizual. Verificați-le înainte de folosire; versiunile vechi sunt în Jurnal modificări.",
   "rapoarte.conversie_erori": "Nu s-au putut converti: {{modele}}. Se reîncearcă la următoarea deschidere a rapoartelor.",
-  "bd.baza_mai_noua": "Baza de date a fost actualizată de o versiune mai nouă a aplicației (migrarea {{baza}}); această versiune ({{aplicatie}}) cunoaște doar până la {{cunoscuta}} și nu o deschide, ca să nu strice datele. Folosiți versiunea mai nouă a aplicației."
+  "bd.baza_mai_noua": "Baza de date a fost actualizată de o versiune mai nouă a aplicației (migrarea {{baza}}); această versiune ({{aplicatie}}) cunoaște doar până la {{cunoscuta}} și nu o deschide, ca să nu strice datele. Folosiți versiunea mai nouă a aplicației.",
+  "audit.doar_citire": "Aplicația este deschisă doar în citire: altă instanță lucrează pe aceleași date. Închideți-o pentru a putea salva.",
+  "stocare.alta_instanta_pregatire": "Altă instanță a aplicației are datele deschise și încă le pregătește. Porniți aplicația după ce aceea a terminat de pornit.",
+  "stocare.alta_instanta_actualizare": "Altă instanță, mai veche, a aplicației are datele deschise. Această versiune trebuie să actualizeze baza; închideți mai întâi cealaltă instanță.",
+  "ui.doar_citire_banner": "Doar citire: aplicația este deschisă și pe {{calculator}} de {{utilizator}} (din {{de_la}}). Puteți consulta datele, dar nu le puteți modifica."
 }

@@ -84,7 +84,7 @@ func traduce(err error) error {
 		return err
 	}
 	if audit.EsteEditareBlocata(err) {
-		return eroare(audit.CodEditareBlocata)
+		return eroare(audit.CodBlocare(err))
 	}
 	return eroare("rapoarte.eroare")
 }

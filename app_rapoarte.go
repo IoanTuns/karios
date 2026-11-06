@@ -70,7 +70,8 @@ func mesajRaport(err error) *MesajEroare {
 func (a *App) asiguraConversiaRapoarte() []rapoarte.RezultatConversie {
 	a.conversieMu.Lock()
 	defer a.conversieMu.Unlock()
-	if a.rapoarteConvertite || a.db == nil {
+	// In doar citire conversia nu poate scrie; o face instanta care tine datele.
+	if a.rapoarteConvertite || a.db == nil || a.doarCitire {
 		return nil
 	}
 	rez, err := rapoarte.Nou(a.db).ConvertesteModeleVechi(a.contextLucru())

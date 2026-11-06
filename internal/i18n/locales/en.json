@@ -2064,5 +2064,9 @@
   "rapoarte.doar_editor_vizual": "New models use an SQL source and the visual editor.",
   "rapoarte.conversie_anunt": "{{numar}} report models were moved to the visual editor. Check them before use; the old versions are in the change log.",
   "rapoarte.conversie_erori": "Could not convert: {{modele}}. It will be retried the next time reports are opened.",
-  "bd.baza_mai_noua": "The database was updated by a newer version of the application (migration {{baza}}); this version ({{aplicatie}}) only knows up to {{cunoscuta}} and does not open it, to avoid damaging the data. Use the newer version of the application."
+  "bd.baza_mai_noua": "The database was updated by a newer version of the application (migration {{baza}}); this version ({{aplicatie}}) only knows up to {{cunoscuta}} and does not open it, to avoid damaging the data. Use the newer version of the application.",
+  "audit.doar_citire": "The application is open read-only: another instance is working on the same data. Close it to be able to save.",
+  "stocare.alta_instanta_pregatire": "Another instance of the application has the data open and is still preparing it. Start the application after that one has finished starting.",
+  "stocare.alta_instanta_actualizare": "Another, older instance of the application has the data open. This version must update the database; close the other instance first.",
+  "ui.doar_citire_banner": "Read-only: the application is also open on {{calculator}} by {{utilizator}} (since {{de_la}}). You can view the data but not change it."
 }

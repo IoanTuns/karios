@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.45 - 2026-11-06
+
+F05-T11 (D002 punctul 6): karios/pontix.lock ramane blocat cat ruleaza aplicatia (LockFileEx pe Windows, flock in rest) si retine calculatorul, utilizatorul si ora pornirii. A doua instanta pornita pe acelasi folder deschide datele doar in citire: nu scrie nimic la pornire (fara migrari, copii, restaurare, trecere sau contor in seif), refuza scrierile obisnuite cu un mesaj propriu si afiseaza un banner cu cine are aplicatia deschisa; autentificarea ramane posibila. Daca baza trebuie actualizata sau abia se creeaza, a doua instanta asteapta prima. Conversia rapoartelor nu ruleaza in doar citire. Manual 1.53.
+
 ## 0.92.44 - 2026-11-06
 
 F06-T06 (D009 punctul 3): migrarea 0034 adauga tabelul istoric_migrari; fiecare migrare aplicata se noteaza cu versiunea aplicatiei si momentul. O versiune mai veche a aplicatiei refuza, cu mesaj tradus, o baza migrata de o versiune mai noua, inainte de backup si de orice schimbare. Testele cu numar fix de migrari crescute cu 1. Manual 1.52.

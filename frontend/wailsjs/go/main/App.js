@@ -470,6 +470,10 @@ export function StareCont() {
   return window['go']['main']['App']['StareCont']();
 }
 
+export function StareInstanta() {
+  return window['go']['main']['App']['StareInstanta']();
+}
+
 export function StareRecuperare() {
   return window['go']['main']['App']['StareRecuperare']();
 }

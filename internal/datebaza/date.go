@@ -694,7 +694,7 @@ func traduceEroare(err error) error {
 	}
 	switch {
 	case audit.EsteEditareBlocata(err):
-		return eroare(audit.CodEditareBlocata)
+		return eroare(audit.CodBlocare(err))
 	case errors.Is(err, sql.ErrNoRows):
 		return eroare("date.inexistent")
 	case errors.Is(err, sqlite3.CONSTRAINT_UNIQUE):

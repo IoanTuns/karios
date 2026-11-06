@@ -245,6 +245,8 @@ export function StareAudit():Promise<main.RaspunsAudit>;
 
 export function StareCont():Promise<main.RaspunsStareCont>;
 
+export function StareInstanta():Promise<main.RaspunsStareInstanta>;
+
 export function StareRecuperare():Promise<main.RaspunsRecuperare>;
 
 export function StareSeif():Promise<main.RaspunsStareSeif>;

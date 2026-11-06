@@ -2,8 +2,8 @@ import {formateazaDataSigura} from './formatare';
 // Avertizarea la incidentul de audit și confirmarea lui cu motiv (D044).
 import {useEffect, useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {ConfirmaIncidentAudit, StareAudit} from '../wailsjs/go/main/App';
-import {audit} from '../wailsjs/go/models';
+import {ConfirmaIncidentAudit, StareAudit, StareInstanta} from '../wailsjs/go/main/App';
+import {audit, main} from '../wailsjs/go/models';
 import {Dialog} from './Formulare';
 import {notifica} from './Toast';
 
@@ -78,3 +78,20 @@ export function AmprentaLuna({amprenta, corespunde}: {amprenta: string; corespun
         {t('pontaj.amprenta', {amprenta})} · {t(corespunde ? 'pontaj.amprenta_corespunde' : 'pontaj.amprenta_diferita')}
     </p>;
 }
+
+// BannerDoarCitire: alta instanta tine folderul de date, deci aplicatia ruleaza
+// doar in citire (D002 punctul 6, F05-T11).
+export function BannerDoarCitire() {
+    const {t, i18n} = useTranslation();
+    const [stare, setStare] = useState<main.RaspunsStareInstanta | null>(null);
+    useEffect(() => {
+        let activ = true;
+        Promise.resolve().then(() => StareInstanta()).then(r => { if (activ) setStare(r); }).catch(() => {});
+        return () => { activ = false; };
+    }, []);
+    if (!stare?.doar_citire) return null;
+    const data = new Date(stare.de_la);
+    const deLa = Number.isNaN(data.getTime()) ? '—' : data.toLocaleString(i18n.language, {dateStyle: 'short', timeStyle: 'short', hourCycle: 'h23'});
+    return <div className="mesaj avertisment banner-doar-citire" role="status">{t('ui.doar_citire_banner', {calculator: stare.calculator || '—', utilizator: stare.utilizator || '—', de_la: deLa})}</div>;
+}
+

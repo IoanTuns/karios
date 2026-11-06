@@ -28,7 +28,8 @@ func main() {
 	}
 	diagnoza.Initializeaza(foldere.Radacina)
 
-	deschidere, err := stocare.Deschide(context.Background(), foldere.Radacina)
+	// A doua instanta pe acelasi folder porneste doar in citire (D002 punctul 6).
+	deschidere, err := stocare.DeschideCuBlocare(context.Background(), foldere.Radacina)
 	if err != nil {
 		diagnoza.ObtineManager().InregistreazaEroare("pornire/stocare", err)
 		oprireCuEroare(err)

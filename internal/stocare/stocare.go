@@ -42,6 +42,9 @@ type Deschidere struct {
 	Seif          *seif.Seif
 	Blocat        bool
 	CodRecuperare string
+	// DoarCitire: alta instanta tine folderul de date (F05-T11); Detinator spune cine.
+	DoarCitire bool
+	Detinator  *InfoBlocare
 }
 
 // Deschide deschide seiful și baza din folderul de date, verifică sigiliile, aplică migrările

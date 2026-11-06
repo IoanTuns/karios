@@ -14,7 +14,7 @@ import {datebaza, main} from '../wailsjs/go/models';
 import {DialogDemo, FormularAngajat, Setari, durata, denumireSectie, denumireDepartament} from './Formulare';
 import {DialogImportAngajati} from './ImportDialogs';
 import {ErrorBoundary} from './ErrorBoundary';
-import {BannerAudit} from './Audit';
+import {BannerAudit, BannerDoarCitire} from './Audit';
 import {DialogContulMeu, EcranConturi, useCont} from './Conturi';
 import type {CerereConcediu} from './cerereConcediu';
 import {initializeazaSesiuneAI, useSesiuneAI} from './asistentSesiune';
@@ -282,6 +282,7 @@ function App() {
                     aria-pressed={ecran === sub} disabled={ocupat || pontajOcupat}
                     onClick={() => schimbaEcran(sub)}>{t(sub === 'setari' ? 'ui.setari_general' : `ui.${sub}`)}</button>)}
             </div>}
+            <BannerDoarCitire/>
             <BannerAudit/>
             {!editare && !demo && eroare && <div className="mesaj eroare" role="alert">{eroare}</div>}
             {mesaj && <div className="mesaj succes" role="status">{mesaj}</div>}

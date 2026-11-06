@@ -3919,6 +3919,25 @@ export namespace main {
 		    return a;
 		}
 	}
+	export class RaspunsStareInstanta {
+	    doar_citire: boolean;
+	    calculator: string;
+	    utilizator: string;
+	    de_la: string;
+
+	    static createFrom(source: any = {}) {
+	        return new RaspunsStareInstanta(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.doar_citire = source["doar_citire"];
+	        this.calculator = source["calculator"];
+	        this.utilizator = source["utilizator"];
+	        this.de_la = source["de_la"];
+	    }
+	}
+
 	export class RaspunsStareLuna {
 	    stare: datebaza.StareLuna;
 	    eroare?: MesajEroare;

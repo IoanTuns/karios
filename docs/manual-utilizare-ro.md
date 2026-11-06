@@ -836,3 +836,7 @@ In rapoartele din editorul vizual, antetul (stanga, centru, dreapta) si titlul a
 ### Baza deschisa cu o versiune mai veche (0.92.44)
 
 Daca porniti o versiune mai veche a aplicatiei pe date deja folosite de o versiune mai noua, aplicatia nu le deschide si afiseaza un mesaj: o versiune veche nu cunoaste schimbarile facute de cea noua si ar putea strica datele. Porniti versiunea mai noua. Fiecare actualizare a bazei este notata, cu versiunea aplicatiei care a facut-o.
+
+### Aplicatia deschisa de doua ori (0.92.45)
+
+Daca porniti aplicatia a doua oara pe acelasi folder (de exemplu de pe alt calculator, din acelasi stick sau folder partajat), a doua copie se deschide **doar in citire**: un banner arata pe ce calculator, de catre cine si de cand este deschisa prima. In a doua copie puteti consulta datele si rapoartele, dar nu puteti salva. Inchideti prima copie, apoi reporniti-o pe a doua pentru a lucra normal. Daca prima copie abia porneste sau actualizeaza datele, a doua cere sa asteptati.
