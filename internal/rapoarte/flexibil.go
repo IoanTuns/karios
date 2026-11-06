@@ -206,6 +206,15 @@ func preparaFlexibil(ctx context.Context, tx *sql.Tx, d Definitie, c Cerere, acu
 			doc.VariabileRaport[c.Cod] = doc.Randuri[0].Valori[i]
 		}
 	}
+	// Un raport pe un singur tabel standard foloseste variabilele raportului
+	// standard (perioada, luna, persoana aleasa), ca textele sa ramana aceleasi.
+	if len(b.standard) == 1 {
+		for k, v := range b.standard[0].doc.variabileStandard {
+			if k != "titlu" && k != "generat_la" {
+				doc.VariabileRaport[k] = v
+			}
+		}
+	}
 	ascunse := map[string]bool{}
 	for _, nom := range f.Ascunse {
 		gasit := false

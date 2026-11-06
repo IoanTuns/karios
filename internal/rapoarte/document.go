@@ -60,29 +60,32 @@ type Document struct {
 	// folosite din SQL afiseaza doar explicatiile coloanelor alese, D090).
 	legendaPentru func([]Coloana) []string
 	// zileLuna: zilele lunii raportului, pentru ascunderea coloanelor z29-z31 (D090).
-	zileLuna        int
-	VariabileRaport map[string]string  `json:"variabile_raport,omitempty"`
-	Flexibil        *RaportFlexibil    `json:"flexibil,omitempty"`
-	Schema          []TabelRaport      `json:"schema,omitempty"`
-	Limba           i18n.Limba         `json:"-"`
-	Legenda         []string           `json:"legenda,omitempty"`
-	Titlu           string             `json:"titlu"`
-	Sursa           string             `json:"sursa"`
-	VersiuneRaport  int                `json:"versiune_raport"`
-	RevizieModel    string             `json:"revizie_model"`
-	Pagina          Pagina             `json:"pagina"`
-	Antet           []string           `json:"antet"`
-	AntetImagini    map[string]Imagine `json:"antet_imagini,omitempty"`
-	Introducere     string             `json:"introducere"`
-	Coloane         []Coloana          `json:"coloane"`
-	Randuri         []Rand             `json:"randuri"`
-	Subsol          []string           `json:"subsol"`
-	SubsolImagini   map[string]Imagine `json:"subsol_imagini,omitempty"`
-	Metadate        string             `json:"metadate"`
-	Nota            string             `json:"nota"`
-	FaraDate        string             `json:"fara_date"`
-	Paginare        string             `json:"paginare"`
-	GeneratLa       time.Time          `json:"-"`
+	zileLuna int
+	// variabileStandard: variabilele textelor raportului standard (luna ca nume,
+	// perioada localizata, persoana aleasa), preluate de rapoartele SQL (D090).
+	variabileStandard map[string]string
+	VariabileRaport   map[string]string  `json:"variabile_raport,omitempty"`
+	Flexibil          *RaportFlexibil    `json:"flexibil,omitempty"`
+	Schema            []TabelRaport      `json:"schema,omitempty"`
+	Limba             i18n.Limba         `json:"-"`
+	Legenda           []string           `json:"legenda,omitempty"`
+	Titlu             string             `json:"titlu"`
+	Sursa             string             `json:"sursa"`
+	VersiuneRaport    int                `json:"versiune_raport"`
+	RevizieModel      string             `json:"revizie_model"`
+	Pagina            Pagina             `json:"pagina"`
+	Antet             []string           `json:"antet"`
+	AntetImagini      map[string]Imagine `json:"antet_imagini,omitempty"`
+	Introducere       string             `json:"introducere"`
+	Coloane           []Coloana          `json:"coloane"`
+	Randuri           []Rand             `json:"randuri"`
+	Subsol            []string           `json:"subsol"`
+	SubsolImagini     map[string]Imagine `json:"subsol_imagini,omitempty"`
+	Metadate          string             `json:"metadate"`
+	Nota              string             `json:"nota"`
+	FaraDate          string             `json:"fara_date"`
+	Paginare          string             `json:"paginare"`
+	GeneratLa         time.Time          `json:"-"`
 }
 
 func textJSON(v string, limba i18n.Limba) string {
@@ -147,6 +150,9 @@ func (s *Serviciu) Pregateste(ctx context.Context, c Cerere, acum time.Time) (Do
 	}
 	return doc, nil
 }
+
+// ponderiColoane: latimile relative ale coloanelor rapoartelor standard (si in conversie).
+var ponderiColoane = map[string]int{"angajat": 28, "marca": 10, "sectie": 18, "departament": 18, "functie": 22, "contract": 22, "norma_contract": 18, "data": 14, "zi": 10, "cod": 10, "ore": 10, "descriere": 40, "categorie": 22, "total_garzi": 10, "total_ore": 10}
 
 // pregatesteStandard calculeaza documentul unei surse standard (pontaj lunar,
 // detaliat, fisa individuala, absente anuale, grafic garzi) in tranzactia data,
@@ -402,6 +408,7 @@ func pregatesteStandard(ctx context.Context, tx *sql.Tx, q *acces.Queries, d Def
 		return []string{inlocuieste(b.Stanga.In(limba)), inlocuieste(b.Centru.In(limba)), inlocuieste(b.Dreapta.In(limba))}
 	}
 	doc := Document{Limba: limba, Titlu: d.Denumire.In(limba), Sursa: d.Continut.Sursa, RevizieModel: d.Revizie, Pagina: d.Pagina, Antet: bloc(d.Antet), Introducere: inlocuieste(d.Continut.Text.In(limba)), Subsol: bloc(d.Subsol), Coloane: []Coloana{}, Randuri: []Rand{}, Nota: t("nota_schita"), FaraDate: t("fara_date"), Paginare: t("paginare"), GeneratLa: acum}
+	doc.variabileStandard = valori
 	if len(garziRaport) > 0 {
 		doc.Nota += " " + t("nota_garzi")
 	}
@@ -418,7 +425,7 @@ func pregatesteStandard(ctx context.Context, tx *sql.Tx, q *acces.Queries, d Def
 	case "GRAFIC_GARZI":
 		doc.VersiuneRaport = raportGarzi.Versiune
 	}
-	ponderi := map[string]int{"angajat": 28, "marca": 10, "sectie": 18, "departament": 18, "functie": 22, "contract": 22, "norma_contract": 18, "data": 14, "zi": 10, "cod": 10, "ore": 10, "descriere": 40, "categorie": 22, "total_garzi": 10, "total_ore": 10}
+	ponderi := ponderiColoane
 	for _, cod := range d.Continut.Coloane {
 		if cod == "totaluri" {
 			for _, col := range calcul.ColoanePontaj() {

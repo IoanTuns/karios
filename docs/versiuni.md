@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.41 - 2026-11-06
+
+F09-T23 pasul 3: codul de conversie a modelelor vechi in SQL + pdfme (conversie.go): modelele standard primesc SQL pe tabelul calculat si sablon clasic; Tabel primeste sablon care urmeaza coloanele; Markdown devine texte (aldin prin Markdown in rand) si tabel; Pozitionare libera devine texte la aceleasi coordonate, iar elementele repetate devin tabel; imaginile din antet/subsol devin imagini pdfme. Rapoartele pe un tabel standard folosesc variabilele raportului standard (perioada „octombrie 2026”, luna ca nume, persoana aleasa). Conversia nu este inca pornita din aplicatie.
+
 ## 0.92.40 - 2026-11-06
 
 F09-T23 pasii 1-2: constructorul de sabloane pdfme exista si in Go (pdfme_sablon.go, pe proprietatile implicite pdfme 6.2.8 din pdfme_baza.json) si reproduce exact sabloanele modelelor predefinite. Tabelul marcat pontixTitluri se adapteaza la generare la coloanele curente ale SQL-ului (latimi pastrate, coloane noi cu latimea medie). Fara schimbari vizibile pentru modelele existente. Manual revizuit, editia 1.49 neschimbata.
