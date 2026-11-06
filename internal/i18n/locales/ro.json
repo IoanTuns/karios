@@ -2113,5 +2113,16 @@
   "ai.rezumat_identice": "Deja identice",
   "ai.rezumat_ocupate": "Ocupate, păstrate",
   "ai.rezumat_blocate": "Excluse",
-  "ai.plan_avertisment_inlocuire": "Atenție: {{numar}} celule completate deja vor fi înlocuite. Verifică-le în tabel (filtrul Starea celulei › Înlocuire) înainte de confirmare."
+  "ai.plan_avertisment_inlocuire": "Atenție: {{numar}} celule completate deja vor fi înlocuite. Verifică-le în tabel (filtrul Starea celulei › Înlocuire) înainte de confirmare.",
+  "absente.gantt_titlu": "Cronologie și suprapuneri ({{an}})",
+  "absente.vedere": "Afișarea zilelor",
+  "absente.vedere_zile": "Pe zile",
+  "absente.vedere_cereri": "Pe cereri",
+  "absente.cereri_numar": "{{numar}} cereri sau intervale. Alege „Selectează zilele” ca să editezi sau să anulezi o cerere întreagă din bara de mai sus.",
+  "absente.cerere_perioada": "Perioada",
+  "absente.cerere_zile": "Zile",
+  "absente.fara_cerere": "fără cerere înregistrată",
+  "absente.aprobare_mixta": "stări diferite",
+  "absente.cerere_selectata": "Zile selectate",
+  "absente.selecteaza_zilele_cererii": "Selectează zilele ({{numar}})"
 }

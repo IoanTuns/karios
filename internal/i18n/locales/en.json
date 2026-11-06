@@ -2113,5 +2113,16 @@
   "ai.rezumat_identice": "Already identical",
   "ai.rezumat_ocupate": "Occupied, kept",
   "ai.rezumat_blocate": "Excluded",
-  "ai.plan_avertisment_inlocuire": "Warning: {{numar}} cells already filled in will be replaced. Check them in the table (Cell status filter › Replace) before confirming."
+  "ai.plan_avertisment_inlocuire": "Warning: {{numar}} cells already filled in will be replaced. Check them in the table (Cell status filter › Replace) before confirming.",
+  "absente.gantt_titlu": "Timeline and overlaps ({{an}})",
+  "absente.vedere": "Days display",
+  "absente.vedere_zile": "By day",
+  "absente.vedere_cereri": "By request",
+  "absente.cereri_numar": "{{numar}} requests or intervals. Choose “Select days” to edit or cancel a whole request from the bar above.",
+  "absente.cerere_perioada": "Period",
+  "absente.cerere_zile": "Days",
+  "absente.fara_cerere": "no registered request",
+  "absente.aprobare_mixta": "mixed statuses",
+  "absente.cerere_selectata": "Days selected",
+  "absente.selecteaza_zilele_cererii": "Select days ({{numar}})"
 }

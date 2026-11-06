@@ -868,3 +868,9 @@ Un total afișat „—” nu este zero: aplicația nu îl poate calcula fără 
 - Rezumatul arată separat persoanele, lunile, celulele noi, înlocuirile, cele identice, cele ocupate și cele excluse. Când se înlocuiesc celule deja completate, apare un avertisment.
 - În **Opțiuni motor**, pe lângă modelul activ și limita de context, apare consumul ultimei cereri, dacă motorul îl raportează.
 
+## Concedii și absențe: zilele și cererile (0.92.52)
+
+- Ecranul se deschide pe **Zile înregistrate**. Dacă alegeți altă filă (de exemplu Sumar pe angajat), aplicația o ține minte pe acest calculator.
+- Deasupra tabelului, **Pe zile / Pe cereri** schimbă afișarea. **Pe cereri** arată câte un rând pentru fiecare cerere (după documentul atașat sau numărul de înregistrare), cu perioada, numărul de zile și starea aprobării. Zilele fără cerere apar grupate pe intervale apropiate, cu mențiunea „fără cerere înregistrată”.
+- **Selectează zilele** marchează toate zilele cererii; apoi folosiți butoanele de deasupra pentru a completa cererea/aprobarea sau pentru a anula zilele.
+
