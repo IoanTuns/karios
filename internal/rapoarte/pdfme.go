@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"io"
 	"math"
+	"strconv"
 	"strings"
 
 	"github.com/pdfcpu/pdfcpu/pkg/api"
@@ -138,7 +139,65 @@ func DatePdfme(d Document) (map[string]string, error) {
 		return nil, err
 	}
 	vars[TabelPdfme] = string(tabel)
+	if st := stiluriPdfme(d); st != "" {
+		vars[IntrareStiluriPdfme] = st
+	}
 	return vars, nil
+}
+
+// IntrareStiluriPdfme poarta stilurile pe rand si pe celula ale tabelului
+// (F09-T22): randurile aldine (weekend, sarbatori), celulele editate in copia
+// raportului (D085) si stilurile generale ale corpului si capului de tabel.
+// Indicii sunt in tot corpul tabelului; celulele au cheia "rand:coloana".
+const IntrareStiluriPdfme = "pontix_stiluri"
+
+type stiluriTabelPdfme struct {
+	Cap     *StilText           `json:"cap,omitempty"`
+	Corp    *StilText           `json:"corp,omitempty"`
+	Randuri map[string]StilText `json:"randuri,omitempty"`
+	Celule  map[string]StilText `json:"celule,omitempty"`
+}
+
+func stiluriPdfme(d Document) string {
+	st := stiluriTabelPdfme{Randuri: map[string]StilText{}, Celule: map[string]StilText{}}
+	aldin := true
+	for i, r := range d.Randuri {
+		if r.Aldin {
+			st.Randuri[strconv.Itoa(i)] = StilText{Aldin: &aldin}
+		}
+	}
+	indice := map[string]int{}
+	for j, c := range d.Coloane {
+		indice[c.Cod] = j
+	}
+	for k, v := range d.Stiluri {
+		v := v
+		switch {
+		case k == "tabel":
+			st.Corp = &v
+		case k == "antet_tabel":
+			st.Cap = &v
+		case strings.HasPrefix(k, "celula:"):
+			parti := strings.SplitN(k, ":", 3)
+			if len(parti) != 3 {
+				continue
+			}
+			i, err := strconv.Atoi(parti[1])
+			j, ok := indice[parti[2]]
+			if err != nil || !ok || i < 0 || i >= len(d.Randuri) {
+				continue
+			}
+			st.Celule[parti[1]+":"+strconv.Itoa(j)] = v
+		}
+	}
+	if st.Cap == nil && st.Corp == nil && len(st.Randuri) == 0 && len(st.Celule) == 0 {
+		return ""
+	}
+	b, err := json.Marshal(st)
+	if err != nil {
+		return ""
+	}
+	return string(b)
 }
 
 func itoa(n int) string {

@@ -2058,7 +2058,6 @@
   "rapoarte.pdfme_gata": "Done",
   "rapoarte.pdfme_deschide": "Open visual editor",
   "rapoarte.pdfme_renunta_sablon": "Changing the layout discards this model's visual template. Continue?",
-  "rapoarte.pdfme_zile_speciale_nota": "Bold for weekends and holidays is not applied in the visual editor yet (F09-T22).",
   "rapoarte.pdfme_etichete_indiciu": "Labels give the column titles when the table is built or updated from SQL. Fonts, sizes and alignment are chosen on the page, in the visual editor.",
   "rapoarte.pdfme_texte_formular": "Visual editor: the header, footer and introduction texts below appear on the page where you placed {antet_stanga}, {subsol_centru}, {introducere} etc. The rest of the layout is done in the visual editor."
 }

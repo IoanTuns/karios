@@ -161,3 +161,41 @@ func TestFinalizeazaPdfmeRefuzaDateInvalide(t *testing.T) {
 		t.Fatalf("document fara pdfme acceptat: %v", err)
 	}
 }
+
+func TestDatePdfmeStiluriPeRandSiCelula(t *testing.T) {
+	d := documentPdfmeTest(sablonPdfmeTest)
+	if _, ok := mustDate(t, d)[IntrareStiluriPdfme]; ok {
+		t.Fatal("fara stiluri nu se trimite intrarea de stiluri")
+	}
+	adevarat := true
+	d.Randuri[1].Aldin = true
+	d.Stiluri = map[string]StilText{
+		"celula:0:ore":   {Cursiv: &adevarat, Aliniere: "R"},
+		"antet_tabel":    {FontPT: 11},
+		"celula:9:ore":   {Aldin: &adevarat}, // rand inexistent: ignorat
+		"celula:0:lipsa": {Aldin: &adevarat}, // coloana inexistenta: ignorata
+		"titlu":          {Aldin: &adevarat}, // nu tine de tabel
+	}
+	var st stiluriTabelPdfme
+	if err := json.Unmarshal([]byte(mustDate(t, d)[IntrareStiluriPdfme]), &st); err != nil {
+		t.Fatal(err)
+	}
+	if len(st.Randuri) != 1 || st.Randuri["1"].Aldin == nil || !*st.Randuri["1"].Aldin {
+		t.Fatalf("randuri: %+v", st.Randuri)
+	}
+	if len(st.Celule) != 1 || st.Celule["0:1"].Aliniere != "R" || st.Celule["0:1"].Cursiv == nil {
+		t.Fatalf("celule: %+v", st.Celule)
+	}
+	if st.Cap == nil || st.Cap.FontPT != 11 || st.Corp != nil {
+		t.Fatalf("cap/corp: %+v %+v", st.Cap, st.Corp)
+	}
+}
+
+func mustDate(t *testing.T, d Document) map[string]string {
+	t.Helper()
+	v, err := DatePdfme(d)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return v
+}

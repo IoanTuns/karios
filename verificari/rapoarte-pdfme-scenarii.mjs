@@ -44,16 +44,20 @@ export function simularePdfme(fonturi) {
         const tabel = sablon.schemas.flat().find(e => e.type === 'table' && e.name === 'tabel' && !e.readOnly);
         if (tabel && tabel.head.length !== vizibile.length) return {eroare: {cod: 'rapoarte.pdfme_coloane', param: {sablon: String(tabel.head.length), date: String(vizibile.length)}}};
         const intrari = {titlu: d.denumire.ro || 'Raport', perioada: `${c.an}-${String(c.luna).padStart(2, '0')}`, an: String(c.an), luna: String(c.luna), generat_la: '05.11.2026 10:30', antet_stanga: 'Spital demo', antet_centru: '', antet_dreapta: 'Secția demo', subsol_stanga: '', subsol_centru: '', subsol_dreapta: '', tabel: JSON.stringify(randuri)};
+        // F09-T22: ca in Go, weekendul (aici fiecare al 6-lea si al 7-lea rand) e aldin, o celula e editata.
+        const randuriAldine = Object.fromEntries(randuri.map((_, i) => [String(i), {aldin: true}]).filter((_, i) => i % 7 === 5 || i % 7 === 6));
+        intrari.pontix_stiluri = JSON.stringify({randuri: randuriAldine, celule: {'0:1': {cursiv: true, aliniere: 'R'}}});
         window.__pdfmeCereri = (window.__pdfmeCereri || 0) + 1;
         return {...r, document: doc, pdf: '', generare_pdfme: true, sablon: f.sablon, intrari, token: 'pdfme-' + window.__pdfmeCereri};
     };
     App.FinalizeazaRaportPdfme = async (token, pdf) => {
         window.__pdfmeFinal = {token, octeti: atob(pdf).length};
+        window.__pdfmeB64 = pdf;
         return {document: window.__ultimDoc || null, pdf, token, nume_fisier: 'raport-pdfme.pdf', pagini: 2, eroare: null};
     };
 }
 
-export async function verificaRapoartePdfme({cdp, evalueaza, asteapta, apasa, completeaza, cataloage, limba, captura}) {
+export async function verificaRapoartePdfme({cdp, evalueaza, asteapta, apasa, completeaza, cataloage, limba, captura, salveazaPdf}) {
     const t = k => cataloage[limba][k];
     const masuri = {};
     const pauza = ms => new Promise(r => setTimeout(r, ms));
@@ -90,7 +94,8 @@ export async function verificaRapoartePdfme({cdp, evalueaza, asteapta, apasa, co
     assert.equal(masuri.ascunseDupaAlegere, 'angajat_id', 'angajat_id nu este ascuns implicit (UIR-04)');
     // UIR-02: in modul vizual, stilurile si zilele speciale nu mai apar.
     masuri.formular = await evalueaza(`({stiluri: Boolean(document.querySelector('select[name=stil_tinta_model]')), boldWeekend: Boolean(document.querySelector('input[name=bold_weekend]')), structura: Boolean(document.querySelector('.structura-model'))})`);
-    assert.deepEqual(masuri.formular, {stiluri: false, boldWeekend: false, structura: false}, 'Controale fara efect ramase in modul vizual');
+    // F09-T22: boldul pe weekend/sarbatori are efect si in modul vizual, deci ramane.
+    assert.deepEqual(masuri.formular, {stiluri: false, boldWeekend: true, structura: false}, 'Controale gresite in modul vizual');
     await evalueaza("document.querySelector('.rezumat-pdfme').scrollIntoView({block:'center'})");
     await captura('t25-01-rezumat-formular.png');
 
@@ -123,6 +128,7 @@ export async function verificaRapoartePdfme({cdp, evalueaza, asteapta, apasa, co
     await asteapta(() => evalueaza('Boolean(window.__pdfmeFinal)'), 'PDF pdfme negenerat', 30000);
     await asteapta(() => evalueaza("Boolean(document.querySelector('.dialog-pdfme .cadru-pdfme'))"), 'Fila PDF nu s-a deschis');
     masuri.pdfGenerat = await evalueaza('window.__pdfmeFinal');
+    await salveazaPdf?.(await evalueaza('window.__pdfmeB64'));
     await captura('t25-05-fila-pdf.png');
     await apasa(t('rapoarte.pdfme_gata'));
     await asteapta(() => evalueaza("!document.querySelector('.dialog-pdfme[open]')"), 'Spatiul nu s-a inchis');

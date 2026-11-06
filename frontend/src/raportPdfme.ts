@@ -7,6 +7,7 @@ import {notifica} from './Toast';
 import {main} from '../wailsjs/go/models';
 
 import cheiPdfme from './cheiPdfme.json';
+import {areStiluri, INTRARE_STILURI, tabelCuStiluri, variantaNecesare, type StiluriTabel} from './pdfmeTabel';
 
 // Tipurile de elemente, in ordinea din bara editorului; numele afisate vin din cataloage (UIR-11).
 export const TIPURI_PDFME = ['text', 'multiVariableText', 'table', 'image', 'line', 'rectangle', 'ellipse'] as const;
@@ -109,9 +110,34 @@ export async function fonturiPentruSablon(template: Template): Promise<{font: Fo
     return {font, lipsa: [...lipsa]};
 }
 
+// stiluriDinIntrari citeste stilurile pe rand/celula trimise de Go (F09-T22).
+export function stiluriDinIntrari(intrari: Record<string, string>): Record<string, StiluriTabel> {
+    const text = intrari[INTRARE_STILURI];
+    if (!text) return {};
+    try {
+        const v = JSON.parse(text) as StiluriTabel;
+        return areStiluri(v) ? {[TABEL_PDFME]: v} : {};
+    } catch {
+        return {};
+    }
+}
+
 export async function genereazaPdfPdfme(sablon: string, intrari: Record<string, string>): Promise<{pdf: Uint8Array; lipsa: string[]}> {
     const template = JSON.parse(sablon) as Template;
-    const [{generate}, plugins, {font, lipsa}] = await Promise.all([import('@pdfme/generator'), pluginuriPdfme(), fonturiPentruSablon(template)]);
+    const [{generate}, schemasMod, tabeleMod, plugins, {font, lipsa}] = await Promise.all([import('@pdfme/generator'), import('@pdfme/schemas'), import('@pdfme/schemas/tables'), pluginuriPdfme(), fonturiPentruSablon(template)]);
+    const stiluri = stiluriDinIntrari(intrari);
+    if (stiluri[TABEL_PDFME]) {
+        // Variantele aldin/cursiv ale fonturilor Windows din tabel se incarca la cerere.
+        const tabel = template.schemas.flat().find(e => e.type === 'table' && e.name === TABEL_PDFME) as {headStyles?: {fontName?: string}; bodyStyles?: {fontName?: string}} | undefined;
+        const fonturiTabel = [tabel?.headStyles?.fontName, tabel?.bodyStyles?.fontName].filter(Boolean) as string[];
+        for (const nume of variantaNecesare(fonturiTabel, stiluri[TABEL_PDFME])) {
+            if (font[nume]) continue;
+            const f = await fontSistem(nume).catch(() => null);
+            if (f) font[nume] = f;
+        }
+        plugins.table = tabelCuStiluri(schemasMod.table as never, {text: schemasMod.text.pdf, rectangle: schemasMod.rectangle.pdf, line: schemasMod.line.pdf} as never,
+            schemasMod.getDynamicHeightsForTable as never, tabeleMod.getTableBodyRange as never, stiluri) as never;
+    }
     return {pdf: await generate({template, inputs: [intrari], plugins, options: {font}}), lipsa};
 }
 
