@@ -26,6 +26,15 @@ export type ContextPontaj = {
     derulareX: number; derulareY: number;
 };
 const totaluri = ['ore_lucratoare', 'T', 'ZNL', 'CO', 'CEV', 'CFS', 'ore_norma', 'form_prof', 'CM', 'L_FIN', 'deleg', 'ore_garda'];
+
+// motivTotal: de ce un total nu se calculeaza si ce se poate face (F05-T20, I049).
+// Motivul vine din calcul; fara el (de exemplu fara date) ramane regula coloanei.
+function motivTotal(v: {motiv?: string} | undefined, sursaRegula: string | undefined): string {
+    return v?.motiv || (sursaRegula === 'NEDEFINITA' ? 'regula_nedefinita' : '');
+}
+function textMotiv(t: (cheie: string, p?: Record<string, string>) => string, motiv: string, cod?: string): string {
+    return motiv ? t(`pontaj.motiv_${motiv}`, {cod: cod || ''}) : t('pontaj.necalculat');
+}
 const cheie = (id: string, data: string) => JSON.stringify([id, data]);
 const oreText = (minute: number) => String(Number((minute/60).toFixed(4)));
 const valoareText = (v?: calcul.ValoarePontaj) => v?.definita ? String(Number((v.sutimi/(v.unitate==='ORE'?6000:100)).toFixed(4))) : '—';
@@ -96,7 +105,7 @@ const RandPontaj = memo(function RandPontaj({a, r, zile, weekend, sarbatori, sel
                 onKeyDown={e => actiuni.current.keyDown(e, r, z)} onDoubleClick={() => actiuni.current.dublu()}
                 onContextMenu={e => actiuni.current.contextMenu(e, r, z)}/></td>;
         })}
-        {totaluri.map(c => {const v=valori?.[c],regula=reguli?.find(r=>r.coloana===c),titluTotal=!v?.definita?t('pontaj.necalculat'):regula?.sursa==='ORE_NORMA'?t('pontaj.ore_norm_explicatie'):t(v.unitate==='ZILE'?'pontaj.unitate_zile':'pontaj.unitate_ore');return <td key={c} className={`${!v?.definita?'total-necalculat':''} ${c==='T'?'fix-total-t':''}`.trim()} title={titluTotal}>{calculare?'…':v?valoareText(v):areCalcul&&regula?.sursa!=='NEDEFINITA'?'0':'—'}</td>;})}</tr>;
+        {totaluri.map(c => {const v=valori?.[c],regula=reguli?.find(r=>r.coloana===c),titluTotal=!v?.definita?textMotiv(t,motivTotal(v,regula?.sursa),v?.motiv_cod):regula?.sursa==='ORE_NORMA'?t('pontaj.ore_norm_explicatie'):t(v.unitate==='ZILE'?'pontaj.unitate_zile':'pontaj.unitate_ore');return <td key={c} className={`${!v?.definita?'total-necalculat':''} ${c==='T'?'fix-total-t':''}`.trim()} title={titluTotal}>{calculare?'…':v?valoareText(v):areCalcul&&regula?.sursa!=='NEDEFINITA'?'0':'—'}</td>;})}</tr>;
 });
 
 export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente, onAjutor}: {date: datebaza.Date; context: RefObject<ContextPontaj | null>; onModificari: (modificat: boolean) => void; onOcupat: (ocupat: boolean) => void; onDeschideAbsente?: (an: number, angajatId: string) => void; onAjutor?: (id: string, versiune?: string) => void}) {
@@ -205,6 +214,8 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
     },[an,luna,schita,modificari]);
     const oreCalculate=useMemo(()=>new Map((calculat?.celule||[]).map(c=>[cheie(c.angajat_id,c.data),c])),[calculat]);
     const totaluriCalculate=useMemo(()=>new Map((calculat?.totaluri||[]).map(c=>[c.angajat_id,c.valori])),[calculat]);
+    // Sumarul motivelor pentru valorile necalculate din luna afisata, grupate pe motiv si cod.
+    const motiveNecalculate=useMemo(()=>{const grup=new Map<string,{motiv:string;cod:string;numar:number;coloane:string[]}>();for(const valori of totaluriCalculate.values())for(const c of totaluri){const v=valori?.[c];if(!v||v.definita||!v.motiv)continue;const k=v.motiv+'/'+(v.motiv_cod||'');const g=grup.get(k)??{motiv:v.motiv,cod:v.motiv_cod||'',numar:0,coloane:[]};g.numar++;if(!g.coloane.includes(c))g.coloane.push(c);grup.set(k,g);}return [...grup.values()];},[totaluriCalculate]);
 
     const originale = useMemo(() => new Map((schita?.celule ?? []).map(c => [cheie(c.angajat_id, c.data), c])), [schita]);
     const absente = useMemo(() => new Map((schita?.absente ?? []).filter(z => z.activ).map(z => [cheie(z.angajat_id,z.data),z])), [schita]);
@@ -832,6 +843,10 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                     <p>{t('pontaj.schita_indiciu')}</p><p>{t('pontaj.tastatura')}</p><p>{t('pontaj.ore_norm_explicatie')}</p><p>{t('pontaj.necalculat')}</p>
                 </div>
             </div>
+            {motiveNecalculate.length > 0 && <details className="motive-necalculate">
+                <summary>{t('pontaj.motive_titlu', {numar: String(motiveNecalculate.reduce((s, m) => s + m.numar, 0))})}</summary>
+                <ul>{motiveNecalculate.map(m => <li key={m.motiv + '/' + m.cod}>{textMotiv(t, m.motiv, m.cod)} <span className="nota">{t('pontaj.motive_unde', {numar: String(m.numar), coloane: m.coloane.map(c => t(`pontaj.total_${c}`)).join(', ')})}</span></li>)}</ul>
+            </details>}
             {randActiv && dataActiva && <div className="inspectie-celula" role="region" aria-label={t('pontaj.inspectie_titlu')}>
                 <div className="detalii-celula-activa">
                     <strong>{numeAngajatFaraPrefix(randActiv)}</strong>

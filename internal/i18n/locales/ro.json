@@ -2070,5 +2070,18 @@
   "stocare.alta_instanta_actualizare": "Altă instanță, mai veche, a aplicației are datele deschise. Această versiune trebuie să actualizeze baza; închideți mai întâi cealaltă instanță.",
   "ui.doar_citire_banner": "Doar citire: aplicația este deschisă și pe {{calculator}} de {{utilizator}} (din {{de_la}}). Puteți consulta datele, dar nu le puteți modifica.",
   "import.prefix_necunoscut": "Prefixul „{{prefix}}” nu există în Setări › Prefixe. Adăugați-l acolo sau corectați fișierul.",
-  "import.prefix_inactiv": "Prefixul „{{prefix}}” este inactiv. Activați-l în Setări › Prefixe sau corectați fișierul."
+  "import.prefix_inactiv": "Prefixul „{{prefix}}” este inactiv. Activați-l în Setări › Prefixe sau corectați fișierul.",
+  "pontaj.motiv_regula_nedefinita": "Coloana nu are încă regulă de calcul. O puteți configura în Setări › Configurare pontaj; regulile de plată le stabilește contabilitatea.",
+  "pontaj.motiv_valoare_necunoscuta": "„{{cod}}” nu este un program definit și nici un număr de ore. Corectați celula sau adăugați programul în Setări › Schimburi.",
+  "pontaj.motiv_durata_invalida": "Programul {{cod}} are o durată în afara limitelor (1 minut – 48 de ore). Corectați-l în Setări › Schimburi.",
+  "pontaj.motiv_pauza": "Programul {{cod}} are pauză, iar regula de scădere a pauzei nu e stabilită încă (o stabilește contabilitatea). Dacă programul nu are pauză, puneți pauza 0 în Setări › Schimburi.",
+  "pontaj.motiv_absenta_fara_ore": "Absența {{cod}} se creditează cu ore, dar pentru o zi nu s-au putut stabili: angajatul nu are normă zilnică sau nu are program planificat în ziua respectivă. Completați norma în fișa angajatului sau programul în Planificare.",
+  "pontaj.motiv_fara_ora_inceput": "Programul {{cod}} nu are oră de început, deci orele nu se pot împărți pe zile lucrătoare și libere. Completați ora în Setări › Schimburi.",
+  "pontaj.motive_titlu": "{{numar}} valori nu se pot calcula. Vezi de ce",
+  "pontaj.motive_unde": "({{numar}} valori; coloanele: {{coloane}})",
+  "pontaj.regula_sursa": "{{coloana}}: sursa aleasă nu se potrivește cu coloana (ore sau zile). Alegeți altă sursă.",
+  "pontaj.regula_factor": "{{coloana}}: factorul trebuie să fie între 0,01 și 10.",
+  "pontaj.regula_fara_coduri": "{{coloana}}: alegeți cel puțin un cod pentru această sursă.",
+  "pontaj.regula_coduri": "{{coloana}}: selecția de coduri nu este validă pentru această sursă. Reîncărcați regulile și alegeți din nou.",
+  "pontaj.reguli_corectati": "Corectați câmpurile marcate ({{numar}}) înainte de salvare."
 }

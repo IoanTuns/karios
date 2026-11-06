@@ -93,6 +93,14 @@ export async function verificaNomenclatoare({cdp,evalueaza,asteapta,apasa,comple
  await asteapta(()=>evalueaza("Boolean(document.querySelector('.reguli-pontaj .succes'))"),'Regula nesalvata');
  assert(await evalueaza("(async()=>{const r=await window.go.main.App.CitesteConfiguratiePontaj();return r.configuratie.conditionate?.some(c=>c.grup_id==="+JSON.stringify(grup)+"&&c.contract_id==='GARDA'&&c.garda==='DA'&&c.activ&&c.regula.factor_sutimi===200)})()"),'Regula nu pastreaza conditiile/factorul');
  await captura('regula-conditionata-'+limba+'.png');
+ // F05-T20: factorul invalid e oprit inainte de salvare si marcat langa camp, cu focus pe el.
+ await completeaza('input[name=factor_T]','0');
+ await apasa(t('ui.salveaza'));
+ await asteapta(()=>evalueaza("document.activeElement?.name==='factor_T'&&document.querySelector('input[name=factor_T]').getAttribute('aria-invalid')==='true'&&Boolean(document.getElementById('eroare_factor_T'))"),'Factorul invalid nu e marcat langa camp');
+ assert(await evalueaza("(async()=>{const r=await window.go.main.App.CitesteConfiguratiePontaj();return r.configuratie.reguli.find(x=>x.coloana==='T').factor_sutimi===100})()"),'Factorul invalid a ajuns la salvare');
+ await captura('regula-factor-invalid-'+limba+'.png');
+ await completeaza('input[name=factor_T]','1');
+ await asteapta(()=>evalueaza("!document.getElementById('eroare_factor_T')"),'Eroarea ramane dupa corectare');
  await apasa(t('ui.schimburi'));
  await asteapta(()=>evalueaza("Boolean(document.querySelector('select[name=filtru_stare_schimburi]'))"),'Filtru programe lipsa');
  assert.equal(await evalueaza("document.querySelector('select[name=filtru_stare_schimburi]').value"),'ACTIVE','Implicit nu sunt active');

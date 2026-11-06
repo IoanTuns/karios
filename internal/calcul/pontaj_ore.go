@@ -77,6 +77,10 @@ func ConfiguratiePontajInitiala() ConfiguratiePontaj {
 }
 func ValideazaConfiguratiePontaj(c ConfiguratiePontaj) error {
 	gresit := func() error { return &Eroare{Cod: "pontaj.reguli_invalide"} }
+	// gresitCamp indica rândul (coloana) și câmpul greșit (F05-T20, I049).
+	gresitCamp := func(cod, coloana, camp string) error {
+		return &Eroare{Cod: cod, Param: map[string]string{"coloana": coloana, "camp": camp}}
+	}
 	if c.Atribuire != AtribuireInceput && c.Atribuire != AtribuireCalendar {
 		return gresit()
 	}
@@ -127,22 +131,28 @@ func ValideazaConfiguratiePontaj(c ConfiguratiePontaj) error {
 		case "ZILE_ABSENTA":
 			unitate = "ZILE"
 		default:
-			return gresit()
+			return gresitCamp("pontaj.regula_sursa", r.Coloana, "sursa")
 		}
 		if u := UnitateColoana(r.Coloana); unitate != "" && u != "" && unitate != u {
-			return gresit()
+			return gresitCamp("pontaj.regula_sursa", r.Coloana, "sursa")
 		}
 		if r.FactorSutimi < 1 || r.FactorSutimi > 1000 || unitate != "ORE" && r.FactorSutimi != 100 {
-			return gresit()
+			return gresitCamp("pontaj.regula_factor", r.Coloana, "factor")
 		}
 		selectie := r.Sursa == "ZILE_ABSENTA" || (r.Sursa == "ORE_SCHIMBURI" || r.Sursa == "ORE_SCHIMBURI_ZNL")
-		if selectie != (len(r.Coduri) > 0) || len(r.Coduri) > 200 || r.NumaiAprobate && r.Sursa != "ZILE_ABSENTA" {
-			return gresit()
+		if selectie && len(r.Coduri) == 0 {
+			return gresitCamp("pontaj.regula_fara_coduri", r.Coloana, "coduri")
+		}
+		if !selectie && len(r.Coduri) > 0 || len(r.Coduri) > 200 {
+			return gresitCamp("pontaj.regula_coduri", r.Coloana, "coduri")
+		}
+		if r.NumaiAprobate && r.Sursa != "ZILE_ABSENTA" {
+			return gresitCamp("pontaj.regula_coduri", r.Coloana, "aprobare")
 		}
 		coduri := map[string]bool{}
 		for _, cod := range r.Coduri {
 			if cod == "" || len(cod) > 16 || strings.TrimSpace(cod) != cod || coduri[cod] {
-				return gresit()
+				return gresitCamp("pontaj.regula_coduri", r.Coloana, "coduri")
 			}
 			coduri[cod] = true
 		}
@@ -172,7 +182,41 @@ type ValoarePontaj struct {
 	Sutimi   int64  `json:"sutimi"`
 	Unitate  string `json:"unitate"`
 	Definita bool   `json:"definita"`
+	// Motiv spune de ce valoarea nu e definită (F05-T20, I049), iar MotivCod
+	// codul de program sau de absență în cauză; ambele lipsesc la valorile definite.
+	Motiv    string `json:"motiv,omitempty"`
+	MotivCod string `json:"motiv_cod,omitempty"`
 }
+
+// Motivele unei valori nedefinite, în ordinea în care se afișează când sunt mai multe.
+// Motivul nu inventează reguli: arată doar ce lipsește din configurare sau din date.
+const (
+	MotivRegulaNedefinita   = "regula_nedefinita"
+	MotivValoareNecunoscuta = "valoare_necunoscuta"
+	MotivDurataInvalida     = "durata_invalida"
+	MotivPauza              = "pauza"
+	MotivAbsentaFaraOre     = "absenta_fara_ore"
+	MotivFaraOraInceput     = "fara_ora_inceput"
+)
+
+var ordineMotive = []string{MotivValoareNecunoscuta, MotivDurataInvalida, MotivPauza, MotivAbsentaFaraOre, MotivFaraOraInceput}
+
+// noteazaMotiv retine, pentru fiecare motiv, cel mai mic cod (rezultat stabil).
+func noteazaMotiv(motive map[string]string, motiv, cod string) {
+	if vechi, ok := motive[motiv]; !ok || cod < vechi {
+		motive[motiv] = cod
+	}
+}
+
+func primulMotiv(motive map[string]string) (string, string) {
+	for _, m := range ordineMotive {
+		if cod, ok := motive[m]; ok {
+			return m, cod
+		}
+	}
+	return "", ""
+}
+
 type TotalPontaj struct {
 	AngajatID string                   `json:"angajat_id"`
 	Valori    map[string]ValoarePontaj `json:"valori"`
@@ -218,6 +262,9 @@ type acumularePontaj struct {
 	schimburi         map[string]int64
 	schimburiZNL      map[string]int64
 	absente           []IntrarePontaj
+	// motiveComplet: de ce totalul nu e complet; motiveCalendar: de ce orele nu
+	// se pot imparti pe tipuri de zi (F05-T20).
+	motiveComplet, motiveCalendar map[string]string
 }
 
 // CalculeazaPontaj folosește durata nominală a programelor, fără reguli salariale.
@@ -241,7 +288,7 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 	oameni := map[string]*acumularePontaj{}
 	persoana := func(id string) *acumularePontaj {
 		if oameni[id] == nil {
-			oameni[id] = &acumularePontaj{complet: true, calendar: true, schimburi: map[string]int64{}, schimburiZNL: map[string]int64{}}
+			oameni[id] = &acumularePontaj{complet: true, calendar: true, schimburi: map[string]int64{}, schimburiZNL: map[string]int64{}, motiveComplet: map[string]string{}, motiveCalendar: map[string]string{}}
 		}
 		return oameni[id]
 	}
@@ -301,6 +348,7 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 						z.Calculabil = false
 						a.complet = false
 						a.calendar = false
+						noteazaMotiv(a.motiveComplet, MotivAbsentaFaraOre, in.Absenta)
 					} else {
 						z.Minute += *in.MinuteCreditate
 						a.total += *in.MinuteCreditate
@@ -328,6 +376,17 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 		if faraStart && c.Atribuire == AtribuireCalendar {
 			cunoscut = false
 		}
+		motivNecunoscut, codValoare := "", strings.ToUpper(strings.TrimSpace(in.Valoare))
+		switch {
+		case !program && !manual:
+			motivNecunoscut = MotivValoareNecunoscuta
+		case program && (p.DurataMinute <= 0 || p.DurataMinute > 2880):
+			motivNecunoscut = MotivDurataInvalida
+		case program && p.PauzaMinute != 0:
+			motivNecunoscut = MotivPauza
+		case faraStart:
+			motivNecunoscut = MotivFaraOraInceput
+		}
 		tipFragment := func(zi string, n int64) {
 			if zi < deLa || zi > panaLa {
 				return
@@ -345,6 +404,7 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 				z.Calculabil = false
 				a.complet = false
 				a.calendar = false
+				noteazaMotiv(a.motiveComplet, motivNecunoscut, codValoare)
 				return
 			}
 			z.Minute += n
@@ -357,6 +417,7 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 			a := persoana(in.AngajatID)
 			if faraStart {
 				a.calendar = false
+				noteazaMotiv(a.motiveCalendar, MotivFaraOraInceput, codValoare)
 				return
 			}
 			d := zi.Format(time.DateOnly)
@@ -465,6 +526,16 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 							break
 						}
 					}
+				}
+			}
+			if !v.Definita {
+				switch {
+				case r.Sursa == "NEDEFINITA":
+					v.Motiv = MotivRegulaNedefinita
+				case !a.complet:
+					v.Motiv, v.MotivCod = primulMotiv(a.motiveComplet)
+				default:
+					v.Motiv, v.MotivCod = primulMotiv(a.motiveCalendar)
 				}
 			}
 			t.Valori[r.Coloana] = v
