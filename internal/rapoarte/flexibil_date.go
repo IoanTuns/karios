@@ -151,6 +151,10 @@ func incarcatBazaRaport(ctx context.Context, tx *sql.Tx, c Cerere, f *RaportFlex
 	tipSelectat := map[string]bool{}
 	for _, x := range f.ConcediiTipuri {
 		tipSelectat[x] = true
+		// Un model salvat cu un cod redenumit (D092) alege si codul nou.
+		if nou, ok := calcul.CoduriRedenumite[x]; ok {
+			tipSelectat[nou] = true
+		}
 	}
 	for _, x := range f.ConcediiCategorii {
 		cat[x] = x

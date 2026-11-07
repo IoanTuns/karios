@@ -30,18 +30,19 @@ func TestMigrareCategoriiAbsentePastreazaEfectele(t *testing.T) {
 	if _, e := db.Exec(`INSERT INTO coduri_absenta(cod,denumire,categorie,efect_ore,activ,creat_la,modificat_la) VALUES('DEPL','{"ro":"Deplasare demo"}','SPECIAL','NORMA',0,'x','y');INSERT INTO angajati(id,nume,marca,creat_la,modificat_la) VALUES('a','Exemplu','TEST','x','x');INSERT INTO absente_zile(angajat_id,data,cod,minute_creditate,creat_la,modificat_la) VALUES('a','2026-10-05','DEPL',420,'x','x')`); e != nil {
 		t.Fatal(e)
 	}
-	if n, e := Migreaza(ctx, db, Migrari); e != nil || n != 5 {
+	if n, e := Migreaza(ctx, db, Migrari); e != nil || n != 6 {
 		t.Fatal(n, e)
 	}
 	var cat, natura, efect, mod string
 	var activ, minute int
-	if e := db.QueryRow(`SELECT t.categorie_id,c.natura,c.efect_ore,t.activ,t.modificat_la,z.minute_creditate FROM coduri_absenta t JOIN categorii_absente c ON c.cod=t.categorie_id JOIN absente_zile z ON z.cod=t.cod WHERE t.cod='DEPL'`).Scan(&cat, &natura, &efect, &activ, &mod, &minute); e != nil {
+	if e := db.QueryRow(`SELECT t.categorie_id,c.natura,c.efect_ore,t.activ,t.modificat_la,z.minute_creditate FROM coduri_absenta t JOIN categorii_absente c ON c.cod=t.categorie_id JOIN absente_zile z ON z.cod=t.cod WHERE t.cod='DLG'`).Scan(&cat, &natura, &efect, &activ, &mod, &minute); e != nil {
 		t.Fatal(e)
 	}
 	if cat != "SPECIAL_NORMA" || natura != "SPECIAL" || efect != "NORMA" || activ != 0 || mod != "y" || minute != 420 {
 		t.Fatalf("date schimbate: %s %s %s %d %s %d", cat, natura, efect, activ, mod, minute)
 	}
-	if _, e := db.Exec(`UPDATE coduri_absenta SET categorie_id='lipsa' WHERE cod='DEPL'`); e == nil {
+	// Migrarea 0035 (D092) a redenumit DEPL in DLG, cu datele lui.
+	if _, e := db.Exec(`UPDATE coduri_absenta SET categorie_id='lipsa' WHERE cod='DLG'`); e == nil {
 		t.Fatal("referinta invalida acceptata")
 	}
 }

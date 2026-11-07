@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.58 - 2026-11-07
+
+F08-T12 (D092). Migrarea 0035 redenumeste codurile de absenta CEV → CVE, CFS → CFP, DEPL → DLG si FP → FMP, cu tot cu zilele inregistrate; tipul isi pastreaza denumirea, categoria, efectul si starea. Se aplica doar cand codul vechi exista si cel nou nu; daca exista ambele, nu se amesteca nimic. Reducerea normei lunare si soldurile recunosc si codurile noi; listele de tipuri din modelele de raport se traduc la citire. Interogarile SQL scrise de mana care contin codurile vechi trebuie actualizate manual. Baza de date: migrarea 0035. Manual 1.61.
+
 ## 0.92.57 - 2026-11-07
 
 F08-T11 (D092). Grila Pontaj pastreaza doar coloanele OL, CO, CM, CFP, CVE, DLG si FMP (numele complet in titlul coloanei). Calculul are coloane noi: OL (orele salvate plus orele creditate ale formarii profesionale, fara delegatii), CFP, CVE (orice alta absenta in afara de CO, CM, CFP, DLG, FMP), DLG, FMP, TZLN (zilele lunii fara weekend si fara sarbatorile din timpul saptamanii) si TOCN (TZLN × norma zilnica, fixa pe luna, ascunsa). Coloanele vechi raman in calcul pentru rapoartele standard, export si solduri; rapoartele de referinta nu se schimba. O configuratie salvata primeste coloanele noi la citire, doar cu codurile de absenta existente; fara ele, coloana ramane neconfigurata cu motivul afisat. Configurare pontaj are sursele noi. Manual 1.60.

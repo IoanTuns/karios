@@ -60,7 +60,7 @@ func completeazaSolduri(ctx context.Context, q *acces.Queries, an, luna int, rez
 		case "SPECIAL":
 			cat = t.Cod
 		}
-		if t.Cod == "CFS" {
+		if t.Cod == "CFS" || t.Cod == "CFP" { // CFP: codul redenumit (D092)
 			cat = "CFS"
 		}
 		categorii[t.Cod] = cat

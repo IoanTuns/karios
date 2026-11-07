@@ -1124,13 +1124,14 @@ func sintetizeazaConcedii(info ContextPontix, numeLuna string) string {
 	}
 
 	tipuri := map[string]string{
-		"CO": "Concediu de odihnă",
-		"CM": "Concediu medical",
-		"CF": "Concediu fără plată",
-		"CS": "Concediu de studii",
-		"M":  "Misiune / Delegație",
-		"FP": "Formare profesională",
-		"D":  "Donare sânge",
+		"CO":  "Concediu de odihnă",
+		"CM":  "Concediu medical",
+		"CF":  "Concediu fără plată",
+		"CS":  "Concediu de studii",
+		"M":   "Misiune / Delegație",
+		"FP":  "Formare profesională",
+		"FMP": "Formare profesională",
+		"D":   "Donare sânge",
 	}
 
 	grupuri := make(map[string][]InfoAbsenta)

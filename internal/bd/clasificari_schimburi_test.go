@@ -30,7 +30,7 @@ func TestMigrareClasificariPastreazaProgrameSiReferinte(t *testing.T) {
 	if _, err := db.Exec(`UPDATE tipuri_schimb SET regim='GENERAL',ora_start=1200,durata_minute=660,activ=0 WHERE cod='N12'`); err != nil {
 		t.Fatal(err)
 	}
-	if n, err := Migreaza(ctx, db, Migrari); err != nil || n != 8 {
+	if n, err := Migreaza(ctx, db, Migrari); err != nil || n != 9 {
 		t.Fatal(n, err)
 	}
 	var tip, regim, tipID, regimID string

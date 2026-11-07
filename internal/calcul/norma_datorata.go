@@ -36,7 +36,7 @@ func CalculeazaNormaDatorata(deLa, panaLa string, normaZilnica *int64, libere ma
 			continue
 		}
 		switch a.Tip {
-		case "CO", "CEV", "CFS", "CM":
+		case "CO", "CEV", "CFS", "CM", "CVE", "CFP": // CVE, CFP: codurile redenumite (D092)
 			if _, err := time.Parse(time.DateOnly, a.Data); err != nil {
 				return rez, &Eroare{Cod: "pontaj.celula_invalida"}
 			}
