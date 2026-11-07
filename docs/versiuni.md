@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.57 - 2026-11-07
+
+F08-T11 (D092). Grila Pontaj pastreaza doar coloanele OL, CO, CM, CFP, CVE, DLG si FMP (numele complet in titlul coloanei). Calculul are coloane noi: OL (orele salvate plus orele creditate ale formarii profesionale, fara delegatii), CFP, CVE (orice alta absenta in afara de CO, CM, CFP, DLG, FMP), DLG, FMP, TZLN (zilele lunii fara weekend si fara sarbatorile din timpul saptamanii) si TOCN (TZLN × norma zilnica, fixa pe luna, ascunsa). Coloanele vechi raman in calcul pentru rapoartele standard, export si solduri; rapoartele de referinta nu se schimba. O configuratie salvata primeste coloanele noi la citire, doar cu codurile de absenta existente; fara ele, coloana ramane neconfigurata cu motivul afisat. Configurare pontaj are sursele noi. Manual 1.60.
+
 ## 0.92.56 - 2026-11-07
 
 F09-T27, defect raportat de utilizator. In Definire rapoarte, editorul afla coloanele SQL printr-o previzualizare in modul vechi „tabel”, al carui motor a fost sters in F09-T23; serverul raspundea „Acest model nu a putut fi trecut pe editorul vizual”, iar „Actualizeaza tabelul din SQL”, „Sablon nou din coloanele SQL”, crearea automata a sablonului si incarcarea schemei nu functionau. Operatie noua ColoaneModelRaport (coloanele si schema, fara PDF), folosita de editor. Tabelele adaptive (pontixTitluri: modelele standard si cele convertite), pe care Go le potriveste singur cu SQL-ul la generare, nu mai sunt semnalate ca nepotrivite. Puntea simulata a scenariilor Edge refuza acum modul vechi, ca backendul real. Manualul revizuit fara modificari de continut.

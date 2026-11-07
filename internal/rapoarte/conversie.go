@@ -39,7 +39,7 @@ func coloaneModelStandard(d Definitie, limba i18n.Limba) []ColoanaSablon {
 	for _, cod := range d.Continut.Coloane {
 		switch cod {
 		case "totaluri":
-			for _, col := range calcul.ColoanePontaj() {
+			for _, col := range calcul.ColoaneRapoarte() {
 				if col == "ore_lucrate" && d.Continut.Sursa == "PONTAJ_DETALIAT" {
 					col = "ore_lucratoare"
 				}

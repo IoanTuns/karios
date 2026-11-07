@@ -39,19 +39,40 @@ func (r RegulaConditionata) corespunde(p ProfilPontaj) bool {
 type ConfiguratiePontaj struct {
 	Conditionate []RegulaConditionata    `json:"conditionate,omitempty"`
 	Profile      map[string]ProfilPontaj `json:"-"`
-	Atribuire    string                  `json:"atribuire"`
-	Reguli       []RegulaColoana         `json:"reguli"`
-	Revizie      string                  `json:"revizie"`
+	// Norme: norma zilnica in minute pe angajat, pentru TOCN (D092); nil = fara norma zilnica.
+	Norme     map[string]*int64 `json:"-"`
+	Atribuire string            `json:"atribuire"`
+	Reguli    []RegulaColoana   `json:"reguli"`
+	Revizie   string            `json:"revizie"`
 }
 
 func ColoanePontaj() []string {
-	return []string{"ore_lucrate", "T", "ZNL", "CO", "CEV", "CFS", "ore_norma", "form_prof", "CM", "L_FIN", "deleg", "ore_garda"}
+	return []string{"ore_lucrate", "T", "ZNL", "CO", "CEV", "CFS", "ore_norma", "form_prof", "CM", "L_FIN", "deleg", "ore_garda",
+		"OL", "CFP", "CVE", "DLG", "FMP", "TZLN", "TOCN"}
 }
+
+// ColoaneRapoarte sunt coloanele de total pe care le arata rapoartele standard si
+// conversia modelelor: lista de dinainte de D092, ca rapoartele de referinta sa nu se
+// schimbe. Coloanele noi raman in calcul si in SQL (F08-T13).
+func ColoaneRapoarte() []string { return ColoanePontaj()[:12] }
+
+// ColoaneGrilaPontaj sunt coloanele de total afisate in grila Pontaj (D092); celelalte
+// raman in calcul pentru rapoarte si export. TZLN si TOCN sunt ascunse.
+func ColoaneGrilaPontaj() []string {
+	return []string{"OL", "CO", "CM", "CFP", "CVE", "DLG", "FMP"}
+}
+
+// CoduriRedenumite: codurile de absenta redenumite prin D092 (vechi -> nou).
+var CoduriRedenumite = map[string]string{"CEV": "CVE", "CFS": "CFP", "DEPL": "DLG", "FP": "FMP"}
+
+// CoduriExcluseCVE sunt tipurile cu coloana proprie; CVE numara restul absentelor (D092).
+var CoduriExcluseCVE = []string{"CO", "CM", "CFP", "DLG", "FMP"}
+
 func UnitateColoana(c string) string {
 	switch c {
-	case "ore_lucrate", "T", "ZNL", "ore_norma", "ore_garda":
+	case "ore_lucrate", "T", "ZNL", "ore_norma", "ore_garda", "OL", "TOCN":
 		return "ORE"
-	case "CO", "CEV", "CFS", "CM", "deleg":
+	case "CO", "CEV", "CFS", "CM", "deleg", "CFP", "CVE", "DLG", "FMP", "TZLN":
 		return "ZILE"
 	}
 	return ""
@@ -67,9 +88,20 @@ func ConfiguratiePontajInitiala() ConfiguratiePontaj {
 			r.Sursa = "ORE_ZNL"
 		case "ore_norma":
 			r.Sursa = "ORE_NORMA"
-		case "CO", "CM":
+		case "CO", "CM", "CFP", "DLG", "FMP":
 			r.Sursa = "ZILE_ABSENTA"
 			r.Coduri = []string{cod}
+		case "OL":
+			// Orele salvate plus orele creditate ale formarii profesionale (D092).
+			r.Sursa = "ORE_LUCRATE_CODURI"
+			r.Coduri = []string{"FMP"}
+		case "CVE":
+			r.Sursa = "ZILE_ABSENTA_ALTELE"
+			r.Coduri = append([]string(nil), CoduriExcluseCVE...)
+		case "TZLN":
+			r.Sursa = "ZILE_LUCRATOARE_NETE"
+		case "TOCN":
+			r.Sursa = "ORE_NORMA_LUNA"
 		}
 		c.Reguli = append(c.Reguli, r)
 	}
@@ -127,8 +159,8 @@ func ValideazaConfiguratiePontaj(c ConfiguratiePontaj) error {
 		switch r.Sursa {
 		case "NEDEFINITA":
 			unitate = ""
-		case "TOTAL_ORE", "ORE_ZNL", "ORE_NORMA", "ORE_SCHIMBURI", "ORE_SCHIMBURI_ZNL":
-		case "ZILE_ABSENTA":
+		case "TOTAL_ORE", "ORE_ZNL", "ORE_NORMA", "ORE_SCHIMBURI", "ORE_SCHIMBURI_ZNL", "ORE_LUCRATE_CODURI", "ORE_NORMA_LUNA":
+		case "ZILE_ABSENTA", "ZILE_ABSENTA_ALTELE", "ZILE_LUCRATOARE_NETE":
 			unitate = "ZILE"
 		default:
 			return gresitCamp("pontaj.regula_sursa", r.Coloana, "sursa")
@@ -143,10 +175,12 @@ func ValideazaConfiguratiePontaj(c ConfiguratiePontaj) error {
 		if selectie && len(r.Coduri) == 0 {
 			return gresitCamp("pontaj.regula_fara_coduri", r.Coloana, "coduri")
 		}
-		if !selectie && len(r.Coduri) > 0 || len(r.Coduri) > 200 {
+		// OL si CVE primesc o lista optionala: codurile creditate incluse, respectiv cele excluse.
+		optionala := r.Sursa == "ORE_LUCRATE_CODURI" || r.Sursa == "ZILE_ABSENTA_ALTELE"
+		if !selectie && !optionala && len(r.Coduri) > 0 || len(r.Coduri) > 200 {
 			return gresitCamp("pontaj.regula_coduri", r.Coloana, "coduri")
 		}
-		if r.NumaiAprobate && r.Sursa != "ZILE_ABSENTA" {
+		if r.NumaiAprobate && r.Sursa != "ZILE_ABSENTA" && r.Sursa != "ZILE_ABSENTA_ALTELE" {
 			return gresitCamp("pontaj.regula_coduri", r.Coloana, "aprobare")
 		}
 		coduri := map[string]bool{}
@@ -197,6 +231,8 @@ const (
 	MotivPauza              = "pauza"
 	MotivAbsentaFaraOre     = "absenta_fara_ore"
 	MotivFaraOraInceput     = "fara_ora_inceput"
+	// MotivFaraNorma: TOCN cere norma zilnica, pe care garzile si unele contracte nu o au (D092).
+	MotivFaraNorma = "fara_norma"
 )
 
 var ordineMotive = []string{MotivValoareNecunoscuta, MotivDurataInvalida, MotivPauza, MotivAbsentaFaraOre, MotivFaraOraInceput}
@@ -265,6 +301,8 @@ type acumularePontaj struct {
 	// motiveComplet: de ce totalul nu e complet; motiveCalendar: de ce orele nu
 	// se pot imparti pe tipuri de zi (F05-T20).
 	motiveComplet, motiveCalendar map[string]string
+	// credite: minutele creditate de absente, pe cod (pentru OL, D092).
+	credite map[string]int64
 }
 
 // CalculeazaPontaj folosește durata nominală a programelor, fără reguli salariale.
@@ -288,7 +326,7 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 	oameni := map[string]*acumularePontaj{}
 	persoana := func(id string) *acumularePontaj {
 		if oameni[id] == nil {
-			oameni[id] = &acumularePontaj{complet: true, calendar: true, schimburi: map[string]int64{}, schimburiZNL: map[string]int64{}, motiveComplet: map[string]string{}, motiveCalendar: map[string]string{}}
+			oameni[id] = &acumularePontaj{complet: true, calendar: true, schimburi: map[string]int64{}, schimburiZNL: map[string]int64{}, motiveComplet: map[string]string{}, motiveCalendar: map[string]string{}, credite: map[string]int64{}}
 		}
 		return oameni[id]
 	}
@@ -353,6 +391,7 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 						z.Minute += *in.MinuteCreditate
 						a.total += *in.MinuteCreditate
 						a.norma += *in.MinuteCreditate
+						a.credite[in.Absenta] += *in.MinuteCreditate
 					}
 				}
 			}
@@ -469,6 +508,12 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 		a, b := rez.Celule[i], rez.Celule[j]
 		return a.AngajatID < b.AngajatID || a.AngajatID == b.AngajatID && a.Data < b.Data
 	})
+	// TZLN: zilele lunii fara weekend si fara sarbatorile care cad luni-vineri (D092).
+	tzln := zileLucratoareNete(deLa, panaLa, libere)
+	// Fiecare angajat cu norma cunoscuta primeste totaluri, ca TOCN sa existe si fara pontaj.
+	for id := range c.Norme {
+		persoana(id)
+	}
 	for id, a := range oameni {
 		t := TotalPontaj{AngajatID: id, Valori: map[string]ValoarePontaj{}}
 		reguli := append([]RegulaColoana(nil), c.Reguli...)
@@ -514,6 +559,42 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 				for _, cod := range r.Coduri {
 					v.Sutimi += a.schimburiZNL[cod] * r.FactorSutimi
 				}
+			case "ORE_LUCRATE_CODURI":
+				// Orele salvate (fara creditele absentelor) plus creditele codurilor alese.
+				v.Unitate = "ORE"
+				v.Definita = a.complet
+				minute := a.total
+				for _, n := range a.credite {
+					minute -= n
+				}
+				for _, cod := range r.Coduri {
+					minute += a.credite[cod]
+				}
+				v.Sutimi = minute * r.FactorSutimi
+			case "ZILE_ABSENTA_ALTELE":
+				v.Unitate = "ZILE"
+				for _, zi := range a.absente {
+					if r.NumaiAprobate && zi.StareAprobare != "APROBATA" {
+						continue
+					}
+					exclus := false
+					for _, cod := range r.Coduri {
+						exclus = exclus || zi.Absenta == cod
+					}
+					if !exclus {
+						v.Sutimi += 100
+					}
+				}
+			case "ZILE_LUCRATOARE_NETE":
+				v.Unitate = "ZILE"
+				v.Sutimi = tzln * 100
+			case "ORE_NORMA_LUNA":
+				v.Unitate = "ORE"
+				if n := c.Norme[id]; n != nil {
+					v.Sutimi = tzln * *n * r.FactorSutimi
+				} else {
+					v.Definita = false
+				}
 			case "ZILE_ABSENTA":
 				v.Unitate = "ZILE"
 				for _, zi := range a.absente {
@@ -532,6 +613,8 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 				switch {
 				case r.Sursa == "NEDEFINITA":
 					v.Motiv = MotivRegulaNedefinita
+				case r.Sursa == "ORE_NORMA_LUNA":
+					v.Motiv = MotivFaraNorma
 				case !a.complet:
 					v.Motiv, v.MotivCod = primulMotiv(a.motiveComplet)
 				default:
@@ -544,4 +627,21 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 	}
 	sort.Slice(rez.Totaluri, func(i, j int) bool { return rez.Totaluri[i].AngajatID < rez.Totaluri[j].AngajatID })
 	return rez, nil
+}
+
+// zileLucratoareNete numara zilele din [deLa, panaLa] care nu sunt sambata, duminica
+// sau sarbatoare legala (D092, TZLN). O sarbatoare in weekend nu se scade de doua ori.
+func zileLucratoareNete(deLa, panaLa string, libere map[string]bool) int64 {
+	inceput, e1 := time.Parse(time.DateOnly, deLa)
+	sfarsit, e2 := time.Parse(time.DateOnly, panaLa)
+	if e1 != nil || e2 != nil {
+		return 0
+	}
+	var n int64
+	for zi := inceput; !zi.After(sfarsit); zi = zi.AddDate(0, 0, 1) {
+		if zi.Weekday() != time.Saturday && zi.Weekday() != time.Sunday && !libere[zi.Format(time.DateOnly)] {
+			n++
+		}
+	}
+	return n
 }

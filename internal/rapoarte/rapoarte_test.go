@@ -129,8 +129,13 @@ func TestDetaliatFolosesteAceleasiOreSiReguliCaGrila(t *testing.T) {
 	}
 	for _, r := range rez.Totaluri {
 		if r.AngajatID == "a" {
+			inRaport := map[string]bool{}
+			for _, c := range calcul.ColoaneRapoarte() {
+				inRaport[c] = true
+			}
 			for cod, v := range r.Valori {
-				if cod == "ore_norma" || cod == "ore_lucrate" {
+				// Coloanele noi din D092 (OL, CVE, TOCN...) nu fac parte din raportul detaliat.
+				if cod == "ore_norma" || cod == "ore_lucrate" || !inRaport[cod] {
 					continue
 				}
 				if valori["total_"+cod] != calcul.TextValoarePontaj(v) {

@@ -38,6 +38,10 @@ func calculeazaPontajBaza(ctx context.Context, q *acces.Queries, an, luna int, m
 	if err := ValideazaCoduriReguli(ctx, q, c); err != nil {
 		return gol, c, err
 	}
+	// Norma zilnica pe angajat, pentru TOCN (D092).
+	if c.Norme, err = q.NormeSoldPontaj(ctx); err != nil {
+		return gol, c, err
+	}
 	if len(c.Conditionate) > 0 {
 		oameni, err := q.ListaAngajati(ctx)
 		if err != nil {

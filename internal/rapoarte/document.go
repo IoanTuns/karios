@@ -428,7 +428,7 @@ func pregatesteStandard(ctx context.Context, tx *sql.Tx, q *acces.Queries, d Def
 	ponderi := ponderiColoane
 	for _, cod := range d.Continut.Coloane {
 		if cod == "totaluri" {
-			for _, col := range calcul.ColoanePontaj() {
+			for _, col := range calcul.ColoaneRapoarte() {
 				if col == "ore_lucrate" && d.Continut.Sursa == "PONTAJ_DETALIAT" {
 					col = "ore_lucratoare"
 				}

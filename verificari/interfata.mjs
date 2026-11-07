@@ -143,6 +143,9 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
     stare.modeleRapoarte ??= structuredClone(rapoarteSursa.configuratie.modele);
     stare.documenteAbsenta ??= [];
     stare.reguliPontaj ??= {...structuredClone(rapoarteSursa.reguli),revizie:'1'};
+    // D092: ca adapteazaConfiguratia din Go, coloanele noi se adauga la citire, doar cu codurile existente (aici CO, CM).
+    for (const r of [['OL','ORE_LUCRATE_CODURI',[]],['CFP','NEDEFINITA',[]],['CVE','ZILE_ABSENTA_ALTELE',['CO','CM']],['DLG','NEDEFINITA',[]],['FMP','NEDEFINITA',[]],['TZLN','ZILE_LUCRATOARE_NETE',[]],['TOCN','ORE_NORMA_LUNA',[]]])
+        if (!stare.reguliPontaj.reguli.some(x=>x.coloana===r[0])) stare.reguliPontaj.reguli.push({coloana:r[0],sursa:r[1],coduri:r[2],factor_sutimi:100,numai_aprobate:false});
     // Date simulate pentru fluxul UI; regulile reale sunt verificate separat în Go.
     function schita(an,luna,modificari=[]) {
         const prefix=`${String(an).padStart(4,'0')}-${String(luna).padStart(2,'0')}-`;

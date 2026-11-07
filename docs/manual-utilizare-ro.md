@@ -879,3 +879,24 @@ Un total afișat „—” nu este zero: aplicația nu îl poate calcula fără 
 - Filele din partea de sus a Setărilor stau pe un singur rând; dacă nu încap, derulați-le orizontal sau folosiți submeniul din bara laterală, care le conține pe toate.
 - În **Configurare pontaj**, codurile (programe sau tipuri de absență) pentru o coloană se aleg apăsând butoanele cu codurile; un buton apăsat e marcat ca ales. Țineți mouse-ul pe un cod ca să-i vedeți numele complet. Butoanele se pot folosi și cu tastatura (Tab, apoi Enter sau Spațiu).
 
+## Coloanele Pontajului (0.92.57)
+
+Grila Pontaj arată în dreapta aceste totaluri pe lună. Țineți mouse-ul pe codul coloanei ca să vedeți numele complet.
+
+| Cod | Ce numără |
+| --- | --- |
+| OL | Orele salvate în Pontaj, plus orele zilelor de formare profesională (FMP). Delegațiile nu intră. |
+| CO | Zilele de concediu de odihnă. |
+| CM | Zilele de concediu medical. |
+| CFP | Zilele de concediu fără plată. |
+| CVE | Zilele oricărui alt tip de absență în afară de CO, CM, CFP, DLG și FMP (evenimente speciale). |
+| DLG | Zilele de delegație. |
+| FMP | Zilele de formare profesională. |
+
+Aplicația mai calculează, fără să le afișeze în grilă:
+
+- **TZLN**, zilele lucrătoare nete: zilele lunii, fără weekenduri și fără sărbătorile legale care cad luni–vineri;
+- **TOCN**, orele datorate pe lună: TZLN × norma zilnică a angajatului. Concediile nu o scad. Pentru gărzi și contractele fără normă zilnică nu se calculează.
+
+Regulile fiecărei coloane se văd și se pot ajusta în **Setări › Configurare pontaj**. Dacă un tip de absență (de exemplu CFP) nu există în **Concedii și absențe › Tipuri de absență**, coloana lui apare „—”, cu motivul afișat.
+

@@ -25,7 +25,8 @@ export type ContextPontaj = {
     selectie: {inceput: {angajatId: string; data: string}; sfarsit: {angajatId: string; data: string}} | null;
     derulareX: number; derulareY: number;
 };
-const totaluri = ['ore_lucratoare', 'T', 'ZNL', 'CO', 'CEV', 'CFS', 'ore_norma', 'form_prof', 'CM', 'L_FIN', 'deleg', 'ore_garda'];
+// D092: grila pastreaza doar aceste coloane; TZLN, TOCN si coloanele vechi raman in calcul si rapoarte.
+const totaluri = ['OL', 'CO', 'CM', 'CFP', 'CVE', 'DLG', 'FMP'];
 
 // motivTotal: de ce un total nu se calculeaza si ce se poate face (F05-T20, I049).
 // Motivul vine din calcul; fara el (de exemplu fara date) ramane regula coloanei.
@@ -105,7 +106,7 @@ const RandPontaj = memo(function RandPontaj({a, r, zile, weekend, sarbatori, sel
                 onKeyDown={e => actiuni.current.keyDown(e, r, z)} onDoubleClick={() => actiuni.current.dublu()}
                 onContextMenu={e => actiuni.current.contextMenu(e, r, z)}/></td>;
         })}
-        {totaluri.map(c => {const v=valori?.[c],regula=reguli?.find(r=>r.coloana===c),titluTotal=!v?.definita?textMotiv(t,motivTotal(v,regula?.sursa),v?.motiv_cod):regula?.sursa==='ORE_NORMA'?t('pontaj.ore_norm_explicatie'):t(v.unitate==='ZILE'?'pontaj.unitate_zile':'pontaj.unitate_ore');return <td key={c} className={`${!v?.definita?'total-necalculat':''} ${c==='T'?'fix-total-t':''}`.trim()} title={titluTotal}>{calculare?'…':v?valoareText(v):areCalcul&&regula?.sursa!=='NEDEFINITA'?'0':'—'}</td>;})}</tr>;
+        {totaluri.map(c => {const v=valori?.[c],regula=reguli?.find(r=>r.coloana===c),titluTotal=!v?.definita?textMotiv(t,motivTotal(v,regula?.sursa),v?.motiv_cod):regula?.sursa==='ORE_NORMA'?t('pontaj.ore_norm_explicatie'):t(v.unitate==='ZILE'?'pontaj.unitate_zile':'pontaj.unitate_ore');return <td key={c} className={`${!v?.definita?'total-necalculat':''} ${c==='OL'?'fix-total-t':''}`.trim()} title={titluTotal}>{calculare?'…':v?valoareText(v):areCalcul&&regula?.sursa!=='NEDEFINITA'?'0':'—'}</td>;})}</tr>;
 });
 
 export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente, onAjutor}: {date: datebaza.Date; context: RefObject<ContextPontaj | null>; onModificari: (modificat: boolean) => void; onOcupat: (ocupat: boolean) => void; onDeschideAbsente?: (an: number, angajatId: string) => void; onAjutor?: (id: string, versiune?: string) => void}) {
@@ -876,7 +877,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                         <table className="grila-pontaj" aria-label={t('pontaj.grila', {an, luna})}><thead>
                             <tr><th className="fix-nume">{t('ui.angajat')}</th><th className="fix-marca">{t('ui.marca')}</th>
                             {zile.map((data, z) => { const d = new Date(`${data}T12:00:00Z`); return <th key={data} className={sarbatori.has(data) ? 'zi-sarbatoare' : weekend[z] ? 'zi-weekend' : ''} title={sarbatori.get(data) || ''} scope="col"><strong>{z + 1}</strong><small>{formatData(i18n.language, {weekday: 'short', timeZone: 'UTC'}).format(d)}</small></th>; })}
-                            {totaluri.map(c => <th key={c} className={c === 'T' ? 'fix-total-t' : ''}>{t(`pontaj.total_${c}`)}</th>)}</tr>
+                            {totaluri.map(c => <th key={c} className={c === 'OL' ? 'fix-total-t' : ''} title={t(`pontaj.total_titlu_${c}`)}><abbr title={t(`pontaj.total_titlu_${c}`)}>{t(`pontaj.total_${c}`)}</abbr></th>)}</tr>
                             <tr className="rand-heatmap" aria-label={t('pontaj.acoperire')}>
                                 <th className="fix-nume titlu-heat" scope="row"><strong>{t('pontaj.acoperire')}</strong></th>
                                 <th className="fix-marca titlu-heat-marca"><small>{t('pontaj.persoane_afisate', {numar: randuri.length})}</small></th>
@@ -888,7 +889,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                                         </div>
                                     </th>
                                 ))}
-                                {totaluri.map(c => <th key={`heat-tot-${c}`} className={`celula-heat-total ${c === 'T' ? 'fix-total-t' : ''}`} />)}
+                                {totaluri.map(c => <th key={`heat-tot-${c}`} className={`celula-heat-total ${c === 'OL' ? 'fix-total-t' : ''}`} />)}
                             </tr>
                         </thead><tbody>
                             {randuri.map((a, r) => <RandPontaj key={a.id} functie={date.functii?.find(f=>f.id===a.functie_id)?.denumire[i18n.language]||a.functie} a={a} r={r} zile={zile} weekend={weekend} sarbatori={sarbatori}

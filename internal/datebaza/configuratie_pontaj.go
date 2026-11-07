@@ -28,7 +28,72 @@ func citesteConfiguratiePontaj(ctx context.Context, q *acces.Queries) (calcul.Co
 		return c, err
 	}
 	c.Revizie = strconv.FormatInt(r.Revizie, 10)
+	optiuni, err := optiuniReguli(ctx, q)
+	if err != nil {
+		return c, err
+	}
+	adapteazaConfiguratia(&c, optiuni)
 	return c, calcul.ValideazaConfiguratiePontaj(c)
+}
+
+// adapteazaConfiguratia aduce o configuratie salvata la coloanele si codurile curente (D092):
+// codurile redenumite (CEV->CVE etc.) se traduc daca vechiul cod nu mai exista, iar
+// coloanele noi lipsa primesc regula implicita, doar cu codurile de absenta existente.
+// O regula pe zile de absenta ramasa fara coduri devine neconfigurata (motiv vizibil).
+func adapteazaConfiguratia(c *calcul.ConfiguratiePontaj, optiuni []OptiuneRegula) {
+	exista := map[string]bool{}
+	for _, o := range optiuni {
+		if o.Tip == "ABSENTA" {
+			exista[o.Cod] = true
+		}
+	}
+	traduce := func(r *calcul.RegulaColoana) {
+		if tipRegula(r.Sursa) != "ABSENTA" {
+			return
+		}
+		for i, cod := range r.Coduri {
+			if nou, ok := calcul.CoduriRedenumite[cod]; ok && !exista[cod] && exista[nou] {
+				r.Coduri[i] = nou
+			}
+		}
+	}
+	for i := range c.Reguli {
+		traduce(&c.Reguli[i])
+	}
+	for i := range c.Conditionate {
+		traduce(&c.Conditionate[i].Regula)
+	}
+	prezente := map[string]bool{}
+	for _, r := range c.Reguli {
+		prezente[r.Coloana] = true
+	}
+	for _, r := range calcul.ConfiguratiePontajInitiala().Reguli {
+		if prezente[r.Coloana] {
+			continue
+		}
+		if tipRegula(r.Sursa) == "ABSENTA" {
+			coduri := []string{}
+			for _, cod := range r.Coduri {
+				if exista[cod] {
+					coduri = append(coduri, cod)
+				}
+			}
+			r.Coduri = coduri
+			if r.Sursa == "ZILE_ABSENTA" && len(coduri) == 0 {
+				r.Sursa = "NEDEFINITA"
+			}
+		}
+		c.Reguli = append(c.Reguli, r)
+	}
+}
+
+// tipRegula spune ce fel de coduri foloseste sursa: tipuri de absenta sau programe.
+func tipRegula(sursa string) string {
+	switch sursa {
+	case "ZILE_ABSENTA", "ZILE_ABSENTA_ALTELE", "ORE_LUCRATE_CODURI":
+		return "ABSENTA"
+	}
+	return "SCHIMB"
 }
 func CitesteConfiguratiePontaj(ctx context.Context, q *acces.Queries) (calcul.ConfiguratiePontaj, error) {
 	return citesteConfiguratiePontaj(ctx, q)
@@ -77,10 +142,7 @@ func ValideazaCoduriReguli(ctx context.Context, q *acces.Queries, c calcul.Confi
 		reguli = append(reguli, r.Regula)
 	}
 	for _, r := range reguli {
-		tip := "SCHIMB"
-		if r.Sursa == "ZILE_ABSENTA" {
-			tip = "ABSENTA"
-		}
+		tip := tipRegula(r.Sursa)
 		for _, cod := range r.Coduri {
 			gasit := false
 			for _, o := range optiuni {

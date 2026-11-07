@@ -11,6 +11,10 @@ export async function verificaAbsentePontaj({evalueaza,asteapta,apasa,completeaz
  await completeaza('select[aria-label="'+t('pontaj.luna')+'"]','10');
  await asteapta(()=>evalueaza("document.querySelector('input[data-rand=\"0\"][data-zi=\"0\"]').getAttribute('aria-label').includes('2026-10-01')"),'Perioada fixa octombrie 2026 lipsa');
  assert.equal(await evalueaza("document.querySelector('select[name=filtru_stare_angajati_pontaj]').value"),'ACTIVE','Pontaj nu porneste pe activi');
+ // D092: grila pastreaza doar OL, CO, CM, CFP, CVE, DLG, FMP, cu numele complet in titlu.
+ const antetTotaluri=await evalueaza("[...document.querySelectorAll('.grila-pontaj thead tr:first-child th abbr')].map(a=>a.textContent)");
+ assert.deepEqual(antetTotaluri,['OL','CO','CM','CFP','CVE','DLG','FMP'],'Coloanele de total din Pontaj: '+JSON.stringify(antetTotaluri));
+ assert(await evalueaza("Boolean(document.querySelector('.grila-pontaj thead abbr[title]')?.title.length>5)"),'Titlul complet al coloanei lipseste');
  await completeaza('select[name=filtru_stare_angajati_pontaj]','INACTIVE');
  assert.equal(await evalueaza("document.querySelectorAll('.grila-pontaj tbody tr').length"),await evalueaza("JSON.parse(localStorage.getItem('pontix-test')).angajati.filter(a=>!a.activ).length"),'Filtrul Pontaj amesteca starile');
  await completeaza('select[name=filtru_stare_angajati_pontaj]','ACTIVE');
