@@ -19,6 +19,13 @@ export async function verificaAbsentePontaj({evalueaza,asteapta,apasa,completeaz
  await evalueaza('window.scrollTo(0,0)');
  const randuriVizibile=await evalueaza("[...document.querySelectorAll('.grila-pontaj tbody tr')].filter(r=>r.querySelector('input')&&r.getBoundingClientRect().bottom<=innerHeight).length");
  assert(randuriVizibile>=5,'Randuri vizibile in Pontaj la '+await evalueaza('innerWidth+"x"+innerHeight')+': '+randuriVizibile);
+ // R3: vederea Totaluri arata toate cele 7 coloane in cadrul grilei, fara zile.
+ await apasa(t('pontaj.vedere_totaluri'));
+ const totaluriVizibile=await evalueaza("(()=>{const c=document.querySelector('.grila-container')||document.querySelector('.grila-pontaj').parentElement;const r=c.getBoundingClientRect();return [...document.querySelectorAll('.grila-pontaj thead tr:first-child th abbr')].filter(a=>{const b=a.closest('th').getBoundingClientRect();return b.width>0&&b.right<=r.right+1&&b.left>=r.left-1;}).length})()");
+ assert.equal(totaluriVizibile,7,'Totaluri vizibile in vederea Totaluri: '+totaluriVizibile);
+ assert(await evalueaza("[...document.querySelectorAll('.grila-pontaj thead th.col-zi')].every(th=>th.getBoundingClientRect().width===0)"),'Zilele raman vizibile in vederea Totaluri');
+ await captura('pontaj-totaluri-'+limba+'.png');
+ await apasa(t('pontaj.vedere_zile'));
  // R7: un buton dezactivat spune de ce.
  assert.equal(await evalueaza("[...document.querySelectorAll('button')].find(b=>b.textContent==="+JSON.stringify(t('pontaj.salveaza'))+")?.title"),t('motiv.fara_modificari'),'Salvarea dezactivata fara motiv');
  await completeaza('select[name=filtru_stare_angajati_pontaj]','INACTIVE');

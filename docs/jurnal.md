@@ -4,6 +4,7 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 
 | Data | Acțiune | Cine | Legături |
 | --- | --- | --- | --- |
+| 2026-11-07 | F16-T37 R3 (0.92.66): vederea Totaluri in Pontaj. O captura parea sa arate comutatorul cu contrast slab; stilurile calculate citite din browser erau corecte (captura prinsese tranzitia), deci nu s-a schimbat nimic din acest motiv. | Claude | [Analiza](analiza-ux-0.92.59.md) |
 | 2026-11-07 | F16-T37 R2 (0.92.65): bara de unelte a Pontajului pe un rand si meniul „Mai multe”; primul rand de angajat urca de la ~660 px la ~407 px la 1024×640. Toate scenariile Edge trec; verificare noua pentru randurile vizibile. | Claude | [Analiza](analiza-ux-0.92.59.md) |
 | 2026-11-07 | F16-T37 R1 (0.92.64): antet compact comun; scenariul de capturi masoara acum marginea de jos a antetului si a primului rand din Pontaj. | Claude | [Analiza](analiza-ux-0.92.59.md) |
 | 2026-11-07 | F16-T37 R7 (0.92.63): motivul afisat la butoanele dezactivate din Pontaj, Rapoarte, Planificare si Asistent. | Claude | [Analiza](analiza-ux-0.92.59.md) |

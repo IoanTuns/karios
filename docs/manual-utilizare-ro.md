@@ -928,3 +928,7 @@ FROM pontaj_totaluri p ORDER BY p.angajat
 
 Deasupra grilei sunt perioada, **Salvează schița** și **Închide luna**, apoi căutarea, **Filtre**, **Completare** și **Mai multe ▾**. În **Mai multe** găsiți Precompletează zile lucrătoare, După categorii, Export Excel, Asistent AI, Densitate și Ajutor. Starea angajaților (Active / Inactive / Toate) și filtrele profesionale sunt în panoul **Filtre**; numărul de pe buton arată câte filtre sunt active. Selecția curentă apare în bara de deasupra legendei.
 
+### Vederea Totaluri în Pontaj (0.92.66)
+
+Butoanele **Zile / Totaluri** din bara Pontajului schimbă vederea. **Totaluri** ascunde zilele lunii și arată toate coloanele de total (OL, CO, CM, CFP, CVE, DLG, FMP) lângă numele angajaților, ca să le vedeți dintr-o privire. **Zile** revine la grila obișnuită. Aplicația ține minte vederea aleasă pe acest calculator.
+

@@ -90,7 +90,7 @@ const RandPontaj = memo(function RandPontaj({a, r, zile, weekend, sarbatori, sel
             const peste24h = minuteZi > 1440;
             const titluAvertisment = [dupaG24 ? t('pontaj.avertisment_dupa_g24') : '', peste24h ? t('pontaj.avertisment_peste_24h', {ore: oreText(minuteZi)}) : ''].filter(Boolean).join(' · ');
             const valoare = absenta ? absenta.cod : calculare ? '…' : calc ? (calc.calculabil ? oreText(calc.minute) : '—') : areCalcul ? '' : '—';
-            return <td key={data} className={`${sarbatori.has(data) ? 'zi-sarbatoare' : weekend[z] ? 'zi-weekend' : ''} ${selectata ? 'celula-selectata' : ''} ${modificari.has(k) ? 'celula-modificata' : ''} ${colegiInlocuiti?.length ? 'celula-inlocuitor' : ''} ${titluAvertisment ? 'celula-avertisment' : ''}`}>
+            return <td key={data} className={`col-zi ${sarbatori.has(data) ? 'zi-sarbatoare' : weekend[z] ? 'zi-weekend' : ''} ${selectata ? 'celula-selectata' : ''} ${modificari.has(k) ? 'celula-modificata' : ''} ${colegiInlocuiti?.length ? 'celula-inlocuitor' : ''} ${titluAvertisment ? 'celula-avertisment' : ''}`}>
             <input data-rand={r} data-zi={z} aria-label={t('pontaj.celula', {nume: `${numeAngajatFaraPrefix(a)}`, data})} title={[
                 t('ui.tooltip_marca', {nume: `${numeAngajatFaraPrefix(a)}`, marca: a.marca || '—'}),
                 t('ui.tooltip_data', {data}) + (weekend[z] ? ` [${t('ui.tooltip_weekend')}]` : '') + (sarbatori.has(data) ? ` [${sarbatori.get(data)}]` : ''),
@@ -121,6 +121,9 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
     const [luna, setLuna] = useState(initial.current?.luna ?? acum.current.getMonth() + 1);
     const [anText, setAnText] = useState(String(an));
     const [filtruProfesional,setFiltruProfesional]=useState({...filtruProfesionalGol});
+    // R3 (analiza UX 0.92.59): vederea Totaluri ascunde zilele, ca OL…FMP sa se vada impreuna.
+    const [vedereTotaluri, setVedereTotaluriStare] = useState(() => { try { return localStorage.getItem('pontix-pontaj-vedere') === 'totaluri'; } catch { return false; } });
+    const setVedereTotaluri = (v: boolean) => { setVedereTotaluriStare(v); try { localStorage.setItem('pontix-pontaj-vedere', v ? 'totaluri' : 'zile'); } catch { /* doar in sesiune */ } };
     const [sectie, setSectie] = useState(initial.current?.sectie ?? '');
     const [departament, setDepartament] = useState(initial.current?.departament ?? '');
     const [categorieProgram,setCategorieProgram]=useState(initial.current?.categorieProgram??'');
@@ -796,6 +799,10 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
             }}>
                 <input name="cautare_pontaj" className="cautare-grila" aria-label={t('ui.cautare')} placeholder={t('ui.cautare_indiciu')} value={cautare} disabled={ocupat} onChange={e => setCautare(e.target.value)}/>
                 {['filtre', 'completare'].map(p => <button key={p} ref={element => { butoanePanouri.current[p] = element; }} type="button" className={`buton secundar ${panou === p ? 'panou-activ' : ''}`} disabled={ocupat} aria-expanded={panou === p} aria-controls={`pontaj-panou-${p}`} onClick={() => setPanou(panou === p ? '' : p)}>{t(`pontaj.panou_${p}`)}{p === 'filtre' && numarFiltre > 0 ? ` (${numarFiltre})` : ''}</button>)}
+                <div className="comutator-vedere" role="group" aria-label={t('pontaj.vedere')}>
+                    <button type="button" className={`buton-zoom ${!vedereTotaluri ? 'activ' : ''}`} aria-pressed={!vedereTotaluri} onClick={() => setVedereTotaluri(false)}>{t('pontaj.vedere_zile')}</button>
+                    <button type="button" className={`buton-zoom ${vedereTotaluri ? 'activ' : ''}`} aria-pressed={vedereTotaluri} onClick={() => setVedereTotaluri(true)}>{t('pontaj.vedere_totaluri')}</button>
+                </div>
                 {/* R2 (analiza UX 0.92.59): actiunile mai rare stau in „Mai multe”, ca grila sa urce. */}
                 <details className="meniu-mai-multe" onKeyDown={e => { if (e.key === 'Escape' && e.currentTarget.open) { e.preventDefault(); e.stopPropagation(); e.currentTarget.open = false; e.currentTarget.querySelector('summary')?.focus(); } }}>
                     <summary className="buton secundar">{t('ui.mai_multe')}</summary>
@@ -884,15 +891,15 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                     <div className={`panou grila-container zoom-${zoomGrila}`} ref={grila} onScroll={e => {
                         if (stareCurenta.current) { stareCurenta.current.derulareX = e.currentTarget.scrollLeft; stareCurenta.current.derulareY = e.currentTarget.scrollTop; }
                     }} onPaste={lipeste} onCopy={e => { e.preventDefault(); e.clipboardData.setData('text/plain', textSelectat()); }}>
-                        <table className="grila-pontaj" aria-label={t('pontaj.grila', {an, luna})}><thead>
+                        <table className={`grila-pontaj ${vedereTotaluri ? 'doar-totaluri' : ''}`} aria-label={t('pontaj.grila', {an, luna})}><thead>
                             <tr><th className="fix-nume">{t('ui.angajat')}</th><th className="fix-marca">{t('ui.marca')}</th>
-                            {zile.map((data, z) => { const d = new Date(`${data}T12:00:00Z`); return <th key={data} className={sarbatori.has(data) ? 'zi-sarbatoare' : weekend[z] ? 'zi-weekend' : ''} title={sarbatori.get(data) || ''} scope="col"><strong>{z + 1}</strong><small>{formatData(i18n.language, {weekday: 'short', timeZone: 'UTC'}).format(d)}</small></th>; })}
+                            {zile.map((data, z) => { const d = new Date(`${data}T12:00:00Z`); return <th key={data} className={`col-zi ${sarbatori.has(data) ? 'zi-sarbatoare' : weekend[z] ? 'zi-weekend' : ''}`} title={sarbatori.get(data) || ''} scope="col"><strong>{z + 1}</strong><small>{formatData(i18n.language, {weekday: 'short', timeZone: 'UTC'}).format(d)}</small></th>; })}
                             {totaluri.map(c => <th key={c} className={c === 'OL' ? 'fix-total-t' : ''} title={t(`pontaj.total_titlu_${c}`)}><abbr title={t(`pontaj.total_titlu_${c}`)}>{t(`pontaj.total_${c}`)}</abbr></th>)}</tr>
                             <tr className="rand-heatmap" aria-label={t('pontaj.acoperire')}>
                                 <th className="fix-nume titlu-heat" scope="row"><strong>{t('pontaj.acoperire')}</strong></th>
                                 <th className="fix-marca titlu-heat-marca"><small>{t('pontaj.persoane_afisate', {numar: randuri.length})}</small></th>
                                 {acoperireZile.map(az => (
-                                    <th key={`heat-${az.data}`} className={`celula-heat ${az.clasaStare} ${az.esteWeekend ? 'heat-weekend' : ''} ${az.esteSarbatoare ? 'heat-sarbatoare' : ''}`}
+                                    <th key={`heat-${az.data}`} className={`col-zi celula-heat ${az.clasaStare} ${az.esteWeekend ? 'heat-weekend' : ''} ${az.esteSarbatoare ? 'heat-sarbatoare' : ''}`}
                                         title={t('pontaj.tooltip_heat', {data: az.data, lucratori: az.lucratori, ore: oreText(az.minuteTotal)})}>
                                         <div className="heat-bara">
                                             <span className="heat-cifra">{az.lucratori > 0 ? az.lucratori : '—'}</span>

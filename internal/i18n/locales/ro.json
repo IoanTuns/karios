@@ -2154,5 +2154,8 @@
   "motiv.nimic_de_publicat": "Nu există poziții salvate de publicat în Pontaj.",
   "motiv.asistent_ocupat": "Asistentul lucrează sau motorul nu este pornit.",
   "motiv.scrie_comanda": "Scrieți o comandă sau o întrebare.",
-  "ui.mai_multe": "Mai multe"
+  "ui.mai_multe": "Mai multe",
+  "pontaj.vedere": "Vedere grilă",
+  "pontaj.vedere_zile": "Zile",
+  "pontaj.vedere_totaluri": "Totaluri"
 }

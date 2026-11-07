@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.66 - 2026-11-07
+
+F16-T37 R3 (UX59-03). Comutatorul „Zile / Totaluri” din bara Pontajului: vederea Totaluri ascunde zilele, iar OL, CO, CM, CFP, CVE, DLG si FMP apar toate langa nume, fara derulare orizontala, la 1024 px si peste. Alegerea se retine local. Scenariul Edge verifica cele 7 coloane in cadrul grilei. Manual 1.66.
+
 ## 0.92.65 - 2026-11-07
 
 F16-T37 R2 (UX59-02, UX59-07). Pontajul are deasupra grilei doar perioada cu Salvează schița si Închide luna, apoi un singur rand: cautare, Filtre, Completare si „Mai multe ▾” (Precompletează zile lucrătoare, După categorii, Export Excel, Asistent AI, Densitate, Ajutor). Starea angajatilor si filtrele profesionale au trecut in panoul Filtre, iar numarul de pe buton le include. Selectia se arata in bara de inspectie. La 1024×640 se vad acum 5–6 randuri de angajati fara derularea paginii (inainte niciunul complet); scenariul Edge verifica minimum 5. Meniul se inchide dupa o actiune si la Escape. Manual 1.65.

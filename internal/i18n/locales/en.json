@@ -2154,5 +2154,8 @@
   "motiv.nimic_de_publicat": "There are no saved positions to publish to the timesheet.",
   "motiv.asistent_ocupat": "The assistant is working or the engine is not running.",
   "motiv.scrie_comanda": "Type a command or a question.",
-  "ui.mai_multe": "More"
+  "ui.mai_multe": "More",
+  "pontaj.vedere": "Grid view",
+  "pontaj.vedere_zile": "Days",
+  "pontaj.vedere_totaluri": "Totals"
 }

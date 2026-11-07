@@ -1410,3 +1410,12 @@ fieldset.filtre-profesionale{border:0;padding:0;min-width:0}
 .panou-unelte .details-filtre-profesionale, .panou-unelte details { flex-basis: 100%; }
 .continut-pontaj .unelte-perioada { margin-bottom: 6px; }
 
+/* R3: vederea Totaluri ascunde coloanele zilelor; totalurile stau langa nume, fara coloana fixa. */
+.grila-pontaj.doar-totaluri .col-zi { display: none; }
+.grila-pontaj.doar-totaluri .fix-total-t { position: static; border-left: 0; }
+.grila-pontaj.doar-totaluri th:not(.fix-nume):not(.fix-marca), .grila-pontaj.doar-totaluri td:not(.fix-nume):not(.fix-marca) { min-width: 64px; text-align: center; }
+.comutator-vedere { display: inline-flex; border: 1px solid var(--linie); border-radius: 7px; overflow: hidden; }
+.unelte-grila .comutator-vedere .buton-zoom { border: 0; height: 32px; padding: 5px 12px; font-size: 12px; font-weight: 600; background: var(--suprafata); color: #4b6357; opacity: 1; }
+.unelte-grila .comutator-vedere .buton-zoom.activ { background: var(--verde); color: var(--text-pe-accent); }
+[data-theme="dark"] .unelte-grila .comutator-vedere .buton-zoom:not(.activ) { background: #1a2522; color: #9bb3a9; }
+
