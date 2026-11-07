@@ -159,6 +159,15 @@ export async function verificaRapoartePdfme({cdp, evalueaza, asteapta, apasa, co
     await apasa(t('rapoarte.flex_verifica'));
     await asteapta(() => evalueaza('window.__pdfmeCereri >= 2'), 'Verificarea dupa actualizare a esuat', 30000);
 
+    // F09-T32: orientarea din Setări de pagină trece in sablonul vizual.
+    masuri.paginaInainte = await evalueaza('[window.__ultimSablon.basePdf.width, window.__ultimSablon.basePdf.height]');
+    await completeaza('select[name=orientare]', 'PORTRET');
+    await apasa(t('rapoarte.flex_verifica'));
+    await asteapta(() => evalueaza('window.__pdfmeCereri >= 3'), 'Verificarea dupa schimbarea orientarii a esuat', 30000);
+    masuri.paginaDupa = await evalueaza('[window.__ultimSablon.basePdf.width, window.__ultimSablon.basePdf.height]');
+    assert.deepEqual([masuri.paginaInainte, masuri.paginaDupa], [[297, 210], [210, 297]], 'Sablonul nu urmeaza orientarea');
+    await completeaza('select[name=orientare]', 'PEISAJ');
+
     // UIR-09: la 1440 panoul de proprietati porneste deschis.
     await cdp('Emulation.setDeviceMetricsOverride', {width: 1440, height: 960, deviceScaleFactor: 1, mobile: false});
     await pauza(500);

@@ -2172,5 +2172,6 @@
   "rapoarte.pdfme_antet_gata": "Done with header",
   "rapoarte.pdfme_antet_indiciu": "The header and footer, repeated on every page, can now be moved, changed or deleted, and elements added now are repeated too. For today's date write {data_curenta} in a text, for example \"{titlu} · {data_curenta}\". Press \"Done with header\" when finished; the table moves below the header automatically.",
   "pontaj.legenda_zi_libera": "Full day off",
-  "pontaj.zi_libera_intreaga": "Full day off, no hours"
+  "pontaj.zi_libera_intreaga": "Full day off, no hours",
+  "rapoarte.pdfme_pagina_potrivita": "The visual editor page did not match the format or orientation in Page settings; it has been adjusted. Check the report and save the model."
 }

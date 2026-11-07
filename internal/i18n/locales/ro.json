@@ -2172,5 +2172,6 @@
   "rapoarte.pdfme_antet_gata": "Gata cu antetul",
   "rapoarte.pdfme_antet_indiciu": "Antetul și subsolul, care se repetă pe fiecare pagină, se pot acum muta, modifica sau șterge, iar elementele adăugate acum se repetă și ele. Pentru data de azi scrieți {data_curenta} într-un text, de exemplu „{titlu} · {data_curenta}”. Apăsați „Gata cu antetul” când ați terminat; tabelul coboară singur sub antet.",
   "pontaj.legenda_zi_libera": "Zi liberă întreagă",
-  "pontaj.zi_libera_intreaga": "Zi liberă întreagă, fără ore"
+  "pontaj.zi_libera_intreaga": "Zi liberă întreagă, fără ore",
+  "rapoarte.pdfme_pagina_potrivita": "Pagina editorului vizual nu avea formatul sau orientarea din Setări de pagină; a fost potrivită. Verificați raportul și salvați modelul."
 }

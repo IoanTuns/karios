@@ -371,3 +371,32 @@ export function antetFix(sablon: string, inainte?: Set<string>): string {
 function round2(v: number): number {
     return Math.round(v * 100) / 100;
 }
+
+// F09-T32: dimensiunea paginii din Setări de pagină (format, orientare) este cea a
+// raportului; sablonul pdfme o urmeaza. La schimbare, elementele se intind pe noua
+// latime (x si latimea proportional), iar cele din jumatatea de jos pastreaza distanta
+// fata de marginea de jos (subsolul ramane jos). Fonturile si marginile raman.
+export function dimensiunePagina(pagina: Pick<PaginaRaport, 'format' | 'orientare'>): [number, number] {
+    const [l, h] = pagina.format === 'A3' ? [297, 420] : [210, 297];
+    return pagina.orientare === 'PEISAJ' ? [h, l] : [l, h];
+}
+
+export function sablonPePagina(sablon: string, pagina: Pick<PaginaRaport, 'format' | 'orientare'>): string {
+    const s = JSON.parse(sablon) as {basePdf?: {width?: number; height?: number; staticSchema?: SchemaPdfme[]}; schemas?: SchemaPdfme[][]};
+    const b = s.basePdf;
+    if (!b || typeof b !== 'object' || !b.width || !b.height) return sablon;
+    const [W, H] = dimensiunePagina(pagina);
+    if (Math.abs(b.width - W) < 0.01 && Math.abs(b.height - H) < 0.01) return sablon;
+    const kx = W / b.width, dy = H - b.height, jumatate = b.height / 2;
+    const r2 = (v: number) => Math.round(v * 100) / 100;
+    const muta = (e: SchemaPdfme) => {
+        const poz = e.position as {x: number; y: number} | undefined;
+        if (!poz) return e;
+        const h = Number(e.height) || 0;
+        const jos = poz.y + h / 2 > jumatate;
+        return {...e, position: {x: r2(poz.x * kx), y: r2(Math.max(0, jos ? poz.y + dy : poz.y))}, width: r2((Number(e.width) || 0) * kx)};
+    };
+    s.basePdf = {...b, width: W, height: H, ...(b.staticSchema ? {staticSchema: b.staticSchema.map(muta)} : {})};
+    s.schemas = (s.schemas || []).map(pg => pg.map(muta));
+    return JSON.stringify(s);
+}

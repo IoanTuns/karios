@@ -19,7 +19,7 @@ vi.mock('./Toast', () => ({notifica: (m: string) => notificari.push(m)}));
 vi.mock('i18next', () => ({default: {t: (k: string, p?: Record<string, string>) => k + (p ? ' ' + JSON.stringify(p) : '')}}));
 vi.mock('../wailsjs/go/models', () => ({main: {RaspunsRaport: class { constructor(v: object) { Object.assign(this, v); } }}}));
 
-import {actualizeazaTabel, antetEditabil, antetFix, COLOANE_SQL, completeazaRaport, etichetePdfme, fonturiDinSablon, fonturiPentruSablon, genereazaPdfPdfme, inBase64, dinBase64, pluginuriPdfme, sablonDinColoane, stareTabel, titluColoana, zoomPotrivit} from './raportPdfme';
+import {actualizeazaTabel, antetEditabil, antetFix, sablonPePagina, COLOANE_SQL, completeazaRaport, etichetePdfme, fonturiDinSablon, fonturiPentruSablon, genereazaPdfPdfme, inBase64, dinBase64, pluginuriPdfme, sablonDinColoane, stareTabel, titluColoana, zoomPotrivit} from './raportPdfme';
 import cheiPdfme from './cheiPdfme.json';
 import catalogRo from '../../internal/i18n/locales/ro.json';
 import catalogEn from '../../internal/i18n/locales/en.json';
@@ -72,6 +72,24 @@ describe('sablon pdfme', () => {
         expect(fix.basePdf.padding[2]).toBe(18);
         const {pdf} = await genereazaPdfPdfme(JSON.stringify(fix), {data_curenta: '07.11.2026', antet_stanga: '', antet_centru: '', antet_dreapta: '', subsol_stanga: '', subsol_centru: '', titlu: '', tabel: JSON.stringify([['a', 'b', 'c']])});
         expect((await PDFDocument.load(pdf)).getPageCount()).toBe(1);
+    }, 30000);
+
+    it('F09-T32: sablonul urmeaza formatul si orientarea din Setari de pagina', async () => {
+        const peisaj = await sablonDinColoane(coloane, {...pagina, orientare: 'PEISAJ'}, 'Pagina {currentPage} din {totalPages}');
+        expect(sablonPePagina(peisaj, {format: 'A4', orientare: 'PEISAJ'})).toBe(peisaj);
+        const s = JSON.parse(sablonPePagina(peisaj, {format: 'A4', orientare: 'PORTRET'}));
+        const portret = JSON.parse(await sablonDinColoane(coloane, pagina, 'Pagina {currentPage} din {totalPages}'));
+        expect([s.basePdf.width, s.basePdf.height]).toEqual([210, 297]);
+        // Tabelul ocupa toata latimea utila, antetul ramane sus, subsolul coboara jos.
+        const tabel = s.schemas[0][0];
+        expect(tabel.position.x + tabel.width).toBeLessThanOrEqual(210);
+        expect(tabel.width).toBeGreaterThan(150);
+        const y = (sab: {basePdf: {staticSchema: {name: string; position: {y: number}}[]}}, nume: string) => sab.basePdf.staticSchema.find(e => e.name === nume)!.position.y;
+        expect(y(s, 'titlu_txt')).toBe(y(portret, 'titlu_txt'));
+        expect(y(s, 'pagina_txt')).toBe(y(portret, 'pagina_txt'));
+        const {pdf} = await genereazaPdfPdfme(JSON.stringify(s), {titlu: 'T', antet_stanga: '', antet_centru: '', antet_dreapta: '', subsol_stanga: '', subsol_centru: '', tabel: JSON.stringify([['a', 'b', 'c']])});
+        const pg = (await PDFDocument.load(pdf)).getPage(0).getSize();
+        expect(pg.width).toBeLessThan(pg.height);
     }, 30000);
 
     it('genereaza un PDF cu diacritice si continua tabelul pe pagini noi', async () => {

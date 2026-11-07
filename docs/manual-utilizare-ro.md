@@ -967,3 +967,9 @@ Când o persoană nu are ore într-o zi:
 
 Dacă persoana are ore în acea zi (de exemplu o gardă în weekend), se văd orele. Totalurile nu se schimbă.
 
+## Formatul și orientarea rapoartelor din editorul vizual (0.92.75)
+
+**Setări de pagină** (format A4/A3, orientare Portret/Peisaj) dau pagina raportului și în editorul vizual. Când le schimbați, pagina din editor se potrivește: elementele se întind pe noua lățime, iar subsolul rămâne jos. Verificați apoi raportul și reglați în editor elementele așezate liber, dacă e nevoie.
+
+Dacă deschideți un model mai vechi a cărui pagină nu se potrivește cu Setări de pagină, aplicația o potrivește singură și afișează un mesaj; salvați modelul ca să păstrați schimbarea.
+

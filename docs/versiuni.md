@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.75 - 2026-11-07
+
+F09-T32 (D096, propusa), defect raportat de Ioan Tuns: un raport din editorul vizual setat Portret iesea peisaj, pentru ca pagina venea din sablon, nu din Setări de pagină. Acum formatul si orientarea din Setări de pagină potrivesc sablonul (elementele se intind pe noua latime, subsolul ramane jos); la deschiderea unui model nepotrivit, potrivirea se face automat, cu un mesaj. Manual 1.71.
+
 ## 0.92.74 - 2026-11-07
 
 F09-T31, defect raportat de Ioan Tuns: „Model nou” in Definire rapoarte copia primul model din lista (de ex. SQL-ul, antetul si coloanele ascunse ale Evidenței absențelor). Acum modelul nou porneste gol: raport SQL personalizat, fara SQL, antet, subsol sau coloane ascunse, A4 peisaj. Copierea unui model existent ramane la „Duplică”. Manualul revizuit fara modificari de continut.

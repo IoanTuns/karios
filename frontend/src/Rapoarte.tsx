@@ -10,7 +10,7 @@ import {semnaleazaModificari} from './modificariNesalvate';
 import {ListaModeleRapoarte, SalveazaModelRaport, PregatesteRaport, SalveazaPDFRaport, DeschidePDFPentruTiparire, SalveazaExcelRaport} from '../wailsjs/go/main/App';
 import {datebaza, main, rapoarte} from '../wailsjs/go/models';
 import {Dialog, denumireDepartament, denumireSectie} from './Formulare';
-import {completeazaRaport} from './raportPdfme';
+import {completeazaRaport, sablonPePagina} from './raportPdfme';
 import {notifica} from './Toast';
 
 const copiaza = <T,>(v: T): T => JSON.parse(JSON.stringify(v));
@@ -82,7 +82,9 @@ export function DefinireRapoarte({date}: {date?: datebaza.Date} = {}) {
 
 function EditorModel({initial,configuratie,ocupat:salvareInCurs,eroare,inchide,salveaza,angajati}: {initial: rapoarte.Definitie; configuratie: rapoarte.Configuratie; ocupat: boolean; eroare: string; inchide: () => void; salveaza: (d: rapoarte.Definitie) => Promise<void>; angajati: datebaza.Angajat[]}) {
     const {t,i18n} = useTranslation();
-    const [model,setModel] = useState<DateSimple<rapoarte.Definitie>>(copiaza(initial));
+    // F09-T32: la deschidere, sablonul vizual se potriveste cu Setări de pagină.
+    const [model,setModel] = useState<DateSimple<rapoarte.Definitie>>(() => { const c = copiaza(initial); return cuPagina(c, c.pagina); });
+    useEffect(() => { if (model.continut.flexibil?.sablon !== initial.continut.flexibil?.sablon && initial.continut.flexibil?.sablon) notifica(t('rapoarte.pdfme_pagina_potrivita'), 'avertisment', 8000); }, []);
     const [limba,setLimba] = useState(i18n.language === 'en' ? 'en' : 'ro');
     const [validare,setValidare] = useState('');
  const [validatFlex,setValidatFlex]=useState('');
@@ -130,14 +132,14 @@ function EditorModel({initial,configuratie,ocupat:salvareInCurs,eroare,inchide,s
             <p className="variabile-raport"><strong>{t('rapoarte.variabile')}: </strong>{configuratie.variabile.map(v => <code key={v}>{`{{${v}}}`}</code>)}</p>
             <p className="nota-calendar">{t('rapoarte.imagini_indiciu')}</p>{citireImagine && <p role="status">{t('ui.incarcare')}</p>}
             <fieldset className="componenta-raport" disabled={ocupat}><legend>1 · {t('rapoarte.antet')}</legend>{zone('antet')}</fieldset>
-            <fieldset className="componenta-raport" disabled={ocupat}><legend>2 · {t('rapoarte.continut')}</legend><label>{t('rapoarte.sursa')}<select name="sursa" value={model.continut.sursa} onChange={e => { const cod=e.target.value,coloane=configuratie.surse.find(s => s.cod===cod)!.coloane;setModel(m => ({...m,continut:{...m.continut,sursa:cod,coloane:[...coloane],flexibil:esteFlexibil(cod)?m.continut.flexibil||flexibilInitial():undefined},pagina:{...m.pagina,format:cod.startsWith('PONTAJ_')?'A3':'A4',font_pt:cod==='PONTAJ_DETALIAT'?6:m.pagina.font_pt,orientare:cod==='FISA_INDIVIDUALA'?'PORTRET':'PEISAJ'}})); }}>{configuratie.surse.filter(s => esteFlexibil(s.cod) || s.cod === model.continut.sursa).map(s => <option key={s.cod} value={s.cod}>{t(`rapoarte.sursa_${s.cod}`)}</option>)}</select></label>{esteFlexibil(model.continut.sursa)&&<EditorFlexibil angajati={angajati} model={model} schimba={flexibil=>setModel(m=>({...m,continut:{...m.continut,flexibil}}))} validat={()=>setValidatFlex(JSON.stringify(model))} invalideaza={()=>setValidatFlex('')}/>}
+            <fieldset className="componenta-raport" disabled={ocupat}><legend>2 · {t('rapoarte.continut')}</legend><label>{t('rapoarte.sursa')}<select name="sursa" value={model.continut.sursa} onChange={e => { const cod=e.target.value,coloane=configuratie.surse.find(s => s.cod===cod)!.coloane;setModel(m => cuPagina({...m,continut:{...m.continut,sursa:cod,coloane:[...coloane],flexibil:esteFlexibil(cod)?m.continut.flexibil||flexibilInitial():undefined}},{...m.pagina,format:cod.startsWith('PONTAJ_')?'A3':'A4',font_pt:cod==='PONTAJ_DETALIAT'?6:m.pagina.font_pt,orientare:cod==='FISA_INDIVIDUALA'?'PORTRET':'PEISAJ'})); }}>{configuratie.surse.filter(s => esteFlexibil(s.cod) || s.cod === model.continut.sursa).map(s => <option key={s.cod} value={s.cod}>{t(`rapoarte.sursa_${s.cod}`)}</option>)}</select></label>{esteFlexibil(model.continut.sursa)&&<EditorFlexibil angajati={angajati} model={model} schimba={flexibil=>setModel(m=>({...m,continut:{...m.continut,flexibil}}))} validat={()=>setValidatFlex(JSON.stringify(model))} invalideaza={()=>setValidatFlex('')}/>}
                 <label className="bifa"><input type="checkbox" name="afiseaza_explicatii" checked={!model.continut.ascunde_explicatii} onChange={e=>setModel(m=>({...m,continut:{...m.continut,ascunde_explicatii:!e.target.checked}}))}/>{t('rapoarte.afiseaza_explicatii')}</label>
                 <p className="nota-calendar">{t('rapoarte.explicatii_indiciu')}</p>
                 <label>{t('rapoarte.introducere')}<textarea name="introducere" rows={2} maxLength={1000} value={model.continut.text?.[limba] || ''} onChange={e => setModel(m => ({...m,continut:{...m.continut,text:{...m.continut.text,[limba]:e.target.value}}}))}/></label>
 </fieldset>
             <fieldset className="componenta-raport" disabled={ocupat}><legend>3 · {t('rapoarte.subsol')}</legend>{zone('subsol')}</fieldset>
             <EditorPrezentare disabled={ocupat} doarEtichete={vizual} value={model.continut.prezentare} schimba={prezentare=>setModel(m=>({...m,continut:{...m.continut,prezentare}}))}/>
-            <fieldset className="componenta-raport" disabled={ocupat}><legend>{t('rapoarte.pagina')}</legend><div className="campuri"><label>{t('rapoarte.format')}<select name="format" value={model.pagina.format} onChange={e => setModel(m => ({...m,pagina:{...m.pagina,format:e.target.value}}))}><option value="A4">A4</option><option value="A3">A3</option></select></label><label>{t('rapoarte.orientare')}<select name="orientare" value={model.pagina.orientare} onChange={e => setModel(m => ({...m,pagina:{...m.pagina,orientare:e.target.value}}))}>{['PORTRET','PEISAJ'].map(o => <option key={o} value={o}>{t(`rapoarte.${o}`)}</option>)}</select></label>
+            <fieldset className="componenta-raport" disabled={ocupat}><legend>{t('rapoarte.pagina')}</legend><div className="campuri"><label>{t('rapoarte.format')}<select name="format" value={model.pagina.format} onChange={e => setModel(m => cuPagina(m,{...m.pagina,format:e.target.value}))}><option value="A4">A4</option><option value="A3">A3</option></select></label><label>{t('rapoarte.orientare')}<select name="orientare" value={model.pagina.orientare} onChange={e => setModel(m => cuPagina(m,{...m.pagina,orientare:e.target.value}))}>{['PORTRET','PEISAJ'].map(o => <option key={o} value={o}>{t(`rapoarte.${o}`)}</option>)}</select></label>
                 <label>{t('rapoarte.margine')}<input name="margine_mm" type="number" min="5" max="25" required value={model.pagina.margine_mm} onChange={e => setModel(m => ({...m,pagina:{...m.pagina,margine_mm:Number(e.target.value)}}))}/></label><label>{t('rapoarte.font')}<input name="font_pt" type="number" min="6" max="14" required value={model.pagina.font_pt} onChange={e => setModel(m => ({...m,pagina:{...m.pagina,font_pt:Number(e.target.value)}}))}/></label></div></fieldset>
             {!vizual && <div className="structura-model" aria-label={t('rapoarte.previzualizare')}><h3>{t('rapoarte.antet')}</h3>{previewBloc('antet')}<h3>{t('rapoarte.continut')}</h3><p>{textIn(model.continut.text,limba)}</p><div className="mostra-coloane">{model.continut.coloane.map(c => <span key={c}>{t(`rapoarte.coloana_${c}`)}</span>)}</div><h3>{t('rapoarte.subsol')}</h3>{previewBloc('subsol')}</div>}
         </div><footer className="subsol-dialog"><button type="button" className="buton secundar" disabled={ocupat} onClick={renunta}>{t('ui.anuleaza')}</button><button className="buton primar" disabled={ocupat}>{t('ui.salveaza')}</button></footer>
@@ -195,3 +197,13 @@ export function GenerareRapoarte({date,initial,onPerioada}: {date: datebaza.Date
         </>}
     </section>;
 }
+
+// F09-T32: pagina din Setări de pagină este pagina raportului; sablonul pdfme (daca exista) o urmeaza.
+function cuPagina<T extends DateSimple<rapoarte.Definitie>>(m: T, pagina: T['pagina']): T {
+    const f = m.continut.flexibil;
+    if (!f?.sablon || f.mod_aspect !== 'PDFME') return {...m, pagina};
+    let sablon = f.sablon;
+    try { sablon = sablonPePagina(f.sablon, pagina); } catch { /* sablon invalid: verificarea il semnaleaza */ }
+    return sablon === f.sablon ? {...m, pagina} : {...m, pagina, continut: {...m.continut, flexibil: {...f, sablon}}};
+}
+
