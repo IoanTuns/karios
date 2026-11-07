@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.64 - 2026-11-07
+
+F16-T37 R1 (UX59-01). Antet compact pe toate ecranele: in stanga traseul, titlul si descrierea; in dreapta, pe un rand, actiunile ecranului, Activitățile lunii, Cum să faci si marirea. Masurat la 1024×640: antetul se termina la 56–145 px (inainte, continutul incepea la 250–270 px). Manualul revizuit fara modificari de continut.
+
 ## 0.92.63 - 2026-11-07
 
 F16-T37 R7 (UX59-12). Butoanele dezactivate spun de ce, in titlul afisat la trecerea mouse-ului: Salvează schița (nu sunt modificari / luna e inchisa), Precompletează zile lucrătoare (lipsesc angajatii afisati / alegeti programul), Export Excel din Rapoarte (generati intai raportul / copia are modificari nesalvate), Previzualizează și publică din Planificare (nimic de publicat), Trimite din Asistentul AI (scrieti o comanda / asistentul lucreaza). Manualul revizuit fara modificari de continut.

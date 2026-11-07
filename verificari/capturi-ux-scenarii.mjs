@@ -2,7 +2,7 @@
 // si date fictive, fara asertiuni de continut; doar navigarea trebuie sa reuseasca.
 export async function capturiUX({cdp, evalueaza, asteapta, apasa, completeaza, cataloage, limba, captura}) {
     const t = k => cataloage[limba][k];
-    const masoara = () => evalueaza(`(()=>({latime:innerWidth,inaltime:innerHeight,derulareVerticala:document.documentElement.scrollHeight,derulareOrizontala:document.documentElement.scrollWidth>innerWidth}))()`);
+    const masoara = () => evalueaza(`(()=>({latime:innerWidth,inaltime:innerHeight,derulareVerticala:document.documentElement.scrollHeight,derulareOrizontala:document.documentElement.scrollWidth>innerWidth,antetJos:Math.round(document.querySelector('header.antet')?.getBoundingClientRect().bottom||0),primulRandGrila:Math.round(document.querySelector('.grila-pontaj tbody tr:nth-child(2)')?.getBoundingClientRect().bottom||0)}))()`);
     const masuri = {};
     for (const [latime, inaltime] of [[1024, 640], [1440, 900]]) {
         await cdp('Emulation.setDeviceMetricsOverride', {width: latime, height: inaltime, deviceScaleFactor: 1, mobile: false});

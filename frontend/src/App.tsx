@@ -266,16 +266,21 @@ function App() {
         </aside>
         <main className={`continut ${ecran === 'pontaj' ? 'continut-pontaj' : ''} ${esteInSetari ? 'continut-setari' : ''}`}>
             <header className="antet">
-                <ZoomInterfata/><DialogParasire/><button type="button" className="buton secundar" onClick={()=>setPanouLunar(true)}>{t('ux30.panou_lunar')}</button>{panouLunar&&date&&<PanouLunar date={date} initial={ecran==='planificare'?contextPlanificare:ecran==='rapoarte'?perioadaRaport:contextPontaj.current||contextPlanificare} nesalvat={pontajModificat} inchide={()=>setPanouLunar(false)} navigheaza={(e,an,luna)=>{const continua=()=>{setPontajModificat(false);contextPontaj.current={an,luna,sectie:'',departament:'',categorieProgram:'',cautare:'',filtruRanduri:'',selectie:null,derulareX:0,derulareY:0};setContextPlanificare({an,luna});setPerioadaRaport({an,luna});setRevizieNavigare(v=>v+1);setFiltruAbsente({an,angajatId:''});setPanouLunar(false);setEcran(e as Ecran);};if(ocupat||pontajOcupat)return;if(pontajModificat)void confirmaParasire().then(da=>{if(da)continua();});else continua();}}/>}
-                <AccesTabele/><button type="button" className="buton secundar ajutor-antet" onClick={() => setAjutor({ecran})}>{t('ajutor.buton')}</button>
-                <div><p className="fir-navigare">{t('ui.date_baza')} <span aria-hidden="true">/</span> {esteInSetari && ecran !== 'setari' ? <>{t('ui.setari')} <span aria-hidden="true">/</span> </> : null}{t(`ui.${ecran}`)}</p>
+                <DialogParasire/>{panouLunar&&date&&<PanouLunar date={date} initial={ecran==='planificare'?contextPlanificare:ecran==='rapoarte'?perioadaRaport:contextPontaj.current||contextPlanificare} nesalvat={pontajModificat} inchide={()=>setPanouLunar(false)} navigheaza={(e,an,luna)=>{const continua=()=>{setPontajModificat(false);contextPontaj.current={an,luna,sectie:'',departament:'',categorieProgram:'',cautare:'',filtruRanduri:'',selectie:null,derulareX:0,derulareY:0};setContextPlanificare({an,luna});setPerioadaRaport({an,luna});setRevizieNavigare(v=>v+1);setFiltruAbsente({an,angajatId:''});setPanouLunar(false);setEcran(e as Ecran);};if(ocupat||pontajOcupat)return;if(pontajModificat)void confirmaParasire().then(da=>{if(da)continua();});else continua();}}/>}
+                <AccesTabele/>
+                <div className="titlu-antet"><p className="fir-navigare">{t('ui.date_baza')} <span aria-hidden="true">/</span> {esteInSetari && ecran !== 'setari' ? <>{t('ui.setari')} <span aria-hidden="true">/</span> </> : null}{t(`ui.${ecran}`)}</p>
                     <h1>{t(`ui.${ecran}`)}</h1><p className="descriere">{t(`ui.${ecran}_descriere`)}</p></div>
+                <div className="unelte-antet">
                 {ecran === 'angajati' && date && <div className="actiuni-antet">
                     <button type="button" className="buton secundar" disabled={ocupat} onClick={() => { setEroare(''); setImportAngajati(true); }}>
                         <span aria-hidden="true">📁</span>{t('ui.importa')}</button>
                     <button type="button" className="buton primar" disabled={ocupat} onClick={() => deschide()}>
                         <span aria-hidden="true">＋</span>{t('ui.adauga_angajat')}</button>
                 </div>}
+                    <button type="button" className="buton secundar" onClick={()=>setPanouLunar(true)}>{t('ux30.panou_lunar')}</button>
+                    <button type="button" className="buton secundar ajutor-antet" onClick={() => setAjutor({ecran})}>{t('ajutor.buton')}</button>
+                    <ZoomInterfata/>
+                </div>
             </header>
             {esteInSetari && <div className="taburi-sectiuni taburi-setari" role="group" aria-label={t('ui.setari')}>
                 {sectiuniVizibile.map(sub => <button key={sub} type="button" className={`buton-tab ${ecran === sub ? 'activ' : ''}`}

@@ -1386,3 +1386,16 @@ fieldset.filtre-profesionale{border:0;padding:0;min-width:0}
 
 /* F11-T21: intervale independente in sumarul zilei. */
 .programe-zi-item{display:flex;align-items:center;gap:.5rem;margin:.35rem 0}.programe-zi-item select{min-width:12rem;flex:1}.programe-zi-item button{flex-shrink:0}
+
+/* R1 (analiza UX 0.92.59, F16-T37): antet compact. Stanga: traseu, titlu, descriere;
+   dreapta, pe un rand: actiunile ecranului, Activitatile lunii, Cum sa faci, marirea. */
+.antet { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 8px 18px; margin-bottom: 14px; }
+.titlu-antet { flex: 1 1 300px; min-width: 0; }
+.titlu-antet .fir-navigare { margin: 0 0 4px; }
+.titlu-antet h1 { font-size: 24px; margin: 0 0 2px; letter-spacing: -.5px; }
+.titlu-antet .descriere { font-size: 12.5px; line-height: 1.45; }
+.unelte-antet { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px; }
+.unelte-antet .actiuni-antet { margin-top: 0; }
+.unelte-antet .ajutor-antet, .unelte-antet .zoom-interfata { order: 0; }
+.continut-pontaj .antet { margin-bottom: 8px; }
+
