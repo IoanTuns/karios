@@ -936,3 +936,13 @@ Butoanele **Zile / Totaluri** din bara Pontajului schimbă vederea. **Totaluri**
 
 Pagina **General** are patru file: **Normă și structură** (norma întreagă, secțiile, compartimentele), **Nomenclatoare** (grupuri, funcții, prefixe și celelalte liste), **Copii de siguranță** și **Despre**. Aplicația ține minte ultima filă aleasă. Blocul **Verificarea configurării** se deschide singur când există puncte de verificat și arată câte sunt.
 
+## Gărzile în totaluri (0.92.71)
+
+Pe rândul **mărcii de gardă** al unei persoane:
+
+- **ZNL** nu se calculează (apare „—”);
+- **Ore gardă 200%** sunt orele de gardă care cad sâmbăta, duminica sau într-o sărbătoare legală;
+- **Ore lucrătoare** = total ore − ore gardă 200%.
+
+Pe celelalte rânduri, totalurile rămân ca înainte. Aceste reguli se aplică și în rapoartele Pontaj lunar și Pontaj detaliat.
+

@@ -2166,5 +2166,6 @@
   "setari.fila_backup": "Copii de siguranță",
   "setari.fila_despre": "Despre",
   "ui28.verificare_probleme": "{{numar}} de verificat",
-  "ai.ghid_asistent": "Ghid: folosirea asistentului"
+  "ai.ghid_asistent": "Ghid: folosirea asistentului",
+  "pontaj.motiv_garda_fara_znl": "Pe rândul mărcii de gardă ZNL nu se calculează; orele din weekend și sărbători apar în Ore gardă 200%."
 }

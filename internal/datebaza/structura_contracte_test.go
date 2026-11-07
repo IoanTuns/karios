@@ -49,7 +49,7 @@ func TestStructuraContractGardaSiReguliPersistente(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	cfg.Conditionate = []calcul.RegulaConditionata{{Activ: true, GrupID: grup.ID, ContractID: "GARDA", Garda: "DA", Regula: calcul.RegulaColoana{Coloana: "ore_garda", Sursa: "ORE_SCHIMBURI_ZNL", Coduri: []string{"G24"}, FactorSutimi: 200}}}
+	cfg.Conditionate = []calcul.RegulaConditionata{{Activ: true, GrupID: grup.ID, ContractID: "GARDA", Garda: "DA", Regula: calcul.RegulaColoana{Coloana: "T", Sursa: "ORE_SCHIMBURI_ZNL", Coduri: []string{"G24"}, FactorSutimi: 200}}}
 	if err := m.serviciu.SalveazaConfiguratiePontaj(ctx, cfg); err != nil {
 		t.Fatal(err)
 	}
@@ -64,8 +64,15 @@ func TestStructuraContractGardaSiReguliPersistente(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(rez.Totaluri) != 1 || calcul.TextValoarePontaj(rez.Totaluri[0].Valori["ore_garda"]) != "48" {
+	// Regula conditionata pe profilul real (grup, contract de garda) se aplica: 24 h sambata x 2.
+	if len(rez.Totaluri) != 1 || calcul.TextValoarePontaj(rez.Totaluri[0].Valori["T"]) != "48" {
 		t.Fatal("regula nu foloseste profilul real", rez)
+	}
+	// D093: pe randul de garda, Ore garda 200% = orele din weekend si sarbatori (24, nu dublate),
+	// ZNL nu se calculeaza, Ore lucratoare = total - ore garda 200%.
+	v := rez.Totaluri[0].Valori
+	if calcul.TextValoarePontaj(v["ore_garda"]) != "24" || v["ZNL"].Definita || v["ZNL"].Motiv != calcul.MotivGardaFaraZNL || calcul.TextValoarePontaj(v["ore_lucratoare"]) != "0" {
+		t.Fatal("regulile D093 pe randul de garda", v)
 	}
 	var norma int64 = 300
 	c := salveaza("contracte", ElementNomenclator{Denumire: i18n.Text{"ro": "Contract 5h"}, Activ: true, Normare: "ZILNICA", NormaMinute: &norma})

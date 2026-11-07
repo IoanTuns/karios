@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.71 - 2026-11-07
+
+F08-T14 (D093), regula ceruta de Ioan Tuns pentru randurile marcii de garda: ZNL nu se calculeaza („—”, cu motivul afisat), Ore gardă 200% = orele de garda din weekend si sarbatori legale, Ore lucrătoare = total ore − ore gardă 200%. Regulile au intaietate fata de Configurare pontaj pe aceste randuri; celelalte randuri raman neschimbate. Rapoarte cu versiune noua, pentru ca valorile se schimba pe randurile de garda: Pontaj detaliat 20, Pontaj lunar 19, rapoartele flexibile 14 (verificat: in referinta cu marci de garda difera exact cele 3 celule ale randului de garda). Manual 1.68.
+
 ## 0.92.70 - 2026-11-07
 
 F16-T38. Ergonomie grilă pontaj, navigare rapidă și securizare închidere lună:

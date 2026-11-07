@@ -42,6 +42,10 @@ func calculeazaPontajBaza(ctx context.Context, q *acces.Queries, an, luna int, m
 	if c.Norme, err = q.NormeSoldPontaj(ctx); err != nil {
 		return gol, c, err
 	}
+	// Randurile marcii de garda, pentru regulile din D093.
+	if c.Garzi, err = randuriGarda(ctx, q); err != nil {
+		return gol, c, err
+	}
 	if len(c.Conditionate) > 0 {
 		oameni, err := q.ListaAngajati(ctx)
 		if err != nil {
@@ -164,4 +168,20 @@ func calculeazaPontajBaza(ctx context.Context, q *acces.Queries, an, luna int, m
 	sort.Slice(lista, func(i, j int) bool { return lista[i].AngajatID+lista[i].Data < lista[j].AngajatID+lista[j].Data })
 	rez, err := calcul.CalculeazaPontaj(deLa, panaLa, c, programe, lista, libere)
 	return rez, c, err
+}
+
+// randuriGarda: angajatii al caror rand este marca de garda (contract de garda sau marca
+// asociata unei marci principale, D060), din profilul pontajului.
+func randuriGarda(ctx context.Context, q *acces.Queries) (map[string]bool, error) {
+	profile, err := q.ListaProfilePontaj(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rez := map[string]bool{}
+	for _, p := range profile {
+		if p.Garda != 0 {
+			rez[p.ID] = true
+		}
+	}
+	return rez, nil
 }

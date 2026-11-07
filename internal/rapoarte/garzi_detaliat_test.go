@@ -57,8 +57,10 @@ func TestDetaliatGarziMarciDistincteFaraDublare(t *testing.T) {
 	if normal["marca"] != "DEMO-R01" || garda["marca"] != "GARDA-R01" || normal["2026-10-05"] != "7" || garda["2026-10-05"] != "24" || garda["total_T"] != "24" {
 		t.Fatal(normal, garda)
 	}
-	if garda["2026-10-10"] != "" || garda["2026-10-11"] != "" || garda["total_ore_garda"] != "—" {
-		t.Fatal("surse nepermise sau procent inventat", garda)
+	// D093: garda de luni nu are ore in weekend/sarbatori (Ore garda 200% = 0), ZNL nu se
+	// calculeaza pe randul de garda, Ore lucratoare = 24 - 0.
+	if garda["2026-10-10"] != "" || garda["2026-10-11"] != "" || garda["total_ore_garda"] != "0" || garda["total_ZNL"] != "—" || garda["total_ore_lucratoare"] != "24" {
+		t.Fatal("regulile D093 pe randul de garda", garda)
 	}
 	if _, err := m.db.Exec("UPDATE angajati SET activ=0 WHERE id='g'"); err != nil {
 		t.Fatal(err)
@@ -141,7 +143,7 @@ func TestReferintaDetaliatCuMarciGarda(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	cale := filepath.Join("testdata", "pontaj-detaliat-marci-garda-v19.json")
+	cale := filepath.Join("testdata", "pontaj-detaliat-marci-garda-v20.json")
 	if *actualizeazaReferinte {
 		if err := os.WriteFile(cale, date, 0600); err != nil {
 			t.Fatal(err)

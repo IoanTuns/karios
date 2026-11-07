@@ -2166,5 +2166,6 @@
   "setari.fila_backup": "Backups",
   "setari.fila_despre": "About",
   "ui28.verificare_probleme": "{{numar}} to check",
-  "ai.ghid_asistent": "Guide: using the assistant"
+  "ai.ghid_asistent": "Guide: using the assistant",
+  "pontaj.motiv_garda_fara_znl": "ZNL is not calculated on the on-call row; weekend and holiday hours appear in On-call hours 200%."
 }

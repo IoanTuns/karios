@@ -13,6 +13,11 @@ func completeazaSolduri(ctx context.Context, q *acces.Queries, an, luna int, rez
 	if e != nil {
 		return e
 	}
+	// Pe randurile de garda, Ore lucratoare vine din calcul (D093), nu din norma.
+	garzi, e := randuriGarda(ctx, q)
+	if e != nil {
+		return e
+	}
 	init, e := q.ListaInitializariPontaj(ctx)
 	if e != nil {
 		return e
@@ -157,7 +162,9 @@ func completeazaSolduri(ctx context.Context, q *acces.Queries, an, luna int, rez
 					v = map[string]calcul.ValoarePontaj{}
 					rez.Totaluri = append(rez.Totaluri, calcul.TotalPontaj{AngajatID: id, Valori: v})
 				}
-				v["ore_lucratoare"] = calcul.ValoarePontaj{Sutimi: r.Lucratoare * 100, Unitate: "ORE", Definita: n.Definita}
+				if !garzi[id] {
+					v["ore_lucratoare"] = calcul.ValoarePontaj{Sutimi: r.Lucratoare * 100, Unitate: "ORE", Definita: n.Definita}
+				}
 				v["L_INCEPUT"] = calcul.ValoarePontaj{Sutimi: r.Inceput * 100, Unitate: "ORE", Definita: inceputDefinit}
 				v["L_FIN"] = calcul.ValoarePontaj{Sutimi: r.Final * 100, Unitate: "ORE", Definita: r.Definit}
 			}

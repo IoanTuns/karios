@@ -104,7 +104,8 @@ func TestSoldNormaPartialaSiGardaFaraNorma(t *testing.T) {
 	if e := m.serviciu.SalveazaAngajat(ctx, a); e != nil {
 		t.Fatal(e)
 	}
-	if v := valoareSoldTest(t, m, a.ID, 2026, 10, "ore_lucratoare"); v.Definita {
+	// D093: pe randul de garda Ore lucratoare = total - ore garda 200% (aici fara ore: 0), nu norma.
+	if v := valoareSoldTest(t, m, a.ID, 2026, 10, "ore_lucratoare"); !v.Definita || v.Sutimi != 0 {
 		t.Fatal(v)
 	}
 }

@@ -40,10 +40,12 @@ type ConfiguratiePontaj struct {
 	Conditionate []RegulaConditionata    `json:"conditionate,omitempty"`
 	Profile      map[string]ProfilPontaj `json:"-"`
 	// Norme: norma zilnica in minute pe angajat, pentru TOCN (D092); nil = fara norma zilnica.
-	Norme     map[string]*int64 `json:"-"`
-	Atribuire string            `json:"atribuire"`
-	Reguli    []RegulaColoana   `json:"reguli"`
-	Revizie   string            `json:"revizie"`
+	Norme map[string]*int64 `json:"-"`
+	// Garzi: randurile marcii de garda (D060), cu regulile din D093 pentru ZNL, Ore garda 200% si Ore lucratoare.
+	Garzi     map[string]bool `json:"-"`
+	Atribuire string          `json:"atribuire"`
+	Reguli    []RegulaColoana `json:"reguli"`
+	Revizie   string          `json:"revizie"`
 }
 
 func ColoanePontaj() []string {
@@ -231,6 +233,8 @@ const (
 	MotivPauza              = "pauza"
 	MotivAbsentaFaraOre     = "absenta_fara_ore"
 	MotivFaraOraInceput     = "fara_ora_inceput"
+	// MotivGardaFaraZNL: pe randul marcii de garda ZNL nu se calculeaza (D093).
+	MotivGardaFaraZNL = "garda_fara_znl"
 	// MotivFaraNorma: TOCN cere norma zilnica, pe care garzile si unele contracte nu o au (D092).
 	MotivFaraNorma = "fara_norma"
 )
@@ -623,6 +627,9 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 			}
 			t.Valori[r.Coloana] = v
 		}
+		if c.Garzi[id] {
+			aplicaReguliGarda(t.Valori, a)
+		}
 		rez.Totaluri = append(rez.Totaluri, t)
 	}
 	sort.Slice(rez.Totaluri, func(i, j int) bool { return rez.Totaluri[i].AngajatID < rez.Totaluri[j].AngajatID })
@@ -644,4 +651,23 @@ func zileLucratoareNete(deLa, panaLa string, libere map[string]bool) int64 {
 		}
 	}
 	return n
+}
+
+// aplicaReguliGarda (D093): pe randul marcii de garda ZNL nu se calculeaza, Ore garda 200%
+// sunt orele din weekend si sarbatori (aceeasi impartire pe zile ca ZNL), iar Ore lucratoare
+// = total ore - ore garda 200%. Regulile au intaietate fata de Configurare pontaj pe aceste randuri.
+func aplicaReguliGarda(v map[string]ValoarePontaj, a *acumularePontaj) {
+	definit := a.complet && a.calendar
+	v["ZNL"] = ValoarePontaj{Unitate: "ORE", Motiv: MotivGardaFaraZNL}
+	g := ValoarePontaj{Sutimi: a.znl * 100, Unitate: "ORE", Definita: definit}
+	l := ValoarePontaj{Sutimi: (a.total - a.znl) * 100, Unitate: "ORE", Definita: definit}
+	if !definit {
+		g.Motiv, g.MotivCod = primulMotiv(a.motiveComplet)
+		if g.Motiv == "" {
+			g.Motiv, g.MotivCod = primulMotiv(a.motiveCalendar)
+		}
+		l.Motiv, l.MotivCod = g.Motiv, g.MotivCod
+	}
+	v["ore_garda"] = g
+	v["ore_lucratoare"] = l
 }
