@@ -4,6 +4,7 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 
 | Data | Acțiune | Cine | Legături |
 | --- | --- | --- | --- |
+| 2026-11-07 | Build 0.92.69 (`.uild.ps1`) din 92a8657: build/bin/pontix-0.92.69-20261107-190146-…/pontix.exe, cu zip si manualele editia 1.67. | Claude | [versiuni](versiuni.md) |
 | 2026-11-07 | F16-T37 R9 (0.92.69) si inchiderea taskului: toate cele 9 recomandari UX facute pe rand, la cererea lui Ioan Tuns. Rezultatele masurate (inainte/dupa) adaugate in analiza. Idei noi I122, I123. | Claude | [Analiza](analiza-ux-0.92.59.md) |
 | 2026-11-07 | F16-T37 R8 (0.92.68): asistentul pe toata inaltimea (conversatia 130 → 334 px la 1024×640); datele din propuneri formatate. Serverul Vite pornit pentru probe oprit dupa rulare. | Claude | [Analiza](analiza-ux-0.92.59.md) |
 | 2026-11-07 | F16-T37 R6 (0.92.67): Setari › General pe file. Captura a aratat texte ramase fara diacritice in verificarea configurarii; corectate si adaugate in testul de paza. | Claude | [Analiza](analiza-ux-0.92.59.md) |
