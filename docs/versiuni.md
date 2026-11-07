@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.61 - 2026-11-07
+
+F16-T37 R4 (analiza UX 0.92.59, UX59-04). Diacriticele din interfata: 204 texte romanesti corectate (de ex. „Precompletează zile lucrătoare”, „Selecție”, „Păstrează”). Corecturile s-au facut automat doar pentru cuvintele gresite in orice context (forma corecta exista in catalog si diferenta nu e doar articolul final -a/-ă) si pentru verbele in „-ează”, plus o lista scurta verificata manual; formele articulate valide („luna”, „norma”, „data”) au ramas. Test nou in internal/i18n care semnaleaza cuvintele fara diacritice (pe catalogul vechi: 367). Rapoartele care afiseaza aceste texte in legenda au versiune noua, doar textul s-a schimbat: Pontaj lunar 18, Pontaj detaliat 19, Fisa individuala 18, Evidenta absentelor 15, Grafic garzi 15. Manualul revizuit fara modificari de continut.
+
 ## 0.92.60 - 2026-11-07
 
 F09-T28, defect raportat de utilizator. In Definire rapoarte, dezactivarea (sau reactivarea) unui model SQL cerea „Previzualizeaza modelul modificat inainte de salvare”, iar previzualizarea fisei individuale esua cu „Alege un angajat valid pentru fisa individuala”, deci modelul nu se putea dezactiva. Acum schimbarea doar a starii Activ nu mai cere previzualizare, iar editorul are un selector de angajat la previzualizare cand SQL-ul foloseste fisa_individuala (implicit primul angajat activ). Manual 1.63.
