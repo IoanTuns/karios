@@ -42,6 +42,7 @@ export function simularePdfme(fonturi) {
         // F09-T27: ca in Go dupa F09-T23, modul vechi „tabel” nu mai are motor.
         if (f.mod_aspect !== 'PDFME') return window.__coloaneSimulate ? {...r, document: doc} : {eroare: {cod: 'rapoarte.model_neconvertit'}};
         const sablon = JSON.parse(f.sablon);
+        window.__ultimSablon = sablon;
         const tabel = sablon.schemas.flat().find(e => e.type === 'table' && e.name === 'tabel' && !e.readOnly);
         if (tabel && tabel.head.length !== vizibile.length) return {eroare: {cod: 'rapoarte.pdfme_coloane', param: {sablon: String(tabel.head.length), date: String(vizibile.length)}}};
         const intrari = {titlu: d.denumire.ro || 'Raport', perioada: `${c.an}-${String(c.luna).padStart(2, '0')}`, an: String(c.an), luna: String(c.luna), generat_la: '05.11.2026 10:30', antet_stanga: 'Spital demo', antet_centru: '', antet_dreapta: 'Secția demo', subsol_stanga: '', subsol_centru: '', subsol_dreapta: '', tabel: JSON.stringify(randuri)};
@@ -162,6 +163,19 @@ export async function verificaRapoartePdfme({cdp, evalueaza, asteapta, apasa, co
     await pauza(1500);
     await masoara('spatiu_1440');
     await captura('t25-07-spatiu-1440.png');
+    // F09-T29: antetul (pagina fixa) se editeaza pe pagina; verificarea il pune la loc.
+    const butonSpatiu = text => `[...document.querySelectorAll('.dialog-pdfme .actiuni-pdfme button')].find(b => b.textContent.trim() === ${JSON.stringify(text)})`;
+    await evalueaza(`${butonSpatiu(t('rapoarte.pdfme_editeaza_antet'))}.click()`);
+    await asteapta(() => evalueaza("Boolean(document.querySelector('.dialog-pdfme .indiciu-antet-pdfme'))"), 'Modul antet nu a pornit');
+    await pauza(1200);
+    masuri.antet = await evalueaza(`({apasat: ${butonSpatiu(t('rapoarte.pdfme_antet_gata'))}?.getAttribute('aria-pressed'), filaPdf: [...document.querySelectorAll('.dialog-pdfme .file-pdfme button')][1].disabled})`);
+    await captura('t29-01-antet-editabil.png');
+    const cereriInainte = await evalueaza('window.__pdfmeCereri || 0');
+    await evalueaza(`${butonSpatiu(t('rapoarte.flex_verifica'))}.click()`);
+    await asteapta(() => evalueaza(`(window.__pdfmeCereri || 0) > ${cereriInainte}`), 'Verificarea din modul antet nu a pornit', 30000);
+    masuri.antetDupa = await evalueaza(`(() => { const s = window.__ultimSablon; return {fixe: s.basePdf.staticSchema.length, pagina: s.schemas[0].map(e => e.name), marcate: JSON.stringify(s).includes('pontixStatic'), sus: s.basePdf.padding[0], indiciu: Boolean(document.querySelector('.dialog-pdfme .indiciu-antet-pdfme'))}; })()`);
+    assert.deepEqual(masuri.antet, {apasat: 'true', filaPdf: true}, 'Modul antet gresit');
+    assert.deepEqual(masuri.antetDupa, {fixe: 7, pagina: ['tabel'], marcate: false, sus: 32, indiciu: false}, 'Antetul nu s-a pus la loc');
     for (const k of ['spatiu_1024', 'spatiu_1440']) {
         assert(masuri[k].spatiuDeschis && masuri[k].editor?.vizibilIntreg, `Editorul nu incape in fereastra (${k})`);
         assert(!masuri[k].derulareOrizontala, `Derulare orizontala (${k})`);

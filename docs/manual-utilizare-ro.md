@@ -790,7 +790,7 @@ Rapoartele SQL (Setari > Definire rapoarte, sursele SQL liber, Lista garzi si Ca
 2. La **Aspect** alegeti **Editor vizual (pdfme)**. Aplicatia ruleaza SQL-ul si pregateste singura un sablon de pornire: antet in trei zone, titlu, tabelul cu datele si numarul paginii jos, pe fiecare pagina. Identificatorul intern `angajat_id` se ascunde din tabel.
 3. Apasati **Deschide editorul vizual**. Editorul se deschide pe tot ecranul. Pe pagina trageti si redimensionati elementele; proprietatile (font, marime, aliniere, culori) sunt in panoul din dreapta, **Elementele paginii**. Elemente noi (text, imagine, linie, dreptunghi) se adauga din bara din stanga. Bara de sus are **Campuri disponibile** (clic pe un camp il copiaza, apoi il lipiti in text), **Fonturi din Windows**, **Actualizeaza tabelul din SQL** si **Verifica datele si previzualizeaza PDF**, care arata PDF-ul in fila **Previzualizare PDF**. **Gata** va intoarce la formular.
 4. Tabelul numit `tabel` primeste randurile din SQL si continua singur pe paginile urmatoare, cu antetul repetat. Numarul de coloane din capul tabelului trebuie sa fie egal cu numarul de coloane din SQL. Daca schimbati SQL-ul, apasati **Actualizeaza tabelul din SQL**: coloanele ramase isi pastreaza titlul si latimea, cele noi se adauga, iar restul paginii nu se schimba. **Sablon nou din coloanele SQL** reface toata pagina.
-5. In texte puteti folosi variabile intre acolade: `{titlu}`, `{perioada}`, `{an}`, `{luna}`, `{generat_la}`, `{antet_stanga}`, `{antet_centru}`, `{antet_dreapta}`, `{subsol_stanga}`, `{subsol_centru}`, `{subsol_dreapta}` si orice coloana din SQL (valoarea de pe primul rand). `{currentPage}` si `{totalPages}` dau pagina curenta si numarul de pagini.
+5. In texte puteti folosi variabile intre acolade: `{titlu}`, `{perioada}`, `{an}`, `{luna}`, `{generat_la}`, `{data_curenta}` (data de azi, fara ora), `{antet_stanga}`, `{antet_centru}`, `{antet_dreapta}`, `{subsol_stanga}`, `{subsol_centru}`, `{subsol_dreapta}` si orice coloana din SQL (valoarea de pe primul rand). `{currentPage}` si `{totalPages}` dau pagina curenta si numarul de pagini.
 6. Apasati **Verifica raportul** pentru previzualizare, apoi salvati modelul.
 
 **Fonturi din Windows (0.92.34).** In bara editorului, la **Fonturi din Windows**, scrieti sau alegeti un font instalat (de exemplu Arial, Calibri, Times New Roman) si apasati **Adauga fontul**. Fontul apare apoi in lista de fonturi din panoul elementului. Pentru bold sau italic alegeti varianta fontului, de exemplu **Arial Bold**. Lista arata doar fonturile a caror licenta permite includerea in PDF. Fontul este inclus in PDF, deci documentul arata la fel pe orice calculator. Daca deschideti raportul pe un calculator care nu are fontul, aplicatia foloseste fontul Go si afiseaza un avertisment.
@@ -945,4 +945,16 @@ Pe rândul **mărcii de gardă** al unei persoane:
 - **Ore lucrătoare** = total ore − ore gardă 200%.
 
 Pe celelalte rânduri, totalurile rămân ca înainte. Aceste reguli se aplică și în rapoartele Pontaj lunar și Pontaj detaliat.
+
+## Antetul rapoartelor în editorul vizual (0.92.72)
+
+Antetul (cele trei zone și titlul) și subsolul (inclusiv numărul paginii) se repetă pe fiecare pagină a raportului și apar în editor pe marginea roșie, unde nu pot fi selectate. Pentru a le schimba:
+
+1. În editorul vizual apăsați **Editează antetul**. Elementele antetului și subsolului apar pe pagină, în lista **Elementele paginii**.
+2. Mutați, modificați sau ștergeți elementele, de exemplu:
+   - ștergeți **Titlu** dacă nu aveți nevoie de el (tasta Delete);
+   - pentru data de azi, scrieți în textul titlului `{titlu} · {data_curenta}` sau adăugați un text nou cu `{data_curenta}`.
+   Elementele adăugate acum se repetă și ele pe fiecare pagină.
+3. Apăsați **Gata cu antetul**. Elementele revin pe margine, marginea se potrivește după antet, iar tabelul coboară singur sub antet dacă e nevoie. **Verifică** sau **Gata** fac același lucru automat.
+4. Salvați modelul.
 

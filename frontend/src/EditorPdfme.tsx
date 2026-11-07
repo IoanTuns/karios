@@ -4,7 +4,7 @@ import type {Font, Template} from '@pdfme/common';
 import type {Designer} from '@pdfme/ui';
 import {ListaFonturiSistem} from '../wailsjs/go/main/App';
 import {Dialog} from './Formulare';
-import {etichetePdfme, fontSistem, fonturiDinSablon, fonturiPentruSablon, pluginuriPdfme, TIPURI_PDFME, zoomPotrivit, type StareTabel} from './raportPdfme';
+import {antetEditabil, antetFix, etichetePdfme, STATIC_PDFME, fontSistem, fonturiDinSablon, fonturiPentruSablon, pluginuriPdfme, TIPURI_PDFME, zoomPotrivit, type StareTabel} from './raportPdfme';
 import {notifica} from './Toast';
 
 const FONTURI_GO = new Set(['Go', 'GoBold', 'GoItalic', 'GoBoldItalic']);
@@ -12,7 +12,7 @@ const FONTURI_GO = new Set(['Go', 'GoBold', 'GoItalic', 'GoBoldItalic']);
 const LATIME_PANOU = 1280;
 
 // Variabilele raportului disponibile in textele pdfme, pe langa coloanele SQL.
-export const VARIABILE_PDFME = ['titlu', 'perioada', 'an', 'luna', 'generat_la', 'antet_stanga', 'antet_centru', 'antet_dreapta', 'subsol_stanga', 'subsol_centru', 'subsol_dreapta', 'introducere', 'currentPage', 'totalPages'];
+export const VARIABILE_PDFME = ['titlu', 'perioada', 'an', 'luna', 'data_curenta', 'generat_la', 'antet_stanga', 'antet_centru', 'antet_dreapta', 'subsol_stanga', 'subsol_centru', 'subsol_dreapta', 'introducere', 'currentPage', 'totalPages'];
 
 async function copiaza(text: string): Promise<boolean> {
     try {
@@ -108,6 +108,12 @@ export function SpatiuPdfme({sablon, schimba, coloaneSQL, stare, ocupat, eroare,
     const fonturiAdaugate = useRef<Font>({});
     const aplicaFonturi = useRef<((f: Font) => void) | null>(null);
     const [adaugate, setAdaugate] = useState<string[]>([]);
+    // F09-T29: antetul si subsolul (pagina fixa) se editeaza mutate temporar pe pagina.
+    const [antet, setAntet] = useState(false);
+    const numeInainte = useRef<Set<string>>(new Set());
+    const verificaDupaAntet = useRef(false);
+    const sablonCurent = useRef(sablon);
+    sablonCurent.current = sablon;
 
     useEffect(() => {
         let activ = true;
@@ -159,13 +165,62 @@ export function SpatiuPdfme({sablon, schimba, coloaneSQL, stare, ocupat, eroare,
         setFila('pdf');
     }
 
+    function intraInAntet() {
+        try {
+            const nou = antetEditabil(sablonCurent.current);
+            // Doar elementele corpului paginii raman pe pagina la iesire; restul (si cele noi) trec in antet.
+            numeInainte.current = new Set((JSON.parse(nou).schemas?.[0] || []).filter((e: Record<string, unknown>) => e[STATIC_PDFME] !== true).map((e: {name?: string}) => String(e.name)));
+            setFila('pagina');
+            setAntet(true);
+            if (nou !== sablonCurent.current) schimba(nou);
+        } catch {
+            notifica(t('rapoarte.pdfme_invalid'), 'eroare');
+        }
+    }
+
+    // iesiDinAntet pune elementele inapoi pe pagina fixa; intoarce sablonul rezultat.
+    function iesiDinAntet(): string {
+        let nou = sablonCurent.current;
+        try {
+            nou = antetFix(sablonCurent.current, numeInainte.current);
+        } catch {
+            // Sablon invalid: ramane cum este; verificarea il semnaleaza.
+        }
+        setAntet(false);
+        if (nou !== sablonCurent.current) schimba(nou);
+        return nou;
+    }
+
+    // Verificarea dupa iesirea din antet asteapta sablonul actualizat in model.
+    useEffect(() => {
+        if (verificaDupaAntet.current && !antet) {
+            verificaDupaAntet.current = false;
+            void verificaSiArata();
+        }
+    }, [sablon, antet]);
+
+    function verificaOricand() {
+        if (!antet) {
+            void verificaSiArata();
+            return;
+        }
+        // Efectul de mai sus verifica dupa ce modelul primeste sablonul cu antetul la loc.
+        verificaDupaAntet.current = true;
+        iesiDinAntet();
+    }
+
+    function inchideSpatiu() {
+        if (antet) iesiDinAntet();
+        inchide();
+    }
+
     const nepotrivit = stare && stare.exista && !stare.potrivit;
-    return <Dialog titlu={t('rapoarte.pdfme_spatiu_titlu')} ocupat={ocupat} inchide={inchide} clasa="dialog-pdfme" maximizatInitial>
+    return <Dialog titlu={t('rapoarte.pdfme_spatiu_titlu')} ocupat={ocupat} inchide={inchideSpatiu} clasa="dialog-pdfme" maximizatInitial>
         <div className="spatiu-pdfme">
             <div className="bara-pdfme" role="toolbar" aria-label={t('rapoarte.pdfme_spatiu_titlu')}>
                 <div className="file-pdfme" role="tablist">
                     <button type="button" role="tab" aria-selected={fila === 'pagina'} className={fila === 'pagina' ? 'activ' : ''} onClick={() => setFila('pagina')}>{t('rapoarte.pdfme_fila_pagina')}</button>
-                    <button type="button" role="tab" aria-selected={fila === 'pdf'} className={fila === 'pdf' ? 'activ' : ''} disabled={!url} onClick={() => setFila('pdf')}>{t('rapoarte.pdfme_fila_pdf')}{pagini > 0 ? ` (${t('rapoarte.pdfme_pagini', {numar: pagini})})` : ''}</button>
+                    <button type="button" role="tab" aria-selected={fila === 'pdf'} className={fila === 'pdf' ? 'activ' : ''} disabled={!url || antet} onClick={() => setFila('pdf')}>{t('rapoarte.pdfme_fila_pdf')}{pagini > 0 ? ` (${t('rapoarte.pdfme_pagini', {numar: pagini})})` : ''}</button>
                 </div>
                 <details className="campuri-pdfme">
                     <summary>{t('rapoarte.pdfme_campuri')}</summary>
@@ -187,11 +242,13 @@ export function SpatiuPdfme({sablon, schimba, coloaneSQL, stare, ocupat, eroare,
                     {fonturiAfisate.length > 0 && <p className="text-discret">{t('rapoarte.pdfme_fonturi_folosite')}: {fonturiAfisate.join(', ')}</p>}</div>
                 </details>
                 <div className="actiuni-pdfme">
+                    <button type="button" className={'buton ' + (antet ? 'primar' : 'secundar')} aria-pressed={antet} disabled={ocupat} onClick={() => (antet ? iesiDinAntet() : intraInAntet())}>{t(antet ? 'rapoarte.pdfme_antet_gata' : 'rapoarte.pdfme_editeaza_antet')}</button>
                     {stare && stare.exista && <button type="button" className={'buton ' + (nepotrivit ? 'primar' : 'secundar')} disabled={ocupat} onClick={() => void actualizeazaTabel()}>{t('rapoarte.pdfme_actualizeaza_tabel')}</button>}
-                    <button type="button" className="buton primar" disabled={ocupat} onClick={() => void verificaSiArata()}>{t('rapoarte.flex_verifica')}</button>
-                    <button type="button" className="buton secundar" disabled={ocupat} onClick={inchide}>{t('rapoarte.pdfme_gata')}</button>
+                    <button type="button" className="buton primar" disabled={ocupat} onClick={verificaOricand}>{t('rapoarte.flex_verifica')}</button>
+                    <button type="button" className="buton secundar" disabled={ocupat} onClick={inchideSpatiu}>{t('rapoarte.pdfme_gata')}</button>
                 </div>
             </div>
+            {antet && <p role="status" className="mesaj atentionare indiciu-antet-pdfme">{t('rapoarte.pdfme_antet_indiciu')}</p>}
             {nepotrivit && <p role="status" className="mesaj avertisment">{t('rapoarte.pdfme_tabel_nepotrivit', {adaugate: stare!.adaugate.join(', ') || '—', eliminate: stare!.eliminate.join(', ') || '—'})}</p>}
             {ocupat && <p role="status">{t('ui.incarcare')}</p>}
             {eroare && <p role="alert" className="mesaj eroare">{eroare}</p>}

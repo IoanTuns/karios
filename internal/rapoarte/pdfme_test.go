@@ -87,7 +87,7 @@ func TestDatePdfme(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if intrari["titlu"] != "Gărzi noiembrie" || intrari["perioada"] != "2026-11" || intrari["generat_la"] != "05.11.2026 10:30" {
+	if intrari["titlu"] != "Gărzi noiembrie" || intrari["perioada"] != "2026-11" || intrari["generat_la"] != "05.11.2026 10:30" || intrari["data_curenta"] != "05.11.2026" {
 		t.Fatalf("variabile gresite: %v", intrari)
 	}
 	if intrari["antet_stanga"] != "Spital 2026" || intrari["antet_dreapta"] != "Secția 11" {

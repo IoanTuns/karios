@@ -306,3 +306,68 @@ export function zoomPotrivit(latimeZona: number, inaltimeZona: number, latimePag
     const z = disponibil / latimeLa100;
     return Math.max(0.5, Math.min(1.5, Math.floor(z * 20) / 20));
 }
+
+// F09-T29: antetul si subsolul stau in basePdf.staticSchema (se repeta pe fiecare
+// pagina), unde Designer-ul pdfme nu le poate selecta. Pentru editare, elementele
+// trec temporar pe pagina, marcate STATIC_PDFME, cu marginile reduse la margine.
+export const STATIC_PDFME = 'pontixStatic';
+
+type SablonEditabil = {basePdf: {width?: number; height?: number; padding?: number[]; staticSchema?: SchemaPdfme[]}; schemas: SchemaPdfme[][]};
+
+function marginePagina(b: SablonEditabil['basePdf']): number {
+    const stanga = b.padding?.[3];
+    return typeof stanga === 'number' && stanga >= 0 ? stanga : 10;
+}
+
+// antetEditabil muta elementele fixe pe prima pagina, ca sa poata fi mutate,
+// modificate sau sterse. Sablonul fara basePdf obiect (PDF de fundal) ramane neschimbat.
+export function antetEditabil(sablon: string): string {
+    const s = JSON.parse(sablon) as SablonEditabil;
+    if (!s.basePdf || typeof s.basePdf !== 'object' || !Array.isArray(s.basePdf.staticSchema) || !s.basePdf.staticSchema.length) return sablon;
+    const m = marginePagina(s.basePdf);
+    const fixe = s.basePdf.staticSchema.map(e => ({...e, [STATIC_PDFME]: true}));
+    s.schemas = s.schemas?.length ? s.schemas : [[]];
+    s.schemas[0] = [...fixe, ...s.schemas[0]];
+    s.basePdf = {...s.basePdf, staticSchema: [], padding: [m, m, m, m]};
+    return JSON.stringify(s);
+}
+
+// antetFix pune la loc elementele marcate si pe cele adaugate in timpul editarii
+// antetului (numele lipsesc din `inainte`). Marginea de sus si cea de jos se
+// recalculeaza din elementele fixe, iar tabelul coboara sub antet daca s-ar suprapune.
+export function antetFix(sablon: string, inainte?: Set<string>): string {
+    const s = JSON.parse(sablon) as SablonEditabil;
+    const pagina = s.schemas?.[0];
+    if (!pagina || !s.basePdf || typeof s.basePdf !== 'object') return sablon;
+    const eFix = (e: SchemaPdfme) => e[STATIC_PDFME] === true || (!!inainte && !inainte.has(String(e.name)));
+    if (!pagina.some(eFix)) return sablon;
+    const fixe: SchemaPdfme[] = [], rest: SchemaPdfme[] = [];
+    for (const e of pagina) {
+        if (!eFix(e)) {
+            rest.push(e);
+            continue;
+        }
+        const {[STATIC_PDFME]: _, ...curat} = e;
+        // In staticSchema textul se scrie din continut, cu {variabile}, deci e numai citire.
+        fixe.push({...curat, readOnly: true});
+    }
+    const H = s.basePdf.height || 297, m = marginePagina(s.basePdf);
+    const p = s.basePdf.padding || [m, m, m, m];
+    let sus = m, jos = m;
+    for (const e of fixe) {
+        const y = Number((e.position as {y?: number})?.y) || 0, h = Number(e.height) || 0;
+        if (y + h / 2 < H / 2) sus = Math.max(sus, y + h + 2);
+        else jos = Math.max(jos, H - y + 2);
+    }
+    for (const e of rest) {
+        const poz = e.position as {x: number; y: number} | undefined;
+        if (e.type === 'table' && poz && poz.y < sus) e.position = {...poz, y: sus};
+    }
+    s.schemas[0] = rest;
+    s.basePdf = {...s.basePdf, staticSchema: [...fixe, ...(s.basePdf.staticSchema || [])], padding: [round2(sus), p[1] ?? m, round2(jos), p[3] ?? m]};
+    return JSON.stringify(s);
+}
+
+function round2(v: number): number {
+    return Math.round(v * 100) / 100;
+}

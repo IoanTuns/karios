@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.72 - 2026-11-07
+
+F09-T29 (D094, propusa), cerere Ioan Tuns: antetul si subsolul rapoartelor din editorul vizual (pdfme) se pot edita. Butonul „Editează antetul” aduce pe pagina elementele care se repeta pe fiecare pagina (zonele antetului, titlul, subsolul, numarul paginii): se muta, se modifica sau se sterg, iar elementele adaugate atunci se repeta si ele. „Gata cu antetul”, verificarea sau inchiderea editorului le pun la loc, cu marginile recalculate si tabelul coborat sub antet. Variabila noua `{data_curenta}` (data generarii, fara ora). Rapoartele existente nu se schimba. Manual 1.69.
+
 ## 0.92.71 - 2026-11-07
 
 F08-T14 (D093), regula ceruta de Ioan Tuns pentru randurile marcii de garda: ZNL nu se calculeaza („—”, cu motivul afisat), Ore gardă 200% = orele de garda din weekend si sarbatori legale, Ore lucrătoare = total ore − ore gardă 200%. Regulile au intaietate fata de Configurare pontaj pe aceste randuri; celelalte randuri raman neschimbate. Rapoarte cu versiune noua, pentru ca valorile se schimba pe randurile de garda: Pontaj detaliat 20, Pontaj lunar 19, rapoartele flexibile 14 (verificat: in referinta cu marci de garda difera exact cele 3 celule ale randului de garda). Manual 1.68.

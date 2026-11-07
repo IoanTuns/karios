@@ -116,7 +116,7 @@ func DatePdfme(d Document) (map[string]string, error) {
 			}
 		}
 	}
-	vars := map[string]string{"titlu": d.Titlu, "generat_la": d.GeneratLa.Format("02.01.2006 15:04"), "introducere": d.Introducere, "nota": d.Nota}
+	vars := map[string]string{"titlu": d.Titlu, "generat_la": d.GeneratLa.Format("02.01.2006 15:04"), "data_curenta": d.GeneratLa.Format("02.01.2006"), "introducere": d.Introducere, "nota": d.Nota}
 	for k, v := range d.VariabileRaport {
 		vars[k] = v
 	}

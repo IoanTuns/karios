@@ -19,7 +19,7 @@ vi.mock('./Toast', () => ({notifica: (m: string) => notificari.push(m)}));
 vi.mock('i18next', () => ({default: {t: (k: string, p?: Record<string, string>) => k + (p ? ' ' + JSON.stringify(p) : '')}}));
 vi.mock('../wailsjs/go/models', () => ({main: {RaspunsRaport: class { constructor(v: object) { Object.assign(this, v); } }}}));
 
-import {actualizeazaTabel, COLOANE_SQL, completeazaRaport, etichetePdfme, fonturiDinSablon, fonturiPentruSablon, genereazaPdfPdfme, inBase64, dinBase64, pluginuriPdfme, sablonDinColoane, stareTabel, titluColoana, zoomPotrivit} from './raportPdfme';
+import {actualizeazaTabel, antetEditabil, antetFix, COLOANE_SQL, completeazaRaport, etichetePdfme, fonturiDinSablon, fonturiPentruSablon, genereazaPdfPdfme, inBase64, dinBase64, pluginuriPdfme, sablonDinColoane, stareTabel, titluColoana, zoomPotrivit} from './raportPdfme';
 import cheiPdfme from './cheiPdfme.json';
 import catalogRo from '../../internal/i18n/locales/ro.json';
 import catalogEn from '../../internal/i18n/locales/en.json';
@@ -43,6 +43,35 @@ describe('sablon pdfme', () => {
         expect(tabel.head).toEqual(['Angajat', 'Data', 'Ore']);
         expect(tabel.headWidthPercentages.reduce((a: number, b: number) => a + b, 0)).toBeCloseTo(100);
         expect(s.basePdf.staticSchema.some((e: {content: string}) => e.content.includes('{currentPage}'))).toBe(true);
+    }, 30000);
+
+    it('F09-T29: antetul trece pe pagina pentru editare si inapoi, cu marginile recalculate', async () => {
+        const sablon = await sablonDinColoane(coloane, pagina, 'Pagina {currentPage} din {totalPages}');
+        const ed = JSON.parse(antetEditabil(sablon));
+        expect(ed.basePdf.staticSchema).toEqual([]);
+        expect(ed.basePdf.padding).toEqual([10, 10, 10, 10]);
+        expect(ed.schemas[0].filter((e: Record<string, unknown>) => e.pontixStatic === true).map((e: {name: string}) => e.name)).toEqual(['antet_stanga_txt', 'antet_centru_txt', 'antet_dreapta_txt', 'titlu_txt', 'subsol_stanga_txt', 'subsol_centru_txt', 'pagina_txt']);
+        // Fara modificari, drumul dus-intors da acelasi sablon.
+        expect(JSON.parse(antetFix(JSON.stringify(ed)))).toEqual(JSON.parse(sablon));
+        // Titlul sters, data adaugata langa antetul din dreapta, element nou in antet.
+        // Ca in editor: numai elementele corpului; marcajul pontixStatic poate lipsi dupa editare.
+        const inainte = new Set<string>(['tabel']);
+        for (const e of ed.schemas[0]) delete e.pontixStatic;
+        ed.schemas[0] = ed.schemas[0].filter((e: {name: string}) => e.name !== 'titlu_txt');
+        ed.schemas[0].find((e: {name: string}) => e.name === 'antet_dreapta_txt').content = '{data_curenta}';
+        ed.schemas[0].push({name: 'nou', type: 'text', content: 'Aprobat', position: {x: 10, y: 30}, width: 50, height: 8});
+        const fix = JSON.parse(antetFix(JSON.stringify(ed), inainte));
+        const nume = fix.basePdf.staticSchema.map((e: {name: string}) => e.name);
+        expect(nume).toContain('nou');
+        expect(nume).not.toContain('titlu_txt');
+        expect(fix.basePdf.staticSchema.every((e: Record<string, unknown>) => e.readOnly === true && !('pontixStatic' in e))).toBe(true);
+        expect(fix.schemas[0].map((e: {name: string}) => e.name)).toEqual(['tabel']);
+        // Elementul nou se termina la 38 mm: marginea de sus 40, tabelul coborat sub antet.
+        expect(fix.basePdf.padding[0]).toBe(40);
+        expect(fix.schemas[0][0].position.y).toBe(40);
+        expect(fix.basePdf.padding[2]).toBe(18);
+        const {pdf} = await genereazaPdfPdfme(JSON.stringify(fix), {data_curenta: '07.11.2026', antet_stanga: '', antet_centru: '', antet_dreapta: '', subsol_stanga: '', subsol_centru: '', titlu: '', tabel: JSON.stringify([['a', 'b', 'c']])});
+        expect((await PDFDocument.load(pdf)).getPageCount()).toBe(1);
     }, 30000);
 
     it('genereaza un PDF cu diacritice si continua tabelul pe pagini noi', async () => {
