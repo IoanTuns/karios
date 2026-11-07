@@ -4,6 +4,14 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.70 - 2026-11-07
+
+F16-T38. Ergonomie grilă pontaj, navigare rapidă și securizare închidere lună:
+- Navigare rapidă de la tastatură (Numpad workflow): Enter și NumpadEnter coboară vertical pe aceeași zi la următorul salariat (`r + 1, z`), Shift+Enter urcă vertical (`r - 1, z`), iar Tab și Shift+Tab navighează orizontal pe zile cu trecere automată la următorul salariat la capăt de lună.
+- Introducere directă ore din tastatura numerică: tastarea cifrelor (ex: 8, 12, 10, 0) pe celula focalizată aplică direct valoarea pe celulă fără deschiderea de dialoguri și fără salt forțat la ziua următoare, permițând completarea rapidă pe coloană pentru o zi întreagă.
+- Afișarea instantanee a orelor lucrate (`OL`) în bara de inspecție a celulei active, eliminând derularea orizontală până la capătul grilei pentru verificarea normei.
+- Securizarea și izolarea acțiunii „Închide luna”: buton dedicat cu accent de protecție (`buton-sigilare`) și dialog de sinteză cu numărul de salariați și avertizare la celule modificate nesalvate înainte de blocare.
+
 ## 0.92.69 - 2026-11-07
 
 F16-T37 R9 (UX59-10, UX59-11). Randul „Persoane înregistrate” din Pontaj apare doar cand luna are persoane programate. Filtrul de stare are aceeasi eticheta („Stare angajați”) in Pontaj si Planificare; in Planificare, starea si filtrele profesionale stau pe un rand, iar selectia e un text discret. Inca 8 texte romanesti fara diacritice corectate (de ex. „Adaugă program pe zi”, „Concediu / absență pe selecție”). Manualul revizuit fara modificari de continut.

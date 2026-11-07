@@ -140,6 +140,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
     const [calendar, setCalendar] = useState<datebaza.CalendarAn | null>(null);
     const [schimburi, setSchimburi] = useState<datebaza.Schimb[]>([]);
     const [modificari, setModificari] = useState<Map<string, datebaza.CelulaSchita>>(new Map());
+    const bufferTastare = useRef<{rand: number; zi: number; cifre: string; timp: number}>({rand: -1, zi: -1, cifre: '', timp: 0});
     const [istoricInapoi, setIstoricInapoi] = useState<Map<string, datebaza.CelulaSchita>[]>([]);
     const [istoricInainte, setIstoricInainte] = useState<Map<string, datebaza.CelulaSchita>[]>([]);
     const [selectie, setSelectie] = useState<Selectie>({inceput: {rand: 0, zi: 0}, sfarsit: {rand: 0, zi: 0}});
@@ -559,26 +560,46 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
         if ((e.ctrlKey || e.metaKey) && !e.altKey && e.key.toLowerCase() === 'c') { e.preventDefault(); void copiazaSelectia(); return; }
         if ((e.ctrlKey || e.metaKey) && !e.altKey && e.key.toLowerCase() === 'v') { e.preventDefault(); void lipesteDinClipboard(); return; }
         const directii: Record<string, [number, number]> = {ArrowLeft: [0, -1], ArrowRight: [0, 1], ArrowUp: [-1, 0], ArrowDown: [1, 0], Enter: [e.shiftKey ? -1 : 1, 0]};
-        if (directii[e.key]) { e.preventDefault(); const [dr, dz] = directii[e.key]; focalizeaza({rand: r + dr, zi: z + dz}, e.shiftKey && e.key !== 'Enter'); }
-        else if (e.key === 'Home') { e.preventDefault(); focalizeaza({rand: r, zi: 0}, e.shiftKey); }
-        else if (e.key === 'End') { e.preventDefault(); focalizeaza({rand: r, zi: numarZile - 1}, e.shiftKey); }
-        else if (e.key === 'PageUp') { e.preventDefault(); focalizeaza({rand: Math.max(0, r - 5), zi: z}, e.shiftKey); }
-        else if (e.key === 'PageDown') { e.preventDefault(); focalizeaza({rand: Math.min(randuri.length - 1, r + 5), zi: z}, e.shiftKey); }
+        const esteEnter = e.key === 'Enter' || e.code === 'NumpadEnter';
+        if (directii[e.key] || esteEnter) {
+            e.preventDefault();
+            bufferTastare.current = {rand: -1, zi: -1, cifre: '', timp: 0};
+            const [dr, dz] = directii[e.key] || [e.shiftKey ? -1 : 1, 0];
+            focalizeaza({rand: r + dr, zi: z + dz}, e.shiftKey && !esteEnter);
+        }
+        else if (e.key === 'Home') { e.preventDefault(); bufferTastare.current = {rand: -1, zi: -1, cifre: '', timp: 0}; focalizeaza({rand: r, zi: 0}, e.shiftKey); }
+        else if (e.key === 'End') { e.preventDefault(); bufferTastare.current = {rand: -1, zi: -1, cifre: '', timp: 0}; focalizeaza({rand: r, zi: numarZile - 1}, e.shiftKey); }
+        else if (e.key === 'PageUp') { e.preventDefault(); bufferTastare.current = {rand: -1, zi: -1, cifre: '', timp: 0}; focalizeaza({rand: Math.max(0, r - 5), zi: z}, e.shiftKey); }
+        else if (e.key === 'PageDown') { e.preventDefault(); bufferTastare.current = {rand: -1, zi: -1, cifre: '', timp: 0}; focalizeaza({rand: Math.min(randuri.length - 1, r + 5), zi: z}, e.shiftKey); }
         else if (e.key === 'Tab') {
+            bufferTastare.current = {rand: -1, zi: -1, cifre: '', timp: 0};
             let zi = z + (e.shiftKey ? -1 : 1), rand = r;
             if (zi < 0) { rand--; zi = numarZile - 1; } else if (zi >= numarZile) { rand++; zi = 0; }
             if (rand >= 0 && rand < randuri.length) { e.preventDefault(); focalizeaza({rand, zi}, false); }
-        } else if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); completeaza(''); }
+        } else if (e.key === 'Delete' || e.key === 'Backspace') {
+            e.preventDefault();
+            bufferTastare.current = {rand: -1, zi: -1, cifre: '', timp: 0};
+            completeaza('');
+        }
         else if (e.key === 'F2') { e.preventDefault(); deschideOreManuale(); }
-        else if (e.key === 'Escape') { e.preventDefault(); aplicaCelule([{rand: r, zi: z, text: originale.get(cheie(randuri[r].id, zile[z]))?.valoare ?? ''}]); }
+        else if (e.key === 'Escape') {
+            e.preventDefault();
+            bufferTastare.current = {rand: -1, zi: -1, cifre: '', timp: 0};
+            aplicaCelule([{rand: r, zi: z, text: originale.get(cheie(randuri[r].id, zile[z]))?.valoare ?? ''}]);
+        }
         else if (e.key === ' ' && !e.ctrlKey && !e.altKey && !e.metaKey) { e.preventDefault(); deschideOreManuale(); }
         else if (/^[0-9]$/.test(e.key) && !e.ctrlKey && !e.altKey && !e.metaKey && !ocupat && !lunaBlocata) {
             e.preventDefault();
-            const ore = Number(e.key);
-            const val = ore === 0 ? '' : `@M${ore * 60}`;
-            completeaza(val);
-            if (z + 1 < numarZile) {
-                focalizeaza({rand: r, zi: z + 1}, false);
+            const acumTimp = Date.now();
+            let textCifre = e.key;
+            if (bufferTastare.current.rand === r && bufferTastare.current.zi === z && acumTimp - bufferTastare.current.timp < 900) {
+                textCifre = bufferTastare.current.cifre + e.key;
+            }
+            const ore = Number(textCifre);
+            if (ore >= 0 && ore <= 48) {
+                bufferTastare.current = {rand: r, zi: z, cifre: textCifre, timp: acumTimp};
+                const val = ore === 0 ? '' : `@M${ore * 60}`;
+                completeaza(val);
             }
         }
     }
@@ -764,7 +785,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
             </select></label>
             <button type="button" className="buton secundar buton-luna-nav" aria-label={t('pontaj.luna_urmatoare')} disabled={ocupat} onClick={() => schimbaLunaRelativ(1)}>▶</button></form>
             <button className="buton primar" disabled={ocupat || incarcare || !modificari.size || lunaBlocata} title={lunaBlocata ? t('motiv.luna_inchisa') : !modificari.size ? t('motiv.fara_modificari') : undefined} onClick={() => void salveaza()}>{t(ocupat ? 'ui.salvare' : 'pontaj.salveaza')}</button>
-            <button type="button" className="buton secundar" title={lunaBlocata ? t('pontaj.redeschide_luna') : t('pontaj.inchide_luna')} disabled={ocupat || incarcare} onClick={comutaStareLuna}>{lunaBlocata ? `🔓 ${t('pontaj.redeschide_luna')}` : `🔒 ${t('pontaj.inchide_luna')}`}</button></div>
+            <button type="button" className={`buton ${lunaBlocata ? 'secundar' : 'buton-sigilare'}`} title={lunaBlocata ? t('pontaj.redeschide_luna') : t('pontaj.inchide_luna')} disabled={ocupat || incarcare} onClick={comutaStareLuna}>{lunaBlocata ? `🔓 ${t('pontaj.redeschide_luna')}` : `🔒 ${t('pontaj.inchide_luna')}`}</button></div>
         {lunaBlocata && (
             <div className="banner-luna-blocata" role="alert">
                 <span className="simbol-lacat">🔒</span>
@@ -782,6 +803,19 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
             <div className="corp-dialog">
                 <p>{t(lunaBlocata ? 'pontaj.confirmare_redeschidere' : 'pontaj.confirmare_inchidere')}</p>
                 {lunaBlocata && stareLuna?.amprenta && <p className="text-discret">{t('pontaj.redeschidere_amprenta', {amprenta: stareLuna.amprenta})}</p>}
+                {!lunaBlocata && (
+                    <div className="sinteza-stare-luna">
+                        <strong>{t('pontaj.sinteza_titlu')}</strong>
+                        <ul>
+                            <li>{t('pontaj.sinteza_salariati', {numar: randuri.length})}</li>
+                            {modificari.size > 0 && (
+                                <li className="text-avertisment">
+                                    ⚠️ {t('pontaj.atentie_modificari_nesalvate', {numar: modificari.size})}
+                                </li>
+                            )}
+                        </ul>
+                    </div>
+                )}
                 <label>{t('pontaj.motiv_luna')}
                     <textarea name="motiv_luna" rows={3} value={motivLuna} disabled={ocupat} onChange={e => setMotivLuna(e.target.value)} required/>
                 </label>
@@ -875,6 +909,11 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                         disabled={ocupat || incarcare || calculare || lunaBlocata || modificari.size > 0 || !!absentaActiva || !originale.has(cheieActiva)}
                         onClick={() => void salveaza(originale.get(cheieActiva))}>{t('pontaj.plan_actualizeaza')}</button>}
                     {calcActiva?.calculabil && <span>{t('pontaj.inspectie_calculat', {ore: oreText(calcActiva.minute)})}</span>}
+                    {totaluriCalculate.get(randActiv.id)?.['OL'] && (
+                        <span className="insigna-total-inspectie" title={t('pontaj.total_titlu_OL')}>
+                            {t('pontaj.total_OL')}: <strong>{valoareText(totaluriCalculate.get(randActiv.id)?.['OL'])} h</strong>
+                        </span>
+                    )}
                     {inlocuiriActive?.length ? <span className="insigna-inlocuitor">{t('pontaj.inlocuieste_pe', {persoane: inlocuiriActive.map(z => { const coleg = date.angajati.find(x => x.id === z.angajat_id); return `${coleg ? `${numeAngajatFaraPrefix(coleg)}` : z.angajat_id} (${z.cod})`; }).join(', ')})}</span> : null}
                     {avertismentActiv && <span className="avertisment-text">{avertismentActiv}</span>}
                     {ultimaModificare?.cheie === cheieActiva && ultimaModificare.intrare && <span className="ultima-modificare" title={t('pontaj.ultima_modificare_indiciu')}>

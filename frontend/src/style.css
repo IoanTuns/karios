@@ -1433,3 +1433,56 @@ fieldset.filtre-profesionale{border:0;padding:0;min-width:0}
 .bara-filtre-comuna > details { flex: 1 1 320px; margin: 0; }
 .modul-planificare > .ux30-selectie { display: block; font-size: 12px; color: var(--discret); margin: 0 0 6px; padding: 0; border: 0; background: none; }
 
+/* F16-T38: Ergonomie pontaj (insigna total OL, buton sigilare luna, sinteza inchidere). */
+.insigna-total-inspectie {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 7px;
+    border-radius: 6px;
+    background: var(--cip-fond, #f0f4f1);
+    border: 1px solid var(--cip-contur, #d4ded7);
+    color: var(--verde, #17655a);
+    font-size: 11px;
+    font-weight: 550;
+}
+.insigna-total-inspectie strong {
+    font-weight: 700;
+    color: var(--text, #243c3a);
+}
+.buton-sigilare {
+    border-color: #d1b87a;
+    background: #fdfaf0;
+    color: #6d5115;
+}
+.buton-sigilare:hover {
+    background: #f8f1dc;
+}
+[data-theme="dark"] .buton-sigilare {
+    background: #342918;
+    border-color: #5d4924;
+    color: #ebd599;
+}
+[data-theme="dark"] .buton-sigilare:hover {
+    background: #443720;
+}
+.sinteza-stare-luna {
+    margin: 10px 0 14px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: var(--suprafata-usoara, #f3f7f4);
+    border: 1px solid var(--linie, #e1e8e5);
+    font-size: 13px;
+    line-height: 1.5;
+}
+.sinteza-stare-luna ul {
+    margin: 6px 0 0;
+    padding-left: 18px;
+}
+.sinteza-stare-luna li.text-avertisment {
+    color: #8c271e;
+    font-weight: 600;
+}
+[data-theme="dark"] .sinteza-stare-luna li.text-avertisment {
+    color: #f7a399;
+}
