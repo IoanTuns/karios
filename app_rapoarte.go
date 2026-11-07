@@ -124,6 +124,18 @@ func (a *App) PregatesteRaport(c rapoarte.Cerere) RaspunsRaport {
 	}
 	return a.raspunsDocumentRaport(doc, c)
 }
+
+// ColoaneModelRaport ruleaza SQL-ul unui model si intoarce doar coloanele si schema,
+// fara PDF (F09-T27). Editorul le foloseste ca sa construiasca sau sa actualizeze
+// tabelul sablonului; inainte rula o previzualizare in modul vechi „tabel”, al carui
+// motor a fost sters in F09-T23, si primea mereu rapoarte.model_neconvertit.
+func (a *App) ColoaneModelRaport(d rapoarte.Definitie, c rapoarte.Cerere) RaspunsRaport {
+	doc, err := rapoarte.Nou(a.db).PrevizualizeazaFlexibil(a.contextLucru(), d, c, time.Now().UTC())
+	if err != nil {
+		return RaspunsRaport{Eroare: mesajRaport(err)}
+	}
+	return RaspunsRaport{Document: &rapoarte.Document{Coloane: doc.Coloane, Schema: doc.Schema}}
+}
 func (a *App) PrevizualizeazaModelRaport(d rapoarte.Definitie, c rapoarte.Cerere) RaspunsRaport {
 	doc, err := rapoarte.Nou(a.db).PrevizualizeazaFlexibil(a.contextLucru(), d, c, time.Now().UTC())
 	if err != nil {

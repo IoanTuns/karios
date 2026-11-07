@@ -139,6 +139,17 @@ describe('sablon pdfme', () => {
         expect(stareTabel(JSON.stringify({basePdf: {}, schemas: [[]]}), [{cod: 'a', titlu: 'a'}]).exista).toBe(false);
     }, 30000);
 
+    it('nu raporteaza nepotrivire la tabelele adaptive pontixTitluri (F09-T27)', async () => {
+        // Ca la modelele standard si cele convertite: tabelul urmeaza singur SQL-ul la generare.
+        const s = JSON.parse(await sablonDinColoane([], pagina, '{currentPage}'));
+        const tabel = s.schemas[0].find((e: {name: string}) => e.name === 'tabel');
+        tabel.pontixTitluri = true;
+        const coloane = ['data', 'ziua', 'nume_si_prenume', 'observatii'].map(cod => ({cod, titlu: cod}));
+        expect(stareTabel(JSON.stringify(s), coloane)).toEqual({exista: true, potrivit: true, adaugate: [], eliminate: []});
+        delete tabel.pontixTitluri;
+        expect(stareTabel(JSON.stringify(s), coloane).potrivit).toBe(false);
+    }, 30000);
+
     it('are traduceri RO si EN pentru toate etichetele editorului (UIR-06)', () => {
         const ro = catalogRo as Record<string, string>, en = catalogEn as Record<string, string>;
         const lipsa = (cheiPdfme as string[]).filter(k => !ro['pdfme.' + k] || !en['pdfme.' + k]);

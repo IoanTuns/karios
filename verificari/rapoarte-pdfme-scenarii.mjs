@@ -39,7 +39,8 @@ export function simularePdfme(fonturi) {
         const doc = {...r.document, coloane: vizibile.map(cod => ({cod, titlu: cod.replaceAll('_', ' '), pondere: 10}))};
         const randuri = Array.from({length: 45}, (_, i) => vizibile.map((cod, j) => cod === 'angajat' ? `Dr. Ștefănescu Ana ${i + 1}` : cod === 'marca' ? `DEMO-${String(i + 1).padStart(3, '0')}` : String((i * 7 + j) % 160)));
         doc.randuri = randuri.slice(0, 10).map(valori => ({valori, culori: []}));
-        if (f.mod_aspect !== 'PDFME') return {...r, document: doc};
+        // F09-T27: ca in Go dupa F09-T23, modul vechi „tabel” nu mai are motor.
+        if (f.mod_aspect !== 'PDFME') return window.__coloaneSimulate ? {...r, document: doc} : {eroare: {cod: 'rapoarte.model_neconvertit'}};
         const sablon = JSON.parse(f.sablon);
         const tabel = sablon.schemas.flat().find(e => e.type === 'table' && e.name === 'tabel' && !e.readOnly);
         if (tabel && tabel.head.length !== vizibile.length) return {eroare: {cod: 'rapoarte.pdfme_coloane', param: {sablon: String(tabel.head.length), date: String(vizibile.length)}}};
@@ -49,6 +50,14 @@ export function simularePdfme(fonturi) {
         intrari.pontix_stiluri = JSON.stringify({randuri: randuriAldine, celule: {'0:1': {cursiv: true, aliniere: 'R'}}});
         window.__pdfmeCereri = (window.__pdfmeCereri || 0) + 1;
         return {...r, document: doc, pdf: '', generare_pdfme: true, sablon: f.sablon, intrari, token: 'pdfme-' + window.__pdfmeCereri};
+    };
+    // F09-T27: coloanele si schema fara PDF, ca ColoaneModelRaport din Go.
+    App.ColoaneModelRaport = async (d, c) => {
+        window.__coloaneSimulate = true;
+        try {
+            const r = await App.PrevizualizeazaModelRaport(d, c);
+            return r.eroare ? r : {document: {coloane: r.document.coloane, schema: r.document.schema}, eroare: null};
+        } finally { window.__coloaneSimulate = false; }
     };
     App.FinalizeazaRaportPdfme = async (token, pdf) => {
         window.__pdfmeFinal = {token, octeti: atob(pdf).length};

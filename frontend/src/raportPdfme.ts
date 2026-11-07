@@ -264,6 +264,9 @@ function coduriTabel(tabel: TabelSablon, coloane: ColoanaSablon[]): string[] {
 export function stareTabel(sablon: string, coloane: ColoanaSablon[]): StareTabel {
     const tabel = tabelDate(JSON.parse(sablon));
     if (!tabel) return {exista: false, potrivit: false, adaugate: coloane.map(c => c.cod), eliminate: []};
+    // F09-T27: tabelele marcate pontixTitluri (modelele standard si cele convertite) urmeaza
+    // singure coloanele SQL la generare (SablonPentruDocument), deci nu sunt nepotrivite.
+    if ((tabel as Record<string, unknown>)['pontixTitluri'] === true) return {exista: true, potrivit: true, adaugate: [], eliminate: []};
     const vechi = coduriTabel(tabel, coloane), noi = coloane.map(c => c.cod);
     const adaugate = noi.filter(c => !vechi.includes(c)), eliminate = vechi.filter(c => !noi.includes(c));
     return {exista: true, potrivit: !adaugate.length && !eliminate.length && vechi.join('|') === noi.join('|'), adaugate, eliminate};

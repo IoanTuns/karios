@@ -314,6 +314,10 @@ export function PrevizualizeazaModelRaport(arg1, arg2) {
   return window['go']['main']['App']['PrevizualizeazaModelRaport'](arg1, arg2);
 }
 
+export function ColoaneModelRaport(arg1, arg2) {
+  return window['go']['main']['App']['ColoaneModelRaport'](arg1, arg2);
+}
+
 export function PrevizualizeazaPlanAI(arg1) {
   return window['go']['main']['App']['PrevizualizeazaPlanAI'](arg1);
 }

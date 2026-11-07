@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.56 - 2026-11-07
+
+F09-T27, defect raportat de utilizator. In Definire rapoarte, editorul afla coloanele SQL printr-o previzualizare in modul vechi „tabel”, al carui motor a fost sters in F09-T23; serverul raspundea „Acest model nu a putut fi trecut pe editorul vizual”, iar „Actualizeaza tabelul din SQL”, „Sablon nou din coloanele SQL”, crearea automata a sablonului si incarcarea schemei nu functionau. Operatie noua ColoaneModelRaport (coloanele si schema, fara PDF), folosita de editor. Tabelele adaptive (pontixTitluri: modelele standard si cele convertite), pe care Go le potriveste singur cu SQL-ul la generare, nu mai sunt semnalate ca nepotrivite. Puntea simulata a scenariilor Edge refuza acum modul vechi, ca backendul real. Manualul revizuit fara modificari de continut.
+
 ## 0.92.55 - 2026-11-07
 
 F14-T36 (D091). Folderul motorului si al modelelor AI iese din karios/ si sta la acelasi nivel cu el, langa pontix.exe: karios/ pentru date, ai/ pentru LLM. La pornire, un karios/ai existent se muta in ai/ printr-o redenumire (fara copierea modelelor); daca nu se poate, aplicatia il foloseste pe cel vechi si reincearca la pornirea urmatoare; cand exista ambele, se foloseste ai/. build.ps1 pune llama-server.exe in ai/. Manual 1.59.
