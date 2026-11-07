@@ -299,7 +299,7 @@ function App() {
                     : ecran === 'jurnal_modificari' ? <Jurnal date={date}/>
                     : ecran === 'conturi' ? <EcranConturi/>
                     : ecran === 'reguli_pontaj' ? <ReguliPontaj date={date} onModificari={setPontajModificat} onOcupat={setPontajOcupat}/>
-                    : ecran === 'definire_rapoarte' ? <DefinireRapoarte/>
+                    : ecran === 'definire_rapoarte' ? <DefinireRapoarte date={date}/>
                     : ecran === 'rapoarte' ? <GenerareRapoarte onPerioada={setPerioadaRaport} key={revizieNavigare} initial={perioadaRaport} date={date}/>
                     : ecran === 'asistent_ai' ? <AsistentAI intrebareAjutor={intrebareAjutor} onAjutor={(id, versiune) => setAjutor({ecran: 'asistent_ai', id, versiune})} date={date} perioadaEcran={contextPontaj.current ? {an: contextPontaj.current.an, luna: contextPontaj.current.luna} : contextPlanificare} onDeschideConcediu={c => { setFiltruAbsente({an: Number(c.deLa.slice(0, 4)), angajatId: c.angajatId}); setCerereConcediu(c); setEcran('absente'); setEroare(''); setMesaj(''); }} onDeschidePontaj={(an, luna) => { contextPontaj.current = { an, luna, sectie: '', departament: '', categorieProgram: '', cautare: '', filtruRanduri: '', selectie: null, derulareX: 0, derulareY: 0 }; setEcran('pontaj'); setEroare(''); setMesaj(''); }}/>
                     : ecran === 'setari' ? <><ConfigurareGhidata date={date} navigheaza={(e,v)=>{if(['angajati','schimburi','categorii_program','reguli_pontaj'].includes(e)&&schimbaEcran(e as Ecran)){setVerificare(v||'');setCautare('');setSectie('');setDepartament('');setStare('activi');setFiltruProfesional({...filtruProfesionalGol});setSelectati([]);}}}/><Setari onDate={setDate} date={date} ocupat={ocupat}

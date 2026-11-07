@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.60 - 2026-11-07
+
+F09-T28, defect raportat de utilizator. In Definire rapoarte, dezactivarea (sau reactivarea) unui model SQL cerea „Previzualizeaza modelul modificat inainte de salvare”, iar previzualizarea fisei individuale esua cu „Alege un angajat valid pentru fisa individuala”, deci modelul nu se putea dezactiva. Acum schimbarea doar a starii Activ nu mai cere previzualizare, iar editorul are un selector de angajat la previzualizare cand SQL-ul foloseste fisa_individuala (implicit primul angajat activ). Manual 1.63.
+
 ## 0.92.59 - 2026-11-07
 
 F08-T13 (D092). SQL-ul rapoartelor are tabelul nou pontaj_totaluri (angajat_id, angajat, marca, ol, co, cm, cfp, cve, dlg, fmp, tzln, tocn), cu totalurile Pontajului. TZLN si TOCN au aceleasi valori ca total_zile_cf_contract si total_ore_cf_contract din tabelul lunar. Fiind separat, tabelul nu apare in niciun raport existent (SELECT * FROM lunar ramane neschimbat); TOCN se foloseste doar cand SQL-ul il cere explicit. Manual 1.62.

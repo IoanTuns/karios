@@ -913,3 +913,8 @@ SELECT p.angajat, p.ol, p.tocn, p.ol - p.tocn AS diferenta
 FROM pontaj_totaluri p ORDER BY p.angajat
 ```
 
+### Dezactivarea unui model de raport și fișa individuală (0.92.60)
+
+- Pentru a activa sau dezactiva un model, deschideți-l în **Setări › Definire rapoarte**, bifați sau debifați **Activ** și salvați. Schimbarea stării nu mai cere previzualizare.
+- Când SQL-ul modelului folosește fișa individuală, sub **Verifică datele** apare câmpul **Angajat**: alegeți persoana pentru care se face previzualizarea (implicit primul angajat activ).
+
