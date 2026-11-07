@@ -4,6 +4,7 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 
 | Data | Acțiune | Cine | Legături |
 | --- | --- | --- | --- |
+| 2026-11-07 | La cererea lui Ioan Tuns („push in main”): ramura F16-T38-ergonomie-pontaj (0.92.70: navigare Numpad, Enter vertical, buffer tastare directă, OL în inspecție celulă, securizare Închide luna) împinsă în main ca fast-forward; main = a5622df. | Ioan Tuns, Antigravity | [versiuni](versiuni.md) |
 | 2026-11-07 | F16-T38 (0.92.70): Ergonomie grilă pontaj pe ramura F16-T38-ergonomie-pontaj (worktree karios-antigravity). Navigare Numpad fluidă (Enter coboară vertical pe aceeași zi, Tab orizontal pe zile), buffer de tastare numerică directă pe celula activă fără forțarea saltului orizontal, afișare instantanee a orelor lucrate (OL) în bara de inspecție a celulei active, buton distinct de sigilare și card de sinteză cu avertizare la celule modificate nesalvate în dialogul Închide luna. Verificate: vitest (48 teste), TypeScript (tsc clean), frontend build, gofmt, go vet și teste Go. | Antigravity | [F16](functionalitati/F16-diagnoza-si-optimizari-ui.md), [versiuni](versiuni.md) |
 | 2026-11-07 | La cererea lui Ioan Tuns: ramura F16-T37-remedii-ux (analiza UX, F09-T28, remediile R1–R9, 0.92.60–0.92.69) impinsa in main ca fast-forward; main = bbe9e57, CI pe GitHub trecut. | Ioan Tuns, Claude | [versiuni](versiuni.md) |
 | 2026-11-07 | Build 0.92.69 (`.uild.ps1`) din 92a8657: build/bin/pontix-0.92.69-20261107-190146-…/pontix.exe, cu zip si manualele editia 1.67. | Claude | [versiuni](versiuni.md) |
