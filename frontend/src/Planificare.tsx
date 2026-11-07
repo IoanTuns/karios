@@ -30,7 +30,7 @@ import {datebaza, calcul, main, rapoarte} from '../wailsjs/go/models';
 import {Dialog, denumireSectie, denumireDepartament, durata} from './Formulare';
 import {oraText} from './Schimburi';
 import {notifica} from './Toast';
-import {formatData, formateazaDataSigura} from './formatare';
+import {formatData, formateazaDataSigura, dataAfisata} from './formatare';
 import {completeazaRaport} from './raportPdfme';
 
 export {programPlanificat} from './eligibilitateProgram';
@@ -481,7 +481,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj,onModificari
             </select>
             <input name="cautare_planificare" aria-label={t('ui.cautare')} placeholder={t('ui.cautare_indiciu')} value={cautare} disabled={ocupat} onChange={e=>setCautare(e.target.value)}/>
             {mod==='grila'&&<div className="grup-zoom-grila" role="group" aria-label={t('ui.densitate_grila')}>
-                <span className="eticheta-zoom">🔎 {t('ui.zoom')}</span>
+                <span className="eticheta-zoom">{t('ui.zoom')}</span>
                 <button type="button" className={`buton-zoom ${zoomGrila === 'compact' ? 'activ' : ''}`} title={t('ui.zoom_compact')} onClick={() => schimbaZoom('compact')}>S</button>
                 <button type="button" className={`buton-zoom ${zoomGrila === 'normal' ? 'activ' : ''}`} title={t('ui.zoom_normal')} onClick={() => schimbaZoom('normal')}>M</button>
                 <button type="button" className={`buton-zoom ${zoomGrila === 'extins' ? 'activ' : ''}`} title={t('ui.zoom_extins')} onClick={() => schimbaZoom('extins')}>L</button>
@@ -680,7 +680,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj,onModificari
                         <tbody>
                             {acoperire.zile.filter(z=>!doarDeficit||!z.complet).map(z=>{
                                 return <tr key={z.data} className={!z.complet?'rand-lipsa':''}>
-                                    <td><strong>{z.data}</strong></td>
+                                    <td><strong><time dateTime={z.data}>{dataAfisata(z.data)}</time></strong></td>
                                     <td>
                                         {z.este_sarbatoare?<span className="eticheta-intrare">{z.denumire_sarbatoare}</span>:<span className="text-discret">{formatData(i18n.language,{weekday:'long',timeZone:'UTC'}).format(new Date(`${z.data}T12:00:00Z`))}</span>}
                                     </td>
@@ -778,7 +778,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj,onModificari
                         <tbody>
                             {publicare.rezultat.randuri.map(r=><tr key={r.pozitie_id}>
                                 <th scope="row">{nume(r.angajat_id)} / {date.angajati.find(a=>a.id===r.angajat_id)?.marca}</th>
-                                <td>{r.data}</td>
+                                <td><time dateTime={r.data}>{dataAfisata(r.data)}</time></td>
                                 <td>{r.inainte||'—'}{r.pontaje_efective>0&&<small>{t('planificare.efective_retrase',{numar:r.pontaje_efective})}</small>}</td>
                                 <td>{textSchimb(r.schimb_id)}</td>
                                 <td>{t(`planificare.publicare_${r.stare}`)}{r.motiv&&<small>{t(`planificare.motiv_${r.motiv}`)}</small>}</td>

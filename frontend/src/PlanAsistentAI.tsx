@@ -5,7 +5,7 @@ import {ConfirmaPlanAI, ExportaPlanAICSV, ListaSchimburi, PrevizualizeazaPlanAI,
 import {ai, datebaza} from '../wailsjs/go/models';
 import {SabloaneAsistentAI} from './SabloaneAsistentAI';
 import {AnalizaPlanAI} from './AnalizaPlanAI';
-import {formatData} from './formatare';
+import {formatData, dataAfisata} from './formatare';
 
 // I078: planurile care aveau o previzualizare cand zona a fost parasita. La revenire,
 // previzualizarea nu se reface din memorie: tokenul vechi nu trebuie sa para confirmabil.
@@ -267,7 +267,7 @@ export function PlanAsistentAI({idPlan, intentie, date, rezultat, blocat, onSchi
         <section className="verificare-pontaj-ai"><h4>{t('ai.verificare_titlu')}</h4><p className="text-discret">{t('ai.verificare_indiciu')}</p>
             <button type="button" className="buton secundar" disabled={blocat || ocupat || !verificabil} onClick={() => void verifica()}>{t('ai.verificare_porneste')}</button>
             {verificare && <><p role="status">{t('ai.verificare_rezumat', {celule: verificare.celule, numar: verificare.semnale.length})}</p>
-                <ul>{verificare.semnale.slice(paginaVerificare * 50, (paginaVerificare + 1) * 50).map((s, index) => <li key={`${s.angajat_id}/${s.data}/${index}`}>{numeAngajat(date.angajati.find(a=>a.id===s.angajat_id)) || s.nume} ({s.marca}) · {s.data} · {s.valoare || '—'} · {s.motiv === 'regula' ? t('ai.verificare_regula', {cod:s.regula_cod, nume:s.regula_nume, severitate:t(`ai.severitate_${s.severitate}`)}) : t(`ai.verificare_${s.motiv}`)}</li>)}</ul>
+                <ul>{verificare.semnale.slice(paginaVerificare * 50, (paginaVerificare + 1) * 50).map((s, index) => <li key={`${s.angajat_id}/${s.data}/${index}`}>{numeAngajat(date.angajati.find(a=>a.id===s.angajat_id)) || s.nume} ({s.marca}) · {dataAfisata(s.data)} · {s.valoare || '—'} · {s.motiv === 'regula' ? t('ai.verificare_regula', {cod:s.regula_cod, nume:s.regula_nume, severitate:t(`ai.severitate_${s.severitate}`)}) : t(`ai.verificare_${s.motiv}`)}</li>)}</ul>
                 {verificare.semnale.length > 50 && <nav className="actiuni-plan-ai" aria-label={t('ai.plan_pagini')}><button type="button" className="buton secundar mic" disabled={paginaVerificare === 0} onClick={() => setPaginaVerificare(p => p - 1)}>{t('ai.plan_anterior')}</button><span>{paginaVerificare + 1} / {Math.ceil(verificare.semnale.length / 50)}</span><button type="button" className="buton secundar mic" disabled={(paginaVerificare + 1) * 50 >= verificare.semnale.length} onClick={() => setPaginaVerificare(p => p + 1)}>{t('ai.plan_urmator')}</button></nav>}
             </>}
         </section>

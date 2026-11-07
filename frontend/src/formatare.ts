@@ -1,3 +1,4 @@
+import i18next from 'i18next';
 // Formatterele de dată, create o singură dată pentru fiecare limbă și set de opțiuni (F16-T14,
 // PERF-2): crearea unui Intl.DateTimeFormat e scumpă, iar antetele grilelor o făceau pentru fiecare
 // zi la fiecare randare, adică la fiecare pas de selecție.
@@ -35,3 +36,16 @@ export function formateazaDataSigura(
         return fallback;
     }
 }
+
+// dataAfisata (R5, analiza UX 0.92.59): o data AAAA-LL-ZZ afisata in limba interfetei,
+// „1 oct. 2026”, sau cu ziua saptamanii („joi, 1 oct. 2026”). Valorile invalide raman cum sunt.
+export function dataAfisata(iso: string, cuZi = false): string {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(iso || '')) return iso || '';
+    const d = new Date(`${iso}T12:00:00Z`);
+    if (Number.isNaN(d.getTime())) return iso;
+    const opt: Intl.DateTimeFormatOptions = cuZi
+        ? {weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC'}
+        : {dateStyle: 'medium', timeZone: 'UTC'};
+    try { return formatData(i18next.language || 'ro', opt).format(d); } catch { return iso; }
+}
+

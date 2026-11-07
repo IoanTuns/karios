@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest';
-import {formatData, formateazaDataSigura} from './formatare';
+import {dataAfisata, formatData, formateazaDataSigura} from './formatare';
 
 describe('formatData', () => {
     it('refolosește formatterul pentru aceeași limbă și aceleași opțiuni', () => {
@@ -48,3 +48,18 @@ describe('ore in format 24h', () => {
         });
     }
 });
+
+describe('dataAfisata (R5)', () => {
+    it('afișează data în limba interfeței, nu AAAA-LL-ZZ', () => {
+        const asteptat = new Intl.DateTimeFormat('ro', {dateStyle: 'medium', timeZone: 'UTC'}).format(new Date('2026-10-01T12:00:00Z'));
+        expect(dataAfisata('2026-10-01')).toBe(asteptat);
+        expect(dataAfisata('2026-10-01')).not.toContain('2026-10');
+        expect(dataAfisata('2026-10-01', true)).toContain(new Intl.DateTimeFormat('ro', {weekday: 'short', timeZone: 'UTC'}).format(new Date('2026-10-01T12:00:00Z')));
+    });
+    it('lasă neschimbate valorile care nu sunt date', () => {
+        expect(dataAfisata('')).toBe('');
+        expect(dataAfisata('—')).toBe('—');
+        expect(dataAfisata('2026-13-45')).toBe('2026-13-45');
+    });
+});
+

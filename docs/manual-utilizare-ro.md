@@ -491,7 +491,7 @@ Subsolul PDF explica fiecare coloana vizibila, pe rand separat: semnificatie, su
 
 O regula neconfigurata produce liniuta, nu zero. Legenda descrie configuratia executata, inclusiv limitarile existente: norma datorata, marcajul T, noua separare a orelor de garda si soldurile lunare nu sunt inca integrate in acest raport. Explicatiile nu confirma automat o regula de plata.
 
-## Zoom pentru intreaga interfata
+## Mărirea interfeței (fost „Zoom”)
 
 In antetul fiecarui ecran folositi minus pentru micsorare, plus pentru marire si butonul procentual pentru revenire la 100%. Sunt disponibile niveluri intre 75% si 200%; alegerea este pastrata local. Scurtaturi: Ctrl+- (micsorare), Ctrl++ (marire), Ctrl+0 (resetare), inclusiv in dialoguri. Zoomul global este independent de densitatea S/M/L din Pontaj si Planificare. PDF-urile si Excel-urile exportate isi pastreaza dimensiunile.
 
@@ -917,4 +917,10 @@ FROM pontaj_totaluri p ORDER BY p.angajat
 
 - Pentru a activa sau dezactiva un model, deschideți-l în **Setări › Definire rapoarte**, bifați sau debifați **Activ** și salvați. Schimbarea stării nu mai cere previzualizare.
 - Când SQL-ul modelului folosește fișa individuală, sub **Verifică datele** apare câmpul **Angajat**: alegeți persoana pentru care se face previzualizarea (implicit primul angajat activ).
+
+### Densitate și mărire (0.92.62)
+
+- **Mărire interfață** (butoanele − 100% + din antet, Ctrl+−, Ctrl++, Ctrl+0) mărește sau micșorează tot ecranul.
+- **Densitate** (Compact / Normal / Aerisit, deasupra grilelor Pontaj și Planificare) schimbă doar înălțimea rândurilor grilei.
+- Datele apar peste tot în forma „1 oct. 2026”; banda de selecție arată numele persoanelor alese.
 

@@ -1124,7 +1124,7 @@
   "ui.inchide_notificarea": "Close the notification",
   "pontaj.export_excel_titlu": "Excel export (.xlsx)",
   "ui.densitate_grila": "Grid density",
-  "ui.zoom": "Zoom:",
+  "ui.zoom": "Density:",
   "ui.zoom_compact": "Compact (44 px), maximum density",
   "ui.zoom_normal": "Normal (52 px), balanced",
   "ui.zoom_extins": "Large (62 px), easy to read",
@@ -1594,7 +1594,7 @@
   "rapoarte.legenda_toate_profilele": "all profiles",
   "rapoarte.legenda_garda": "on-call",
   "rapoarte.legenda_nu_garda": "not on-call",
-  "ui.zoom_interfata": "Interface zoom",
+  "ui.zoom_interfata": "Interface magnification",
   "ui.zoom_micsoreaza": "Zoom out (Ctrl+-)",
   "ui.zoom_mareste": "Zoom in (Ctrl++)",
   "ui.zoom_reseteaza": "Reset to 100% (Ctrl+0)",
@@ -1715,7 +1715,6 @@
   "ux30.eligibilitate": "Programs available in Scheduling and exclusion reasons",
   "ux30.eligibilitate_indiciu": "This list uses the category and program classification. The contract sets working norms and rules; on-call employment links are configured separately. Changing a category does not publish programs automatically.",
   "ux30.permis": "Available in Scheduling",
-  "ux30.selectie": "Selection: {{numar}} employment numbers, {{deLa}} - {{panaLa}}. Numbers: {{marci}}.",
   "ux30.angajat_resetat": "The selected employee no longer matches the filters. The selection was cleared; choose from the current results.",
   "ux30.elimina_filtru": "Remove filter {{filtru}}: {{valoare}}",
   "ux30.panou_lunar": "Monthly activities",
@@ -2143,5 +2142,7 @@
   "pontaj.sursa_ZILE_ABSENTA_ALTELE": "Days of the other absences, without the chosen types",
   "pontaj.sursa_ZILE_LUCRATOARE_NETE": "Net working days (without weekends and public holidays)",
   "pontaj.sursa_ORE_NORMA_LUNA": "Net working days × daily norm",
-  "pontaj.motiv_fara_norma": "The employee has no daily norm (on-call or contract without a daily norm), so TOCN cannot be calculated."
+  "pontaj.motiv_fara_norma": "The employee has no daily norm (on-call or contract without a daily norm), so TOCN cannot be calculated.",
+  "ux30.selectie_text": "Selection: {{persoane}} · {{perioada}}",
+  "ux30.selectie_si_altii": "and {{numar}} more"
 }

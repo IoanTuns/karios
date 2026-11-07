@@ -11,7 +11,7 @@ import {CitesteAbsente, CitesteCalendar, CitesteDocumentAbsenta, SalveazaCategor
 import {datebaza, main} from '../wailsjs/go/models';
 import {Dialog} from './Formulare';
 import {PanouGanttAbsente} from './GanttAbsente';
-import {formatData} from './formatare';
+import {formatData, dataAfisata} from './formatare';
 import {grupeazaPeCereri, type GrupCerere} from './grupareCereri';
 
 const naturi = ['ODIHNA', 'MEDICAL', 'SPECIAL'];
@@ -239,7 +239,7 @@ export function Absente({date, filtruInitial, cerereConcediu, onCerereDeschisa}:
                     return <tr key={k}>
                         <td><input type="checkbox" aria-label={t('absente.selecteaza_zi', {data:z.data, nume:`${numeAngajat(a)}`})} disabled={ocupat} checked={selectate.has(k)} onChange={e => setSelectate(vechi => { const noi = new Set(vechi); if (e.target.checked) noi.add(k); else noi.delete(k); return noi; })}/></td>
                         <td>{numeAngajat(a)}<small className="text-discret"> · {a?.marca}</small></td>
-                        <td>{z.data}{!z.activ&&<small className="zi-urmatoare">{t('ui.inactiv')}</small>}</td>
+                        <td><time dateTime={z.data}>{dataAfisata(z.data)}</time>{!z.activ&&<small className="zi-urmatoare">{t('ui.inactiv')}</small>}</td>
                         <td><strong>{z.cod}</strong> · {tip ? numeTip(tip, i18n.language) : z.cod}</td>
                         <td>{tip && numeCategorie(tip.categorie_id||tip.categorie)}</td>
                         <td>{z.nr_inregistrare || '—'}</td>

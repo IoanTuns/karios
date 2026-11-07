@@ -15,7 +15,7 @@ import {AmprentaLuna} from './Audit';
 import {Dialog, denumireSectie, denumireDepartament} from './Formulare';
 import {programPlanificat} from './Planificare';
 import {notifica} from './Toast';
-import {formatData} from './formatare';
+import {formatData, dataAfisata} from './formatare';
 import {AsistentAI} from './AsistentAI';
 
 type Pozitie = {rand: number; zi: number};
@@ -803,7 +803,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                     🤖 {t('ui.asistent_ai')}
                 </button>
                 <div className="grup-zoom-grila" role="group" aria-label={t('ui.densitate_grila')}>
-                    <span className="eticheta-zoom">🔎 {t('ui.zoom')}</span>
+                    <span className="eticheta-zoom">{t('ui.zoom')}</span>
                     <button type="button" className={`buton-zoom ${zoomGrila === 'compact' ? 'activ' : ''}`} title={t('ui.zoom_compact')} onClick={() => schimbaZoom('compact')}>{t('ux30.compact')}</button>
                     <button type="button" className={`buton-zoom ${zoomGrila === 'normal' ? 'activ' : ''}`} title={t('ui.zoom_normal')} onClick={() => schimbaZoom('normal')}>{t('ux30.normal')}</button>
                     <button type="button" className={`buton-zoom ${zoomGrila === 'extins' ? 'activ' : ''}`} title={t('ui.zoom_extins')} onClick={() => schimbaZoom('extins')}>{t('ux30.aerisit')}</button>
@@ -851,7 +851,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
             {randActiv && dataActiva && <div className="inspectie-celula" role="region" aria-label={t('pontaj.inspectie_titlu')}>
                 <div className="detalii-celula-activa">
                     <strong>{numeAngajatFaraPrefix(randActiv)}</strong>
-                    <span>{dataActiva}{sarbatori.get(dataActiva) ? ` · ${sarbatori.get(dataActiva)}` : ''}</span>
+                    <span>{dataAfisata(dataActiva, true)}{sarbatori.get(dataActiva) ? ` · ${sarbatori.get(dataActiva)}` : ''}</span>
                     <span className="eticheta-contract">{textCodActiv}</span>
                     {schimbActiv && programPlanificat(schimbActiv) && <button type="button" className="legatura"
                         title={t('pontaj.plan_actualizeaza_indiciu', {nume: `${numeAngajatFaraPrefix(randActiv)}`, data: dataActiva})}
