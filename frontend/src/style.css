@@ -1400,7 +1400,7 @@ fieldset.filtre-profesionale{border:0;padding:0;min-width:0}
 .unelte-antet { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px; }
 .unelte-antet .actiuni-antet { margin-top: 0; }
 .unelte-antet .ajutor-antet, .unelte-antet .zoom-interfata { order: 0; }
-.continut-pontaj .antet { margin-bottom: 8px; }
+.continut-pontaj .antet, .continut-planificare .antet { margin-bottom: 8px; }
 
 /* R2: Pontaj pe un rand de unelte; actiunile rare in „Mai multe”, selectia in bara de inspectie. */
 .meniu-mai-multe { position: relative; }
@@ -1488,4 +1488,113 @@ fieldset.filtre-profesionale{border:0;padding:0;min-width:0}
 }
 [data-theme="dark"] .sinteza-stare-luna li.text-avertisment {
     color: #f7a399;
+}
+
+/* F16-T39: Planificare compactă pe un rând (I122). */
+.continut-planificare .unelte-perioada {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+}
+.continut-planificare .unelte-perioada form {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.continut-planificare .unelte-perioada input {
+    width: 88px;
+}
+.continut-planificare .unelte-perioada label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+}
+.modul-planificare .comutator-mod button {
+    padding: 5px 10px;
+    font-size: 12px;
+}
+.modul-planificare .ui28-etapes {
+    display: inline-flex;
+    gap: 6px;
+    padding: 0;
+    align-items: center;
+    margin-left: auto;
+}
+.modul-planificare .ui28-etapes span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 550;
+    border: 1px solid var(--linie);
+    background: var(--suprafata-usoara, #f3f7f4);
+    color: var(--text, #243c3a);
+    white-space: nowrap;
+}
+.modul-planificare .ui28-etapes span.etapa-nesalvata {
+    border-color: #e4c6c1;
+    background: var(--sterge-fond, #fdf6f5);
+    color: var(--sterge-text, #7a3e36);
+}
+.modul-planificare .ui28-etapes span.etapa-plan {
+    border-color: #cbd7e6;
+    background: #eef3f9;
+    color: var(--plan-nepublicata, #2b4c7e);
+}
+.modul-planificare .ui28-etapes span.etapa-publicata {
+    border-color: #acd0b8;
+    background: var(--grila-selectie, #dcefe5);
+    color: var(--plan-publicata, #17655a);
+}
+[data-theme="dark"] .modul-planificare .ui28-etapes span.etapa-nesalvata {
+    background: #341818;
+    border-color: #5d2424;
+    color: #f7a399;
+}
+[data-theme="dark"] .modul-planificare .ui28-etapes span.etapa-plan {
+    background: #192738;
+    border-color: #2e445e;
+    color: #9ec2e6;
+}
+[data-theme="dark"] .modul-planificare .ui28-etapes span.etapa-publicata {
+    background: #142e24;
+    border-color: #244e3d;
+    color: #a3dfc2;
+}
+.modul-planificare .filtre-planificare {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 6px;
+    position: relative;
+    flex-wrap: wrap;
+}
+.modul-planificare .filtre-planificare > input {
+    width: 205px;
+}
+.modul-planificare .paleta-planificare {
+    margin: 0 0 6px 0;
+    padding: 5px 10px;
+    gap: 6px;
+}
+.modul-planificare .paleta-planificare .cip-schimb {
+    padding: 3px 8px;
+    font-size: 11px;
+}
+.modul-planificare .inspectie-celula {
+    gap: 6px;
+    padding: 6px 10px;
+    margin-bottom: 5px;
+}
+.alerta-reguli-planificare {
+    padding: 8px 14px;
+    margin: 6px 0;
+}
+.alerta-reguli-planificare summary {
+    cursor: pointer;
 }

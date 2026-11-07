@@ -264,7 +264,7 @@ function App() {
                 </div>
             </div>
         </aside>
-        <main className={`continut ${ecran === 'pontaj' ? 'continut-pontaj' : ''} ${esteInSetari ? 'continut-setari' : ''}`}>
+        <main className={`continut ${ecran === 'pontaj' ? 'continut-pontaj' : ''} ${ecran === 'planificare' ? 'continut-planificare' : ''} ${esteInSetari ? 'continut-setari' : ''}`}>
             <header className="antet">
                 <DialogParasire/>{panouLunar&&date&&<PanouLunar date={date} initial={ecran==='planificare'?contextPlanificare:ecran==='rapoarte'?perioadaRaport:contextPontaj.current||contextPlanificare} nesalvat={pontajModificat} inchide={()=>setPanouLunar(false)} navigheaza={(e,an,luna)=>{const continua=()=>{setPontajModificat(false);contextPontaj.current={an,luna,sectie:'',departament:'',categorieProgram:'',cautare:'',filtruRanduri:'',selectie:null,derulareX:0,derulareY:0};setContextPlanificare({an,luna});setPerioadaRaport({an,luna});setRevizieNavigare(v=>v+1);setFiltruAbsente({an,angajatId:''});setPanouLunar(false);setEcran(e as Ecran);};if(ocupat||pontajOcupat)return;if(pontajModificat)void confirmaParasire().then(da=>{if(da)continua();});else continua();}}/>}
                 <AccesTabele/>

@@ -456,13 +456,13 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj,onModificari
                 <button type="button" className={mod==='acoperire'?'activ':''} onClick={()=>setMod('acoperire')}>{t('planificare.mod_acoperire')}</button>
                 <button type="button" className={mod==='lista'?'activ':''} onClick={()=>setMod('lista')}>{t('planificare.mod_lista')}</button>
             </div>
-            <div className="ui28-etapes" role="status"><span>{sumarModificat?t('ui28.sumar_nesalvat'):t('ui28.etapa_nesalvata',{numar:modificari.size})}</span><span>{t('ui28.etapa_plan',{numar:dePublicatTotal.length})}</span><span>{t('ui28.etapa_publicata',{numar:plan?.pozitii.filter(p=>p.activ&&p.stare==='PUBLICATA').length||0})}</span></div>
+            <div className="ui28-etapes" role="status">
+                <span className="etapa-nesalvata">{sumarModificat?t('ui28.sumar_nesalvat'):t('ui28.etapa_nesalvata',{numar:modificari.size})}</span>
+                <span className="etapa-plan">{t('ui28.etapa_plan',{numar:dePublicatTotal.length})}</span>
+                <span className="etapa-publicata">{t('ui28.etapa_publicata',{numar:plan?.pozitii.filter(p=>p.activ&&p.stare==='PUBLICATA').length||0})}</span>
+            </div>
             {mod==='grila'&&<button className="buton primar" disabled={ocupat||!modificari.size} onClick={salveazaPlanGrila}>{t('planificare.salveaza_grila')}</button>}
             <button className="buton secundar" disabled={ocupat||!dePublicatTotal.length} title={!dePublicatTotal.length ? t('motiv.nimic_de_publicat') : undefined} onClick={()=>void previzualizeazaPublicare()}>{t('planificare.previzualizeaza')}</button>
-            <button type="button" className="buton secundar" disabled={ocupat} onClick={deschideRaportGarzi}>{t('planificare.raport_garzi')}</button>
-            <button type="button" className="buton secundar" title={t('planificare.reguli_indiciu')} onClick={()=>setDialogReguli(true)}>⚙️ {t('planificare.reguli')} {incalcariReguli.length > 0 ? `(⚠️ ${incalcariReguli.length})` : ''}</button>
-            <button className="legatura" disabled={ocupat} onClick={()=>onDeschidePontaj(an,luna)}>{t('planificare.deschide_pontaj')}</button>
-            <button className="buton secundar" disabled={ocupat||incarcare} onClick={()=>setReincarcare(x=>x+1)}>{t('planificare.reincarca')}</button>
         </div>
 
         <div className="unelte-grila filtre-planificare">
@@ -480,14 +480,23 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj,onModificari
                 <option value="DUPA_AMIAZA">{t('planificare.sectiune_DUPA_AMIAZA')}</option>
             </select>
             <input name="cautare_planificare" aria-label={t('ui.cautare')} placeholder={t('ui.cautare_indiciu')} value={cautare} disabled={ocupat} onChange={e=>setCautare(e.target.value)}/>
-            {mod==='grila'&&<div className="grup-zoom-grila" role="group" aria-label={t('ui.densitate_grila')}>
-                <span className="eticheta-zoom">{t('ui.zoom')}</span>
-                <button type="button" className={`buton-zoom ${zoomGrila === 'compact' ? 'activ' : ''}`} title={t('ui.zoom_compact')} onClick={() => schimbaZoom('compact')}>S</button>
-                <button type="button" className={`buton-zoom ${zoomGrila === 'normal' ? 'activ' : ''}`} title={t('ui.zoom_normal')} onClick={() => schimbaZoom('normal')}>M</button>
-                <button type="button" className={`buton-zoom ${zoomGrila === 'extins' ? 'activ' : ''}`} title={t('ui.zoom_extins')} onClick={() => schimbaZoom('extins')}>L</button>
-            </div>}
             {mod==='lista'&&<FiltruStare nume="pozitii_planificare" eticheta="ui.filtru_stare_pozitii" valoare={starePozitii} schimba={s=>{setStarePozitii(s);setSelectateLista(new Set());}} disabled={ocupat}/>}
             {mod==='grila'&&modificari.size>0&&<span className="stare-modificari" aria-live="polite">{t('planificare.modificari_nesalvate',{numar:modificari.size})}</span>}
+            <details className="meniu-mai-multe" onKeyDown={e => { if (e.key === 'Escape' && e.currentTarget.open) { e.preventDefault(); e.stopPropagation(); e.currentTarget.open = false; e.currentTarget.querySelector('summary')?.focus(); } }}>
+                <summary className="buton secundar">{t('ui.mai_multe')}</summary>
+                <div className="lista-mai-multe" onClick={e => { const tinta = e.target as HTMLElement; if (tinta.closest('button') && !tinta.closest('.grup-zoom-grila')) (e.currentTarget.parentElement as HTMLDetailsElement).open = false; }}>
+                    <button type="button" className="buton secundar" disabled={ocupat} onClick={deschideRaportGarzi}>{t('planificare.raport_garzi')}</button>
+                    <button type="button" className="buton secundar" title={t('planificare.reguli_indiciu')} onClick={()=>setDialogReguli(true)}>⚙️ {t('planificare.reguli')} {incalcariReguli.length > 0 ? `(⚠️ ${incalcariReguli.length})` : ''}</button>
+                    <button type="button" className="buton secundar" disabled={ocupat} onClick={()=>onDeschidePontaj(an,luna)}>{t('planificare.deschide_pontaj')}</button>
+                    <button type="button" className="buton secundar" disabled={ocupat||incarcare} onClick={()=>setReincarcare(x=>x+1)}>{t('planificare.reincarca')}</button>
+                    {mod==='grila'&&<div className="grup-zoom-grila" role="group" aria-label={t('ui.densitate_grila')}>
+                        <span className="eticheta-zoom">{t('ui.zoom')}</span>
+                        <button type="button" className={`buton-zoom ${zoomGrila === 'compact' ? 'activ' : ''}`} title={t('ui.zoom_compact')} onClick={() => schimbaZoom('compact')}>{t('ux30.compact')}</button>
+                        <button type="button" className={`buton-zoom ${zoomGrila === 'normal' ? 'activ' : ''}`} title={t('ui.zoom_normal')} onClick={() => schimbaZoom('normal')}>{t('ux30.normal')}</button>
+                        <button type="button" className={`buton-zoom ${zoomGrila === 'extins' ? 'activ' : ''}`} title={t('ui.zoom_extins')} onClick={() => schimbaZoom('extins')}>L</button>
+                    </div>}
+                </div>
+            </details>
         </div>
 
         {cerereAbsente&&<FormularAbsente zi={null} lot={cerereAbsente.lot} date={date} absente={cerereAbsente.date} angajatImplicit={cerereAbsente.lot[0]?.angajat_id||''} ocupat={ocupat} eroare={eroare} inchide={()=>{setCerereAbsente(null);setEroare('');}} salveaza={salveazaAbsentePlan}/>}
@@ -508,14 +517,14 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj,onModificari
         </div>}
 
         {incalcariReguli.length > 0 && (
-            <div className="alerta-reguli-planificare" role="alert">
-                <div className="antet-alerta-reguli">
+            <details className="alerta-reguli-planificare" role="alert" open>
+                <summary className="antet-alerta-reguli">
                     <span>⚠️</span>
-                    <strong>Restricții și reguli medicale încălcate ({incalcariReguli.length}):</strong>
-                    <button type="button" className="legatura" onClick={()=>setDialogReguli(true)}>
+                    <strong>Restricții și reguli medicale încălcate ({incalcariReguli.length})</strong>
+                    <button type="button" className="legatura" onClick={e=>{e.preventDefault();e.stopPropagation();setDialogReguli(true);}}>
                         ⚙️ Configurează reguli
                     </button>
-                </div>
+                </summary>
                 <ul className="lista-incalcari-reguli">
                     {incalcariReguli.slice(0, 5).map((inc, idx) => (
                         <li key={idx}>
@@ -527,7 +536,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj,onModificari
                         <li className="text-discret">...și încă {incalcariReguli.length - 5} atenționări medicale.</li>
                     )}
                 </ul>
-            </div>
+            </details>
         )}
 
         {randActiv&&dataActiva&&<div className="inspectie-celula" role="region" aria-label={t('planificare.inspectie_titlu')}>
