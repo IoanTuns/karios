@@ -49,9 +49,18 @@ export function DefinireRapoarte({date}: {date?: datebaza.Date} = {}) {
     const [mesaj,setMesaj] = useState('');
     const modele = configuratie?.modele || [];
     function nou(d?: rapoarte.Definitie) {
-        const baza = d || modele[0]; if (!baza) return;
         setEroare(''); setMesaj('');
-        setEditare(new rapoarte.Definitie({...copiaza(baza),id:'',revizie:'',activ:true,continut:{...copiaza(baza.continut),ascunde_explicatii:d ? !!d.continut.ascunde_explicatii : true},denumire:d ? copiaza(d.denumire) : {ro:'',en:''}}));
+        if (d) {
+            setEditare(new rapoarte.Definitie({...copiaza(d),id:'',revizie:'',activ:true,continut:{...copiaza(d.continut),ascunde_explicatii:!!d.continut.ascunde_explicatii},denumire:copiaza(d.denumire)}));
+            return;
+        }
+        // F09-T31: un model nou porneste gol (SQL personalizat, fara antet, subsol sau SQL);
+        // copierea unui model existent ramane la „Duplică”.
+        const gol = () => ({ro:'',en:''});
+        const bloc = () => ({stanga:gol(),centru:gol(),dreapta:gol()});
+        setEditare(new rapoarte.Definitie({id:'',revizie:'',activ:true,denumire:gol(),antet:bloc(),subsol:bloc(),
+            continut:{sursa:'SQL_LIBER',coloane:['rezultat'],text:gol(),ascunde_explicatii:true,flexibil:flexibilInitial()},
+            pagina:{format:'A4',orientare:'PEISAJ',margine_mm:10,font_pt:8}}));
     }
     async function salveaza(d: rapoarte.Definitie) {
         if (blocat.current) return;
@@ -61,7 +70,7 @@ export function DefinireRapoarte({date}: {date?: datebaza.Date} = {}) {
         finally { blocat.current = false; setOcupat(false); }
     }
     return <section className="definitii-rapoarte"><FiltruStare nume="modele_rapoarte" valoare={stareLista} schimba={setStareLista} disabled={ocupat}/>
-        <div className="unelte-calendar"><p className="nota-calendar">{t('rapoarte.modele_indiciu')}</p><div className="actiuni-calendar"><button className="legatura" disabled={ocupat || incarcare} onClick={reincarca}>{t('rapoarte.reincarca')}</button><button className="buton primar" disabled={ocupat || incarcare || !modele.length} onClick={() => nou()}>{t('rapoarte.model_nou')}</button></div></div>
+        <div className="unelte-calendar"><p className="nota-calendar">{t('rapoarte.modele_indiciu')}</p><div className="actiuni-calendar"><button className="legatura" disabled={ocupat || incarcare} onClick={reincarca}>{t('rapoarte.reincarca')}</button><button className="buton primar" disabled={ocupat || incarcare} onClick={() => nou()}>{t('rapoarte.model_nou')}</button></div></div>
         {mesaj && <p className="mesaj succes" role="status">{mesaj}</p>}{eroare && !editare && <p className="mesaj eroare" role="alert">{eroare}</p>}
         {incarcare ? <p role="status">{t('ui.incarcare')}</p> : <div className="panou tabel-derulant"><table className="tabel-modele-rapoarte"><thead><tr>{['schimburi.denumire','rapoarte.sursa','rapoarte.revizie','rapoarte.pagina','ui.stare','ui.actiuni'].map(k => <th key={k}>{t(k)}</th>)}</tr></thead><tbody>
             {modele.filter(d=>corespundeStare(d.activ,stareLista)).map(d => <tr key={d.id}><td><strong>{textIn(d.denumire,i18n.language)}</strong></td><td>{t(`rapoarte.sursa_${d.continut.sursa}`)}</td><td>{d.revizie}</td><td>{d.pagina.format} · {t(`rapoarte.${d.pagina.orientare}`)}</td><td>{t(d.activ ? 'ui.activ':'ui.inactiv')}</td><td><div className="actiuni-rand"><button className="legatura" disabled={ocupat} onClick={() => { setEroare(''); setEditare(copiaza(d)); }}>{t('ui.editeaza')}</button><button className="legatura discreta" disabled={ocupat} onClick={() => nou(d)}>{t('rapoarte.duplica')}</button><ButonStergereAdmin tip="modele_raport" id={d.id} revizie={d.revizie} activ={d.activ} nume={textIn(d.denumire,i18n.language)} disabled={ocupat||!!editare} onOcupat={setOcupat} onSters={()=>{reincarca();}}/></div></td></tr>)}

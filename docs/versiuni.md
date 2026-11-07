@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.74 - 2026-11-07
+
+F09-T31, defect raportat de Ioan Tuns: „Model nou” in Definire rapoarte copia primul model din lista (de ex. SQL-ul, antetul si coloanele ascunse ale Evidenței absențelor). Acum modelul nou porneste gol: raport SQL personalizat, fara SQL, antet, subsol sau coloane ascunse, A4 peisaj. Copierea unui model existent ramane la „Duplică”. Manualul revizuit fara modificari de continut.
+
 ## 0.92.73 - 2026-11-07
 
 F09-T30 (D095), regula ceruta de Ioan Tuns: unde persoana nu are ore, zilele libere intregi (weekend, sarbatori) sunt goale si marcate distinct (hasura in grila Pontaj, cu legenda; culoarea ZI_LIBERA in PDF), chiar daca intra intr-un interval de absenta; in zilele lucratoare absenta arata codul (CO, CM…) in loc de 0. Rapoarte cu versiune noua: Pontaj lunar 20, Pontaj detaliat 21, Fisa individuala 19, Evidenta absentelor 16, flexibile 15 (verificat: in referinte difera doar celulele de absenta si culoarea zilelor libere fara ore). Manual 1.70.

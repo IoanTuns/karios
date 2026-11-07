@@ -92,6 +92,10 @@ export async function verificaRapoartePdfme({cdp, evalueaza, asteapta, apasa, co
     await apasa(t('ui.definire_rapoarte'));
     await asteapta(() => evalueaza("Boolean(document.querySelector('.tabel-modele-rapoarte'))"), 'Modele lipsa');
     await apasa(t('rapoarte.model_nou'));
+    // F09-T31: modelul nou porneste gol, nu ca o copie a primului model din lista.
+    await asteapta(() => evalueaza("Boolean(document.querySelector('textarea[name=raport_sql]'))"), 'Formular model nou lipsa');
+    masuri.modelNou = await evalueaza(`({sursa: document.querySelector('select[name=sursa]').value, sql: document.querySelector('textarea[name=raport_sql]').value, antet: [...document.querySelectorAll('.formular-model-raport fieldset')][0].querySelectorAll('textarea') ? [...[...document.querySelectorAll('.formular-model-raport fieldset')][0].querySelectorAll('textarea')].map(x => x.value).join('') : '', ascunse: document.querySelector('input[name=coloane_ascunse]').value})`);
+    assert.deepEqual(masuri.modelNou, {sursa: 'SQL_LIBER', sql: '', antet: '', ascunse: ''}, 'Modelul nou nu porneste gol');
     await completeaza('input[name=denumire_ro]', 'Gărzi lunare (pdfme)');
     await completeaza('select[name=sursa]', 'SQL_LIBER');
     await asteapta(() => evalueaza("Boolean(document.querySelector('.editor-flexibil'))"), 'Editor flexibil lipsa');
