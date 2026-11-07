@@ -4,6 +4,7 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 
 | Data | Acțiune | Cine | Legături |
 | --- | --- | --- | --- |
+| 2026-11-07 | La cererea lui Ioan Tuns („da”): F09-T32 si F09-T33 (0.92.75–0.92.77) impinse in main ca fast-forward; main = ac72158. Build 0.92.77 din ac72158: build/bin/pontix-0.92.77-20261107-221753-…/pontix.exe, cu zip si manualele editia 1.71. D096 ramane propusa. | Ioan Tuns, Claude | [versiuni](versiuni.md) |
 | 2026-11-07 | F09-T33 (0.92.77): fonturile din editorul vizual. Verificat: citirea fonturilor Windows merge; defectul reprodus in Edge (alegerea Arial ramanea GoBold): listele antd se deschideau sub dialogul modal. Reparat si acoperit de scenariul --rapoarte-pdfme. O prima varianta a mutat si radacina aplicatiei (HierarchyRequestError), corectata. | Ioan Tuns, Claude | [F09](functionalitati/F09-rapoarte-pdf.md) |
 | 2026-11-07 | F09-T32 (0.92.76): corectie la potrivirea paginii; tabelul ajungea in margine dupa trecerea din peisaj in portret (gasit in captura lui Ioan Tuns, la investigarea fonturilor). | Ioan Tuns, Claude | [D096](decizii/D096-pagina-raport-sablon.md) |
 | 2026-11-07 | F09-T32 (0.92.75): orientarea si formatul din Setări de pagină trec in sablonul vizual; cauza raportului Portret afisat peisaj: sablonul creat pe A4 peisaj (implicitul modelului nou) nu urma formularul. Decizie propusa D096. | Ioan Tuns, Claude | [D096](decizii/D096-pagina-raport-sablon.md) |
