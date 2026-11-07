@@ -2153,5 +2153,6 @@
   "motiv.copie_nesalvata": "Salvați sau renunțați la modificările copiei înainte de export.",
   "motiv.nimic_de_publicat": "Nu există poziții salvate de publicat în Pontaj.",
   "motiv.asistent_ocupat": "Asistentul lucrează sau motorul nu este pornit.",
-  "motiv.scrie_comanda": "Scrieți o comandă sau o întrebare."
+  "motiv.scrie_comanda": "Scrieți o comandă sau o întrebare.",
+  "ui.mai_multe": "Mai multe"
 }

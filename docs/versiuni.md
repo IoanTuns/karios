@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.65 - 2026-11-07
+
+F16-T37 R2 (UX59-02, UX59-07). Pontajul are deasupra grilei doar perioada cu Salvează schița si Închide luna, apoi un singur rand: cautare, Filtre, Completare si „Mai multe ▾” (Precompletează zile lucrătoare, După categorii, Export Excel, Asistent AI, Densitate, Ajutor). Starea angajatilor si filtrele profesionale au trecut in panoul Filtre, iar numarul de pe buton le include. Selectia se arata in bara de inspectie. La 1024×640 se vad acum 5–6 randuri de angajati fara derularea paginii (inainte niciunul complet); scenariul Edge verifica minimum 5. Meniul se inchide dupa o actiune si la Escape. Manual 1.65.
+
 ## 0.92.64 - 2026-11-07
 
 F16-T37 R1 (UX59-01). Antet compact pe toate ecranele: in stanga traseul, titlul si descrierea; in dreapta, pe un rand, actiunile ecranului, Activitățile lunii, Cum să faci si marirea. Masurat la 1024×640: antetul se termina la 56–145 px (inainte, continutul incepea la 250–270 px). Manualul revizuit fara modificari de continut.

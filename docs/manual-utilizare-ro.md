@@ -924,3 +924,7 @@ FROM pontaj_totaluri p ORDER BY p.angajat
 - **Densitate** (Compact / Normal / Aerisit, deasupra grilelor Pontaj și Planificare) schimbă doar înălțimea rândurilor grilei.
 - Datele apar peste tot în forma „1 oct. 2026”; banda de selecție arată numele persoanelor alese.
 
+### Bara de unelte din Pontaj (0.92.65)
+
+Deasupra grilei sunt perioada, **Salvează schița** și **Închide luna**, apoi căutarea, **Filtre**, **Completare** și **Mai multe ▾**. În **Mai multe** găsiți Precompletează zile lucrătoare, După categorii, Export Excel, Asistent AI, Densitate și Ajutor. Starea angajaților (Active / Inactive / Toate) și filtrele profesionale sunt în panoul **Filtre**; numărul de pe buton arată câte filtre sunt active. Selecția curentă apare în bara de deasupra legendei.
+

@@ -748,10 +748,10 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
         derulareX: grila.current?.scrollLeft ?? stareCurenta.current?.derulareX ?? 0,
         derulareY: grila.current?.scrollTop ?? stareCurenta.current?.derulareY ?? 0,
     };
-    const numarFiltre = [sectie, departament, categorieProgram, cautare.trim(), filtruRanduri].filter(Boolean).length;
+    const numarFiltre = [sectie, departament, categorieProgram, cautare.trim(), filtruRanduri, stareLista !== 'ACTIVE' ? stareLista : ''].filter(Boolean).length + Object.values(filtruProfesional).filter(Boolean).length;
 
     useSalvareParasire('pontaj',modificari.size,()=>salveaza(),()=>{setModificari(new Map());setIstoricInapoi([]);setIstoricInainte([]);});
-    return <section className="pontaj-lunar"><SelectieRezumat persoane={randuri.slice(inceputRand,sfarsitRand+1)} deLa={zile[inceputZi]} panaLa={zile[sfarsitZi]}/><FiltruStare nume="angajati_pontaj" valoare={stareLista} schimba={s=>{setStareLista(s);setSelectie({inceput:{rand:0,zi:0},sfarsit:{rand:0,zi:0}});}} disabled={ocupat}/><FiltreProfesionale numarRezultate={randuri.length} date={date} value={filtruProfesional} onChange={f=>{setFiltruProfesional(f);setSelectie({inceput:{rand:0,zi:0},sfarsit:{rand:0,zi:0}});}}/>
+    return <section className="pontaj-lunar">
         <div className="unelte-calendar unelte-perioada"><form onSubmit={async e => { e.preventDefault(); const nou = Number(anText); if (!Number.isInteger(nou) || nou < 1 || nou > 9999) { setEroare(t('sarbatori.an_invalid')); return; } if (nou !== an) { if (await poateAbandona()) setAn(nou); else setAnText(String(an)); } }}>
             <label>{t('sarbatori.an')}<input aria-label={t('sarbatori.an')} type="number" min="1" max="9999" required disabled={ocupat} value={anText} onChange={e => setAnText(e.target.value)}/></label>
             <button className="buton secundar" disabled={ocupat}>{t('sarbatori.arata')}</button>
@@ -795,21 +795,30 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                 if (e.key === 'Escape' && panou) { e.preventDefault(); e.stopPropagation(); butoanePanouri.current[panou]?.focus(); setPanou(''); }
             }}>
                 <input name="cautare_pontaj" className="cautare-grila" aria-label={t('ui.cautare')} placeholder={t('ui.cautare_indiciu')} value={cautare} disabled={ocupat} onChange={e => setCautare(e.target.value)}/>
-                {['filtre', 'completare', 'ajutor'].map(p => <button key={p} ref={element => { butoanePanouri.current[p] = element; }} type="button" className={`buton secundar ${panou === p ? 'panou-activ' : ''}`} disabled={ocupat} aria-expanded={panou === p} aria-controls={`pontaj-panou-${p}`} onClick={() => setPanou(panou === p ? '' : p)}>{t(`pontaj.panou_${p}`)}{p === 'filtre' && numarFiltre > 0 ? ` (${numarFiltre})` : ''}</button>)}
-                <button type="button" className="buton secundar" title={!randuri.length ? t('motiv.fara_angajati') : !programCompletare ? t('motiv.alege_program') : t('program.completare_program_indiciu')} disabled={ocupat||!randuri.length||!programCompletare} onClick={precompleteazaLV}>{t('pontaj.precompleteaza_lv')}</button>
-                <button type="button" className="buton secundar" disabled={ocupat||!randuri.length} onClick={()=>void previzualizeazaCategorii(false)}>{t('program.precompleteaza')}</button>
-                <button type="button" className="buton secundar" title={t('pontaj.export_excel_titlu')} disabled={ocupat||!randuri.length} onClick={exportaExcel}>📊 {t('pontaj.export_excel')}</button>
-                <button type="button" className={`buton secundar buton-drawer-ai ${drawerAI ? 'panou-activ' : ''}`} title={t('pontaj.asistent_drawer_titlu')} onClick={() => setDrawerAI(v => !v)}>
+                {['filtre', 'completare'].map(p => <button key={p} ref={element => { butoanePanouri.current[p] = element; }} type="button" className={`buton secundar ${panou === p ? 'panou-activ' : ''}`} disabled={ocupat} aria-expanded={panou === p} aria-controls={`pontaj-panou-${p}`} onClick={() => setPanou(panou === p ? '' : p)}>{t(`pontaj.panou_${p}`)}{p === 'filtre' && numarFiltre > 0 ? ` (${numarFiltre})` : ''}</button>)}
+                {/* R2 (analiza UX 0.92.59): actiunile mai rare stau in „Mai multe”, ca grila sa urce. */}
+                <details className="meniu-mai-multe" onKeyDown={e => { if (e.key === 'Escape' && e.currentTarget.open) { e.preventDefault(); e.stopPropagation(); e.currentTarget.open = false; e.currentTarget.querySelector('summary')?.focus(); } }}>
+                    <summary className="buton secundar">{t('ui.mai_multe')}</summary>
+                    <div className="lista-mai-multe" onClick={e => { const tinta = e.target as HTMLElement; if (tinta.closest('button') && !tinta.closest('.grup-zoom-grila')) (e.currentTarget.parentElement as HTMLDetailsElement).open = false; }}>
+                        <button type="button" className="buton secundar" title={!randuri.length ? t('motiv.fara_angajati') : !programCompletare ? t('motiv.alege_program') : t('program.completare_program_indiciu')} disabled={ocupat||!randuri.length||!programCompletare} onClick={precompleteazaLV}>{t('pontaj.precompleteaza_lv')}</button>
+                        <button type="button" className="buton secundar" disabled={ocupat||!randuri.length} onClick={()=>void previzualizeazaCategorii(false)}>{t('program.precompleteaza')}</button>
+                        <button type="button" className="buton secundar" title={t('pontaj.export_excel_titlu')} disabled={ocupat||!randuri.length} onClick={exportaExcel}>📊 {t('pontaj.export_excel')}</button>
+                        <button type="button" className={`buton secundar buton-drawer-ai ${drawerAI ? 'panou-activ' : ''}`} title={t('pontaj.asistent_drawer_titlu')} onClick={() => setDrawerAI(v => !v)}>
                     🤖 {t('ui.asistent_ai')}
-                </button>
-                <div className="grup-zoom-grila" role="group" aria-label={t('ui.densitate_grila')}>
+                        </button>
+                        <div className="grup-zoom-grila" role="group" aria-label={t('ui.densitate_grila')}>
                     <span className="eticheta-zoom">{t('ui.zoom')}</span>
                     <button type="button" className={`buton-zoom ${zoomGrila === 'compact' ? 'activ' : ''}`} title={t('ui.zoom_compact')} onClick={() => schimbaZoom('compact')}>{t('ux30.compact')}</button>
                     <button type="button" className={`buton-zoom ${zoomGrila === 'normal' ? 'activ' : ''}`} title={t('ui.zoom_normal')} onClick={() => schimbaZoom('normal')}>{t('ux30.normal')}</button>
                     <button type="button" className={`buton-zoom ${zoomGrila === 'extins' ? 'activ' : ''}`} title={t('ui.zoom_extins')} onClick={() => schimbaZoom('extins')}>{t('ux30.aerisit')}</button>
-                </div>
+                        </div>
+                        <button ref={element => { butoanePanouri.current['ajutor'] = element; }} type="button" className={`buton secundar ${panou === 'ajutor' ? 'panou-activ' : ''}`} disabled={ocupat} aria-expanded={panou === 'ajutor'} aria-controls="pontaj-panou-ajutor" onClick={() => setPanou(panou === 'ajutor' ? '' : 'ajutor')}>{t('pontaj.panou_ajutor')}</button>
+                    </div>
+                </details>
                 <span className="stare-modificari" aria-live="polite">{t('pontaj.modificate', {numar: modificari.size})}</span>
                 <div id="pontaj-panou-filtre" className="panou-unelte" hidden={panou !== 'filtre'}>
+                <FiltruStare nume="angajati_pontaj" valoare={stareLista} schimba={s=>{setStareLista(s);setSelectie({inceput:{rand:0,zi:0},sfarsit:{rand:0,zi:0}});}} disabled={ocupat}/>
+                <FiltreProfesionale numarRezultate={randuri.length} date={date} value={filtruProfesional} onChange={f=>{setFiltruProfesional(f);setSelectie({inceput:{rand:0,zi:0},sfarsit:{rand:0,zi:0}});}}/>
                 <select aria-label={t('ui.sectie')} value={sectie} disabled={ocupat} onChange={e => { setSectie(e.target.value); setDepartament(''); }}><option value="">{t('ui.toate_sectiile')}</option>
                 {date.sectii.map(s => <option key={s.id} value={s.id}>{denumireSectie(s, i18n.language)}</option>)}</select>
                 <select aria-label={t('ui.departament')} value={departament} disabled={ocupat} onChange={e => setDepartament(e.target.value)}><option value="">{t('ui.toate_departamentele')}</option>
@@ -850,6 +859,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
             </details>}
             {randActiv && dataActiva && <div className="inspectie-celula" role="region" aria-label={t('pontaj.inspectie_titlu')}>
                 <div className="detalii-celula-activa">
+                    <SelectieRezumat persoane={randuri.slice(inceputRand,sfarsitRand+1)} deLa={zile[inceputZi]} panaLa={zile[sfarsitZi]} inline/>
                     <strong>{numeAngajatFaraPrefix(randActiv)}</strong>
                     <span>{dataAfisata(dataActiva, true)}{sarbatori.get(dataActiva) ? ` · ${sarbatori.get(dataActiva)}` : ''}</span>
                     <span className="eticheta-contract">{textCodActiv}</span>

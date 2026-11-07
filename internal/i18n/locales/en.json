@@ -2153,5 +2153,6 @@
   "motiv.copie_nesalvata": "Save or discard the changes to the copy before exporting.",
   "motiv.nimic_de_publicat": "There are no saved positions to publish to the timesheet.",
   "motiv.asistent_ocupat": "The assistant is working or the engine is not running.",
-  "motiv.scrie_comanda": "Type a command or a question."
+  "motiv.scrie_comanda": "Type a command or a question.",
+  "ui.mai_multe": "More"
 }

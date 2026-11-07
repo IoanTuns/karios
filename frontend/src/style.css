@@ -1399,3 +1399,14 @@ fieldset.filtre-profesionale{border:0;padding:0;min-width:0}
 .unelte-antet .ajutor-antet, .unelte-antet .zoom-interfata { order: 0; }
 .continut-pontaj .antet { margin-bottom: 8px; }
 
+/* R2: Pontaj pe un rand de unelte; actiunile rare in „Mai multe”, selectia in bara de inspectie. */
+.meniu-mai-multe { position: relative; }
+.meniu-mai-multe > summary { list-style: none; cursor: pointer; }
+.meniu-mai-multe > summary::-webkit-details-marker { display: none; }
+.meniu-mai-multe > summary::after { content: " ▾"; }
+.lista-mai-multe { position: absolute; z-index: 30; top: calc(100% + 4px); left: 0; display: flex; flex-direction: column; align-items: stretch; gap: 6px; min-width: 240px; padding: 8px; background: var(--suprafata); border: 1px solid var(--linie); border-radius: 8px; box-shadow: 0 8px 24px #0002; }
+.lista-mai-multe .grup-zoom-grila { justify-content: flex-start; }
+.detalii-celula-activa .ux30-selectie { flex-basis: 100%; margin: 0; padding: 0; border: 0; background: none; font-size: 12px; color: var(--discret); }
+.panou-unelte .details-filtre-profesionale, .panou-unelte details { flex-basis: 100%; }
+.continut-pontaj .unelte-perioada { margin-bottom: 6px; }
+

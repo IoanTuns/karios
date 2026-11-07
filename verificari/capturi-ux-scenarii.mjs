@@ -37,6 +37,7 @@ export async function capturiUX({cdp, evalueaza, asteapta, apasa, completeaza, c
                 await evalueaza("(document.querySelector('.grila-pontaj, .tabel-absente')||document.body).scrollIntoView({block:'start'})");
                 await new Promise(r => setTimeout(r, 250));
                 await captura(`${nume}-tabel-${sufix}.png`);
+                if (nume === 'pontaj') { await evalueaza("window.scrollTo(0,0);document.querySelector('.meniu-mai-multe')?.setAttribute('open','')"); await new Promise(r => setTimeout(r, 200)); await captura(`pontaj-meniu-${sufix}.png`); await evalueaza("document.querySelector('.meniu-mai-multe')?.removeAttribute('open')"); }
             }
         }
     }
