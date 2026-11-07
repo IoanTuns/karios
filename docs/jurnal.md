@@ -4,6 +4,7 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 
 | Data | Acțiune | Cine | Legături |
 | --- | --- | --- | --- |
+| 2026-11-07 | La cererea lui Ioan Tuns („impinge in main”): ramura F08-T11-coloane-pontaj (0.92.55–0.92.59: D091 folder AI, F09-T27, D092 coloane Pontaj, migrarea 0035) impinsa direct in main ca fast-forward, dupa un merge fara continut al lui origin/main (PR #12, #13). main = 898a077; CI pe GitHub trecut. | Ioan Tuns, Claude | [versiuni](versiuni.md) |
 | 2026-11-07 | Build 0.92.59 (`.uild.ps1`) din 75e9735: build/bin/pontix-0.92.59-20261107-103934-…/pontix.exe, cu zip si manualele editia 1.62. Legaturile Wails regenerate readuse la commit. | Claude | [versiuni](versiuni.md) |
 | 2026-11-07 | F08-T13 (0.92.59): TZLN si TOCN in SQL-ul rapoartelor, in tabelul nou pontaj_totaluri. Constatat: lunar avea deja aceleasi valori sub numele total_zile_cf_contract si total_ore_cf_contract, vizibile in rapoartele cu SELECT *; nu au fost atinse, ca rapoartele existente sa nu se schimbe. | Claude | [D092](decizii/D092-coloane-pontaj-tzln-tocn.md) |
 | 2026-11-07 | F08-T12 (0.92.58): migrarea 0035 redenumeste codurile de absenta (D092), cu jurnalul de audit resigilat dupa migrare ca la celelalte migrari de date. Codurile scrise in Go pentru norma si solduri primesc si variantele noi. | Claude | [D092](decizii/D092-coloane-pontaj-tzln-tocn.md) |
