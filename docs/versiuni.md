@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.68 - 2026-11-07
+
+F16-T37 R8 (UX59-09). Asistentul AI: luna de lucru sta pe acelasi rand cu navigarea (explicatia in titlu), iar conversatia ocupa restul ecranului: 334 px la 1024×640 (inainte ~130) si 576 px la 1440×900. Cand lipsesc fisierele motorului, pasii de instalare sunt afisati direct, cu un buton spre ghidul asistentului. Datele din propunerile asistentului au formatul comun („1 feb. 2027”). Manualul revizuit fara modificari de continut.
+
 ## 0.92.67 - 2026-11-07
 
 F16-T37 R6 (UX59-08). Setări › General are file: Normă și structură, Nomenclatoare, Copii de siguranță, Despre (fila aleasa se retine local). Pagina scade de la 2416 la 1332 px la 1024×640. „Verificarea configurării” se deschide singura si arata cate puncte sunt de verificat cand exista. Inca 6 texte romanesti fara diacritice corectate, iar testul de diacritice le cunoaste. Manual 1.67.

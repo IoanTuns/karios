@@ -1424,3 +1424,7 @@ fieldset.filtre-profesionale{border:0;padding:0;min-width:0}
 .sectiune-setari { display: contents; }
 .sectiune-setari[hidden] { display: none; }
 
+/* R8: luna de lucru in randul de navigare al asistentului, aliniata la dreapta. */
+.navigare-lucru-ai .perioada-asistent { margin: 0 0 0 auto; }
+.navigare-lucru-ai { flex-wrap: wrap; align-items: center; }
+

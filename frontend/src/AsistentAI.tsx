@@ -8,7 +8,7 @@ import type {CerereConcediu} from './cerereConcediu';
 import {AplicaPropunereAI, EsteAutoPornireAI, OpresteAI, PornesteAI, SeteazaAutoPornireAI, StareAI} from '../wailsjs/go/main/App';
 import {ai, datebaza, main} from '../wailsjs/go/models';
 import {marcheazaVizibil, opresteSarcina, pornesteSarcina, reseteazaConversatie as reseteazaSesiunea, seteazaConversatie, seteazaEroare, seteazaPerioada, useSesiuneAI, type MesajUI} from './asistentSesiune';
-import {formatData} from './formatare';
+import {formatData, dataAfisata} from './formatare';
 
 function curataText(str: string): string {
     return (str || '')
@@ -384,18 +384,19 @@ export function AsistentAI({
                 {vizualizare === 'plan' && planuri.length > 1 && <select aria-label={t('ai.alege_plan')} value={planActiv?.id} disabled={blocat} onChange={e => setPlanSelectat(e.target.value)}>
                     {planuri.map((m, index) => <option key={m.id} value={m.id}>{t('ai.plan_numar', {numar: index + 1})} · {m.intentie?.de_la} – {m.intentie?.pana_la} · {t(`ai.plan_ciclu_${m.rezultatPlan ? (m.rezultatPlan.anulat ? 'anulat' : 'aplicat') : 'editare'}`)}</option>)}
                 </select>}
+                {/* R8: luna de lucru pe acelasi rand cu navigarea; explicatia e in titlu. */}
+                <div className="perioada-asistent" hidden={vizualizare !== 'conversatie'} title={t('ai.luna_de_lucru_indiciu')}>
+                    <label>{t('ai.luna_de_lucru')}
+                        <select value={lunaCurenta} disabled={blocat} onChange={e => seteazaPerioada({an: anCurent, luna: Number(e.target.value)})}>
+                            {Array.from({length: 12}, (_, i) => <option key={i} value={i + 1}>{formatData(i18n.language, {month: 'long', timeZone: 'UTC'}).format(new Date(Date.UTC(2026, i, 15)))}</option>)}
+                        </select>
+                    </label>
+                    <input type="number" aria-label={t('sarbatori.an')} min={2000} max={2100} value={anCurent} disabled={blocat}
+                        onChange={e => { const an = Number(e.target.value); if (an >= 2000 && an <= 2100) seteazaPerioada({an, luna: lunaCurenta}); }}/>
+                </div>
             </div>
 
-            <div className="perioada-asistent" hidden={vizualizare !== 'conversatie'}>
-                <label>{t('ai.luna_de_lucru')}
-                    <select value={lunaCurenta} disabled={blocat} onChange={e => seteazaPerioada({an: anCurent, luna: Number(e.target.value)})}>
-                        {Array.from({length: 12}, (_, i) => <option key={i} value={i + 1}>{formatData(i18n.language, {month: 'long', timeZone: 'UTC'}).format(new Date(Date.UTC(2026, i, 15)))}</option>)}
-                    </select>
-                </label>
-                <input type="number" aria-label={t('sarbatori.an')} min={2000} max={2100} value={anCurent} disabled={blocat}
-                    onChange={e => { const an = Number(e.target.value); if (an >= 2000 && an <= 2100) seteazaPerioada({an, luna: lunaCurenta}); }}/>
-                <span className="text-discret">{t('ai.luna_de_lucru_indiciu')}</span>
-            </div>
+
 
             {(eroare || sesiune.eroare) && <div className="mesaj eroare" role="alert">{eroare || sesiune.eroare}</div>}
             {mesaj && <div className="mesaj succes" role="status">{mesaj}</div>}
@@ -422,7 +423,9 @@ export function AsistentAI({
             }}>
                 {stare && !stare.instalat && <div className="card-lipsa-fisiere-ai">
                     <h3>📁 {t('ai.lipsa_fisiere_titlu')}</h3>
-                    <p>{t('ai.ghiduri_fara_model')}</p><details><summary>{t('ai.configurare_model')}</summary><p>{t('ai.lipsa_fisiere_detalii')}</p>
+                    <p>{t('ai.ghiduri_fara_model')}</p>{onAjutor && <p><button type="button" className="buton secundar mic" onClick={() => onAjutor('ai.foloseste')}>{t('ai.ghid_asistent')}</button></p>}
+                    {/* R8 (analiza UX 0.92.59): pasii de instalare sunt vizibili direct, nu ascunsi. */}
+                    <details open><summary>{t('ai.configurare_model')}</summary><p>{t('ai.lipsa_fisiere_detalii')}</p>
                     <div className="cutie-cale-folder"><code>{stare.cale_folder}</code></div>
                     <ul className="instructiuni-fisiere-ai">
                         <li><strong>{stare.cale_binar ? '✓' : '1.'} llama-server.exe</strong> ({t('ai.binar_descriere')})</li>
@@ -483,12 +486,12 @@ export function AsistentAI({
                                                 )}
                                                 {p.parametri?.data && (
                                                     <span className="insigna-detaliu data">
-                                                        📅 {t('ai.eticheta_data')} <strong>{String(p.parametri.data)}</strong>
+                                                        📅 {t('ai.eticheta_data')} <strong>{dataAfisata(String(p.parametri.data))}</strong>
                                                     </span>
                                                 )}
                                                 {p.parametri?.data_inceput && p.parametri?.data_sfarsit && (
                                                     <span className="insigna-detaliu data">
-                                                        📅 {t('ai.eticheta_interval')} <strong>{String(p.parametri.data_inceput)} → {String(p.parametri.data_sfarsit)}</strong>
+                                                        📅 {t('ai.eticheta_interval')} <strong>{dataAfisata(String(p.parametri.data_inceput))} → {dataAfisata(String(p.parametri.data_sfarsit))}</strong>
                                                         {p.parametri?.doar_lucratoare ? ` (${t('ai.plan_zile_lucratoare')})` : ''}
                                                     </span>
                                                 )}

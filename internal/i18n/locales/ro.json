@@ -2162,5 +2162,6 @@
   "setari.fila_nomenclatoare": "Nomenclatoare",
   "setari.fila_backup": "Copii de siguranță",
   "setari.fila_despre": "Despre",
-  "ui28.verificare_probleme": "{{numar}} de verificat"
+  "ui28.verificare_probleme": "{{numar}} de verificat",
+  "ai.ghid_asistent": "Ghid: folosirea asistentului"
 }

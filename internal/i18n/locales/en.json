@@ -2162,5 +2162,6 @@
   "setari.fila_nomenclatoare": "Lists",
   "setari.fila_backup": "Backups",
   "setari.fila_despre": "About",
-  "ui28.verificare_probleme": "{{numar}} to check"
+  "ui28.verificare_probleme": "{{numar}} to check",
+  "ai.ghid_asistent": "Guide: using the assistant"
 }
