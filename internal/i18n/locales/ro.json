@@ -2144,5 +2144,14 @@
   "pontaj.sursa_ORE_NORMA_LUNA": "Zile lucrătoare nete × norma zilnică",
   "pontaj.motiv_fara_norma": "Angajatul nu are normă zilnică (gardă sau contract fără normă zilnică), deci TOCN nu se poate calcula.",
   "ux30.selectie_text": "Selecție: {{persoane}} · {{perioada}}",
-  "ux30.selectie_si_altii": "și încă {{numar}}"
+  "ux30.selectie_si_altii": "și încă {{numar}}",
+  "motiv.luna_inchisa": "Luna este închisă pentru salarii; redeschideți-o ca să salvați.",
+  "motiv.fara_modificari": "Nu există modificări de salvat.",
+  "motiv.fara_angajati": "Nu există angajați afișați; verificați filtrele.",
+  "motiv.alege_program": "Alegeți mai întâi programul din panoul Completare.",
+  "motiv.genereaza_intai": "Generați mai întâi raportul.",
+  "motiv.copie_nesalvata": "Salvați sau renunțați la modificările copiei înainte de export.",
+  "motiv.nimic_de_publicat": "Nu există poziții salvate de publicat în Pontaj.",
+  "motiv.asistent_ocupat": "Asistentul lucrează sau motorul nu este pornit.",
+  "motiv.scrie_comanda": "Scrieți o comandă sau o întrebare."
 }

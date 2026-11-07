@@ -458,7 +458,7 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj,onModificari
             </div>
             <div className="ui28-etapes" role="status"><span>{sumarModificat?t('ui28.sumar_nesalvat'):t('ui28.etapa_nesalvata',{numar:modificari.size})}</span><span>{t('ui28.etapa_plan',{numar:dePublicatTotal.length})}</span><span>{t('ui28.etapa_publicata',{numar:plan?.pozitii.filter(p=>p.activ&&p.stare==='PUBLICATA').length||0})}</span></div>
             {mod==='grila'&&<button className="buton primar" disabled={ocupat||!modificari.size} onClick={salveazaPlanGrila}>{t('planificare.salveaza_grila')}</button>}
-            <button className="buton secundar" disabled={ocupat||!dePublicatTotal.length} onClick={()=>void previzualizeazaPublicare()}>{t('planificare.previzualizeaza')}</button>
+            <button className="buton secundar" disabled={ocupat||!dePublicatTotal.length} title={!dePublicatTotal.length ? t('motiv.nimic_de_publicat') : undefined} onClick={()=>void previzualizeazaPublicare()}>{t('planificare.previzualizeaza')}</button>
             <button type="button" className="buton secundar" disabled={ocupat} onClick={deschideRaportGarzi}>{t('planificare.raport_garzi')}</button>
             <button type="button" className="buton secundar" title={t('planificare.reguli_indiciu')} onClick={()=>setDialogReguli(true)}>⚙️ {t('planificare.reguli')} {incalcariReguli.length > 0 ? `(⚠️ ${incalcariReguli.length})` : ''}</button>
             <button className="legatura" disabled={ocupat} onClick={()=>onDeschidePontaj(an,luna)}>{t('planificare.deschide_pontaj')}</button>

@@ -2144,5 +2144,14 @@
   "pontaj.sursa_ORE_NORMA_LUNA": "Net working days × daily norm",
   "pontaj.motiv_fara_norma": "The employee has no daily norm (on-call or contract without a daily norm), so TOCN cannot be calculated.",
   "ux30.selectie_text": "Selection: {{persoane}} · {{perioada}}",
-  "ux30.selectie_si_altii": "and {{numar}} more"
+  "ux30.selectie_si_altii": "and {{numar}} more",
+  "motiv.luna_inchisa": "The month is closed for payroll; reopen it to save.",
+  "motiv.fara_modificari": "There are no changes to save.",
+  "motiv.fara_angajati": "No employees are shown; check the filters.",
+  "motiv.alege_program": "Choose the schedule in the Fill-in panel first.",
+  "motiv.genereaza_intai": "Generate the report first.",
+  "motiv.copie_nesalvata": "Save or discard the changes to the copy before exporting.",
+  "motiv.nimic_de_publicat": "There are no saved positions to publish to the timesheet.",
+  "motiv.asistent_ocupat": "The assistant is working or the engine is not running.",
+  "motiv.scrie_comanda": "Type a command or a question."
 }

@@ -15,6 +15,8 @@ export async function verificaAbsentePontaj({evalueaza,asteapta,apasa,completeaz
  const antetTotaluri=await evalueaza("[...document.querySelectorAll('.grila-pontaj thead tr:first-child th abbr')].map(a=>a.textContent)");
  assert.deepEqual(antetTotaluri,['OL','CO','CM','CFP','CVE','DLG','FMP'],'Coloanele de total din Pontaj: '+JSON.stringify(antetTotaluri));
  assert(await evalueaza("Boolean(document.querySelector('.grila-pontaj thead abbr[title]')?.title.length>5)"),'Titlul complet al coloanei lipseste');
+ // R7: un buton dezactivat spune de ce.
+ assert.equal(await evalueaza("[...document.querySelectorAll('button')].find(b=>b.textContent==="+JSON.stringify(t('pontaj.salveaza'))+")?.title"),t('motiv.fara_modificari'),'Salvarea dezactivata fara motiv');
  await completeaza('select[name=filtru_stare_angajati_pontaj]','INACTIVE');
  assert.equal(await evalueaza("document.querySelectorAll('.grila-pontaj tbody tr').length"),await evalueaza("JSON.parse(localStorage.getItem('pontix-test')).angajati.filter(a=>!a.activ).length"),'Filtrul Pontaj amesteca starile');
  await completeaza('select[name=filtru_stare_angajati_pontaj]','ACTIVE');

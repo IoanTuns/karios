@@ -4,6 +4,7 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 
 | Data | Acțiune | Cine | Legături |
 | --- | --- | --- | --- |
+| 2026-11-07 | F16-T37 R7 (0.92.63): motivul afisat la butoanele dezactivate din Pontaj, Rapoarte, Planificare si Asistent. | Claude | [Analiza](analiza-ux-0.92.59.md) |
 | 2026-11-07 | F16-T37 R5 (0.92.62): termeni si date unitare (selectie cu nume, date formatate in 7 locuri, Densitate vs Mărire interfață). Scenariile Edge Pontaj, UX30, programe multiple, focus, nomenclatoare, ajutor trec. | Claude | [Analiza](analiza-ux-0.92.59.md) |
 | 2026-11-07 | F16-T37 R4 (0.92.61): diacriticele din ro.json. Inlocuiri derivate din catalogul insusi (doar cuvinte gresite in orice context, fara formele articulate valide), verificate in context pentru cazurile riscante; test nou de paza. Rapoartele de referinta au cazut pe textele din legenda: verificat automat ca diferenta e doar de diacritice (si numarul versiunii), apoi versiuni noi si referinte noi dupa D009; referintele vechi pastrate. | Claude | [Analiza](analiza-ux-0.92.59.md) |
 | 2026-11-07 | Build 0.92.60 (`.uild.ps1`) din 4b200a7: build/bin/pontix-0.92.60-20261107-181114-…/pontix.exe, cu zip si manualele editia 1.63. | Claude | [versiuni](versiuni.md) |

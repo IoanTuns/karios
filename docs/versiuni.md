@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.63 - 2026-11-07
+
+F16-T37 R7 (UX59-12). Butoanele dezactivate spun de ce, in titlul afisat la trecerea mouse-ului: Salvează schița (nu sunt modificari / luna e inchisa), Precompletează zile lucrătoare (lipsesc angajatii afisati / alegeti programul), Export Excel din Rapoarte (generati intai raportul / copia are modificari nesalvate), Previzualizează și publică din Planificare (nimic de publicat), Trimite din Asistentul AI (scrieti o comanda / asistentul lucreaza). Manualul revizuit fara modificari de continut.
+
 ## 0.92.62 - 2026-11-07
 
 F16-T37 R5 (UX59-05, UX59-06). Banda de selectie din Pontaj si Planificare arata numele persoanelor si perioada in limba interfetei („Selecție: Marin Daria (DEMO-001) · 1 oct. 2026”), nu „mărci” si date AAAA-LL-ZZ; bara de inspectie arata „joi, 1 oct. 2026”. Datele din evidenta absentelor, listele Planificarii, verificarea si anularea din asistentul AI trec prin acelasi formatter (functia comuna dataAfisata). Densitatea grilei se numeste „Densitate” (nu „Zoom”), iar marirea paginii „Mărire interfață”. Manual 1.64.

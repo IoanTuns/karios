@@ -596,6 +596,7 @@ export function AsistentAI({
                     type="submit"
                     className="buton primar"
                     disabled={blocat || !textIntrare.trim()}
+                    title={blocat ? t('motiv.asistent_ocupat') : !textIntrare.trim() ? t('motiv.scrie_comanda') : undefined}
                 >
                     {t('ai.trimite')} ➔
                 </button>

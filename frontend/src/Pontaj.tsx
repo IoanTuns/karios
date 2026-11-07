@@ -760,7 +760,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                 {Array.from({length: 12}, (_, i) => <option key={i} value={i + 1}>{formatData(i18n.language, {month: 'long', timeZone: 'UTC'}).format(new Date(`2026-${String(i + 1).padStart(2, '0')}-01T12:00:00Z`))}</option>)}
             </select></label>
             <button type="button" className="buton secundar buton-luna-nav" aria-label={t('pontaj.luna_urmatoare')} disabled={ocupat} onClick={() => schimbaLunaRelativ(1)}>▶</button></form>
-            <button className="buton primar" disabled={ocupat || incarcare || !modificari.size || lunaBlocata} onClick={() => void salveaza()}>{t(ocupat ? 'ui.salvare' : 'pontaj.salveaza')}</button>
+            <button className="buton primar" disabled={ocupat || incarcare || !modificari.size || lunaBlocata} title={lunaBlocata ? t('motiv.luna_inchisa') : !modificari.size ? t('motiv.fara_modificari') : undefined} onClick={() => void salveaza()}>{t(ocupat ? 'ui.salvare' : 'pontaj.salveaza')}</button>
             <button type="button" className="buton secundar" title={lunaBlocata ? t('pontaj.redeschide_luna') : t('pontaj.inchide_luna')} disabled={ocupat || incarcare} onClick={comutaStareLuna}>{lunaBlocata ? `🔓 ${t('pontaj.redeschide_luna')}` : `🔒 ${t('pontaj.inchide_luna')}`}</button></div>
         {lunaBlocata && (
             <div className="banner-luna-blocata" role="alert">
@@ -796,7 +796,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
             }}>
                 <input name="cautare_pontaj" className="cautare-grila" aria-label={t('ui.cautare')} placeholder={t('ui.cautare_indiciu')} value={cautare} disabled={ocupat} onChange={e => setCautare(e.target.value)}/>
                 {['filtre', 'completare', 'ajutor'].map(p => <button key={p} ref={element => { butoanePanouri.current[p] = element; }} type="button" className={`buton secundar ${panou === p ? 'panou-activ' : ''}`} disabled={ocupat} aria-expanded={panou === p} aria-controls={`pontaj-panou-${p}`} onClick={() => setPanou(panou === p ? '' : p)}>{t(`pontaj.panou_${p}`)}{p === 'filtre' && numarFiltre > 0 ? ` (${numarFiltre})` : ''}</button>)}
-                <button type="button" className="buton secundar" title={t('program.completare_program_indiciu')} disabled={ocupat||!randuri.length||!programCompletare} onClick={precompleteazaLV}>{t('pontaj.precompleteaza_lv')}</button>
+                <button type="button" className="buton secundar" title={!randuri.length ? t('motiv.fara_angajati') : !programCompletare ? t('motiv.alege_program') : t('program.completare_program_indiciu')} disabled={ocupat||!randuri.length||!programCompletare} onClick={precompleteazaLV}>{t('pontaj.precompleteaza_lv')}</button>
                 <button type="button" className="buton secundar" disabled={ocupat||!randuri.length} onClick={()=>void previzualizeazaCategorii(false)}>{t('program.precompleteaza')}</button>
                 <button type="button" className="buton secundar" title={t('pontaj.export_excel_titlu')} disabled={ocupat||!randuri.length} onClick={exportaExcel}>📊 {t('pontaj.export_excel')}</button>
                 <button type="button" className={`buton secundar buton-drawer-ai ${drawerAI ? 'panou-activ' : ''}`} title={t('pontaj.asistent_drawer_titlu')} onClick={() => setDrawerAI(v => !v)}>
