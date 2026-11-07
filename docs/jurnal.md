@@ -4,6 +4,7 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 
 | Data | Acțiune | Cine | Legături |
 | --- | --- | --- | --- |
+| 2026-11-07 | F09-T32 (0.92.76): corectie la potrivirea paginii; tabelul ajungea in margine dupa trecerea din peisaj in portret (gasit in captura lui Ioan Tuns, la investigarea fonturilor). | Ioan Tuns, Claude | [D096](decizii/D096-pagina-raport-sablon.md) |
 | 2026-11-07 | F09-T32 (0.92.75): orientarea si formatul din Setări de pagină trec in sablonul vizual; cauza raportului Portret afisat peisaj: sablonul creat pe A4 peisaj (implicitul modelului nou) nu urma formularul. Decizie propusa D096. | Ioan Tuns, Claude | [D096](decizii/D096-pagina-raport-sablon.md) |
 | 2026-11-07 | La cererea lui Ioan Tuns („pune in main si construieste exe”): F08-T14, F09-T29, F09-T30, F09-T31 (0.92.71–0.92.74) impinse in main ca fast-forward; main = d4fab67 (GitHub a semnalat ocolirea regulii „pull request”). Build 0.92.74 din d4fab67, fara modificari locale: build/bin/pontix-0.92.74-20261107-212023-…/pontix.exe, cu zip si manualele editia 1.70. | Ioan Tuns, Claude | [versiuni](versiuni.md) |
 | 2026-11-07 | F09-T31 (0.92.74): „Model nou” porneste gol (copia primul model din lista). Tot in conversatie: SQL pentru gărzi cu ziua, ziua saptamanii, prefix + nume + prenume si orele in observatii; cauzele mesajului „aliasuri unice” explicate (coloana ascunsa „rand” inexistenta, aliasuri cu spatii/diacritice). | Ioan Tuns, Claude | [F09](functionalitati/F09-rapoarte-pdf.md) |

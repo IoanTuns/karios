@@ -82,8 +82,11 @@ describe('sablon pdfme', () => {
         expect([s.basePdf.width, s.basePdf.height]).toEqual([210, 297]);
         // Tabelul ocupa toata latimea utila, antetul ramane sus, subsolul coboara jos.
         const tabel = s.schemas[0][0];
-        expect(tabel.position.x + tabel.width).toBeLessThanOrEqual(210);
-        expect(tabel.width).toBeGreaterThan(150);
+        // Tabelul ramane intre marginile de 10 mm, pe toata latimea utila (ca un sablon facut direct portret).
+        const tabelPortret = portret.schemas[0][0];
+        expect(tabel.position.x).toBe(tabelPortret.position.x);
+        expect(tabel.width).toBeCloseTo(tabelPortret.width, 1);
+        for (const e of s.basePdf.staticSchema) expect(e.position.x >= 10 && e.position.x + e.width <= 200.01).toBe(true);
         const y = (sab: {basePdf: {staticSchema: {name: string; position: {y: number}}[]}}, nume: string) => sab.basePdf.staticSchema.find(e => e.name === nume)!.position.y;
         expect(y(s, 'titlu_txt')).toBe(y(portret, 'titlu_txt'));
         expect(y(s, 'pagina_txt')).toBe(y(portret, 'pagina_txt'));

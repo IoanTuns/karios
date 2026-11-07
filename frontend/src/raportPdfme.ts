@@ -387,14 +387,20 @@ export function sablonPePagina(sablon: string, pagina: Pick<PaginaRaport, 'forma
     if (!b || typeof b !== 'object' || !b.width || !b.height) return sablon;
     const [W, H] = dimensiunePagina(pagina);
     if (Math.abs(b.width - W) < 0.01 && Math.abs(b.height - H) < 0.01) return sablon;
-    const kx = W / b.width, dy = H - b.height, jumatate = b.height / 2;
+    // Se scaleaza zona dintre marginile laterale, nu toata pagina, ca elementele sa nu intre in margini.
+    const p = (b as {padding?: number[]}).padding || [];
+    const ml = typeof p[3] === 'number' ? p[3] : 10, md = typeof p[1] === 'number' ? p[1] : 10;
+    const kx = (W - ml - md) / Math.max(1, b.width - ml - md), dy = H - b.height, jumatate = b.height / 2;
     const r2 = (v: number) => Math.round(v * 100) / 100;
     const muta = (e: SchemaPdfme) => {
         const poz = e.position as {x: number; y: number} | undefined;
         if (!poz) return e;
-        const h = Number(e.height) || 0;
+        const h = Number(e.height) || 0, w = Number(e.width) || 0;
         const jos = poz.y + h / 2 > jumatate;
-        return {...e, position: {x: r2(poz.x * kx), y: r2(Math.max(0, jos ? poz.y + dy : poz.y))}, width: r2((Number(e.width) || 0) * kx)};
+        // In margini (de ex. o imagine pusa pe margine) elementul ramane la aceeasi distanta de marginea paginii.
+        const x = poz.x < ml ? poz.x : ml + (poz.x - ml) * kx;
+        const latime = Math.min(w * kx, Math.max(0, W - md - Math.max(x, ml)) || w * kx);
+        return {...e, position: {x: r2(x), y: r2(Math.max(0, jos ? poz.y + dy : poz.y))}, width: r2(latime)};
     };
     s.basePdf = {...b, width: W, height: H, ...(b.staticSchema ? {staticSchema: b.staticSchema.map(muta)} : {})};
     s.schemas = (s.schemas || []).map(pg => pg.map(muta));

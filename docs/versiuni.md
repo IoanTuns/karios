@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.76 - 2026-11-07
+
+F09-T32, corectie: la potrivirea paginii (0.92.75) se scaleaza doar zona dintre marginile laterale, nu toata latimea; inainte, la trecerea din peisaj in portret, tabelul ajungea in margine (X 4,14 in loc de 10), semnalat cu rosu de editor (captura Ioan Tuns). Elementele asezate in margine pastreaza distanta fata de marginea paginii. Modelele salvate cu 0.92.75 dupa o schimbare de orientare pot avea tabelul in margine: se corecteaza din editor (X = marginea). Manualul revizuit fara modificari de continut.
+
 ## 0.92.75 - 2026-11-07
 
 F09-T32 (D096, propusa), defect raportat de Ioan Tuns: un raport din editorul vizual setat Portret iesea peisaj, pentru ca pagina venea din sablon, nu din Setări de pagină. Acum formatul si orientarea din Setări de pagină potrivesc sablonul (elementele se intind pe noua latime, subsolul ramane jos); la deschiderea unui model nepotrivit, potrivirea se face automat, cu un mesaj. Manual 1.71.
