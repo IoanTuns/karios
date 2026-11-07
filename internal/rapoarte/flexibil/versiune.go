@@ -6,4 +6,4 @@ package flexibil
 // calculate in SQL (10, D090), culori, titluri din raport si zile 29-31 ascunse
 // in PDF-ul pdfme (11), toate rapoartele pe editorul vizual dupa conversie (12), antet si titlu
 // repetate pe fiecare pagina (13).
-const Versiune = 14
+const Versiune = 15

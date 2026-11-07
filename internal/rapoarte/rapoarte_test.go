@@ -82,7 +82,7 @@ func fixture(t *testing.T, m *mediu) {
 		`INSERT INTO angajati(id,nume,prenume,marca,sectie_id,departament_id,activ,creat_la,modificat_la) VALUES ('b','Țincu','Răzvan','DEMO-R02','s','d',0,'x','x')`,
 		`INSERT INTO angajati(id,nume,prenume,marca,activ,creat_la,modificat_la) VALUES ('c','Fictiv','Inactiv','DEMO-R03',0,'x','x')`,
 		`INSERT INTO pontaj_ciorne(angajat_id,data,valoare,modificat_la) VALUES ('a','2026-10-23','IN9','x'),('b','2026-10-01','Z7','x'),('a','2028-02-29','N9','x')`,
-		`INSERT INTO absente_zile(angajat_id,data,cod,activ,creat_la,modificat_la) VALUES ('a','2026-10-24','CO',1,'x','x'),('a','2026-10-25','CM',0,'x','x'),('b','2027-01-01','CM',1,'x','x')`,
+		`INSERT INTO absente_zile(angajat_id,data,cod,activ,creat_la,modificat_la) VALUES ('a','2026-10-24','CO',1,'x','x'),('a','2026-10-26','CO',1,'x','x'),('a','2026-10-25','CM',0,'x','x'),('b','2027-01-01','CM',1,'x','x')`,
 		`INSERT INTO planificare(id,angajat_id,data,schimb_id,sectiune,activ,creat_la,modificat_la) VALUES ('p1','a','2026-10-23','20000000-0000-4000-8000-000000000004','GARZI',1,'x','x')`,
 	} {
 		if _, err := m.db.Exec(comanda); err != nil {
@@ -124,7 +124,7 @@ func TestDetaliatFolosesteAceleasiOreSiReguliCaGrila(t *testing.T) {
 		}
 		valori[col.Cod] = doc.Randuri[0].Valori[i]
 	}
-	if valori["2026-10-23"] != "2" || valori["2026-10-24"] != "7" || valori["total_T"] != "9" || valori["total_ZNL"] != "7" || valori["total_CO"] != "1" || valori["total_ore_garda"] != "—" {
+	if valori["2026-10-23"] != "2" || valori["2026-10-24"] != "7" || valori["total_T"] != "9" || valori["total_ZNL"] != "7" || valori["total_CO"] != "2" || valori["2026-10-26"] != "CO" || valori["total_ore_garda"] != "—" {
 		t.Fatal(valori)
 	}
 	for _, r := range rez.Totaluri {
@@ -280,8 +280,9 @@ func TestDateRaportFiltreCalendarSiAbsente(t *testing.T) {
 	if len(doc.Randuri) != 2 || len(doc.Coloane) != 33 {
 		t.Fatalf("dimensiuni: %d %d", len(doc.Randuri), len(doc.Coloane))
 	}
-	if doc.Randuri[0].Valori[24] != "9" || doc.Randuri[0].Valori[25] != "0" || doc.Randuri[0].Culori[25] != "ABSENTA" {
-		t.Fatalf("coduri/absențe: %+v", doc.Randuri[0])
+	// F09-T30: absenta in zi libera (sambata 24) -> gol, marcat zi libera; in zi lucratoare (luni 26) -> codul.
+	if doc.Randuri[0].Valori[24] != "9" || doc.Randuri[0].Valori[25] != "" || doc.Randuri[0].Culori[25] != CuloareZiLibera || doc.Randuri[0].Valori[27] != "CO" || doc.Randuri[0].Culori[27] != "ABSENTA" {
+		t.Fatalf("coduri/absențe: %q %q", doc.Randuri[0].Valori, doc.Randuri[0].Culori)
 	}
 	if !strings.Contains(doc.Metadate, versiune.Aplicatie) || !strings.Contains(doc.Nota, "fără calcul") {
 		t.Fatal("lipsesc versiunile sau statutul de schiță")
@@ -294,7 +295,7 @@ func TestDateRaportFiltreCalendarSiAbsente(t *testing.T) {
 	}
 	c.ModelID, c.An, c.Luna = "raport-absente", 2026, 10
 	doc, err = m.s.Pregateste(ctx, c, momentFix)
-	if err != nil || len(doc.Randuri) != 1 || doc.Randuri[0].Valori[3] != "CO" {
+	if err != nil || len(doc.Randuri) != 2 || doc.Randuri[0].Valori[3] != "CO" || doc.Randuri[1].Valori[0] != "26.10.2026" {
 		t.Fatalf("absențe active/an: %+v %v", doc, err)
 	}
 	c.ModelID, c.AngajatID = "raport-fisa", ""

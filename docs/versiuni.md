@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.73 - 2026-11-07
+
+F09-T30 (D095), regula ceruta de Ioan Tuns: unde persoana nu are ore, zilele libere intregi (weekend, sarbatori) sunt goale si marcate distinct (hasura in grila Pontaj, cu legenda; culoarea ZI_LIBERA in PDF), chiar daca intra intr-un interval de absenta; in zilele lucratoare absenta arata codul (CO, CM…) in loc de 0. Rapoarte cu versiune noua: Pontaj lunar 20, Pontaj detaliat 21, Fisa individuala 19, Evidenta absentelor 16, flexibile 15 (verificat: in referinte difera doar celulele de absenta si culoarea zilelor libere fara ore). Manual 1.70.
+
 ## 0.92.72 - 2026-11-07
 
 F09-T29 (D094, propusa), cerere Ioan Tuns: antetul si subsolul rapoartelor din editorul vizual (pdfme) se pot edita. Butonul „Editează antetul” aduce pe pagina elementele care se repeta pe fiecare pagina (zonele antetului, titlul, subsolul, numarul paginii): se muta, se modifica sau se sterg, iar elementele adaugate atunci se repeta si ele. „Gata cu antetul”, verificarea sau inchiderea editorului le pun la loc, cu marginile recalculate si tabelul coborat sub antet. Variabila noua `{data_curenta}` (data generarii, fara ora). Rapoartele existente nu se schimba. Manual 1.69.

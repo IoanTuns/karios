@@ -183,7 +183,7 @@ type stiluriTabelPdfme struct {
 }
 
 // Culorile motorului vechi (pdf.go), ca PDF-ul pdfme sa arate la fel.
-var culoriPdfme = map[string]string{"WEEKEND": "#E7EAE7", "SARBATOARE": "#FFF0C7", "ABSENTA": "#DFEFE4"}
+var culoriPdfme = map[string]string{"WEEKEND": "#E7EAE7", "SARBATOARE": "#FFF0C7", "ABSENTA": "#DFEFE4", CuloareZiLibera: "#D2D8D3"}
 
 const fundalGrupPdfme = "#E7EFEA"
 

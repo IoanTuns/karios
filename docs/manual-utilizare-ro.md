@@ -958,3 +958,12 @@ Antetul (cele trei zone și titlul) și subsolul (inclusiv numărul paginii) se 
 3. Apăsați **Gata cu antetul**. Elementele revin pe margine, marginea se potrivește după antet, iar tabelul coboară singur sub antet dacă e nevoie. **Verifică** sau **Gata** fac același lucru automat.
 4. Salvați modelul.
 
+## Zilele libere și codurile absențelor (0.92.73)
+
+Când o persoană nu are ore într-o zi:
+
+- **sâmbăta, duminica și sărbătorile legale** rămân goale și sunt marcate distinct: hașurate în grila Pontaj (legenda **Zi liberă întreagă**), cu o nuanță mai închisă în rapoartele PDF. Regula se aplică și când ziua intră într-un concediu: un CO de vineri până luni apare ca `CO`, gol, gol, `CO`;
+- **zilele lucrătoare cu absență** arată codul absenței (CO, CM, CFP…) în loc de 0, în toate rapoartele.
+
+Dacă persoana are ore în acea zi (de exemplu o gardă în weekend), se văd orele. Totalurile nu se schimbă.
+

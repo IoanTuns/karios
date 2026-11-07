@@ -558,7 +558,7 @@ func pregatesteStandard(ctx context.Context, tx *sql.Tx, q *acces.Queries, d Def
 				case "cod":
 					v = cod
 				case "ore":
-					v = ore[a.ID+"/"+data]
+					v, culoare = celulaZiFaraOre(ore[a.ID+"/"+data], culoare, cod, categorii[cod] != "", culoareZi(data) != "")
 				case "descriere":
 					v = descrieri[cod]
 					if _, manual := calcul.OreManuale(cod); manual && v == "" {
@@ -585,10 +585,12 @@ func pregatesteStandard(ctx context.Context, tx *sql.Tx, q *acces.Queries, d Def
 							v = "—"
 						}
 					} else {
+						cod := celule[a.ID+"/"+col.Cod]
 						v = ore[a.ID+"/"+col.Cod]
-						if categorii[celule[a.ID+"/"+col.Cod]] != "" {
+						if categorii[cod] != "" {
 							culoare = "ABSENTA"
 						}
+						v, culoare = celulaZiFaraOre(v, culoare, cod, categorii[cod] != "", culoareZi(col.Cod) != "")
 					}
 				}
 				if strings.HasPrefix(col.Cod, "total_") && d.Continut.Sursa != "GRAFIC_GARZI" {
@@ -760,4 +762,24 @@ func amprentaLunii(ctx context.Context, tx *sql.Tx, an, luna int, limba i18n.Lim
 		return i18n.T(limba, "rapoarte.amprenta_luna", map[string]string{"amprenta": pastrata}), nil
 	}
 	return i18n.T(limba, "rapoarte.amprenta_diferita", map[string]string{"amprenta": pastrata, "curenta": curenta}), nil
+}
+
+// CuloareZiLibera marcheaza ziua de weekend sau de sarbatoare fara ore (F09-T30).
+const CuloareZiLibera = "ZI_LIBERA"
+
+// celulaZiFaraOre (F09-T30, cerere Ioan Tuns): unde persoana nu are ore in zi, o zi
+// libera intreaga (weekend sau sarbatoare) ramane goala si marcata distinct, chiar
+// daca intra intr-un interval de absenta; o zi lucratoare cu absenta arata codul
+// absentei in loc de 0. Zilele cu ore si valorile necalculate ("—") raman neschimbate.
+func celulaZiFaraOre(v, culoare, cod string, absenta, libera bool) (string, string) {
+	if v != "0" && v != "" {
+		return v, culoare
+	}
+	switch {
+	case libera:
+		return "", CuloareZiLibera
+	case absenta:
+		return cod, culoare
+	}
+	return v, culoare
 }

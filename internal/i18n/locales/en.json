@@ -2170,5 +2170,7 @@
   "pontaj.motiv_garda_fara_znl": "ZNL is not calculated on the on-call row; weekend and holiday hours appear in On-call hours 200%.",
   "rapoarte.pdfme_editeaza_antet": "Edit header",
   "rapoarte.pdfme_antet_gata": "Done with header",
-  "rapoarte.pdfme_antet_indiciu": "The header and footer, repeated on every page, can now be moved, changed or deleted, and elements added now are repeated too. For today's date write {data_curenta} in a text, for example \"{titlu} · {data_curenta}\". Press \"Done with header\" when finished; the table moves below the header automatically."
+  "rapoarte.pdfme_antet_indiciu": "The header and footer, repeated on every page, can now be moved, changed or deleted, and elements added now are repeated too. For today's date write {data_curenta} in a text, for example \"{titlu} · {data_curenta}\". Press \"Done with header\" when finished; the table moves below the header automatically.",
+  "pontaj.legenda_zi_libera": "Full day off",
+  "pontaj.zi_libera_intreaga": "Full day off, no hours"
 }

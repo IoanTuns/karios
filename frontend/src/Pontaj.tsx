@@ -89,11 +89,15 @@ const RandPontaj = memo(function RandPontaj({a, r, zile, weekend, sarbatori, sel
             const dupaG24 = z > 0 && valoareBruta(z - 1).trim().toUpperCase() === 'G24' && areLucruZi;
             const peste24h = minuteZi > 1440;
             const titluAvertisment = [dupaG24 ? t('pontaj.avertisment_dupa_g24') : '', peste24h ? t('pontaj.avertisment_peste_24h', {ore: oreText(minuteZi)}) : ''].filter(Boolean).join(' · ');
-            const valoare = absenta ? absenta.cod : calculare ? '…' : calc ? (calc.calculabil ? oreText(calc.minute) : '—') : areCalcul ? '' : '—';
-            return <td key={data} className={`col-zi ${sarbatori.has(data) ? 'zi-sarbatoare' : weekend[z] ? 'zi-weekend' : ''} ${selectata ? 'celula-selectata' : ''} ${modificari.has(k) ? 'celula-modificata' : ''} ${colegiInlocuiti?.length ? 'celula-inlocuitor' : ''} ${titluAvertisment ? 'celula-avertisment' : ''}`}>
+            // F09-T30: zi libera intreaga (weekend/sarbatoare) fara ore: celula goala, marcata distinct,
+            // chiar daca intra intr-un interval de absenta; in zilele lucratoare absenta arata codul.
+            const liberaIntreaga = (weekend[z] || sarbatori.has(data)) && !calculare && minuteZi === 0 && (!calc || calc.calculabil) && (Boolean(absenta) || valoareBruta(z).trim() === '');
+            const valoare = liberaIntreaga ? '' : absenta ? absenta.cod : calculare ? '…' : calc ? (calc.calculabil ? oreText(calc.minute) : '—') : areCalcul ? '' : '—';
+            return <td key={data} className={`col-zi ${sarbatori.has(data) ? 'zi-sarbatoare' : weekend[z] ? 'zi-weekend' : ''} ${liberaIntreaga ? 'zi-libera-intreaga' : ''} ${selectata ? 'celula-selectata' : ''} ${modificari.has(k) ? 'celula-modificata' : ''} ${colegiInlocuiti?.length ? 'celula-inlocuitor' : ''} ${titluAvertisment ? 'celula-avertisment' : ''}`}>
             <input data-rand={r} data-zi={z} aria-label={t('pontaj.celula', {nume: `${numeAngajatFaraPrefix(a)}`, data})} title={[
                 t('ui.tooltip_marca', {nume: `${numeAngajatFaraPrefix(a)}`, marca: a.marca || '—'}),
                 t('ui.tooltip_data', {data}) + (weekend[z] ? ` [${t('ui.tooltip_weekend')}]` : '') + (sarbatori.has(data) ? ` [${sarbatori.get(data)}]` : ''),
+                liberaIntreaga ? t('pontaj.zi_libera_intreaga') + (absenta ? ` (${absenta.cod})` : '') : '',
                 t('ui.tooltip_schimb', {schimb: valoare || t('ui.tooltip_liber')}),
                 titluAbsenta,
                 titluInlocuire,
@@ -923,7 +927,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                 </div>
             </div>}
             <div className="legenda-grila" aria-label={t('pontaj.legenda')}>
-                {['weekend', 'sarbatoare', 'selectie', 'modificat', 'avertisment', 'inlocuire'].map(stare => <span key={stare}><i aria-hidden="true" className={`mostra-${stare}`}/>{t(`pontaj.legenda_${stare}`)}</span>)}
+                {['weekend', 'sarbatoare', 'zi_libera', 'selectie', 'modificat', 'avertisment', 'inlocuire'].map(stare => <span key={stare}><i aria-hidden="true" className={`mostra-${stare}`}/>{t(`pontaj.legenda_${stare}`)}</span>)}
             </div>
             <div className={`panou-pontaj-layout ${drawerAI ? 'cu-drawer-ai' : ''}`}>
                 <div className="zona-grila-principala">

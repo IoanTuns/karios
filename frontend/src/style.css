@@ -223,6 +223,9 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .grila-pontaj input:focus-visible { position: relative; outline: 2px solid var(--verde); outline-offset: -2px; z-index: 1; }
 .grila-pontaj .zi-weekend { background: var(--grila-weekend); }
 .grila-pontaj .zi-sarbatoare { background: var(--grila-sarbatoare); }
+/* F09-T30: zi libera intreaga fara ore: hasura peste culoarea weekendului/sarbatorii. */
+.grila-pontaj .zi-libera-intreaga, .legenda-grila .mostra-zi_libera { background-color: var(--grila-weekend); background-image: repeating-linear-gradient(135deg, rgba(40, 60, 48, .16) 0 2px, transparent 2px 6px); }
+.grila-pontaj .zi-sarbatoare.zi-libera-intreaga { background-color: var(--grila-sarbatoare); }
 .grila-pontaj .celula-selectata { background: var(--grila-selectie); box-shadow: inset 0 0 0 1px var(--grila-selectie-contur); }
 .grila-pontaj .celula-modificata { background-image: linear-gradient(135deg, #c5983a 5px, transparent 5px); }
 .grila-pontaj .total-necalculat { min-width: 65px; width: 65px; max-width: 65px; padding: 5px; white-space: normal; background: var(--total-necalculat-fond); color: var(--total-necalculat-text); font-size: 10px; }

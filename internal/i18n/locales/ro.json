@@ -2170,5 +2170,7 @@
   "pontaj.motiv_garda_fara_znl": "Pe rândul mărcii de gardă ZNL nu se calculează; orele din weekend și sărbători apar în Ore gardă 200%.",
   "rapoarte.pdfme_editeaza_antet": "Editează antetul",
   "rapoarte.pdfme_antet_gata": "Gata cu antetul",
-  "rapoarte.pdfme_antet_indiciu": "Antetul și subsolul, care se repetă pe fiecare pagină, se pot acum muta, modifica sau șterge, iar elementele adăugate acum se repetă și ele. Pentru data de azi scrieți {data_curenta} într-un text, de exemplu „{titlu} · {data_curenta}”. Apăsați „Gata cu antetul” când ați terminat; tabelul coboară singur sub antet."
+  "rapoarte.pdfme_antet_indiciu": "Antetul și subsolul, care se repetă pe fiecare pagină, se pot acum muta, modifica sau șterge, iar elementele adăugate acum se repetă și ele. Pentru data de azi scrieți {data_curenta} într-un text, de exemplu „{titlu} · {data_curenta}”. Apăsați „Gata cu antetul” când ați terminat; tabelul coboară singur sub antet.",
+  "pontaj.legenda_zi_libera": "Zi liberă întreagă",
+  "pontaj.zi_libera_intreaga": "Zi liberă întreagă, fără ore"
 }
