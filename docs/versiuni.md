@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.77 - 2026-11-07
+
+F09-T33, defect raportat de Ioan Tuns („fonturile nu funcționează”): in editorul vizual, listele derulante din panoul elementului (Font, Aliniere text, Aliniere verticala) se deschideau sub dialogul modal, deci nu se vedeau si nu se puteau alege; fontul adaugat din Windows nu putea fi folosit. Acum listele se deschid in dialog. Manualul revizuit fara modificari de continut.
+
 ## 0.92.76 - 2026-11-07
 
 F09-T32, corectie: la potrivirea paginii (0.92.75) se scaleaza doar zona dintre marginile laterale, nu toata latimea; inainte, la trecerea din peisaj in portret, tabelul ajungea in margine (X 4,14 in loc de 10), semnalat cu rosu de editor (captura Ioan Tuns). Elementele asezate in margine pastreaza distanta fata de marginea paginii. Modelele salvate cu 0.92.75 dupa o schimbare de orientare pot avea tabelul in margine: se corecteaza din editor (X = marginea). Manualul revizuit fara modificari de continut.

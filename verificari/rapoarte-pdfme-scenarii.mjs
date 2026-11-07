@@ -176,6 +176,41 @@ export async function verificaRapoartePdfme({cdp, evalueaza, asteapta, apasa, co
     await pauza(1500);
     await masoara('spatiu_1440');
     await captura('t25-07-spatiu-1440.png');
+    // F09-T32: listele derulante ale panoului pdfme se deschid in dialog; fontul adaugat se poate alege.
+    {
+        await evalueaza("document.querySelector('.fonturi-pdfme').open=true");
+        await completeaza('input[name=font_windows]', 'Arial');
+        await apasa(t('rapoarte.pdfme_adauga_font'));
+        await pauza(1500);
+        await evalueaza("document.querySelector('.fonturi-pdfme').open=false");
+        const r = await evalueaza(`(() => { const el = [...document.querySelectorAll('.dialog-pdfme .editor-pdfme *')].find(e => e.childElementCount === 0 && e.textContent.trim() === 'tabel'); if (!el) return 'fara'; const b = el.getBoundingClientRect(); return [b.x + b.width / 2, b.y + b.height / 2]; })()`);
+        assert(Array.isArray(r), 'Tabelul lipseste din lista elementelor');
+        if (Array.isArray(r)) {
+            for (const type of ['mousePressed', 'mouseReleased']) await cdp('Input.dispatchMouseEvent', {type, x: r[0], y: r[1], button: 'left', clickCount: 1});
+            await pauza(800);
+            const poz = await evalueaza(`(() => { const s = [...document.querySelectorAll('.dialog-pdfme .ant-select')].find(s => /Go/.test(s.textContent)); if (!s) return null; s.scrollIntoView({block:'center'}); const b = s.getBoundingClientRect(); return [b.x + b.width / 2, b.y + b.height / 2]; })()`);
+            assert(poz, 'Campul Font al capului de tabel lipseste');
+            {
+                await pauza(300);
+                const poz2 = await evalueaza(`(() => { const s = [...document.querySelectorAll('.dialog-pdfme .ant-select')].find(s => /Go/.test(s.textContent)); const b = s.getBoundingClientRect(); return [b.x + b.width / 2, b.y + b.height / 2]; })()`);
+                for (const type of ['mousePressed', 'mouseReleased']) await cdp('Input.dispatchMouseEvent', {type, x: poz2[0], y: poz2[1], button: 'left', clickCount: 1});
+                await pauza(800);
+                masuri.fonturiLista = await evalueaza(`(() => { const d = document.querySelector('dialog.dialog-pdfme[open]'); return [...document.querySelectorAll('.ant-select-item-option')].map(o => o.textContent + (d.contains(o) ? '' : '[in afara dialogului]')); })()`);
+                assert(masuri.fonturiLista.includes('Arial'), 'Fontul adaugat nu apare in lista sau lista e in afara dialogului: ' + masuri.fonturiLista);
+                await captura('t32-01-lista-fonturi.png');
+                const opt = await evalueaza(`(() => { const o = [...document.querySelectorAll('.ant-select-item-option')].find(o => o.textContent === 'Arial'); if (!o) return null; const b = o.getBoundingClientRect(); return [b.x + b.width / 2, b.y + b.height / 2]; })()`);
+                if (opt) for (const type of ['mousePressed', 'mouseReleased']) await cdp('Input.dispatchMouseEvent', {type, x: opt[0], y: opt[1], button: 'left', clickCount: 1});
+                await pauza(1000);
+                const c0 = await evalueaza('window.__pdfmeCereri || 0');
+                await evalueaza(`[...document.querySelectorAll('.dialog-pdfme .actiuni-pdfme button')].find(b => b.textContent.trim() === ${JSON.stringify(t('rapoarte.flex_verifica'))}).click()`);
+                await asteapta(() => evalueaza(`(window.__pdfmeCereri || 0) > ${c0}`), 'Verificarea dupa alegerea fontului a esuat', 30000);
+                masuri.fontAles = await evalueaza(`window.__ultimSablon.schemas[0].find(e => e.name === 'tabel').headStyles.fontName`);
+                assert.equal(masuri.fontAles, 'Arial', 'Fontul ales nu a ajuns in sablon');
+                await evalueaza(`[...document.querySelectorAll('.dialog-pdfme .file-pdfme button')][0].click()`);
+                await pauza(500);
+            }
+        }
+    }
     // F09-T29: antetul (pagina fixa) se editeaza pe pagina; verificarea il pune la loc.
     const butonSpatiu = text => `[...document.querySelectorAll('.dialog-pdfme .actiuni-pdfme button')].find(b => b.textContent.trim() === ${JSON.stringify(text)})`;
     await evalueaza(`${butonSpatiu(t('rapoarte.pdfme_editeaza_antet'))}.click()`);

@@ -8,6 +8,7 @@ import {antetEditabil, antetFix, etichetePdfme, STATIC_PDFME, fontSistem, fontur
 import {notifica} from './Toast';
 
 const FONTURI_GO = new Set(['Go', 'GoBold', 'GoItalic', 'GoBoldItalic']);
+const SELECTOR_POPUP_ANTD = '.ant-select-dropdown, .ant-dropdown, .ant-popover, .ant-picker-dropdown, .ant-color-picker, .ant-tooltip, .ant-cascader-dropdown';
 // Latimea de la care panoul de proprietati porneste deschis (UIR-09).
 const LATIME_PANOU = 1280;
 
@@ -114,6 +115,23 @@ export function SpatiuPdfme({sablon, schimba, coloaneSQL, stare, ocupat, eroare,
     const verificaDupaAntet = useRef(false);
     const sablonCurent = useRef(sablon);
     sablonCurent.current = sablon;
+
+    // Listele derulante ale panoului pdfme (antd) se deschid in document.body, sub dialogul
+    // modal (top layer), deci nu se vad si nu se pot alege (fonturi, aliniere). Containerele
+    // lor se muta in dialog, unde raman deasupra editorului; pozitia o recalculeaza antd.
+    useEffect(() => {
+        const muta = () => {
+            const dialog = document.querySelector('dialog.dialog-pdfme[open]');
+            if (!dialog) return;
+            for (const el of Array.from(document.body.children)) {
+                if (el instanceof HTMLElement && !el.contains(dialog) && el.querySelector(SELECTOR_POPUP_ANTD)) dialog.appendChild(el);
+            }
+        };
+        const observator = new MutationObserver(muta);
+        observator.observe(document.body, {childList: true});
+        muta();
+        return () => observator.disconnect();
+    }, []);
 
     useEffect(() => {
         let activ = true;
