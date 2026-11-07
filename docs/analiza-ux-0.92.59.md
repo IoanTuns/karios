@@ -68,3 +68,19 @@ Gravitate: **P1** = afectează munca zilnică, **P2** = încetinește sau derute
 - Fluxuri complete cu un operator real și pe date reale (300 de angajați, luni închise).
 - Tema întunecată pe toate ecranele (verificată anterior doar în Pontaj și Planificare).
 - Scalările Windows de 125–150% în WebView2 (s-au măsurat doar zoomurile 150% și 200% din aplicație).
+
+## Rezultat (F16-T37, 0.92.61–0.92.69)
+
+Toate cele 9 recomandări au fost făcute, câte o versiune pe fiecare. Măsurat cu `--capturi-ux` la 1024×640:
+
+| Măsură | Înainte (0.92.59) | După (0.92.69) |
+| --- | --- | --- |
+| Unde începe conținutul (marginea de jos a antetului) | 250–270 px | 56–145 px |
+| Pontaj: rânduri de angajați vizibile fără derulare | 0 complete | 5–6 (verificat automat: minimum 5) |
+| Pontaj: totalurile OL…FMP vizibile împreună | doar OL | toate 7, în vederea Totaluri |
+| Setări › General, înălțimea paginii | 2466 px | 1332 px (pe file) |
+| Asistent AI, înălțimea conversației | ~130 px | 334 px (576 px la 1440×900) |
+| Texte românești fără diacritice (test) | 367 cuvinte | 0 (test de pază în `internal/i18n`) |
+
+Rămân ca idei separate: I122 (aceeași bară compactă în Planificare) și I123 (diacriticele din legendele rapoartelor, care cer versiuni noi de raport).
+

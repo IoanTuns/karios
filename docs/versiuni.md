@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.69 - 2026-11-07
+
+F16-T37 R9 (UX59-10, UX59-11). Randul „Persoane înregistrate” din Pontaj apare doar cand luna are persoane programate. Filtrul de stare are aceeasi eticheta („Stare angajați”) in Pontaj si Planificare; in Planificare, starea si filtrele profesionale stau pe un rand, iar selectia e un text discret. Inca 8 texte romanesti fara diacritice corectate (de ex. „Adaugă program pe zi”, „Concediu / absență pe selecție”). Manualul revizuit fara modificari de continut.
+
 ## 0.92.68 - 2026-11-07
 
 F16-T37 R8 (UX59-09). Asistentul AI: luna de lucru sta pe acelasi rand cu navigarea (explicatia in titlu), iar conversatia ocupa restul ecranului: 334 px la 1024×640 (inainte ~130) si 576 px la 1440×900. Cand lipsesc fisierele motorului, pasii de instalare sunt afisati direct, cu un buton spre ghidul asistentului. Datele din propunerile asistentului au formatul comun („1 feb. 2027”). Manualul revizuit fara modificari de continut.

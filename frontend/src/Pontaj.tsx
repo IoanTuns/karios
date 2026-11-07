@@ -824,7 +824,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                 </details>
                 <span className="stare-modificari" aria-live="polite">{t('pontaj.modificate', {numar: modificari.size})}</span>
                 <div id="pontaj-panou-filtre" className="panou-unelte" hidden={panou !== 'filtre'}>
-                <FiltruStare nume="angajati_pontaj" valoare={stareLista} schimba={s=>{setStareLista(s);setSelectie({inceput:{rand:0,zi:0},sfarsit:{rand:0,zi:0}});}} disabled={ocupat}/>
+                <FiltruStare nume="angajati_pontaj" eticheta="ui.filtru_stare_angajati" valoare={stareLista} schimba={s=>{setStareLista(s);setSelectie({inceput:{rand:0,zi:0},sfarsit:{rand:0,zi:0}});}} disabled={ocupat}/>
                 <FiltreProfesionale numarRezultate={randuri.length} date={date} value={filtruProfesional} onChange={f=>{setFiltruProfesional(f);setSelectie({inceput:{rand:0,zi:0},sfarsit:{rand:0,zi:0}});}}/>
                 <select aria-label={t('ui.sectie')} value={sectie} disabled={ocupat} onChange={e => { setSectie(e.target.value); setDepartament(''); }}><option value="">{t('ui.toate_sectiile')}</option>
                 {date.sectii.map(s => <option key={s.id} value={s.id}>{denumireSectie(s, i18n.language)}</option>)}</select>
@@ -895,7 +895,8 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                             <tr><th className="fix-nume">{t('ui.angajat')}</th><th className="fix-marca">{t('ui.marca')}</th>
                             {zile.map((data, z) => { const d = new Date(`${data}T12:00:00Z`); return <th key={data} className={`col-zi ${sarbatori.has(data) ? 'zi-sarbatoare' : weekend[z] ? 'zi-weekend' : ''}`} title={sarbatori.get(data) || ''} scope="col"><strong>{z + 1}</strong><small>{formatData(i18n.language, {weekday: 'short', timeZone: 'UTC'}).format(d)}</small></th>; })}
                             {totaluri.map(c => <th key={c} className={c === 'OL' ? 'fix-total-t' : ''} title={t(`pontaj.total_titlu_${c}`)}><abbr title={t(`pontaj.total_titlu_${c}`)}>{t(`pontaj.total_${c}`)}</abbr></th>)}</tr>
-                            <tr className="rand-heatmap" aria-label={t('pontaj.acoperire')}>
+                            {/* R9: randul de acoperire se ascunde cand nu are nicio persoana in luna. */}
+                            {acoperireZile.some(az => az.lucratori > 0) && <tr className="rand-heatmap" aria-label={t('pontaj.acoperire')}>
                                 <th className="fix-nume titlu-heat" scope="row"><strong>{t('pontaj.acoperire')}</strong></th>
                                 <th className="fix-marca titlu-heat-marca"><small>{t('pontaj.persoane_afisate', {numar: randuri.length})}</small></th>
                                 {acoperireZile.map(az => (
@@ -907,7 +908,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                                     </th>
                                 ))}
                                 {totaluri.map(c => <th key={`heat-tot-${c}`} className={`celula-heat-total ${c === 'OL' ? 'fix-total-t' : ''}`} />)}
-                            </tr>
+                            </tr>}
                         </thead><tbody>
                             {randuri.map((a, r) => <RandPontaj key={a.id} functie={date.functii?.find(f=>f.id===a.functie_id)?.denumire[i18n.language]||a.functie} a={a} r={r} zile={zile} weekend={weekend} sarbatori={sarbatori}
                                 selDe={r >= inceputRand && r <= sfarsitRand ? inceputZi : -1} selPana={r >= inceputRand && r <= sfarsitRand ? sfarsitZi : -1}

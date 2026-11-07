@@ -1428,3 +1428,8 @@ fieldset.filtre-profesionale{border:0;padding:0;min-width:0}
 .navigare-lucru-ai .perioada-asistent { margin: 0 0 0 auto; }
 .navigare-lucru-ai { flex-wrap: wrap; align-items: center; }
 
+/* R9: bara comuna de filtre (stare + filtre profesionale pe un rand) si selectia discreta. */
+.bara-filtre-comuna { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 8px 12px; margin-bottom: 6px; }
+.bara-filtre-comuna > details { flex: 1 1 320px; margin: 0; }
+.modul-planificare > .ux30-selectie { display: block; font-size: 12px; color: var(--discret); margin: 0 0 6px; padding: 0; border: 0; background: none; }
+
