@@ -334,11 +334,11 @@ Aplicația portabilă păstrează datele în folderul `karios` de lângă execut
 
 1. Închide aplicația și păstrează o copie completă a folderului vechi.
 2. Pune executabilul nou într-un director separat.
-3. Pentru continuarea datelor existente, copiază întregul folder `karios` lângă executabilul nou, nu doar baza de date.
+3. Pentru continuarea datelor existente, copiază întregul folder `karios` lângă executabilul nou, nu doar baza de date. Dacă folosești asistentul AI, copiază și folderul `ai` (motorul și modelele), aflat lângă `karios`.
 4. Pornește aplicația și parcurge eventuala deblocare și confirmarea cheii de recuperare.
 5. Verifică datele înainte de a renunța la copia veche.
 
-Folderul include baza, seiful și subdirectoare precum `backup`, `ai`, `rapoarte`, `jurnale` și `webview`. Oglinda seifului din `backup/seif` ajută la refacerea seifului pierdut sau deteriorat, dar nu înlocuiește parolele ori cheia de recuperare. Nu o trata drept parolă și nu o șterge ca pe un fișier temporar.
+Folderul include baza, seiful și subdirectoare precum `backup`, `rapoarte`, `jurnale` și `webview`. Motorul și modelele AI nu mai stau aici, ci în folderul separat `ai`, lângă `karios` (din 0.92.55; la prima pornire, un `karios/ai` vechi se mută automat). Oglinda seifului din `backup/seif` ajută la refacerea seifului pierdut sau deteriorat, dar nu înlocuiește parolele ori cheia de recuperare. Nu o trata drept parolă și nu o șterge ca pe un fișier temporar.
 
 ## 15. Jurnal, conturi și probleme de integritate
 

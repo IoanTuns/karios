@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.55 - 2026-11-07
+
+F14-T36 (D091). Folderul motorului si al modelelor AI iese din karios/ si sta la acelasi nivel cu el, langa pontix.exe: karios/ pentru date, ai/ pentru LLM. La pornire, un karios/ai existent se muta in ai/ printr-o redenumire (fara copierea modelelor); daca nu se poate, aplicatia il foloseste pe cel vechi si reincearca la pornirea urmatoare; cand exista ambele, se foloseste ai/. build.ps1 pune llama-server.exe in ai/. Manual 1.59.
+
 ## 0.92.54 - 2026-11-06
 
 F06-T13 (I066, etapa a doua): salvarea pontajului in bloc. In aceeasi tranzactie, instructiunile SQL se pregatesc o singura data si se refolosesc (adaptorul txPregatit in modificaTx, doar pentru Exec si QueryRow); validarea programelor multiple afla o singura data pe lot ce angajati au celule cu mai multe programe, in loc sa parcurga toate ciornele lunii pentru fiecare celula. Masurat pe 300 de angajati, o luna de 6.300 de celule: 3,2 s → 1,7 s fara audit si 5,0 s → 2,2 s cu trigger-ele auditului. Fara schimbari de comportament; manualul revizuit fara modificari de continut.

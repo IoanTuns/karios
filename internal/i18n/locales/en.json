@@ -1222,7 +1222,7 @@
   "dezvoltare.activ": "Active and connected",
   "dezvoltare.oprit": "Installed (stopped)",
   "dezvoltare.motor_descriere": "llama-server (native llama.cpp C++ with AVX2)",
-  "dezvoltare.motor_lipsa": "Not installed in karios/ai/",
+  "dezvoltare.motor_lipsa": "Not installed in ai/ (next to karios/)",
   "dezvoltare.confidentialitate": "100% offline (medical and personal data stay strictly local, no cloud or telemetry)",
   "dezvoltare.cerinta_os": "Windows 10 (version 1809 or newer) / Windows 11 (64-bit)",
   "dezvoltare.cerinta_cpu": "64-bit x64 processor (quad-core with AVX2 recommended for AI)",

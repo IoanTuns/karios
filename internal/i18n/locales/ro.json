@@ -1222,7 +1222,7 @@
   "dezvoltare.activ": "Activ și conectat",
   "dezvoltare.oprit": "Instalat (oprit)",
   "dezvoltare.motor_descriere": "llama-server (llama.cpp C++ nativ cu AVX2)",
-  "dezvoltare.motor_lipsa": "Neinstalat în karios/ai/",
+  "dezvoltare.motor_lipsa": "Neinstalat în ai/ (lângă karios/)",
   "dezvoltare.confidentialitate": "100% offline (datele medicale și personale rămân exclusiv local, fără cloud sau telemetrie)",
   "dezvoltare.cerinta_os": "Windows 10 (versiunea 1809 sau mai nouă) / Windows 11 (64 de biți)",
   "dezvoltare.cerinta_cpu": "Procesor x64 pe 64 de biți (recomandat quad-core cu AVX2 pentru AI)",

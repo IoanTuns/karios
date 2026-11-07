@@ -53,7 +53,7 @@ Verificarea folosește executabilul real deja construit și simulează compilato
 
 ## Pachet pentru operator (F02-T22)
 
-Buildul genereaza automat langa directorul livrarii arhiva `<director-build>.zip` si suma `.zip.sha256`. Obiectul returnat de build.ps1 are si proprietatea `Pachet`. ZIP-ul contine executabilul, manifestul, cele trei manuale, LICENSE, ACTUALIZARE.md, NOTE-VERSIUNE.md, CHECKLIST-ACCEPTANTA.md si SHA256SUMS.txt. Se foloseste o lista explicita: baza, seiful, backupurile si fisierele adaugate accidental in director nu sunt preluate. Daca s-a cerut compilarea AI, numai binarul llama-server verificat este inclus in karios/ai; modelul nu este inclus automat.
+Buildul genereaza automat langa directorul livrarii arhiva `<director-build>.zip` si suma `.zip.sha256`. Obiectul returnat de build.ps1 are si proprietatea `Pachet`. ZIP-ul contine executabilul, manifestul, cele trei manuale, LICENSE, ACTUALIZARE.md, NOTE-VERSIUNE.md, CHECKLIST-ACCEPTANTA.md si SHA256SUMS.txt. Se foloseste o lista explicita: baza, seiful, backupurile si fisierele adaugate accidental in director nu sunt preluate. Daca s-a cerut compilarea AI, numai binarul llama-server verificat este inclus in ai/, langa karios/ (D091); modelul nu este inclus automat.
 
 Documentele operatorului sunt in docs/livrare si se revizuiesc la schimbarea fluxurilor. Marcajele de versiune/commit sunt completate din manifest. Lista de acceptanta este necompletata: operatorul inregistreaza separat ce a executat.
 

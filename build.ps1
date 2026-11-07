@@ -91,7 +91,8 @@ try {
     $manifest.sha256 = (Get-FileHash -LiteralPath $caleExecutabil -Algorithm SHA256).Hash
 
     if ($null -ne $rezAI) {
-        $destAiDir = Join-Path $directorBuild 'karios/ai'
+        # D091: motorul AI sta in ai/, langa karios/, separat de baza de date.
+        $destAiDir = Join-Path $directorBuild 'ai'
         New-Item -ItemType Directory -Path $destAiDir -Force | Out-Null
         Copy-Item -LiteralPath $rezAI.Executabil -Destination (Join-Path $destAiDir 'llama-server.exe') -Force
         $manifest.llama_server_sha256 = $rezAI.SHA256

@@ -54,10 +54,11 @@ func (a *App) folderAI() string {
 			return foldere.AI
 		}
 	}
+	// a.radacina este folderul de date (karios/); folderul AI stă lângă el (D091).
 	if filepath.Base(radacina) == portabil.NumeFolderDate {
-		return filepath.Join(radacina, "ai")
+		return portabil.CaleAI(filepath.Dir(radacina))
 	}
-	return filepath.Join(radacina, portabil.NumeFolderDate, "ai")
+	return portabil.CaleAI(radacina)
 }
 
 const fisierFaraAutoPornire = "fara-autostart"
