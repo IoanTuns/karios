@@ -387,6 +387,27 @@ func incarcatBazaRaport(ctx context.Context, tx *sql.Tx, c Cerere, f *RaportFlex
 	if e = b.adauga(ctx, "lunar", cols, rl); e != nil {
 		return nil, e
 	}
+	// F08-T13 (D092): totalurile Pontajului, inclusiv TZLN si TOCN, intr-un tabel separat, ca
+	// rapoartele existente (SELECT * FROM lunar) sa nu se schimbe; apar doar daca SQL-ul le cere.
+	colsTot := []string{"angajat_id", "angajat", "marca", "ol", "co", "cm", "cfp", "cve", "dlg", "fmp", "tzln", "tocn"}
+	rt2 := [][]any{}
+	for _, a := range oameni {
+		if !inclus[a.ID] {
+			continue
+		}
+		v := valori[a.ID]
+		val := func(c string, divizor float64) any {
+			x, ok := v[c]
+			if !ok || !x.Definita {
+				return nil
+			}
+			return float64(x.Sutimi) / divizor
+		}
+		rt2 = append(rt2, []any{a.ID, nume[a.ID], a.Marca, val("OL", 6000), val("CO", 100), val("CM", 100), val("CFP", 100), val("CVE", 100), val("DLG", 100), val("FMP", 100), val("TZLN", 100), val("TOCN", 6000)})
+	}
+	if e = b.adauga(ctx, "pontaj_totaluri", colsTot, rt2); e != nil {
+		return nil, e
+	}
 	if e = b.adaugaStandard(ctx, tx, c, textFolositSQL(f, f.SQL), acum); e != nil {
 		return nil, e
 	}

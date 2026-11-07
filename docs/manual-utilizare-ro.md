@@ -904,3 +904,12 @@ Regulile fiecărei coloane se văd și se pot ajusta în **Setări › Configura
 
 La prima pornire a versiunii 0.92.58, aplicația redenumește automat codurile: **CEV → CVE**, **CFS → CFP**, **DEPL → DLG**, **FP → FMP**, cu toate zilele înregistrate. Denumirea, categoria și efectul tipului rămân aceleași. Dacă aveați deja și codul vechi și pe cel nou, aplicația nu le amestecă: verificați în **Concedii și absențe › Tipuri de absență** și unificați-le manual. Dacă ați scris rapoarte cu SQL propriu care pomenesc codurile vechi (de exemplu `'CEV'`), înlocuiți-le cu cele noi.
 
+### TZLN și TOCN în rapoartele SQL (0.92.59)
+
+În rapoartele scrise cu SQL, tabelul **pontaj_totaluri** conține pe fiecare angajat coloanele `ol`, `co`, `cm`, `cfp`, `cve`, `dlg`, `fmp`, `tzln` și `tocn`. Ele nu apar în niciun raport până nu le cereți explicit, de exemplu:
+
+```sql
+SELECT p.angajat, p.ol, p.tocn, p.ol - p.tocn AS diferenta
+FROM pontaj_totaluri p ORDER BY p.angajat
+```
+

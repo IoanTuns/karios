@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.59 - 2026-11-07
+
+F08-T13 (D092). SQL-ul rapoartelor are tabelul nou pontaj_totaluri (angajat_id, angajat, marca, ol, co, cm, cfp, cve, dlg, fmp, tzln, tocn), cu totalurile Pontajului. TZLN si TOCN au aceleasi valori ca total_zile_cf_contract si total_ore_cf_contract din tabelul lunar. Fiind separat, tabelul nu apare in niciun raport existent (SELECT * FROM lunar ramane neschimbat); TOCN se foloseste doar cand SQL-ul il cere explicit. Manual 1.62.
+
 ## 0.92.58 - 2026-11-07
 
 F08-T12 (D092). Migrarea 0035 redenumeste codurile de absenta CEV → CVE, CFS → CFP, DEPL → DLG si FP → FMP, cu tot cu zilele inregistrate; tipul isi pastreaza denumirea, categoria, efectul si starea. Se aplica doar cand codul vechi exista si cel nou nu; daca exista ambele, nu se amesteca nimic. Reducerea normei lunare si soldurile recunosc si codurile noi; listele de tipuri din modelele de raport se traduc la citire. Interogarile SQL scrise de mana care contin codurile vechi trebuie actualizate manual. Baza de date: migrarea 0035. Manual 1.61.
