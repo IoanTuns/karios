@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.67 - 2026-11-07
+
+F16-T37 R6 (UX59-08). Setări › General are file: Normă și structură, Nomenclatoare, Copii de siguranță, Despre (fila aleasa se retine local). Pagina scade de la 2416 la 1332 px la 1024×640. „Verificarea configurării” se deschide singura si arata cate puncte sunt de verificat cand exista. Inca 6 texte romanesti fara diacritice corectate, iar testul de diacritice le cunoaste. Manual 1.67.
+
 ## 0.92.66 - 2026-11-07
 
 F16-T37 R3 (UX59-03). Comutatorul „Zile / Totaluri” din bara Pontajului: vederea Totaluri ascunde zilele, iar OL, CO, CM, CFP, CVE, DLG si FMP apar toate langa nume, fara derulare orizontala, la 1024 px si peste. Alegerea se retine local. Scenariul Edge verifica cele 7 coloane in cadrul grilei. Manual 1.66.

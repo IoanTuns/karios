@@ -1419,3 +1419,8 @@ fieldset.filtre-profesionale{border:0;padding:0;min-width:0}
 .unelte-grila .comutator-vedere .buton-zoom.activ { background: var(--verde); color: var(--text-pe-accent); }
 [data-theme="dark"] .unelte-grila .comutator-vedere .buton-zoom:not(.activ) { background: #1a2522; color: #9bb3a9; }
 
+/* R6: Setari › General pe file; sectiunile isi pastreaza grila pe doua coloane. */
+.file-setari-generale { grid-column: 1 / -1; margin-top: 0; }
+.sectiune-setari { display: contents; }
+.sectiune-setari[hidden] { display: none; }
+

@@ -2157,5 +2157,10 @@
   "ui.mai_multe": "More",
   "pontaj.vedere": "Grid view",
   "pontaj.vedere_zile": "Days",
-  "pontaj.vedere_totaluri": "Totals"
+  "pontaj.vedere_totaluri": "Totals",
+  "setari.fila_structura": "Norm and structure",
+  "setari.fila_nomenclatoare": "Lists",
+  "setari.fila_backup": "Backups",
+  "setari.fila_despre": "About",
+  "ui28.verificare_probleme": "{{numar}} to check"
 }

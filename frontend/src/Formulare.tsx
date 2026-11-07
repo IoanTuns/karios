@@ -194,6 +194,11 @@ export function Setari({date, onDate, ocupat, salveazaNorma, adaugaSectie, adaug
     const [eroareBackup, setEroareBackup] = useState('');
     const [dialogDezvoltare, setDialogDezvoltare] = useState(false);
     const [versiuneCurenta, setVersiuneCurenta] = useState('');
+    // R6 (analiza UX 0.92.59): General pe file, ca pagina sa nu mai aiba ~4 ecrane. Sectiunile
+    // raman in pagina (hidden), iar fila aleasa se retine local.
+    const file = ['structura', 'nomenclatoare', 'backup', 'despre'] as const;
+    const [fila, setFilaStare] = useState<typeof file[number]>(() => { try { const v = localStorage.getItem('pontix-setari-fila'); return (file as readonly string[]).includes(v || '') ? v as typeof file[number] : 'structura'; } catch { return 'structura'; } });
+    const setFila = (f: typeof file[number]) => { setFilaStare(f); try { localStorage.setItem('pontix-setari-fila', f); } catch { /* doar in sesiune */ } };
     useEffect(() => { setOre(String(date.norma_intreaga_minute / 60)); }, [date.norma_intreaga_minute]);
     useEffect(() => {
         let activ = true;
@@ -225,6 +230,10 @@ export function Setari({date, onDate, ocupat, salveazaNorma, adaugaSectie, adaug
     }
 
     return <div className="setari">
+        <div className="file-setari-generale taburi-sectiuni" role="group" aria-label={t('ui.setari')}>
+            {file.map(f => <button key={f} type="button" className={`buton-tab ${fila === f ? 'activ' : ''}`} aria-pressed={fila === f} onClick={() => setFila(f)}>{t(`setari.fila_${f}`)}</button>)}
+        </div>
+        <div className="sectiune-setari" hidden={fila !== 'structura'}>
         <section className="panou card-setari"><h2>{t('ui.norma_titlu')}</h2><p>{t('ui.norma_descriere')}</p>
             <form onSubmit={trimiteNorma}>
                 <label>{t('ui.ore_pe_zi')}<input type="number" min="0" max="24" step="any" required value={ore} disabled={ocupat} onChange={e => setOre(e.target.value)}/></label>
@@ -250,13 +259,19 @@ export function Setari({date, onDate, ocupat, salveazaNorma, adaugaSectie, adaug
                 <button className="buton secundar" disabled={ocupat || !sectieDepartament || !numeDepartament.trim()}>{t('ui.adauga_departament')}</button>
             </form></div>
         </section>
+        </div>
+        <div className="sectiune-setari" hidden={fila !== 'backup'}>
         <section className="panou card-setari card-backup"><h2>{t('ui.backup_titlu')}</h2><p>{t('ui.backup_descriere')}</p>
             {eroareBackup && <p className="mesaj eroare" role="alert">{eroareBackup}</p>}
             {mesajBackup && <p className="mesaj succes" role="status">{mesajBackup}</p>}
             <button type="button" className="buton secundar" disabled={ocupat || ocupatBackup} onClick={creeazaBackup}>{t(ocupatBackup ? 'ui.salvare' : 'ui.creeaza_backup')}</button>
             {esteAdministrator && <RestaurareBackup reimprospatare={backupuriCreate} ocupat={ocupat || ocupatBackup}/>}
         </section>
+        </div>
+        <div className="sectiune-setari" hidden={fila !== 'nomenclatoare'}>
         <EditorNomenclator tip="grupuri" lista={date.grupuri_profesionale??[]} onDate={onDate} date={date}/><EditorNomenclator tip="functii" lista={date.functii??[]} onDate={onDate} date={date}/><EditorNomenclator tip="prefixe" lista={date.prefixe??[]} onDate={onDate} date={date}/><EditorNomenclator tip="contracte" lista={date.tipuri_contract??[]} onDate={onDate} date={date}/>
+        </div>
+        <div className="sectiune-setari" hidden={fila !== 'despre'}>
         <section className="panou card-setari card-despre">
             <h2>{t('ui.despre_titlu')}</h2>
             <p>{t('ui.despre_descriere')}</p>
@@ -282,6 +297,7 @@ export function Setari({date, onDate, ocupat, salveazaNorma, adaugaSectie, adaug
                 </div>
             </div>
         </section>
+        </div>
         {dialogDezvoltare && <DialogDetaliiDezvoltare inchide={() => setDialogDezvoltare(false)} />}
     </div>;
 }

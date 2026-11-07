@@ -932,3 +932,7 @@ Deasupra grilei sunt perioada, **Salvează schița** și **Închide luna**, apoi
 
 Butoanele **Zile / Totaluri** din bara Pontajului schimbă vederea. **Totaluri** ascunde zilele lunii și arată toate coloanele de total (OL, CO, CM, CFP, CVE, DLG, FMP) lângă numele angajaților, ca să le vedeți dintr-o privire. **Zile** revine la grila obișnuită. Aplicația ține minte vederea aleasă pe acest calculator.
 
+### Setări › General pe file (0.92.67)
+
+Pagina **General** are patru file: **Normă și structură** (norma întreagă, secțiile, compartimentele), **Nomenclatoare** (grupuri, funcții, prefixe și celelalte liste), **Copii de siguranță** și **Despre**. Aplicația ține minte ultima filă aleasă. Blocul **Verificarea configurării** se deschide singur când există puncte de verificat și arată câte sunt.
+
