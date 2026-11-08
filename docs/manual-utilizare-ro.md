@@ -973,3 +973,7 @@ Dacă persoana are ore în acea zi (de exemplu o gardă în weekend), se văd or
 
 Dacă deschideți un model mai vechi a cărui pagină nu se potrivește cu Setări de pagină, aplicația o potrivește singură și afișează un mesaj; salvați modelul ca să păstrați schimbarea.
 
+## Bara Planificării (0.92.78)
+
+În **Planificare**, anul, luna, modurile de afișare, stadiul planului (nesalvate, de publicat, publicate) și **Salvează planul** stau pe un singur rând. Acțiunile folosite mai rar sunt în meniul **Mai multe ▾**: **Raport gărzi**, **Reguli pontaj** (cu numărul regulilor încălcate), **Deschide în Pontaj**, **Reîncarcă** și densitatea grilei. Meniul se închide după alegere sau cu tasta Escape. Lista regulilor încălcate se poate plia din titlul ei.
+
