@@ -30,7 +30,7 @@ func TestMigrareProgrameMultiplePastreazaCiornaSiRevizia(t *testing.T) {
 	if _, e = db.Exec(`INSERT INTO angajati(id,nume,marca,creat_la,modificat_la) VALUES('a','Exemplu','DEMO','x','x');INSERT INTO pontaj_ciorne(angajat_id,data,valoare,modificat_la,revizie) VALUES('a','2026-10-30','S7','vechi',9)`); e != nil {
 		t.Fatal(e)
 	}
-	if n, e := Migreaza(ctx, db, Migrari); e != nil || n != 5 {
+	if n, e := Migreaza(ctx, db, Migrari); e != nil || n != 6 {
 		t.Fatal(n, e)
 	}
 	var val, data string

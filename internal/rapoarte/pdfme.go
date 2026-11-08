@@ -187,6 +187,17 @@ var culoriPdfme = map[string]string{"WEEKEND": "#E7EAE7", "SARBATOARE": "#FFF0C7
 
 const fundalGrupPdfme = "#E7EFEA"
 
+// fundalCelulaPdfme: culorile cu nume ale motorului vechi sau culoarea unui program (#RRGGBB, D097).
+func fundalCelulaPdfme(c string) string {
+	if f := culoriPdfme[c]; f != "" {
+		return f
+	}
+	if len(c) == 7 && c[0] == '#' {
+		return c
+	}
+	return ""
+}
+
 var coloanaZi = regexp.MustCompile(`^z(\d{2})$`)
 
 func stiluriPdfme(d Document) string {
@@ -200,7 +211,7 @@ func stiluriPdfme(d Document) string {
 			st.Randuri[strconv.Itoa(i)] = stilPdfme{Aldin: &aldin}
 		}
 		for j, c := range r.Culori {
-			if f := culoriPdfme[c]; f != "" && j < len(d.Coloane) {
+			if f := fundalCelulaPdfme(c); f != "" && j < len(d.Coloane) {
 				st.Celule[strconv.Itoa(i)+":"+strconv.Itoa(j)] = stilPdfme{Fundal: f}
 			}
 		}

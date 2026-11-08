@@ -63,7 +63,7 @@ func (q *Queries) CitesteDocumentAbsenta(ctx context.Context, id string) (Absent
 }
 
 const citesteTipAbsenta = `-- name: CitesteTipAbsenta :one
-SELECT cod, denumire, activ, creat_la, modificat_la, categorie FROM coduri_absenta WHERE cod = ?
+SELECT cod, denumire, activ, creat_la, modificat_la, categorie, efect_ore, categorie_id FROM coduri_absenta WHERE cod = ?
 `
 
 func (q *Queries) CitesteTipAbsenta(ctx context.Context, cod string) (CoduriAbsentum, error) {
@@ -76,12 +76,14 @@ func (q *Queries) CitesteTipAbsenta(ctx context.Context, cod string) (CoduriAbse
 		&i.CreatLa,
 		&i.ModificatLa,
 		&i.Categorie,
+		&i.EfectOre,
+		&i.CategorieID,
 	)
 	return i, err
 }
 
 const citesteZiAbsenta = `-- name: CitesteZiAbsenta :one
-SELECT angajat_id, data, cod, activ, creat_la, modificat_la, revizie, nr_inregistrare, inlocuitor_id, stare_aprobare, aprobat_de, document_id FROM absente_zile WHERE angajat_id = ? AND data = ?
+SELECT angajat_id, data, cod, activ, creat_la, modificat_la, revizie, nr_inregistrare, inlocuitor_id, stare_aprobare, aprobat_de, document_id, minute_creditate FROM absente_zile WHERE angajat_id = ? AND data = ?
 `
 
 type CitesteZiAbsentaParams struct {
@@ -105,6 +107,7 @@ func (q *Queries) CitesteZiAbsenta(ctx context.Context, arg CitesteZiAbsentaPara
 		&i.StareAprobare,
 		&i.AprobatDe,
 		&i.DocumentID,
+		&i.MinuteCreditate,
 	)
 	return i, err
 }
@@ -200,7 +203,7 @@ func (q *Queries) ListaAbsenteInterval(ctx context.Context, arg ListaAbsenteInte
 }
 
 const listaTipuriAbsenta = `-- name: ListaTipuriAbsenta :many
-SELECT cod, denumire, activ, creat_la, modificat_la, categorie FROM coduri_absenta ORDER BY cod
+SELECT cod, denumire, activ, creat_la, modificat_la, categorie, efect_ore, categorie_id FROM coduri_absenta ORDER BY cod
 `
 
 func (q *Queries) ListaTipuriAbsenta(ctx context.Context) ([]CoduriAbsentum, error) {
@@ -219,6 +222,8 @@ func (q *Queries) ListaTipuriAbsenta(ctx context.Context) ([]CoduriAbsentum, err
 			&i.CreatLa,
 			&i.ModificatLa,
 			&i.Categorie,
+			&i.EfectOre,
+			&i.CategorieID,
 		); err != nil {
 			return nil, err
 		}

@@ -99,3 +99,51 @@ func TestValidareSchimburi(t *testing.T) {
 		t.Fatalf("salvare parțială: %+v, %v", lista, err)
 	}
 }
+
+// F07-T42 (D097): culoarea aleasa se pastreaza normalizata; fara culoare se afiseaza
+// cea implicita dupa tip; o valoare care nu e #RRGGBB se respinge.
+func TestCuloareProgram(t *testing.T) {
+	m := pregateste(t)
+	ctx := context.Background()
+	gaseste := func() Schimb {
+		lista, err := m.serviciu.ListaSchimburi(ctx)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, s := range lista {
+			if s.Cod == "TEST_N12" {
+				return s
+			}
+		}
+		t.Fatal("programul de test lipseste")
+		return Schimb{}
+	}
+	if err := m.serviciu.SalveazaSchimb(ctx, schimbTest()); err != nil {
+		t.Fatal(err)
+	}
+	s := gaseste()
+	if s.Culoare != "" || s.CuloareAfisata != culoriImplicite["NOAPTE"] {
+		t.Fatalf("implicita: %+v", s)
+	}
+	s.Culoare = " #a1b2c3 "
+	if err := m.serviciu.SalveazaSchimb(ctx, s); err != nil {
+		t.Fatal(err)
+	}
+	if s = gaseste(); s.Culoare != "#A1B2C3" || s.CuloareAfisata != "#A1B2C3" {
+		t.Fatalf("aleasa: %+v", s)
+	}
+	for _, gresita := range []string{"rosu", "#12345", "#GGGGGG", "#1234567"} {
+		s.Culoare = gresita
+		verificaCod(t, m.serviciu.SalveazaSchimb(ctx, s), "schimburi.culoare_invalida")
+	}
+	s.Culoare = ""
+	if err := m.serviciu.SalveazaSchimb(ctx, s); err != nil {
+		t.Fatal(err)
+	}
+	if s = gaseste(); s.Culoare != "" || s.CuloareAfisata != culoriImplicite["NOAPTE"] {
+		t.Fatalf("revenire la implicita: %+v", s)
+	}
+	if CuloareProgram("", "NECUNOSCUT") != culoriImplicite["NORMAL"] {
+		t.Fatal("tip necunoscut")
+	}
+}

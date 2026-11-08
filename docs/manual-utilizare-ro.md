@@ -977,3 +977,15 @@ Dacă deschideți un model mai vechi a cărui pagină nu se potrivește cu Setă
 
 În **Planificare**, anul, luna, modurile de afișare, stadiul planului (nesalvate, de publicat, publicate) și **Salvează planul** stau pe un singur rând. Acțiunile folosite mai rar sunt în meniul **Mai multe ▾**: **Raport gărzi**, **Reguli pontaj** (cu numărul regulilor încălcate), **Deschide în Pontaj**, **Reîncarcă** și densitatea grilei. Meniul se închide după alegere sau cu tasta Escape. Lista regulilor încălcate se poate plia din titlul ei.
 
+## Culorile programelor (0.92.79)
+
+Fiecare program (tură, gardă) are o culoare, folosită ca fundal al celulelor:
+
+- în **Planificare**, pe celulele planificate (legenda **Culori programe** arată programele lunii, iar butoanele programelor speciale au mostra culorii);
+- în **Pontaj**, pe celulele cu codul programului;
+- în **rapoartele PDF** (Pontaj lunar, Pontaj detaliat, Fișa individuală, Grafic gărzi).
+
+Culoarea se alege în **Setări › Programe**, la editarea programului: debifați **Implicită după tip** și alegeți culoarea. Fără alegere, culoarea vine din tipul programului: Normal – albastru, Tură – piersică, Noapte – lavandă, Gardă – roz.
+
+Absențele și zilele libere întregi își păstrează marcajul. Selecția și avertismentele rămân vizibile peste culoare. Rapoartele SQL personalizate nu primesc culori automat.
+

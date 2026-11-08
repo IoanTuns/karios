@@ -127,7 +127,10 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
     stare.schimburi ??= structuredClone(schimburiSursa);
     stare.tipuri_program ??= ['NORMAL','TURA','NOAPTE','GARDA'].map(c=>({id:c,denumire:{ro:c,en:c},comportament:c,activ:true,revizie:'1',utilizari:0}));
     stare.regimuri_program ??= ['LUCRATOARE','NELUCRATOARE','INTRARE_ZI_LIBERA'].map(c=>({id:c,denumire:{ro:c==='LUCRATOARE'?'Normal':c,en:c==='LUCRATOARE'?'Normal':c},comportament:c,activ:true,revizie:'1',utilizari:0}));
-    stare.schimburi=stare.schimburi.map(s=>({...s,regim:s.regim==='GENERAL'?'LUCRATOARE':s.regim,tip_id:s.tip_id||s.tip,regim_id:s.regim_id||(s.regim==='GENERAL'?'LUCRATOARE':s.regim)}));
+    // F07-T42 (D097): culoarea afisata, ca in Go (aleasa sau implicita dupa tip).
+    const culoriImplicite={NORMAL:'#DDE9F8',TURA:'#FCE6CC',NOAPTE:'#E2DCF5',GARDA:'#F8D7DC'};
+    const cuCuloare=s=>({...s,culoare:s.culoare||'',culoare_afisata:(s.culoare||'').toUpperCase()||culoriImplicite[s.tip]||culoriImplicite.NORMAL});
+    stare.schimburi=stare.schimburi.map(s=>cuCuloare({...s,regim:s.regim==='GENERAL'?'LUCRATOARE':s.regim,tip_id:s.tip_id||s.tip,regim_id:s.regim_id||(s.regim==='GENERAL'?'LUCRATOARE':s.regim)}));
 
     stare.categorii_program ??= [
         ['program-dimineata','Dimineață','Morning',['Z7'],'Z7'],
@@ -274,7 +277,7 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
             s.cod = s.cod.trim().toUpperCase();
             if (stare.schimburi.some(v => v.id !== s.id && v.cod === s.cod)) return {schimburi: [], eroare: {cod: 'schimburi.cod_duplicat', param: {}}};
             const i = stare.schimburi.findIndex(v => v.id === s.id);
-            if (i < 0) stare.schimburi.push({...s, id: 'schimb-' + Date.now()}); else stare.schimburi[i] = s;
+            if (i < 0) stare.schimburi.push(cuCuloare({...s, id: 'schimb-' + Date.now()})); else stare.schimburi[i] = cuCuloare(s);
             raspuns(); return {schimburi: structuredClone(stare.schimburi), eroare: null};
         },
         SchimbaActivSchimb: async (id, activ) => { stare.schimburi.find(s => s.id === id).activ = activ; raspuns(); return {schimburi: structuredClone(stare.schimburi), eroare: null}; },
@@ -388,7 +391,7 @@ try {
     if(process.argv.includes('--rapoarte-pdfme')){const masuri=await verificaRapoartePdfme({cdp,evalueaza,asteapta,apasa,completeaza,cataloage,limba:process.argv.includes('--en')?'en':'ro',salveazaPdf:b64=>writeFileSync(join(capturi,'raport-pdfme.pdf'),Buffer.from(b64,'base64')),captura:async nume=>{const r=await cdp('Page.captureScreenshot',{format:'png'});writeFileSync(join(capturi,nume),Buffer.from(r.data,'base64'));}});writeFileSync(join(capturi,'masuratori-pdfme.json'),JSON.stringify({masuri,erori},null,2));assert.deepEqual(erori,[],'Erori JS');console.log('Rapoarte pdfme verificate: '+capturi);}
     else if(process.argv.includes('--capturi-ux')){const m=await capturiUX({cdp,evalueaza,asteapta,apasa,completeaza,cataloage,limba:process.argv.includes('--en')?'en':'ro',captura:async nume=>{const r=await cdp('Page.captureScreenshot',{format:'png'});writeFileSync(join(capturi,nume),Buffer.from(r.data,'base64'));}});writeFileSync(join(capturi,'masuri-ux.json'),JSON.stringify(m,null,1));assert.deepEqual(erori,[],'Erori JS');console.log('Capturi UX: '+capturi);}
     else if(process.argv.includes('--rapoarte-flexibile')){await verificaRapoarteFlexibile({cdp,evalueaza,asteapta,apasa,completeaza,cataloage,limba:process.argv.includes('--en')?'en':'ro'});assert.deepEqual(erori,[],'Erori JS');console.log('Rapoarte flexibile verificate: '+capturi);}
-    else if(process.argv.includes('--programe-multiple')) {await verificaProgrameMultiple({cdp,evalueaza,asteapta,apasa,completeaza,cataloage,limba:process.argv.includes('--en')?'en':'ro'});assert.deepEqual(erori,[],'Erori JS');console.log('Programe multiple UI verificate: '+capturi);}
+    else if(process.argv.includes('--programe-multiple')) {await verificaProgrameMultiple({cdp,evalueaza,asteapta,apasa,completeaza,cataloage,limba:process.argv.includes('--en')?'en':'ro',captura:async nume=>{const r=await cdp('Page.captureScreenshot',{format:'png'});writeFileSync(join(capturi,nume),Buffer.from(r.data,'base64'));}});assert.deepEqual(erori,[],'Erori JS');console.log('Programe multiple UI verificate: '+capturi);}
     else if(process.argv.includes('--ux30')) {await verificaUX30({cdp,evalueaza,asteapta,apasa,completeaza,cataloage,limba:process.argv.includes('--en')?'en':'ro'});assert.deepEqual(erori,[],'Erori JS');console.log('UX30 verificat: '+capturi);}
     else if(process.argv.includes('--stergere-admin')) {await verificaStergereConfigurari({cdp,evalueaza,asteapta,apasa,completeaza,cataloage,limba:process.argv.includes('--en')?'en':'ro',captura:async nume=>{const r=await cdp('Page.captureScreenshot',{format:'png'});writeFileSync(join(capturi,nume),Buffer.from(r.data,'base64'));}});assert.deepEqual(erori,[],'Erori JS');console.log('Stergere admin verificata: '+capturi);}
     else if(process.argv.includes('--pontaj-absente')) {await verificaAbsentePontaj({cdp,evalueaza,asteapta,apasa,completeaza,cataloage,limba:process.argv.includes('--en')?'en':'ro',captura:async nume=>{const r=await cdp('Page.captureScreenshot',{format:'png'});writeFileSync(join(capturi,nume),Buffer.from(r.data,'base64'));}});assert.deepEqual(erori,[],'Erori JS');console.log('Absente din Pontaj verificate: '+capturi);}

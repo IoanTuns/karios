@@ -1,20 +1,20 @@
 -- name: ListaSchimburi :many
-SELECT id, cod, denumire, ora_start, durata_minute, pauza_minute, tip, regim, categorie, activ
+SELECT id, cod, denumire, ora_start, durata_minute, pauza_minute, tip, regim, categorie, activ, culoare
 FROM tipuri_schimb WHERE sters_la IS NULL ORDER BY cod;
 
 -- name: CitesteSchimb :one
-SELECT id, cod, denumire, ora_start, durata_minute, pauza_minute, tip, regim, categorie, activ
+SELECT id, cod, denumire, ora_start, durata_minute, pauza_minute, tip, regim, categorie, activ, culoare
 FROM tipuri_schimb WHERE id = ? AND sters_la IS NULL;
 
 -- name: CitesteCodSchimb :one
 SELECT id FROM tipuri_schimb WHERE upper(cod) = upper(?) AND sters_la IS NULL;
 
 -- name: AdaugaSchimb :exec
-INSERT INTO tipuri_schimb (id, cod, denumire, ora_start, durata_minute, pauza_minute, tip, regim, categorie, activ, creat_la, modificat_la)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+INSERT INTO tipuri_schimb (id, cod, denumire, ora_start, durata_minute, pauza_minute, tip, regim, categorie, activ, culoare, creat_la, modificat_la)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 -- name: ModificaSchimb :execrows
-UPDATE tipuri_schimb SET cod = ?, denumire = ?, ora_start = ?, durata_minute = ?, pauza_minute = ?, tip = ?, regim = ?, categorie = ?, activ = ?, modificat_la = ?
+UPDATE tipuri_schimb SET cod = ?, denumire = ?, ora_start = ?, durata_minute = ?, pauza_minute = ?, tip = ?, regim = ?, categorie = ?, activ = ?, culoare = ?, modificat_la = ?
 WHERE id = ? AND sters_la IS NULL;
 
 -- name: SchimbaActivSchimb :execrows

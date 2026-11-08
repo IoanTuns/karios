@@ -13,18 +13,19 @@ type AbsenteDocumente struct {
 }
 
 type AbsenteZile struct {
-	AngajatID      string
-	Data           string
-	Cod            string
-	Activ          int64
-	CreatLa        string
-	ModificatLa    string
-	Revizie        int64
-	NrInregistrare string
-	InlocuitorID   *string
-	StareAprobare  string
-	AprobatDe      string
-	DocumentID     *string
+	AngajatID       string
+	Data            string
+	Cod             string
+	Activ           int64
+	CreatLa         string
+	ModificatLa     string
+	Revizie         int64
+	NrInregistrare  string
+	InlocuitorID    *string
+	StareAprobare   string
+	AprobatDe       string
+	DocumentID      *string
+	MinuteCreditate *int64
 }
 
 type CategoriiProgram struct {
@@ -44,6 +45,8 @@ type CoduriAbsentum struct {
 	CreatLa     string
 	ModificatLa string
 	Categorie   string
+	EfectOre    string
+	CategorieID *string
 }
 
 type DefinitiiRapoarte struct {

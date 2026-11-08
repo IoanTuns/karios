@@ -10,8 +10,8 @@ import (
 )
 
 const adaugaSchimb = `-- name: AdaugaSchimb :exec
-INSERT INTO tipuri_schimb (id, cod, denumire, ora_start, durata_minute, pauza_minute, tip, regim, categorie, activ, creat_la, modificat_la)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+INSERT INTO tipuri_schimb (id, cod, denumire, ora_start, durata_minute, pauza_minute, tip, regim, categorie, activ, culoare, creat_la, modificat_la)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `
 
 type AdaugaSchimbParams struct {
@@ -25,6 +25,7 @@ type AdaugaSchimbParams struct {
 	Regim        string
 	Categorie    string
 	Activ        int64
+	Culoare      *string
 	CreatLa      string
 	ModificatLa  string
 }
@@ -41,6 +42,7 @@ func (q *Queries) AdaugaSchimb(ctx context.Context, arg AdaugaSchimbParams) erro
 		arg.Regim,
 		arg.Categorie,
 		arg.Activ,
+		arg.Culoare,
 		arg.CreatLa,
 		arg.ModificatLa,
 	)
@@ -99,7 +101,7 @@ func (q *Queries) CitesteCodSchimb(ctx context.Context, upper string) (string, e
 }
 
 const citesteSchimb = `-- name: CitesteSchimb :one
-SELECT id, cod, denumire, ora_start, durata_minute, pauza_minute, tip, regim, categorie, activ
+SELECT id, cod, denumire, ora_start, durata_minute, pauza_minute, tip, regim, categorie, activ, culoare
 FROM tipuri_schimb WHERE id = ? AND sters_la IS NULL
 `
 
@@ -114,6 +116,7 @@ type CitesteSchimbRow struct {
 	Regim        string
 	Categorie    string
 	Activ        int64
+	Culoare      *string
 }
 
 func (q *Queries) CitesteSchimb(ctx context.Context, id string) (CitesteSchimbRow, error) {
@@ -130,12 +133,13 @@ func (q *Queries) CitesteSchimb(ctx context.Context, id string) (CitesteSchimbRo
 		&i.Regim,
 		&i.Categorie,
 		&i.Activ,
+		&i.Culoare,
 	)
 	return i, err
 }
 
 const listaSchimburi = `-- name: ListaSchimburi :many
-SELECT id, cod, denumire, ora_start, durata_minute, pauza_minute, tip, regim, categorie, activ
+SELECT id, cod, denumire, ora_start, durata_minute, pauza_minute, tip, regim, categorie, activ, culoare
 FROM tipuri_schimb WHERE sters_la IS NULL ORDER BY cod
 `
 
@@ -150,6 +154,7 @@ type ListaSchimburiRow struct {
 	Regim        string
 	Categorie    string
 	Activ        int64
+	Culoare      *string
 }
 
 func (q *Queries) ListaSchimburi(ctx context.Context) ([]ListaSchimburiRow, error) {
@@ -172,6 +177,7 @@ func (q *Queries) ListaSchimburi(ctx context.Context) ([]ListaSchimburiRow, erro
 			&i.Regim,
 			&i.Categorie,
 			&i.Activ,
+			&i.Culoare,
 		); err != nil {
 			return nil, err
 		}
@@ -187,7 +193,7 @@ func (q *Queries) ListaSchimburi(ctx context.Context) ([]ListaSchimburiRow, erro
 }
 
 const modificaSchimb = `-- name: ModificaSchimb :execrows
-UPDATE tipuri_schimb SET cod = ?, denumire = ?, ora_start = ?, durata_minute = ?, pauza_minute = ?, tip = ?, regim = ?, categorie = ?, activ = ?, modificat_la = ?
+UPDATE tipuri_schimb SET cod = ?, denumire = ?, ora_start = ?, durata_minute = ?, pauza_minute = ?, tip = ?, regim = ?, categorie = ?, activ = ?, culoare = ?, modificat_la = ?
 WHERE id = ? AND sters_la IS NULL
 `
 
@@ -201,6 +207,7 @@ type ModificaSchimbParams struct {
 	Regim        string
 	Categorie    string
 	Activ        int64
+	Culoare      *string
 	ModificatLa  string
 	ID           string
 }
@@ -216,6 +223,7 @@ func (q *Queries) ModificaSchimb(ctx context.Context, arg ModificaSchimbParams) 
 		arg.Regim,
 		arg.Categorie,
 		arg.Activ,
+		arg.Culoare,
 		arg.ModificatLa,
 		arg.ID,
 	)

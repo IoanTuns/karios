@@ -500,12 +500,17 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj,onModificari
         </div>
 
         {cerereAbsente&&<FormularAbsente zi={null} lot={cerereAbsente.lot} date={date} absente={cerereAbsente.date} angajatImplicit={cerereAbsente.lot[0]?.angajat_id||''} ocupat={ocupat} eroare={eroare} inchide={()=>{setCerereAbsente(null);setEroare('');}} salveaza={salveazaAbsentePlan}/>}
+        {mod==='grila'&&(()=>{
+            // F07-T42 (D097): legenda culorilor pentru programele folosite in luna afisata.
+            const folosite=[...new Set((plan?.pozitii??[]).filter(x=>x.activ).map(x=>x.schimb_id))].map(id=>schimburi.find(s=>s.id===id)).filter((s):s is datebaza.Schimb=>Boolean(s)).sort((a,b)=>a.cod.localeCompare(b.cod));
+            return folosite.length>0&&<p className="legenda-programe" aria-label={t('planificare.legenda_programe')}><strong>{t('planificare.legenda_programe')}:</strong>{folosite.map(s=><span key={s.id} title={s.denumire[i18n.language]||s.denumire.ro}><i className="mostra-program" style={{background:s.culoare_afisata}} aria-hidden="true"/>{s.cod}</span>)}</p>;
+        })()}
         {mod==='grila'&&<div className="paleta-planificare" role="toolbar" aria-label={t('planificare.paleta_titlu')}>
             <button type="button" className="buton secundar" disabled={ocupat||!randuri.length} onClick={()=>void deschideAbsente()}>{t('absente.din_planificare')}</button>
             <button type="button" className="buton secundar" disabled={ocupat||modificari.size>0||!randActiv} onClick={()=>randActiv&&setDialogSumar(randActiv)}>{t('planificare.adauga_program_zi')}</button><span className="text-discret">{t('planificare.paleta_titlu')}</span>
             {cipuriSpeciale.map(cod=>{
                 const s=schimburi.find(x=>x.cod===cod);
-                return <button key={cod} type="button" className="cip-schimb" disabled={ocupat||!randuri.length||!s} title={s?`${s.denumire[i18n.language]||s.denumire.ro} · ${oraText(s.ora_start)}`:cod} onClick={()=>aplicaProgramSelectie(cod)}>{cod}</button>;
+                return <button key={cod} type="button" className="cip-schimb" disabled={ocupat||!randuri.length||!s} title={s?`${s.denumire[i18n.language]||s.denumire.ro} · ${oraText(s.ora_start)}`:cod} onClick={()=>aplicaProgramSelectie(cod)}>{s&&<span className="mostra-program" style={{background:s.culoare_afisata}} aria-hidden="true"/>}{cod}</button>;
             })}
             <select aria-label={t('planificare.alege_program')} value={programAles} disabled={ocupat||!randuri.length} onChange={e=>{const cod=e.target.value;setProgramAles(cod);if(cod){aplicaProgramSelectie(cod);setProgramAles('');}}}>
                 <option value="">{t('planificare.alege_program')}</option>
@@ -597,8 +602,10 @@ export function Planificare({date,initial,onOcupat,onDeschidePontaj,onModificari
                                     const valoareAfisata=absenta?absenta.cod:toate.length>1?toate.map(x=>schimburi.find(s=>s.id===x.schimb_id)?.cod||'').sort().join('+'):schimb?schimb.cod:'';
                                     if(toate.length>1)totalTure+=toate.length-1;
                                     const stareClasa=p?`plan-${(p.stare||'nepublicata').toLowerCase()}`:'';
+                                    // F07-T42 (D097): fundalul cu culoarea programului (primul, daca sunt mai multe); absenta isi pastreaza marcajul.
+                                    const culoareProgram=!absenta&&p?.activ?(schimb??schimburi.find(s=>s.id===toate[0]?.schimb_id))?.culoare_afisata:undefined;
 
-                                    return <td key={data} className={`${sarbatori.has(data)?'zi-sarbatoare':weekend?'zi-weekend':''} ${selectata?'celula-selectata':''} ${esteModificata?'celula-modificata':''} ${areAvertisment?'celula-atentie':''}`}>
+                                    return <td key={data} style={culoareProgram?{'--culoare-program':culoareProgram} as React.CSSProperties:undefined} className={`${sarbatori.has(data)?'zi-sarbatoare':weekend?'zi-weekend':''} ${culoareProgram?'celula-program':''} ${selectata?'celula-selectata':''} ${esteModificata?'celula-modificata':''} ${areAvertisment?'celula-atentie':''}`}>
                                         <input data-rand={r} data-zi={z} aria-label={`${numeAngajatFaraPrefix(a)} ${data}`}
                                             readOnly disabled={ocupat}
                                             className={`${absenta?'celula-absenta':''} ${stareClasa}`}

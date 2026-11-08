@@ -26,6 +26,39 @@ type Schimb struct {
 	Regim        string    `json:"regim"`
 	Categorie    string    `json:"categorie"`
 	Activ        bool      `json:"activ"`
+	// Culoare: aleasa de utilizator (#RRGGBB) sau goala = implicita dupa tip (F07-T42, D097).
+	Culoare string `json:"culoare"`
+	// CuloareAfisata: culoarea folosita in grile si rapoarte (aleasa sau implicita).
+	CuloareAfisata string `json:"culoare_afisata"`
+}
+
+// culoriImplicite (D097): nuante deschise, distincte de weekend (gri), sarbatoare (galben),
+// absenta (verde) si zi libera (hasura), lizibile cu text inchis.
+var culoriImplicite = map[string]string{"NORMAL": "#DDE9F8", "TURA": "#FCE6CC", "NOAPTE": "#E2DCF5", "GARDA": "#F8D7DC"}
+
+// CuloareProgram da culoarea afisata a unui program: cea aleasa sau cea implicita dupa tip.
+func CuloareProgram(culoare, tip string) string {
+	if c := normalizeazaCuloare(culoare); c != "" {
+		return c
+	}
+	if c := culoriImplicite[tip]; c != "" {
+		return c
+	}
+	return culoriImplicite["NORMAL"]
+}
+
+// normalizeazaCuloare intoarce #RRGGBB cu majuscule sau "" daca valoarea nu e o culoare valida.
+func normalizeazaCuloare(c string) string {
+	c = strings.ToUpper(strings.TrimSpace(c))
+	if len(c) != 7 || c[0] != '#' {
+		return ""
+	}
+	for _, r := range c[1:] {
+		if !((r >= '0' && r <= '9') || (r >= 'A' && r <= 'F')) {
+			return ""
+		}
+	}
+	return c
 }
 
 //go:embed initiale/schimburi.json
@@ -107,7 +140,11 @@ func (s *Serviciu) ListaSchimburi(ctx context.Context) ([]Schimb, error) {
 		if c.RegimID == "GENERAL" {
 			c.RegimID = "LUCRATOARE"
 		}
-		rez = append(rez, Schimb{Revizie: c.Revizie, TipID: c.TipID, RegimID: c.RegimID, ID: r.ID, Cod: r.Cod, Denumire: denumire, OraStart: r.OraStart, DurataMinute: r.DurataMinute, PauzaMinute: r.PauzaMinute, Tip: r.Tip, Regim: r.Regim, Categorie: r.Categorie, Activ: r.Activ == 1})
+		culoare := ""
+		if r.Culoare != nil {
+			culoare = *r.Culoare
+		}
+		rez = append(rez, Schimb{Revizie: c.Revizie, TipID: c.TipID, RegimID: c.RegimID, ID: r.ID, Cod: r.Cod, Denumire: denumire, OraStart: r.OraStart, DurataMinute: r.DurataMinute, PauzaMinute: r.PauzaMinute, Tip: r.Tip, Regim: r.Regim, Categorie: r.Categorie, Activ: r.Activ == 1, Culoare: culoare, CuloareAfisata: CuloareProgram(culoare, r.Tip)})
 	}
 	return rez, nil
 }
@@ -136,6 +173,15 @@ func (s *Serviciu) SalveazaSchimb(ctx context.Context, schimb Schimb) error {
 	case "NORMAL", "TURA", "NOAPTE", "GARDA":
 	default:
 		return eroare("schimburi.tip_invalid")
+	}
+	var culoare *string
+	if c := strings.TrimSpace(schimb.Culoare); c != "" {
+		n := normalizeazaCuloare(c)
+		if n == "" {
+			return eroare("schimburi.culoare_invalida")
+		}
+		culoare = &n
+		schimb.Culoare = n
 	}
 	return s.modificaTx(ctx, func(tx *sql.Tx, q *acces.Queries) error {
 		if _, err := q.CautaCodAbsenta(ctx, schimb.Cod); err == nil {
@@ -215,7 +261,7 @@ func (s *Serviciu) SalveazaSchimb(ctx context.Context, schimb Schimb) error {
 		var vechi any
 		if schimb.ID == "" {
 			schimb.ID = idNou()
-			err = q.AdaugaSchimb(ctx, acces.AdaugaSchimbParams{ID: schimb.ID, Cod: schimb.Cod, Denumire: string(text), OraStart: schimb.OraStart, DurataMinute: schimb.DurataMinute, PauzaMinute: schimb.PauzaMinute, Tip: schimb.Tip, Regim: schimb.Regim, Categorie: schimb.Categorie, Activ: numarBool(schimb.Activ), CreatLa: acum, ModificatLa: acum})
+			err = q.AdaugaSchimb(ctx, acces.AdaugaSchimbParams{ID: schimb.ID, Cod: schimb.Cod, Denumire: string(text), OraStart: schimb.OraStart, DurataMinute: schimb.DurataMinute, PauzaMinute: schimb.PauzaMinute, Tip: schimb.Tip, Regim: schimb.Regim, Categorie: schimb.Categorie, Activ: numarBool(schimb.Activ), Culoare: culoare, CreatLa: acum, ModificatLa: acum})
 		} else {
 			r, citireErr := q.CitesteSchimb(ctx, schimb.ID)
 			if errors.Is(citireErr, sql.ErrNoRows) {
@@ -225,7 +271,7 @@ func (s *Serviciu) SalveazaSchimb(ctx context.Context, schimb Schimb) error {
 				return citireErr
 			}
 			vechi = r
-			_, err = q.ModificaSchimb(ctx, acces.ModificaSchimbParams{ID: schimb.ID, Cod: schimb.Cod, Denumire: string(text), OraStart: schimb.OraStart, DurataMinute: schimb.DurataMinute, PauzaMinute: schimb.PauzaMinute, Tip: schimb.Tip, Regim: schimb.Regim, Categorie: schimb.Categorie, Activ: numarBool(schimb.Activ), ModificatLa: acum})
+			_, err = q.ModificaSchimb(ctx, acces.ModificaSchimbParams{ID: schimb.ID, Cod: schimb.Cod, Denumire: string(text), OraStart: schimb.OraStart, DurataMinute: schimb.DurataMinute, PauzaMinute: schimb.PauzaMinute, Tip: schimb.Tip, Regim: schimb.Regim, Categorie: schimb.Categorie, Activ: numarBool(schimb.Activ), Culoare: culoare, ModificatLa: acum})
 		}
 		if err != nil {
 			return err

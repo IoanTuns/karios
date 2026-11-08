@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.79 - 2026-11-08
+
+F07-T42 (D097), cerere Ioan Tuns: culoare pe fiecare program (tura, garda), aleasa in Setări › Programe sau implicita dupa tip (Normal albastru, Tură piersică, Noapte lavandă, Gardă roz). Culoarea apare ca fundal in grila Planificare (cu legenda „Culori programe” si mostre pe programele speciale), in grila Pontaj si in rapoartele PDF; absentele si zilele libere isi pastreaza marcajul. Migrarea 0036 (`tipuri_schimb.culoare`). Rapoarte cu versiune noua: Pontaj lunar 21, Pontaj detaliat 22, Fisa individuala 20, Grafic garzi 16, flexibile 16 (verificat: in referinte difera doar culorile celulelor cu program). Manual 1.73.
+
 ## 0.92.78 - 2026-11-08
 
 F16-T39 (I122). Planificare compactă pe un rând și optimizare înălțime ecran:

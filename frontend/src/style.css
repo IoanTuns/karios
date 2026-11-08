@@ -1598,3 +1598,20 @@ fieldset.filtre-profesionale{border:0;padding:0;min-width:0}
 .alerta-reguli-planificare summary {
     cursor: pointer;
 }
+
+/* F07-T42 (D097): culorile programelor. */
+.mostra-program { display: inline-block; width: 12px; height: 12px; margin-right: 6px; vertical-align: -1px; border: 1px solid rgba(0, 0, 0, .25); border-radius: 3px; }
+.culoare-program { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; }
+.culoare-program > span { width: 100%; font-weight: 600; }
+.culoare-program input[type=color] { width: 48px; height: 30px; padding: 2px; }
+.culoare-program small { width: 100%; color: var(--text-discret, #5b6660); }
+/* Fundalul celulelor cu program; selectia, modificarea si avertismentele raman deasupra (definite mai jos). */
+.grila-planificare td.celula-program, .grila-pontaj td.celula-program { background-color: var(--culoare-program); }
+.grila-planificare td.celula-program.celula-selectata, .grila-pontaj td.celula-program.celula-selectata { background: var(--grila-selectie); }
+.grila-pontaj td.celula-program.celula-avertisment { background-color: var(--grila-avertisment); }
+.grila-planificare td.celula-program.celula-atentie { background-color: #fff9ea; }
+/* In tema intunecata culoarea devine o nuanta peste fundal, ca textul deschis sa ramana lizibil. */
+[data-theme="dark"] .grila-planificare td.celula-program, [data-theme="dark"] .grila-pontaj td.celula-program { background-color: color-mix(in srgb, var(--culoare-program) 28%, transparent); }
+.legenda-programe { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; font-size: 11px; }
+.legenda-programe span { display: inline-flex; align-items: center; }
+

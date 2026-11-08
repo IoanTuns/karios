@@ -5,7 +5,7 @@ import {FormularAbsente} from './Absente';
 import {numeAngajatFaraPrefix} from './numeAngajat';
 import {factorZoomInterfata} from './ZoomInterfata';
 import {FiltreProfesionale,filtruProfesionalGol,corespundeProfesional} from './FiltreProfesionale';
-import {memo, useEffect, useLayoutEffect, useMemo, useRef, useState, type ClipboardEvent, type KeyboardEvent, type MouseEvent, type RefObject} from 'react';
+import {memo, useEffect, useLayoutEffect, useMemo, useRef, useState, type ClipboardEvent, type CSSProperties, type KeyboardEvent, type MouseEvent, type RefObject} from 'react';
 import {useTranslation} from 'react-i18next';
 import {autorJurnal} from './autorJurnal';
 import {semnaleazaModificari} from './modificariNesalvate';
@@ -68,9 +68,11 @@ type PropsRand = {
     oreCalculate: Map<string, calcul.OreZi>; valori?: Record<string, calcul.ValoarePontaj>;
     functie:string; reguli?: calcul.RegulaColoana[]; angajati: datebaza.Angajat[];
     ocupat: boolean; calculare: boolean; areCalcul: boolean; actiuni: RefObject<ActiuniCelula>;
+    // F07-T42 (D097): codul programului (majuscule) -> culoarea afisata.
+    culoriProgram: Map<string, string>;
 };
 
-const RandPontaj = memo(function RandPontaj({a, r, zile, weekend, sarbatori, selDe, selPana, modificari, originale, absente, inlocuiri, oreCalculate, valori, reguli, angajati, functie, ocupat, calculare, areCalcul, actiuni}: PropsRand) {
+const RandPontaj = memo(function RandPontaj({a, r, zile, weekend, sarbatori, selDe, selPana, modificari, originale, absente, inlocuiri, oreCalculate, valori, reguli, angajati, functie, ocupat, calculare, areCalcul, actiuni, culoriProgram}: PropsRand) {
     const {t} = useTranslation();
     const numeColeg = (id: string) => { const coleg = angajati.find(x => x.id === id); return coleg ? `${numeAngajatFaraPrefix(coleg)}` : id; };
     const valoareBruta = (z: number) => { const k = cheie(a.id, zile[z]); return modificari.get(k)?.valoare ?? originale.get(k)?.valoare ?? ''; };
@@ -93,7 +95,9 @@ const RandPontaj = memo(function RandPontaj({a, r, zile, weekend, sarbatori, sel
             // chiar daca intra intr-un interval de absenta; in zilele lucratoare absenta arata codul.
             const liberaIntreaga = (weekend[z] || sarbatori.has(data)) && !calculare && minuteZi === 0 && (!calc || calc.calculabil) && (Boolean(absenta) || valoareBruta(z).trim() === '');
             const valoare = liberaIntreaga ? '' : absenta ? absenta.cod : calculare ? '…' : calc ? (calc.calculabil ? oreText(calc.minute) : '—') : areCalcul ? '' : '—';
-            return <td key={data} className={`col-zi ${sarbatori.has(data) ? 'zi-sarbatoare' : weekend[z] ? 'zi-weekend' : ''} ${liberaIntreaga ? 'zi-libera-intreaga' : ''} ${selectata ? 'celula-selectata' : ''} ${modificari.has(k) ? 'celula-modificata' : ''} ${colegiInlocuiti?.length ? 'celula-inlocuitor' : ''} ${titluAvertisment ? 'celula-avertisment' : ''}`}>
+            // F07-T42 (D097): celula cu program primeste culoarea primului program; absentele si zilele libere isi pastreaza marcajul.
+            const culoareProgram = !absenta && !liberaIntreaga ? valoareBruta(z).split('+').map(c => culoriProgram.get(c.trim().toUpperCase())).find(Boolean) : undefined;
+            return <td key={data} style={culoareProgram ? {'--culoare-program': culoareProgram} as CSSProperties : undefined} className={`col-zi ${sarbatori.has(data) ? 'zi-sarbatoare' : weekend[z] ? 'zi-weekend' : ''} ${culoareProgram ? 'celula-program' : ''} ${liberaIntreaga ? 'zi-libera-intreaga' : ''} ${selectata ? 'celula-selectata' : ''} ${modificari.has(k) ? 'celula-modificata' : ''} ${colegiInlocuiti?.length ? 'celula-inlocuitor' : ''} ${titluAvertisment ? 'celula-avertisment' : ''}`}>
             <input data-rand={r} data-zi={z} aria-label={t('pontaj.celula', {nume: `${numeAngajatFaraPrefix(a)}`, data})} title={[
                 t('ui.tooltip_marca', {nume: `${numeAngajatFaraPrefix(a)}`, marca: a.marca || '—'}),
                 t('ui.tooltip_data', {data}) + (weekend[z] ? ` [${t('ui.tooltip_weekend')}]` : '') + (sarbatori.has(data) ? ` [${sarbatori.get(data)}]` : ''),
@@ -143,6 +147,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
     const [eroareAbsenta,setEroareAbsenta] = useState('');
     const [calendar, setCalendar] = useState<datebaza.CalendarAn | null>(null);
     const [schimburi, setSchimburi] = useState<datebaza.Schimb[]>([]);
+    const culoriProgram = useMemo(() => new Map(schimburi.map(s => [s.cod.toUpperCase(), s.culoare_afisata])), [schimburi]);
     const [modificari, setModificari] = useState<Map<string, datebaza.CelulaSchita>>(new Map());
     const bufferTastare = useRef<{rand: number; zi: number; cifre: string; timp: number}>({rand: -1, zi: -1, cifre: '', timp: 0});
     const [istoricInapoi, setIstoricInapoi] = useState<Map<string, datebaza.CelulaSchita>[]>([]);
@@ -957,7 +962,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                                 selDe={r >= inceputRand && r <= sfarsitRand ? inceputZi : -1} selPana={r >= inceputRand && r <= sfarsitRand ? sfarsitZi : -1}
                                 modificari={modificari} originale={originale} absente={absente} inlocuiri={inlocuiri} oreCalculate={oreCalculate}
                                 valori={totaluriCalculate.get(a.id)} reguli={schita?.configuratie.reguli} angajati={date.angajati}
-                                ocupat={ocupat} calculare={calculare} areCalcul={Boolean(calculat)} actiuni={actiuni}/>)}
+                                ocupat={ocupat} calculare={calculare} areCalcul={Boolean(calculat)} actiuni={actiuni} culoriProgram={culoriProgram}/>)}
                         </tbody></table>
                         {randuri.length === 0 && (
                             <div className="card-onboarding-gol" role="region" aria-label={t('ui.ghid_pornire')}>

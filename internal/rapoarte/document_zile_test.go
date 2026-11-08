@@ -24,3 +24,12 @@ func TestCelulaZiFaraOre(t *testing.T) {
 		}
 	}
 }
+
+// F07-T42 (D097): fundalul PDF accepta culorile cu nume si culoarea unui program.
+func TestFundalCelulaPdfme(t *testing.T) {
+	for c, ast := range map[string]string{"WEEKEND": "#E7EAE7", CuloareZiLibera: "#D2D8D3", "#F8D7DC": "#F8D7DC", "": "", "ROSU": "", "#12345": ""} {
+		if f := fundalCelulaPdfme(c); f != ast {
+			t.Errorf("%q: %q, asteptat %q", c, f, ast)
+		}
+	}
+}

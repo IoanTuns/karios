@@ -2066,6 +2066,8 @@ export namespace datebaza {
 	    regim: string;
 	    categorie: string;
 	    activ: boolean;
+	    culoare: string;
+	    culoare_afisata: string;
 
 	    static createFrom(source: any = {}) {
 	        return new Schimb(source);
@@ -2086,6 +2088,8 @@ export namespace datebaza {
 	        this.regim = source["regim"];
 	        this.categorie = source["categorie"];
 	        this.activ = source["activ"];
+	        this.culoare = source["culoare"];
+	        this.culoare_afisata = source["culoare_afisata"];
 	    }
 	}
 	export class SchitaLuna {

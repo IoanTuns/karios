@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 // Simularea verifica interactiunea si pastrarea pozitiilor; calculul real este testat in Go.
-export async function verificaProgrameMultiple({evalueaza,asteapta,apasa,completeaza,cataloage,limba}){
+export async function verificaProgrameMultiple({evalueaza,asteapta,apasa,completeaza,cataloage,limba,captura}){
  const t=k=>cataloage[limba][k];
  await asteapta(()=>evalueaza("Boolean(document.querySelector('.actiuni-antet'))"),'Aplicatie lipsa');
  await apasa(t('ui.planificare'));
@@ -27,4 +27,16 @@ export async function verificaProgrameMultiple({evalueaza,asteapta,apasa,complet
  await evalueaza("document.querySelector('.antet-sumar-angajat button').click()");
  await asteapta(()=>evalueaza("!document.querySelector('dialog[open]')"),'Anulare nesalvata');
  assert(await evalueaza("JSON.parse(localStorage.getItem('pontix-test')).planificare.filter(p=>p.activ).length===1"),'Anularea sterge intregul set');
+ // F07-T42 (D097): celula planificata are fundalul programului, iar legenda arata programul.
+ await asteapta(()=>evalueaza("Boolean(document.querySelector('.grila-planificare td.celula-program'))"),'Celula planificata fara culoarea programului');
+ const culoare=await evalueaza(`(()=>{const p=JSON.parse(localStorage.getItem('pontix-test'));const poz=p.planificare.find(x=>x.activ);const s=p.schimburi.find(x=>x.id===poz.schimb_id);const td=document.querySelector('.grila-planificare td.celula-program');return {asteptat:s.culoare_afisata,var:td.style.getPropertyValue('--culoare-program'),fundal:getComputedStyle(td).backgroundColor,legenda:Boolean(document.querySelector('.legenda-programe .mostra-program'))};})()`);
+ assert.equal(culoare.var,culoare.asteptat,'Culoarea celulei nu e cea a programului');
+ assert(culoare.legenda,'Legenda culorilor lipseste');
+ assert.notEqual(culoare.fundal,'rgba(0, 0, 0, 0)','Fundalul celulei nu se aplica');
+ await evalueaza("document.querySelector('.grila-planificare td.celula-program').scrollIntoView({block:'center'})");
+ await captura?.('t42-01-planificare-culori.png');
+ // Grila Pontaj: aceeasi culoare pe celula cu programul publicat sau introdus.
+ await apasa(t('ui.pontaj'));
+ await asteapta(()=>evalueaza("Boolean(document.querySelector('.grila-pontaj'))"),'Pontaj lipsa');
+ await captura?.('t42-02-pontaj.png');
 }

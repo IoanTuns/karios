@@ -249,8 +249,23 @@ func pregatesteStandard(ctx context.Context, tx *sql.Tx, q *acces.Queries, d Def
 			categorii[v.Cod] = textJSON(denumiriCategorii[v.Cod], limba)
 		}
 	}
+	// F07-T42 (D097): culoarea fiecarui program (aleasa sau implicita dupa tip), pentru celulele zilelor.
+	culoareCod := map[string]string{}
 	for _, v := range schimburi {
 		descrieri[v.Cod] = textJSON(v.Denumire, limba)
+		ales := ""
+		if v.Culoare != nil {
+			ales = *v.Culoare
+		}
+		culoareCod[strings.ToUpper(v.Cod)] = datebaza.CuloareProgram(ales, v.Tip)
+	}
+	culoareProgram := func(valoare string) string {
+		for _, cod := range calcul.CoduriPrograme(valoare) {
+			if c := culoareCod[cod]; c != "" {
+				return c
+			}
+		}
+		return ""
 	}
 	sarbatoare := map[string]bool{}
 	for _, v := range sarbatori {
@@ -557,8 +572,16 @@ func pregatesteStandard(ctx context.Context, tx *sql.Tx, q *acces.Queries, d Def
 					v = t(fmt.Sprintf("zi_%d", zi.Weekday()))
 				case "cod":
 					v = cod
+					if categorii[cod] == "" {
+						if cp := culoareProgram(cod); cp != "" {
+							culoare = cp
+						}
+					}
 				case "ore":
 					v, culoare = celulaZiFaraOre(ore[a.ID+"/"+data], culoare, cod, categorii[cod] != "", culoareZi(data) != "")
+					if cp := culoareProgram(cod); cp != "" && categorii[cod] == "" && culoare != CuloareZiLibera {
+						culoare = cp
+					}
 				case "descriere":
 					v = descrieri[cod]
 					if _, manual := calcul.OreManuale(cod); manual && v == "" {
@@ -581,6 +604,9 @@ func pregatesteStandard(ctx context.Context, tx *sql.Tx, q *acces.Queries, d Def
 								coduri = append(coduri, codSchimb[p.SchimbID])
 							}
 							v = calcul.ValoarePrograme(coduri)
+							if cp := culoareProgram(strings.Join(coduri, "+")); cp != "" {
+								culoare = cp
+							}
 						} else {
 							v = "—"
 						}
@@ -591,6 +617,9 @@ func pregatesteStandard(ctx context.Context, tx *sql.Tx, q *acces.Queries, d Def
 							culoare = "ABSENTA"
 						}
 						v, culoare = celulaZiFaraOre(v, culoare, cod, categorii[cod] != "", culoareZi(col.Cod) != "")
+						if cp := culoareProgram(cod); cp != "" && categorii[cod] == "" && culoare != CuloareZiLibera {
+							culoare = cp
+						}
 					}
 				}
 				if strings.HasPrefix(col.Cod, "total_") && d.Continut.Sursa != "GRAFIC_GARZI" {
