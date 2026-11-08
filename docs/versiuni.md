@@ -15,6 +15,32 @@ F16-T39 (I122). Planificare compactă pe un rând și optimizare înălțime ecr
 
 ## 0.92.77 - 2026-11-07
 
+F09-T33, defect raportat de Ioan Tuns („fonturile nu funcționează”): in editorul vizual, listele derulante din panoul elementului (Font, Aliniere text, Aliniere verticala) se deschideau sub dialogul modal, deci nu se vedeau si nu se puteau alege; fontul adaugat din Windows nu putea fi folosit. Acum listele se deschid in dialog. Manualul revizuit fara modificari de continut.
+
+## 0.92.76 - 2026-11-07
+
+F09-T32, corectie: la potrivirea paginii (0.92.75) se scaleaza doar zona dintre marginile laterale, nu toata latimea; inainte, la trecerea din peisaj in portret, tabelul ajungea in margine (X 4,14 in loc de 10), semnalat cu rosu de editor (captura Ioan Tuns). Elementele asezate in margine pastreaza distanta fata de marginea paginii. Modelele salvate cu 0.92.75 dupa o schimbare de orientare pot avea tabelul in margine: se corecteaza din editor (X = marginea). Manualul revizuit fara modificari de continut.
+
+## 0.92.75 - 2026-11-07
+
+F09-T32 (D096, propusa), defect raportat de Ioan Tuns: un raport din editorul vizual setat Portret iesea peisaj, pentru ca pagina venea din sablon, nu din Setări de pagină. Acum formatul si orientarea din Setări de pagină potrivesc sablonul (elementele se intind pe noua latime, subsolul ramane jos); la deschiderea unui model nepotrivit, potrivirea se face automat, cu un mesaj. Manual 1.71.
+
+## 0.92.74 - 2026-11-07
+
+F09-T31, defect raportat de Ioan Tuns: „Model nou” in Definire rapoarte copia primul model din lista (de ex. SQL-ul, antetul si coloanele ascunse ale Evidenței absențelor). Acum modelul nou porneste gol: raport SQL personalizat, fara SQL, antet, subsol sau coloane ascunse, A4 peisaj. Copierea unui model existent ramane la „Duplică”. Manualul revizuit fara modificari de continut.
+
+## 0.92.73 - 2026-11-07
+
+F09-T30 (D095), regula ceruta de Ioan Tuns: unde persoana nu are ore, zilele libere intregi (weekend, sarbatori) sunt goale si marcate distinct (hasura in grila Pontaj, cu legenda; culoarea ZI_LIBERA in PDF), chiar daca intra intr-un interval de absenta; in zilele lucratoare absenta arata codul (CO, CM…) in loc de 0. Rapoarte cu versiune noua: Pontaj lunar 20, Pontaj detaliat 21, Fisa individuala 19, Evidenta absentelor 16, flexibile 15 (verificat: in referinte difera doar celulele de absenta si culoarea zilelor libere fara ore). Manual 1.70.
+
+## 0.92.72 - 2026-11-07
+
+F09-T29 (D094, propusa), cerere Ioan Tuns: antetul si subsolul rapoartelor din editorul vizual (pdfme) se pot edita. Butonul „Editează antetul” aduce pe pagina elementele care se repeta pe fiecare pagina (zonele antetului, titlul, subsolul, numarul paginii): se muta, se modifica sau se sterg, iar elementele adaugate atunci se repeta si ele. „Gata cu antetul”, verificarea sau inchiderea editorului le pun la loc, cu marginile recalculate si tabelul coborat sub antet. Variabila noua `{data_curenta}` (data generarii, fara ora). Rapoartele existente nu se schimba. Manual 1.69.
+
+## 0.92.71 - 2026-11-07
+
+F08-T14 (D093), regula ceruta de Ioan Tuns pentru randurile marcii de garda: ZNL nu se calculeaza („—”, cu motivul afisat), Ore gardă 200% = orele de garda din weekend si sarbatori legale, Ore lucrătoare = total ore − ore gardă 200%. Regulile au intaietate fata de Configurare pontaj pe aceste randuri; celelalte randuri raman neschimbate. Rapoarte cu versiune noua, pentru ca valorile se schimba pe randurile de garda: Pontaj detaliat 20, Pontaj lunar 19, rapoartele flexibile 14 (verificat: in referinta cu marci de garda difera exact cele 3 celule ale randului de garda). Manual 1.68.
+
 ## 0.92.70 - 2026-11-07
 
 F16-T38. Ergonomie grilă pontaj, navigare rapidă și securizare închidere lună:
