@@ -138,8 +138,13 @@ func TestDetaliatFolosesteAceleasiOreSiReguliCaGrila(t *testing.T) {
 				if cod == "ore_norma" || cod == "ore_lucrate" || !inRaport[cod] {
 					continue
 				}
-				if valori["total_"+cod] != calcul.TextValoarePontaj(v) {
-					t.Fatal(cod, v, valori)
+				// F08-T15: coloanele vechi neconfigurate (CEV...) arata coloana D092 echivalenta.
+				asteptat := v
+				if nou, ok := calcul.EchivalenteRapoarteD092[cod]; ok && v.Motiv == calcul.MotivRegulaNedefinita {
+					asteptat = r.Valori[nou]
+				}
+				if valori["total_"+cod] != calcul.TextValoarePontaj(asteptat) {
+					t.Fatal(cod, asteptat, valori)
 				}
 			}
 		}

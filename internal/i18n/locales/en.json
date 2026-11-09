@@ -2178,5 +2178,9 @@
   "schimburi.culoare": "Colour in grids and reports",
   "schimburi.culoare_implicita": "Default for the type",
   "schimburi.culoare_indiciu": "Background of cells with this schedule in Planning, Timesheet and PDF reports. Without a chosen colour, the default for the schedule type is used.",
-  "planificare.legenda_programe": "Schedule colours"
+  "planificare.legenda_programe": "Schedule colours",
+  "rapoarte.legenda_CVE": "Days of any other absence type except CO, CM, CFP, DLG and FMP (special events)",
+  "rapoarte.legenda_CFP": "Unpaid leave days",
+  "rapoarte.legenda_FMP": "Professional training days; their hours also count in OL",
+  "rapoarte.legenda_DLG": "Business trip days"
 }

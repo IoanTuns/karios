@@ -54,6 +54,16 @@ func legendaColoane(d Document, c calcul.ConfiguratiePontaj, limba i18n.Limba, e
 		}
 		if strings.HasPrefix(cod, "total_") && d.Sursa == "PONTAJ_DETALIAT" {
 			id := strings.TrimPrefix(cod, "total_")
+			// F08-T15: coloana veche neconfigurata (CEV...) se explica prin coloana D092 pe care o arata.
+			if nou, ok := calcul.EchivalenteRapoarteD092[id]; ok {
+				configurata := false
+				for _, r := range c.Reguli {
+					configurata = configurata || (r.Coloana == id && r.Sursa != "NEDEFINITA")
+				}
+				if !configurata {
+					id = nou
+				}
+			}
 			explicatie = t(id)
 			sursa := t("nedefinita")
 			for _, r := range c.Reguli {

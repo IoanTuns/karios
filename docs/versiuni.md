@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.80 - 2026-11-09
+
+F08-T15 (D098, propusa), defect raportat de Ioan Tuns: zilele FMP apareau la CVE in Pontaj, iar raportul Pontaj detaliat nu arata sumarul. Configuratia salvata inainte sa existe tipul FMP se completeaza la citire (CVE exclude tipurile cu coloana proprie, coloana FMP numara FMP, OL include creditele FMP). In rapoartele standard, coloanele vechi neconfigurate arata coloanele D092: CEV→CVE, CFS→CFP, Form. prof.→FMP, Deleg.→DLG (codurile SQL raman aceleasi). Unitatea CVE apare „Zile”. Rapoarte cu versiune noua: Pontaj detaliat 23, flexibile 17. Manual 1.74.
+
 ## 0.92.79 - 2026-11-08
 
 F07-T42 (D097), cerere Ioan Tuns: culoare pe fiecare program (tura, garda), aleasa in Setări › Programe sau implicita dupa tip (Normal albastru, Tură piersică, Noapte lavandă, Gardă roz). Culoarea apare ca fundal in grila Planificare (cu legenda „Culori programe” si mostre pe programele speciale), in grila Pontaj si in rapoartele PDF; absentele si zilele libere isi pastreaza marcajul. Migrarea 0036 (`tipuri_schimb.culoare`). Rapoarte cu versiune noua: Pontaj lunar 21, Pontaj detaliat 22, Fisa individuala 20, Grafic garzi 16, flexibile 16 (verificat: in referinte difera doar culorile celulelor cu program). Manual 1.73.

@@ -989,3 +989,9 @@ Culoarea se alege în **Setări › Programe**, la editarea programului: debifa�
 
 Absențele și zilele libere întregi își păstrează marcajul. Selecția și avertismentele rămân vizibile peste culoare. Rapoartele SQL personalizate nu primesc culori automat.
 
+## Tipuri de absență noi și totalurile (0.92.80)
+
+Dacă ați creat tipul **FMP** (sau CFP, DLG) după ce ați salvat **Configurare pontaj**, aplicația îl adaugă singură în reguli: zilele lui apar în coloana proprie, nu în CVE, iar orele FMP intră în OL. Regulile completate se văd în **Setări › Configurare pontaj**.
+
+În raportul **Pontaj detaliat**, coloanele de total folosesc denumirile noi: **CVE**, **CFP**, **FMP** și **DLG** (în locul CEV, CFS, Form. prof. și Deleg.), cu aceleași valori ca în Pontaj. Modelele SQL salvate continuă să funcționeze cu vechile nume de coloane (`total_CEV`, `total_form_prof` etc.).
+

@@ -441,6 +441,16 @@ func pregatesteStandard(ctx context.Context, tx *sql.Tx, q *acces.Queries, d Def
 		doc.VersiuneRaport = raportGarzi.Versiune
 	}
 	ponderi := ponderiColoane
+	// sursaTotal: coloana de calcul din care vine valoarea unei coloane de total (F08-T15).
+	sursaTotal := map[string]string{}
+	configurata := func(col string) bool {
+		for _, r := range configuratie.Reguli {
+			if r.Coloana == col && r.Sursa != "NEDEFINITA" {
+				return true
+			}
+		}
+		return false
+	}
 	for _, cod := range d.Continut.Coloane {
 		if cod == "totaluri" {
 			for _, col := range calcul.ColoaneRapoarte() {
@@ -450,6 +460,13 @@ func pregatesteStandard(ctx context.Context, tx *sql.Tx, q *acces.Queries, d Def
 				if col == "ore_norma" {
 					continue
 				}
+				// Coloanele vechi (CEV, CFS, Form. prof., Deleg.) fara regula proprie arata
+				// coloana D092 care le-a inlocuit (CVE, CFP, FMP, DLG), cu titlul ei; codul
+				// coloanei ramane, ca SQL-urile salvate sa mearga mai departe.
+				codColoana := col
+				if nou, ok := calcul.EchivalenteRapoarteD092[col]; ok && !configurata(col) {
+					col = nou
+				}
 				titlu := i18n.T(limba, "pontaj.total_"+col, nil)
 				unitate := calcul.UnitateColoana(col)
 				if col == "ore_lucratoare" || col == "L_FIN" {
@@ -457,9 +474,10 @@ func pregatesteStandard(ctx context.Context, tx *sql.Tx, q *acces.Queries, d Def
 				}
 				for _, r := range configuratie.Reguli {
 					if r.Coloana == col && r.Sursa != "NEDEFINITA" {
-						if r.Sursa == "ZILE_ABSENTA" {
+						switch r.Sursa {
+						case "ZILE_ABSENTA", "ZILE_ABSENTA_ALTELE", "ZILE_LUCRATOARE_NETE":
 							unitate = "ZILE"
-						} else {
+						default:
 							unitate = "ORE"
 						}
 					}
@@ -471,7 +489,8 @@ func pregatesteStandard(ctx context.Context, tx *sql.Tx, q *acces.Queries, d Def
 					}
 					titlu += " (" + i18n.T(limba, "pontaj."+cheie, nil) + ")"
 				}
-				doc.Coloane = append(doc.Coloane, Coloana{Cod: "total_" + col, Titlu: titlu, Pondere: 6})
+				sursaTotal["total_"+codColoana] = col
+				doc.Coloane = append(doc.Coloane, Coloana{Cod: "total_" + codColoana, Titlu: titlu, Pondere: 6})
 			}
 		} else if cod == "zile" {
 			for zi := 1; zi <= 31; zi++ {
@@ -623,7 +642,11 @@ func pregatesteStandard(ctx context.Context, tx *sql.Tx, q *acces.Queries, d Def
 					}
 				}
 				if strings.HasPrefix(col.Cod, "total_") && d.Continut.Sursa != "GRAFIC_GARZI" {
-					v = calcul.TextValoarePontaj(totaluri[a.ID][strings.TrimPrefix(col.Cod, "total_")])
+					sursa := strings.TrimPrefix(col.Cod, "total_")
+					if s := sursaTotal[col.Cod]; s != "" {
+						sursa = s
+					}
+					v = calcul.TextValoarePontaj(totaluri[a.ID][sursa])
 				}
 				rand.Valori = append(rand.Valori, v)
 				rand.Culori = append(rand.Culori, culoare)

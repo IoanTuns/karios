@@ -2178,5 +2178,9 @@
   "schimburi.culoare": "Culoare în grile și rapoarte",
   "schimburi.culoare_implicita": "Implicită după tip",
   "schimburi.culoare_indiciu": "Fundalul celulelor cu acest program în Planificare, Pontaj și rapoartele PDF. Fără culoare aleasă se folosește cea implicită pentru tipul programului.",
-  "planificare.legenda_programe": "Culori programe"
+  "planificare.legenda_programe": "Culori programe",
+  "rapoarte.legenda_CVE": "Zilele oricărui alt tip de absență, în afară de CO, CM, CFP, DLG și FMP (evenimente speciale)",
+  "rapoarte.legenda_CFP": "Zile de concediu fără plată",
+  "rapoarte.legenda_FMP": "Zile de formare profesională; orele lor intră și în OL",
+  "rapoarte.legenda_DLG": "Zile de delegație"
 }

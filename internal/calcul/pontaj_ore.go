@@ -67,6 +67,10 @@ func ColoaneGrilaPontaj() []string {
 // CoduriRedenumite: codurile de absenta redenumite prin D092 (vechi -> nou).
 var CoduriRedenumite = map[string]string{"CEV": "CVE", "CFS": "CFP", "DEPL": "DLG", "FP": "FMP"}
 
+// EchivalenteRapoarteD092 (F08-T15): coloanele de total vechi din rapoartele standard si
+// coloanele D092 care le-au inlocuit. O coloana veche neconfigurata arata valoarea celei noi.
+var EchivalenteRapoarteD092 = map[string]string{"CEV": "CVE", "CFS": "CFP", "form_prof": "FMP", "deleg": "DLG"}
+
 // CoduriExcluseCVE sunt tipurile cu coloana proprie; CVE numara restul absentelor (D092).
 var CoduriExcluseCVE = []string{"CO", "CM", "CFP", "DLG", "FMP"}
 
