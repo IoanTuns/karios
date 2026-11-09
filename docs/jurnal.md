@@ -4,6 +4,7 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 
 | Data | Acțiune | Cine | Legături |
 | --- | --- | --- | --- |
+| 2026-11-09 | La cererea lui Ioan Tuns („Nu calculăm salarii. Da, și continuă conform recomandărilor”): main adus la cab0214 (0.92.86) și împins. F02-T26: [D100](decizii/D100-fara-calcul-salarii.md) acceptată (Pontix nu calculează salarii); F04-T03, F04-T06, F07-T26 anulate; stările a 12 taskuri implementate reconciliate cu codul; coloane inversate corectate (F14-T32, F16-T43); I055 și I004 găsite implementate. | Ioan Tuns, Claude | [F02](functionalitati/F02-fundatia-proiectului.md) |
 | 2026-11-09 | F09-T36 (0.92.86): culorile programelor în rapoartele SQL; D099 propusă. Teste Go noi (fundal din coloană, coloana culoare în tabele) și scenariul Edge al rapoartelor flexibile extins cu câmpurile noi. | Claude | [D099](decizii/D099-culori-rapoarte-sql.md) |
 | 2026-11-09 | F08-T16 (0.92.85): legenda culorilor programelor în Pontaj; scenariul Edge --programe-multiple verifică acum culoarea celulei și legenda în grila Pontaj (până acum neverificate). | Claude | [F08](functionalitati/F08-grila-pontaj.md) |
 | 2026-11-09 | F09-T35 (0.92.84): fonturile Windows găsite indiferent de majuscule, în editor și în serviciul Go; teste noi Go și vitest. | Claude | [F09](functionalitati/F09-rapoarte-pdf.md) |

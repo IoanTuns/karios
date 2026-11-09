@@ -1,6 +1,6 @@
 # Roadmap
 
-Prima versiune utilizabilă (V1) înseamnă pontajul lunar complet, calculat corect, cu centralizatorul tipărit și exportul pentru salarizare. Restul se adaugă peste ea, fără rescriere.
+Prima versiune utilizabilă (V1) înseamnă pontajul lunar complet, calculat corect în ore și zile, cu centralizatorul tipărit și exportul orelor pentru salarizare. Pontix nu calculează salarii ([D100](decizii/D100-fara-calcul-salarii.md)). Restul se adaugă peste ea, fără rescriere.
 
 Actualizat: 2026-10-25
 

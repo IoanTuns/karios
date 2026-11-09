@@ -20,7 +20,7 @@ Interfața, mesajele, rapoartele și datele introduse de utilizator sunt disponi
 | F03-T04 | Tipul `Text` pentru denumirile introduse de utilizator | gata | Claude | `i18n.Text`, 2026-10-24 |
 | F03-T05 | Setările `limba_interfata`, `limba_rapoarte` și folderul de traduceri în `config.toml` | de făcut | | Odată cu F05-T04 |
 | F03-T06 | Interfața React folosește aceleași cataloage (react-i18next) | gata | Claude | Schelet gata în 0.2.0: cataloagele vin din Go (`Catalog`, `Limbi`). Lipsește schimbarea limbii din setări (F03-T05) 2026-10-30: schimbarea limbii e în interfață (`App.tsx`, `SeteazaLimbaInterfata`); setările din `config.toml` rămân la F03-T05. |
-| F03-T07 | Formatarea datelor și a numerelor după limbă | de făcut | | 24.10.2026 / 10/24/2026; virgulă / punct |
+| F03-T07 | Formatarea datelor și a numerelor după limbă | gata | | 24.10.2026 / 10/24/2026; virgulă / punct Reconciliere 2026-11-09 (Claude, F02-T26): formatarea datelor si numerelor dupa limba exista (formatData, Intl.NumberFormat in interfata). |
 | F03-T08 | Ecran de setări pentru limbă și traducerile lipsă | de făcut | | Folosește `i18n.Lipsa` |
-| F03-T09 | Rapoartele PDF și Excel în limba aleasă | de făcut | | Se face în F09 și F10 |
+| F03-T09 | Rapoartele PDF și Excel în limba aleasă | gata | | Se face în F09 și F10 Reconciliere 2026-11-09 (Claude, F02-T26): rapoartele PDF si Excel au limba aleasa in cerere (Cerere.limba), cu cataloagele RO/EN. |
 | F03-T10 | Mutarea în cataloage a textelor scrise direct în cod (Pontaj, Toast, export Excel, mesajele motorului AI, detaliile de dezvoltare) (UI-4) | gata | Claude | 0.75.0: frontend + dialogurile native + erorile AI; `SeteazaLimbaInterfata`. Rămân în română răspunsurile asistentului AI (pachetul `internal/ai`) |
