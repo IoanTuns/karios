@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.89 - 2026-11-09
+
+F16-T46. Grila Pontajului încape din nou în fereastră și derulează în interior, cu antetul zilelor vizibil; din 0.88.13 (panoul asistentului AI) se derula toată pagina.
+
 ## 0.92.88 - 2026-11-09
 
 F16-T45. În Concedii și absențe, la „Toate secțiunile”, Gantt-ul anual derulează în chenarul lui; la lățimea minimă a ferestrei (1024 px) pagina nu mai are bară de derulare orizontală.

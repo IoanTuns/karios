@@ -1204,6 +1204,10 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
     min-width: 0;
     transition: all 0.2s ease;
 }
+/* F16-T46: grila Pontajului ramane in inaltimea ferestrei si deruleaza in interior (antetul ramane vizibil);
+   stratul adaugat pentru panoul AI (F16-T19) trebuie sa transmita inaltimea limitata. */
+.pontaj-lunar .panou-pontaj-layout { flex: 1; min-height: 0; }
+.pontaj-lunar .zona-grila-principala { display: flex; flex-direction: column; min-height: 0; }
 .drawer-asistent-pontaj {
     width: 420px;
     max-width: calc(45vw / var(--zoom-interfata, 1));

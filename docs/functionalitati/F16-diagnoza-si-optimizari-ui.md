@@ -10,6 +10,7 @@ Sistem integrat de diagnoză locală, captare robustă a erorilor pe frontend ș
 
 | ID | Task | Responsabil | Stare | Legături | Note |
 | --- | --- | --- | --- | --- | --- |
+| F16-T46 | Grila Pontajului derulează din nou în interiorul ferestrei, cu antetul vizibil | Claude | gata | | 0.92.89. Regresie din F16-T19 (stratul pentru panoul AI nu transmitea înălțimea): la 1024×640 grila avea 2455 px și derula toată pagina. Găsit de scenariul Edge implicit (F16-T44). După reparare: 5 rânduri vizibile, pagina 640 px. --pontaj-absente, --programe-multiple, --ux30 trec. |
 | F16-T45 | Gantt-ul anual din Concedii și absențe derulează în container, fără depășire orizontală la 1024 px | Claude | gata | | 0.92.88. Găsit de scenariul Edge implicit reparat la F16-T44 (I129): clasa tabel-derulant-comparativ nu avea CSS, pagina ajungea la 1152 px. Adăugat overflow-x: auto. |
 | F16-T44 | Scenariul Edge implicit pornește din nou (I129): simularea de bază completată, pașii aduși la interfața actuală | Claude | în lucru | | Ramura F16-T44-scenariu-edge-implicit. |
 | F16-T43 | Completare F16-T42: versiune nouă pentru rapoartele flexibile (legenda schimbată) și „prioritate maximă” | Claude | gata | 0.92.82, ramura F02-T23-integrare. Rapoarte flexibile 18 (nu au fișiere de referință, deci testele nu prinseseră schimbarea). Textul „maximă” recuperat din ciorna necomisă din karios-antigravity, restul ciornei era deja în main. |
