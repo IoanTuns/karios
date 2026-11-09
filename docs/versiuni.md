@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.90 - 2026-11-09
+
+F16-T47. În Pontaj, Escape pe un panou deschis din meniul „Mai multe” (de exemplu Ajutor) readuce focusul pe meniu; înainte focusul se pierdea, iar navigarea cu tastatura trebuia reluată de la începutul paginii.
+
 ## 0.92.89 - 2026-11-09
 
 F16-T46. Grila Pontajului încape din nou în fereastră și derulează în interior, cu antetul zilelor vizibil; din 0.88.13 (panoul asistentului AI) se derula toată pagina.

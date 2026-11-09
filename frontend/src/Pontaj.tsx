@@ -34,6 +34,14 @@ const totaluri = ['OL', 'CO', 'CM', 'CFP', 'CVE', 'DLG', 'FMP'];
 function motivTotal(v: {motiv?: string} | undefined, sursaRegula: string | undefined): string {
     return v?.motiv || (sursaRegula === 'NEDEFINITA' ? 'regula_nedefinita' : '');
 }
+// F16-T47: butonul care a deschis panoul poate sta in meniul „Mai multe”, inchis intre timp;
+// atunci focusul revine pe meniu, nu se pierde pe pagina.
+function focusPeButonPanou(buton: HTMLButtonElement | null | undefined) {
+    const meniu = buton?.closest('details');
+    if (meniu && !meniu.open) meniu.querySelector('summary')?.focus();
+    else buton?.focus();
+}
+
 function textMotiv(t: TFunction, motiv: string, cod?: string): string {
     return motiv ? t(`pontaj.motiv_${motiv}`, {cod: cod || ''}) : t('pontaj.necalculat');
 }
@@ -845,7 +853,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
         {eroare && <div className="mesaj eroare" role="alert">{eroare}</div>}{mesaj && <div className="mesaj succes" role="status">{mesaj}</div>}
         {incarcare ? <p role="status">{t('ui.incarcare')}</p> : !schita ? <button className="buton secundar" onClick={() => setReincarcare(x => x + 1)}>{t('ui.reincearca')}</button> : <>
             <div className="unelte-grila" ref={unelte} onKeyDown={e => {
-                if (e.key === 'Escape' && panou) { e.preventDefault(); e.stopPropagation(); butoanePanouri.current[panou]?.focus(); setPanou(''); }
+                if (e.key === 'Escape' && panou) { e.preventDefault(); e.stopPropagation(); focusPeButonPanou(butoanePanouri.current[panou]); setPanou(''); }
             }}>
                 <input name="cautare_pontaj" className="cautare-grila" aria-label={t('ui.cautare')} placeholder={t('ui.cautare_indiciu')} value={cautare} disabled={ocupat} onChange={e => setCautare(e.target.value)}/>
                 {['filtre', 'completare'].map(p => <button key={p} ref={element => { butoanePanouri.current[p] = element; }} type="button" className={`buton secundar ${panou === p ? 'panou-activ' : ''}`} disabled={ocupat} aria-expanded={panou === p} aria-controls={`pontaj-panou-${p}`} onClick={() => setPanou(panou === p ? '' : p)}>{t(`pontaj.panou_${p}`)}{p === 'filtre' && numarFiltre > 0 ? ` (${numarFiltre})` : ''}</button>)}

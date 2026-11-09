@@ -4,6 +4,7 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 
 | Data | Acțiune | Cine | Legături |
 | --- | --- | --- | --- |
+| 2026-11-09 | F16-T47 (0.92.90): focusul după Escape pe panourile din Pontaj, găsit de scenariul Edge implicit; revine pe meniul „Mai multe” când butonul panoului e ascuns în meniul închis. | Claude | [F16](functionalitati/F16-diagnoza-si-optimizari-ui.md) |
 | 2026-11-09 | F16-T46 (0.92.89): regresie găsită de scenariul Edge implicit — din F16-T19 grila Pontajului nu mai era limitată la înălțimea ferestrei (2455 px la 1024×640). Reparată în CSS (.panou-pontaj-layout și .zona-grila-principala transmit înălțimea); 5 rânduri vizibile, fără derularea paginii. | Claude | [F16](functionalitati/F16-diagnoza-si-optimizari-ui.md) |
 | 2026-11-09 | F16-T45 (0.92.88): Gantt-ul anual al absențelor lățea pagina la 1152 px pe fereastra de 1024 px (clasa tabel-derulant-comparativ fără CSS); găsit de scenariul Edge implicit, reparat cu derulare orizontală în container. Create F16-T44 (I129, în lucru) și F16-T45. | Claude | [F16](functionalitati/F16-diagnoza-si-optimizari-ui.md) |
 | 2026-11-09 | F08-T06 găsit deja implementat (regula „Ture peste miezul nopții”, F09-T09) și trecut la gata. F04-T08 analizat: fără câmpuri de oră exactă în aplicație, orele vin din programe cu durată nominală; rămâne regula pentru nopțile cu schimbarea orei (12 h nominal sau 13/11 h efectiv), întrebare adăugată la F01, task blocat până la răspuns. | Claude | [F01](functionalitati/F01-cerinte-reguli-calcul.md) |
