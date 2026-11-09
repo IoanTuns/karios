@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.85 - 2026-11-09
+
+F08-T16 (I124). Pontajul are și el legenda „Culori programe”, lângă celelalte marcaje ale grilei, cu programele care apar în luna afișată. Culorile din grila Pontaj sunt acum verificate automat în Edge.
+
 ## 0.92.84 - 2026-11-09
 
 F09-T35 (I125). În editorul vizual, „Adaugă fontul” găsește fontul Windows și dacă numele e scris cu alte majuscule (`arial` → `Arial`); în șablon intră numele corect din listă.

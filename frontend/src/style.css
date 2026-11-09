@@ -418,6 +418,8 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .legenda-grila .mostra-modificat { background: linear-gradient(135deg, #8c661d 6px, #fff 6px); }
 .legenda-grila .mostra-avertisment { background: var(--grila-avertisment); border-color: #a36a00; }
 .legenda-grila .mostra-inlocuire { border-bottom: 3px solid #2d6699; }
+.legenda-grila .legenda-culori-pontaj { gap: 4px 10px; flex-wrap: wrap; }
+.legenda-grila .legenda-culori-pontaj strong { font-weight: 600; }
 .dialog[open] { display: flex; flex-direction: column; overflow: hidden; }
 .dialog > .antet-dialog, .dialog .subsol-dialog { flex-shrink: 0; }
 .dialog > form { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }

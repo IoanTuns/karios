@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 // Simularea verifica interactiunea si pastrarea pozitiilor; calculul real este testat in Go.
-export async function verificaProgrameMultiple({evalueaza,asteapta,apasa,completeaza,cataloage,limba,captura}){
+export async function verificaProgrameMultiple({cdp,evalueaza,asteapta,apasa,completeaza,cataloage,limba,captura}){
  const t=k=>cataloage[limba][k];
  await asteapta(()=>evalueaza("Boolean(document.querySelector('.actiuni-antet'))"),'Aplicatie lipsa');
  await apasa(t('ui.planificare'));
@@ -38,5 +38,20 @@ export async function verificaProgrameMultiple({evalueaza,asteapta,apasa,complet
  // Grila Pontaj: aceeasi culoare pe celula cu programul publicat sau introdus.
  await apasa(t('ui.pontaj'));
  await asteapta(()=>evalueaza("Boolean(document.querySelector('.grila-pontaj'))"),'Pontaj lipsa');
+ await asteapta(()=>evalueaza("Boolean(document.querySelector('.grila-pontaj td.col-zi input'))"),'Celule Pontaj lipsa');
+ // F08-T16 (I124): programul S7 intr-o zi lucratoare a fiecarui angajat; celula ia culoarea lui, iar legenda il arata.
+ const zi=await evalueaza(`(()=>{const td=[...document.querySelectorAll('.grila-pontaj td.col-zi')].find(td=>!td.className.match(/zi-weekend|zi-sarbatoare/));return td.querySelector('input').getAttribute('aria-label').match(/[0-9]{4}-[0-9]{2}-[0-9]{2}/)[0];})()`);
+ await evalueaza(`(()=>{const s=JSON.parse(localStorage.getItem('pontix-test'));s.ciorne=(s.ciorne||[]).filter(c=>c.data!==${JSON.stringify(zi)});for(const a of s.angajati.filter(a=>a.activ!==false))s.ciorne.push({angajat_id:a.id,data:${JSON.stringify(zi)},valoare:'S7',revizie:'1'});localStorage.setItem('pontix-test',JSON.stringify(s));})()`);
+ await cdp('Page.reload');
+ await asteapta(()=>evalueaza("Boolean(document.querySelector('.actiuni-antet'))"),'Aplicatie lipsa dupa reincarcare');
+ await apasa(t('ui.pontaj'));
+ await asteapta(()=>evalueaza("Boolean(document.querySelector('.grila-pontaj td.celula-program'))"),'Celula Pontaj fara culoarea programului');
+ const pontaj=await evalueaza(`(()=>{const p=JSON.parse(localStorage.getItem('pontix-test'));const s=p.schimburi.find(x=>x.cod==='S7');const td=document.querySelector('.grila-pontaj td.celula-program');const l=[...document.querySelectorAll('.legenda-culori-pontaj span')].map(e=>({cod:e.textContent.trim(),fundal:e.querySelector('i')?.style.background}));return {asteptat:s.culoare_afisata,var:td.style.getPropertyValue('--culoare-program'),fundal:getComputedStyle(td).backgroundColor,legenda:l};})()`);
+ assert.equal(pontaj.var,pontaj.asteptat,'Culoarea celulei Pontaj nu e cea a programului');
+ assert.notEqual(pontaj.fundal,'rgba(0, 0, 0, 0)','Fundalul celulei Pontaj nu se aplica');
+ assert(pontaj.legenda.some(x=>x.cod==='S7'&&x.fundal),'Legenda Pontajului nu arata S7: '+JSON.stringify(pontaj.legenda));
+ await evalueaza("document.querySelector('.grila-pontaj td.celula-program').scrollIntoView({block:'center',inline:'center'})");
  await captura?.('t42-02-pontaj.png');
+ await evalueaza("document.querySelector('.legenda-grila').scrollIntoView({block:'start'})");
+ await captura?.('t16-01-pontaj-legenda.png');
 }

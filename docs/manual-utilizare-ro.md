@@ -984,7 +984,7 @@ Dacă deschideți un model mai vechi a cărui pagină nu se potrivește cu Setă
 Fiecare program (tură, gardă) are o culoare, folosită ca fundal al celulelor:
 
 - în **Planificare**, pe celulele planificate (legenda **Culori programe** arată programele lunii, iar butoanele programelor speciale au mostra culorii);
-- în **Pontaj**, pe celulele cu codul programului;
+- în **Pontaj**, pe celulele cu codul programului (din 0.92.85 și aici legenda **Culori programe**, lângă celelalte marcaje ale grilei);
 - în **rapoartele PDF** (Pontaj lunar, Pontaj detaliat, Fișa individuală, Grafic gărzi).
 
 Culoarea se alege în **Setări › Programe**, la editarea programului: debifați **Implicită după tip** și alegeți culoarea. Fără alegere, culoarea vine din tipul programului: Normal – albastru, Tură – piersică, Noapte – lavandă, Gardă – roz.

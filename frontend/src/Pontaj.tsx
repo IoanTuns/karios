@@ -232,6 +232,12 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
     const motiveNecalculate=useMemo(()=>{const grup=new Map<string,{motiv:string;cod:string;numar:number;coloane:string[]}>();for(const valori of totaluriCalculate.values())for(const c of totaluri){const v=valori?.[c];if(!v||v.definita||!v.motiv)continue;const k=v.motiv+'/'+(v.motiv_cod||'');const g=grup.get(k)??{motiv:v.motiv,cod:v.motiv_cod||'',numar:0,coloane:[]};g.numar++;if(!g.coloane.includes(c))g.coloane.push(c);grup.set(k,g);}return [...grup.values()];},[totaluriCalculate]);
 
     const originale = useMemo(() => new Map((schita?.celule ?? []).map(c => [cheie(c.angajat_id, c.data), c])), [schita]);
+    // F08-T16 (I124): legenda culorilor (D097) pentru programele care apar in luna afisata, ca in Planificare.
+    const programeFolosite = useMemo(() => {
+        const coduri = new Set<string>();
+        for (const m of [originale, modificari]) for (const c of m.values()) for (const p of (c.valoare || '').split('+')) coduri.add(p.trim().toUpperCase());
+        return schimburi.filter(s => coduri.has(s.cod.toUpperCase())).sort((a, b) => a.cod.localeCompare(b.cod));
+    }, [originale, modificari, schimburi]);
     const absente = useMemo(() => new Map((schita?.absente ?? []).filter(z => z.activ).map(z => [cheie(z.angajat_id,z.data),z])), [schita]);
     const inlocuiri = useMemo(() => {
         const harta = new Map<string, datebaza.ZiAbsenta[]>();
@@ -933,6 +939,9 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
             </div>}
             <div className="legenda-grila" aria-label={t('pontaj.legenda')}>
                 {['weekend', 'sarbatoare', 'zi_libera', 'selectie', 'modificat', 'avertisment', 'inlocuire'].map(stare => <span key={stare}><i aria-hidden="true" className={`mostra-${stare}`}/>{t(`pontaj.legenda_${stare}`)}</span>)}
+                {programeFolosite.length > 0 && <span className="legenda-culori-pontaj" aria-label={t('planificare.legenda_programe')}><strong>{t('planificare.legenda_programe')}:</strong>
+                    {programeFolosite.map(s => <span key={s.id} title={s.denumire[i18n.language] || s.denumire.ro}><i aria-hidden="true" className="mostra-program" style={{background: s.culoare_afisata}}/>{s.cod}</span>)}
+                </span>}
             </div>
             <div className={`panou-pontaj-layout ${drawerAI ? 'cu-drawer-ai' : ''}`}>
                 <div className="zona-grila-principala">
