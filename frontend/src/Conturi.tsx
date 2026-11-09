@@ -1,4 +1,5 @@
 import {FiltruStare,corespundeStare,type StareLista} from './FiltruStare';
+import type {TFunction} from 'i18next';
 import i18next from 'i18next';
 import {formateazaDataSigura} from './formatare';
 import {ButonAjutor} from './Ajutor';
@@ -26,7 +27,7 @@ export function useCont(): StareContext | null {
     return useContext(ContextCont);
 }
 
-function textEroare(t: (k: string, p?: Record<string, string>) => string, e?: main.MesajEroare): string {
+function textEroare(t: TFunction, e?: main.MesajEroare): string {
     if (!e) return '';
     const p = {...(e.param ?? {})};
     if (p.pana_la) p.pana_la = formateazaDataSigura(p.pana_la, i18next.language, {hour: '2-digit', minute: '2-digit', second: '2-digit'});

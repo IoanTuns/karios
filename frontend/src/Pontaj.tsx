@@ -1,4 +1,5 @@
 import {useSalvareParasire,confirmaParasire} from './Parasire';
+import type {TFunction} from 'i18next';
 import {SelectieRezumat} from './SelectieRezumat';
 import {FiltruStare,corespundeStare,type StareLista} from './FiltruStare';
 import {FormularAbsente} from './Absente';
@@ -33,7 +34,7 @@ const totaluri = ['OL', 'CO', 'CM', 'CFP', 'CVE', 'DLG', 'FMP'];
 function motivTotal(v: {motiv?: string} | undefined, sursaRegula: string | undefined): string {
     return v?.motiv || (sursaRegula === 'NEDEFINITA' ? 'regula_nedefinita' : '');
 }
-function textMotiv(t: (cheie: string, p?: Record<string, string>) => string, motiv: string, cod?: string): string {
+function textMotiv(t: TFunction, motiv: string, cod?: string): string {
     return motiv ? t(`pontaj.motiv_${motiv}`, {cod: cod || ''}) : t('pontaj.necalculat');
 }
 const cheie = (id: string, data: string) => JSON.stringify([id, data]);

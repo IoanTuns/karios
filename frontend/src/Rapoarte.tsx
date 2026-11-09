@@ -1,4 +1,5 @@
 import {EditorPrezentare,EditorCopieRaport,stilCSS} from './PrezentareRaport';
+import type {TFunction} from 'i18next';
 import {EditorFlexibil,esteFlexibil,flexibilInitial} from './RaportFlexibil';
 import {ButonStergereAdmin} from './ButonStergereAdmin';
 import {FiltruStare,corespundeStare,type StareLista} from './FiltruStare';
@@ -20,7 +21,7 @@ const adresaImagine = (i: DateSimple<rapoarte.Imagine>) => `data:image/${i.date.
 
 // F09-T23: modelele vechi trec pe editorul vizual la primul acces; anuntul spune cate
 // si ce s-a aproximat (originalele raman in jurnal).
-function anuntaConversia(conv: rapoarte.RezultatConversie[] | undefined, t: (k: string, p?: Record<string, unknown>) => string) {
+function anuntaConversia(conv: rapoarte.RezultatConversie[] | undefined, t: TFunction) {
     if (!conv?.length) return;
     const erori = conv.filter(c => c.eroare);
     const note = conv.flatMap(c => (c.note || []).map(n => `${c.denumire.ro || c.id}: ${n}`));

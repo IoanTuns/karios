@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.87 - 2026-11-09
+
+F02-T27. Dependențe actualizate: go-sqlite3 0.37.0 (repară o corupere de date în modul WAL al bazei criptate), i18next 27.0.1, react-i18next 18.0.1, @vitejs/plugin-react 6.3.0. Fără schimbări vizibile pentru utilizator.
+
 ## 0.92.86 - 2026-11-09
 
 F09-T36 (I127, D099 propusă). Culorile programelor și în rapoartele SQL: coloana `culoare` în tabelele `programe`, `planificare`, `garzi`, `garzi_zile`, iar în formularul raportului **Fundal din coloana** și **Colorează coloanele** (gol = tot rândul). Coloana de culoare nu se afișează; culorile de weekend și absență rămân. Un `SELECT *` din aceste tabele primește o coloană în plus. Rapoarte flexibile 19.
