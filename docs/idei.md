@@ -6,7 +6,7 @@ Stări: `nouă`, `în analiză`, `transformată` (în task sau decizie), `amâna
 
 | ID | Data | Idee | Cine | Stare | Legături / motiv |
 | --- | --- | --- | --- | --- | --- |
-| I129 | 2026-11-09 | Scenariul Edge implicit (`node verificari/interfata.mjs` fara argument) nu mai porneste aplicatia: simularea de baza nu are `StareSeif` si `InregistreazaEroareFrontend`, adaugate in aplicatie dupa scrierea ei; scenariile cu argument le primesc din simularea nomenclatoarelor | Claude | nouă | Gasit la F02-T27 (2026-11-09); pica identic si cu dependentele vechi |
+| I129 | 2026-11-09 | Scenariul Edge implicit (`node verificari/interfata.mjs` fara argument) nu mai porneste aplicatia: simularea de baza nu are `StareSeif` si `InregistreazaEroareFrontend`, adaugate in aplicatie dupa scrierea ei; scenariile cu argument le primesc din simularea nomenclatoarelor | Claude | transformată | F16-T44 |
 | I128 | 2026-10-31 | Procedura completa de control lunar si fise printabile pentru inceput/parcurs/final de luna, corecturi si actualizare | Utilizator, Codex | transformată | F02-T23; control-lunar/README.md; 79 verificari in sase fise A4 |
 | I127 | 2026-11-09 | Culorile programelor (D097) si in rapoartele SQL personalizate: coloana `culoare` in tabelele `garzi`/`planificare` din setul de date si o optiune „Fundal din coloana” in formular, ca rapoartele de garzi facute in SQL sa aiba aceleasi culori ca grila | Claude | transformată | F09-T36 |
 | I126 | 2026-11-09 | Mesaj de eroare precis pentru rapoartele SQL: „Coloana ascunsa «rand» nu exista in rezultatul SQL” sau „Coloana calculata «x» are acelasi nume ca o coloana SQL”, in locul mesajului general despre aliasuri (rapoarte.sql_coloane) | Claude | transformată | F09-T34 (0.92.83) |

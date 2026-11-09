@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.88 - 2026-11-09
+
+F16-T45. În Concedii și absențe, la „Toate secțiunile”, Gantt-ul anual derulează în chenarul lui; la lățimea minimă a ferestrei (1024 px) pagina nu mai are bară de derulare orizontală.
+
 ## 0.92.87 - 2026-11-09
 
 F02-T27. Dependențe actualizate: go-sqlite3 0.37.0 (repară o corupere de date în modul WAL al bazei criptate), i18next 27.0.1, react-i18next 18.0.1, @vitejs/plugin-react 6.3.0. Fără schimbări vizibile pentru utilizator.

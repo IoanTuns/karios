@@ -454,6 +454,8 @@ tr:nth-child(3n) .avatar { background: #f3ede4; color: #8a7251; }
 .insigna-comp.neplanificat { background: #e3f2fd; color: #1565c0; border: 1px solid #bbdefb; }
 .insigna-comp.neefectuat { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
 .insigna-comp.absenta { background: #f3e5f5; color: #7b1fa2; border: 1px solid #e1bee7; }
+/* F16-T45: Gantt-ul anual al absentelor deruleaza in container, nu largeste pagina la 1024 px. */
+.tabel-derulant-comparativ { max-width: 100%; overflow-x: auto; }
 .tabel-comparativ td { padding: 4px; text-align: center; font-size: 11px; }
 .tabel-comparativ th.fix-angajat-comp { position: sticky; left: 0; background: var(--suprafata); z-index: 2; min-width: 160px; text-align: left; }
 .tabel-comparativ td.fix-ore-comp { font-weight: 600; min-width: 55px; }
