@@ -64,7 +64,7 @@ func preparaFlexibil(ctx context.Context, tx *sql.Tx, d Definitie, c Cerere, acu
 		}
 		for _, nom := range r.Coloane {
 			if strings.EqualFold(nom, cc.Cod) {
-				return Document{}, eroare("rapoarte.sql_coloane")
+				return Document{}, eroareColoana("rapoarte.sql_coloana_calculata", cc.Cod)
 			}
 		}
 		for ri, row := range r.Randuri {
@@ -222,7 +222,7 @@ func preparaFlexibil(ctx context.Context, tx *sql.Tx, d Definitie, c Cerere, acu
 			gasit = gasit || c.Cod == nom
 		}
 		if !gasit {
-			return Document{}, eroare("rapoarte.sql_coloane")
+			return Document{}, eroareColoana("rapoarte.sql_coloana_ascunsa", nom)
 		}
 		ascunse[nom] = true
 	}
@@ -235,7 +235,7 @@ func preparaFlexibil(ctx context.Context, tx *sql.Tx, d Definitie, c Cerere, acu
 		}
 	}
 	if len(vizibile) == 0 {
-		return Document{}, eroare("rapoarte.sql_coloane")
+		return Document{}, eroare("rapoarte.sql_toate_ascunse")
 	}
 	for i, r := range doc.Randuri {
 		v := []string{}

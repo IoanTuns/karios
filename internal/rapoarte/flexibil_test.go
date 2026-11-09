@@ -2,6 +2,7 @@ package rapoarte
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"pontix/internal/datebaza"
 	"pontix/internal/i18n"
@@ -194,5 +195,36 @@ func TestFlexibilCampuriRepetateSiAscunse(t *testing.T) {
 	}
 	if len(doc.Coloane) != 1 || len(doc.valoriRanduri) != 90 {
 		t.Fatal("ascundere sau repetare", doc.Coloane)
+	}
+}
+
+// I126: eroarea numeste coloana SQL care trebuie corectata, nu doar regula generala.
+func TestFlexibilEroriColoaneNumite(t *testing.T) {
+	m := pregateste(t)
+	fixture(t, m)
+	cazuri := []struct {
+		sql, cod, coloana string
+		ascunse           []string
+		calculate         []ColoanaCalculata
+	}{
+		{sql: "SELECT 1 AS zi", ascunse: []string{"rand"}, cod: "rapoarte.sql_coloana_ascunsa", coloana: "rand"},
+		{sql: "SELECT 1 AS zi, 2 AS ore", calculate: []ColoanaCalculata{{Cod: "ORE", Unitate: "ORE", Mod: "FORMULA", Expresie: "zi+1", Activ: true}}, cod: "rapoarte.sql_coloana_calculata", coloana: "ORE"},
+		{sql: "SELECT 'x' AS \"NUME ȘI PRENUME\"", cod: "rapoarte.sql_alias_invalid", coloana: "NUME ȘI PRENUME"},
+		{sql: "SELECT 1 AS zi, 2 AS ZI", cod: "rapoarte.sql_alias_dublat", coloana: "ZI"},
+		{sql: "SELECT 1 AS zi", ascunse: []string{"zi"}, cod: "rapoarte.sql_toate_ascunse"},
+	}
+	for _, c := range cazuri {
+		d := modelFlexTest()
+		d.Continut.Flexibil.SQL = c.sql
+		d.Continut.Flexibil.Ascunse = c.ascunse
+		d.Continut.Flexibil.Calculate = c.calculate
+		_, e := m.s.PrevizualizeazaFlexibil(context.Background(), d, Cerere{An: 2026, Luna: 10, Limba: "ro"}, momentFix)
+		var er *i18n.Eroare
+		if !errors.As(e, &er) || er.Cod != c.cod || er.Param["coloana"] != c.coloana {
+			t.Fatalf("%s: eroare %#v, astept %s «%s»", c.sql, e, c.cod, c.coloana)
+		}
+		if c.coloana != "" && !strings.Contains(er.Text("ro"), "«"+c.coloana+"»") {
+			t.Fatalf("textul nu numeste coloana: %s", er.Text("ro"))
+		}
 	}
 }

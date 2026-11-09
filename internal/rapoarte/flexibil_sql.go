@@ -133,8 +133,13 @@ func (b *bazaRaport) query(ctx context.Context, text string, param map[string]an
 		vaz := map[string]bool{}
 		for i := 0; i < s.ColumnCount(); i++ {
 			nom := s.ColumnName(i)
-			if (len(scalar) == 0 || !scalar[0]) && (!codFlexibil.MatchString(nom) || vaz[strings.ToLower(nom)]) {
-				return eroare("rapoarte.sql_coloane")
+			if len(scalar) == 0 || !scalar[0] {
+				if !codFlexibil.MatchString(nom) {
+					return eroareColoana("rapoarte.sql_alias_invalid", nom)
+				}
+				if vaz[strings.ToLower(nom)] {
+					return eroareColoana("rapoarte.sql_alias_dublat", nom)
+				}
 			}
 			vaz[strings.ToLower(nom)] = true
 			rez.Coloane = append(rez.Coloane, nom)

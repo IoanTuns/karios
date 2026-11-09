@@ -75,6 +75,11 @@ var variabile = []string{"titlu", "an", "luna", "perioada", "sectie", "departame
 var variabila = regexp.MustCompile(`\{\{([^{}]+)\}\}`)
 
 func eroare(cod string) error { return &i18n.Eroare{Cod: cod} }
+
+// eroareColoana numeste coloana SQL care a produs eroarea, ca utilizatorul sa stie ce sa corecteze.
+func eroareColoana(cod, coloana string) error {
+	return &i18n.Eroare{Cod: cod, Param: map[string]string{"coloana": coloana}}
+}
 func traduce(err error) error {
 	if err == nil {
 		return nil

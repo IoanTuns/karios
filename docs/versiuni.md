@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.83 - 2026-11-09
+
+F09-T34 (I126). Rapoartele SQL spun exact ce coloană trebuie corectată: coloana ascunsă care nu există în rezultat („rand”), coloana calculată cu același nume ca o coloană SQL, aliasul invalid (de ex. cu spații sau diacritice) sau repetat, toate coloanele ascunse. Mesajul general despre aliasuri a dispărut. Conținutul rapoartelor nu se schimbă, deci versiunile rapoartelor rămân aceleași.
+
 ## 0.92.82 - 2026-11-09
 
 F16-T43, completare la F16-T42. Legenda rapoartelor flexibile s-a schimbat la F16-T42 („contractuală”, „lună”), dar versiunea raportului rămăsese aceeași: Rapoarte flexibile 18 (D009). Diacritica „prioritate maximă” în avertismentul de publicare din Planificare, găsită în ciorna necomisă din worktree-ul karios-antigravity. Manualul nu are schimbări de conținut; revizuit pentru 0.92.82.

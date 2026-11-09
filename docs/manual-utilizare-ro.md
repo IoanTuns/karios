@@ -820,6 +820,8 @@ In rapoartele SQL puteti folosi acum rezultatul rapoartelor standard ca tabele: 
 
 Exemplu: `SELECT rand, angajat, marca, z01, z02, z03 FROM pontaj_lunar ORDER BY rand`. Pastrati coloana `rand` si treceti-o la **Coloane ascunse**: asa raportul preia titlurile coloanelor, culorile de weekend si absenta, randurile de grup si explicatiile coloanelor.
 
+Daca o coloana nu se potriveste, mesajul de eroare o numeste (0.92.83): de exemplu „Coloana ascunsă «rand» nu există în rezultatul SQL” cand ati trecut `rand` la **Coloane ascunse**, dar nu e in SELECT. Aliasurile din SQL au doar litere fara diacritice, cifre si underscore (`AS nume_complet`); titlul afisat in raport, cu spatii si diacritice („Nume și prenume”), se scrie in formular.
+
 ### Modelele standard in editorul vizual (0.92.39)
 
 In lista de modele apar cinci modele noi, cu „(editor vizual)” in nume: pontaj lunar, pontaj detaliat, fisa individuala, evidenta absentelor si grafic garzi. Dau aceleasi valori ca modelele vechi, dar pagina se poate schimba in editorul vizual, iar coloanele din SQL. Titlurile coloanelor apar in limba raportului, zilele de weekend si sarbatorile sunt colorate ca inainte, iar in lunile cu mai putin de 31 de zile coloanele in plus nu apar. Imaginile din antetul modelelor vechi nu sunt preluate; le puteti adauga ca imagine in editorul vizual. Modelele vechi raman disponibile pana la conversia lor.
