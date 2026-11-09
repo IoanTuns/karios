@@ -128,3 +128,13 @@ Intrebari deschise: formula numita Total ore lucratoare este exprimata zile cont
 F09-T13/T14, 2026-11-02: utilizatorul confirma cele trei clarificari: ore contractuale minus ore concedii cu reducerea obligatiei; numai orele efective de garda intersectate cu weekend/sarbatori 00-24 fara dublare; total concedii selectabil pe tipuri/categorii, deduplicat pe marca/data. Nu sunt procente noi de plata.
 
 F09-T19, confirmare utilizator2026-11-03: raportul de garzi include intregul grup consecutiv de zile libere la ambele margini ale lunii. Noiembrie2026 include1decembrie, decembrie2026 include28-30noiembrie. Regula de afisare, nu recalcularea normelor/totalurilor salariale.
+
+### Întrebare deschisă 2026-11-09 - F04-T08, schimbarea orei
+
+O tură de noapte nominală de 12 ore (de exemplu 19–07) cade în noaptea în care ora se schimbă:
+
+- în ultima duminică din octombrie (ora 04:00 devine 03:00) durează efectiv 13 ore;
+- în ultima duminică din martie (ora 03:00 devine 04:00) durează efectiv 11 ore.
+
+Acum Pontix numără durata nominală (12 ore) în ambele nopți. Întrebarea pentru Ioan Tuns: rămâne durata nominală sau se numără orele efective (13, respectiv 11)? Fără răspuns, comportamentul actual rămâne neschimbat.
+
