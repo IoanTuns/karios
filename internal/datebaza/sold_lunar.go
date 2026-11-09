@@ -13,6 +13,11 @@ func completeazaSolduri(ctx context.Context, q *acces.Queries, an, luna int, rez
 	if e != nil {
 		return e
 	}
+	// F07-T43 (D101): norma fiecarei zile vine din istoricul contractului.
+	istoric, e := q.ListaIstoricContract(ctx)
+	if e != nil {
+		return e
+	}
 	// Pe randurile de garda, Ore lucratoare vine din calcul (D093), nu din norma.
 	garzi, e := randuriGarda(ctx, q)
 	if e != nil {
@@ -149,7 +154,7 @@ func completeazaSolduri(ctx context.Context, q *acces.Queries, an, luna int, rez
 				continue
 			}
 			inceputCalcul[id] = true
-			n, e := calcul.CalculeazaNormaDatorata(deLa, panaLa, norma, libere, abs[id])
+			n, e := calcul.CalculeazaNormaDatorata(deLa, panaLa, norma, libere, abs[id], schimbariCalcul(istoric[id])...)
 			if e != nil {
 				return e
 			}

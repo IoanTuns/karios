@@ -3,11 +3,13 @@ package rapoarte
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"pontix/internal/bd/acces"
 	"pontix/internal/calcul"
 	"pontix/internal/datebaza"
 	"pontix/internal/i18n"
 	"pontix/internal/identitate"
+	"sort"
 	"strings"
 	"time"
 )
@@ -69,6 +71,12 @@ func incarcatBazaRaport(ctx context.Context, tx *sql.Tx, c Cerere, f *RaportFlex
 	if e != nil {
 		return nil, e
 	}
+	// F07-T43 (D101): norma la inceputul lunii raportului si dreptul la concediu pe anul raportului.
+	istoric, e := acces.New(tx).ListaIstoricContract(ctx)
+	if e != nil {
+		return nil, e
+	}
+	inceputLuna := fmt.Sprintf("%04d-%02d-01", c.An, c.Luna)
 	inclus := map[string]bool{}
 	nume := map[string]string{}
 	marci := map[string]string{}
@@ -84,12 +92,38 @@ func incarcatBazaRaport(ctx context.Context, tx *sql.Tx, c Cerere, f *RaportFlex
 		nume[a.ID] = identitate.CuPrefix(prefixe[a.ID], identitate.Nume(a.Nume, a.Prenume, garda[a.ID], limba))
 		marci[a.ID] = a.Marca
 		var norma any
-		if n := norme[a.ID]; n != nil {
+		sch := make([]calcul.SchimbareContract, 0, len(istoric[a.ID]))
+		for _, x := range istoric[a.ID] {
+			sch = append(sch, calcul.SchimbareContract{DeLa: x.DeLa, NormaMinute: x.NormaMinute, ConcediuZileAn: x.ConcediuZileAn})
+		}
+		if n := calcul.NormaLaData(norme[a.ID], sch, inceputLuna); n != nil {
 			norma = float64(*n) / 60
 		}
-		ra = append(ra, []any{a.ID, nume[a.ID], a.Marca, optional(a.Functie), optional(a.SectieID), ns[optional(a.SectieID)], optional(a.DepartamentID), nd[optional(a.DepartamentID)], p.NumeContract, garda[a.ID], norma, a.Activ == 1, a.Nume, a.Prenume, a.ConcediuZileAn, asocieri[a.ID], prefixe[a.ID]})
+		concediu := calcul.DreptConcediuAn(c.An, a.ConcediuZileAn, sch)
+		ra = append(ra, []any{a.ID, nume[a.ID], a.Marca, optional(a.Functie), optional(a.SectieID), ns[optional(a.SectieID)], optional(a.DepartamentID), nd[optional(a.DepartamentID)], p.NumeContract, garda[a.ID], norma, a.Activ == 1, a.Nume, a.Prenume, concediu, asocieri[a.ID], prefixe[a.ID]})
 	}
 	if e = b.adauga(ctx, "angajati", []string{"angajat_id", "angajat", "marca", "functie", "sectie_id", "sectie", "compartiment_id", "compartiment", "contract", "garda", "norma_zilnica", "activ", "nume", "prenume", "concediu_zile_an", "angajat_principal_id", "prefix"}, ra); e != nil {
+		return nil, e
+	}
+	ri := [][]any{}
+	ids := make([]string, 0, len(istoric))
+	for id := range istoric {
+		ids = append(ids, id)
+	}
+	sort.Strings(ids)
+	for _, id := range ids {
+		if !inclus[id] {
+			continue
+		}
+		for _, x := range istoric[id] {
+			var ore any
+			if x.NormaMinute != nil {
+				ore = float64(*x.NormaMinute) / 60
+			}
+			ri = append(ri, []any{id, x.DeLa, ore, x.ConcediuZileAn})
+		}
+	}
+	if e = b.adauga(ctx, "istoric_contract", []string{"angajat_id", "de_la", "norma_zilnica", "concediu_zile_an"}, ri); e != nil {
 		return nil, e
 	}
 	b.variabile = map[string]string{"sectie": ns[c.SectieID], "departament": nd[c.DepartamentID], "compartiment": nd[c.DepartamentID], "angajat": nume[c.AngajatID]}

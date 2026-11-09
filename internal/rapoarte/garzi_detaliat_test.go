@@ -8,7 +8,9 @@ import (
 	"path/filepath"
 	"pontix/internal/calcul"
 	"pontix/internal/datebaza"
+	"pontix/internal/rapoarte/detaliat"
 	"pontix/internal/versiune"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -143,7 +145,7 @@ func TestReferintaDetaliatCuMarciGarda(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	cale := filepath.Join("testdata", "pontaj-detaliat-marci-garda-v24.json")
+	cale := filepath.Join("testdata", "pontaj-detaliat-marci-garda-v"+strconv.Itoa(detaliat.Versiune)+".json")
 	if *actualizeazaReferinte {
 		if err := os.WriteFile(cale, date, 0600); err != nil {
 			t.Fatal(err)

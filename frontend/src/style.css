@@ -1623,3 +1623,8 @@ fieldset.filtre-profesionale{border:0;padding:0;min-width:0}
 .legenda-programe { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; font-size: 11px; }
 .legenda-programe span { display: inline-flex; align-items: center; }
 
+
+/* F07-T43 (D101): istoricul normei si al concediului in fisa angajatului. */
+.istoric-contract .tabel-istoric-contract { width: 100%; border-collapse: collapse; margin: 6px 0 10px; font-size: 12px; }
+.istoric-contract .tabel-istoric-contract th, .istoric-contract .tabel-istoric-contract td { padding: 4px 6px; border-bottom: 1px solid var(--linie); text-align: left; }
+.istoric-contract .campuri > button { align-self: end; }

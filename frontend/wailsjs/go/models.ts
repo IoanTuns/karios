@@ -18,6 +18,26 @@ export namespace acces {
 	        this.revizie = source["revizie"];
 	    }
 	}
+	export class SchimbareContract {
+	    angajat_id: string;
+	    de_la: string;
+	    norma_minute?: number;
+	    concediu_zile_an?: number;
+	    creat_la: string;
+
+	    static createFrom(source: any = {}) {
+	        return new SchimbareContract(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.angajat_id = source["angajat_id"];
+	        this.de_la = source["de_la"];
+	        this.norma_minute = source["norma_minute"];
+	        this.concediu_zile_an = source["concediu_zile_an"];
+	        this.creat_la = source["creat_la"];
+	    }
+	}
 
 }
 
@@ -990,6 +1010,7 @@ export namespace datebaza {
 	    an: number;
 	    tipuri: TipAbsenta[];
 	    zile: ZiAbsenta[];
+	    drept_concediu: Record<string, number>;
 
 	    static createFrom(source: any = {}) {
 	        return new AbsenteAn(source);
@@ -1001,6 +1022,7 @@ export namespace datebaza {
 	        this.an = source["an"];
 	        this.tipuri = this.convertValues(source["tipuri"], TipAbsenta);
 	        this.zile = this.convertValues(source["zile"], ZiAbsenta);
+	        this.drept_concediu = source["drept_concediu"];
 	    }
 
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -2867,6 +2889,38 @@ export namespace main {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.conturi = this.convertValues(source["conturi"], conturi.Cont);
+	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class RaspunsIstoricContract {
+	    schimbari: acces.SchimbareContract[];
+	    eroare?: MesajEroare;
+
+	    static createFrom(source: any = {}) {
+	        return new RaspunsIstoricContract(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.schimbari = this.convertValues(source["schimbari"], acces.SchimbareContract);
 	        this.eroare = this.convertValues(source["eroare"], MesajEroare);
 	    }
 

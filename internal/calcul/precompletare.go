@@ -9,7 +9,18 @@ type AngajatPrecompletare struct {
 	ID, CategorieID string
 	NormaMinute     int64
 	Activ           bool
+	// Schimbari da norma fiecarei zile (F07-T43, D101); fara ele norma e aceeasi in toata luna.
+	Schimbari []SchimbareContract
 }
+
+// normaZi intoarce norma valabila in ziua data; 0 inseamna fara norma zilnica.
+func (a AngajatPrecompletare) normaZi(data string) int64 {
+	if a.NormaMinute <= 0 {
+		return a.NormaMinute
+	}
+	return *NormaLaData(&a.NormaMinute, a.Schimbari, data)
+}
+
 type CategoriePrecompletare struct {
 	ID, ImplicitID string
 	Activ          bool
@@ -110,7 +121,7 @@ func PlanificaPrecompletare(deLa, panaLa string, angajati []AngajatPrecompletare
 				motiv = "program_incomplet"
 			case p.Regim == "NELUCRATOARE" || p.Regim == "INTRARE_ZI_LIBERA" || p.Tip == "GARDA":
 				motiv = "alegere_manuala"
-			case p.DurataMinute != a.NormaMinute:
+			case p.DurataMinute != a.normaZi(data):
 				motiv = "norma_diferita"
 			case garzi[k]:
 				motiv = "dupa_garda"

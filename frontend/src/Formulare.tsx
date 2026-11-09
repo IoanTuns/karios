@@ -4,6 +4,7 @@ import {useEffect, useRef, useState, useId, type FormEvent, type ReactNode} from
 import {useTranslation} from 'react-i18next';
 import {EditorNomenclator} from './Nomenclatoare';
 import {notifica} from './Toast';
+import {IstoricContract} from './IstoricContract';
 import {RestaurareBackup} from './Restaurare';
 import {useCont} from './Conturi';
 import type {TFunction} from 'i18next';
@@ -158,7 +159,7 @@ export function FormularAngajat({angajat, date, ocupat, eroare, inchide, salveaz
                     <label>{t('sold.ore')}<input name="initializare_ore" inputMode="decimal" value={oreSold} onChange={e=>setOreSold(e.target.value)}/></label>
                     <label>{t('sold.co')}<input name="initializare_co" type="number" min="0" max="366" step="1" value={coInitial} onChange={e=>setCoInitial(e.target.value)}/></label>
                     <p className="latime-completa">{t('sold.indiciu')}</p><button type="button" className="legatura" onClick={()=>window.dispatchEvent(new CustomEvent('pontix-ajutor-contextual',{detail:'angajati'}))}>{t('ajutor.buton')}</button>
-</fieldset></details><fieldset disabled={ocupat} className="campuri grup-formular"><legend>{t('ui.stare')}</legend>                    <label className="bifa latime-completa"><input type="checkbox" checked={activ} onChange={e => setActiv(e.target.checked)}/>{t('ui.activ_indiciu')}</label>
+</fieldset></details>{angajat.id && <IstoricContract angajatId={angajat.id}/>}<fieldset disabled={ocupat} className="campuri grup-formular"><legend>{t('ui.stare')}</legend>                    <label className="bifa latime-completa"><input type="checkbox" checked={activ} onChange={e => setActiv(e.target.checked)}/>{t('ui.activ_indiciu')}</label>
                 </fieldset>
             </div>
             <footer className="subsol-dialog"><button type="button" className="buton secundar" disabled={ocupat} onClick={inchideCuVerificare}>{t('ui.anuleaza')}</button>

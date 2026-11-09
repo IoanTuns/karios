@@ -20,7 +20,8 @@ type NormaDatorata struct {
 // CalculeazaNormaDatorata calculeaza norma contractelor zilnice pe calendar luni-vineri.
 // Liberele calendaristice sunt excluse o singura data; compensarile fara regula nu sunt deduse.
 // Norma nil reprezinta absenta unei norme zilnice prestabilite, nu o obligatie de zero ore.
-func CalculeazaNormaDatorata(deLa, panaLa string, normaZilnica *int64, libere map[string]bool, absente []AbsentaNorma) (NormaDatorata, error) {
+// Schimbarile din istoric (I010) dau norma fiecarei zile; fara ele norma e aceeasi in toata perioada.
+func CalculeazaNormaDatorata(deLa, panaLa string, normaZilnica *int64, libere map[string]bool, absente []AbsentaNorma, schimbari ...SchimbareContract) (NormaDatorata, error) {
 	var rez NormaDatorata
 	prima, e1 := time.Parse(time.DateOnly, deLa)
 	ultima, e2 := time.Parse(time.DateOnly, panaLa)
@@ -30,6 +31,12 @@ func CalculeazaNormaDatorata(deLa, panaLa string, normaZilnica *int64, libere ma
 	if normaZilnica != nil && (*normaZilnica <= 0 || *normaZilnica > 1440) {
 		return rez, &Eroare{Cod: "date.norma_invalida"}
 	}
+	for _, s := range schimbari {
+		if s.NormaMinute != nil && (*s.NormaMinute <= 0 || *s.NormaMinute > 1440) {
+			return rez, &Eroare{Cod: "date.norma_invalida"}
+		}
+	}
+	var minute int64
 	concedii := map[string]bool{}
 	for _, a := range absente {
 		if !a.Aprobata {
@@ -51,12 +58,14 @@ func CalculeazaNormaDatorata(deLa, panaLa string, normaZilnica *int64, libere ma
 		rez.ZileLucratoare++
 		if concedii[data] {
 			rez.ZileConcediu++
+		} else if n := NormaLaData(normaZilnica, schimbari, data); n != nil {
+			minute += *n
 		}
 	}
 	rez.ZileDatorate = rez.ZileLucratoare - rez.ZileConcediu
 	if normaZilnica != nil {
 		rez.Definita = true
-		rez.Minute = int64(rez.ZileDatorate) * (*normaZilnica)
+		rez.Minute = minute
 	}
 	return rez, nil
 }

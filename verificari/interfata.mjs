@@ -229,6 +229,10 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
         StareAI: async () => ({stare: {activ: false, instalat: false}}),
         EsteAutoPornireAI: async () => false,
         StareInstanta: async () => ({}),
+        // F07-T43 (D101): istoricul normei si al concediului, pastrat in starea simulata.
+        ListaIstoricContract: async id => ({schimbari: structuredClone((stare.istoricContract ??= {})[id] || [])}),
+        AdaugaSchimbareContract: async x => { stare.istoricContract ??= {}; const l = stare.istoricContract[x.angajat_id] ??= []; if (l.some(v => v.de_la === x.de_la)) return {eroare: {cod: 'istoric.exista'}}; l.push({...structuredClone(x), creat_la: new Date().toISOString()}); l.sort((p, q) => p.de_la.localeCompare(q.de_la)); raspuns(); return {schimbari: structuredClone(l)}; },
+        StergeSchimbareContract: async (id, deLa) => { const l = (stare.istoricContract ??= {})[id] || []; const i = l.findIndex(v => v.de_la === deLa); if (i < 0) return {eroare: {cod: 'istoric.inexistenta'}}; l.splice(i, 1); raspuns(); return {schimbari: structuredClone(l)}; },
         ListaBackupuri: async () => ({backupuri: [], programata: ''}),
         VerificaBackup: async () => ({}),
         CitesteUltimeleLiniiJurnal: async () => '',
@@ -506,6 +510,20 @@ try {
     assert(!(await evalueaza(`document.querySelector('dialog select[aria-label="Compartiment"]').textContent.includes('Laborator Sud')`)), 'Formularul arată departamente din altă secție.');
     await completeaza('dialog select[aria-label="Compartiment"]', departamentNord); await apasa('Salvează');
     await asteapta(() => evalueaza(`!document.querySelector('dialog') && document.querySelector('tbody').textContent.includes('Laborator')`), 'Departamentul angajatului nu se salvează.');
+    // F07-T43 (D101): o schimbare de normă și concediu se adaugă și se șterge din fișa angajatului.
+    await apasa('Editează');
+    await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog details.istoric-contract'))`), 'Istoricul normei lipsește din fișă.');
+    await evalueaza(`document.querySelector('dialog details.istoric-contract').open = true`);
+    await completeaza('dialog input[name="istoric_de_la"]', '2027-03-15'); await completeaza('dialog input[name="istoric_norma_ore"]', '4'); await completeaza('dialog input[name="istoric_concediu"]', '25');
+    await apasa(cataloage.ro['istoric.adauga']);
+    await asteapta(() => evalueaza(`document.querySelectorAll('dialog .tabel-istoric-contract tbody tr').length === 1 && document.querySelector('dialog .tabel-istoric-contract').textContent.includes('4 h') && document.querySelector('dialog .tabel-istoric-contract').textContent.includes('25 zile')`), 'Schimbarea nu apare în istoric.');
+    assert(!(await evalueaza(`Boolean(document.querySelector('dialog [role="alert"]'))`)), 'Istoricul afișează o eroare.');
+    await evalueaza(`document.querySelector('dialog details.istoric-contract').scrollIntoView({block:'center'})`); await pauza(200);
+    const capturaIstoric = await cdp('Page.captureScreenshot', {format: 'png'}); writeFileSync(join(capturi, 'istoric-contract.png'), Buffer.from(capturaIstoric.data, 'base64'));
+    await evalueaza(`window.confirm = () => true`);
+    await evalueaza(`[...document.querySelectorAll('dialog .tabel-istoric-contract button')].find(b => b.textContent.trim() === ${JSON.stringify(cataloage.ro['ui.sterge'])}).click()`);
+    await asteapta(() => evalueaza(`!document.querySelector('dialog .tabel-istoric-contract')`), 'Schimbarea nu se șterge.');
+    await apasa('Anulează'); await asteapta(() => evalueaza(`!document.querySelector('dialog')`), 'Fișa nu se închide după istoric.');
     await completeaza('.cautare input', ''); await completeaza('select[aria-label="Compartiment"]', departamentNord);
     await asteapta(() => evalueaza(`document.querySelectorAll('tbody tr').length === 1`), 'Filtrul de departament nu funcționează.');
     await completeaza('select[aria-label="Compartiment"]', '');

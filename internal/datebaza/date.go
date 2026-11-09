@@ -16,6 +16,7 @@ import (
 
 	"pontix/internal/audit"
 	"pontix/internal/bd/acces"
+	"pontix/internal/calcul"
 	"pontix/internal/i18n"
 )
 
@@ -245,6 +246,20 @@ func (s *Serviciu) Citeste(ctx context.Context) (Date, error) {
 				case "ZILNICA":
 					a.NormaMinute = *c.NormaMinute
 				}
+			}
+		}
+	}
+	// F07-T43 (D101): norma afisata este cea valabila azi, dupa istoricul contractului.
+	istoric, err := acces.New(tx).ListaIstoricContract(ctx)
+	if err != nil {
+		return Date{}, traduceEroare(err)
+	}
+	azi := time.Now().In(calcul.Locatie).Format(time.DateOnly)
+	for i := range rez.Angajati {
+		a := &rez.Angajati[i]
+		if a.NormaDefinita && a.NormaMinute > 0 && len(istoric[a.ID]) > 0 {
+			if n := calcul.NormaLaData(&a.NormaMinute, schimbariCalcul(istoric[a.ID]), azi); n != nil {
+				a.NormaMinute = *n
 			}
 		}
 	}

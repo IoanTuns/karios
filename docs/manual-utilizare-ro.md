@@ -1004,3 +1004,21 @@ Dacă ați creat tipul **FMP** (sau CFP, DLG) după ce ați salvat **Configurare
 
 În raportul **Pontaj detaliat**, coloanele de total folosesc denumirile noi: **CVE**, **CFP**, **FMP** și **DLG** (în locul CEV, CFS, Form. prof. și Deleg.), cu aceleași valori ca în Pontaj. Modelele SQL salvate continuă să funcționeze cu vechile nume de coloane (`total_CEV`, `total_form_prof` etc.).
 
+## Istoricul normei și al concediului (0.92.92)
+
+Când norma zilnică sau dreptul la concediu al unui angajat se schimbă de la o anumită dată, nu modificați valorile din fișă: adăugați o **schimbare**. Astfel, lunile de dinainte se calculează în continuare cu valorile vechi.
+
+1. Deschideți fișa angajatului (**Angajați › Editează**) și extindeți **Istoric normă și concediu**.
+2. Alegeți data la **Valabilă de la**.
+3. Completați **Normă zilnică nouă (ore)**, de exemplu `4` sau `7,5`, și/sau **Concediu nou (zile/an)**. Un câmp gol înseamnă „neschimbat”.
+4. Apăsați **Adaugă schimbarea**. Schimbarea se salvează imediat.
+
+Cum se aplică:
+
+- valorile din fișă sunt cele de dinaintea primei schimbări;
+- **norma** se aplică pe zile: într-o lună cu schimbare, zilele dinainte au norma veche, iar cele de după, norma nouă (Ore lucrătoare, L FIN, precompletare);
+- **dreptul la concediu** se calculează proporțional cu zilele din an în care a fost valabilă fiecare valoare, rotunjit (de exemplu 21 de zile până la 30 iunie și 25 de la 1 iulie dau 23 de zile pe acel an);
+- o schimbare nu poate începe într-o lună închisă sau înaintea ei; redeschideți întâi luna, cu motiv.
+
+În rapoartele SQL, tabelul `istoric_contract` conține schimbările, iar `angajati.concediu_zile_an` este dreptul pe anul raportului.
+

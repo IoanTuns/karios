@@ -55,6 +55,10 @@ func (s *Serviciu) PrevizualizeazaPrecompletare(ctx context.Context, an, luna in
 	if err != nil {
 		return gol, traduceEroare(err)
 	}
+	istoric, err := acces.New(tx).ListaIstoricContract(ctx)
+	if err != nil {
+		return gol, traduceEroare(err)
+	}
 	angajati := []calcul.AngajatPrecompletare{}
 	for _, a := range oameni {
 		if !selectati[a.ID] {
@@ -85,7 +89,7 @@ func (s *Serviciu) PrevizualizeazaPrecompletare(ctx context.Context, an, luna in
 				}
 			}
 		}
-		angajati = append(angajati, calcul.AngajatPrecompletare{ID: a.ID, CategorieID: categorie, NormaMinute: minute, Activ: a.Activ == 1})
+		angajati = append(angajati, calcul.AngajatPrecompletare{ID: a.ID, CategorieID: categorie, NormaMinute: minute, Activ: a.Activ == 1, Schimbari: schimbariCalcul(istoric[a.ID])})
 	}
 	if len(angajati) != len(ids) {
 		return gol, eroare("pontaj.celula_invalida")

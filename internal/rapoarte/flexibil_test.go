@@ -288,3 +288,27 @@ func TestFlexibilTabeleCuCuloareaProgramului(t *testing.T) {
 		}
 	}
 }
+
+// F07-T43 (D101): rapoartele SQL vad istoricul si dreptul la concediu pe anul raportului.
+func TestFlexibilIstoricContract(t *testing.T) {
+	m := pregateste(t)
+	fixture(t, m)
+	for _, c := range []string{
+		`UPDATE angajati SET concediu_zile_an=21 WHERE id='a'`,
+		`INSERT INTO istoric_contract(angajat_id,de_la,norma_minute,concediu_zile_an,creat_la) VALUES('a','2026-07-01',NULL,25,'x'),('a','2026-10-15',240,NULL,'x')`,
+	} {
+		if _, e := m.db.Exec(c); e != nil {
+			t.Fatal(e)
+		}
+	}
+	d := modelFlexTest()
+	d.Continut.Flexibil.SQL = "SELECT i.de_la, i.norma_zilnica, i.concediu_zile_an AS concediu_nou, a.concediu_zile_an AS drept_an FROM istoric_contract i JOIN angajati a USING(angajat_id) ORDER BY i.de_la"
+	doc, e := m.s.PrevizualizeazaFlexibil(context.Background(), d, Cerere{An: 2026, Luna: 10, Limba: "ro"}, momentFix)
+	if e != nil {
+		t.Fatal(e)
+	}
+	got := fmt.Sprint(doc.Randuri[0].Valori, doc.Randuri[1].Valori)
+	if len(doc.Randuri) != 2 || got != "[2026-07-01 — 25 23] [2026-10-15 4 — 23]" {
+		t.Fatal(got)
+	}
+}

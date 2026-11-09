@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.92 - 2026-11-09
+
+F07-T43 (I010, D101). În fișa angajatului, secțiunea **Istoric normă și concediu** păstrează schimbările normei zilnice și ale dreptului la concediu, cu data de la care sunt valabile. Norma se aplică pe zile (Ore lucrătoare, L FIN, precompletare), dreptul la concediu se calculează proporțional pe an, iar lunile închise nu se pot modifica. Migrarea 0037. Rapoarte cu versiune nouă: Pontaj detaliat 25, Fișa individuală 22, rapoartele flexibile 20 (tabelul istoric_contract în SQL).
+
 ## 0.92.91 - 2026-11-09
 
 F11-T22. În Pontaj, **Precompletează zile lucrătoare** cu un program normal (de exemplu Z7) completează din nou zilele lucrătoare goale. Din 0.92.31 aplicația refuza greșit cu mesajul că programul se planifică în Planificare. Gărzile, nopțile și programele de după-amiază rămân doar în Planificare.

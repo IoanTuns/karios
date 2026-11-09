@@ -59,6 +59,9 @@ type AbsenteAn struct {
 	An        int                `json:"an"`
 	Tipuri    []TipAbsenta       `json:"tipuri"`
 	Zile      []ZiAbsenta        `json:"zile"`
+	// DreptConcediu este dreptul anual la concediu pe acest an, cu istoricul contractului
+	// (proportional pe zile, D101); lipsa unui angajat inseamna drept necompletat.
+	DreptConcediu map[string]int64 `json:"drept_concediu"`
 }
 
 func valPtr(p *string) string {
@@ -88,6 +91,10 @@ func (s *Serviciu) CitesteAbsente(ctx context.Context, an int) (AbsenteAn, error
 	defer tx.Rollback()
 	q := acces.New(tx)
 	rez := AbsenteAn{An: an, Tipuri: []TipAbsenta{}, Zile: []ZiAbsenta{}}
+	rez.DreptConcediu, err = dreptConcediuAn(ctx, tx, an)
+	if err != nil {
+		return AbsenteAn{}, traduceEroare(err)
+	}
 	tipuri, err := q.ListaTipuriAbsenta(ctx)
 	if err != nil {
 		return AbsenteAn{}, traduceEroare(err)

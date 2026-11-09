@@ -209,8 +209,10 @@ export function Absente({date, filtruInitial, cerereConcediu, onCerereDeschisa}:
                     const odihnaNerespinsa = zile.filter(z => z.angajat_id === a.id && tipPentru(z.cod)?.categorie === 'ODIHNA' && (z.stare_aprobare || 'IN_ASTEPTARE') !== 'RESPINSA');
                     const inAsteptare = odihnaNerespinsa.filter(z => (z.stare_aprobare || 'IN_ASTEPTARE') === 'IN_ASTEPTARE').length;
                     const coInitial=a.initializare?.luna.startsWith(String(an)+'-')?a.initializare.co_zile:0;
-                    const ramas = a.concediu_zile_an == null ? null : a.concediu_zile_an - odihnaNerespinsa.length-coInitial;
-                    return <tr key={a.id}><td>{numeAngajat(a)}<small className="text-discret"> · {a.marca}</small></td><td>{a.concediu_zile_an == null ? t('ui.necompletat') : <><div>{t('ui.zile', {numar:a.concediu_zile_an})}</div><small className={ramas !== null && ramas < 0 ? 'sold-concediu depasit' : 'sold-concediu'}>{t('absente.ramas_contractual', {ramas: t('ui.zile', {numar: ramas ?? 0})})}{inAsteptare > 0 ? ` · ${t('absente.in_asteptare_scurt', {numar: inAsteptare})}` : ''}</small></>}</td>{categorii.map(c => <td key={c}>{zile.filter(z => z.angajat_id === a.id && (tipPentru(z.cod)?.categorie_id||tipPentru(z.cod)?.categorie) === c).length+(c==='ODIHNA'?coInitial:0)}</td>)}</tr>;
+                    // F07-T43 (D101): dreptul pe anul afisat, cu istoricul contractului (proportional pe zile).
+                    const drept = dateAbsente?.drept_concediu ? (dateAbsente.drept_concediu[a.id] ?? null) : a.concediu_zile_an ?? null;
+                    const ramas = drept == null ? null : drept - odihnaNerespinsa.length-coInitial;
+                    return <tr key={a.id}><td>{numeAngajat(a)}<small className="text-discret"> · {a.marca}</small></td><td>{drept == null ? t('ui.necompletat') : <><div>{t('ui.zile', {numar:drept})}</div><small className={ramas !== null && ramas < 0 ? 'sold-concediu depasit' : 'sold-concediu'}>{t('absente.ramas_contractual', {ramas: t('ui.zile', {numar: ramas ?? 0})})}{inAsteptare > 0 ? ` · ${t('absente.in_asteptare_scurt', {numar: inAsteptare})}` : ''}</small></>}</td>{categorii.map(c => <td key={c}>{zile.filter(z => z.angajat_id === a.id && (tipPentru(z.cod)?.categorie_id||tipPentru(z.cod)?.categorie) === c).length+(c==='ODIHNA'?coInitial:0)}</td>)}</tr>;
                 })}
             </tbody></table></div>
             </>}
