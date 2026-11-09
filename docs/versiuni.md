@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.91 - 2026-11-09
+
+F11-T22. În Pontaj, **Precompletează zile lucrătoare** cu un program normal (de exemplu Z7) completează din nou zilele lucrătoare goale. Din 0.92.31 aplicația refuza greșit cu mesajul că programul se planifică în Planificare. Gărzile, nopțile și programele de după-amiază rămân doar în Planificare.
+
 ## 0.92.90 - 2026-11-09
 
 F16-T47. În Pontaj, Escape pe un panou deschis din meniul „Mai multe” (de exemplu Ajutor) readuce focusul pe meniu; înainte focusul se pierdea, iar navigarea cu tastatura trebuia reluată de la începutul paginii.

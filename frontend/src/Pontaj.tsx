@@ -15,6 +15,7 @@ import {calcul, datebaza} from '../wailsjs/go/models';
 import {AmprentaLuna} from './Audit';
 import {Dialog, denumireSectie, denumireDepartament} from './Formulare';
 import {programPlanificat} from './Planificare';
+import {programSpecial} from './eligibilitateProgram';
 import {notifica} from './Toast';
 import {formatData, dataAfisata} from './formatare';
 import {AsistentAI} from './AsistentAI';
@@ -435,7 +436,8 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
     function precompleteazaIntervalRanduri(deLaRand: number, panaLaRand: number) {
         if (!programCompletare) return;
         const ales=schimburi.find(s=>s.cod===programCompletare);
-        if(ales&&programPlanificat(ales)){setEroare(t('planificare.foloseste_modulul'));return;}
+        // F11-T22: precompletarea normala ramane in Pontaj (cerinte F11-T21); doar programele speciale merg in Planificare.
+        if(ales&&programSpecial(ales)){setEroare(t('planificare.foloseste_modulul'));return;}
         const celule: {rand: number; zi: number; text: string}[] = [];
         for (let r = deLaRand; r <= panaLaRand; r++) {
             if (!randuri[r]) continue;
