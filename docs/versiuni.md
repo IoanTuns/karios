@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.82 - 2026-11-09
+
+F16-T43, completare la F16-T42. Legenda rapoartelor flexibile s-a schimbat la F16-T42 („contractuală”, „lună”), dar versiunea raportului rămăsese aceeași: Rapoarte flexibile 18 (D009). Diacritica „prioritate maximă” în avertismentul de publicare din Planificare, găsită în ciorna necomisă din worktree-ul karios-antigravity. Manualul nu are schimbări de conținut; revizuit pentru 0.92.82.
+
 ## 0.92.81 - 2026-11-09
 
 F16-T42 (I123). Corectarea diacriticelor rămase în textele din ro.json (legende rapoarte, solduri și efecte absențe) și extinderea listei de verificare a diacriticelor (`faraDiacriticeInterzise`). Rapoarte cu versiune nouă conform D009: Pontaj lunar 22, Pontaj detaliat 24, Fișă individuală 21, Evidența absențelor 17, Grafic gărzi 17 (verificat: în referințe diferă doar diacriticele și numărul versiunii de raport).
