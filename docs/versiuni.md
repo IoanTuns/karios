@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.81 - 2026-11-09
+
+F16-T42 (I123). Corectarea diacriticelor rămase în textele din ro.json (legende rapoarte, solduri și efecte absențe) și extinderea listei de verificare a diacriticelor (`faraDiacriticeInterzise`). Rapoarte cu versiune nouă conform D009: Pontaj lunar 22, Pontaj detaliat 24, Fișă individuală 21, Evidența absențelor 17, Grafic gărzi 17 (verificat: în referințe diferă doar diacriticele și numărul versiunii de raport).
+
 ## 0.92.80 - 2026-11-09
 
 F08-T15 (D098, propusa), defect raportat de Ioan Tuns: zilele FMP apareau la CVE in Pontaj, iar raportul Pontaj detaliat nu arata sumarul. Configuratia salvata inainte sa existe tipul FMP se completeaza la citire (CVE exclude tipurile cu coloana proprie, coloana FMP numara FMP, OL include creditele FMP). In rapoartele standard, coloanele vechi neconfigurate arata coloanele D092: CEV→CVE, CFS→CFP, Form. prof.→FMP, Deleg.→DLG (codurile SQL raman aceleasi). Unitatea CVE apare „Zile”. Rapoarte cu versiune noua: Pontaj detaliat 23, flexibile 17. Manual 1.74.

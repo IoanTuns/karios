@@ -1,4 +1,4 @@
 package individual
 
 // Versiune identifică structura fișei individuale (D009).
-const Versiune = 20
+const Versiune = 21

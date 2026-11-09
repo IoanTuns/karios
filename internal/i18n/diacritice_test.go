@@ -21,6 +21,7 @@ var faraDiacriticeInterzise = []string{
 	"configuratia", "interfata", "definitie", "sterge", "fisierul", "rand", "randul", "functie",
 	"functia", "pozitie", "aplicatiei", "acelasi", "aceeasi", "ramane", "campuri", "obligatia",
 	"intre", "numar", "numarul", "marci", "actiune", "actiuni", "configurarii", "recomandati", "aceleiasi", "asociati",
+	"inregistrarii", "calculata", "configurata", "liniuta", "corespunzatoare", "precedenta", "initializare", "odihna",
 }
 
 func TestTexteleRomanestiAuDiacritice(t *testing.T) {
