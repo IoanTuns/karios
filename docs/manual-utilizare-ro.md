@@ -989,7 +989,14 @@ Fiecare program (tură, gardă) are o culoare, folosită ca fundal al celulelor:
 
 Culoarea se alege în **Setări › Programe**, la editarea programului: debifați **Implicită după tip** și alegeți culoarea. Fără alegere, culoarea vine din tipul programului: Normal – albastru, Tură – piersică, Noapte – lavandă, Gardă – roz.
 
-Absențele și zilele libere întregi își păstrează marcajul. Selecția și avertismentele rămân vizibile peste culoare. Rapoartele SQL personalizate nu primesc culori automat.
+Absențele și zilele libere întregi își păstrează marcajul. Selecția și avertismentele rămân vizibile peste culoare.
+
+**În rapoartele SQL (0.92.86).** Tabelele `garzi`, `garzi_zile`, `planificare` și `programe` au coloana `culoare`, cu culoarea programului. În formularul raportului, la **Culori din date**:
+
+1. scrieți `culoare` la **Fundal din coloana** (coloana trebuie să fie în SELECT);
+2. opțional, la **Colorează coloanele**, scrieți coloanele care primesc culoarea, de exemplu `nume_complet, observatii`; gol înseamnă tot rândul.
+
+Coloana de culoare nu apare în raport, iar culorile se văd în PDF-ul din editorul vizual. Exemplu pentru gărzi: `SELECT data, angajat, program, culoare FROM garzi ORDER BY data`. Dacă aveți un raport cu `SELECT * FROM garzi`, coloana `culoare` apare acum în el; treceți-o la **Fundal din coloana** sau la **Coloane ascunse**.
 
 ## Tipuri de absență noi și totalurile (0.92.80)
 

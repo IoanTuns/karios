@@ -5,5 +5,6 @@ package flexibil
 // si stiluri pe rand/celula in tabelul pdfme (9, F09-T22), tabele standard
 // calculate in SQL (10, D090), culori, titluri din raport si zile 29-31 ascunse
 // in PDF-ul pdfme (11), toate rapoartele pe editorul vizual dupa conversie (12), antet si titlu
-// repetate pe fiecare pagina (13), diacritice corectate in legenda (18).
-const Versiune = 18
+// repetate pe fiecare pagina (13), diacritice corectate in legenda (18),
+// coloana culoare in date si fundal din coloana (19, D099).
+const Versiune = 19

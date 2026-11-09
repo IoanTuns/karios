@@ -9,6 +9,7 @@ import (
 	"pontix/internal/i18n"
 	raportFlexibil "pontix/internal/rapoarte/flexibil"
 	"pontix/internal/versiune"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -194,6 +195,9 @@ func preparaFlexibil(ctx context.Context, tx *sql.Tx, d Definitie, c Cerere, acu
 			doc.Randuri[ri].Aldin = (f.BoldWeekend && (zi.Weekday() == time.Saturday || zi.Weekday() == time.Sunday)) || (f.BoldSarbatori && b.sarbatori[zi.Format(time.DateOnly)])
 		}
 	}
+	if err := aplicaFundalDinColoana(&doc, f); err != nil {
+		return Document{}, err
+	}
 	for _, r := range doc.Randuri {
 		val := map[string]string{}
 		for i, c := range doc.Coloane {
@@ -216,6 +220,9 @@ func preparaFlexibil(ctx context.Context, tx *sql.Tx, d Definitie, c Cerere, acu
 		}
 	}
 	ascunse := map[string]bool{}
+	if f.ColoanaFundal != "" {
+		ascunse[f.ColoanaFundal] = true
+	}
 	for _, nom := range f.Ascunse {
 		gasit := false
 		for _, c := range doc.Coloane {
@@ -290,6 +297,54 @@ func valideazaVariabileFlexibile(d Document) error {
 		for _, v := range variabila.FindAllStringSubmatch(s, -1) {
 			if !valori[strings.TrimSpace(v[1])] {
 				return eroare("rapoarte.variabila_invalida")
+			}
+		}
+	}
+	return nil
+}
+
+var culoareHex = regexp.MustCompile(`^#[0-9A-Fa-f]{6}$`)
+
+// aplicaFundalDinColoana coloreaza celulele cu culoarea din coloana aleasa (D099, I127).
+// Culorile puse deja de raportul standard (weekend, absente) raman; valorile care nu sunt
+// #RRGGBB lasa randul necolorat.
+func aplicaFundalDinColoana(doc *Document, f *RaportFlexibil) error {
+	if f.ColoanaFundal == "" {
+		return nil
+	}
+	idx := -1
+	for i, c := range doc.Coloane {
+		if c.Cod == f.ColoanaFundal {
+			idx = i
+		}
+	}
+	if idx < 0 {
+		return eroareColoana("rapoarte.sql_coloana_fundal", f.ColoanaFundal)
+	}
+	alese := map[string]bool{}
+	for _, c := range f.FundalColoane {
+		gasit := false
+		for _, col := range doc.Coloane {
+			gasit = gasit || col.Cod == c
+		}
+		if !gasit {
+			return eroareColoana("rapoarte.sql_coloana_fundal", c)
+		}
+		alese[c] = true
+	}
+	for ri := range doc.Randuri {
+		r := &doc.Randuri[ri]
+		c := strings.TrimSpace(r.Valori[idx])
+		if !culoareHex.MatchString(c) {
+			continue
+		}
+		c = strings.ToUpper(c)
+		if len(r.Culori) != len(r.Valori) {
+			r.Culori = make([]string, len(r.Valori))
+		}
+		for j, col := range doc.Coloane {
+			if j != idx && r.Culori[j] == "" && (len(alese) == 0 || alese[col.Cod]) {
+				r.Culori[j] = c
 			}
 		}
 	}

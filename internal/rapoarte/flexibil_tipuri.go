@@ -29,15 +29,19 @@ type ElementRaport struct {
 	Font       float64   `json:"font"`
 }
 type RaportFlexibil struct {
-	ExtindeZileLibere bool     `json:"extinde_zile_libere,omitempty"`
-	BoldWeekend       bool     `json:"bold_weekend,omitempty"`
-	BoldSarbatori     bool     `json:"bold_sarbatori,omitempty"`
-	ColoanaData       string   `json:"coloana_data,omitempty"`
-	InaltimeRand      float64  `json:"inaltime_rand"`
-	Ascunse           []string `json:"ascunse"`
-	SQL               string   `json:"sql"`
-	ModAspect         string   `json:"mod_aspect"`
-	Markdown          string   `json:"markdown"`
+	ExtindeZileLibere bool   `json:"extinde_zile_libere,omitempty"`
+	BoldWeekend       bool   `json:"bold_weekend,omitempty"`
+	BoldSarbatori     bool   `json:"bold_sarbatori,omitempty"`
+	ColoanaData       string `json:"coloana_data,omitempty"`
+	// ColoanaFundal este coloana SQL cu culoarea #RRGGBB a randului (D099); nu se afiseaza.
+	// FundalColoane alege coloanele colorate; goala = tot randul.
+	ColoanaFundal string   `json:"coloana_fundal,omitempty"`
+	FundalColoane []string `json:"fundal_coloane,omitempty"`
+	InaltimeRand  float64  `json:"inaltime_rand"`
+	Ascunse       []string `json:"ascunse"`
+	SQL           string   `json:"sql"`
+	ModAspect     string   `json:"mod_aspect"`
+	Markdown      string   `json:"markdown"`
 	// Sablon este sablonul pdfme (JSON) pentru ModAspect PDFME, D087.
 	Sablon            string             `json:"sablon,omitempty"`
 	Elemente          []ElementRaport    `json:"elemente"`
@@ -68,6 +72,17 @@ func valideazaFlexibil(f *RaportFlexibil) error {
 	}
 	if (f.BoldWeekend || f.BoldSarbatori) && !codFlexibil.MatchString(f.ColoanaData) {
 		return eroare("rapoarte.data_evidentiere_invalida")
+	}
+	if f.ColoanaFundal != "" && !codFlexibil.MatchString(f.ColoanaFundal) {
+		return eroareColoana("rapoarte.sql_coloana_fundal", f.ColoanaFundal)
+	}
+	if len(f.FundalColoane) > 64 {
+		return eroare("rapoarte.flex_invalid")
+	}
+	for _, c := range f.FundalColoane {
+		if !codFlexibil.MatchString(c) {
+			return eroareColoana("rapoarte.sql_coloana_fundal", c)
+		}
 	}
 	if f.ModAspect != "" && f.ModAspect != "TABEL" && f.ModAspect != "MARKDOWN" && f.ModAspect != "LIBER" && f.ModAspect != ModPdfme {
 		return eroare("rapoarte.flex_invalid")

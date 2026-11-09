@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.86 - 2026-11-09
+
+F09-T36 (I127, D099 propusă). Culorile programelor și în rapoartele SQL: coloana `culoare` în tabelele `programe`, `planificare`, `garzi`, `garzi_zile`, iar în formularul raportului **Fundal din coloana** și **Colorează coloanele** (gol = tot rândul). Coloana de culoare nu se afișează; culorile de weekend și absență rămân. Un `SELECT *` din aceste tabele primește o coloană în plus. Rapoarte flexibile 19.
+
 ## 0.92.85 - 2026-11-09
 
 F08-T16 (I124). Pontajul are și el legenda „Culori programe”, lângă celelalte marcaje ale grilei, cu programele care apar în luna afișată. Culorile din grila Pontaj sunt acum verificate automat în Edge.

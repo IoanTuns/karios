@@ -4,6 +4,7 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 
 | Data | Acțiune | Cine | Legături |
 | --- | --- | --- | --- |
+| 2026-11-09 | F09-T36 (0.92.86): culorile programelor în rapoartele SQL; D099 propusă. Teste Go noi (fundal din coloană, coloana culoare în tabele) și scenariul Edge al rapoartelor flexibile extins cu câmpurile noi. | Claude | [D099](decizii/D099-culori-rapoarte-sql.md) |
 | 2026-11-09 | F08-T16 (0.92.85): legenda culorilor programelor în Pontaj; scenariul Edge --programe-multiple verifică acum culoarea celulei și legenda în grila Pontaj (până acum neverificate). | Claude | [F08](functionalitati/F08-grila-pontaj.md) |
 | 2026-11-09 | F09-T35 (0.92.84): fonturile Windows găsite indiferent de majuscule, în editor și în serviciul Go; teste noi Go și vitest. | Claude | [F09](functionalitati/F09-rapoarte-pdf.md) |
 | 2026-11-09 | La cererea lui Ioan Tuns („OK, și pune și I127”): create taskurile F09-T34 (I126), F08-T16 (I124), F09-T35 (I125), F09-T36 (I127). F09-T34 (0.92.83): erori precise la coloanele rapoartelor SQL, cu numele coloanei; test nou cu 5 cazuri. | Ioan Tuns, Claude | [F09](functionalitati/F09-rapoarte-pdf.md) |

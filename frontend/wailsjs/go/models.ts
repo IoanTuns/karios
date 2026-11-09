@@ -4173,6 +4173,8 @@ export namespace rapoarte {
 	    bold_weekend?: boolean;
 	    bold_sarbatori?: boolean;
 	    coloana_data?: string;
+	    coloana_fundal?: string;
+	    fundal_coloane?: string[];
 	    inaltime_rand: number;
 	    ascunse: string[];
 	    sql: string;
@@ -4196,6 +4198,8 @@ export namespace rapoarte {
 	        this.bold_weekend = source["bold_weekend"];
 	        this.bold_sarbatori = source["bold_sarbatori"];
 	        this.coloana_data = source["coloana_data"];
+	        this.coloana_fundal = source["coloana_fundal"];
+	        this.fundal_coloane = source["fundal_coloane"];
 	        this.inaltime_rand = source["inaltime_rand"];
 	        this.ascunse = source["ascunse"];
 	        this.sql = source["sql"];

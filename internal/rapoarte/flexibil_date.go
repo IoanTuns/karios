@@ -240,9 +240,9 @@ func incarcatBazaRaport(ctx context.Context, tx *sql.Tx, c Cerere, f *RaportFlex
 	rp := [][]any{}
 	for _, p := range programe {
 		pr[p.ID] = p
-		rp = append(rp, []any{p.ID, p.Cod, textJSON(p.Denumire, limba), p.OraStart, p.DurataMinute, p.Tip, p.Regim, p.Activ == 1})
+		rp = append(rp, []any{p.ID, p.Cod, textJSON(p.Denumire, limba), p.OraStart, p.DurataMinute, p.Tip, p.Regim, p.Activ == 1, culoarePrograme(p)})
 	}
-	if e = b.adauga(ctx, "programe", []string{"id", "cod", "denumire", "start_minute", "durata_minute", "tip", "regim", "activ"}, rp); e != nil {
+	if e = b.adauga(ctx, "programe", []string{"id", "cod", "denumire", "start_minute", "durata_minute", "tip", "regim", "activ", "culoare"}, rp); e != nil {
 		return nil, e
 	}
 	plan, e := q.ListaPlanificare(ctx, acces.ListaPlanificareParams{DataDeLa: extins, DataPanaLa: garziPana})
@@ -252,6 +252,13 @@ func incarcatBazaRaport(ctx context.Context, tx *sql.Tx, c Cerere, f *RaportFlex
 	rplan, rg, rz := [][]any{}, [][]any{}, [][]any{}
 	totalG, eligG := map[string]float64{}, map[string]float64{}
 	efective := map[string]bool{}
+	// F09-T36 (D099): culoarea afisata a programului; garda din pontajul efectiv, fara program, ia culoarea implicita a garzilor.
+	culoareCod := map[string]string{"": datebaza.CuloareProgram("", "GARDA")}
+	for _, p := range programe {
+		if _, exista := culoareCod[p.Cod]; !exista || p.Activ == 1 {
+			culoareCod[p.Cod] = culoarePrograme(p)
+		}
+	}
 	adaugaGarda := func(id, data, cod string, a, z time.Time) {
 		limitaStart := time.Date(intervalStart.Year(), intervalStart.Month(), intervalStart.Day(), 0, 0, 0, 0, a.Location())
 		limitaEnd := time.Date(intervalEnd.Year(), intervalEnd.Month(), intervalEnd.Day(), 0, 0, 0, 0, a.Location())
@@ -275,7 +282,7 @@ func incarcatBazaRaport(ctx context.Context, tx *sql.Tx, c Cerere, f *RaportFlex
 			week := cur.Weekday() == time.Saturday || cur.Weekday() == time.Sunday
 			data := cur.Format(time.DateOnly)
 			eligZi := float64(calcul.MinuteGardaEligibile(cur, lim, limitaStart, limitaEnd, f.Weekend, f.Sarbatori, libere)) / 60
-			rz = append(rz, []any{id, nume[id], marci[id], data, cod, cur.Format("2006-01-02 15:04"), lim.Format("2006-01-02 15:04"), float64(lim.Sub(cur)/time.Minute) / 60, eligZi, week, libere[data]})
+			rz = append(rz, []any{id, nume[id], marci[id], data, cod, cur.Format("2006-01-02 15:04"), lim.Format("2006-01-02 15:04"), float64(lim.Sub(cur)/time.Minute) / 60, eligZi, week, libere[data], culoareCod[cod]})
 			cur = lim
 		}
 		lunaStart := time.Date(start.Year(), start.Month(), start.Day(), 0, 0, 0, 0, a.Location())
@@ -291,7 +298,7 @@ func incarcatBazaRaport(ctx context.Context, tx *sql.Tx, c Cerere, f *RaportFlex
 			totalG[id] += float64(le.Sub(ls)/time.Minute) / 60
 		}
 		eligG[id] += float64(calcul.MinuteGardaEligibile(a, z, lunaStart, lunaEnd, f.Weekend, f.Sarbatori, libere)) / 60
-		rg = append(rg, []any{id, nume[id], marci[id], data, cod, a.Format("2006-01-02 15:04"), z.Format("2006-01-02 15:04"), minute / 60, elig / 60})
+		rg = append(rg, []any{id, nume[id], marci[id], data, cod, a.Format("2006-01-02 15:04"), z.Format("2006-01-02 15:04"), minute / 60, elig / 60, culoareCod[cod]})
 	}
 	// Pontajele efective active au prioritate pentru aceeasi marca si zi; cele retrase nu intra.
 	rows, e := tx.QueryContext(ctx, "SELECT angajat_id,data,start,sfarsit FROM pontaj WHERE sters_la IS NULL AND start IS NOT NULL AND sfarsit IS NOT NULL AND data BETWEEN ? AND ?", extins, garziPana)
@@ -334,7 +341,7 @@ func incarcatBazaRaport(ctx context.Context, tx *sql.Tx, c Cerere, f *RaportFlex
 			continue
 		}
 		s := pr[p.SchimbID]
-		rplan = append(rplan, []any{p.AngajatID, p.Data, p.SchimbID, s.Cod, p.Sectiune, p.Activ == 1})
+		rplan = append(rplan, []any{p.AngajatID, p.Data, p.SchimbID, s.Cod, p.Sectiune, p.Activ == 1, culoarePrograme(s)})
 		if p.Activ != 1 || !garda[p.AngajatID] || efective[p.AngajatID+"/"+p.Data] {
 			continue
 		}
@@ -343,13 +350,13 @@ func incarcatBazaRaport(ctx context.Context, tx *sql.Tx, c Cerere, f *RaportFlex
 		z := a.Add(time.Duration(s.DurataMinute) * time.Minute)
 		adaugaGarda(p.AngajatID, p.Data, s.Cod, a, z)
 	}
-	if e = b.adauga(ctx, "planificare", []string{"angajat_id", "data", "schimb_id", "cod", "sectiune", "activ"}, rplan); e != nil {
+	if e = b.adauga(ctx, "planificare", []string{"angajat_id", "data", "schimb_id", "cod", "sectiune", "activ", "culoare"}, rplan); e != nil {
 		return nil, e
 	}
-	if e = b.adauga(ctx, "garzi", []string{"angajat_id", "angajat", "marca", "data", "program", "inceput", "sfarsit", "ore", "ore_eligibile"}, rg); e != nil {
+	if e = b.adauga(ctx, "garzi", []string{"angajat_id", "angajat", "marca", "data", "program", "inceput", "sfarsit", "ore", "ore_eligibile", "culoare"}, rg); e != nil {
 		return nil, e
 	}
-	if e = b.adauga(ctx, "garzi_zile", []string{"angajat_id", "angajat", "marca", "data", "program", "inceput", "sfarsit", "ore", "ore_eligibile", "weekend", "sarbatoare"}, rz); e != nil {
+	if e = b.adauga(ctx, "garzi_zile", []string{"angajat_id", "angajat", "marca", "data", "program", "inceput", "sfarsit", "ore", "ore_eligibile", "weekend", "sarbatoare", "culoare"}, rz); e != nil {
 		return nil, e
 	}
 	cols := []string{"angajat_id", "angajat", "marca", "total_zile_cf_contract", "total_ore_cf_contract", "total_zile_concediu", "total_ore_lucratoare", "total_ore_lucrate", "total_ore_garda", "total_ore_garda_weekend_sarbatori", "L_INCEPUT", "L_FIN"}
@@ -426,4 +433,13 @@ func sqlImplicit(s string) string {
 		return "SELECT * FROM lunar ORDER BY angajat"
 	}
 	return "SELECT angajat_id, angajat, marca FROM angajati ORDER BY angajat"
+}
+
+// culoarePrograme este culoarea afisata a programului (D097): cea aleasa sau cea implicita dupa tip.
+func culoarePrograme(p acces.ListaSchimburiRow) string {
+	c := ""
+	if p.Culoare != nil {
+		c = *p.Culoare
+	}
+	return datebaza.CuloareProgram(c, p.Tip)
 }

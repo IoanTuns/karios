@@ -228,3 +228,63 @@ func TestFlexibilEroriColoaneNumite(t *testing.T) {
 		}
 	}
 }
+
+// I127 (D099): fundalul celulelor vine din coloana de culoare, care nu se afiseaza.
+func TestFlexibilFundalDinColoana(t *testing.T) {
+	m := pregateste(t)
+	fixture(t, m)
+	d := modelFlexTest()
+	d.Continut.Flexibil.SQL = "SELECT 'A' AS nume, 1 AS ore, '#f8d7dc' AS culoare UNION ALL SELECT 'B', 2, 'nu' UNION ALL SELECT 'C', 3, NULL"
+	d.Continut.Flexibil.ColoanaFundal = "culoare"
+	doc, e := m.s.PrevizualizeazaFlexibil(context.Background(), d, Cerere{An: 2026, Luna: 10, Limba: "ro"}, momentFix)
+	if e != nil {
+		t.Fatal(e)
+	}
+	if len(doc.Coloane) != 2 || doc.Coloane[0].Cod != "nume" || doc.Coloane[1].Cod != "ore" {
+		t.Fatalf("coloana de culoare trebuie ascunsa: %+v", doc.Coloane)
+	}
+	if fmt.Sprint(doc.Randuri[0].Culori) != "[#F8D7DC #F8D7DC]" || len(doc.Randuri[1].Culori) != 0 || len(doc.Randuri[2].Culori) != 0 {
+		t.Fatalf("culori %v / %v / %v", doc.Randuri[0].Culori, doc.Randuri[1].Culori, doc.Randuri[2].Culori)
+	}
+	d.Continut.Flexibil.FundalColoane = []string{"nume"}
+	doc, e = m.s.PrevizualizeazaFlexibil(context.Background(), d, Cerere{An: 2026, Luna: 10, Limba: "ro"}, momentFix)
+	if e != nil || fmt.Sprint(doc.Randuri[0].Culori) != "[#F8D7DC ]" {
+		t.Fatalf("doar coloana nume: %v %v", e, doc.Randuri)
+	}
+	if !strings.Contains(stiluriPdfme(doc), "#F8D7DC") {
+		t.Fatal("culoarea nu ajunge in stilurile pdfme")
+	}
+	d.Continut.Flexibil.FundalColoane = nil
+	d.Continut.Flexibil.ColoanaFundal = "lipsa"
+	_, e = m.s.PrevizualizeazaFlexibil(context.Background(), d, Cerere{An: 2026, Luna: 10, Limba: "ro"}, momentFix)
+	var er *i18n.Eroare
+	if !errors.As(e, &er) || er.Cod != "rapoarte.sql_coloana_fundal" || er.Param["coloana"] != "lipsa" {
+		t.Fatalf("coloana de fundal lipsa: %v", e)
+	}
+}
+
+// I127 (D099): tabelele cu programe au culoarea afisata a programului.
+func TestFlexibilTabeleCuCuloareaProgramului(t *testing.T) {
+	m := pregateste(t)
+	fixture(t, m)
+	d := modelFlexTest()
+	d.Continut.Flexibil.SQL = "SELECT cod, culoare FROM programe ORDER BY cod"
+	doc, e := m.s.PrevizualizeazaFlexibil(context.Background(), d, Cerere{An: 2026, Luna: 10, Limba: "ro"}, momentFix)
+	if e != nil {
+		t.Fatal(e)
+	}
+	if len(doc.Randuri) == 0 {
+		t.Fatal("fara programe in fixture")
+	}
+	for _, r := range doc.Randuri {
+		if !culoareHex.MatchString(r.Valori[1]) {
+			t.Fatalf("program fara culoare: %v", r.Valori)
+		}
+	}
+	for _, tabel := range []string{"planificare", "garzi", "garzi_zile"} {
+		d.Continut.Flexibil.SQL = "SELECT culoare FROM " + tabel
+		if _, e := m.s.PrevizualizeazaFlexibil(context.Background(), d, Cerere{An: 2026, Luna: 10, Limba: "ro"}, momentFix); e != nil {
+			t.Fatalf("%s fara coloana culoare: %v", tabel, e)
+		}
+	}
+}
