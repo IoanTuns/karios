@@ -62,6 +62,13 @@ export function fonturiPdfme(): Promise<Font> {
 const fonturiSistem = new Map<string, Promise<Font[string] | null>>();
 
 // fontSistem incarca un font Windows dupa nume, o singura data (D088).
+// numeFontDinLista intoarce numele exact al fontului din lista Windows, chiar daca
+// utilizatorul l-a scris cu alte majuscule („arial” → „Arial”), ca in sablon sa intre numele corect.
+export function numeFontDinLista(nume: string, lista: readonly string[]): string {
+    const x = nume.trim();
+    return lista.find(n => n === x) ?? lista.find(n => n.toLowerCase() === x.toLowerCase()) ?? x;
+}
+
 export function fontSistem(nume: string): Promise<Font[string] | null> {
     let f = fonturiSistem.get(nume);
     if (!f) {

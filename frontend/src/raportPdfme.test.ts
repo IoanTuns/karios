@@ -19,7 +19,7 @@ vi.mock('./Toast', () => ({notifica: (m: string) => notificari.push(m)}));
 vi.mock('i18next', () => ({default: {t: (k: string, p?: Record<string, string>) => k + (p ? ' ' + JSON.stringify(p) : '')}}));
 vi.mock('../wailsjs/go/models', () => ({main: {RaspunsRaport: class { constructor(v: object) { Object.assign(this, v); } }}}));
 
-import {actualizeazaTabel, antetEditabil, antetFix, sablonPePagina, COLOANE_SQL, completeazaRaport, etichetePdfme, fonturiDinSablon, fonturiPentruSablon, genereazaPdfPdfme, inBase64, dinBase64, pluginuriPdfme, sablonDinColoane, stareTabel, titluColoana, zoomPotrivit} from './raportPdfme';
+import {actualizeazaTabel, antetEditabil, antetFix, sablonPePagina, COLOANE_SQL, completeazaRaport, etichetePdfme, fonturiDinSablon, fonturiPentruSablon, numeFontDinLista, genereazaPdfPdfme, inBase64, dinBase64, pluginuriPdfme, sablonDinColoane, stareTabel, titluColoana, zoomPotrivit} from './raportPdfme';
 import cheiPdfme from './cheiPdfme.json';
 import catalogRo from '../../internal/i18n/locales/ro.json';
 import catalogEn from '../../internal/i18n/locales/en.json';
@@ -226,5 +226,15 @@ describe('sablon pdfme', () => {
         // Pagina incape: latimea la zoom nu depaseste zona disponibila.
         expect((776 - 40) * (297 / 210) * z).toBeLessThanOrEqual(1374 - 420 - 90);
         expect(zoomPotrivit(300, 900, 210, 297, true)).toBe(0.5);
+    });
+});
+
+describe('numele fontului Windows (I125)', () => {
+    it('gaseste fontul indiferent de majuscule si pastreaza numele din lista', () => {
+        const lista = ['Arial', 'Arial Black', 'Times New Roman'];
+        expect(numeFontDinLista('arial', lista)).toBe('Arial');
+        expect(numeFontDinLista('  ARIAL BLACK ', lista)).toBe('Arial Black');
+        expect(numeFontDinLista('Arial', lista)).toBe('Arial');
+        expect(numeFontDinLista('Calibri', lista)).toBe('Calibri');
     });
 });

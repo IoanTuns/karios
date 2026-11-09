@@ -4,7 +4,7 @@ import type {Font, Template} from '@pdfme/common';
 import type {Designer} from '@pdfme/ui';
 import {ListaFonturiSistem} from '../wailsjs/go/main/App';
 import {Dialog} from './Formulare';
-import {antetEditabil, antetFix, etichetePdfme, STATIC_PDFME, fontSistem, fonturiDinSablon, fonturiPentruSablon, pluginuriPdfme, TIPURI_PDFME, zoomPotrivit, type StareTabel} from './raportPdfme';
+import {antetEditabil, antetFix, etichetePdfme, STATIC_PDFME, fontSistem, numeFontDinLista, fonturiDinSablon, fonturiPentruSablon, pluginuriPdfme, TIPURI_PDFME, zoomPotrivit, type StareTabel} from './raportPdfme';
 import {notifica} from './Toast';
 
 const FONTURI_GO = new Set(['Go', 'GoBold', 'GoItalic', 'GoBoldItalic']);
@@ -149,7 +149,7 @@ export function SpatiuPdfme({sablon, schimba, coloaneSQL, stare, ocupat, eroare,
     const fonturiAfisate = [...new Set([...folosite, ...adaugate])];
 
     async function adaugaFont() {
-        const nume = ales.trim();
+        const nume = numeFontDinLista(ales, disponibile);
         if (!nume || adaugare) return;
         setAdaugare(true);
         setEroareFont('');

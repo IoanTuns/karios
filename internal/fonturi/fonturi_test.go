@@ -168,3 +168,19 @@ func TestFonturiSistemWindows(t *testing.T) {
 		t.Fatalf("Arial nu se poate citi: %v", err)
 	}
 }
+
+// I125: numele scris cu alte majuscule gaseste fontul si intoarce numele corect.
+func TestDateIndiferentDeMajuscule(t *testing.T) {
+	d := t.TempDir()
+	scrie(t, d, "familie.ttc", colectie(t, goregular.TTF, gobold.TTF))
+	s := Nou(d)
+	for _, nume := range []string{"go bold", "  GO BOLD ", "Go Bold"} {
+		b, f, err := s.Date(nume)
+		if err != nil || len(b) == 0 || f.Nume != "Go Bold" {
+			t.Fatalf("%q: %v %q", nume, err, f.Nume)
+		}
+	}
+	if _, _, err := s.Date("go bolder"); err == nil {
+		t.Fatal("un nume inexistent nu trebuie gasit")
+	}
+}

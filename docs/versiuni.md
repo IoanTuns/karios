@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.84 - 2026-11-09
+
+F09-T35 (I125). În editorul vizual, „Adaugă fontul” găsește fontul Windows și dacă numele e scris cu alte majuscule (`arial` → `Arial`); în șablon intră numele corect din listă.
+
 ## 0.92.83 - 2026-11-09
 
 F09-T34 (I126). Rapoartele SQL spun exact ce coloană trebuie corectată: coloana ascunsă care nu există în rezultat („rand”), coloana calculată cu același nume ca o coloană SQL, aliasul invalid (de ex. cu spații sau diacritice) sau repetat, toate coloanele ascunse. Mesajul general despre aliasuri a dispărut. Conținutul rapoartelor nu se schimbă, deci versiunile rapoartelor rămân aceleași.

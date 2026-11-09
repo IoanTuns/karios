@@ -79,9 +79,22 @@ func (s *Serviciu) Lista() []Font {
 }
 
 // Date intoarce fontul cerut ca fisier TrueType/OpenType independent.
+// Numele se cauta intai exact, apoi fara a tine cont de majuscule si de spatiile de la capete
+// („arial” gaseste „Arial”); Font.Nume intoarce numele corect, care intra in sablon.
 func (s *Serviciu) Date(nume string) ([]byte, Font, error) {
-	for _, f := range s.Lista() {
-		if f.Nume == nume {
+	lista := s.Lista()
+	cautat := strings.TrimSpace(nume)
+	for _, f := range lista {
+		if f.Nume == cautat {
+			cautat = f.Nume
+			break
+		}
+		if strings.EqualFold(f.Nume, cautat) {
+			cautat = f.Nume
+		}
+	}
+	for _, f := range lista {
+		if f.Nume == cautat {
 			b, err := citesteFont(f.fisier, f.index)
 			if err != nil {
 				return nil, f, &i18n.Eroare{Cod: "fonturi.citire", Param: map[string]string{"nume": nume}}
