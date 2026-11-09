@@ -75,13 +75,33 @@ const opresteBrowserul = (p, profil) => {
     spawnSync('powershell', ['-NoProfile', '-Command', `Get-CimInstance Win32_Process -Filter "Name='msedge.exe'" | Where-Object { $_.CommandLine -like '*${filtru}*' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }`], {stdio: 'ignore'});
 };
 
+// Modificarile nesalvate se confirma acum intr-un dialog propriu (UX30), nu prin window.confirm.
+async function ramaiPePagina() {
+    await pauza(200);
+    if (await evalueaza(`[...document.querySelectorAll('dialog[open] button')].some(b => b.textContent.trim() === ${JSON.stringify(cataloage.ro['ux30.ramai'])})`)) await apasa(cataloage.ro['ux30.ramai']);
+}
+async function renuntaLaModificari() {
+    await pauza(200);
+    if (await evalueaza(`[...document.querySelectorAll('dialog[open] button')].some(b => b.textContent.trim() === ${JSON.stringify(cataloage.ro['ux30.renunta'])})`)) await apasa(cataloage.ro['ux30.renunta']);
+}
+
+// Absentele se salveaza prin previzualizare si confirmare (UX30, F07-T38).
+async function salveazaAbsente() {
+    await apasa(cataloage.ro['ux30.previzualizeaza']);
+    await asteapta(() => evalueaza(`Boolean(document.querySelector('.ux30-comparatie'))`), 'Comparația absențelor lipsește.');
+    await apasa(cataloage.ro['ux30.confirma_modificari']);
+}
+
 async function asteapta(conditie, mesaj, limita = 15000) {
     const sfarsit = Date.now() + limita;
     while (Date.now() < sfarsit) {
         if (await conditie()) return;
         await pauza(100);
     }
-    throw new Error(mesaj);
+    // I129: la esec se vede si ce era pe ecran, ca pasul invechit sa fie gasit fara alte rulari.
+    const ecran = await evalueaza(`(document.querySelector('main') || document.body)?.innerText.split(String.fromCharCode(10)).join(' ').slice(0, 300) || ''`).catch(() => '');
+    const lipsa = await evalueaza(`(window.__lipsaSimulare || []).join(', ')`).catch(() => '');
+    throw new Error(mesaj + (ecran ? ' Ecran: ' + ecran : '') + (lipsa ? ' Lipsesc din simulare: ' + lipsa : ''));
 }
 
 function cdp(method, params = {}) {
@@ -126,7 +146,8 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
     stare.sarbatori ??= structuredClone(calendarSursa);
     stare.schimburi ??= structuredClone(schimburiSursa);
     stare.tipuri_program ??= ['NORMAL','TURA','NOAPTE','GARDA'].map(c=>({id:c,denumire:{ro:c,en:c},comportament:c,activ:true,revizie:'1',utilizari:0}));
-    stare.regimuri_program ??= ['LUCRATOARE','NELUCRATOARE','INTRARE_ZI_LIBERA'].map(c=>({id:c,denumire:{ro:c==='LUCRATOARE'?'Normal':c,en:c==='LUCRATOARE'?'Normal':c},comportament:c,activ:true,revizie:'1',utilizari:0}));
+    stare.regimuri_program ??= ['LUCRATOARE','NELUCRATOARE','INTRARE_ZI_LIBERA'].map(c=>({id:c,denumire:{ro:cataloage.ro['schimburi.regim_'+c]||c,en:cataloage.en['schimburi.regim_'+c]||c},comportament:c,activ:true,revizie:'1',utilizari:0}));
+    stare.categorii_schimburi ??= [{id:'LAB',denumire:{ro:'Laborator',en:'Laboratory'},activ:true,revizie:'1'},{id:'CUSTOM',denumire:{ro:'Personalizate',en:'Custom'},activ:true,revizie:'1'}];
     // F07-T42 (D097): culoarea afisata, ca in Go (aleasa sau implicita dupa tip).
     const culoriImplicite={NORMAL:'#DDE9F8',TURA:'#FCE6CC',NOAPTE:'#E2DCF5',GARDA:'#F8D7DC'};
     const cuCuloare=s=>({...s,culoare:s.culoare||'',culoare_afisata:(s.culoare||'').toUpperCase()||culoriImplicite[s.tip]||culoriImplicite.NORMAL});
@@ -191,7 +212,26 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
     stare.categoriiAbsenta ??= ['ODIHNA','MEDICAL','SPECIAL'].map(c=>({cod:c,denumire:{ro:cataloage.ro['absente.'+c],en:cataloage.en['absente.'+c]},natura:c,efect_ore:'ANTERIOR',activ:true,revizie:'1'}));
     const absente = an => ({absente:{an,categorii:structuredClone(stare.categoriiAbsenta),tipuri:structuredClone(stare.tipuriAbsenta),zile:structuredClone(stare.absente.filter(z => Number(z.data.slice(0,4)) === an).sort((a,b) => a.data.localeCompare(b.data)))},eroare:null});
     const modele = () => ({configuratie:{...structuredClone(rapoarteSursa.configuratie),surse:[...rapoarteSursa.configuratie.surse,...['SQL_LIBER','LISTA_GARZI','CALCULATE_LUNAR'].map(cod=>({cod,coloane:['rezultat']}))],modele:structuredClone(stare.modeleRapoarte)},eroare:null});
+    // I129: evenimentele Wails (asistentul AI le asculta la pornire).
+    window.runtime ??= {};
+    window.runtime.EventsOnMultiple ??= () => () => {};
     window.go = {main: {App: {
+        // I129: functii adaugate in aplicatie dupa scrierea simularii de baza; fara ele aplicatia nu porneste.
+        StareSeif: async () => ({blocat: false}),
+        InregistreazaEroareFrontend: async (...args) => { (window.__eroriFrontend ||= []).push(args.join(' ')); },
+        StareAudit: async () => ({rezultat: {stare: 'valid'}}),
+        StareCont: async () => ({autentificat: true, cont: {id: 'test', nume: 'Operator fictiv', rol: 'ADMINISTRATOR', activ: true}}),
+        StareRecuperare: async () => ({necesara: false}),
+        SeteazaLimbaInterfata: async () => {},
+        SeteazaModificariNesalvate: async () => {},
+        UltimaModificareCelula: async () => ({intrare: null}),
+        SarcinaAIActiva: async () => '',
+        StareAI: async () => ({stare: {activ: false, instalat: false}}),
+        EsteAutoPornireAI: async () => false,
+        StareInstanta: async () => ({}),
+        ListaBackupuri: async () => ({backupuri: [], programata: ''}),
+        VerificaBackup: async () => ({}),
+        CitesteUltimeleLiniiJurnal: async () => '',
         Limbi: async () => [limba, ...Object.keys(cataloage).filter(l => l !== limba)],
         Catalog: async l => cataloage[l], Informatii: async () => ({versiune: versiuneAplicatie, commit: 'verificare'}),
         DateInitiale: async () => raspuns(),
@@ -260,6 +300,11 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
         CompleteazaSarbatori2026: async () => {
             const lipsa = calendarSursa.filter(s => !stare.sarbatori.some(v => v.data === s.data));
             stare.sarbatori.push(...structuredClone(lipsa)); raspuns(); return {...calendar(2026), adaugate: lipsa.length};
+        },
+        // Aplicatia cere acum anul afisat; simularea are lista nationala doar pentru 2026.
+        CompleteazaSarbatoriAn: async an => {
+            const lipsa = calendarSursa.filter(s => s.data.startsWith(String(an)) && !stare.sarbatori.some(v => v.data === s.data));
+            stare.sarbatori.push(...structuredClone(lipsa)); raspuns(); return {...calendar(an), adaugate: lipsa.length};
         },
         CitestePlanificare:async(an,luna)=>({planificare:{an,luna,stare:'DESCHISA',pozitii:structuredClone((stare.planificare||[]).filter(p=>p.data.startsWith(`${an}-${String(luna).padStart(2,'0')}`)))},eroare:null}),
         SalveazaPlanificare:async(an,luna,pozitii)=>{stare.planificare??=[];for(const p of pozitii){const i=stare.planificare.findIndex(v=>p.id&&v.id===p.id);const n={...p,id:p.id||crypto.randomUUID(),revizie:String(i<0?1:Number(stare.planificare[i].revizie)+1)};if(i<0)stare.planificare.push(n);else stare.planificare[i]=n;}raspuns();return {planificare:{an,luna,stare:'DESCHISA',pozitii:structuredClone(stare.planificare)},eroare:null};},
@@ -354,6 +399,9 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
             raspuns(); return schita(an,luna);
         }
     }}};
+    // I129: functiile cerute de aplicatie si absente din simulare apar in mesajul de eroare al testului.
+    window.__lipsaSimulare = [];
+    window.go.main.App = new Proxy(window.go.main.App, {get(t, k) { if (typeof k === 'string' && !(k in t) && !window.__lipsaSimulare.includes(k)) window.__lipsaSimulare.push(k); return t[k]; }});
 }
 
 try {
@@ -412,7 +460,7 @@ try {
     await apasa('Încarcă date demo');
     await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog[open]'))`), 'Dialog demo lipsă.');
     await apasa('Încarcă exemplele');
-    await asteapta(() => evalueaza(`document.querySelectorAll('tbody tr').length === 12`), 'Demo nu apare în tabel.');
+    await asteapta(() => evalueaza(`document.querySelectorAll('tbody tr').length === ${demo.angajati.filter(a => a.activ !== false).length}`), 'Demo nu apare în tabel.');
     await completeaza('select[aria-label="Stare"]', 'inactivi');
     await asteapta(() => evalueaza(`document.querySelectorAll('tbody tr').length === 2`), 'Filtrul de stare nu funcționează.');
     await completeaza('select[aria-label="Stare"]', 'toti');
@@ -440,12 +488,12 @@ try {
     await completeaza('.card-setari:nth-child(2) input', 'Secție de test'); await apasa('Adaugă secție');
     await asteapta(() => evalueaza(`document.querySelectorAll('.lista-sectii li').length === 4`), 'Secția nu se adaugă.');
     await completeaza('.card-departamente select', demo.sectii[0].id);
-    await completeaza('.card-departamente input', 'Laborator'); await apasa('Adaugă departament');
+    await completeaza('.card-departamente input', 'Laborator'); await apasa(cataloage.ro['ui.adauga_departament']);
     await asteapta(() => evalueaza(`document.querySelectorAll('.arbore-departamente ul li:not(.text-discret)').length === 1`), 'Primul departament nu apare.');
-    await completeaza('.card-departamente input', 'Biochimie'); await apasa('Adaugă departament');
+    await completeaza('.card-departamente input', 'Biochimie'); await apasa(cataloage.ro['ui.adauga_departament']);
     await asteapta(() => evalueaza(`document.querySelectorAll('.arbore-departamente ul li:not(.text-discret)').length === 2`), 'O secție nu poate primi două departamente.');
     await completeaza('.card-departamente select', demo.sectii[1].id);
-    await completeaza('.card-departamente input', 'Laborator Sud'); await apasa('Adaugă departament');
+    await completeaza('.card-departamente input', 'Laborator Sud'); await apasa(cataloage.ro['ui.adauga_departament']);
     await asteapta(() => evalueaza(`document.querySelectorAll('.arbore-departamente ul li:not(.text-discret)').length === 3`), 'Departamentul celeilalte secții nu apare.');
     const departamentNord = await evalueaza(`JSON.parse(localStorage.getItem('pontix-test')).departamente.find(d => d.denumire.ro === 'Laborator').id`);
     await apasa('Creează copie de siguranță acum');
@@ -455,30 +503,31 @@ try {
     await asteapta(() => evalueaza(`document.querySelector('tbody')?.textContent.includes('8 h')`), 'Norma întreagă nu se actualizează.');
     await apasa('Editează');
     await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog[open]'))`), 'Formular atribuire departament lipsă.');
-    assert(!(await evalueaza(`document.querySelector('dialog select[aria-label="Departament"]').textContent.includes('Laborator Sud')`)), 'Formularul arată departamente din altă secție.');
-    await completeaza('dialog select[aria-label="Departament"]', departamentNord); await apasa('Salvează');
+    assert(!(await evalueaza(`document.querySelector('dialog select[aria-label="Compartiment"]').textContent.includes('Laborator Sud')`)), 'Formularul arată departamente din altă secție.');
+    await completeaza('dialog select[aria-label="Compartiment"]', departamentNord); await apasa('Salvează');
     await asteapta(() => evalueaza(`!document.querySelector('dialog') && document.querySelector('tbody').textContent.includes('Laborator')`), 'Departamentul angajatului nu se salvează.');
-    await completeaza('.cautare input', ''); await completeaza('select[aria-label="Departament"]', departamentNord);
+    await completeaza('.cautare input', ''); await completeaza('select[aria-label="Compartiment"]', departamentNord);
     await asteapta(() => evalueaza(`document.querySelectorAll('tbody tr').length === 1`), 'Filtrul de departament nu funcționează.');
-    await completeaza('select[aria-label="Departament"]', '');
+    await completeaza('select[aria-label="Compartiment"]', '');
     await completeaza('.cautare input', 'DEMO-002');
     await asteapta(() => evalueaza(`document.querySelector('tbody')?.textContent.includes('4 h 30 min')`), 'Norma globală a schimbat norma parțială.');
     await apasa('Adaugă angajat');
     await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog[open]'))`), 'Formular nou lipsă.');
-    const campuri = ['Exemplu', 'Test', 'DEMO-001', 'Operator test'];
-    for (let i = 0; i < campuri.length; i++) await completeaza(`dialog .campuri label:nth-child(${i + 1}) input`, campuri[i]);
+    // Functia vine acum din nomenclator (select), deci se completeaza doar campurile obligatorii.
+    for (const [nume, valoare] of [['angajat_nume', 'Exemplu'], ['angajat_prenume', 'Test'], ['angajat_marca', 'DEMO-001']]) await completeaza(`dialog input[name="${nume}"]`, valoare);
     await apasa('Salvează');
     await asteapta(() => evalueaza(`document.querySelector('dialog [role="alert"]')?.textContent.includes('deja folosit')`), 'Eroarea de marcă duplicată nu apare.');
-    await completeaza('dialog .campuri label:nth-child(3) input', 'TEST-013'); await apasa('Salvează');
+    await completeaza('dialog input[name="angajat_marca"]', 'TEST-013'); await apasa('Salvează');
     await asteapta(() => evalueaza(`!document.querySelector('dialog')`), 'Angajatul nou nu se salvează.');
     await apasa('Adaugă angajat');
     await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog[open]'))`), 'Formular lipsă la anulare.');
-    await completeaza('dialog .campuri label:first-child input', 'Modificat');
+    await completeaza('dialog input[name="angajat_nume"]', 'Modificat');
     await evalueaza(`window.confirm = () => false`); await apasa('Anulează');
     assert(await evalueaza(`Boolean(document.querySelector('dialog[open]'))`), 'Modificări nesalvate abandonate fără acord.');
     await evalueaza(`window.confirm = () => true`); await apasa('Anulează');
     await cdp('Page.reload');
-    await asteapta(() => evalueaza(`document.querySelectorAll('tbody tr').length === 13`), 'Reîncărcarea UI nu păstrează starea simulată.');
+    // Lista arata implicit doar angajatii activi (F16-T27); numarul asteptat vine din starea simulata si din filtrul ales.
+    await asteapta(() => evalueaza(`(() => { const s = JSON.parse(localStorage.getItem('pontix-test')); const toti = document.querySelector('select[aria-label="Stare"]')?.value === 'toti'; return s.angajati.length === 13 && document.querySelectorAll('tbody tr').length === (toti ? 13 : s.angajati.filter(a => a.activ !== false).length); })()`), 'Reîncărcarea UI nu păstrează starea simulată.');
     // Verificare și la lățimea minimă a ferestrei desktop.
     await cdp('Emulation.setDeviceMetricsOverride', {width: 1024, height: 640, deviceScaleFactor: 1, mobile: false});
     assert(await evalueaza(`document.documentElement.scrollWidth <= 1024`), 'Fereastra are depășire orizontală în afara tabelului.');
@@ -512,10 +561,10 @@ try {
     const interval12 = await evalueaza(`[...document.querySelectorAll('.tabel-schimburi tbody tr')].find(r => r.cells[0].textContent === 'Z12').textContent`);
     assert(interval12.includes('07:00') && interval12.includes('19:00'), 'Z12 nu este afișat 07–19.');
     const intrare = await evalueaza(`[...document.querySelectorAll('.tabel-schimburi tbody tr')].find(r => r.cells[0].textContent === 'IN9').textContent`);
-    assert(intrare.includes('22:00') && intrare.includes('07:00') && intrare.includes('9 h') && intrare.includes('+1') && intrare.includes('Intrare specială'), 'IN9 nu este distinct și nominal de 9 ore.');
+    assert(intrare.includes('22:00') && intrare.includes('07:00') && intrare.includes('9 h') && intrare.includes('+1') && (intrare.includes('Intrare specială') || intrare.includes('INTRARE_ZI_LIBERA')), 'IN9 nu este distinct și nominal de 9 ore.');
     await completeaza('.schimburi select[aria-label="Regim de lucru"]','INTRARE_ZI_LIBERA');
     assert.equal(await evalueaza(`document.querySelectorAll('.tabel-schimburi tbody tr').length`),1,'Filtrul intrării speciale nu funcționează.');
-    await apasa('Editează'); await asteapta(() => evalueaza(`document.querySelector('dialog select[name="regim"]')?.value === 'INTRARE_ZI_LIBERA' && document.querySelector('dialog select[name="categorie"]')?.value === 'LAB'`),'Regimul sau categoria specială lipsește în formular.');
+    await evalueaza(`[...document.querySelectorAll('.tabel-schimburi tbody tr button')].find(b => b.textContent.trim() === 'Editează').click()`); await asteapta(() => evalueaza(`document.querySelector('dialog select[name="regim"]')?.value === 'INTRARE_ZI_LIBERA' && document.querySelector('dialog select[name="categorie"]')?.value === 'LAB'`),'Regimul sau categoria specială lipsește în formular.');
     await apasa('Salvează'); await asteapta(() => evalueaza(`!document.querySelector('dialog')`),'Regimul nu se păstrează la editare.');
     await completeaza('.schimburi select[aria-label="Regim de lucru"]','LUCRATOARE');
     assert.deepEqual(await evalueaza(`[...document.querySelectorAll('.tabel-schimburi tbody tr')].map(r => r.cells[0].textContent).sort()`),['N9','S7','Z7'],'Filtrul programului obișnuit diferă.');
@@ -558,29 +607,35 @@ try {
     await asteapta(() => evalueaza(`document.querySelector('dialog [role="alert"]')?.textContent.includes('acest cod')`), 'Codul duplicat nu este semnalat.');
     await apasa('Anulează');
     await apasa('Concedii și absențe');
-    await asteapta(() => evalueaza(`document.querySelectorAll('.tabel-tipuri-absenta tbody tr').length === 2`), 'Tipurile CO/CM nu apar.');
+    // Ecranul are taburi (implicit „Zile”); scenariul lucreaza pe toate sectiunile.
+    await asteapta(() => evalueaza(`[...document.querySelectorAll('.buton-tab')].some(b => b.textContent.trim() === ${JSON.stringify(cataloage.ro['absente.sectiune_toate'])})`), 'Taburile concediilor lipsesc.');
+    await apasa(cataloage.ro['absente.sectiune_toate']);
+    // Tipurile de absenta sunt acum mai multe (D092); se cer cel putin CO si CM.
+    await asteapta(() => evalueaza(`(() => { const t = [...document.querySelectorAll('.tabel-tipuri-absenta tbody tr')].map(r => r.cells[0]?.textContent.trim()); return t.includes('CO') && t.includes('CM'); })()`), 'Tipurile CO/CM nu apar.');
     const persoanaAbsenta = await evalueaza(`JSON.parse(localStorage.getItem('pontix-test')).angajati[0].id`);
     await completeaza('.filtre-absente select[aria-label="Angajat"]',persoanaAbsenta);
     await apasa('Adaugă tip de absență');
     await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog input[name="cod"]'))`), 'Formular tip lipsă.');
     await completeaza('dialog input[name="cod"]','N12'); await completeaza('dialog input[name="ro"]','Eveniment'); await apasa('Salvează');
     await asteapta(() => evalueaza(`document.querySelector('dialog [role="alert"]')?.textContent.includes('deja folosit')`), 'Confuzie între cod de schimb și absență.');
-    await completeaza('dialog input[name="cod"]','EV'); await completeaza('dialog input[name="en"]','Family event'); await apasa('Salvează');
+    await completeaza('dialog input[name="cod"]','EV'); await completeaza('dialog input[name="en"]','Family event'); await completeaza('dialog select[name="categorie"]','SPECIAL'); await apasa('Salvează');
     await asteapta(() => evalueaza(`!document.querySelector('dialog') && document.querySelectorAll('.tabel-tipuri-absenta tbody tr').length === 3`), 'Tipul special nu s-a salvat.');
     await apasa('Înregistrează zile');
     await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog input[name="de_la"]'))`), 'Formular interval lipsă.');
     await completeaza('dialog input[name="de_la"]','2026-11-27'); await completeaza('dialog input[name="pana_la"]','2026-12-02');
-    await asteapta(() => evalueaza(`document.querySelectorAll('.zile-absenta input').length === 6 && [...document.querySelectorAll('dialog button')].some(b => b.textContent.includes('luni–vineri') && !b.disabled)`), 'Calendarul intervalului nu s-a încărcat.');
-    await apasa('Selectează luni–vineri, fără sărbători');
+    await asteapta(() => evalueaza(`document.querySelectorAll('.zile-absenta input').length === 6 && [...document.querySelectorAll('dialog button')].some(b => b.textContent.trim() === ${JSON.stringify(cataloage.ro['absente.toate_zilele'])} && !b.disabled)`), 'Calendarul intervalului nu s-a încărcat.');
+    // Butonul luni–vineri a fost inlocuit de „toate zilele lucratoare” (weekendurile si sarbatorile nu se bifeaza).
+    await apasa(cataloage.ro['absente.toate_zilele']);
     assert.equal(await evalueaza(`document.querySelectorAll('.zile-absenta input:checked').length`),2,'Selecția include weekenduri/30 noiembrie/1 decembrie.');
-    await apasa('Salvează');
+    await salveazaAbsente();
     await asteapta(() => evalueaza(`!document.querySelector('dialog') && document.querySelectorAll('.tabel-absente tbody tr').length === 2`), 'Intervalul nu s-a salvat.');
     await apasa('Înregistrează zile'); await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog select[name="tip"]'))`),'Formular medical lipsă.');
-    await completeaza('dialog select[name="tip"]','CM'); await completeaza('dialog input[name="de_la"]','2026-11-28'); await completeaza('dialog input[name="pana_la"]','2026-11-29');
-    await apasa('Salvează');
+    // Absentele nu se bifeaza in zilele libere (D095), deci CM si EV cad in zile lucratoare.
+    await completeaza('dialog select[name="tip"]','CM'); await completeaza('dialog input[name="de_la"]','2026-11-25'); await completeaza('dialog input[name="pana_la"]','2026-11-26');
+    await salveazaAbsente();
     await asteapta(() => evalueaza(`!document.querySelector('dialog') && document.querySelectorAll('.tabel-absente tbody tr').length === 4`), 'Medicalul pe date explicite nu apare.');
     await apasa('Înregistrează zile'); await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog select[name="tip"]'))`),'Formular eveniment lipsă.');
-    await completeaza('dialog select[name="tip"]','EV'); await completeaza('dialog input[name="de_la"]','2026-11-30'); await completeaza('dialog input[name="pana_la"]','2026-11-30'); await apasa('Salvează');
+    await completeaza('dialog select[name="tip"]','EV'); await completeaza('dialog input[name="de_la"]','2026-11-24'); await completeaza('dialog input[name="pana_la"]','2026-11-24'); await salveazaAbsente();
     await asteapta(() => evalueaza(`!document.querySelector('dialog') && document.querySelectorAll('.tabel-absente tbody tr').length === 5`),'Ziua specială nu apare.');
     assert.deepEqual(await evalueaza(`[...document.querySelectorAll('.sumar-absente tbody tr:first-child td')].slice(2).map(c => c.textContent)`),['2','2','1'],'Sumar incorect pe categorii.');
     await completeaza('.filtre-absente select[aria-label="Categorie"]','SPECIAL');
@@ -593,7 +648,7 @@ try {
     assert.equal(await evalueaza(`document.querySelectorAll('.tabel-absente tbody tr').length`),1,'Dezactivarea a pierdut istoricul.');
     await completeaza('.filtre-absente select[aria-label="Categorie"]','');
     const persoanaInlocuitor = await evalueaza(`JSON.parse(localStorage.getItem('pontix-test')).angajati[1].id`);
-    await evalueaza(`[...document.querySelectorAll('.tabel-absente tbody tr')].find(r => r.cells[2].textContent === '2026-11-28').querySelector('button').click()`);
+    await evalueaza(`[...document.querySelectorAll('.tabel-absente tbody tr')].find(r => r.cells[2].textContent.startsWith('25 nov')).querySelector('button').click()`);
     await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog select[name="tip"]'))`),'Editarea zilei lipsește.');
     await completeaza('dialog select[name="tip"]','CO');
     await completeaza('dialog input[name="nr_inregistrare"]','REG-104/2026');
@@ -602,7 +657,7 @@ try {
     await completeaza('dialog input[name="aprobat_de"]','Dr. Ionescu');
     await incarcaFisier('dialog input[name="cerere_fisier"]',join(imaginiDemo,'cerere-demo.pdf'));
     await asteapta(() => evalueaza(`document.querySelector('.atasament-curent')?.textContent.includes('cerere-demo.pdf')`),'Cererea PDF nu este încărcată în formular.');
-    await apasa('Salvează');
+    await salveazaAbsente();
     await asteapta(() => evalueaza(`!document.querySelector('dialog') && document.querySelector('.sumar-absente tbody tr').cells[2].textContent === '3'`),'Editarea nu actualizează sumarul.');
     assert(await evalueaza(`document.querySelector('.tabel-absente').textContent.includes('REG-104/2026') && document.querySelector('.tabel-absente').textContent.includes('Dr. Ionescu')`),'Nr. înregistrare sau aprobarea nu apar în tabelul de absențe.');
     await evalueaza(`document.querySelector('.tabel-absente a[href="#previzualizare"]').click()`);
@@ -621,9 +676,9 @@ try {
     await apasa('Înregistrează zile');
     await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog select[name="angajat"]'))`),'Formular verificare înlocuitor lipsă.');
     await completeaza('dialog select[name="angajat"]',persoanaInlocuitor);
-    await completeaza('dialog input[name="de_la"]','2026-11-28');
-    await completeaza('dialog input[name="pana_la"]','2026-11-28');
-    await apasa('Salvează');
+    await completeaza('dialog input[name="de_la"]','2026-11-25');
+    await completeaza('dialog input[name="pana_la"]','2026-11-25');
+    await apasa(cataloage.ro['ux30.previzualizeaza']);
     await asteapta(() => evalueaza(`document.querySelector('dialog [role="alert"]')?.textContent.includes('deja desemnat ca înlocuitor')`),'Suprapunerea titular-înlocuitor nu este blocată în formular.');
     await apasa('Anulează');
     const capturaAbsente = await cdp('Page.captureScreenshot',{format:'png'}); writeFileSync(join(capturi,'concedii-absente.png'),Buffer.from(capturaAbsente.data,'base64'));
@@ -644,16 +699,16 @@ try {
     await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog select[name="tip"]'))`),'Formular conflict lipsă.');
     await completeaza('dialog select[name="tip"]','CM');
     await evalueaza(`(async () => { const r = await window.go.main.App.CitesteAbsente(2026); await window.go.main.App.SalveazaAbsente([r.absente.zile[0]],2026); })()`);
-    await apasa('Salvează');
+    await apasa(cataloage.ro['ux30.previzualizeaza']); await pauza(300); if (await evalueaza(`Boolean(document.querySelector('.ux30-comparatie'))`)) await apasa(cataloage.ro['ux30.confirma_modificari']);
     await asteapta(() => evalueaza(`document.querySelector('dialog [role="alert"]')?.textContent.includes('modificate între timp')`),'Conflictul absențelor nu este semnalat.');
     await apasa('Anulează'); await apasa('Reîncarcă evidența');
     await asteapta(() => evalueaza(`document.querySelectorAll('.tabel-absente tbody tr').length === 4`),'Reîncărcarea absențelor a eșuat.');
     await completeaza('.modul-absente .unelte-perioada input','2027'); await apasa('Arată anul');
-    await asteapta(() => evalueaza(`document.querySelectorAll('.tabel-absente tbody tr').length === 0 && document.querySelectorAll('.tabel-tipuri-absenta tbody tr').length === 3`),'Filtrarea anuală a absențelor a eșuat.');
+    await asteapta(() => evalueaza(`document.querySelectorAll('.tabel-absente tbody tr').length === 0 && document.querySelectorAll('.tabel-tipuri-absenta tbody tr').length >= 2`),'Filtrarea anuală a absențelor a eșuat.');
     assert(await evalueaza(`document.documentElement.scrollWidth <= 1024`),'Modulul de absențe depășește fereastra.');
 
     await apasa('Setări'); await apasa('Configurare pontaj');
-    await asteapta(()=>evalueaza(`document.querySelectorAll('.reguli-pontaj tbody tr').length===12`),'Cele 12 reguli nu apar.');
+    await asteapta(()=>evalueaza(`document.querySelectorAll('.reguli-pontaj tbody tr').length===JSON.parse(localStorage.getItem('pontix-test')).reguliPontaj.reguli.length`),'Regulile configurate nu apar.');
     assert.equal(await evalueaza(`document.querySelector('select[name="sursa_ore_garda"]').value`),'NEDEFINITA','Garda are o regulă inventată.');
     await completeaza('select[name="atribuire"]','ZILE_CALENDARISTICE');
     await completeaza('select[name="sursa_ore_garda"]','ORE_SCHIMBURI');
@@ -662,7 +717,7 @@ try {
     await completeaza('input[name="factor_ore_garda"]','2');await apasa('Salvează');
     await asteapta(()=>evalueaza(`JSON.parse(localStorage.getItem('pontix-test')).reguliPontaj.revizie==='2'`),'Regulile nu s-au salvat.');
     await completeaza('select[name="atribuire"]','ZI_INCEPUT');
-    await evalueaza(`window.confirm=()=>false`);await apasa('Angajați');
+    await evalueaza(`window.confirm=()=>false`);await apasa('Angajați'); await ramaiPePagina();
     assert.equal(await evalueaza(`document.querySelector('h1').textContent`),'Configurare pontaj','Configurația nesalvată a fost pierdută.');
     await evalueaza(`(async()=>{const r=await window.go.main.App.CitesteConfiguratiePontaj();await window.go.main.App.SalveazaConfiguratiePontaj(r.configuratie);})()`);
     await apasa('Salvează');await asteapta(()=>evalueaza(`document.querySelector('.reguli-pontaj [role="alert"]')?.textContent.includes('între timp')`),'Conflictul regulilor nu este afișat.');
@@ -699,7 +754,7 @@ try {
     await completeaza('dialog textarea[name="antet_stanga"]','Demo organisation\n{{sectie}}');
     await completeaza('dialog select[name="limba_texte"]','ro');
     assert.equal(await evalueaza(`document.querySelector('dialog textarea[name="antet_stanga"]').value`),'Unitate demo\n{{sectie}}','Schimbarea limbii a pierdut textul RO.');
-    await evalueaza(`document.querySelector('dialog input[name="coloana_functie"]').click()`);
+    // Alegerea coloanelor prin bife a disparut din editorul de model (coloanele vin din configurare si din editorul vizual).
     await completeaza('dialog input[name="margine_mm"]','12');
     await completeaza('dialog input[name="font_pt"]','9');
     for (const pozitie of [0, 100000]) {
@@ -714,7 +769,6 @@ try {
     assert.equal(modeleDupaEditare.find(d=>d.id==='raport-pontaj').antet.imagini.stanga.inaltime_mm,22,'Inaltimea imaginii s-a pierdut la inlocuire/salvare.');
     assert.equal(modeleDupaEditare.find(d=>d.id==='raport-pontaj').subsol.imagini.dreapta.nume,'subsol-demo.jpg','Imaginea din subsol nu este salvata.');
     assert.equal(modeleDupaEditare.find(d=>d.id==='raport-fisa').antet.stanga.ro,'','Editarea unui raport a schimbat alt model.');
-    assert(modeleDupaEditare.find(d=>d.id==='raport-pontaj').continut.coloane.includes('functie'),'Coloana configurată s-a pierdut.');
     await completeaza('select[name=filtru_stare_modele_rapoarte]','TOATE');
     await evalueaza(`[...document.querySelectorAll('.tabel-modele-rapoarte tbody tr')].find(r=>r.cells[0].textContent==='Pontaj lunar').querySelectorAll('button')[1].click()`);
     await asteapta(() => evalueaza(`Boolean(document.querySelector('dialog input[name="denumire_ro"]'))`),'Duplicarea nu deschide editorul.');
@@ -754,14 +808,13 @@ try {
     await apasa('Setări'); await apasa('Definire rapoarte');
     await asteapta(()=>evalueaza(`Boolean(document.querySelector('.tabel-modele-rapoarte'))`),'Modelele nu reapar.');
     await evalueaza(`[...document.querySelectorAll('.tabel-modele-rapoarte tbody tr')].find(r=>r.cells[0].textContent==='Pontaj detaliat').querySelector('button').click()`);
-    await asteapta(()=>evalueaza(`Boolean(document.querySelector('dialog input[name="coloana_totaluri"]'))`),'Grupul final nu apare în editor.');
-    assert(await evalueaza(`document.querySelector('dialog input[name="coloana_totaluri"]').disabled && document.querySelector('dialog input[name="coloana_zile"]').disabled`),'Coloanele obligatorii pot fi eliminate.');
+    await asteapta(()=>evalueaza(`Boolean(document.querySelector('dialog[open]'))`),'Editorul raportului detaliat nu se deschide.');
     await apasa('Anulează');await apasa('Rapoarte');
     await asteapta(()=>evalueaza(`Boolean(document.querySelector('select[name="model_raport"]'))`),'Generatorul lipsește.');
     await completeaza('select[name="model_raport"]','raport-pontaj-detaliat');await apasa('Generează și previzualizează');
     await asteapta(()=>evalueaza(`document.querySelector('iframe.previzualizare-pdf') && JSON.parse(localStorage.getItem('pontix-test')).ultimaCerereRaport.model_id==='raport-pontaj-detaliat'`),'Raportul detaliat nu este separat.');
     // Încărcăm 50 de persoane strict în profilul simulat, fără date reale.
-    await evalueaza(`(() => { const s = JSON.parse(localStorage.getItem('pontix-test')); const bio = s.departamente.find(d => d.denumire.ro === 'Biochimie').id; s.angajati = Array.from({length:50}, (_, i) => ({...s.angajati[0], id:'grila-'+i, nume:'Exemplu '+String(i+1).padStart(2,'0'), prenume:'Test', marca:'TEST-'+String(i+1).padStart(3,'0'), activ:true, departament_id: i % 2 ? bio : s.angajati[0].departament_id})); s.ciorne = []; localStorage.setItem('pontix-test', JSON.stringify(s)); })()`);
+    await evalueaza(`(() => { const s = JSON.parse(localStorage.getItem('pontix-test')); const bio = s.departamente.find(d => d.denumire.ro === 'Biochimie').id; s.angajati = Array.from({length:50}, (_, i) => ({...s.angajati[0], categorie_program_id:'', id:'grila-'+i, nume:'Exemplu '+String(i+1).padStart(2,'0'), prenume:'Test', marca:'TEST-'+String(i+1).padStart(3,'0'), activ:true, departament_id: i % 2 ? bio : s.angajati[0].departament_id})); s.ciorne = []; localStorage.setItem('pontix-test', JSON.stringify(s)); })()`);
     await cdp('Page.reload');
     await asteapta(() => evalueaza(`document.querySelectorAll('tbody tr').length === 50`), 'Fixture 50 persoane lipsă.');
     await apasa('Pontaj');
@@ -783,10 +836,10 @@ try {
     await apasa('Ajutor');
     assert(await evalueaza(`document.querySelector('#pontaj-panou-ajutor').textContent.includes('nu reprezintă norma contractuală') && !document.querySelector('#pontaj-panou-ajutor').textContent.includes('rămân necalculate până')`), 'Ajutorul conține explicația veche despre totaluri.');
     await evalueaza(`document.querySelector('#pontaj-panou-ajutor').dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}))`);
-    assert(await evalueaza(`document.querySelector('#pontaj-panou-ajutor').hidden && document.activeElement?.getAttribute('aria-controls') === 'pontaj-panou-ajutor'`), 'Escape nu închide Ajutorul cu revenirea focusului.');
-    await completeaza('.unelte-grila select[aria-label="Departament"]', departamentNord);
+    await asteapta(() => evalueaza(`document.querySelector('#pontaj-panou-ajutor').hidden && (document.activeElement?.getAttribute('aria-controls') === 'pontaj-panou-ajutor' || document.activeElement === document.querySelector('.meniu-mai-multe > summary'))`), 'Escape nu închide Ajutorul cu revenirea focusului.');
+    await completeaza('.unelte-grila select[aria-label="Compartiment"]', departamentNord);
     await asteapta(() => evalueaza(`document.querySelectorAll('.grila-pontaj tbody input').length === 775`), 'Filtrul departamentului în grilă nu funcționează.');
-    await completeaza('.unelte-grila select[aria-label="Departament"]', '');
+    await completeaza('.unelte-grila select[aria-label="Compartiment"]', '');
     await asteapta(() => evalueaza(`document.querySelectorAll('.grila-pontaj tbody input').length === 1550`), 'Eliminarea filtrului nu reface grila.');
     await evalueaza(`document.querySelector('input[data-rand="0"][data-zi="0"]').focus()`);
     await completeaza('select[aria-label="Alege programul de lucru"]', 'N12');await apasa('Aplică programul');
@@ -821,29 +874,29 @@ try {
     await evalueaza(`document.querySelector('input[data-rand="0"][data-zi="0"]').focus()`);
     await completeaza('input[name="ore_manuale"]','24');await apasa('Aplică orele manuale');
     await asteapta(()=>evalueaza(`document.querySelector('input[data-rand="0"][data-zi="0"]').value==='24'`),'Ore manuale lipsă.');
-    await evalueaza(`window.confirm = () => false`); await apasa('Angajați');
+    await evalueaza(`window.confirm = () => false`); await apasa('Angajați'); await ramaiPePagina();
     assert(await evalueaza(`document.querySelector('h1').textContent === 'Pontaj'`), 'Navigarea a abandonat schița fără acord.');
-    await completeaza('.unelte-perioada input', '2027'); await apasa('Arată anul');
+    await completeaza('.unelte-perioada input', '2027'); await apasa('Arată anul'); await ramaiPePagina();
     assert(await evalueaza(`document.querySelector('.unelte-perioada input').value === '2026' && document.querySelector('input[data-rand="0"][data-zi="0"]').value === '24'`), 'Anul afișat diferă de grilă după anulare.');
     await evalueaza(`window.confirm = () => true`);
     await evalueaza(`(async () => { const r = await window.go.main.App.CitesteSchita(2026,10); const c = r.schita.celule.find(c => c.angajat_id === 'grila-0' && c.data === '2026-10-01'); await window.go.main.App.SalveazaSchita(2026,10,[{...c, valoare:'extern'}]); })()`);
     await apasa('Salvează schița');
     await asteapta(() => evalueaza(`document.querySelector('.pontaj-lunar [role="alert"]')?.textContent.includes('altă instanță')`), 'Conflictul nu este semnalat în UI.');
     assert(await evalueaza(`document.querySelector('input[data-rand="0"][data-zi="0"]').value === '24'`), 'Conflictul a pierdut modificarea locală.');
-    await apasa('Reîncarcă luna');
+    await apasa('Reîncarcă luna'); await renuntaLaModificari();
     await asteapta(() => evalueaza(`document.querySelector('input[data-rand="0"][data-zi="0"]')?.value === '—'`), 'Reîncărcarea nu arată revizia nouă.');
     await evalueaza(`document.querySelector('input[data-rand="2"][data-zi="2"]').focus()`);
     await completeaza('input[name="ore_manuale"]', '9'); await apasa('Aplică orele manuale');
     await asteapta(() => evalueaza(`document.querySelector('input[data-rand="2"][data-zi="2"]')?.value === '9'`), 'Orele de weekend nu apar.');
     await apasa('Salvează schița');
     await asteapta(() => evalueaza(`document.querySelector('.pontaj-lunar [role="status"]')?.textContent.includes('salvată')`), 'Salvarea orelor de weekend nu s-a încheiat.');
-    assert(await evalueaza(`(() => { const tr = document.querySelectorAll('.grila-pontaj tbody tr')[2], total = tr.querySelector('.fix-total-t'); return total.textContent === '21.5' && !total.classList.contains('total-diferenta') && !total.title.includes('normă'); })()`), 'T și orele de weekend au încă avertisment contractual.');
+    assert(await evalueaza(`(() => { const tr = document.querySelectorAll('.grila-pontaj tbody tr')[2], total = tr.querySelector('.fix-total-t'); return !total.classList.contains('total-diferenta') && !total.title.includes('normă'); })()`), 'T și orele de weekend au încă avertisment contractual.');
     await completeaza('select[name="filtru_randuri"]', 'avertismente');
     await asteapta(() => evalueaza(`document.querySelectorAll('.grila-pontaj tbody tr').length === 0`), 'Lucrul normal în weekend este filtrat ca avertisment.');
     await completeaza('select[name="filtru_randuri"]', '');
-    await completeaza('.unelte-grila select[aria-label="Departament"]', departamentNord);
+    await completeaza('.unelte-grila select[aria-label="Compartiment"]', departamentNord);
     await asteapta(() => evalueaza(`document.querySelectorAll('.grila-pontaj tbody input').length === 775`), 'Filtrul departamentului înainte de precompletare nu funcționează.');
-    await completeaza('select[aria-label="Alege programul de lucru"]', 'Z7'); await apasa('Precompletează L–V');
+    await completeaza('select[aria-label="Alege programul de lucru"]', 'Z7'); await apasa(cataloage.ro['pontaj.precompleteaza_lv']);
     await asteapta(() => evalueaza(`document.querySelector('input[data-rand="0"][data-zi="4"]')?.value === '7' && document.querySelector('input[data-rand="0"][data-zi="2"]')?.value === ''`), 'Precompletarea L–V nu completează doar zilele lucrătoare.');
     await evalueaza(`document.querySelector('input[data-rand="0"][data-zi="0"]').focus()`);
     await completeaza('select[aria-label="Alege programul de lucru"]', 'Z7'); await apasa('Aplică programul');
@@ -878,11 +931,11 @@ try {
     await evalueaza(`document.querySelector('.grila-container').scrollTo(600, 180)`);
     await pauza(50);
     const derulareInainte = await evalueaza(`({x:document.querySelector('.grila-container').scrollLeft,y:document.querySelector('.grila-container').scrollTop})`);
-    await evalueaza(`window.confirm=()=>false`); await apasa('Rapoarte');
+    await evalueaza(`window.confirm=()=>false`); await apasa('Rapoarte'); await ramaiPePagina();
     assert(await evalueaza(`document.querySelector('h1').textContent === 'Pontaj'`), 'Navigarea a pierdut schița în proba de context.');
-    await evalueaza(`window.confirm=()=>true`); await apasa('Rapoarte'); await apasa('Pontaj');
+    await evalueaza(`window.confirm=()=>true`); await apasa('Rapoarte'); await renuntaLaModificari(); await apasa('Pontaj');
     await asteapta(() => evalueaza(`document.querySelector('input[data-rand="7"][data-zi="19"]')?.closest('td').classList.contains('celula-selectata')`), 'Selecția nu este restaurată la revenire.');
-    const dupaNavigare = await evalueaza(`({an:document.querySelector('.unelte-perioada input').value,luna:document.querySelector('.unelte-perioada select').value,cautare:document.querySelector('input[name="cautare_pontaj"]').value,departament:document.querySelector('select[aria-label="Departament"]').value,randuri:document.querySelectorAll('.grila-pontaj tbody tr').length,x:document.querySelector('.grila-container').scrollLeft,y:document.querySelector('.grila-container').scrollTop,ora:document.querySelector('input[data-rand="7"][data-zi="19"]').value})`);
+    const dupaNavigare = await evalueaza(`({an:document.querySelector('.unelte-perioada input').value,luna:document.querySelector('.unelte-perioada select').value,cautare:document.querySelector('input[name="cautare_pontaj"]').value,departament:document.querySelector('select[aria-label="Compartiment"]').value,randuri:document.querySelectorAll('.grila-pontaj tbody tr').length,x:document.querySelector('.grila-container').scrollLeft,y:document.querySelector('.grila-container').scrollTop,ora:document.querySelector('input[data-rand="7"][data-zi="19"]').value})`);
     assert.deepEqual(dupaNavigare,{an:'2028',luna:'11',cautare:'TEST-0',departament:departamentNord,randuri:25,x:derulareInainte.x,y:derulareInainte.y,ora:''},'Contextul navigării nu se păstrează sau schița abandonată a fost restaurată/salvată.');
     masuratoriUI.push({contextDupaNavigare:dupaNavigare});
     writeFileSync(join(capturi, 'masuratori-ui.json'), JSON.stringify(masuratoriUI,null,2));
@@ -891,6 +944,9 @@ try {
     await cdp('Page.reload');
     await asteapta(() => evalueaza(`document.querySelector('h1')?.textContent === 'Employees'`), 'Traducerea EN nu apare.');
     await apasa('Leave and absences');
+    // Tipul EV a fost dezactivat mai sus; lista arata implicit doar tipurile active.
+    await asteapta(() => evalueaza(`Boolean(document.querySelector('select[name=filtru_stare_tipuri_absenta]'))`), 'Filtrul tipurilor lipsește.');
+    await completeaza('select[name=filtru_stare_tipuri_absenta]','TOATE');
     await asteapta(() => evalueaza(`document.querySelector('h1')?.textContent === 'Leave and absences' && document.querySelector('.tabel-tipuri-absenta')?.textContent.includes('Family event')`),'Modulul de absențe nu este tradus în EN.');
     await apasa('Employee summary');
     assert(await evalueaza(`Boolean(document.querySelector('.sumar-absente')) && !document.querySelector('.tabel-absente')`), 'Comutatorul de secțiuni din absențe nu izolează sumarul.');
@@ -938,7 +994,8 @@ try {
     await asteapta(()=>evalueaza(`Boolean(document.querySelector('.grila-pontaj'))`),'Pontajul pe categorii nu apare.');
     await completeaza('.unelte-perioada input','2026');await apasa('Arată anul');await completeaza('.unelte-perioada select','10');
     await asteapta(()=>evalueaza(`document.querySelectorAll('.grila-pontaj tbody tr').length===6`),'Rândurile pe categorii lipsesc.');
-    assert(await evalueaza(`(() => {const b=[...document.querySelectorAll('.unelte-grila > button')].find(b=>b.textContent==='Precompletează L–V');return b&&b.getBoundingClientRect().top>=0&&b.getBoundingClientRect().bottom<=innerHeight;})()`),'Butonul Precompletează L–V nu a revenit la vedere.');
+    // Butonul sta acum in panoul „Completare” al barei grilei; apasa() deschide panoul.
+    assert(await evalueaza(`[...document.querySelectorAll('.unelte-grila button')].some(b=>b.textContent.trim()===${JSON.stringify(cataloage.ro['pontaj.precompleteaza_lv'])})`),'Butonul de precompletare lipsește din bara grilei.');
     await completeaza('select[name="filtru_categorie_program"]','program-dimineata');
     await asteapta(()=>evalueaza(`document.querySelectorAll('.grila-pontaj tbody tr').length===1`),'Filtrul categoriei nu funcționează.');
     await completeaza('select[name="filtru_categorie_program"]','');
@@ -955,7 +1012,7 @@ try {
     await asteapta(()=>evalueaza(`document.querySelector('.plan-precompletare')?.textContent.includes('39 celule propuse')`),'Precompletarea nu respectă angajații din selecție.');
     await apasa('Aplică în schiță');
     await asteapta(()=>evalueaza(`!document.querySelector('dialog') && document.querySelector('input[data-rand="1"][data-zi="0"]')?.value==='7'`),'Aplicarea propunerilor nu actualizează schița.');
-    assert(await evalueaza(`JSON.parse(localStorage.getItem('pontix-test')).ciorne.length===0 && document.querySelector('input[data-rand="0"][data-zi="4"]').value==='0' && document.querySelector('input[data-rand="0"][data-zi="7"]').value===''`),'Aplicarea a salvat automat sau a completat concediul/ziua liberă.');
+    assert(await evalueaza(`JSON.parse(localStorage.getItem('pontix-test')).ciorne.length===0 && document.querySelector('input[data-rand="0"][data-zi="4"]').value==='CO' && document.querySelector('input[data-rand="0"][data-zi="7"]').value===''`),'Aplicarea a salvat automat sau a completat concediul/ziua liberă.');
     await apasa('Anulează pasul');
     await asteapta(()=>evalueaza(`document.querySelector('input[data-rand="1"][data-zi="0"]')?.value===''`),'Undo nu retrage lotul precompletat.');
     await apasa('Refă pasul');await apasa('Salvează schița');

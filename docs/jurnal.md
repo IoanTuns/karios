@@ -4,6 +4,7 @@ Toate acțiunile proiectului, cele mai noi primele. O intrare = ce s-a făcut, d
 
 | Data | Acțiune | Cine | Legături |
 | --- | --- | --- | --- |
+| 2026-11-09 | F16-T44 (I129): scenariul Edge implicit trece din nou de la cap la coadă; pe drum a găsit 4 defecte reale ale aplicației, reparate în commituri separate (F16-T45 Gantt lățea pagina, F16-T46 grila Pontaj fără derulare internă din 0.88.13, F16-T47 focusul după Escape, F11-T22 precompletarea programelor normale refuzată din 0.92.31). Toate cele 11 scenarii Edge trec. | Claude | [F16](functionalitati/F16-diagnoza-si-optimizari-ui.md) |
 | 2026-11-09 | F11-T22 (0.92.91): regresie găsită de scenariul Edge implicit — din F11-T21 precompletarea din Pontaj refuza programele normale (tipul NORMAL intrase în programPlanificat). Separat programSpecial pentru refuz; test vitest nou. | Claude | [F11](functionalitati/F11-planificare.md) |
 | 2026-11-09 | F16-T47 (0.92.90): focusul după Escape pe panourile din Pontaj, găsit de scenariul Edge implicit; revine pe meniul „Mai multe” când butonul panoului e ascuns în meniul închis. | Claude | [F16](functionalitati/F16-diagnoza-si-optimizari-ui.md) |
 | 2026-11-09 | F16-T46 (0.92.89): regresie găsită de scenariul Edge implicit — din F16-T19 grila Pontajului nu mai era limitată la înălțimea ferestrei (2455 px la 1024×640). Reparată în CSS (.panou-pontaj-layout și .zona-grila-principala transmit înălțimea); 5 rânduri vizibile, fără derularea paginii. | Claude | [F16](functionalitati/F16-diagnoza-si-optimizari-ui.md) |
