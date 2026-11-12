@@ -1102,3 +1102,11 @@ Coloana **OS** din Pontaj arată orele suplimentare: pentru fiecare zi, orele lu
 
 Cu ora fixă sau la mijloc, pauza se scade din ziua în care cade (contează la împărțirea pe zile și la ZNL). Pauza poate fi cel mult jumătate din program. Programele care aveau deja pauză rămân **Nestabilit** — orele lor nu se calculează până alegeți modul.
 
+## Exportul pentru salarizare (0.92.112)
+
+Pontix predă programului de salarizare orele și zilele, nu sume de bani.
+
+**Modelele** (Setări › General › Export salarizare) descriu fișierul: CSV sau Excel, separatorul de câmpuri și cel zecimal, numărul de zecimale, orele ca zecimal (7,5) sau ore:minute (7:30), primul rând cu denumirile coloanelor și coloanele, în ordinea dorită. O coloană poate fi: marca, numele, secția, funcția, perioada, orice total din Pontaj (de exemplu OL, OS, ZNL, CO, CM) sau un text fix. La instalare există „CSV generic” și „Excel generic”; administratorul poate salva modele noi (butonul **Model nou** pornește de la o copie).
+
+**Exportul**: în **Pontaj**, **Mai multe › Export pentru salarizare**, alegeți modelul (și, dacă e cazul, doar secția filtrată) și locul fișierului. Se exportă datele salvate, câte un rând pe marcă; dacă aveți modificări nesalvate, salvați-le întâi. Valorile necalculate („—”) rămân goale, iar aplicația spune câte au fost.
+

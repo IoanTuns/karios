@@ -242,6 +242,9 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
         VerificaFolderTraduceri: async () => ({folder:'karios/traduceri',corecturi:structuredClone(stare.corecturiTraduceri||{}),rezumate:[{limba:'en',noi:0,modificate:2,revenite:0,neschimbate:5,probleme:[{cheie:'cheie.necunoscuta',motiv:'necunoscuta'}]}]}),
         ImportaFolderTraduceri: async () => { stare.corecturiTraduceri={en:2};raspuns();return {folder:'karios/traduceri',corecturi:{en:2}}; },
         StergeTraduceriLimba: async l => { delete (stare.corecturiTraduceri||{})[l];raspuns();return {folder:'karios/traduceri',corecturi:structuredClone(stare.corecturiTraduceri||{})}; },
+        ListaModeleExportSalarizare: async () => ({modele:structuredClone(stare.modeleExport||[{id:'export-csv-generic',denumire:'CSV generic',format:'CSV',separator:';',bom:true,separator_zecimal:',',zecimale:2,forma_ore:'ZECIMAL',antet:true,coloane:[{sursa:'marca',titlu:'Marca'},{sursa:'total:OL',titlu:'Ore lucrate'}],activ:true,revizie:'1'}]),surse:['marca','nume','nume_complet','total:OL','total:OS','total:CO','CONSTANTA']}),
+        SalveazaModelExportSalarizare: async m => { const lista=stare.modeleExport||[{id:'export-csv-generic',denumire:'CSV generic',format:'CSV',separator:';',bom:true,separator_zecimal:',',zecimale:2,forma_ore:'ZECIMAL',antet:true,coloane:[{sursa:'marca',titlu:'Marca'},{sursa:'total:OL',titlu:'Ore lucrate'}],activ:true,revizie:'1'}];const nou={...structuredClone(m),id:m.id||'model-'+lista.length,revizie:String(Number(m.revizie||0)+1)};stare.modeleExport=[...lista.filter(x=>x.id!==nou.id),nou];raspuns();return {modele:structuredClone(stare.modeleExport),model:nou,surse:['marca','nume','nume_complet','total:OL','total:OS','total:CO','CONSTANTA']}; },
+        ExportaSalarizare: async (id,an,luna,sectie) => { stare.exportSalarizare={id,an,luna,sectie};raspuns();return {cale:'Pontix_Salarizare.csv',randuri:3,necalculate:0}; },
         TraduceriLipsa: async l => Object.keys(cataloage[limba]).filter(k => !cataloage[l]?.[k]),
         Catalog: async l => cataloage[l], Informatii: async () => ({versiune: versiuneAplicatie, commit: 'verificare'}),
         DateInitiale: async () => raspuns(),
@@ -954,6 +957,8 @@ try {
     await completeaza('select[name="filtru_randuri"]', 'avertismente');
     await asteapta(() => evalueaza(`document.querySelectorAll('.grila-pontaj tbody tr').length === 1`), 'Filtrul pentru angajați cu avertismente nu izolează rândul.');
     await completeaza('select[name="filtru_randuri"]', 'toti');
+    // F10-T03 (D108): cu modificari nesalvate, exportul pentru salarizare asteapta salvarea.
+    assert(await evalueaza(`[...document.querySelectorAll('.lista-mai-multe button')].find(b=>b.textContent==='Export pentru salarizare')?.disabled===true`),'Exportul pentru salarizare nu cere salvarea modificărilor.');
     await completeaza('input[name="cautare_pontaj"]', 'TEST-001');
     await asteapta(() => evalueaza(`document.querySelectorAll('.grila-pontaj tbody tr').length === 1`), 'Căutarea după marcă în pontaj nu filtrează rândul.');
     await completeaza('input[name="cautare_pontaj"]', '');
@@ -1014,6 +1019,12 @@ try {
     await asteapta(()=>evalueaza(`JSON.parse(localStorage.getItem('pontix-test')).corecturiTraduceri?.en===2 && document.querySelector('.lista-corecturi')?.textContent.includes('2')`),'Importul traducerilor nu este afișat.');
     await apasa('Șterge traducerile importate');
     await asteapta(()=>evalueaza(`document.querySelector('.traduceri-folder')?.textContent.includes('Nu există traduceri importate')`),'Ștergerea traducerilor importate nu este afișată.');
+    // F10-T03 (D108): editorul modelelor de export pentru salarizare.
+    await apasa('Export salarizare');
+    await asteapta(()=>evalueaza(`document.querySelectorAll('.tabel-coloane-export tbody tr').length===2`),'Editorul modelului de export nu arată coloanele.');
+    await evalueaza(`[...document.querySelectorAll('.setari-export-salarizare button')].find(b=>b.textContent==='Adaugă coloană').click()`);
+    await evalueaza(`[...document.querySelectorAll('.setari-export-salarizare button')].find(b=>b.textContent==='Salvează').click()`);
+    await asteapta(()=>evalueaza(`JSON.parse(localStorage.getItem('pontix-test')).modeleExport?.[0]?.coloane.length===3`),'Modelul de export nu s-a salvat.');
     await apasa('Normă și structură');
     // Scenariu de categorii: date strict fictive, separat de regresiile anterioare.
     await evalueaza(`(() => {
