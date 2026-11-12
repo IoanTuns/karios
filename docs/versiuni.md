@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.104 - 2026-11-12
+
+F02-T33 (I020). Generarea legăturilor Wails nu mai pregătește folderul de date și nu mai deschide baza. Fără schimbări pentru utilizator.
+
 ## 0.92.103 - 2026-11-12
 
 F02-T31. goose 3.30.0 → 3.30.1 și interpolate 0.0.2 → 0.2.0 (noua versiune de goose o cere). Fără schimbări pentru utilizator.
