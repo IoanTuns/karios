@@ -158,6 +158,17 @@ func calculeazaPontajBaza(ctx context.Context, q *acces.Queries, an, luna int, m
 		return gol, c, err
 	}
 	libere := map[string]bool{}
+	// F04-T11 (D107): zilele libere adaugate de utilizator, pentru optiunea ZNL.
+	tipuri, err := q.TipuriSarbatori(ctx)
+	if err != nil {
+		return gol, c, err
+	}
+	c.ZileAdaugate = map[string]bool{}
+	for d, tip := range tipuri {
+		if tip == TipZiLibera {
+			c.ZileAdaugate[d] = true
+		}
+	}
 	for _, s := range sarbatori {
 		libere[s.Data] = true
 	}

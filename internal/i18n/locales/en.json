@@ -2280,5 +2280,14 @@
   "traduceri.motiv_parametri": "the parameters (texts between double braces) differ from the original",
   "traduceri.motiv_prea_lung": "text too long",
   "traduceri.nimic_de_importat": "There is nothing new to import.",
-  "traduceri.doar_admin": "Only the administrator can import or delete translations."
+  "traduceri.doar_admin": "Only the administrator can import or delete translations.",
+  "sarbatori.tip": "Type",
+  "sarbatori.tip_LEGALA": "Public holiday",
+  "sarbatori.tip_LIBERA": "Added day off",
+  "sarbatori.tip_indiciu": "An added day off (for example a bridge day) counts in ZNL only if the timesheet configuration says so.",
+  "sarbatori.tip_invalid": "The day type is not valid.",
+  "pontaj.zile_libere_znl": "Days off added to the calendar, in ZNL",
+  "pontaj.zile_libere_znl_TOATE": "Count in ZNL (like holidays)",
+  "pontaj.zile_libere_znl_LEGALE": "Do not count: ZNL only for weekends and public holidays",
+  "pontaj.zile_libere_luna_inchisa": "Month {{luna}} is closed and contains an added day off. Reopen the month first, with a reason, then change the option."
 }

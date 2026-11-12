@@ -47,6 +47,7 @@ Orele suplimentare (F04-T04) și scăderea pauzei (F04-T05) așteptau regulile d
 - **În Sărbători legale** se alege tipul pentru fiecare zi.
 - **Opțiunea din Configurare pontaj** (ZNL): **zilele libere adăugate intră în ZNL** sau **nu intră**.
   - Implicit intră, ca până acum, deci totalurile existente nu se schimbă.
+  - Ca la schimbarea orei (D102), opțiunea nu se poate schimba cât timp e închisă o lună care conține o zi liberă adăugată.
   - Weekendul și sărbătorile legale intră mereu.
 - **Programele din ZNL:** se folosește sursa existentă „Ore din programele selectate, în ZNL”, cu programele alese (de exemplu cele de tip Tură și Noapte).
   - Configurația salvată nu se schimbă automat. Utilizatorul alege o dată programele în Configurare pontaj.

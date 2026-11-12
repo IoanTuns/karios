@@ -1074,3 +1074,11 @@ Textele aplicației se pot corecta, iar o limbă nouă se poate adăuga, fără 
 
 **Șterge traducerile importate** readuce textele unei limbi la cele incluse în program. O limbă nouă se alege din fila Limbă; rapoartele rămân în română și engleză.
 
+## Zilele libere adăugate și ZNL (0.92.109)
+
+În **Sărbători legale**, fiecare zi are un **Tip**: **Sărbătoare legală** sau **Zi liberă adăugată** (de exemplu o punte acordată de unitate). Zilele existente din 2025–2027 au fost clasificate automat după calendarul legal; verificați-le o dată.
+
+În **Setări › Configurare pontaj**, opțiunea **Zilele libere adăugate în calendar, în ZNL** alege dacă orele lucrate într-o zi liberă adăugată intră în ZNL (implicit, ca până acum) sau nu (atunci intră doar weekendul și sărbătorile legale). Opțiunea nu se poate schimba cât timp e închisă o lună care conține o zi liberă adăugată.
+
+Programele care intră în ZNL se aleg tot în Configurare pontaj: pentru coloana ZNL alegeți sursa „Ore din programele selectate, în ZNL” și bifați programele (de exemplu cele de tip Tură și Noapte).
+

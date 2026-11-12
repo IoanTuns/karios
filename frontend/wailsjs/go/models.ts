@@ -417,6 +417,7 @@ export namespace calcul {
 	    conditionate?: RegulaConditionata[];
 	    atribuire: string;
 	    schimbare_ora: string;
+	    zile_libere_znl: string;
 	    reguli: RegulaColoana[];
 	    revizie: string;
 
@@ -429,6 +430,7 @@ export namespace calcul {
 	        this.conditionate = this.convertValues(source["conditionate"], RegulaConditionata);
 	        this.atribuire = source["atribuire"];
 	        this.schimbare_ora = source["schimbare_ora"];
+	        this.zile_libere_znl = source["zile_libere_znl"];
 	        this.reguli = this.convertValues(source["reguli"], RegulaColoana);
 	        this.revizie = source["revizie"];
 	    }
@@ -1167,6 +1169,7 @@ export namespace datebaza {
 	export class Sarbatoare {
 	    data: string;
 	    denumire: Record<string, string>;
+	    tip: string;
 
 	    static createFrom(source: any = {}) {
 	        return new Sarbatoare(source);
@@ -1176,6 +1179,7 @@ export namespace datebaza {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.data = source["data"];
 	        this.denumire = source["denumire"];
+	        this.tip = source["tip"];
 	    }
 	}
 	export class CalendarAn {

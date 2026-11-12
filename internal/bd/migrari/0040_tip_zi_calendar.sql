@@ -1,0 +1,60 @@
+-- F04-T11 (D107): fiecare zi din calendar are un tip: sarbatoare legala sau zi libera adaugata
+-- de utilizator (de exemplu o punte). Pentru 2025-2027, zilele care nu sunt in calendarul legal
+-- inclus in aplicatie devin „zi libera adaugata”; pentru ceilalti ani raman „sarbatoare legala”.
+-- +goose Up
+ALTER TABLE sarbatori ADD COLUMN tip TEXT NOT NULL DEFAULT 'LEGALA' CHECK (tip IN ('LEGALA', 'LIBERA'));
+UPDATE sarbatori SET tip = 'LIBERA' WHERE substr(data, 1, 4) IN ('2025', '2026', '2027') AND data NOT IN (
+    '2025-01-01',
+    '2025-01-02',
+    '2025-01-06',
+    '2025-01-07',
+    '2025-01-24',
+    '2025-04-18',
+    '2025-04-20',
+    '2025-04-21',
+    '2025-05-01',
+    '2025-06-01',
+    '2025-06-08',
+    '2025-06-09',
+    '2025-08-15',
+    '2025-11-30',
+    '2025-12-01',
+    '2025-12-25',
+    '2025-12-26',
+    '2026-01-01',
+    '2026-01-02',
+    '2026-01-06',
+    '2026-01-07',
+    '2026-01-24',
+    '2026-04-10',
+    '2026-04-12',
+    '2026-04-13',
+    '2026-05-01',
+    '2026-05-31',
+    '2026-06-01',
+    '2026-08-15',
+    '2026-11-30',
+    '2026-12-01',
+    '2026-12-25',
+    '2026-12-26',
+    '2027-01-01',
+    '2027-01-02',
+    '2027-01-06',
+    '2027-01-07',
+    '2027-01-24',
+    '2027-04-30',
+    '2027-05-01',
+    '2027-05-02',
+    '2027-05-03',
+    '2027-06-01',
+    '2027-06-20',
+    '2027-06-21',
+    '2027-08-15',
+    '2027-11-30',
+    '2027-12-01',
+    '2027-12-25',
+    '2027-12-26'
+);
+
+-- +goose Down
+ALTER TABLE sarbatori DROP COLUMN tip;

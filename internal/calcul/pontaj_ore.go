@@ -18,6 +18,11 @@ const AtribuireCalendar = "ZILE_CALENDARISTICE"
 const SchimbareOraNominala = "NOMINALA"
 const SchimbareOraEfectiva = "EFECTIVA"
 
+// Zilele libere adaugate de utilizator (punti etc.) in ZNL (F04-T11, D107): TOATE (implicit,
+// ca inainte) le numara in ZNL; LEGALE numara doar weekendul si sarbatorile legale.
+const ZileLibereZNLToate = "TOATE"
+const ZileLibereZNLLegale = "LEGALE"
+
 type RegulaColoana struct {
 	Coloana       string   `json:"coloana"`
 	Sursa         string   `json:"sursa"`
@@ -52,8 +57,12 @@ type ConfiguratiePontaj struct {
 	Garzi        map[string]bool `json:"-"`
 	Atribuire    string          `json:"atribuire"`
 	SchimbareOra string          `json:"schimbare_ora"`
-	Reguli       []RegulaColoana `json:"reguli"`
-	Revizie      string          `json:"revizie"`
+	// ZileLibereZNL: TOATE sau LEGALE (gol = TOATE). ZileAdaugate: zilele libere adaugate de
+	// utilizator in calendar, completate de adaptor din tipul zilei (D107).
+	ZileLibereZNL string          `json:"zile_libere_znl"`
+	ZileAdaugate  map[string]bool `json:"-"`
+	Reguli        []RegulaColoana `json:"reguli"`
+	Revizie       string          `json:"revizie"`
 }
 
 func ColoanePontaj() []string {
@@ -92,7 +101,7 @@ func UnitateColoana(c string) string {
 	return ""
 }
 func ConfiguratiePontajInitiala() ConfiguratiePontaj {
-	c := ConfiguratiePontaj{Atribuire: AtribuireInceput, SchimbareOra: SchimbareOraNominala, Revizie: "1", Reguli: []RegulaColoana{}}
+	c := ConfiguratiePontaj{Atribuire: AtribuireInceput, SchimbareOra: SchimbareOraNominala, ZileLibereZNL: ZileLibereZNLToate, Revizie: "1", Reguli: []RegulaColoana{}}
 	for _, cod := range ColoanePontaj() {
 		r := RegulaColoana{Coloana: cod, Sursa: "NEDEFINITA", Coduri: []string{}, FactorSutimi: 100}
 		switch cod {
@@ -131,6 +140,9 @@ func ValideazaConfiguratiePontaj(c ConfiguratiePontaj) error {
 		return gresit()
 	}
 	if c.SchimbareOra != "" && c.SchimbareOra != SchimbareOraNominala && c.SchimbareOra != SchimbareOraEfectiva {
+		return gresit()
+	}
+	if c.ZileLibereZNL != "" && c.ZileLibereZNL != ZileLibereZNLToate && c.ZileLibereZNL != ZileLibereZNLLegale {
 		return gresit()
 	}
 	if len(c.Conditionate) > 100 {
@@ -479,7 +491,9 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 				return
 			}
 			d := zi.Format(time.DateOnly)
-			if zi.Weekday() == time.Saturday || zi.Weekday() == time.Sunday || libere[d] {
+			// O zi libera adaugata de utilizator intra in ZNL doar daca optiunea o cere (D107).
+			libera := libere[d] && !(c.ZileLibereZNL == ZileLibereZNLLegale && c.ZileAdaugate[d])
+			if zi.Weekday() == time.Saturday || zi.Weekday() == time.Sunday || libera {
 				a.znl += n
 				if program {
 					a.schimburiZNL[p.Cod] += n

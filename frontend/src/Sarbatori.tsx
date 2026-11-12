@@ -83,10 +83,10 @@ export function Sarbatori() {
                 <div className="indicator"><span>{t('sarbatori.weekend')}</span><strong>{nelucratoare}</strong></div>
             </div>
             {calendar?.import_disponibil && <p className="nota-calendar">{t('sarbatori.precizare')}</p>}
-            <div className="panou tabel-derulant"><table className="tabel-sarbatori"><thead><tr><th>{t('sarbatori.data')}</th><th>{t('sarbatori.zi')}</th><th>{t('sarbatori.denumire')}</th><th>{t('ui.actiuni')}</th></tr></thead>
+            <div className="panou tabel-derulant"><table className="tabel-sarbatori"><thead><tr><th>{t('sarbatori.data')}</th><th>{t('sarbatori.zi')}</th><th>{t('sarbatori.denumire')}</th><th>{t('sarbatori.tip')}</th><th>{t('ui.actiuni')}</th></tr></thead>
                 <tbody>{zile.map(s => <tr key={s.data}><td>{formatData(i18n.language).format(new Date(`${s.data}T12:00:00Z`))}</td>
                     <td>{formatData(i18n.language, {weekday: 'long', timeZone: 'UTC'}).format(new Date(`${s.data}T12:00:00Z`))}</td>
-                    <td>{denumire(s, i18n.language)}</td><td><button className="legatura" disabled={ocupat} aria-label={t('sarbatori.editeaza_data', {data: s.data})} onClick={() => { setEroare(''); setEditare(s); }}>{t('ui.editeaza')}</button></td></tr>)}</tbody>
+                    <td>{denumire(s, i18n.language)}</td><td>{t(s.tip === 'LIBERA' ? 'sarbatori.tip_LIBERA' : 'sarbatori.tip_LEGALA')}</td><td><button className="legatura" disabled={ocupat} aria-label={t('sarbatori.editeaza_data', {data: s.data})} onClick={() => { setEroare(''); setEditare(s); }}>{t('ui.editeaza')}</button></td></tr>)}</tbody>
             </table>{zile.length === 0 && <p className="fara-rezultate">{t('sarbatori.gol')}</p>}</div>
         </>}
         {editare && <FormularSarbatoare sarbatoare={editare} exista={zile.some(s => s === editare)} ocupat={ocupat} eroare={eroare}
@@ -106,18 +106,21 @@ function FormularSarbatoare({sarbatoare, exista, ocupat, eroare, inchide, salvea
     const [data, setData] = useState(sarbatoare.data);
     const [ro, setRo] = useState(sarbatoare.denumire.ro || '');
     const [en, setEn] = useState(sarbatoare.denumire.en || '');
+    // F04-T11 (D107): sarbatoare legala sau zi libera adaugata (de ex. o punte).
+    const [tip, setTip] = useState(sarbatoare.tip === 'LIBERA' ? 'LIBERA' : 'LEGALA');
     const [validare, setValidare] = useState('');
     function inchideCuVerificare() {
-        const modificat = data !== sarbatoare.data || ro !== (sarbatoare.denumire.ro || '') || en !== (sarbatoare.denumire.en || '');
+        const modificat = data !== sarbatoare.data || ro !== (sarbatoare.denumire.ro || '') || en !== (sarbatoare.denumire.en || '') || tip !== (sarbatoare.tip === 'LIBERA' ? 'LIBERA' : 'LEGALA');
         if (!modificat || window.confirm(t('ui.renunta'))) inchide();
     }
     return <Dialog titlu={t(exista ? 'sarbatori.editeaza' : 'sarbatori.adauga')} ocupat={ocupat} inchide={inchideCuVerificare}>
         <form onSubmit={async e => { e.preventDefault(); setValidare(''); if (!ro.trim() && !en.trim()) { setValidare(t('sarbatori.denumire_obligatorie')); return; }
-            await salveaza(new datebaza.Sarbatoare({data, denumire: {...sarbatoare.denumire, ro, en}})); }}>
+            await salveaza(new datebaza.Sarbatoare({data, denumire: {...sarbatoare.denumire, ro, en}, tip})); }}>
             <div className="corp-dialog">{(validare || eroare) && <p className="mesaj eroare" role="alert">{validare || eroare}</p>}
                 <fieldset disabled={ocupat} className="campuri"><label className="latime-completa">{t('sarbatori.data')} *<input autoFocus required type="date" min="0001-01-01" max="9999-12-31" value={data} onChange={e => setData(e.target.value)}/></label>
                     <label className="latime-completa">{t('sarbatori.denumire_ro')}<input value={ro} onChange={e => setRo(e.target.value)}/></label>
-                    <label className="latime-completa">{t('sarbatori.denumire_en')}<input value={en} onChange={e => setEn(e.target.value)}/></label></fieldset>
+                    <label className="latime-completa">{t('sarbatori.denumire_en')}<input value={en} onChange={e => setEn(e.target.value)}/></label>
+                    <label className="latime-completa">{t('sarbatori.tip')}<select name="sarbatoare_tip" value={tip} onChange={e => setTip(e.target.value)}><option value="LEGALA">{t('sarbatori.tip_LEGALA')}</option><option value="LIBERA">{t('sarbatori.tip_LIBERA')}</option></select><small>{t('sarbatori.tip_indiciu')}</small></label></fieldset>
             </div><footer className="subsol-dialog"><button type="button" className="buton secundar" disabled={ocupat} onClick={inchideCuVerificare}>{t('ui.anuleaza')}</button><button className="buton primar" disabled={ocupat}>{t(ocupat ? 'ui.salvare' : 'ui.salveaza')}</button></footer>
         </form>
     </Dialog>;

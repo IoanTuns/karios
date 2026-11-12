@@ -2280,5 +2280,14 @@
   "traduceri.motiv_parametri": "parametrii (textele dintre acolade duble) diferă de original",
   "traduceri.motiv_prea_lung": "text prea lung",
   "traduceri.nimic_de_importat": "Nu există nimic nou de importat.",
-  "traduceri.doar_admin": "Doar administratorul poate importa sau șterge traduceri."
+  "traduceri.doar_admin": "Doar administratorul poate importa sau șterge traduceri.",
+  "sarbatori.tip": "Tip",
+  "sarbatori.tip_LEGALA": "Sărbătoare legală",
+  "sarbatori.tip_LIBERA": "Zi liberă adăugată",
+  "sarbatori.tip_indiciu": "O zi liberă adăugată (de exemplu o punte) intră în ZNL doar dacă Configurare pontaj o cere.",
+  "sarbatori.tip_invalid": "Tipul zilei nu este valid.",
+  "pontaj.zile_libere_znl": "Zilele libere adăugate în calendar, în ZNL",
+  "pontaj.zile_libere_znl_TOATE": "Intră în ZNL (ca sărbătorile)",
+  "pontaj.zile_libere_znl_LEGALE": "Nu intră: în ZNL doar weekendul și sărbătorile legale",
+  "pontaj.zile_libere_luna_inchisa": "Luna {{luna}} este închisă și conține o zi liberă adăugată. Redeschide întâi luna, cu motiv, apoi schimbă opțiunea."
 }

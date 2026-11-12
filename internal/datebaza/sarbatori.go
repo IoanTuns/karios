@@ -18,7 +18,15 @@ import (
 type Sarbatoare struct {
 	Data     string    `json:"data"`
 	Denumire i18n.Text `json:"denumire"`
+	// Tip: TipZiLegala (sărbătoare legală) sau TipZiLibera (zi liberă adăugată, de ex. o punte);
+	// gol = legală (F04-T11, D107).
+	Tip string `json:"tip"`
 }
+
+const (
+	TipZiLegala = "LEGALA"
+	TipZiLibera = "LIBERA"
+)
 
 type CalendarAn struct {
 	An               int          `json:"an"`
@@ -45,12 +53,16 @@ func (s *Serviciu) CitesteCalendar(ctx context.Context, an int) (CalendarAn, err
 		return CalendarAn{}, traduceEroare(err)
 	}
 	rez := CalendarAn{An: an, Sarbatori: []Sarbatoare{}, ImportDisponibil: an == 2025 || an == 2026 || an == 2027}
+	tipuri, err := acces.New(s.db).TipuriSarbatori(ctx)
+	if err != nil {
+		return CalendarAn{}, traduceEroare(err)
+	}
 	for _, r := range randuri {
 		var denumire i18n.Text
 		if err := json.Unmarshal([]byte(r.Denumire), &denumire); err != nil {
 			return CalendarAn{}, traduceEroare(err)
 		}
-		rez.Sarbatori = append(rez.Sarbatori, Sarbatoare{Data: r.Data, Denumire: denumire})
+		rez.Sarbatori = append(rez.Sarbatori, Sarbatoare{Data: r.Data, Denumire: denumire, Tip: tipuri[r.Data]})
 	}
 	return rez, nil
 }
@@ -72,6 +84,13 @@ func (s *Serviciu) SalveazaSarbatoare(ctx context.Context, initiala string, sarb
 	}
 	if len(denumire) == 0 {
 		return eroare("sarbatori.denumire_obligatorie")
+	}
+	switch sarbatoare.Tip {
+	case "":
+		sarbatoare.Tip = TipZiLegala
+	case TipZiLegala, TipZiLibera:
+	default:
+		return eroare("sarbatori.tip_invalid")
 	}
 	sarbatoare.Denumire = denumire
 	return s.modifica(ctx, func(q *acces.Queries) error {
@@ -98,6 +117,9 @@ func (s *Serviciu) SalveazaSarbatoare(ctx context.Context, initiala string, sarb
 			return eroare("sarbatori.data_duplicata")
 		}
 		if err != nil {
+			return err
+		}
+		if err := q.SeteazaTipSarbatoare(ctx, sarbatoare.Data, sarbatoare.Tip); err != nil {
 			return err
 		}
 		return jurnal(ctx, q, "sarbatori", sarbatoare.Data, veche, sarbatoare)
