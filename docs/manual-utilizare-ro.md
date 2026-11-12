@@ -1050,3 +1050,12 @@ De reținut:
 
 Alegerile se păstrează în folderul `karios`, lângă program, deci călătoresc împreună cu stickul.
 
+## Rapoarte cu o pagină nouă pentru fiecare secție (0.92.97)
+
+În **Rapoarte**, când alegeți toate secțiile, toate departamentele și toți angajații, apare bifa **O pagină nouă pentru fiecare secție**. Cu ea, fiecare secție începe pe o pagină nouă, iar angajații fără secție apar la final, la „Fără secție”.
+
+- fiecare secție are antetul și numerotarea ei („Pagina 1 din 2” se reia la fiecare secție);
+- generarea durează mai mult, pentru că raportul se face pe rând pentru fiecare secție;
+- exportul Excel conține toți angajații, pe o singură foaie;
+- opțiunea nu apare la rapoartele SQL personalizate și la fișa individuală.
+

@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.97 - 2026-11-12
+
+F09-T02 ([D104](decizii/D104-pagina-pe-sectie.md), propusă). În **Rapoarte**, bifa nouă **O pagină nouă pentru fiecare secție** generează raportul pe secții (angajații fără secție la final) și unește PDF-urile, fiecare secție începând pe pagină nouă. Versiunile rapoartelor nu se schimbă.
+
 ## 0.92.96 - 2026-11-12
 
 F10-T05. Exportul Excel al pontajului are un test cu fișier de referință (versiunea exportului 1.2.0, neschimbată): o schimbare nevăzută a conținutului nu mai trece de teste. Fără schimbări pentru utilizator.

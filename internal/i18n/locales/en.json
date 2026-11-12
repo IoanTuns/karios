@@ -186,6 +186,7 @@
   "rapoarte.elimina_imagine": "Remove image · {{zona}}",
   "rapoarte.imagini_indiciu": "Add one PNG/JPEG image per area, alongside the text. Maximum 2 MiB and 4 million pixels per image; height 5–35 mm. Images are shared across languages and repeated on every page.",
   "rapoarte.paginare_indiciu": "A report can have one or more pages. Content flows automatically; headers, footers, images and page numbering repeat on every page.",
+  "rapoarte.pagina_pe_sectie": "A new page for each section",
   "rapoarte.numar_pagini": "Pages: {{numar}}",
   "rapoarte.imagine_invalida": "Invalid image. Choose a complete PNG or JPEG file with a name of at most 200 characters.",
   "rapoarte.imagine_prea_mare": "The image exceeds 2 MiB, 4096 px per dimension or 4 million pixels. Choose a smaller image.",

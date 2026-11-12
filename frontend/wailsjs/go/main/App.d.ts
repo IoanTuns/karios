@@ -272,6 +272,8 @@ export function TrimiteRaportProblemaPeGitHub(arg1:string,arg2:string):Promise<m
 
 export function UltimaModificareCelula(arg1:string,arg2:string):Promise<main.RaspunsUltimaModificare>;
 
+export function UnesteRapoarteSectii(arg1:rapoarte.Cerere,arg2:Array<string>):Promise<main.RaspunsRaport>;
+
 export function VerificaBackup(arg1:string):Promise<main.RaspunsVerificareBackup>;
 
 export function VerificaPontajAI(arg1:ai.IntentiePlan):Promise<main.RaspunsInstrumenteAI>;

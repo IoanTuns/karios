@@ -8,7 +8,7 @@ import {FiltreProfesionale,filtruProfesionalGol,corespundeProfesional} from './F
 import {useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {semnaleazaModificari} from './modificariNesalvate';
-import {ListaModeleRapoarte, SalveazaModelRaport, PregatesteRaport, SalveazaPDFRaport, DeschidePDFPentruTiparire, SalveazaExcelRaport} from '../wailsjs/go/main/App';
+import {ListaModeleRapoarte, SalveazaModelRaport, PregatesteRaport, SalveazaPDFRaport, DeschidePDFPentruTiparire, SalveazaExcelRaport, UnesteRapoarteSectii} from '../wailsjs/go/main/App';
 import {datebaza, main, rapoarte} from '../wailsjs/go/models';
 import {Dialog, denumireDepartament, denumireSectie} from './Formulare';
 import {completeazaRaport, sablonPePagina} from './raportPdfme';
@@ -159,6 +159,9 @@ export function GenerareRapoarte({date,initial,onPerioada}: {date: datebaza.Date
     useEffect(()=>onPerioada?.({an:selectie.an,luna:selectie.luna}),[selectie.an,selectie.luna,onPerioada]);
     const [ocupat,setOcupat] = useState(false);
  const [stareCopie,setStareCopie]=useState({modificat:false,ocupat:false});
+    // F09-T02 (D104): o pagina noua pentru fiecare sectie; rezultatul unit nu se mai editeaza ca o copie.
+    const [paginaPeSectie,setPaginaPeSectie]=useState(false);
+    const [rezultatPeSectii,setRezultatPeSectii]=useState(false);
     const blocat = useRef(false);
     const [rezultat,setRezultat] = useState<main.RaspunsRaport | null>(null);
     const [url,setURL] = useState('');
@@ -166,14 +169,32 @@ export function GenerareRapoarte({date,initial,onPerioada}: {date: datebaza.Date
     const modele = (configuratie?.modele || []).filter(d => d.activ);
     const model = modele.find(d => d.id===(selectie.model || modele[0]?.id));
     const persoaneRaport=date.angajati.filter(a=>corespundeProfesional(a,filtruProfesional)&&(!selectie.sectie||a.sectie_id===selectie.sectie)&&(!selectie.departament||a.departament_id===selectie.departament));
+    // Sectiile cu angajati in raport, in ordinea din Setari; '-' (FaraSectie) pentru cei fara sectie.
+    const sectiiRaport=[...date.sectii.filter(s=>persoaneRaport.some(a=>a.sectie_id===s.id)).map(s=>s.id),...(persoaneRaport.some(a=>!a.sectie_id||!date.sectii.some(s=>s.id===a.sectie_id))?['-']:[])];
+    const pePaginiPosibil=Boolean(model)&&model?.continut.sursa!=='SQL_LIBER'&&model?.continut.sursa!=='FISA_INDIVIDUALA'&&!selectie.sectie&&!selectie.departament&&!selectie.angajat&&sectiiRaport.length>1;
+    const pePagini=paginaPeSectie&&pePaginiPosibil;
     useEffect(()=>{if(selectie.angajat&&!persoaneRaport.some(a=>a.id===selectie.angajat)){setSelectie(s=>({...s,angajat:''}));setRezultat(null);setMesaj(t('ux30.angajat_resetat'));}},[date,filtruProfesional,selectie.angajat,selectie.sectie,selectie.departament]);
 
     function seteaza<K extends keyof typeof selectie>(k: K,v: typeof selectie[K]) { setSelectie(s => ({...s,[k]:v,...(k==='sectie'?{departament:'',angajat:''}:k==='departament'?{angajat:''}:{})}));setRezultat(null);setEroare('');setMesaj(''); }
     useEffect(() => { if (!rezultat?.pdf) { setURL('');return; } const octeti=Uint8Array.from(atob(rezultat.pdf),c => c.charCodeAt(0)),nou=URL.createObjectURL(new Blob([octeti],{type:'application/pdf'}));setURL(nou);return () => URL.revokeObjectURL(nou); },[rezultat]);
     async function genereaza() {
         if (!model || blocat.current || (selectie.angajat&&!persoaneRaport.some(a=>a.id===selectie.angajat))) return;
-        blocat.current = true;setOcupat(true);setEroare('');setMesaj('');setRezultat(null);
-        try { const r=await completeazaRaport(await PregatesteRaport(new rapoarte.Cerere({model_id:model.id,revizie:model.revizie,an:selectie.an,luna:selectie.luna,sectie_id:selectie.sectie,departament_id:selectie.departament,...filtruProfesional,angajat_id:selectie.angajat,limba:selectie.limba})));if (r.eroare) setEroare(t(r.eroare.cod,r.eroare.param || {}));else setRezultat(r); }
+        blocat.current = true;setOcupat(true);setEroare('');setMesaj('');setRezultat(null);setRezultatPeSectii(false);
+        const baza={model_id:model.id,revizie:model.revizie,an:selectie.an,luna:selectie.luna,sectie_id:selectie.sectie,departament_id:selectie.departament,...filtruProfesional,angajat_id:selectie.angajat,limba:selectie.limba};
+        try {
+            if (pePagini) {
+                // Cate un PDF pe sectie, in ordinea sectiilor (cei fara sectie la final), apoi unite in Go.
+                const pdfuri:string[]=[];
+                for (const s of sectiiRaport) {
+                    const r=await completeazaRaport(await PregatesteRaport(new rapoarte.Cerere({...baza,sectie_id:s})));
+                    if (r.eroare) { setEroare(t(r.eroare.cod,r.eroare.param || {}));return; }
+                    pdfuri.push(r.pdf);
+                }
+                const r=await UnesteRapoarteSectii(new rapoarte.Cerere(baza),pdfuri);
+                if (r.eroare) setEroare(t(r.eroare.cod,r.eroare.param || {}));else { setRezultat(r);setRezultatPeSectii(true); }
+                return;
+            }
+            const r=await completeazaRaport(await PregatesteRaport(new rapoarte.Cerere(baza)));if (r.eroare) setEroare(t(r.eroare.cod,r.eroare.param || {}));else setRezultat(r); }
         catch { setEroare(t('rapoarte.eroare')); } finally { blocat.current=false;setOcupat(false); }
     }
     async function fisier(tipareste: boolean) {
@@ -192,10 +213,11 @@ export function GenerareRapoarte({date,initial,onPerioada}: {date: datebaza.Date
             <label>{t('ui.sectie')}<select name="sectie_raport" value={selectie.sectie} onChange={e => seteaza('sectie',e.target.value)}><option value="">{t('ui.toate_sectiile')}</option>{date.sectii.map(s => <option key={s.id} value={s.id}>{denumireSectie(s,i18n.language)}</option>)}</select></label>
             <label>{t('ui.departament')}<select name="departament_raport" value={selectie.departament} onChange={e => seteaza('departament',e.target.value)}><option value="">{t('ui.toate_departamentele')}</option>{(date.departamente||[]).filter(d => !selectie.sectie || d.sectie_id===selectie.sectie).map(d => <option key={d.id} value={d.id}>{denumireDepartament(d,i18n.language)}</option>)}</select></label>
             <label>{t('ui.angajat')}<select name="angajat_raport" required={ceAngajat(model)} value={selectie.angajat} onChange={e => seteaza('angajat',e.target.value)}><option value="">{t(ceAngajat(model)?'absente.alege_angajat':'absente.toti_angajatii')}</option>{persoaneRaport.map(a => <option key={a.id} value={a.id}>{numeAngajat(a)} · {a.marca}</option>)}</select></label>
+            {pePaginiPosibil && <label className="bifa"><input type="checkbox" name="pagina_pe_sectie" checked={paginaPeSectie} onChange={e => { setPaginaPeSectie(e.target.checked);setRezultat(null);setMesaj(''); }}/>{t('rapoarte.pagina_pe_sectie')}</label>}
             <button className="buton primar" disabled={!model}>{t('rapoarte.genereaza')}</button>
             <button type="button" className="buton secundar" title={!rezultat ? t('motiv.genereaza_intai') : stareCopie.modificat ? t('motiv.copie_nesalvata') : t('pontaj.export_excel_titlu')} disabled={ocupat||stareCopie.modificat||stareCopie.ocupat||!rezultat} onClick={exportaExcelPontaj}>📊 {t('pontaj.export_excel')}</button></fieldset></form>
             {!modele.length && <p className="fara-rezultate">{t('rapoarte.lista_goala')}</p>}<button className="legatura" disabled={ocupat||stareCopie.modificat||stareCopie.ocupat} onClick={() => { setRezultat(null);reincarca(); }}>{t('rapoarte.reincarca')}</button>
-            {rezultat?.document && <div className="rezultat-raport"><div className="unelte-calendar"><p role="status">{t('rapoarte.generat',{randuri:rezultat.document.randuri.length,versiune:rezultat.document.versiune_raport,revizie:rezultat.document.revizie_model})} · {t('rapoarte.numar_pagini',{numar:rezultat.pagini})}</p><div className="actiuni-calendar"><button className="buton secundar" disabled={ocupat||stareCopie.modificat||stareCopie.ocupat} onClick={() => fisier(false)}>{t('rapoarte.salveaza_pdf')}</button><button className="buton primar" disabled={ocupat||stareCopie.modificat||stareCopie.ocupat} onClick={() => fisier(true)}>{t('rapoarte.tipareste')}</button></div></div><p className="nota-calendar">{t('rapoarte.tiparire_indiciu')}</p><EditorCopieRaport key={rezultat.token} rezultat={rezultat} disabled={ocupat} onActualizat={setRezultat} onStare={(modificat,ocupat)=>setStareCopie(v=>v.modificat===modificat&&v.ocupat===ocupat?v:{modificat,ocupat})}/>{url && <iframe className="previzualizare-pdf" title={t('rapoarte.previzualizare')} src={`${url}#view=FitH`}/>}</div>}
+            {rezultat?.document && <div className="rezultat-raport"><div className="unelte-calendar"><p role="status">{t('rapoarte.generat',{randuri:rezultat.document.randuri.length,versiune:rezultat.document.versiune_raport,revizie:rezultat.document.revizie_model})} · {t('rapoarte.numar_pagini',{numar:rezultat.pagini})}</p><div className="actiuni-calendar"><button className="buton secundar" disabled={ocupat||stareCopie.modificat||stareCopie.ocupat} onClick={() => fisier(false)}>{t('rapoarte.salveaza_pdf')}</button><button className="buton primar" disabled={ocupat||stareCopie.modificat||stareCopie.ocupat} onClick={() => fisier(true)}>{t('rapoarte.tipareste')}</button></div></div><p className="nota-calendar">{t('rapoarte.tiparire_indiciu')}</p>{!rezultatPeSectii && <EditorCopieRaport key={rezultat.token} rezultat={rezultat} disabled={ocupat} onActualizat={setRezultat} onStare={(modificat,ocupat)=>setStareCopie(v=>v.modificat===modificat&&v.ocupat===ocupat?v:{modificat,ocupat})}/>}{url && <iframe className="previzualizare-pdf" title={t('rapoarte.previzualizare')} src={`${url}#view=FitH`}/>}</div>}
         </>}
     </section>;
 }

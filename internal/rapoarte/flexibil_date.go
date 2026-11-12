@@ -84,7 +84,7 @@ func incarcatBazaRaport(ctx context.Context, tx *sql.Tx, c Cerere, f *RaportFlex
 	ra := [][]any{}
 	for _, a := range oameni {
 		p := profile[a.ID]
-		if !p.corespunde(c) || (c.AngajatID != "" && a.ID != c.AngajatID) || (c.SectieID != "" && optional(a.SectieID) != c.SectieID) || (c.DepartamentID != "" && optional(a.DepartamentID) != c.DepartamentID) {
+		if !p.corespunde(c) || (c.AngajatID != "" && a.ID != c.AngajatID) || !sectieCeruta(c.SectieID, a.SectieID) || (c.DepartamentID != "" && optional(a.DepartamentID) != c.DepartamentID) {
 			continue
 		}
 		inclus[a.ID] = true
@@ -125,6 +125,9 @@ func incarcatBazaRaport(ctx context.Context, tx *sql.Tx, c Cerere, f *RaportFlex
 	}
 	if e = b.adauga(ctx, "istoric_contract", []string{"angajat_id", "de_la", "norma_zilnica", "concediu_zile_an"}, ri); e != nil {
 		return nil, e
+	}
+	if c.SectieID == FaraSectie {
+		ns[FaraSectie] = i18n.T(limba, "ui.fara_sectie", nil)
 	}
 	b.variabile = map[string]string{"sectie": ns[c.SectieID], "departament": nd[c.DepartamentID], "compartiment": nd[c.DepartamentID], "angajat": nume[c.AngajatID]}
 	if c.AngajatID != "" && !inclus[c.AngajatID] {

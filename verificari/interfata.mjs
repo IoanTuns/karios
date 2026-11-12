@@ -282,6 +282,7 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
             const d=stare.modeleRapoarte.find(d => d.id===c.model_id);
             stare.documentRaportCurent={...structuredClone(rapoarteSursa.document),titlu:d.denumire[c.limba]||d.denumire.ro,sursa:d.continut.sursa,revizie_model:d.revizie};raspuns();return {document:structuredClone(stare.documentRaportCurent),pdf:rapoarteSursa.pdf,token:stare.ultimTokenRaport,nume_fisier:'raport-demo.pdf',pagini:4,eroare:null};
         },
+        UnesteRapoarteSectii: async (c,pdfuri) => { stare.unireSectii={numar:pdfuri.length,sectie_id:c.sectie_id};stare.ultimTokenRaport=crypto.randomUUID();raspuns();return {document:structuredClone(stare.documentRaportCurent),pdf:rapoarteSursa.pdf,token:stare.ultimTokenRaport,nume_fisier:'raport-sectii.pdf',pagini:4*pdfuri.length,eroare:null}; },
         SalveazaPDFRaport: async token => { if(token!==stare.ultimTokenRaport) return {eroare:{cod:'rapoarte.expirat'}};stare.exporturiRaport=(stare.exporturiRaport||0)+1;raspuns();return {anulat:false,cale:'raport-demo.pdf',eroare:null}; },
         DeschidePDFPentruTiparire: async token => { if(token!==stare.ultimTokenRaport) return {eroare:{cod:'rapoarte.expirat'}};stare.tipaririRaport=(stare.tipaririRaport||0)+1;raspuns();return {anulat:false,cale:'raport-demo.pdf',eroare:null}; },
         IncarcaDemo: async () => { stare.angajati = structuredClone(demo.angajati); stare.sectii = structuredClone(demo.sectii); return raspuns(); },
@@ -821,6 +822,19 @@ try {
     await apasa('Deschide pentru tipărire');await asteapta(() => evalueaza(`document.querySelector('.generare-rapoarte [role="status"]')?.textContent.includes('deschis')`),'Deschiderea pentru tipărire nu este semnalată.');
     assert.equal(await evalueaza(`JSON.parse(localStorage.getItem('pontix-test')).tipaririRaport`),1,'Acțiunea de tipărire nu este apelată o singură dată.');
     const capturaRaport=await cdp('Page.captureScreenshot',{format:'png'});writeFileSync(join(capturi,'previzualizare-raport.png'),Buffer.from(capturaRaport.data,'base64'));
+    // F09-T02 (D104): cu toate secțiile, raportul se poate genera cu o pagină nouă pentru fiecare secție.
+    await completeaza('select[name="sectie_raport"]','');
+    const sectiiCuOameni=await evalueaza(`(()=>{const s=JSON.parse(localStorage.getItem('pontix-test'));const ids=new Set(s.angajati.map(a=>s.sectii.some(x=>x.id===a.sectie_id)?a.sectie_id:'-'));return ids.size;})()`);
+    assert(sectiiCuOameni>1,'Datele de test nu au angajați în mai multe secții.');
+    {
+        await asteapta(()=>evalueaza(`Boolean(document.querySelector('input[name="pagina_pe_sectie"]'))`),'Opțiunea „o pagină pe secție” lipsește.');
+        await evalueaza(`document.querySelector('input[name="pagina_pe_sectie"]').click()`);
+        await apasa('Generează și previzualizează');
+        await asteapta(()=>evalueaza(`JSON.parse(localStorage.getItem('pontix-test')).unireSectii?.numar===${sectiiCuOameni}`),'Raportul nu se generează pe secții.');
+        await asteapta(()=>evalueaza(`document.querySelector('.rezultat-raport [role="status"]')?.textContent.includes('Pagini: ${4*sectiiCuOameni}')`),'Raportul unit pe secții nu apare.');
+        assert.equal(await evalueaza(`JSON.parse(localStorage.getItem('pontix-test')).unireSectii.sectie_id`),'','Raportul unit nu păstrează cererea fără secție.');
+        await evalueaza(`document.querySelector('input[name="pagina_pe_sectie"]').click()`);
+    }
     await completeaza('select[name="luna_raport"]','11');
     assert(await evalueaza(`!document.querySelector('iframe.previzualizare-pdf')`),'Schimbarea perioadei păstrează PDF-ul vechi ca și când ar fi nou.');
     await completeaza('select[name="model_raport"]','raport-fisa');

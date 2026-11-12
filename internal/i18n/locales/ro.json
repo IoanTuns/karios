@@ -186,6 +186,7 @@
   "rapoarte.elimina_imagine": "Elimină imaginea · {{zona}}",
   "rapoarte.imagini_indiciu": "Poți adăuga câte o imagine PNG/JPEG în fiecare zonă, împreună cu textul. Maximum 2 MiB și 4 milioane de pixeli per imagine; înălțime 5–35 mm. Imaginile sunt comune limbilor și se repetă pe fiecare pagină.",
   "rapoarte.paginare_indiciu": "Raportul poate avea una sau mai multe pagini. Conținutul continuă automat; antetul, subsolul, imaginile și numerotarea se repetă pe pagini.",
+  "rapoarte.pagina_pe_sectie": "O pagină nouă pentru fiecare secție",
   "rapoarte.numar_pagini": "Pagini: {{numar}}",
   "rapoarte.imagine_invalida": "Imaginea nu este validă. Alege un fișier PNG sau JPEG complet, cu un nume de cel mult 200 de caractere.",
   "rapoarte.imagine_prea_mare": "Imaginea depășește limita de 2 MiB, 4096 px pe axă sau 4 milioane de pixeli. Alege o imagine mai mică.",
