@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.103 - 2026-11-12
+
+F02-T31. goose 3.30.0 → 3.30.1 și interpolate 0.0.2 → 0.2.0 (noua versiune de goose o cere). Fără schimbări pentru utilizator.
+
 ## 0.92.102 - 2026-11-12
 
 F02-T30. `frontend/wailsjs/go/models.ts` în forma lăsată de `build.ps1` (fără spații la sfârșit de rând), ca build-ul să nu mai modifice fișiere urmărite. Fără schimbări pentru utilizator.
