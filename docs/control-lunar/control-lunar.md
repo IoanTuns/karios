@@ -1,6 +1,6 @@
 # Control lunar Pontix - procedura si fise de verificare
 
-Editia 1.0 - 31 octombrie 2026. F02-T23. Procedura propusa, de adaptat si aprobat de organizatie.
+Editia 1.1 - 12 noiembrie 2026, revizuita fata de Pontix 0.92.97 (editia 1.0: 31 octombrie 2026). F02-T23. Procedura propusa, de adaptat si aprobat de organizatie.
 
 Procedura propusa pentru operator si responsabilul de pontaj. Nu introduce reguli de salarizare, praguri sau blocari automate si nu inlocuieste validarile contabilitatii. Nu toate verificarile sunt automatizate in aplicatie.
 
@@ -23,13 +23,15 @@ Perioada: __________  Operator: __________  Data: __________  Versiune aplicatie
 | 1.07 | Programe de lucru | Codurile, intervalele, duratele și pauzele sunt verificate. | | |
 | 1.08 | Schimbări de program | Persoanele și datele de aplicare sunt cunoscute. | | |
 | 1.09 | Calendar | Weekendurile, sărbătorile și zilele libere configurate sunt corecte. | | |
-| 1.10 | Ture peste miezul nopții | Modul de atribuire a orelor este cel aprobat de organizație. | | |
+| 1.10 | Ture peste miezul nopții | Modul de atribuire a orelor și opțiunea pentru nopțile cu schimbarea orei (Setări › Configurare pontaj) sunt cele aprobate de organizație. | | |
 | 1.11 | Planificare | Perioada necesară este pregătită și verificată. | | |
 | 1.12 | Absențe cunoscute | Cererile aprobate sunt înregistrate, inclusiv cele începute în luna precedentă. | | |
 | 1.13 | Înlocuitori | Persoanele și intervalele sunt înregistrate unde este necesar, fără suprapuneri evidente. | | |
 | 1.14 | Reguli de calcul | Sunt folosite numai regulile confirmate; regulile lipsă sunt identificate. | | |
 | 1.15 | Modele de raport | Modelele și limba corespund procedurii organizației. | | |
 | 1.16 | Înainte de precompletare | Perioada, persoanele, programul, suprascrierea și previzualizarea sunt verificate. | | |
+| 1.17 | Istoricul normei și al concediului | Schimbările de normă zilnică sau de drept la concediu sunt adăugate în fișa angajatului, cu data de la care se aplică, nu prin modificarea valorilor din fișă. | | |
+| 1.18 | Gărzi | Mărcile de gardă sunt asociate angajatului principal corect, iar programele de gardă au durata corectă. | | |
 
 Neconformitati / masuri / responsabil / termen: __________________________________________
 
@@ -46,7 +48,7 @@ Perioada: __________  Operator: __________  Data: __________  Versiune aplicatie
 | 2.01 | Modificări nesalvate | Se salvează sau se abandonează explicit înainte de schimbarea contextului. | | |
 | 2.02 | Date introduse | Persoana, ziua și programul corespund documentului sursă. | | |
 | 2.03 | Celule goale | Sunt explicate; o celulă goală nu este declarată automat absență. | | |
-| 2.04 | Programe speciale | Apar pe persoanele și zilele corecte. | | |
+| 2.04 | Programe speciale | Apar pe persoanele și zilele corecte; culorile corespund legendei programelor. | | |
 | 2.05 | Planificat și realizat | Diferențele Pontaj–Planificare sunt revizuite și cele intenționate explicate. | | |
 | 2.06 | Sincronizare după salvare | Modificările care trebuie sincronizate apar în ambele ecrane. | | |
 | 2.07 | Concedii și absențe | Tipul, intervalul și starea cererii sunt corecte. | | |
@@ -90,10 +92,12 @@ Perioada: __________  Operator: __________  Data: __________  Versiune aplicatie
 | 3.15 | Totaluri individuale | Corespund înregistrărilor zilnice. | | |
 | 3.16 | Totaluri pe echipă | Corespund sumelor individuale și domeniului raportului. | | |
 | 3.17 | Pontaj, PDF și Excel | Aceleași date produc valori consecvente în toate ieșirile. | | |
-| 3.18 | Aspectul rapoartelor | Numele, perioada, coloanele, paginarea și semnăturile sunt corecte. | | |
-| 3.19 | Export pentru salarizare — contabilitate | Formatul și conținutul sunt confirmate de contabilitate. | | |
+| 3.18 | Aspectul rapoartelor | Numele, perioada, coloanele, paginarea și semnăturile sunt corecte; unde se cere, fiecare secție începe pe pagină nouă. | | |
+| 3.19 | Export pentru salarizare — contabilitate | Conține doar ore și zile (Pontix nu calculează salarii); formatul și conținutul sunt confirmate de contabilitate. | | |
 | 3.20 | Confirmare finală | Responsabilul confirmă rezultatul înainte de închidere. | | |
 | 3.21 | Backup înainte de închidere | Copia este creată, verificată și identificabilă. | | |
+| 3.22 | Nopțile cu schimbarea orei | În martie și octombrie, turele de noapte din ultima duminică au orele potrivit opțiunii alese: durata din program sau orele efective. | | |
+| 3.23 | CVE, FMP și celelalte absențe | Fiecare tip de absență cu coloană proprie apare în coloana lui, iar CVE numără doar celelalte tipuri. | | |
 
 Neconformitati / masuri / responsabil / termen: __________________________________________
 
@@ -128,7 +132,7 @@ Perioada: __________  Operator: __________  Data: __________  Versiune aplicatie
 | --- | --- | --- | --- | --- |
 | 5.01 | Motiv și autorizare | Responsabilul aprobă corectura. | | |
 | 5.02 | Backup | Starea de dinaintea corecturii este păstrată. | | |
-| 5.03 | Redeschidere | Este explicită și are motiv. | | |
+| 5.03 | Redeschidere | Este explicită și are motiv; tot prin redeschidere se fac și schimbările de normă sau de concediu și schimbarea opțiunii pentru schimbarea orei care ating luna. | | |
 | 5.04 | Domeniul corecturii | Sunt modificate numai persoanele și zilele vizate. | | |
 | 5.05 | Revalidare | Se reiau verificările afectate, inclusiv sincronizarea și totalurile. | | |
 | 5.06 | Documente revizuite | Rapoartele și exporturile sunt regenerate și identificate ca revizuite. | | |
@@ -158,6 +162,7 @@ Perioada: __________  Operator: __________  Data: __________  Versiune aplicatie
 | 6.09 | După actualizare | Accesul, angajații, ultima lună, planificarea și rapoartele sunt verificate. | | |
 | 6.10 | Identitatea livrării | Versiunea executabilului, manualului și pachetului corespunde. | | |
 | 6.11 | Raportarea problemelor | Raportul este verificat și curățat de date personale înainte de trimitere. | | |
+| 6.12 | Limba | Limba interfeței și limba implicită a rapoartelor sunt cele stabilite (Setări › General › Limbă). | | |
 
 Neconformitati / masuri / responsabil / termen: __________________________________________
 
