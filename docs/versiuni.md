@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.96 - 2026-11-12
+
+F10-T05. Exportul Excel al pontajului are un test cu fișier de referință (versiunea exportului 1.2.0, neschimbată): o schimbare nevăzută a conținutului nu mai trece de teste. Fără schimbări pentru utilizator.
+
 ## 0.92.95 - 2026-11-12
 
 F03-T05, F03-T08 ([D103](decizii/D103-limba-retinuta-local.md), propusă). Limba interfeței se păstrează la următoarea pornire. În **Setări › General**, fila nouă **Limbă** alege limba interfeței și limba implicită a rapoartelor („La fel ca interfața”, română, engleză) și arată textele netraduse din fiecare limbă. Alegerile stau în `karios/webview`, ca tema.
