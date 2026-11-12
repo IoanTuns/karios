@@ -10,6 +10,7 @@ Fiecare tură introdusă se împarte automat pe categorii de tarif, corect și �
 
 - [D003](../decizii/D003-motor-calcul.md) — principiile motorului
 - [D002](../decizii/D002-portabilitate.md) — fusul orar inclus în `.exe`
+- [D102](../decizii/D102-schimbarea-orei-configurabila.md) — turele din nopțile cu schimbarea orei, opțiune în setări (propusă)
 
 ## Taskuri
 
@@ -23,4 +24,4 @@ Fiecare tură introdusă se împarte automat pe categorii de tarif, corect și �
 | F04-T05 | Scăderea pauzei din segmentele turei | blocat | | Așteaptă F01-T02 |
 | F04-T06 | Reguli versionate în timp, inclusiv procentele | anulat | | Procentul stă acum în `categorii_ore`, care nu e versionat Anulat 2026-11-09: procentele nu se calculeaza ([D100](../decizii/D100-fara-calcul-salarii.md)); versionarea normelor ramane in I010. |
 | F04-T07 | Testele de referință din luna reală primită de la contabilitate | blocat | | Așteaptă F01-T02 |
-| F04-T08 | Ora ambiguă (03:00–04:00 în noaptea în care ora se dă înapoi) la introducere | blocat | Se rezolva in interfata; motorul primeste momente exacte. Analiza 2026-11-09 (Claude): aplicatia nu are campuri pentru ora exacta; orele vin din programe cu durata nominala, fara ajustare la schimbarea orei (ghid-configurare-pontaj.md). Ramane o regula de ore, nu o problema de introducere: intrebarea e la F01 („Schimbarea orei”). Blocat pana la raspuns. |
+| F04-T08 | Schimbarea orei: durata turelor de noapte în nopțile de trecere la ora de vară/iarnă, configurabilă | gata | Claude | Analiza 2026-11-09: aplicația nu are câmpuri pentru ora exactă; orele vin din programe cu durată nominală, deci rămânea o regulă de ore. 2026-11-12, la cererea lui Ioan Tuns: opțiunea **Turele din nopțile cu schimbarea orei** în Setări › Configurare pontaj (implicit durata din program; „Orele efective” dă 13 h în octombrie și 11 h în martie pentru 19–07), refuzată cât timp e închisă o lună martie/octombrie. [D102](../decizii/D102-schimbarea-orei-configurabila.md) (propusă), 0.92.93, ramura F04-T08-schimbarea-orei. Teste: calcul (5: nopțile din oct./mar. în ambele repartizări, ZNL, ore lipsă/repetate, lunile cu schimbare, validare), datebaza (1), legenda rapoartelor (1), Edge (scenariul implicit). Rapoarte: Pontaj 23, Pontaj detaliat 26, Fișa individuală 23, flexibile 21. Neverificat pe date reale. |

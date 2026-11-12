@@ -9,7 +9,7 @@
 
 În ambele moduri, ZNL clasifică fragmentele efective 00–24 din weekenduri și zilele libere din calendar. Ore norm clasifică luni–vineri fără acele zile. Exemplul de vineri are T=9, ZNL=7 și Ore norm=2. Adaugă zilele libere personalizate și sărbătorile anului următor în **Sărbători legale** când o tură trece peste 31 decembrie.
 
-Duratele sunt nominale, conform programelor. Nu se ajustează automat schimbarea orei și nu se poziționează pauze. Un program cu pauză nenulă rămâne necalculabil până la stabilirea repartizării pauzei. Un program fără oră de început poate furniza numai totalul în modul zilei de început.
+Duratele sunt nominale, conform programelor. În nopțile cu schimbarea orei, opțiunea **Turele din nopțile cu schimbarea orei** alege între durata din program (implicit) și orele efective: o tură 19–07 are atunci 13 ore în octombrie și 11 ore în martie ([D102](decizii/D102-schimbarea-orei-configurabila.md)). Nu se poziționează pauze. Un program cu pauză nenulă rămâne necalculabil până la stabilirea repartizării pauzei. Un program fără oră de început poate furniza numai totalul în modul zilei de început.
 
 ## Coloane finale
 

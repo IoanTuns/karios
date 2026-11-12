@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"strconv"
 
 	"pontix/internal/bd/acces"
@@ -28,6 +29,9 @@ func citesteConfiguratiePontaj(ctx context.Context, q *acces.Queries) (calcul.Co
 		return c, err
 	}
 	c.Revizie = strconv.FormatInt(r.Revizie, 10)
+	if c.SchimbareOra == "" {
+		c.SchimbareOra = calcul.SchimbareOraNominala
+	}
 	optiuni, err := optiuniReguli(ctx, q)
 	if err != nil {
 		return c, err
@@ -185,11 +189,20 @@ func (s *Serviciu) SalveazaConfiguratiePontaj(ctx context.Context, c calcul.Conf
 		if err := ValideazaCoduriReguli(ctx, q, c); err != nil {
 			return err
 		}
+		if c.SchimbareOra == "" {
+			c.SchimbareOra = calcul.SchimbareOraNominala
+		}
+		if c.SchimbareOra != vechi.SchimbareOra {
+			if err := verificaSchimbareOraModificabila(ctx, tx); err != nil {
+				return err
+			}
+		}
 		date, err := json.Marshal(struct {
 			Atribuire    string                      `json:"atribuire"`
+			SchimbareOra string                      `json:"schimbare_ora"`
 			Reguli       []calcul.RegulaColoana      `json:"reguli"`
 			Conditionate []calcul.RegulaConditionata `json:"conditionate,omitempty"`
-		}{c.Atribuire, c.Reguli, c.Conditionate})
+		}{c.Atribuire, c.SchimbareOra, c.Reguli, c.Conditionate})
 		if err != nil {
 			return err
 		}
@@ -203,6 +216,27 @@ func (s *Serviciu) SalveazaConfiguratiePontaj(ctx context.Context, c calcul.Conf
 		c.Revizie = strconv.FormatInt(noua, 10)
 		return jurnal(ctx, q, "configuratie_pontaj", "1", vechi, c)
 	})
+}
+
+// verificaSchimbareOraModificabila (F04-T08, D102): optiunea de schimbare a orei rescrie orele
+// din noptile de trecere la ora de vara/iarna. Se refuza daca o luna care contine o astfel de
+// noapte e inchisa; luna se redeschide intai, cu motiv, ca la istoricul contractului (D101).
+func verificaSchimbareOraModificabila(ctx context.Context, tx *sql.Tx) error {
+	rows, err := tx.QueryContext(ctx, `SELECT an,luna FROM stare_luni WHERE stare<>'DESCHISA' ORDER BY an,luna`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var an, luna int
+		if err := rows.Scan(&an, &luna); err != nil {
+			return err
+		}
+		if calcul.LunaCuSchimbareOra(an, luna) {
+			return &calcul.Eroare{Cod: "pontaj.schimbare_ora_luna_inchisa", Param: map[string]string{"luna": fmt.Sprintf("%02d.%04d", luna, an)}}
+		}
+	}
+	return rows.Err()
 }
 
 // completeazaTipuriNoi (F08-T15): o configuratie salvata inainte sa existe un tip de absenta

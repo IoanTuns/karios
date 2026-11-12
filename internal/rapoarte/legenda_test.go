@@ -63,3 +63,21 @@ func TestDetaliatFaraOreNormaCuLegendaPDFExcel(t *testing.T) {
 		}
 	}
 }
+
+// F04-T08 (D102): randul despre schimbarea orei apare doar cu orele efective si nu la graficul de garzi.
+func TestLegendaSchimbareOra(t *testing.T) {
+	c := calcul.ConfiguratiePontajInitiala()
+	d := Document{Sursa: "PONTAJ", Coloane: []Coloana{{Cod: "marca", Titlu: "Marca"}, {Cod: "2026-10-01", Titlu: "1"}}}
+	cheie := i18n.T(i18n.Romana, "rapoarte.legenda_schimbare_ora_efectiva", nil)
+	if strings.Contains(strings.Join(legendaColoane(d, c, i18n.Romana), " "), cheie) {
+		t.Fatal("rand cu durata din program")
+	}
+	c.SchimbareOra = calcul.SchimbareOraEfectiva
+	if !strings.Contains(strings.Join(legendaColoane(d, c, i18n.Romana), " "), cheie) {
+		t.Fatal("lipseste randul cu orele efective")
+	}
+	d.Sursa = "GRAFIC_GARZI"
+	if strings.Contains(strings.Join(legendaColoane(d, c, i18n.Romana), " "), cheie) {
+		t.Fatal("rand la garzi")
+	}
+}

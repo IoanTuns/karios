@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.93 - 2026-11-12
+
+F04-T08 ([D102](decizii/D102-schimbarea-orei-configurabila.md), propusă). În **Setări › Configurare pontaj**, opțiunea nouă **Turele din nopțile cu schimbarea orei** alege între durata din program (implicit, ca până acum) și orele efective: o tură 19–07 are atunci 13 ore în noaptea din octombrie și 11 ore în cea din martie. Opțiunea nu se poate schimba cât timp e închisă o lună cu schimbarea orei. Cu orele efective, legenda rapoartelor o spune. Rapoarte cu versiune nouă: Pontaj 23, Pontaj detaliat 26, Fișa individuală 23, rapoartele flexibile 21 (conținut neschimbat cu opțiunea implicită).
+
 ## 0.92.92 - 2026-11-09
 
 F07-T43 (I010, D101). În fișa angajatului, secțiunea **Istoric normă și concediu** păstrează schimbările normei zilnice și ale dreptului la concediu, cu data de la care sunt valabile. Norma se aplică pe zile (Ore lucrătoare, L FIN, precompletare), dreptul la concediu se calculează proporțional pe an, iar lunile închise nu se pot modifica. Migrarea 0037. Rapoarte cu versiune nouă: Pontaj detaliat 25, Fișa individuală 22, rapoartele flexibile 20 (tabelul istoric_contract în SQL).

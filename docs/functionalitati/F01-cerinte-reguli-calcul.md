@@ -138,3 +138,5 @@ O tură de noapte nominală de 12 ore (de exemplu 19–07) cade în noaptea în 
 
 Acum Pontix numără durata nominală (12 ore) în ambele nopți. Întrebarea pentru Ioan Tuns: rămâne durata nominală sau se numără orele efective (13, respectiv 11)? Fără răspuns, comportamentul actual rămâne neschimbat.
 
+Răspuns 2026-11-12 (Ioan Tuns): alegerea devine o opțiune în setări, implicit durata din program; fiecare unitate alege, eventual cu contabilitatea ([D102](../decizii/D102-schimbarea-orei-configurabila.md), F04-T08, 0.92.93).
+

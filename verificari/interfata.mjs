@@ -729,11 +729,15 @@ try {
     await asteapta(()=>evalueaza(`document.querySelectorAll('.reguli-pontaj tbody tr').length===JSON.parse(localStorage.getItem('pontix-test')).reguliPontaj.reguli.length`),'Regulile configurate nu apar.');
     assert.equal(await evalueaza(`document.querySelector('select[name="sursa_ore_garda"]').value`),'NEDEFINITA','Garda are o regulă inventată.');
     await completeaza('select[name="atribuire"]','ZILE_CALENDARISTICE');
+    // F04-T08 (D102): implicit durata din program; alegerea orelor efective se salveaza.
+    assert.equal(await evalueaza(`document.querySelector('select[name="schimbare_ora"]').value`),'NOMINALA','Schimbarea orei nu pornește de la durata din program.');
+    await completeaza('select[name="schimbare_ora"]','EFECTIVA');
     await completeaza('select[name="sursa_ore_garda"]','ORE_SCHIMBURI');
     // F05-T23: selectia codurilor se face doar prin butoane (fara lista multipla dublata).
     await evalueaza(`[...document.querySelectorAll('.optiuni-rapide-regula button')].find(b=>b.closest('tr').querySelector('select[name="sursa_ore_garda"]')&&b.textContent==='G24').click()`);
     await completeaza('input[name="factor_ore_garda"]','2');await apasa('Salvează');
     await asteapta(()=>evalueaza(`JSON.parse(localStorage.getItem('pontix-test')).reguliPontaj.revizie==='2'`),'Regulile nu s-au salvat.');
+    assert.equal(await evalueaza(`JSON.parse(localStorage.getItem('pontix-test')).reguliPontaj.schimbare_ora`),'EFECTIVA','Opțiunea pentru schimbarea orei nu s-a salvat.');
     await completeaza('select[name="atribuire"]','ZI_INCEPUT');
     await evalueaza(`window.confirm=()=>false`);await apasa('Angajați'); await ramaiPePagina();
     assert.equal(await evalueaza(`document.querySelector('h1').textContent`),'Configurare pontaj','Configurația nesalvată a fost pierdută.');

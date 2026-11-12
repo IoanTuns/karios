@@ -215,7 +215,7 @@ O planificare divergentă, modificată separat, nu este suprascrisă. Absențele
 
 Pentru o tură 22:00–07:00, configurația poate afișa toate cele 9 ore în ziua începerii sau le poate împărți 2 ore și 7 ore pe zile calendaristice. Orele dintr-o celulă pot proveni din tura începută în ziua precedentă; modifică înregistrarea de la data începerii turei.
 
-Duratele sunt nominale. Nu presupune ajustarea automată pentru schimbarea orei ori pentru poziționarea pauzelor. O coloană numită „Ore gardă 200%” nu aplică automat un factor de plată. Procentele, indemnizațiile și interpretările salariale trebuie să provină din configurația validată de contabilitate.
+Duratele sunt nominale. Pentru nopțile cu schimbarea orei, vezi opțiunea de mai jos. Pauzele nu se poziționează automat. O coloană numită „Ore gardă 200%” nu aplică automat un factor de plată. Procentele, indemnizațiile și interpretările salariale trebuie să provină din configurația validată de contabilitate.
 
 ## 10. Rapoarte, Excel și tipărire
 
@@ -1021,4 +1021,22 @@ Cum se aplică:
 - o schimbare nu poate începe într-o lună închisă sau înaintea ei; redeschideți întâi luna, cu motiv.
 
 În rapoartele SQL, tabelul `istoric_contract` conține schimbările, iar `angajati.concediu_zile_an` este dreptul pe anul raportului.
+
+## Turele din nopțile cu schimbarea orei (0.92.93)
+
+De două ori pe an ora se schimbă: în ultima duminică din octombrie, ora 04:00 devine 03:00, iar în ultima duminică din martie, ora 03:00 devine 04:00. O tură de noapte 19–07 durează atunci efectiv 13 ore, respectiv 11 ore.
+
+În **Setări › Configurare pontaj**, la **Turele din nopțile cu schimbarea orei**, alegeți:
+
+- **Durata din program** (implicit): tura are mereu durata din program, de exemplu 12 ore;
+- **Orele efective**: tura se numără de la ora de început până la ora de sfârșit de pe ceas, adică 13 ore în octombrie și 11 ore în martie.
+
+Apoi apăsați **Salvează**. Alegerea ține de regulile unității; dacă nu sunteți siguri, întrebați contabilitatea.
+
+De reținut:
+
+- se schimbă doar turele din programe cu oră de început; orele scrise de mână, absențele și norma rămân la fel;
+- cu împărțirea pe zile calendaristice, tura se împarte la miezul nopții, ora României (de exemplu 5 ore sâmbătă și 8 ore duminică în octombrie);
+- opțiunea nu se poate schimba cât timp o lună cu schimbarea orei (martie sau octombrie) este închisă; redeschideți întâi luna, cu motiv;
+- cu **Orele efective**, legenda rapoartelor de pontaj spune cum au fost numărate aceste nopți.
 
