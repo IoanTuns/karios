@@ -4,6 +4,26 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.107 - 2026-11-12
+
+F04-T10 (I131, D105). Tabelele de tarif nefolosite (`categorii_ore`, `seturi_reguli`, `reguli_interval`) și codul lor au fost șterse; migrarea 0038. Fără schimbări pentru utilizator.
+
+## 0.92.106 - 2026-11-12
+
+F10-T07 (I132). În exportul Excel al pontajului, coloana de gardă are antetul „Ore gardă 200%”, ca în aplicație (înainte „Ore Noapte / Gardă” și „Ore Gărzi”). Versiunea exportului 1.4.0.
+
+## 0.92.105 - 2026-11-12
+
+F08-T17 (I066). Salvarea pontajului scrie celulele și jurnalul în loturi: o lună întreagă pentru 300 de angajați se salvează în circa 1,5 s în loc de 2,5–3 s. Auditul și jurnalul pe celulă rămân la fel.
+
+## 0.92.104 - 2026-11-12
+
+F02-T33 (I020). Generarea legăturilor Wails nu mai pregătește folderul de date și nu mai deschide baza. Fără schimbări pentru utilizator.
+
+## 0.92.103 - 2026-11-12
+
+F02-T31. goose 3.30.0 → 3.30.1 și interpolate 0.0.2 → 0.2.0 (noua versiune de goose o cere). Fără schimbări pentru utilizator.
+
 ## 0.92.102 - 2026-11-12
 
 F02-T30. `frontend/wailsjs/go/models.ts` în forma lăsată de `build.ps1` (fără spații la sfârșit de rând), ca build-ul să nu mai modifice fișiere urmărite. Fără schimbări pentru utilizator.

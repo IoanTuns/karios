@@ -3,6 +3,7 @@ package datebaza
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
@@ -169,6 +170,7 @@ func (s *Serviciu) salveazaSchita(ctx context.Context, an, luna int, celule []Ce
 			programe map[string]bool
 		}
 		categoriiCitite := map[string]permisiuni{}
+		lot := make([]scriereCiorna, 0, len(celule))
 		surseSet, err := sursePentruPlanificare(ctx, q, deLa, panaLa)
 		if err != nil {
 			return err
@@ -239,22 +241,94 @@ func (s *Serviciu) salveazaSchita(ctx context.Context, an, luna int, celule []Ce
 					}
 				}
 			}
-			revizie, err := q.SalveazaCiorna(ctx, acces.SalveazaCiornaParams{AngajatID: c.AngajatID, Data: c.Data, Valoare: c.Valoare, ModificatLa: moment()})
-			if err != nil {
-				return err
-			}
-			c.Revizie = strconv.FormatInt(revizie, 10)
+			// Revizia noua e cea a upsert-ului: 1 la inserare (DEFAULT), veche+1 la actualizare.
+			revizie := int64(1)
 			var inainte any
 			if exista {
-				inainte = veche
+				revizie, inainte = veche.Revizie+1, veche
 			}
-			if err := jurnal(ctx, q, "pontaj_ciorne", c.AngajatID+"/"+c.Data, inainte, c); err != nil {
-				return err
-			}
+			c.Revizie = strconv.FormatInt(revizie, 10)
+			lot = append(lot, scriereCiorna{celula: c, inainte: inainte})
+		}
+		if err := scrieCiorneLot(ctx, tx, q, lot); err != nil {
+			return err
 		}
 		if cuPlanificare {
 			return sincronizeazaPontajPlan(ctx, q, deLa, panaLa, modificariPlan)
 		}
 		return nil
 	})
+}
+
+// scriereCiorna: o celula de scris si valoarea ei de dinainte, pentru jurnal.
+type scriereCiorna struct {
+	celula  CelulaSchita
+	inainte any
+}
+
+// marimeLotCiorne: celule pe instructiune (4 parametri pe celula, mult sub limita SQLite).
+const marimeLotCiorne = 200
+
+// scrieCiorneLot scrie celulele si randurile lor de jurnal in loturi (I066, F08-T17): acelasi
+// upsert si aceleasi randuri de jurnal ca pe celula, dar cu o instructiune la 200 de celule.
+// Trigger-ele auditului (D044) raman pe rand, deci sigiliile nu se schimba. In simulare
+// (previzualizarea efectelor), jurnalul colecteaza efectele pe celula, ca inainte.
+func scrieCiorneLot(ctx context.Context, tx *sql.Tx, q *acces.Queries, lot []scriereCiorna) error {
+	acum := moment()
+	for start := 0; start < len(lot); start += marimeLotCiorne {
+		parte := lot[start:min(start+marimeLotCiorne, len(lot))]
+		var b strings.Builder
+		arg := make([]any, 0, 4*len(parte))
+		b.WriteString("INSERT INTO pontaj_ciorne (angajat_id, data, valoare, modificat_la) VALUES ")
+		for i, x := range parte {
+			if i > 0 {
+				b.WriteString(",")
+			}
+			b.WriteString("(?,?,?,?)")
+			arg = append(arg, x.celula.AngajatID, x.celula.Data, x.celula.Valoare, acum)
+		}
+		b.WriteString(" ON CONFLICT (angajat_id, data) DO UPDATE SET valoare = excluded.valoare, modificat_la = excluded.modificat_la, revizie = pontaj_ciorne.revizie + 1")
+		if _, err := tx.ExecContext(ctx, b.String(), arg...); err != nil {
+			return err
+		}
+	}
+	if _, simulare := ctx.Value(cheieSimulareAbsente{}).(*[]EfectAbsenta); simulare {
+		for _, x := range lot {
+			if err := jurnal(ctx, q, "pontaj_ciorne", x.celula.AngajatID+"/"+x.celula.Data, x.inainte, x.celula); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+	cine := Actor(ctx)
+	for start := 0; start < len(lot); start += marimeLotCiorne {
+		parte := lot[start:min(start+marimeLotCiorne, len(lot))]
+		var b strings.Builder
+		arg := make([]any, 0, 6*len(parte))
+		b.WriteString("INSERT INTO jurnal_modificari (tabel, rand_id, valoare_veche, valoare_noua, cand, cine) VALUES ")
+		for i, x := range parte {
+			if i > 0 {
+				b.WriteString(",")
+			}
+			b.WriteString("(?,?,?,?,?,?)")
+			var inainte *string
+			if x.inainte != nil {
+				text, err := json.Marshal(x.inainte)
+				if err != nil {
+					return err
+				}
+				v := string(text)
+				inainte = &v
+			}
+			text, err := json.Marshal(x.celula)
+			if err != nil {
+				return err
+			}
+			arg = append(arg, "pontaj_ciorne", x.celula.AngajatID+"/"+x.celula.Data, inainte, string(text), acum, cine)
+		}
+		if _, err := tx.ExecContext(ctx, b.String(), arg...); err != nil {
+			return err
+		}
+	}
+	return nil
 }

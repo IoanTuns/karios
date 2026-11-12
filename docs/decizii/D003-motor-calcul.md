@@ -2,6 +2,8 @@
 
 Stare: acceptată · Data: 2026-10-24 · Taskuri: F04-T01, F04-T02, F04-T03
 
+> Partea despre intervalele și categoriile de tarif (`Segmenteaza`, `SetReguli`, tabelele `categorii_ore`, `seturi_reguli`, `reguli_interval`) a fost înlocuită de [D105](D105-stergere-tarife.md) (2026-11-12): nu era folosită și a fost ștearsă. Principiile despre momente, fusul orar și tipul zilei rămân.
+
 ## Context
 
 Orele lucrate trebuie împărțite pe categorii de tarif (zi, noapte, weekend, sărbătoare) corect și în cazurile grele: ture peste miezul nopții, gărzi de 24 h, sărbători, schimbarea orei.

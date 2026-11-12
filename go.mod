@@ -8,7 +8,7 @@ require (
 	github.com/ncruces/go-sqlite3 v0.37.0
 	github.com/pdfcpu/pdfcpu v0.16.4
 	github.com/phpdave11/gofpdf v1.4.3
-	github.com/pressly/goose/v3 v3.30.0
+	github.com/pressly/goose/v3 v3.30.1
 	github.com/wailsapp/wails/v2 v2.17.1
 	github.com/xuri/excelize/v2 v2.11.1
 	golang.org/x/crypto v0.59.0
@@ -37,7 +37,7 @@ require (
 	github.com/mattn/go-colorable v0.1.16 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/mattn/go-runewidth v0.0.31 // indirect
-	github.com/mfridman/interpolate v0.0.2 // indirect
+	github.com/mfridman/interpolate v0.2.0 // indirect
 	github.com/ncruces/go-sqlite3-wasm/v6 v6.6.35401 // indirect
 	github.com/ncruces/julianday v1.0.0 // indirect
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c // indirect

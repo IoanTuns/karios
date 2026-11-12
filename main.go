@@ -22,6 +22,13 @@ import (
 var resurse embed.FS
 
 func main() {
+	if generareLegaturi {
+		// I020: doar metodele legate conteaza; fara folder de date, diagnoza sau baza.
+		if err := wails.Run(&options.App{Title: i18n.T(i18n.Implicita, "aplicatie.titlu", nil), Bind: []any{NewApp(nil)}}); err != nil {
+			log.Fatal(err)
+		}
+		return
+	}
 	foldere, err := portabil.Pregateste()
 	if err != nil {
 		oprireCuEroare(err)
