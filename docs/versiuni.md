@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.106 - 2026-11-12
+
+F10-T07 (I132). În exportul Excel al pontajului, coloana de gardă are antetul „Ore gardă 200%”, ca în aplicație (înainte „Ore Noapte / Gardă” și „Ore Gărzi”). Versiunea exportului 1.4.0.
+
 ## 0.92.105 - 2026-11-12
 
 F08-T17 (I066). Salvarea pontajului scrie celulele și jurnalul în loturi: o lună întreagă pentru 300 de angajați se salvează în circa 1,5 s în loc de 2,5–3 s. Auditul și jurnalul pe celulă rămân la fel.
