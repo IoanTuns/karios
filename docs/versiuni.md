@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.100 - 2026-11-12
+
+F02-T30. Legăturile dintre interfață și Go (`frontend/wailsjs`) sunt exact ieșirea generatorului Wails, deci un build nu mai lasă fișiere modificate. Fără schimbări pentru utilizator.
+
 ## 0.92.99 - 2026-11-12
 
 F09-T06. Rapoartele flexibile au și ele un test cu fișier de referință (versiunea 21), ca toate rapoartele standard. Fără schimbări pentru utilizator.
