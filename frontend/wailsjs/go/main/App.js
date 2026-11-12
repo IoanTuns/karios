@@ -198,6 +198,10 @@ export function ExportaPontajExcel(arg1, arg2, arg3) {
   return window['go']['main']['App']['ExportaPontajExcel'](arg1, arg2, arg3);
 }
 
+export function ExportaSalarizare(arg1, arg2, arg3, arg4) {
+  return window['go']['main']['App']['ExportaSalarizare'](arg1, arg2, arg3, arg4);
+}
+
 export function FinalizeazaRaportPdfme(arg1, arg2) {
   return window['go']['main']['App']['FinalizeazaRaportPdfme'](arg1, arg2);
 }
@@ -268,6 +272,10 @@ export function ListaFonturiSistem() {
 
 export function ListaIstoricContract(arg1) {
   return window['go']['main']['App']['ListaIstoricContract'](arg1);
+}
+
+export function ListaModeleExportSalarizare() {
+  return window['go']['main']['App']['ListaModeleExportSalarizare']();
 }
 
 export function ListaModeleRapoarte() {
@@ -388,6 +396,10 @@ export function SalveazaElementNomenclator(arg1, arg2) {
 
 export function SalveazaExcelRaport(arg1) {
   return window['go']['main']['App']['SalveazaExcelRaport'](arg1);
+}
+
+export function SalveazaModelExportSalarizare(arg1) {
+  return window['go']['main']['App']['SalveazaModelExportSalarizare'](arg1);
 }
 
 export function SalveazaModelRaport(arg1) {

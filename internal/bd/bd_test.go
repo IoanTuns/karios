@@ -46,8 +46,8 @@ func TestDeschideSiMigreaza(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if n != 41 {
-		t.Errorf("migrări aplicate: %d, așteptat 41", n)
+	if n != 42 {
+		t.Errorf("migrări aplicate: %d, așteptat 42", n)
 	}
 
 	// F04-T10 (I131, D105): tabelele de tarif din D003 au fost șterse prin migrarea 0038.

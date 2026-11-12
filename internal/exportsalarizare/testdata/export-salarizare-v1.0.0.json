@@ -1,0 +1,42 @@
+{
+  "csv": [
+    "﻿Marca;Nume;Luna;Ore lucrate;Ore suplimentare;CO;CM;Cod",
+    "T001;Fictiv Unu;2026-10;168,50;2,25;2,00;0,00;PX",
+    "T002;Fictiv Doi;2026-10;84,00;;0,00;3,00;PX",
+    ""
+  ],
+  "versiune": "1.0.0",
+  "xlsx": [
+    [
+      "Marca",
+      "Nume",
+      "Luna",
+      "Ore lucrate",
+      "Ore suplimentare",
+      "CO",
+      "CM",
+      "Cod"
+    ],
+    [
+      "T001",
+      "Fictiv Unu",
+      "2026-10",
+      "168.5",
+      "2.25",
+      "2",
+      "0",
+      "PX"
+    ],
+    [
+      "T002",
+      "Fictiv Doi",
+      "2026-10",
+      "84",
+      "",
+      "0",
+      "3",
+      "PX"
+    ]
+  ],
+  "xlsx_D2_numeric": true
+}

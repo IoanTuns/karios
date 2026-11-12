@@ -10,6 +10,7 @@ import {ai} from '../models';
 import {conturi} from '../models';
 import {raportare} from '../models';
 import {calcul} from '../models';
+import {exportsalarizare} from '../models';
 import {diagnoza} from '../models';
 
 export function AdaugaDepartament(arg1:string,arg2:i18n.Text):Promise<main.RaspunsDate>;
@@ -110,6 +111,8 @@ export function ExportaPlanAICSV(arg1:ai.IntentiePlan,arg2:string,arg3:string,ar
 
 export function ExportaPontajExcel(arg1:number,arg2:number,arg3:string):Promise<main.RaspunsExportExcel>;
 
+export function ExportaSalarizare(arg1:string,arg2:number,arg3:number,arg4:string):Promise<main.RaspunsExportSalarizare>;
+
 export function FinalizeazaRaportPdfme(arg1:string,arg2:string):Promise<main.RaspunsRaport>;
 
 export function FontSistem(arg1:string):Promise<main.RaspunsFontSistem>;
@@ -145,6 +148,8 @@ export function ListaConturi():Promise<main.RaspunsConturi>;
 export function ListaFonturiSistem():Promise<main.RaspunsFonturiSistem>;
 
 export function ListaIstoricContract(arg1:string):Promise<main.RaspunsIstoricContract>;
+
+export function ListaModeleExportSalarizare():Promise<main.RaspunsModeleExport>;
 
 export function ListaModeleRapoarte():Promise<main.RaspunsModeleRapoarte>;
 
@@ -205,6 +210,8 @@ export function SalveazaConfiguratiePontaj(arg1:calcul.ConfiguratiePontaj):Promi
 export function SalveazaElementNomenclator(arg1:string,arg2:datebaza.ElementNomenclator):Promise<main.RaspunsDate>;
 
 export function SalveazaExcelRaport(arg1:string):Promise<main.RaspunsFisierRaport>;
+
+export function SalveazaModelExportSalarizare(arg1:exportsalarizare.Model):Promise<main.RaspunsModeleExport>;
 
 export function SalveazaModelRaport(arg1:rapoarte.Definitie):Promise<main.RaspunsModeleRapoarte>;
 
