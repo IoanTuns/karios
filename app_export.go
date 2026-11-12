@@ -21,7 +21,12 @@ type RaspunsExportExcel struct {
 }
 
 // ExportaPontajExcel generează registrul complet Excel (pontaj + centralizator salarii) și oferă opțiunea de salvare pe disc.
-func (a *App) ExportaPontajExcel(an, luna int) RaspunsExportExcel {
+// limba: limba textelor din fișier (limba implicită a rapoartelor, F10-T06); necunoscută = limba implicită.
+func (a *App) ExportaPontajExcel(an, luna int, limba string) RaspunsExportExcel {
+	l := i18n.Limba(limba)
+	if l != i18n.Romana && l != i18n.Engleza {
+		l = i18n.Implicita
+	}
 	db := datebaza.Nou(a.db)
 	date, err := db.Citeste(a.contextLucru())
 	if err != nil {
@@ -34,7 +39,7 @@ func (a *App) ExportaPontajExcel(an, luna int) RaspunsExportExcel {
 	hartaSarb := make(map[string]string)
 	if cal, err := db.CitesteCalendar(a.contextLucru(), an); err == nil {
 		for _, s := range cal.Sarbatori {
-			hartaSarb[s.Data] = s.Denumire.In(i18n.Romana)
+			hartaSarb[s.Data] = s.Denumire.In(l)
 		}
 	}
 
@@ -44,6 +49,7 @@ func (a *App) ExportaPontajExcel(an, luna int) RaspunsExportExcel {
 		Date:      date,
 		Schita:    schita,
 		Sarbatori: hartaSarb,
+		Limba:     l,
 	})
 	if err != nil {
 		return RaspunsExportExcel{Eroare: eroareInterfata(err)}

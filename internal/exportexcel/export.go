@@ -4,7 +4,10 @@ import (
 	"bytes"
 	"fmt"
 	"sort"
+	"strconv"
 	"time"
+	"unicode"
+	"unicode/utf8"
 
 	"github.com/xuri/excelize/v2"
 
@@ -15,7 +18,7 @@ import (
 )
 
 // VersiuneExport reprezintă versiunea formatului de export Excel (D009).
-const VersiuneExport = "1.2.0"
+const VersiuneExport = "1.3.0"
 
 // OptiuniExport conține parametrii pentru generarea registrului Excel.
 type OptiuniExport struct {
@@ -26,6 +29,8 @@ type OptiuniExport struct {
 	Sarbatori map[string]string // data AAAA-LL-ZZ -> denumire
 	// GeneratLa: momentul scris in antet; zero = acum. Testul de referinta il fixeaza (F10-T05).
 	GeneratLa time.Time
+	// Limba textelor din fisier (F10-T06, I130); gol = limba implicita.
+	Limba i18n.Limba
 }
 
 // GenereazaRegistruExcel creează un fișier XLSX complet cu foaia de pontaj și centralizatorul.
@@ -35,17 +40,27 @@ func GenereazaRegistruExcel(opt OptiuniExport) ([]byte, error) {
 	if opt.GeneratLa.IsZero() {
 		opt.GeneratLa = time.Now()
 	}
+	if opt.Limba == "" {
+		opt.Limba = i18n.Implicita
+	}
+	// Textele vin din cataloage (D004); in romana sunt aceleasi ca inainte de 1.3.0.
+	t := func(cheie string, param ...map[string]string) string {
+		var p map[string]string
+		if len(param) > 0 {
+			p = param[0]
+		}
+		return i18n.T(opt.Limba, "export."+cheie, p)
+	}
 
-	numeLuni := []string{"Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie", "Iulie", "August", "Septembrie", "Octombrie", "Noiembrie", "Decembrie"}
 	numeLuna := ""
 	if opt.Luna >= 1 && opt.Luna <= 12 {
-		numeLuna = numeLuni[opt.Luna-1]
+		numeLuna = cuMajuscula(i18n.T(opt.Limba, fmt.Sprintf("rapoarte.luna_%02d", opt.Luna), nil))
 	}
 
 	numarZile := time.Date(opt.An, time.Month(opt.Luna)+1, 0, 12, 0, 0, 0, time.UTC).Day()
 
 	// 1. Foaie Pontaj Lunar
-	numeFoaiePontaj := "Pontaj Lunar"
+	numeFoaiePontaj := t("foaie_pontaj")
 	indexPontaj, err := f.NewSheet(numeFoaiePontaj)
 	if err != nil {
 		return nil, err
@@ -127,13 +142,13 @@ func GenereazaRegistruExcel(opt OptiuniExport) ([]byte, error) {
 	})
 
 	// Antet raport
-	_ = f.SetCellValue(numeFoaiePontaj, "A1", "PONTIX — FOAIE COLECTIVĂ DE PREZENȚĂ ȘI PONTAJ")
+	_ = f.SetCellValue(numeFoaiePontaj, "A1", t("titlu_pontaj"))
 	_ = f.SetCellStyle(numeFoaiePontaj, "A1", "A1", stilTitlu)
-	_ = f.SetCellValue(numeFoaiePontaj, "A2", fmt.Sprintf("Luna: %s %d | Generat la: %s", numeLuna, opt.An, opt.GeneratLa.Format("02.01.2006 15:04")))
+	_ = f.SetCellValue(numeFoaiePontaj, "A2", t("subtitlu_pontaj", map[string]string{"luna": numeLuna, "an": strconv.Itoa(opt.An), "generat_la": opt.GeneratLa.Format("02.01.2006 15:04")}))
 	_ = f.SetCellStyle(numeFoaiePontaj, "A2", "A2", stilSubtitlu)
 
 	// Coloane fixe
-	anteteFixe := []string{"Nr. crt.", "Nume și prenume", "Marca", "Funcție"}
+	anteteFixe := []string{t("nr_crt"), t("nume"), t("marca"), t("functie")}
 	randAntet := 4
 
 	colIdx := 1
@@ -160,7 +175,7 @@ func GenereazaRegistruExcel(opt OptiuniExport) ([]byte, error) {
 	}
 
 	// Coloane totaluri
-	anteteTotaluri := []string{"Total Ore", "Ore Noapte / Gardă", "Ore ZNL", "Normă", "CO (zile)", "CM (zile)"}
+	anteteTotaluri := []string{t("total_ore"), t("ore_garda"), t("ore_znl"), t("norma"), t("co_zile"), t("cm_zile")}
 	for _, tot := range anteteTotaluri {
 		celula, _ := excelize.CoordinatesToCellName(colIdx, randAntet)
 		_ = f.SetCellValue(numeFoaiePontaj, celula, tot)
@@ -209,7 +224,7 @@ func GenereazaRegistruExcel(opt OptiuniExport) ([]byte, error) {
 
 		// Nume
 		cName, _ = excelize.CoordinatesToCellName(cIdx, randCurent)
-		_ = f.SetCellValue(numeFoaiePontaj, cName, identitate.Nume(a.Nume, a.Prenume, a.Garda || a.AngajatPrincipalID != "", i18n.Romana))
+		_ = f.SetCellValue(numeFoaiePontaj, cName, identitate.Nume(a.Nume, a.Prenume, a.Garda || a.AngajatPrincipalID != "", opt.Limba))
 		_ = f.SetCellStyle(numeFoaiePontaj, cName, cName, stilTextStanga)
 		cIdx++
 
@@ -303,18 +318,18 @@ func GenereazaRegistruExcel(opt OptiuniExport) ([]byte, error) {
 	_ = f.SetColWidth(numeFoaiePontaj, "D", "D", 20)
 
 	// 2. Foaie Centralizator Salarizare
-	numeFoaieCentralizator := "Centralizator Salarii"
+	numeFoaieCentralizator := t("foaie_centralizator")
 	_, err = f.NewSheet(numeFoaieCentralizator)
 	if err == nil {
-		_ = f.SetCellValue(numeFoaieCentralizator, "A1", "CENTRALIZATOR LUNAR PENTRU SALARIZARE")
+		_ = f.SetCellValue(numeFoaieCentralizator, "A1", t("titlu_centralizator"))
 		_ = f.SetCellStyle(numeFoaieCentralizator, "A1", "A1", stilTitlu)
-		_ = f.SetCellValue(numeFoaieCentralizator, "A2", fmt.Sprintf("Luna: %s %d | Export securizat Pontix", numeLuna, opt.An))
+		_ = f.SetCellValue(numeFoaieCentralizator, "A2", t("subtitlu_centralizator", map[string]string{"luna": numeLuna, "an": strconv.Itoa(opt.An)}))
 		_ = f.SetCellStyle(numeFoaieCentralizator, "A2", "A2", stilSubtitlu)
 
 		anteteCentr := []string{
-			"Nr. crt.", "Nume și prenume", "Marca", "Funcție", "Contract",
-			"Ore Normă", "Ore Efectiv Lucrate", "Ore Gărzi", "Ore Nelucrătoare (ZNL)",
-			"Zile Concediu Odihnă", "Zile Concediu Medical",
+			t("nr_crt"), t("nume"), t("marca"), t("functie"), t("contract"),
+			t("c_ore_norma"), t("c_ore_lucrate"), t("c_ore_garzi"), t("c_ore_znl"),
+			t("c_zile_co"), t("c_zile_cm"),
 		}
 		cIdx := 1
 		for _, ac := range anteteCentr {
@@ -347,7 +362,7 @@ func GenereazaRegistruExcel(opt OptiuniExport) ([]byte, error) {
 			}
 
 			_ = f.SetCellValue(numeFoaieCentralizator, fmt.Sprintf("A%d", rC), nrC)
-			_ = f.SetCellValue(numeFoaieCentralizator, fmt.Sprintf("B%d", rC), identitate.Nume(a.Nume, a.Prenume, a.Garda || a.AngajatPrincipalID != "", i18n.Romana))
+			_ = f.SetCellValue(numeFoaieCentralizator, fmt.Sprintf("B%d", rC), identitate.Nume(a.Nume, a.Prenume, a.Garda || a.AngajatPrincipalID != "", opt.Limba))
 			_ = f.SetCellValue(numeFoaieCentralizator, fmt.Sprintf("C%d", rC), a.Marca)
 			_ = f.SetCellValue(numeFoaieCentralizator, fmt.Sprintf("D%d", rC), a.Functie)
 			_ = f.SetCellValue(numeFoaieCentralizator, fmt.Sprintf("E%d", rC), a.TipContract)
@@ -376,7 +391,7 @@ func GenereazaRegistruExcel(opt OptiuniExport) ([]byte, error) {
 
 		// Rând TOTAL GENERAL cu formule Excel =SUM(...)
 		if rC > 5 {
-			_ = f.SetCellValue(numeFoaieCentralizator, fmt.Sprintf("B%d", rC), "TOTAL GENERAL")
+			_ = f.SetCellValue(numeFoaieCentralizator, fmt.Sprintf("B%d", rC), t("total_general"))
 			_ = f.SetCellFormula(numeFoaieCentralizator, fmt.Sprintf("F%d", rC), fmt.Sprintf("SUM(F5:F%d)", rC-1))
 			_ = f.SetCellFormula(numeFoaieCentralizator, fmt.Sprintf("G%d", rC), fmt.Sprintf("SUM(G5:G%d)", rC-1))
 			_ = f.SetCellFormula(numeFoaieCentralizator, fmt.Sprintf("H%d", rC), fmt.Sprintf("SUM(H5:H%d)", rC-1))
@@ -401,4 +416,13 @@ func GenereazaRegistruExcel(opt OptiuniExport) ([]byte, error) {
 // NumeFisierPontaj generează numele standard de fișier pentru exportul lunar.
 func NumeFisierPontaj(an, luna int) string {
 	return fmt.Sprintf("Pontix_Pontaj_%04d_%02d.xlsx", an, luna)
+}
+
+// cuMajuscula: numele lunii cu prima litera mare, ca in titlul exportului („Octombrie”).
+func cuMajuscula(s string) string {
+	r, n := utf8.DecodeRuneInString(s)
+	if n == 0 {
+		return s
+	}
+	return string(unicode.ToUpper(r)) + s[n:]
 }

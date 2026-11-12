@@ -106,7 +106,7 @@ export function ExportaJurnalCSV(arg1:datebaza.FiltruJurnal,arg2:string):Promise
 
 export function ExportaPlanAICSV(arg1:ai.IntentiePlan,arg2:string,arg3:string,arg4:string):Promise<main.RaspunsExportJurnal>;
 
-export function ExportaPontajExcel(arg1:number,arg2:number):Promise<main.RaspunsExportExcel>;
+export function ExportaPontajExcel(arg1:number,arg2:number,arg3:string):Promise<main.RaspunsExportExcel>;
 
 export function FinalizeazaRaportPdfme(arg1:string,arg2:string):Promise<main.RaspunsRaport>;
 

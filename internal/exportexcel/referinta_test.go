@@ -14,6 +14,7 @@ import (
 
 	"pontix/internal/calcul"
 	"pontix/internal/datebaza"
+	"pontix/internal/i18n"
 )
 
 var actualizeazaReferinta = flag.Bool("actualizeaza-export", false, "Scrie referinta exportului Excel pentru versiunea curenta.")
@@ -71,14 +72,24 @@ func TestReferintaExportExcel(t *testing.T) {
 			{AngajatID: "ang-2", Valori: map[string]calcul.ValoarePontaj{"CO": {Sutimi: 100, Definita: true, Unitate: "ZILE"}, "ore_norma": {Sutimi: 8400, Definita: true, Unitate: "ORE"}}},
 		}},
 	}
+	// F10-T06 (I130): referinta romana are aceleasi texte ca 1.2.0; engleza are referinta ei.
+	for _, caz := range []struct {
+		limba  i18n.Limba
+		prefix string
+	}{{i18n.Romana, "export-excel-v"}, {i18n.Engleza, "export-excel-en-v"}} {
+		t.Run(string(caz.limba), func(t *testing.T) { verificaReferinta(t, date, schita, caz.limba, caz.prefix) })
+	}
+}
+
+func verificaReferinta(t *testing.T, date datebaza.Date, schita datebaza.SchitaLuna, limba i18n.Limba, prefix string) {
 	b, err := GenereazaRegistruExcel(OptiuniExport{An: 2026, Luna: 10, Date: date, Schita: schita,
 		Sarbatori: map[string]string{"2026-10-14": "Sarbatoare fictiva"},
-		GeneratLa: time.Date(2026, 10, 25, 14, 30, 0, 0, time.UTC)})
+		GeneratLa: time.Date(2026, 10, 25, 14, 30, 0, 0, time.UTC), Limba: limba})
 	if err != nil {
 		t.Fatal(err)
 	}
 	primit := citesteContinut(t, b)
-	cale := filepath.Join("testdata", "export-excel-v"+VersiuneExport+".json")
+	cale := filepath.Join("testdata", prefix+VersiuneExport+".json")
 	if *actualizeazaReferinta {
 		continut, _ := json.MarshalIndent(primit, "", "  ")
 		if err := os.MkdirAll("testdata", 0o700); err != nil {

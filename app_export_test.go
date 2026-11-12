@@ -44,7 +44,7 @@ func TestAppExportaPontajExcel(t *testing.T) {
 		t.Fatalf("eroare salvare schiță: %v", err)
 	}
 
-	resp := app.ExportaPontajExcel(2026, 10)
+	resp := app.ExportaPontajExcel(2026, 10, "ro")
 	if resp.Eroare != nil {
 		t.Fatalf("eroare la export: %+v", resp.Eroare)
 	}
