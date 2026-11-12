@@ -228,6 +228,36 @@ func (a *App) FonturiRapoarte() map[string]string {
 	}
 	return rez
 }
+
+// UnesteRapoarteSectii (F09-T02, D104) primeste PDF-urile generate pentru fiecare sectie, in
+// ordine, si le uneste, fiecare sectie incepand pe pagina noua. Cererea e cea fara sectie:
+// documentul pastrat (pentru Excel) are toate randurile.
+func (a *App) UnesteRapoarteSectii(c rapoarte.Cerere, pdfuri []string) RaspunsRaport {
+	if len(pdfuri) == 0 || len(pdfuri) > 500 {
+		return RaspunsRaport{Eroare: &MesajEroare{Cod: "rapoarte.parametri_invalizi"}}
+	}
+	parti, total := make([][]byte, 0, len(pdfuri)), 0
+	for _, p := range pdfuri {
+		octeti, err := base64.StdEncoding.DecodeString(p)
+		total += len(octeti)
+		if err != nil || len(octeti) == 0 || total > 256<<20 {
+			return RaspunsRaport{Eroare: &MesajEroare{Cod: "rapoarte.pdfme_pdf_invalid"}}
+		}
+		parti = append(parti, octeti)
+	}
+	c.SectieID = ""
+	ctx := a.contextLucru()
+	doc, err := rapoarte.Nou(a.db).Pregateste(ctx, c, time.Now().UTC())
+	if err != nil {
+		return RaspunsRaport{Eroare: mesajRaport(err)}
+	}
+	pdf, pagini, err := rapoarte.UnestePDF(ctx, parti)
+	if err != nil {
+		return RaspunsRaport{Eroare: mesajRaport(err)}
+	}
+	return a.raspunsRaportValidat(doc, c, pdf, pagini)
+}
+
 func (a *App) raspunsRaportValidat(doc rapoarte.Document, c rapoarte.Cerere, pdf []byte, pagini int, tokenDat ...string) RaspunsRaport {
 	token := rapoarte.IDNou()
 	if len(tokenDat) > 0 {

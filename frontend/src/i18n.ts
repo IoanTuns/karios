@@ -2,7 +2,8 @@
 // separate, ca interfața, mesajele și rapoartele să folosească aceleași texte (D004).
 import i18next from 'i18next';
 import {initReactI18next} from 'react-i18next';
-import {Catalog, Limbi} from '../wailsjs/go/main/App';
+import {Catalog, Limbi, SeteazaLimbaInterfata} from '../wailsjs/go/main/App';
+import {limbaInterfataSalvata} from './limba';
 
 export async function initI18n(): Promise<void> {
     const limbi = await Limbi();
@@ -14,11 +15,12 @@ export async function initI18n(): Promise<void> {
 
     await i18next.use(initReactI18next).init({
         resources,
-        lng: implicita, // limba aleasă din setări vine cu F03-T05
+        lng: limbaInterfataSalvata(limbi) ?? implicita, // limba aleasă anterior (F03-T05, D103)
         fallbackLng: implicita,
         interpolation: {escapeValue: false}, // React escapează deja
     });
 
     document.documentElement.lang = i18next.language;
+    SeteazaLimbaInterfata(i18next.language).catch(() => {});
     document.title = i18next.t('aplicatie.titlu');
 }

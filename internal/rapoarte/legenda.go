@@ -125,5 +125,9 @@ func legendaColoane(d Document, c calcul.ConfiguratiePontaj, limba i18n.Limba, e
 	if d.Sursa == "PONTAJ_DETALIAT" {
 		rez = append(rez, t("configuratie_curenta"))
 	}
+	// F04-T08 (D102): cititorul afla ca turele din noptile cu schimbarea orei au orele efective.
+	if c.SchimbareOra == calcul.SchimbareOraEfectiva && d.Sursa != "GRAFIC_GARZI" && (zile || d.Sursa == "PONTAJ_DETALIAT") {
+		rez = append(rez, t("schimbare_ora_efectiva"))
+	}
 	return rez
 }

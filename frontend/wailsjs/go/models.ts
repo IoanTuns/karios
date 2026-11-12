@@ -416,6 +416,7 @@ export namespace calcul {
 	export class ConfiguratiePontaj {
 	    conditionate?: RegulaConditionata[];
 	    atribuire: string;
+	    schimbare_ora: string;
 	    reguli: RegulaColoana[];
 	    revizie: string;
 
@@ -427,6 +428,7 @@ export namespace calcul {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.conditionate = this.convertValues(source["conditionate"], RegulaConditionata);
 	        this.atribuire = source["atribuire"];
+	        this.schimbare_ora = source["schimbare_ora"];
 	        this.reguli = this.convertValues(source["reguli"], RegulaColoana);
 	        this.revizie = source["revizie"];
 	    }

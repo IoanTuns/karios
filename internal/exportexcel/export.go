@@ -24,12 +24,17 @@ type OptiuniExport struct {
 	Date      datebaza.Date
 	Schita    datebaza.SchitaLuna
 	Sarbatori map[string]string // data AAAA-LL-ZZ -> denumire
+	// GeneratLa: momentul scris in antet; zero = acum. Testul de referinta il fixeaza (F10-T05).
+	GeneratLa time.Time
 }
 
 // GenereazaRegistruExcel creează un fișier XLSX complet cu foaia de pontaj și centralizatorul.
 func GenereazaRegistruExcel(opt OptiuniExport) ([]byte, error) {
 	f := excelize.NewFile()
 	defer f.Close()
+	if opt.GeneratLa.IsZero() {
+		opt.GeneratLa = time.Now()
+	}
 
 	numeLuni := []string{"Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie", "Iulie", "August", "Septembrie", "Octombrie", "Noiembrie", "Decembrie"}
 	numeLuna := ""
@@ -124,7 +129,7 @@ func GenereazaRegistruExcel(opt OptiuniExport) ([]byte, error) {
 	// Antet raport
 	_ = f.SetCellValue(numeFoaiePontaj, "A1", "PONTIX — FOAIE COLECTIVĂ DE PREZENȚĂ ȘI PONTAJ")
 	_ = f.SetCellStyle(numeFoaiePontaj, "A1", "A1", stilTitlu)
-	_ = f.SetCellValue(numeFoaiePontaj, "A2", fmt.Sprintf("Luna: %s %d | Generat la: %s", numeLuna, opt.An, time.Now().Format("02.01.2006 15:04")))
+	_ = f.SetCellValue(numeFoaiePontaj, "A2", fmt.Sprintf("Luna: %s %d | Generat la: %s", numeLuna, opt.An, opt.GeneratLa.Format("02.01.2006 15:04")))
 	_ = f.SetCellStyle(numeFoaiePontaj, "A2", "A2", stilSubtitlu)
 
 	// Coloane fixe

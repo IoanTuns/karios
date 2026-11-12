@@ -15,7 +15,7 @@ Regulile de plată și formatul rapoartelor sunt confirmate de contabilitate și
 | ID | Task | Stare | Responsabil | Note |
 | --- | --- | --- | --- | --- |
 | F01-T01 | Chestionar pentru contabilitate | gata | Claude | [Pontaj — întrebări pentru contabilitate](https://claude.ai/artifact/E8SLB7zT2WAzKTyFSchmK6), 2026-10-24 |
-| F01-T02 | Trimite chestionarul; primește răspunsurile și un centralizator real completat pe o lună | de făcut | | Deblochează F04-T03 … F04-T05 și F04-T07 |
+| F01-T02 | Trimite chestionarul; primește răspunsurile și un centralizator real completat pe o lună | de făcut | | Deblochează F04-T03 … F04-T05 și F04-T07 2026-11-12 (Claude): [chestionarul versiunea 2](../chestionar-contabilitate-ore.md), doar ore și zile (D100): ore suplimentare, pauza, schimbarea orei, coloanele centralizatorului, formatul exportului (F10-T01), o lună de referință anonimizată. Pregătit, netrimis: trimiterea cere aprobarea lui Ioan Tuns. |
 | F01-T03 | Transformă răspunsurile în reguli și cazuri de test | blocat | | Așteaptă F01-T02 |
 | F01-T04 | Validează cu contabilul formatul centralizatorului și al exportului de salarizare | de făcut | | Coloanele T, ZNL, L/FIN, celulele roșii, chenarele |
 | F01-T05 | Verifică disponibilitatea numelui Pontix (OSIM, EUIPO, domeniu) | de făcut | | Alternativa: Cadran |
@@ -137,4 +137,6 @@ O tură de noapte nominală de 12 ore (de exemplu 19–07) cade în noaptea în 
 - în ultima duminică din martie (ora 03:00 devine 04:00) durează efectiv 11 ore.
 
 Acum Pontix numără durata nominală (12 ore) în ambele nopți. Întrebarea pentru Ioan Tuns: rămâne durata nominală sau se numără orele efective (13, respectiv 11)? Fără răspuns, comportamentul actual rămâne neschimbat.
+
+Răspuns 2026-11-12 (Ioan Tuns): alegerea devine o opțiune în setări, implicit durata din program; fiecare unitate alege, eventual cu contabilitatea ([D102](../decizii/D102-schimbarea-orei-configurabila.md), F04-T08, 0.92.93).
 

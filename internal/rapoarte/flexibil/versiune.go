@@ -7,5 +7,6 @@ package flexibil
 // in PDF-ul pdfme (11), toate rapoartele pe editorul vizual dupa conversie (12), antet si titlu
 // repetate pe fiecare pagina (13), diacritice corectate in legenda (18),
 // coloana culoare in date si fundal din coloana (19, D099), istoricul normei si al
-// concediului (tabelul istoric_contract, norma la inceputul lunii, dreptul pe an; 20, D101).
-const Versiune = 20
+// concediului (tabelul istoric_contract, norma la inceputul lunii, dreptul pe an; 20, D101),
+// optiunea pentru turele din noptile cu schimbarea orei (21, D102).
+const Versiune = 21

@@ -93,6 +93,22 @@ func textJSON(v string, limba i18n.Limba) string {
 	_ = json.Unmarshal([]byte(v), &t)
 	return t.In(limba)
 }
+
+// FaraSectie: valoarea SectieID pentru angajatii fara sectie (F09-T02, D104). Raportul
+// „o pagina pe sectie” cere cate o parte pentru fiecare sectie si una pentru cei fara sectie.
+const FaraSectie = "-"
+
+// sectieCeruta spune daca angajatul cu sectia s intra in raportul cerut pentru sectia ceruta.
+func sectieCeruta(ceruta string, s *string) bool {
+	switch ceruta {
+	case "":
+		return true
+	case FaraSectie:
+		return optional(s) == ""
+	}
+	return optional(s) == ceruta
+}
+
 func optional(v *string) string {
 	if v == nil {
 		return ""
@@ -176,6 +192,7 @@ func pregatesteStandard(ctx context.Context, tx *sql.Tx, q *acces.Queries, d Def
 	for _, v := range sectii {
 		numeSectii[v.ID] = textJSON(v.Denumire, limba)
 	}
+	numeSectii[FaraSectie] = i18n.T(limba, "ui.fara_sectie", nil)
 	for _, v := range departamente {
 		numeDepartamente[v.ID] = textJSON(v.Denumire, limba)
 		if v.ID == c.DepartamentID && c.SectieID != "" && c.SectieID != v.SectieID {
@@ -200,7 +217,7 @@ func pregatesteStandard(ctx context.Context, tx *sql.Tx, q *acces.Queries, d Def
 	for _, a := range oameni {
 		if a.ID == c.AngajatID {
 			persoana = identitate.CuPrefix(prefixe[a.ID], identitate.Nume(a.Nume, a.Prenume, profile[a.ID].Garda || asocieri[a.ID] != "", limba))
-			if (c.SectieID != "" && optional(a.SectieID) != c.SectieID) || (c.DepartamentID != "" && optional(a.DepartamentID) != c.DepartamentID) {
+			if !sectieCeruta(c.SectieID, a.SectieID) || (c.DepartamentID != "" && optional(a.DepartamentID) != c.DepartamentID) {
 				return Document{}, eroare("rapoarte.parametri_invalizi")
 			}
 		}
@@ -526,7 +543,7 @@ func pregatesteStandard(ctx context.Context, tx *sql.Tx, q *acces.Queries, d Def
 			continue
 		}
 		selectat := c.AngajatID == "" || a.ID == c.AngajatID || (d.Continut.Sursa == "PONTAJ_DETALIAT" && familie(a.ID) == familie(c.AngajatID))
-		if (c.SectieID != "" && optional(a.SectieID) != c.SectieID) || (c.DepartamentID != "" && optional(a.DepartamentID) != c.DepartamentID) || !selectat {
+		if !sectieCeruta(c.SectieID, a.SectieID) || (c.DepartamentID != "" && optional(a.DepartamentID) != c.DepartamentID) || !selectat {
 			continue
 		}
 		if (d.Continut.Sursa == "PONTAJ_LUNAR" || d.Continut.Sursa == "PONTAJ_DETALIAT") && a.Activ == 0 && !cuDate[a.ID] {

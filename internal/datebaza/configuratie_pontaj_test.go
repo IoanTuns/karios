@@ -70,3 +70,50 @@ func TestPrevizualizarePontajNuSalveazaSiIncludeLunaPrecedenta(t *testing.T) {
 		t.Fatal(real, e)
 	}
 }
+
+// F04-T08 (D102): optiunea pentru noptile cu schimbarea orei se salveaza, iar schimbarea ei
+// e refuzata cat timp e inchisa o luna care contine o astfel de noapte.
+func TestSchimbareOraSalvareSiLuniInchise(t *testing.T) {
+	m := pregateste(t)
+	ctx := context.Background()
+	c, _, e := m.serviciu.ConfiguratiePontaj(ctx)
+	if e != nil || c.SchimbareOra != calcul.SchimbareOraNominala {
+		t.Fatal("implicit", c.SchimbareOra, e)
+	}
+	// Noiembrie nu are schimbarea orei: inchiderea ei nu blocheaza optiunea.
+	if _, e = m.serviciu.SeteazaStareLuna(ctx, 2026, 11, "INCHISA", "test", "operator"); e != nil {
+		t.Fatal(e)
+	}
+	c.SchimbareOra = calcul.SchimbareOraEfectiva
+	if e = m.serviciu.SalveazaConfiguratiePontaj(ctx, c); e != nil {
+		t.Fatal(e)
+	}
+	c, _, _ = m.serviciu.ConfiguratiePontaj(ctx)
+	if c.SchimbareOra != calcul.SchimbareOraEfectiva {
+		t.Fatal("salvata", c.SchimbareOra)
+	}
+	// Octombrie inchisa: optiunea nu se mai poate schimba, dar celelalte setari da.
+	if _, e = m.serviciu.SeteazaStareLuna(ctx, 2026, 10, "BLOCATA", "test", "operator"); e != nil {
+		t.Fatal(e)
+	}
+	c.SchimbareOra = calcul.SchimbareOraNominala
+	e = m.serviciu.SalveazaConfiguratiePontaj(ctx, c)
+	verificaCod(t, e, "pontaj.schimbare_ora_luna_inchisa")
+	if er, ok := e.(*calcul.Eroare); !ok || er.Param["luna"] != "10.2026" {
+		t.Fatal("parametru", e)
+	}
+	c.SchimbareOra = calcul.SchimbareOraEfectiva
+	c.Atribuire = calcul.AtribuireCalendar
+	if e = m.serviciu.SalveazaConfiguratiePontaj(ctx, c); e != nil {
+		t.Fatal("alte setari", e)
+	}
+	// Dupa redeschidere, optiunea se poate schimba.
+	if _, e = m.serviciu.SeteazaStareLuna(ctx, 2026, 10, "DESCHISA", "corectie", "operator"); e != nil {
+		t.Fatal(e)
+	}
+	c, _, _ = m.serviciu.ConfiguratiePontaj(ctx)
+	c.SchimbareOra = calcul.SchimbareOraNominala
+	if e = m.serviciu.SalveazaConfiguratiePontaj(ctx, c); e != nil {
+		t.Fatal("dupa redeschidere", e)
+	}
+}

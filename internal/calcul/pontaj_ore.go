@@ -11,6 +11,13 @@ import (
 const AtribuireInceput = "ZI_INCEPUT"
 const AtribuireCalendar = "ZILE_CALENDARISTICE"
 
+// Schimbarea orei (F04-T08, D102): cum se numara o tura din program in noptile in care
+// ora se schimba. NOMINALA: durata din program (o tura 19-07 are mereu 12 h). EFECTIVA:
+// de la ora de ceas a inceputului pana la ora de ceas a sfarsitului, in fusul Europe/Bucharest
+// (13 h in octombrie, 11 h in martie). Gol inseamna NOMINALA (configuratiile salvate inainte).
+const SchimbareOraNominala = "NOMINALA"
+const SchimbareOraEfectiva = "EFECTIVA"
+
 type RegulaColoana struct {
 	Coloana       string   `json:"coloana"`
 	Sursa         string   `json:"sursa"`
@@ -42,10 +49,11 @@ type ConfiguratiePontaj struct {
 	// Norme: norma zilnica in minute pe angajat, pentru TOCN (D092); nil = fara norma zilnica.
 	Norme map[string]*int64 `json:"-"`
 	// Garzi: randurile marcii de garda (D060), cu regulile din D093 pentru ZNL, Ore garda 200% si Ore lucratoare.
-	Garzi     map[string]bool `json:"-"`
-	Atribuire string          `json:"atribuire"`
-	Reguli    []RegulaColoana `json:"reguli"`
-	Revizie   string          `json:"revizie"`
+	Garzi        map[string]bool `json:"-"`
+	Atribuire    string          `json:"atribuire"`
+	SchimbareOra string          `json:"schimbare_ora"`
+	Reguli       []RegulaColoana `json:"reguli"`
+	Revizie      string          `json:"revizie"`
 }
 
 func ColoanePontaj() []string {
@@ -84,7 +92,7 @@ func UnitateColoana(c string) string {
 	return ""
 }
 func ConfiguratiePontajInitiala() ConfiguratiePontaj {
-	c := ConfiguratiePontaj{Atribuire: AtribuireInceput, Revizie: "1", Reguli: []RegulaColoana{}}
+	c := ConfiguratiePontaj{Atribuire: AtribuireInceput, SchimbareOra: SchimbareOraNominala, Revizie: "1", Reguli: []RegulaColoana{}}
 	for _, cod := range ColoanePontaj() {
 		r := RegulaColoana{Coloana: cod, Sursa: "NEDEFINITA", Coduri: []string{}, FactorSutimi: 100}
 		switch cod {
@@ -120,6 +128,9 @@ func ValideazaConfiguratiePontaj(c ConfiguratiePontaj) error {
 		return &Eroare{Cod: cod, Param: map[string]string{"coloana": coloana, "camp": camp}}
 	}
 	if c.Atribuire != AtribuireInceput && c.Atribuire != AtribuireCalendar {
+		return gresit()
+	}
+	if c.SchimbareOra != "" && c.SchimbareOra != SchimbareOraNominala && c.SchimbareOra != SchimbareOraEfectiva {
 		return gresit()
 	}
 	if len(c.Conditionate) > 100 {
@@ -488,8 +499,13 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 		}
 		inceput := data.Add(time.Duration(p.OraStart) * time.Minute)
 		sfarsit := inceput.Add(time.Duration(p.DurataMinute) * time.Minute)
+		if c.SchimbareOra == SchimbareOraEfectiva {
+			inceput = MomentLocal(data, p.OraStart)
+			sfarsit = MomentLocal(data, p.OraStart+p.DurataMinute)
+		}
 		for curent := inceput; curent.Before(sfarsit); {
-			limita := time.Date(curent.Year(), curent.Month(), curent.Day()+1, 0, 0, 0, 0, time.UTC)
+			// Miezul noptii in acelasi fus ca momentele turei (UTC nominal sau Europe/Bucharest).
+			limita := time.Date(curent.Year(), curent.Month(), curent.Day()+1, 0, 0, 0, 0, curent.Location())
 			if limita.After(sfarsit) {
 				limita = sfarsit
 			}

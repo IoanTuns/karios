@@ -22,6 +22,7 @@ import {ToastContainer} from './Toast';
 import type {ContextPontaj} from './Pontaj';
 import {cheieTema, temaInitiala, type Tema} from './tema';
 import {DialogRaportare} from './Raportare';
+import {alegeLimbaInterfata} from './limba';
 
 const Pontaj = lazy(() => import('./Pontaj').then(m => ({ default: m.Pontaj })));
 const Planificare = lazy(() => import('./Planificare').then(m => ({ default: m.Planificare })));
@@ -258,7 +259,7 @@ function App() {
                         {tema === 'dark' ? `☀️ ${t('ui.tema_zi')}` : `🌙 ${t('ui.tema_noapte')}`}
                     </button>
                     <select name="limba_interfata" className="selector-limba" aria-label={t('ui.limba_interfata')} value={i18n.language === 'en' ? 'en' : 'ro'}
-                        onChange={e => { const l = e.target.value; void i18n.changeLanguage(l); document.documentElement.lang = l; document.title = i18n.t('aplicatie.titlu'); SeteazaLimbaInterfata(l).catch(() => {}); }}>
+                        onChange={e => alegeLimbaInterfata(e.target.value)}>
                         <option value="ro">{t('rapoarte.ro')}</option><option value="en">{t('rapoarte.en')}</option>
                     </select>
                 </div>

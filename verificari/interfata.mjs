@@ -237,6 +237,7 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
         VerificaBackup: async () => ({}),
         CitesteUltimeleLiniiJurnal: async () => '',
         Limbi: async () => [limba, ...Object.keys(cataloage).filter(l => l !== limba)],
+        TraduceriLipsa: async l => Object.keys(cataloage[limba]).filter(k => !cataloage[l]?.[k]),
         Catalog: async l => cataloage[l], Informatii: async () => ({versiune: versiuneAplicatie, commit: 'verificare'}),
         DateInitiale: async () => raspuns(),
         SalveazaCategorieProgram:async c=>{
@@ -281,6 +282,7 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
             const d=stare.modeleRapoarte.find(d => d.id===c.model_id);
             stare.documentRaportCurent={...structuredClone(rapoarteSursa.document),titlu:d.denumire[c.limba]||d.denumire.ro,sursa:d.continut.sursa,revizie_model:d.revizie};raspuns();return {document:structuredClone(stare.documentRaportCurent),pdf:rapoarteSursa.pdf,token:stare.ultimTokenRaport,nume_fisier:'raport-demo.pdf',pagini:4,eroare:null};
         },
+        UnesteRapoarteSectii: async (c,pdfuri) => { stare.unireSectii={numar:pdfuri.length,sectie_id:c.sectie_id};stare.ultimTokenRaport=crypto.randomUUID();raspuns();return {document:structuredClone(stare.documentRaportCurent),pdf:rapoarteSursa.pdf,token:stare.ultimTokenRaport,nume_fisier:'raport-sectii.pdf',pagini:4*pdfuri.length,eroare:null}; },
         SalveazaPDFRaport: async token => { if(token!==stare.ultimTokenRaport) return {eroare:{cod:'rapoarte.expirat'}};stare.exporturiRaport=(stare.exporturiRaport||0)+1;raspuns();return {anulat:false,cale:'raport-demo.pdf',eroare:null}; },
         DeschidePDFPentruTiparire: async token => { if(token!==stare.ultimTokenRaport) return {eroare:{cod:'rapoarte.expirat'}};stare.tipaririRaport=(stare.tipaririRaport||0)+1;raspuns();return {anulat:false,cale:'raport-demo.pdf',eroare:null}; },
         IncarcaDemo: async () => { stare.angajati = structuredClone(demo.angajati); stare.sectii = structuredClone(demo.sectii); return raspuns(); },
@@ -729,11 +731,15 @@ try {
     await asteapta(()=>evalueaza(`document.querySelectorAll('.reguli-pontaj tbody tr').length===JSON.parse(localStorage.getItem('pontix-test')).reguliPontaj.reguli.length`),'Regulile configurate nu apar.');
     assert.equal(await evalueaza(`document.querySelector('select[name="sursa_ore_garda"]').value`),'NEDEFINITA','Garda are o regulă inventată.');
     await completeaza('select[name="atribuire"]','ZILE_CALENDARISTICE');
+    // F04-T08 (D102): implicit durata din program; alegerea orelor efective se salveaza.
+    assert.equal(await evalueaza(`document.querySelector('select[name="schimbare_ora"]').value`),'NOMINALA','Schimbarea orei nu pornește de la durata din program.');
+    await completeaza('select[name="schimbare_ora"]','EFECTIVA');
     await completeaza('select[name="sursa_ore_garda"]','ORE_SCHIMBURI');
     // F05-T23: selectia codurilor se face doar prin butoane (fara lista multipla dublata).
     await evalueaza(`[...document.querySelectorAll('.optiuni-rapide-regula button')].find(b=>b.closest('tr').querySelector('select[name="sursa_ore_garda"]')&&b.textContent==='G24').click()`);
     await completeaza('input[name="factor_ore_garda"]','2');await apasa('Salvează');
     await asteapta(()=>evalueaza(`JSON.parse(localStorage.getItem('pontix-test')).reguliPontaj.revizie==='2'`),'Regulile nu s-au salvat.');
+    assert.equal(await evalueaza(`JSON.parse(localStorage.getItem('pontix-test')).reguliPontaj.schimbare_ora`),'EFECTIVA','Opțiunea pentru schimbarea orei nu s-a salvat.');
     await completeaza('select[name="atribuire"]','ZI_INCEPUT');
     await evalueaza(`window.confirm=()=>false`);await apasa('Angajați'); await ramaiPePagina();
     assert.equal(await evalueaza(`document.querySelector('h1').textContent`),'Configurare pontaj','Configurația nesalvată a fost pierdută.');
@@ -816,6 +822,19 @@ try {
     await apasa('Deschide pentru tipărire');await asteapta(() => evalueaza(`document.querySelector('.generare-rapoarte [role="status"]')?.textContent.includes('deschis')`),'Deschiderea pentru tipărire nu este semnalată.');
     assert.equal(await evalueaza(`JSON.parse(localStorage.getItem('pontix-test')).tipaririRaport`),1,'Acțiunea de tipărire nu este apelată o singură dată.');
     const capturaRaport=await cdp('Page.captureScreenshot',{format:'png'});writeFileSync(join(capturi,'previzualizare-raport.png'),Buffer.from(capturaRaport.data,'base64'));
+    // F09-T02 (D104): cu toate secțiile, raportul se poate genera cu o pagină nouă pentru fiecare secție.
+    await completeaza('select[name="sectie_raport"]','');
+    const sectiiCuOameni=await evalueaza(`(()=>{const s=JSON.parse(localStorage.getItem('pontix-test'));const ids=new Set(s.angajati.map(a=>s.sectii.some(x=>x.id===a.sectie_id)?a.sectie_id:'-'));return ids.size;})()`);
+    assert(sectiiCuOameni>1,'Datele de test nu au angajați în mai multe secții.');
+    {
+        await asteapta(()=>evalueaza(`Boolean(document.querySelector('input[name="pagina_pe_sectie"]'))`),'Opțiunea „o pagină pe secție” lipsește.');
+        await evalueaza(`document.querySelector('input[name="pagina_pe_sectie"]').click()`);
+        await apasa('Generează și previzualizează');
+        await asteapta(()=>evalueaza(`JSON.parse(localStorage.getItem('pontix-test')).unireSectii?.numar===${sectiiCuOameni}`),'Raportul nu se generează pe secții.');
+        await asteapta(()=>evalueaza(`document.querySelector('.rezultat-raport [role="status"]')?.textContent.includes('Pagini: ${4*sectiiCuOameni}')`),'Raportul unit pe secții nu apare.');
+        assert.equal(await evalueaza(`JSON.parse(localStorage.getItem('pontix-test')).unireSectii.sectie_id`),'','Raportul unit nu păstrează cererea fără secție.');
+        await evalueaza(`document.querySelector('input[name="pagina_pe_sectie"]').click()`);
+    }
     await completeaza('select[name="luna_raport"]','11');
     assert(await evalueaza(`!document.querySelector('iframe.previzualizare-pdf')`),'Schimbarea perioadei păstrează PDF-ul vechi ca și când ar fi nou.');
     await completeaza('select[name="model_raport"]','raport-fisa');
@@ -974,6 +993,14 @@ try {
     await completeaza('input[name="cautare_absente"]', '');
     await completeaza('select[name="limba_interfata"]', 'ro');
     await asteapta(() => evalueaza(`document.querySelector('h1')?.textContent === 'Concedii și absențe'`), 'Selectorul de limbă din bara laterală nu schimbă limba interfeței.');
+    // F03-T05/F03-T08 (D103): fila Limbă din Setări, limba rapoartelor retinuta local.
+    assert.equal(await evalueaza(`localStorage.getItem('pontix-limba-interfata')`),'ro','Limba interfeței nu se reține.');
+    await apasa('Setări');await apasa('General');await apasa('Limbă');
+    await asteapta(()=>evalueaza(`document.querySelector('.setari-limba')?.textContent.includes('toate textele sunt traduse')`),'Fila Limbă nu arată textele netraduse.');
+    await completeaza('select[name="setari_limba_rapoarte"]','en');
+    assert.equal(await evalueaza(`localStorage.getItem('pontix-limba-rapoarte')`),'en','Limba rapoartelor nu se reține.');
+    await completeaza('select[name="setari_limba_rapoarte"]','interfata');
+    await apasa('Normă și structură');
     // Scenariu de categorii: date strict fictive, separat de regresiile anterioare.
     await evalueaza(`(() => {
         const s=JSON.parse(localStorage.getItem('pontix-test'));

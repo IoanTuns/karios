@@ -4,6 +4,26 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.97 - 2026-11-12
+
+F09-T02 ([D104](decizii/D104-pagina-pe-sectie.md), propusă). În **Rapoarte**, bifa nouă **O pagină nouă pentru fiecare secție** generează raportul pe secții (angajații fără secție la final) și unește PDF-urile, fiecare secție începând pe pagină nouă. Versiunile rapoartelor nu se schimbă.
+
+## 0.92.96 - 2026-11-12
+
+F10-T05. Exportul Excel al pontajului are un test cu fișier de referință (versiunea exportului 1.2.0, neschimbată): o schimbare nevăzută a conținutului nu mai trece de teste. Fără schimbări pentru utilizator.
+
+## 0.92.95 - 2026-11-12
+
+F03-T05, F03-T08 ([D103](decizii/D103-limba-retinuta-local.md), propusă). Limba interfeței se păstrează la următoarea pornire. În **Setări › General**, fila nouă **Limbă** alege limba interfeței și limba implicită a rapoartelor („La fel ca interfața”, română, engleză) și arată textele netraduse din fiecare limbă. Alegerile stau în `karios/webview`, ca tema.
+
+## 0.92.94 - 2026-11-12
+
+F04-T08, actualizarea dependențelor (D007): Go 1.27.3 → 1.27.4; goose 3.29.0 → 3.30.0, golang.org/x/crypto 0.58.0 → 0.59.0, x/image 0.47.0 → 0.48.0, x/sys 0.49.0 → 0.50.0, x/text 0.43.0 → 0.44.0 (indirect: x/sync 0.25.0, yaml 3.0.6); i18next 27.0.1 → 27.1.1, vite 8.3.6 → 8.3.8. Fără schimbări de funcționalitate.
+
+## 0.92.93 - 2026-11-12
+
+F04-T08 ([D102](decizii/D102-schimbarea-orei-configurabila.md), propusă). În **Setări › Configurare pontaj**, opțiunea nouă **Turele din nopțile cu schimbarea orei** alege între durata din program (implicit, ca până acum) și orele efective: o tură 19–07 are atunci 13 ore în noaptea din octombrie și 11 ore în cea din martie. Opțiunea nu se poate schimba cât timp e închisă o lună cu schimbarea orei. Cu orele efective, legenda rapoartelor o spune. Rapoarte cu versiune nouă: Pontaj 23, Pontaj detaliat 26, Fișa individuală 23, rapoartele flexibile 21 (conținut neschimbat cu opțiunea implicită).
+
 ## 0.92.92 - 2026-11-09
 
 F07-T43 (I010, D101). În fișa angajatului, secțiunea **Istoric normă și concediu** păstrează schimbările normei zilnice și ale dreptului la concediu, cu data de la care sunt valabile. Norma se aplică pe zile (Ore lucrătoare, L FIN, precompletare), dreptul la concediu se calculează proporțional pe an, iar lunile închise nu se pot modifica. Migrarea 0037. Rapoarte cu versiune nouă: Pontaj detaliat 25, Fișa individuală 22, rapoartele flexibile 20 (tabelul istoric_contract în SQL).

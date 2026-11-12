@@ -10,6 +10,7 @@ import {useCont} from './Conturi';
 import type {TFunction} from 'i18next';
 import {CitesteUltimeleLiniiJurnal, CreeazaBackup, DeschideFolderJurnale, DetaliiDezvoltare, Informatii} from '../wailsjs/go/main/App';
 import {datebaza, main} from '../wailsjs/go/models';
+import {SetariLimba} from './SetariLimba';
 
 export function durata(minute: number, t: TFunction): string {
     return t(minute % 60 ? 'ui.ore_minute' : 'ui.ore', {ore: Math.floor(minute / 60), minute: minute % 60});
@@ -197,7 +198,7 @@ export function Setari({date, onDate, ocupat, salveazaNorma, adaugaSectie, adaug
     const [versiuneCurenta, setVersiuneCurenta] = useState('');
     // R6 (analiza UX 0.92.59): General pe file, ca pagina sa nu mai aiba ~4 ecrane. Sectiunile
     // raman in pagina (hidden), iar fila aleasa se retine local.
-    const file = ['structura', 'nomenclatoare', 'backup', 'despre'] as const;
+    const file = ['structura', 'nomenclatoare', 'backup', 'limba', 'despre'] as const;
     const [fila, setFilaStare] = useState<typeof file[number]>(() => { try { const v = localStorage.getItem('pontix-setari-fila'); return (file as readonly string[]).includes(v || '') ? v as typeof file[number] : 'structura'; } catch { return 'structura'; } });
     const setFila = (f: typeof file[number]) => { setFilaStare(f); try { localStorage.setItem('pontix-setari-fila', f); } catch { /* doar in sesiune */ } };
     useEffect(() => { setOre(String(date.norma_intreaga_minute / 60)); }, [date.norma_intreaga_minute]);
@@ -272,6 +273,7 @@ export function Setari({date, onDate, ocupat, salveazaNorma, adaugaSectie, adaug
         <div className="sectiune-setari" hidden={fila !== 'nomenclatoare'}>
         <EditorNomenclator tip="grupuri" lista={date.grupuri_profesionale??[]} onDate={onDate} date={date}/><EditorNomenclator tip="functii" lista={date.functii??[]} onDate={onDate} date={date}/><EditorNomenclator tip="prefixe" lista={date.prefixe??[]} onDate={onDate} date={date}/><EditorNomenclator tip="contracte" lista={date.tipuri_contract??[]} onDate={onDate} date={date}/>
         </div>
+        <div className="sectiune-setari" hidden={fila !== 'limba'}><SetariLimba/></div>
         <div className="sectiune-setari" hidden={fila !== 'despre'}>
         <section className="panou card-setari card-despre">
             <h2>{t('ui.despre_titlu')}</h2>
