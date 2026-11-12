@@ -1,6 +1,6 @@
 # D091 · Folderul AI separat de folderul de date
 
-Stare: acceptată (cerința) · propusă (detaliile tehnice) · Data: 2026-11-07 · Taskuri: F14-T36
+Stare: acceptată · Data: 2026-11-07 · Taskuri: F14-T36 · Decisă de: Ioan Tuns, 2026-11-12 („accept toate”)
 
 Implementare: implementată din 0.92.55; toate punctele verificate în cod pe 2026-11-12, pe 0.92.102 (Claude, la cererea lui Ioan Tuns). Starea deciziei nu se schimbă prin această notă.
 

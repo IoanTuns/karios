@@ -1,6 +1,6 @@
 # D098 · Tipurile D092 create după salvarea configurației și totalurile raportului detaliat
 
-Stare: propusă · Data: 2026-11-09 · Taskuri: F08-T15
+Stare: acceptată · Data: 2026-11-09 · Taskuri: F08-T15 · Decisă de: Ioan Tuns, 2026-11-12 („accept toate”)
 
 Implementare: implementată din 0.92.80; toate punctele verificate în cod pe 2026-11-12, pe 0.92.102 (Claude, la cererea lui Ioan Tuns). Starea deciziei nu se schimbă prin această notă.
 

@@ -1,6 +1,6 @@
 # D092 · Coloanele Pontajului, TZLN și TOCN
 
-Stare: acceptată (regulile) · propusă (detaliile tehnice) · Data: 2026-11-07 · Taskuri: F08-T11, F08-T12, F08-T13
+Stare: acceptată · Data: 2026-11-07 · Taskuri: F08-T11, F08-T12, F08-T13 · Decisă de: Ioan Tuns, 2026-11-12 („accept toate”)
 
 Implementare: implementată din 0.92.57; toate punctele verificate în cod pe 2026-11-12, pe 0.92.102 (Claude, la cererea lui Ioan Tuns). Starea deciziei nu se schimbă prin această notă.
 
@@ -34,7 +34,7 @@ Grila Pontaj păstrează doar OL, CO, CM, CFP, CVE, DLG și FMP. TZLN și TOCN s
 
 Codurile de absență se redenumesc: CEV → CVE, CFS → CFP, DEPL → DLG, FP → FMP. Redenumirea se face o singură dată, printr-o migrare, numai când codul vechi există și cel nou nu; zilele înregistrate trec pe codul nou. Regulile salvate care pomenesc codurile vechi sunt traduse la citire.
 
-### Detalii tehnice (propuse)
+### Detalii tehnice (acceptate)
 
 - Coloanele noi se adaugă în calcul (`internal/calcul`), cu surse noi: ore lucrate cu codurile creditate alese (OL), zilele altor absențe decât cele excluse (CVE), zile lucrătoare nete (TZLN), TZLN × normă (TOCN). Toate rămân configurabile în Configurare pontaj.
 - O configurație salvată fără coloanele noi le primește automat la citire, doar cu codurile care există în bază; o coloană fără niciun cod existent rămâne „neconfigurată”, cu motivul afișat (F05-T20).
