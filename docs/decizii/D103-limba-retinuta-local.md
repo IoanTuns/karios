@@ -2,6 +2,8 @@
 
 Stare: propusă · Data: 2026-11-12 · Taskuri: F03-T05, F03-T08, F05-T04 · Cerută de: Ioan Tuns, 2026-11-12 („Poți să le implementezi pe toate și să construiești o versiune nouă?”)
 
+Implementare: implementată din 0.92.95; toate punctele verificate în cod pe 2026-11-12, pe 0.92.102 (Claude, la cererea lui Ioan Tuns). Starea deciziei nu se schimbă prin această notă.
+
 ## Context
 
 Limba interfeței se alegea din bara laterală, dar la fiecare pornire aplicația revenea la română. F03-T05 cerea setările `limba_interfata` și `limba_rapoarte` în `config.toml`. F05-T04 nota că, după D008, setările stau în baza criptată.

@@ -2,6 +2,8 @@
 
 Stare: acceptată (regulile) · propusă (detaliile tehnice) · Data: 2026-11-09 · Taskuri: F07-T43 · Idee: I010 · Decisă de: Ioan Tuns, 2026-11-09 (cele trei reguli de mai jos)
 
+Implementare: implementată din 0.92.92; toate punctele verificate în cod pe 2026-11-12, pe 0.92.102 (Claude, la cererea lui Ioan Tuns). Starea deciziei nu se schimbă prin această notă.
+
 ## Context
 
 Norma zilnică și dreptul anual la concediu erau o singură valoare pe angajat. O schimbare, de exemplu trecerea la jumătate de normă sau mai multe zile de concediu, rescria și lunile trecute la recalculare. I010 cere perioade de valabilitate.

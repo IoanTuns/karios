@@ -2,6 +2,8 @@
 
 Stare: acceptată (cerința) · propusă (detaliile tehnice) · Data: 2026-11-08 · Taskuri: F07-T42
 
+Implementare: implementată din 0.92.79; toate punctele verificate în cod pe 2026-11-12, pe 0.92.102 (Claude, la cererea lui Ioan Tuns). Starea deciziei nu se schimbă prin această notă.
+
 Decisă de: Ioan Tuns, 2026-11-08 (cerere și răspunsuri explicite în conversație: culoare pe fiecare program; în grilele Planificare și Pontaj și în rapoartele PDF).
 
 ## Context

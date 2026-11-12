@@ -2,6 +2,8 @@
 
 Stare: propusă · Data: 2026-11-07 · Taskuri: F09-T29
 
+Implementare: implementată din 0.92.72; toate punctele verificate în cod pe 2026-11-12, pe 0.92.102 (Claude, la cererea lui Ioan Tuns). Starea deciziei nu se schimbă prin această notă.
+
 ## Context
 
 În șabloanele pdfme făcute de aplicație, antetul (trei zone și titlul) și subsolul (două zone și numărul paginii) stau în `basePdf.staticSchema`, ca să se repete pe fiecare pagină (F09-T26). Designer-ul pdfme le arată în zona roșie a marginilor, dar nu le poate selecta. Ioan Tuns a cerut (2026-11-07) să le poată edita: de exemplu să șteargă titlul sau să pună data curentă lângă el.

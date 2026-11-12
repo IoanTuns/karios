@@ -2,6 +2,8 @@
 
 Stare: acceptată · Data: 2026-11-12 · Taskuri: F04-T08 · Cerută de: Ioan Tuns, 2026-11-12 („Pentru F04-T08 poate fi implementat configurabil?” → „da”) · Decisă de: Ioan Tuns, 2026-11-12 (toată decizia, inclusiv detaliile: prima trecere prin ora repetată, 04:00 pentru ora lipsă, refuzul în lunile închise)
 
+Implementare: implementată din 0.92.93; toate punctele verificate în cod pe 2026-11-12, pe 0.92.102 (Claude, la cererea lui Ioan Tuns). Starea deciziei nu se schimbă prin această notă.
+
 ## Context
 
 Orele din pontaj vin din programe cu oră de început și durată nominală. O tură 19–07 are 12 ore. În noaptea în care ora se dă înapoi (ultima duminică din octombrie, 04:00 devine 03:00), aceeași tură durează efectiv 13 ore. În noaptea în care ora se dă înainte (ultima duminică din martie, 03:00 devine 04:00), durează 11 ore. Până acum Pontix număra durata nominală, iar întrebarea „nominal sau efectiv” era deschisă la F01.

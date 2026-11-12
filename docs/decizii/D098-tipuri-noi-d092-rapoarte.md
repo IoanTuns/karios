@@ -2,6 +2,8 @@
 
 Stare: propusă · Data: 2026-11-09 · Taskuri: F08-T15
 
+Implementare: implementată din 0.92.80; toate punctele verificate în cod pe 2026-11-12, pe 0.92.102 (Claude, la cererea lui Ioan Tuns). Starea deciziei nu se schimbă prin această notă.
+
 ## Context
 
 Ioan Tuns a raportat (2026-11-09) două probleme după ce a definit formarea profesională:

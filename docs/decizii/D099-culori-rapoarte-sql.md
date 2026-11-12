@@ -2,6 +2,8 @@
 
 Stare: propusă · Data: 2026-11-09 · Taskuri: F09-T36 · Idee: I127
 
+Implementare: implementată din 0.92.86; toate punctele verificate în cod pe 2026-11-12, pe 0.92.102 (Claude, la cererea lui Ioan Tuns). Starea deciziei nu se schimbă prin această notă.
+
 ## Context
 
 Culorile programelor (D097) apar în Planificare, în Pontaj și în rapoartele PDF standard. Rapoartele SQL personalizate, de exemplu raportul lunar de gărzi G5 al lui Ioan Tuns, nu primeau culori. Ioan Tuns a cerut I127 pe 2026-11-09.

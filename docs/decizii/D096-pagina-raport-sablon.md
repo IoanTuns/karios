@@ -2,6 +2,8 @@
 
 Stare: propusă · Data: 2026-11-07 · Taskuri: F09-T32
 
+Implementare: implementată din 0.92.75; toate punctele verificate în cod pe 2026-11-12, pe 0.92.102 (Claude, la cererea lui Ioan Tuns). Starea deciziei nu se schimbă prin această notă.
+
 ## Context
 
 În modul editor vizual (pdfme), dimensiunea paginii venea din șablon (`basePdf.width/height`), fixată la crearea lui. Formatul și orientarea din **Setări de pagină** schimbau doar anexa. Ioan Tuns a raportat (2026-11-07) un raport setat Portret care ieșea peisaj: șablonul fusese creat pe A4 peisaj (implicitul unui model nou).

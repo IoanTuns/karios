@@ -2,6 +2,8 @@
 
 Stare: acceptată (regulile) · propusă (detaliile tehnice) · Data: 2026-11-07 · Taskuri: F08-T14
 
+Implementare: implementată din 0.92.71; toate punctele verificate în cod pe 2026-11-12, pe 0.92.102 (Claude, la cererea lui Ioan Tuns). Starea deciziei nu se schimbă prin această notă.
+
 Decisă de: Ioan Tuns, 2026-11-07 (cerere și răspunsuri explicite în conversație).
 
 ## Context

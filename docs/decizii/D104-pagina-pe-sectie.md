@@ -2,6 +2,8 @@
 
 Stare: propusă · Data: 2026-11-12 · Taskuri: F09-T02 · Cerută de: Ioan Tuns, 2026-11-12 („Poți să le implementezi pe toate și să construiești o versiune nouă?”)
 
+Implementare: implementată din 0.92.97; toate punctele verificate în cod pe 2026-11-12, pe 0.92.102 (Claude, la cererea lui Ioan Tuns). Starea deciziei nu se schimbă prin această notă.
+
 ## Context
 
 F09-T02 cerea pentru centralizatorul lunar „o pagină pe secție”. Celelalte cerințe (A4/A3 peisaj, antetul tabelului repetat) existau deja. Rapoartele se desenează cu pdfme în interfață (D087), ca un singur tabel care curge pe pagini. pdfme nu are un salt de pagină forțat în mijlocul tabelului.

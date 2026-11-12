@@ -2,6 +2,8 @@
 
 Stare: acceptată (cerința) · propusă (detaliile tehnice) · Data: 2026-11-07 · Taskuri: F14-T36
 
+Implementare: implementată din 0.92.55; toate punctele verificate în cod pe 2026-11-12, pe 0.92.102 (Claude, la cererea lui Ioan Tuns). Starea deciziei nu se schimbă prin această notă.
+
 Decisă de: Ioan Tuns, 2026-11-07, pentru: folderul `ai` scos din `karios/` și pus la același nivel cu el, ca baza de date și LLM-ul să fie separate.
 
 ## Context
