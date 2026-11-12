@@ -27,7 +27,7 @@ Orele suplimentare (F04-T04) și scăderea pauzei (F04-T05) așteptau regulile d
   - rândul e de gardă;
   - ziua are o valoare necalculabilă.
 - Coloana OS se configurează în Configurare pontaj, ca celelalte (sursa „Ore suplimentare”, cu factor).
-  - Apare în grila Pontaj după OL, în tabelul de totaluri din rapoartele SQL (`os`) și în Pontaj detaliat, unde se poate alege ca orice coloană.
+  - Apare în grila Pontaj după OL și în tabelul de totaluri din rapoartele SQL (`os`). Rapoartele standard (Pontaj detaliat etc.) își păstrează cele 12 coloane de dinainte de D092; OS se poate adăuga acolo într-un task separat.
   - Exportul Excel nu se schimbă acum.
 
 **Pauza (pe program, în Setări › Programe)**
