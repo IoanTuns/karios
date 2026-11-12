@@ -42,6 +42,15 @@ func calculeazaPontajBaza(ctx context.Context, q *acces.Queries, an, luna int, m
 	if c.Norme, err = q.NormeSoldPontaj(ctx); err != nil {
 		return gol, c, err
 	}
+	// Istoricul normei (D101), pentru norma fiecarei zile la orele suplimentare (D107).
+	istoric, err := q.ListaIstoricContract(ctx)
+	if err != nil {
+		return gol, c, err
+	}
+	c.IstoricNorme = map[string][]calcul.SchimbareContract{}
+	for id, r := range istoric {
+		c.IstoricNorme[id] = schimbariCalcul(r)
+	}
 	// Randurile marcii de garda, pentru regulile din D093.
 	if c.Garzi, err = randuriGarda(ctx, q); err != nil {
 		return gol, c, err
@@ -149,15 +158,30 @@ func calculeazaPontajBaza(ctx context.Context, q *acces.Queries, an, luna int, m
 	if err != nil {
 		return gol, c, err
 	}
+	pauze, err := q.ListaPauzeProgram(ctx)
+	if err != nil {
+		return gol, c, err
+	}
 	programe := []calcul.ProgramPontaj{}
 	for _, s := range schimburi {
-		programe = append(programe, calcul.ProgramPontaj{Cod: s.Cod, OraStart: s.OraStart, DurataMinute: s.DurataMinute, PauzaMinute: s.PauzaMinute})
+		programe = append(programe, calcul.ProgramPontaj{Cod: s.Cod, OraStart: s.OraStart, DurataMinute: s.DurataMinute, PauzaMinute: s.PauzaMinute, ModPauza: pauze[s.ID].Mod, PauzaOra: pauze[s.ID].Ora})
 	}
 	sarbatori, err := q.ListaToateSarbatori(ctx)
 	if err != nil {
 		return gol, c, err
 	}
 	libere := map[string]bool{}
+	// F04-T11 (D107): zilele libere adaugate de utilizator, pentru optiunea ZNL.
+	tipuri, err := q.TipuriSarbatori(ctx)
+	if err != nil {
+		return gol, c, err
+	}
+	c.ZileAdaugate = map[string]bool{}
+	for d, tip := range tipuri {
+		if tip == TipZiLibera {
+			c.ZileAdaugate[d] = true
+		}
+	}
 	for _, s := range sarbatori {
 		libere[s.Data] = true
 	}

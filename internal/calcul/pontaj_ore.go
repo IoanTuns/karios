@@ -18,6 +18,39 @@ const AtribuireCalendar = "ZILE_CALENDARISTICE"
 const SchimbareOraNominala = "NOMINALA"
 const SchimbareOraEfectiva = "EFECTIVA"
 
+// Modurile pauzei unui program (F04-T05, D107). NESTABILIT: programul cu pauza ramane necalculat.
+const (
+	PauzaNestabilita = "NESTABILIT"
+	PauzaNuSeScade   = "NU_SE_SCADE"
+	PauzaDinTotal    = "DIN_TOTAL"
+	PauzaLaOra       = "LA_ORA"
+	PauzaLaMijloc    = "LA_MIJLOC"
+)
+
+// PauzaCunoscuta spune daca orele programului se pot calcula: fara pauza sau cu modul ales.
+func PauzaCunoscuta(p ProgramPontaj) bool {
+	switch {
+	case p.PauzaMinute == 0, p.ModPauza == PauzaNuSeScade, p.ModPauza == PauzaDinTotal, p.ModPauza == PauzaLaMijloc:
+		return true
+	case p.ModPauza == PauzaLaOra:
+		return p.PauzaOra != nil
+	}
+	return false
+}
+
+// pauzaScazuta: minutele pauzei care se scad din ore (0 daca pauza nu se scade).
+func pauzaScazuta(p ProgramPontaj) int64 {
+	if p.PauzaMinute == 0 || p.ModPauza == PauzaNuSeScade || !PauzaCunoscuta(p) {
+		return 0
+	}
+	return p.PauzaMinute
+}
+
+// Zilele libere adaugate de utilizator (punti etc.) in ZNL (F04-T11, D107): TOATE (implicit,
+// ca inainte) le numara in ZNL; LEGALE numara doar weekendul si sarbatorile legale.
+const ZileLibereZNLToate = "TOATE"
+const ZileLibereZNLLegale = "LEGALE"
+
 type RegulaColoana struct {
 	Coloana       string   `json:"coloana"`
 	Sursa         string   `json:"sursa"`
@@ -48,17 +81,23 @@ type ConfiguratiePontaj struct {
 	Profile      map[string]ProfilPontaj `json:"-"`
 	// Norme: norma zilnica in minute pe angajat, pentru TOCN (D092); nil = fara norma zilnica.
 	Norme map[string]*int64 `json:"-"`
+	// IstoricNorme: schimbarile normei pe angajat (D101), pentru norma fiecarei zile la OS (D107).
+	IstoricNorme map[string][]SchimbareContract `json:"-"`
 	// Garzi: randurile marcii de garda (D060), cu regulile din D093 pentru ZNL, Ore garda 200% si Ore lucratoare.
 	Garzi        map[string]bool `json:"-"`
 	Atribuire    string          `json:"atribuire"`
 	SchimbareOra string          `json:"schimbare_ora"`
-	Reguli       []RegulaColoana `json:"reguli"`
-	Revizie      string          `json:"revizie"`
+	// ZileLibereZNL: TOATE sau LEGALE (gol = TOATE). ZileAdaugate: zilele libere adaugate de
+	// utilizator in calendar, completate de adaptor din tipul zilei (D107).
+	ZileLibereZNL string          `json:"zile_libere_znl"`
+	ZileAdaugate  map[string]bool `json:"-"`
+	Reguli        []RegulaColoana `json:"reguli"`
+	Revizie       string          `json:"revizie"`
 }
 
 func ColoanePontaj() []string {
 	return []string{"ore_lucrate", "T", "ZNL", "CO", "CEV", "CFS", "ore_norma", "form_prof", "CM", "L_FIN", "deleg", "ore_garda",
-		"OL", "CFP", "CVE", "DLG", "FMP", "TZLN", "TOCN"}
+		"OL", "CFP", "CVE", "DLG", "FMP", "TZLN", "TOCN", "OS"}
 }
 
 // ColoaneRapoarte sunt coloanele de total pe care le arata rapoartele standard si
@@ -69,7 +108,7 @@ func ColoaneRapoarte() []string { return ColoanePontaj()[:12] }
 // ColoaneGrilaPontaj sunt coloanele de total afisate in grila Pontaj (D092); celelalte
 // raman in calcul pentru rapoarte si export. TZLN si TOCN sunt ascunse.
 func ColoaneGrilaPontaj() []string {
-	return []string{"OL", "CO", "CM", "CFP", "CVE", "DLG", "FMP"}
+	return []string{"OL", "OS", "CO", "CM", "CFP", "CVE", "DLG", "FMP"}
 }
 
 // CoduriRedenumite: codurile de absenta redenumite prin D092 (vechi -> nou).
@@ -84,7 +123,7 @@ var CoduriExcluseCVE = []string{"CO", "CM", "CFP", "DLG", "FMP"}
 
 func UnitateColoana(c string) string {
 	switch c {
-	case "ore_lucrate", "T", "ZNL", "ore_norma", "ore_garda", "OL", "TOCN":
+	case "ore_lucrate", "T", "ZNL", "ore_norma", "ore_garda", "OL", "TOCN", "OS":
 		return "ORE"
 	case "CO", "CEV", "CFS", "CM", "deleg", "CFP", "CVE", "DLG", "FMP", "TZLN":
 		return "ZILE"
@@ -92,7 +131,7 @@ func UnitateColoana(c string) string {
 	return ""
 }
 func ConfiguratiePontajInitiala() ConfiguratiePontaj {
-	c := ConfiguratiePontaj{Atribuire: AtribuireInceput, SchimbareOra: SchimbareOraNominala, Revizie: "1", Reguli: []RegulaColoana{}}
+	c := ConfiguratiePontaj{Atribuire: AtribuireInceput, SchimbareOra: SchimbareOraNominala, ZileLibereZNL: ZileLibereZNLToate, Revizie: "1", Reguli: []RegulaColoana{}}
 	for _, cod := range ColoanePontaj() {
 		r := RegulaColoana{Coloana: cod, Sursa: "NEDEFINITA", Coduri: []string{}, FactorSutimi: 100}
 		switch cod {
@@ -116,6 +155,9 @@ func ConfiguratiePontajInitiala() ConfiguratiePontaj {
 			r.Sursa = "ZILE_LUCRATOARE_NETE"
 		case "TOCN":
 			r.Sursa = "ORE_NORMA_LUNA"
+		case "OS":
+			// Orele peste norma zilnica (D107).
+			r.Sursa = "ORE_SUPLIMENTARE"
 		}
 		c.Reguli = append(c.Reguli, r)
 	}
@@ -131,6 +173,9 @@ func ValideazaConfiguratiePontaj(c ConfiguratiePontaj) error {
 		return gresit()
 	}
 	if c.SchimbareOra != "" && c.SchimbareOra != SchimbareOraNominala && c.SchimbareOra != SchimbareOraEfectiva {
+		return gresit()
+	}
+	if c.ZileLibereZNL != "" && c.ZileLibereZNL != ZileLibereZNLToate && c.ZileLibereZNL != ZileLibereZNLLegale {
 		return gresit()
 	}
 	if len(c.Conditionate) > 100 {
@@ -176,7 +221,7 @@ func ValideazaConfiguratiePontaj(c ConfiguratiePontaj) error {
 		switch r.Sursa {
 		case "NEDEFINITA":
 			unitate = ""
-		case "TOTAL_ORE", "ORE_ZNL", "ORE_NORMA", "ORE_SCHIMBURI", "ORE_SCHIMBURI_ZNL", "ORE_LUCRATE_CODURI", "ORE_NORMA_LUNA":
+		case "TOTAL_ORE", "ORE_ZNL", "ORE_NORMA", "ORE_SCHIMBURI", "ORE_SCHIMBURI_ZNL", "ORE_LUCRATE_CODURI", "ORE_NORMA_LUNA", "ORE_SUPLIMENTARE":
 		case "ZILE_ABSENTA", "ZILE_ABSENTA_ALTELE", "ZILE_LUCRATOARE_NETE":
 			unitate = "ZILE"
 		default:
@@ -214,6 +259,9 @@ func ValideazaConfiguratiePontaj(c ConfiguratiePontaj) error {
 type ProgramPontaj struct {
 	Cod                                 string
 	OraStart, DurataMinute, PauzaMinute int64
+	// ModPauza si PauzaOra: cum se scade pauza (F04-T05, D107); PauzaOra in minute de la miezul noptii.
+	ModPauza string
+	PauzaOra *int64
 }
 type IntrarePontaj struct {
 	AngajatID, Data, Valoare, Absenta, StareAprobare string
@@ -250,8 +298,10 @@ const (
 	MotivFaraOraInceput     = "fara_ora_inceput"
 	// MotivGardaFaraZNL: pe randul marcii de garda ZNL nu se calculeaza (D093).
 	MotivGardaFaraZNL = "garda_fara_znl"
-	// MotivFaraNorma: TOCN cere norma zilnica, pe care garzile si unele contracte nu o au (D092).
+	// MotivFaraNorma: TOCN si OS cer norma zilnica, pe care garzile si unele contracte nu o au (D092, D107).
 	MotivFaraNorma = "fara_norma"
+	// MotivGardaFaraOS: randurile de garda nu au ore suplimentare (D107).
+	MotivGardaFaraOS = "garda_fara_os"
 )
 
 var ordineMotive = []string{MotivValoareNecunoscuta, MotivDurataInvalida, MotivPauza, MotivAbsentaFaraOre, MotivFaraOraInceput}
@@ -322,6 +372,8 @@ type acumularePontaj struct {
 	motiveComplet, motiveCalendar map[string]string
 	// credite: minutele creditate de absente, pe cod (pentru OL, D092).
 	credite map[string]int64
+	// lucratZi: minutele lucrate (programe si ore manuale, fara credite) pe ziua creditata, pentru OS (D107).
+	lucratZi map[string]int64
 }
 
 // CalculeazaPontaj folosește durata nominală a programelor, fără reguli salariale.
@@ -345,7 +397,7 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 	oameni := map[string]*acumularePontaj{}
 	persoana := func(id string) *acumularePontaj {
 		if oameni[id] == nil {
-			oameni[id] = &acumularePontaj{complet: true, calendar: true, schimburi: map[string]int64{}, schimburiZNL: map[string]int64{}, motiveComplet: map[string]string{}, motiveCalendar: map[string]string{}, credite: map[string]int64{}}
+			oameni[id] = &acumularePontaj{complet: true, calendar: true, schimburi: map[string]int64{}, schimburiZNL: map[string]int64{}, motiveComplet: map[string]string{}, motiveCalendar: map[string]string{}, credite: map[string]int64{}, lucratZi: map[string]int64{}}
 		}
 		return oameni[id]
 	}
@@ -426,8 +478,9 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 		minute, manual := OreManuale(in.Valoare)
 		cunoscut := manual
 		if program {
-			minute = p.DurataMinute
-			cunoscut = minute > 0 && minute <= 2880 && p.PauzaMinute == 0
+			// Totalul fara ora de inceput scade pauza din total, oricare ar fi modul ales (D107).
+			minute = p.DurataMinute - pauzaScazuta(p)
+			cunoscut = p.DurataMinute > 0 && p.DurataMinute <= 2880 && PauzaCunoscuta(p)
 		}
 		faraStart := program && (p.OraStart < 0 || p.OraStart >= 1440)
 		// Lipsa orei de început nu afectează totalul nominal, dar împiedică clasificarea calendaristică.
@@ -440,7 +493,7 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 			motivNecunoscut = MotivValoareNecunoscuta
 		case program && (p.DurataMinute <= 0 || p.DurataMinute > 2880):
 			motivNecunoscut = MotivDurataInvalida
-		case program && p.PauzaMinute != 0:
+		case program && !PauzaCunoscuta(p):
 			motivNecunoscut = MotivPauza
 		case faraStart:
 			motivNecunoscut = MotivFaraOraInceput
@@ -467,6 +520,7 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 			}
 			z.Minute += n
 			a.total += n
+			a.lucratZi[zi] += n
 			if program {
 				a.schimburi[p.Cod] += n
 			}
@@ -479,7 +533,9 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 				return
 			}
 			d := zi.Format(time.DateOnly)
-			if zi.Weekday() == time.Saturday || zi.Weekday() == time.Sunday || libere[d] {
+			// O zi libera adaugata de utilizator intra in ZNL doar daca optiunea o cere (D107).
+			libera := libere[d] && !(c.ZileLibereZNL == ZileLibereZNLLegale && c.ZileAdaugate[d])
+			if zi.Weekday() == time.Saturday || zi.Weekday() == time.Sunday || libera {
 				a.znl += n
 				if program {
 					a.schimburiZNL[p.Cod] += n
@@ -503,6 +559,24 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 			inceput = MomentLocal(data, p.OraStart)
 			sfarsit = MomentLocal(data, p.OraStart+p.DurataMinute)
 		}
+		// Pauza (D107): DIN_TOTAL se scade din primele minute ale turei (ziua inceperii); LA_ORA
+		// si LA_MIJLOC scot intervalul pauzei din fragmentele care il contin.
+		deScazut := int64(0)
+		var pauzaDe, pauzaPana time.Time
+		if s := pauzaScazuta(p); s > 0 {
+			switch p.ModPauza {
+			case PauzaDinTotal:
+				deScazut = s
+			case PauzaLaOra:
+				decalaj := (*p.PauzaOra - p.OraStart + 1440) % 1440
+				pauzaDe = inceput.Add(time.Duration(decalaj) * time.Minute)
+			case PauzaLaMijloc:
+				pauzaDe = inceput.Add((sfarsit.Sub(inceput) - time.Duration(s)*time.Minute) / 2)
+			}
+			if !pauzaDe.IsZero() {
+				pauzaPana = pauzaDe.Add(time.Duration(s) * time.Minute)
+			}
+		}
 		for curent := inceput; curent.Before(sfarsit); {
 			// Miezul noptii in acelasi fus ca momentele turei (UTC nominal sau Europe/Bucharest).
 			limita := time.Date(curent.Year(), curent.Month(), curent.Day()+1, 0, 0, 0, 0, curent.Location())
@@ -510,6 +584,16 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 				limita = sfarsit
 			}
 			n := int64(limita.Sub(curent) / time.Minute)
+			if !pauzaDe.IsZero() {
+				de, pana := maxTimp(curent, pauzaDe), minTimp(limita, pauzaPana)
+				if pana.After(de) {
+					n -= int64(pana.Sub(de) / time.Minute)
+				}
+			}
+			if deScazut > 0 {
+				x := min(n, deScazut)
+				n, deScazut = n-x, deScazut-x
+			}
 			zi := curent.Format(time.DateOnly)
 			credit := zi
 			if c.Atribuire == AtribuireInceput {
@@ -612,6 +696,30 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 			case "ZILE_LUCRATOARE_NETE":
 				v.Unitate = "ZILE"
 				v.Sutimi = tzln * 100
+			case "ORE_SUPLIMENTARE":
+				// D107: pe fiecare zi, orele lucrate peste norma zilei; in weekend si in zilele
+				// libere norma e 0, deci toate orele sunt suplimentare.
+				v.Unitate = "ORE"
+				if c.Norme[id] == nil {
+					v.Definita = false
+					break
+				}
+				v.Definita = a.complet
+				for zi, lucrat := range a.lucratZi {
+					d, e := time.Parse(time.DateOnly, zi)
+					if e != nil {
+						continue
+					}
+					var norma int64
+					if d.Weekday() != time.Saturday && d.Weekday() != time.Sunday && !libere[zi] {
+						if n := NormaLaData(c.Norme[id], c.IstoricNorme[id], zi); n != nil {
+							norma = *n
+						}
+					}
+					if lucrat > norma {
+						v.Sutimi += (lucrat - norma) * r.FactorSutimi
+					}
+				}
 			case "ORE_NORMA_LUNA":
 				v.Unitate = "ORE"
 				if n := c.Norme[id]; n != nil {
@@ -637,7 +745,7 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 				switch {
 				case r.Sursa == "NEDEFINITA":
 					v.Motiv = MotivRegulaNedefinita
-				case r.Sursa == "ORE_NORMA_LUNA":
+				case r.Sursa == "ORE_NORMA_LUNA" || (r.Sursa == "ORE_SUPLIMENTARE" && c.Norme[id] == nil):
 					v.Motiv = MotivFaraNorma
 				case !a.complet:
 					v.Motiv, v.MotivCod = primulMotiv(a.motiveComplet)
@@ -690,4 +798,22 @@ func aplicaReguliGarda(v map[string]ValoarePontaj, a *acumularePontaj) {
 	}
 	v["ore_garda"] = g
 	v["ore_lucratoare"] = l
+	// D107: randurile de garda nu au ore suplimentare.
+	if _, exista := v["OS"]; exista {
+		v["OS"] = ValoarePontaj{Unitate: "ORE", Motiv: MotivGardaFaraOS}
+	}
+}
+
+func maxTimp(a, b time.Time) time.Time {
+	if a.After(b) {
+		return a
+	}
+	return b
+}
+
+func minTimp(a, b time.Time) time.Time {
+	if a.Before(b) {
+		return a
+	}
+	return b
 }

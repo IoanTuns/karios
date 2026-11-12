@@ -417,6 +417,7 @@ export namespace calcul {
 	    conditionate?: RegulaConditionata[];
 	    atribuire: string;
 	    schimbare_ora: string;
+	    zile_libere_znl: string;
 	    reguli: RegulaColoana[];
 	    revizie: string;
 
@@ -429,6 +430,7 @@ export namespace calcul {
 	        this.conditionate = this.convertValues(source["conditionate"], RegulaConditionata);
 	        this.atribuire = source["atribuire"];
 	        this.schimbare_ora = source["schimbare_ora"];
+	        this.zile_libere_znl = source["zile_libere_znl"];
 	        this.reguli = this.convertValues(source["reguli"], RegulaColoana);
 	        this.revizie = source["revizie"];
 	    }
@@ -843,6 +845,22 @@ export namespace calcul {
 		    return a;
 		}
 	}
+	export class SchimbareContract {
+	    DeLa: string;
+	    NormaMinute?: number;
+	    ConcediuZileAn?: number;
+
+	    static createFrom(source: any = {}) {
+	        return new SchimbareContract(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.DeLa = source["DeLa"];
+	        this.NormaMinute = source["NormaMinute"];
+	        this.ConcediuZileAn = source["ConcediuZileAn"];
+	    }
+	}
 
 
 
@@ -1167,6 +1185,7 @@ export namespace datebaza {
 	export class Sarbatoare {
 	    data: string;
 	    denumire: Record<string, string>;
+	    tip: string;
 
 	    static createFrom(source: any = {}) {
 	        return new Sarbatoare(source);
@@ -1176,6 +1195,7 @@ export namespace datebaza {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.data = source["data"];
 	        this.denumire = source["denumire"];
+	        this.tip = source["tip"];
 	    }
 	}
 	export class CalendarAn {
@@ -2144,6 +2164,8 @@ export namespace datebaza {
 	    activ: boolean;
 	    culoare: string;
 	    culoare_afisata: string;
+	    mod_pauza: string;
+	    pauza_ora?: number;
 
 	    static createFrom(source: any = {}) {
 	        return new Schimb(source);
@@ -2166,6 +2188,8 @@ export namespace datebaza {
 	        this.activ = source["activ"];
 	        this.culoare = source["culoare"];
 	        this.culoare_afisata = source["culoare_afisata"];
+	        this.mod_pauza = source["mod_pauza"];
+	        this.pauza_ora = source["pauza_ora"];
 	    }
 	}
 	export class SchitaLuna {

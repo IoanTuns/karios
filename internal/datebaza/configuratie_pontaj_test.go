@@ -3,6 +3,7 @@ package datebaza
 import (
 	"context"
 	"pontix/internal/calcul"
+	"pontix/internal/i18n"
 	"testing"
 )
 
@@ -115,5 +116,45 @@ func TestSchimbareOraSalvareSiLuniInchise(t *testing.T) {
 	c.SchimbareOra = calcul.SchimbareOraNominala
 	if e = m.serviciu.SalveazaConfiguratiePontaj(ctx, c); e != nil {
 		t.Fatal("dupa redeschidere", e)
+	}
+}
+
+// F04-T11 (D107): tipul zilei se salveaza, iar optiunea ZNL e refuzata cat timp o luna cu
+// zile libere adaugate e inchisa.
+func TestZileLibereZNLSalvareSiLuniInchise(t *testing.T) {
+	m := pregateste(t)
+	ctx := context.Background()
+	if e := m.serviciu.SalveazaSarbatoare(ctx, "", Sarbatoare{Data: "2026-05-04", Denumire: i18n.Text{"ro": "Punte"}, Tip: TipZiLibera}); e != nil {
+		t.Fatal(e)
+	}
+	verificaCod(t, m.serviciu.SalveazaSarbatoare(ctx, "", Sarbatoare{Data: "2026-05-05", Denumire: i18n.Text{"ro": "X"}, Tip: "ALTUL"}), "sarbatori.tip_invalid")
+	cal, e := m.serviciu.CitesteCalendar(ctx, 2026)
+	if e != nil {
+		t.Fatal(e)
+	}
+	gasit := false
+	for _, s := range cal.Sarbatori {
+		gasit = gasit || (s.Data == "2026-05-04" && s.Tip == TipZiLibera)
+	}
+	if !gasit {
+		t.Fatal("tipul zilei", cal.Sarbatori)
+	}
+	c, _, e := m.serviciu.ConfiguratiePontaj(ctx)
+	if e != nil || c.ZileLibereZNL != calcul.ZileLibereZNLToate {
+		t.Fatal("implicit", c.ZileLibereZNL, e)
+	}
+	if _, e = m.serviciu.SeteazaStareLuna(ctx, 2026, 5, "INCHISA", "test", "operator"); e != nil {
+		t.Fatal(e)
+	}
+	c.ZileLibereZNL = calcul.ZileLibereZNLLegale
+	verificaCod(t, m.serviciu.SalveazaConfiguratiePontaj(ctx, c), "pontaj.zile_libere_luna_inchisa")
+	if _, e = m.serviciu.SeteazaStareLuna(ctx, 2026, 5, "DESCHISA", "corectie", "operator"); e != nil {
+		t.Fatal(e)
+	}
+	if e = m.serviciu.SalveazaConfiguratiePontaj(ctx, c); e != nil {
+		t.Fatal(e)
+	}
+	if c, _, _ = m.serviciu.ConfiguratiePontaj(ctx); c.ZileLibereZNL != calcul.ZileLibereZNLLegale {
+		t.Fatal("salvata", c.ZileLibereZNL)
 	}
 }

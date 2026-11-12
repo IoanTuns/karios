@@ -32,6 +32,9 @@ func citesteConfiguratiePontaj(ctx context.Context, q *acces.Queries) (calcul.Co
 	if c.SchimbareOra == "" {
 		c.SchimbareOra = calcul.SchimbareOraNominala
 	}
+	if c.ZileLibereZNL == "" {
+		c.ZileLibereZNL = calcul.ZileLibereZNLToate
+	}
 	optiuni, err := optiuniReguli(ctx, q)
 	if err != nil {
 		return c, err
@@ -197,12 +200,21 @@ func (s *Serviciu) SalveazaConfiguratiePontaj(ctx context.Context, c calcul.Conf
 				return err
 			}
 		}
+		if c.ZileLibereZNL == "" {
+			c.ZileLibereZNL = calcul.ZileLibereZNLToate
+		}
+		if c.ZileLibereZNL != vechi.ZileLibereZNL {
+			if err := verificaZileLibereZNLModificabila(ctx, tx); err != nil {
+				return err
+			}
+		}
 		date, err := json.Marshal(struct {
-			Atribuire    string                      `json:"atribuire"`
-			SchimbareOra string                      `json:"schimbare_ora"`
-			Reguli       []calcul.RegulaColoana      `json:"reguli"`
-			Conditionate []calcul.RegulaConditionata `json:"conditionate,omitempty"`
-		}{c.Atribuire, c.SchimbareOra, c.Reguli, c.Conditionate})
+			Atribuire     string                      `json:"atribuire"`
+			SchimbareOra  string                      `json:"schimbare_ora"`
+			ZileLibereZNL string                      `json:"zile_libere_znl"`
+			Reguli        []calcul.RegulaColoana      `json:"reguli"`
+			Conditionate  []calcul.RegulaConditionata `json:"conditionate,omitempty"`
+		}{c.Atribuire, c.SchimbareOra, c.ZileLibereZNL, c.Reguli, c.Conditionate})
 		if err != nil {
 			return err
 		}
@@ -237,6 +249,22 @@ func verificaSchimbareOraModificabila(ctx context.Context, tx *sql.Tx) error {
 		}
 	}
 	return rows.Err()
+}
+
+// verificaZileLibereZNLModificabila (F04-T11, D107): optiunea rescrie ZNL in lunile cu zile
+// libere adaugate; se refuza cat timp o astfel de luna e inchisa.
+func verificaZileLibereZNLModificabila(ctx context.Context, tx *sql.Tx) error {
+	var luna string
+	err := tx.QueryRowContext(ctx, `SELECT substr(s.data,6,2)||'.'||substr(s.data,1,4) FROM sarbatori s
+		JOIN stare_luni l ON l.an = CAST(substr(s.data,1,4) AS INTEGER) AND l.luna = CAST(substr(s.data,6,2) AS INTEGER)
+		WHERE s.tip = 'LIBERA' AND l.stare <> 'DESCHISA' ORDER BY s.data LIMIT 1`).Scan(&luna)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	return &calcul.Eroare{Cod: "pontaj.zile_libere_luna_inchisa", Param: map[string]string{"luna": luna}}
 }
 
 // completeazaTipuriNoi (F08-T15): o configuratie salvata inainte sa existe un tip de absenta

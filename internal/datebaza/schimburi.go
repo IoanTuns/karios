@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"pontix/internal/bd/acces"
+	"pontix/internal/calcul"
 	"pontix/internal/i18n"
 )
 
@@ -30,6 +31,9 @@ type Schimb struct {
 	Culoare string `json:"culoare"`
 	// CuloareAfisata: culoarea folosita in grile si rapoarte (aleasa sau implicita).
 	CuloareAfisata string `json:"culoare_afisata"`
+	// ModPauza si PauzaOra: cum se scade pauza (F04-T05, D107); PauzaOra in minute de la miezul noptii.
+	ModPauza string `json:"mod_pauza"`
+	PauzaOra *int64 `json:"pauza_ora"`
 }
 
 // culoriImplicite (D097): nuante deschise, distincte de weekend (gri), sarbatoare (galben),
@@ -127,6 +131,10 @@ func (s *Serviciu) ListaSchimburi(ctx context.Context) ([]Schimb, error) {
 	if err != nil {
 		return nil, traduceEroare(err)
 	}
+	pauze, err := acces.New(s.db).ListaPauzeProgram(ctx)
+	if err != nil {
+		return nil, traduceEroare(err)
+	}
 	rez := []Schimb{}
 	for _, r := range randuri {
 		var denumire i18n.Text
@@ -144,7 +152,7 @@ func (s *Serviciu) ListaSchimburi(ctx context.Context) ([]Schimb, error) {
 		if r.Culoare != nil {
 			culoare = *r.Culoare
 		}
-		rez = append(rez, Schimb{Revizie: c.Revizie, TipID: c.TipID, RegimID: c.RegimID, ID: r.ID, Cod: r.Cod, Denumire: denumire, OraStart: r.OraStart, DurataMinute: r.DurataMinute, PauzaMinute: r.PauzaMinute, Tip: r.Tip, Regim: r.Regim, Categorie: r.Categorie, Activ: r.Activ == 1, Culoare: culoare, CuloareAfisata: CuloareProgram(culoare, r.Tip)})
+		rez = append(rez, Schimb{Revizie: c.Revizie, TipID: c.TipID, RegimID: c.RegimID, ID: r.ID, Cod: r.Cod, Denumire: denumire, OraStart: r.OraStart, DurataMinute: r.DurataMinute, PauzaMinute: r.PauzaMinute, Tip: r.Tip, Regim: r.Regim, Categorie: r.Categorie, Activ: r.Activ == 1, Culoare: culoare, CuloareAfisata: CuloareProgram(culoare, r.Tip), ModPauza: pauze[r.ID].Mod, PauzaOra: pauze[r.ID].Ora})
 	}
 	return rez, nil
 }
@@ -173,6 +181,9 @@ func (s *Serviciu) SalveazaSchimb(ctx context.Context, schimb Schimb) error {
 	case "NORMAL", "TURA", "NOAPTE", "GARDA":
 	default:
 		return eroare("schimburi.tip_invalid")
+	}
+	if err := valideazaPauza(&schimb); err != nil {
+		return err
 	}
 	var culoare *string
 	if c := strings.TrimSpace(schimb.Culoare); c != "" {
@@ -279,6 +290,9 @@ func (s *Serviciu) SalveazaSchimb(ctx context.Context, schimb Schimb) error {
 		if _, err := tx.ExecContext(ctx, "INSERT INTO clasificari_schimburi(schimb_id,tip_id,regim_id) VALUES(?,?,?) ON CONFLICT(schimb_id) DO UPDATE SET tip_id=excluded.tip_id,regim_id=excluded.regim_id", schimb.ID, schimb.TipID, schimb.RegimID); err != nil {
 			return err
 		}
+		if err := q.SeteazaPauzaProgram(ctx, schimb.ID, schimb.ModPauza, schimb.PauzaOra); err != nil {
+			return err
+		}
 		if err := jurnal(ctx, q, "clasificari_schimburi", schimb.ID, anterioara, acces.ClasificareSchimb{TipID: schimb.TipID, RegimID: schimb.RegimID}); err != nil {
 			return err
 		}
@@ -304,4 +318,35 @@ func (s *Serviciu) SchimbaActivSchimb(ctx context.Context, id string, activ bool
 		}
 		return jurnal(ctx, q, "tipuri_schimb", id, vechi, nou)
 	})
+}
+
+// valideazaPauza (F04-T05, D107): modul trebuie sa fie unul cunoscut; pauza e cel mult jumatate
+// din program; la LA_ORA ora pauzei e obligatorie, iar pauza trebuie sa cada in interiorul turei.
+func valideazaPauza(s *Schimb) error {
+	switch s.ModPauza {
+	case "":
+		s.ModPauza = calcul.PauzaNestabilita
+	case calcul.PauzaNestabilita, calcul.PauzaNuSeScade, calcul.PauzaDinTotal, calcul.PauzaLaOra, calcul.PauzaLaMijloc:
+	default:
+		return eroare("schimburi.pauza_mod_invalid")
+	}
+	if s.ModPauza != calcul.PauzaLaOra {
+		s.PauzaOra = nil
+	}
+	if s.PauzaMinute == 0 {
+		return nil
+	}
+	if s.PauzaMinute*2 > s.DurataMinute {
+		return eroare("schimburi.pauza_prea_mare")
+	}
+	if s.ModPauza == calcul.PauzaLaOra {
+		if s.PauzaOra == nil || *s.PauzaOra < 0 || *s.PauzaOra > 1439 {
+			return eroare("schimburi.pauza_ora_lipsa")
+		}
+		decalaj := (*s.PauzaOra - s.OraStart + 1440) % 1440
+		if decalaj+s.PauzaMinute > s.DurataMinute {
+			return eroare("schimburi.pauza_in_afara_turei")
+		}
+	}
+	return nil
 }

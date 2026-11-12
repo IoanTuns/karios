@@ -102,3 +102,26 @@ func TestLunaCuSchimbareOra(t *testing.T) {
 		}
 	}
 }
+
+// F04-T11 (D107): o zi libera adaugata intra in ZNL doar cu optiunea TOATE.
+func TestZileLibereAdaugateInZNL(t *testing.T) {
+	p := []ProgramPontaj{{Cod: "Z8", OraStart: 8 * 60, DurataMinute: 480}}
+	in := []IntrarePontaj{{AngajatID: "a", Data: "2026-05-04", Valoare: "Z8"}} // luni, zi libera adaugata
+	for _, caz := range []struct{ optiune, znl, norma string }{{ZileLibereZNLToate, "8", "0"}, {"", "8", "0"}, {ZileLibereZNLLegale, "0", "8"}} {
+		c := ConfiguratiePontajInitiala()
+		c.ZileLibereZNL, c.ZileAdaugate = caz.optiune, map[string]bool{"2026-05-04": true}
+		r, err := CalculeazaPontaj("2026-05-01", "2026-05-31", c, p, in, map[string]bool{"2026-05-01": true, "2026-05-04": true})
+		if err != nil {
+			t.Fatal(err)
+		}
+		v := r.Totaluri[0].Valori
+		if TextValoarePontaj(v["ZNL"]) != caz.znl || TextValoarePontaj(v["ore_norma"]) != caz.norma {
+			t.Errorf("%q: ZNL=%s ore_norma=%s", caz.optiune, TextValoarePontaj(v["ZNL"]), TextValoarePontaj(v["ore_norma"]))
+		}
+	}
+	c := ConfiguratiePontajInitiala()
+	c.ZileLibereZNL = "ALTCEVA"
+	if ValideazaConfiguratiePontaj(c) == nil {
+		t.Fatal("optiune necunoscuta acceptata")
+	}
+}

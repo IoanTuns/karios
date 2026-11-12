@@ -6,11 +6,11 @@ import {CitesteConfiguratiePontaj, SalveazaConfiguratiePontaj} from '../wailsjs/
 import {calcul, datebaza} from '../wailsjs/go/models';
 
 // D092: surse noi pentru OL, CVE, TZLN si TOCN. Unitatea sursei trebuie sa fie a coloanei.
-const surseOre = ['TOTAL_ORE','ORE_ZNL','ORE_NORMA','ORE_SCHIMBURI','ORE_SCHIMBURI_ZNL','ORE_LUCRATE_CODURI','ORE_NORMA_LUNA'];
+const surseOre = ['TOTAL_ORE','ORE_ZNL','ORE_NORMA','ORE_SCHIMBURI','ORE_SCHIMBURI_ZNL','ORE_LUCRATE_CODURI','ORE_NORMA_LUNA','ORE_SUPLIMENTARE'];
 const surseZile = ['ZILE_ABSENTA','ZILE_ABSENTA_ALTELE','ZILE_LUCRATOARE_NETE'];
 const surse = ['NEDEFINITA',...surseOre,...surseZile];
 const zile = ['CO','CEV','CFS','CM','deleg','CFP','CVE','DLG','FMP','TZLN'];
-const ore = ['ore_lucrate','T','ZNL','ore_norma','ore_garda','OL','TOCN'];
+const ore = ['ore_lucrate','T','ZNL','ore_norma','ore_garda','OL','TOCN','OS'];
 const sursaPermisa = (coloana:string,s:string) => s==='NEDEFINITA' || (zile.includes(coloana) ? surseZile.includes(s) : ore.includes(coloana) ? surseOre.includes(s) : true);
 // Sursele cu lista de coduri: obligatorie la cele dintai, optionala la OL (incluse) si CVE (excluse).
 const cuCoduriObligatorii = (s:string) => s==='ORE_SCHIMBURI'||s==='ORE_SCHIMBURI_ZNL'||s==='ZILE_ABSENTA';
@@ -69,6 +69,9 @@ export function ReguliPontaj({onModificari,onOcupat,date}: {date:datebaza.Date;o
         <label className="camp-atribuire">{t('pontaj.schimbare_ora')}<select name="schimbare_ora" disabled={ocupat} value={config.schimbare_ora||'NOMINALA'} onChange={e=>setConfig(new calcul.ConfiguratiePontaj({...config,schimbare_ora:e.target.value}))}>
             <option value="NOMINALA">{t('pontaj.schimbare_ora_NOMINALA')}</option><option value="EFECTIVA">{t('pontaj.schimbare_ora_EFECTIVA')}</option></select></label>
         <p className="nota-calendar">{t('pontaj.schimbare_ora_indiciu')}</p>
+        {/* F04-T11 (D107): zilele libere adaugate de utilizator intra sau nu in ZNL. */}
+        <label className="camp-atribuire">{t('pontaj.zile_libere_znl')}<select name="zile_libere_znl" disabled={ocupat} value={config.zile_libere_znl||'TOATE'} onChange={e=>setConfig(new calcul.ConfiguratiePontaj({...config,zile_libere_znl:e.target.value}))}>
+            <option value="TOATE">{t('pontaj.zile_libere_znl_TOATE')}</option><option value="LEGALE">{t('pontaj.zile_libere_znl_LEGALE')}</option></select></label>
         <p className="nota-calendar">{t('pontaj.calendar_indiciu')}</p><ReguliConditionate date={date} lista={config.conditionate??[]} ocupat={ocupat} onChange={r=>setConfig(new calcul.ConfiguratiePontaj({...config,conditionate:r}))}/>
         <div className="panou tabel-derulant"><table className="tabel-reguli-pontaj"><thead><tr>{['coloana_regula','sursa_regula','selectie_regula','factor_regula','aprobare_regula'].map(c=><th key={c}>{t(`pontaj.${c}`)}</th>)}</tr></thead><tbody>
             {config.reguli.map((r,i)=>{const selectie=cuCoduri(r.sursa);return <tr key={r.coloana}><th>{t(`pontaj.total_${r.coloana}`)}</th><td><select name={`sursa_${r.coloana}`} aria-label={t('pontaj.sursa_pentru',{coloana:t(`pontaj.total_${r.coloana}`)})} disabled={ocupat} value={r.sursa} {...invalid(r,'sursa')} onChange={e=>schimba(i,{sursa:e.target.value,coduri:e.target.value==='ZILE_ABSENTA_ALTELE'?['CO','CM','CFP','DLG','FMP'].filter(c=>optiuni.some(o=>o.tip==='ABSENTA'&&o.cod===c)):[],factor_sutimi:100,numai_aprobate:false})}>

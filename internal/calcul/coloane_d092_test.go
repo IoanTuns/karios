@@ -58,8 +58,8 @@ func TestColoaneD092(t *testing.T) {
 			t.Errorf("TOCN depinde de concedii: %+v", x.Valori["TOCN"])
 		}
 	}
-	// Grila arata doar cele 7 coloane cerute.
-	if g := ColoaneGrilaPontaj(); len(g) != 7 || g[0] != "OL" || g[6] != "FMP" {
+	// Grila arata cele 7 coloane cerute (D092) si orele suplimentare dupa OL (D107).
+	if g := ColoaneGrilaPontaj(); len(g) != 8 || g[0] != "OL" || g[1] != "OS" || g[7] != "FMP" {
 		t.Errorf("grila: %v", g)
 	}
 	if len(ColoaneRapoarte()) != 12 || ColoaneRapoarte()[11] != "ore_garda" {

@@ -36,7 +36,7 @@ func TestMigrareStructuraContractePastreazaDatele(t *testing.T) {
 	if _, err := db.Exec(`INSERT INTO angajati(id,nume,prenume,marca,tip_contract,norma_partiala_minute,creat_la,modificat_la) VALUES('n','Exemplu','Ana','N','PARTIALA',225,'x','x'),('g','Exemplu','Ana','G','INTREAGA',NULL,'x','x');INSERT INTO angajati_garzi VALUES('g','n')`); err != nil {
 		t.Fatal(err)
 	}
-	if n, err := Migreaza(ctx, db, Migrari); err != nil || n != 14 {
+	if n, err := Migreaza(ctx, db, Migrari); err != nil || n != 16 {
 		t.Fatal(n, err)
 	}
 	var contract string

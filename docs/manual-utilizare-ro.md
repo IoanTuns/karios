@@ -1074,3 +1074,31 @@ Textele aplicației se pot corecta, iar o limbă nouă se poate adăuga, fără 
 
 **Șterge traducerile importate** readuce textele unei limbi la cele incluse în program. O limbă nouă se alege din fila Limbă; rapoartele rămân în română și engleză.
 
+## Zilele libere adăugate și ZNL (0.92.109)
+
+În **Sărbători legale**, fiecare zi are un **Tip**: **Sărbătoare legală** sau **Zi liberă adăugată** (de exemplu o punte acordată de unitate). Zilele existente din 2025–2027 au fost clasificate automat după calendarul legal; verificați-le o dată.
+
+În **Setări › Configurare pontaj**, opțiunea **Zilele libere adăugate în calendar, în ZNL** alege dacă orele lucrate într-o zi liberă adăugată intră în ZNL (implicit, ca până acum) sau nu (atunci intră doar weekendul și sărbătorile legale). Opțiunea nu se poate schimba cât timp e închisă o lună care conține o zi liberă adăugată.
+
+Programele care intră în ZNL se aleg tot în Configurare pontaj: pentru coloana ZNL alegeți sursa „Ore din programele selectate, în ZNL” și bifați programele (de exemplu cele de tip Tură și Noapte).
+
+## Orele suplimentare (0.92.110)
+
+Coloana **OS** din Pontaj arată orele suplimentare: pentru fiecare zi, orele lucrate peste norma zilnică a persoanei. În weekend și în zilele libere din calendar nu există normă, deci toate orele lucrate acolo sunt suplimentare (ele apar și în ZNL).
+
+- Norma zilei vine din fișa angajatului și din **Istoric normă și concediu**.
+- Zilele de concediu sau de formare nu adaugă ore suplimentare.
+- La rândurile de gardă și la persoanele fără normă zilnică coloana arată „—”, cu motivul în titlu.
+- Regula coloanei se poate schimba în **Setări › Configurare pontaj** (sursa „Ore suplimentare”).
+
+## Pauza programelor (0.92.111)
+
+În **Setări › Schimburi**, la un program cu pauză, alegeți **Cum se scade pauza**:
+
+- **Nu se scade**: pauza e doar informativă; orele rămân cele din program;
+- **Din totalul zilei în care începe tura**;
+- **La o oră fixă**: alegeți ora de început a pauzei (de exemplu 12:00); pauza trebuie să cadă în interiorul programului;
+- **La mijlocul turei**.
+
+Cu ora fixă sau la mijloc, pauza se scade din ziua în care cade (contează la împărțirea pe zile și la ZNL). Pauza poate fi cel mult jumătate din program. Programele care aveau deja pauză rămân **Nestabilit** — orele lor nu se calculează până alegeți modul.
+
