@@ -1,6 +1,8 @@
 # D093 · Gărzile: fără ZNL, ore gardă 200% și ore lucrătoare
 
-Stare: acceptată (regulile) · propusă (detaliile tehnice) · Data: 2026-11-07 · Taskuri: F08-T14
+Stare: acceptată · Data: 2026-11-07 · Taskuri: F08-T14 · Decisă de: Ioan Tuns, 2026-11-12 („accept toate”)
+
+Implementare: implementată din 0.92.71; toate punctele verificate în cod pe 2026-11-12, pe 0.92.102 (Claude, la cererea lui Ioan Tuns). Starea deciziei nu se schimbă prin această notă.
 
 Decisă de: Ioan Tuns, 2026-11-07 (cerere și răspunsuri explicite în conversație).
 
@@ -16,7 +18,7 @@ Numai pe **rândurile mărcii de gardă**:
 2. **Ore gardă 200%** = orele de gardă care cad sâmbăta, duminica sau într-o sărbătoare legală (aceeași împărțire pe zile calendaristice ca la ZNL, D028).
 3. **Ore lucrătoare** = total ore − ore gardă 200%.
 
-### Detalii tehnice (propuse)
+### Detalii tehnice (acceptate)
 
 - Calculul (`internal/calcul`) primește mulțimea rândurilor de gardă (`ConfiguratiePontaj.Garzi`, din profilul pontajului) și aplică regulile peste valorile configurate în Configurare pontaj pentru coloanele ZNL și Ore gardă 200%.
 - Soldurile lunare nu suprascriu „Ore lucrătoare” pe rândurile de gardă; L început și L/FIN rămân neschimbate (fără normă, nedefinite), pentru că nu s-a cerut altceva.

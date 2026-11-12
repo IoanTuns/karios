@@ -1059,3 +1059,7 @@ Alegerile se păstrează în folderul `karios`, lângă program, deci călătore
 - exportul Excel conține toți angajații, pe o singură foaie;
 - opțiunea nu apare la rapoartele SQL personalizate și la fișa individuală.
 
+## Exportul Excel în limba rapoartelor (0.92.98)
+
+Exportul Excel din **Pontaj** folosește limba implicită a rapoartelor, aleasă în **Setări › General › Limbă**. În engleză se traduc titlurile, foile, lunile și antetele coloanelor. În română fișierul rămâne la fel ca înainte.
+

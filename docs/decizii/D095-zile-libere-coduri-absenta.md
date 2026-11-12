@@ -1,6 +1,8 @@
 # D095 · Zilele libere întregi și codul absenței în locul lui 0
 
-Stare: acceptată (regulile) · propusă (detaliile tehnice) · Data: 2026-11-07 · Taskuri: F09-T30
+Stare: acceptată · Data: 2026-11-07 · Taskuri: F09-T30 · Decisă de: Ioan Tuns, 2026-11-12 („accept toate”)
+
+Implementare: implementată din 0.92.73; toate punctele verificate în cod pe 2026-11-12, pe 0.92.102 (Claude, la cererea lui Ioan Tuns). Starea deciziei nu se schimbă prin această notă.
 
 Decisă de: Ioan Tuns, 2026-11-07 (cerere și răspunsuri explicite în conversație).
 
@@ -18,7 +20,7 @@ Pentru fiecare persoană și zi, numai unde persoana **nu are ore** în acea zi:
 
 Se aplică în grila Pontaj și în toate rapoartele cu valori pe zile (Pontaj lunar, Pontaj detaliat, Fișa individuală, coloana ore din Evidența absențelor și rapoartele flexibile care le folosesc).
 
-### Detalii tehnice (propuse)
+### Detalii tehnice (acceptate)
 
 - Rapoarte: `celulaZiFaraOre` în `internal/rapoarte/document.go`; culoarea nouă `ZI_LIBERA` (`#D2D8D3` în PDF), distinctă de `WEEKEND` (#E7EAE7), care rămâne pe zilele libere cu ore.
 - Grila Pontaj: clasa `zi-libera-intreaga`, hașură peste culoarea weekendului sau a sărbătorii, cu intrare în legendă și explicație în tooltip (cu codul absenței, dacă există).

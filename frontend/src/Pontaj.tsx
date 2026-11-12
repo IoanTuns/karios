@@ -19,6 +19,7 @@ import {programSpecial} from './eligibilitateProgram';
 import {notifica} from './Toast';
 import {formatData, dataAfisata} from './formatare';
 import {AsistentAI} from './AsistentAI';
+import {limbaRapoarte} from './limba';
 
 type Pozitie = {rand: number; zi: number};
 type Selectie = {inceput: Pozitie; sfarsit: Pozitie};
@@ -728,7 +729,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
     async function exportaExcel() {
         setOcupat(true); onOcupat(true); setEroare(''); setMesaj('');
         try {
-            const resp = await ExportaPontajExcel(an, luna);
+            const resp = await ExportaPontajExcel(an, luna, limbaRapoarte());
             if (resp.eroare) {
                 setEroare(t(resp.eroare.cod, resp.eroare.param ?? {}));
             } else if (resp.cale) {

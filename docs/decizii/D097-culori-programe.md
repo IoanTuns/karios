@@ -1,6 +1,8 @@
 # D097 · Culoare pe fiecare program (tură, gardă)
 
-Stare: acceptată (cerința) · propusă (detaliile tehnice) · Data: 2026-11-08 · Taskuri: F07-T42
+Stare: acceptată · Data: 2026-11-08 · Taskuri: F07-T42 · Decisă de: Ioan Tuns, 2026-11-12 („accept toate”)
+
+Implementare: implementată din 0.92.79; toate punctele verificate în cod pe 2026-11-12, pe 0.92.102 (Claude, la cererea lui Ioan Tuns). Starea deciziei nu se schimbă prin această notă.
 
 Decisă de: Ioan Tuns, 2026-11-08 (cerere și răspunsuri explicite în conversație: culoare pe fiecare program; în grilele Planificare și Pontaj și în rapoartele PDF).
 
@@ -16,7 +18,7 @@ Programele (ture, gărzi, din Setări › Programe) se deosebeau în grile și r
 - **Rapoarte PDF:** celulele zilelor cu program (Pontaj lunar, Pontaj detaliat, Fișa individuală, Grafic gărzi) au fundalul programului; absențele și zilele libere rămân cu culorile lor.
 - Selecția, avertismentele și modificările nesalvate rămân deasupra culorii programului. În tema întunecată culoarea devine o nuanță peste fundal (28%).
 
-### Detalii tehnice (propuse)
+### Detalii tehnice (acceptate)
 
 - Migrarea `0036_culori_programe.sql`: coloana `tipuri_schimb.culoare` (NULL = implicită), validată `#RRGGBB` cu majuscule.
 - `datebaza.CuloareProgram(aleasa, tip)` dă culoarea afișată; `Schimb.culoare_afisata` o trimite interfeței, ca regula să fie într-un singur loc.

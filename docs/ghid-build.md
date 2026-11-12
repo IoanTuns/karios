@@ -34,7 +34,7 @@ După orice schimbare a metodelor legate (`App`) sau a tipurilor lor, se regener
 wails generate module
 ```
 
-Ieșirea generatorului e varianta de referință; nu se editează manual (F02-T15). Generatorul include doar tipurile care apar în semnăturile metodelor: un tip trimis numai prin eveniment (de ex. `RezultatSarcinaAI`, evenimentul `ai:sarcina_terminata`) se definește în frontend, lângă codul care îl folosește. `wails build` regenerează și el legăturile.
+Ieșirea generatorului e varianta de referință; nu se editează manual (F02-T15). Se commit-uiește exact cum o lasă `build.ps1`: ieșirea generatorului, cu spațiile de la sfârșitul rândurilor scoase din `models.ts` (după `wails generate module`, scoate-le la fel). După un build, `git status` nu trebuie să arate fișiere din `frontend/wailsjs` (F02-T30). Generatorul include doar tipurile care apar în semnăturile metodelor: un tip trimis numai prin eveniment (de ex. `RezultatSarcinaAI`, evenimentul `ai:sarcina_terminata`) se definește în frontend, lângă codul care îl folosește. `wails build` regenerează și el legăturile.
 
 ## Datele aplicației
 

@@ -4,6 +4,26 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.102 - 2026-11-12
+
+F02-T30. `frontend/wailsjs/go/models.ts` în forma lăsată de `build.ps1` (fără spații la sfârșit de rând), ca build-ul să nu mai modifice fișiere urmărite. Fără schimbări pentru utilizator.
+
+## 0.92.101 - 2026-11-12
+
+F14-T21. Dependențe indirecte actualizate: go-sqlite3-wasm 6.6.35401, echo 4.16.4, tiff 1.0.8. interpolate rămâne la 0.0.2 (0.2.0 nu e compatibilă cu goose 3.30). Fără schimbări pentru utilizator.
+
+## 0.92.100 - 2026-11-12
+
+F02-T30. Legăturile dintre interfață și Go (`frontend/wailsjs`) sunt exact ieșirea generatorului Wails, deci un build nu mai lasă fișiere modificate. Fără schimbări pentru utilizator.
+
+## 0.92.99 - 2026-11-12
+
+F09-T06. Rapoartele flexibile au și ele un test cu fișier de referință (versiunea 21), ca toate rapoartele standard. Fără schimbări pentru utilizator.
+
+## 0.92.98 - 2026-11-12
+
+F10-T06 (I130). Exportul Excel al pontajului are textele în cataloagele de traduceri și folosește limba implicită a rapoartelor; în engleză sunt traduse titlurile, foile, lunile și antetele. Versiunea exportului 1.3.0 (în română, conținut identic cu 1.2.0).
+
 ## 0.92.97 - 2026-11-12
 
 F09-T02 ([D104](decizii/D104-pagina-pe-sectie.md), propusă). În **Rapoarte**, bifa nouă **O pagină nouă pentru fiecare secție** generează raportul pe secții (angajații fără secție la final) și unește PDF-urile, fiecare secție începând pe pagină nouă. Versiunile rapoartelor nu se schimbă.

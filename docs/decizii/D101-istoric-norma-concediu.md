@@ -1,6 +1,8 @@
 # D101 · Istoricul normei zilnice și al dreptului la concediu
 
-Stare: acceptată (regulile) · propusă (detaliile tehnice) · Data: 2026-11-09 · Taskuri: F07-T43 · Idee: I010 · Decisă de: Ioan Tuns, 2026-11-09 (cele trei reguli de mai jos)
+Stare: acceptată · Data: 2026-11-09 · Taskuri: F07-T43 · Idee: I010 · Decisă de: Ioan Tuns, 2026-11-09 (cele trei reguli de mai jos); toată decizia, inclusiv detaliile tehnice: Ioan Tuns, 2026-11-12
+
+Implementare: implementată din 0.92.92; toate punctele verificate în cod pe 2026-11-12, pe 0.92.102 (Claude, la cererea lui Ioan Tuns). Starea deciziei nu se schimbă prin această notă.
 
 ## Context
 
@@ -16,7 +18,7 @@ Norma zilnică și dreptul anual la concediu erau o singură valoare pe angajat.
    - Exemplu: 21 de zile până la 30 iunie și 25 de la 1 iulie dau 21 × 181/365 + 25 × 184/365 ≈ 23.
 3. **Lunile închise nu se modifică.** O schimbare care începe într-o lună închisă sau înaintea ei e refuzată, fie că se adaugă, fie că se șterge. Luna se redeschide întâi, cu motiv, ca până acum.
 
-### Detaliile tehnice (propuse)
+### Detaliile tehnice (acceptate)
 
 - **Tabelul.** Schimbările stau în `istoric_contract(angajat_id, de_la, norma_minute, concediu_zile_an)`.
   - Un câmp gol înseamnă „neschimbat la această dată”; cel puțin unul trebuie completat.
