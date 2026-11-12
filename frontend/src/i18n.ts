@@ -24,3 +24,14 @@ export async function initI18n(): Promise<void> {
     SeteazaLimbaInterfata(i18next.language).catch(() => {});
     document.title = i18next.t('aplicatie.titlu');
 }
+
+/** reincarcaTraduceri ia din nou cataloagele (cu traducerile importate, F03-T11) și redesenează
+ * interfața în limba curentă. Se apelează după un import și după deblocarea datelor. */
+export async function reincarcaTraduceri(): Promise<void> {
+    const limbi = await Limbi();
+    for (const limba of limbi) {
+        i18next.addResourceBundle(limba, 'translation', await Catalog(limba), true, true);
+    }
+    await i18next.changeLanguage(i18next.language);
+    document.title = i18next.t('aplicatie.titlu');
+}

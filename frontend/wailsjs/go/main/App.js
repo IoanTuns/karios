@@ -218,6 +218,10 @@ export function IesireDinCont() {
   return window['go']['main']['App']['IesireDinCont']();
 }
 
+export function ImportaFolderTraduceri() {
+  return window['go']['main']['App']['ImportaFolderTraduceri']();
+}
+
 export function IncarcaDemo() {
   return window['go']['main']['App']['IncarcaDemo']();
 }
@@ -454,6 +458,10 @@ export function SchimbaParolaMea(arg1, arg2) {
   return window['go']['main']['App']['SchimbaParolaMea'](arg1, arg2);
 }
 
+export function ScrieFisierTraduceri(arg1) {
+  return window['go']['main']['App']['ScrieFisierTraduceri'](arg1);
+}
+
 export function SeteazaAutoPornireAI(arg1) {
   return window['go']['main']['App']['SeteazaAutoPornireAI'](arg1);
 }
@@ -494,6 +502,10 @@ export function StareSeif() {
   return window['go']['main']['App']['StareSeif']();
 }
 
+export function StareTraduceri() {
+  return window['go']['main']['App']['StareTraduceri']();
+}
+
 export function StatisticiDiagnoza() {
   return window['go']['main']['App']['StatisticiDiagnoza']();
 }
@@ -508,6 +520,10 @@ export function StergeSablonAI(arg1) {
 
 export function StergeSchimbareContract(arg1, arg2) {
   return window['go']['main']['App']['StergeSchimbareContract'](arg1, arg2);
+}
+
+export function StergeTraduceriLimba(arg1) {
+  return window['go']['main']['App']['StergeTraduceriLimba'](arg1);
 }
 
 export function TraduceriLipsa(arg1) {
@@ -528,6 +544,10 @@ export function UnesteRapoarteSectii(arg1, arg2) {
 
 export function VerificaBackup(arg1) {
   return window['go']['main']['App']['VerificaBackup'](arg1);
+}
+
+export function VerificaFolderTraduceri() {
+  return window['go']['main']['App']['VerificaFolderTraduceri']();
 }
 
 export function VerificaPontajAI(arg1) {

@@ -120,6 +120,8 @@ export function GenereazaCheieRecuperareNoua():Promise<main.RaspunsRecuperare>;
 
 export function IesireDinCont():Promise<main.RaspunsStareCont>;
 
+export function ImportaFolderTraduceri():Promise<main.RaspunsTraduceri>;
+
 export function IncarcaDemo():Promise<main.RaspunsDate>;
 
 export function InchideAplicatia():Promise<void>;
@@ -238,6 +240,8 @@ export function SchimbaIntrebarileMele(arg1:string,arg2:Array<string>,arg3:Array
 
 export function SchimbaParolaMea(arg1:string,arg2:string):Promise<main.RaspunsOperatieCont>;
 
+export function ScrieFisierTraduceri(arg1:string):Promise<main.RaspunsTraduceri>;
+
 export function SeteazaAutoPornireAI(arg1:boolean):Promise<boolean>;
 
 export function SeteazaLimbaInterfata(arg1:string):Promise<void>;
@@ -258,6 +262,8 @@ export function StareRecuperare():Promise<main.RaspunsRecuperare>;
 
 export function StareSeif():Promise<main.RaspunsStareSeif>;
 
+export function StareTraduceri():Promise<main.RaspunsTraduceri>;
+
 export function StatisticiDiagnoza():Promise<diagnoza.StatisticiDiagnoza>;
 
 export function StergeConfigurare(arg1:string,arg2:string,arg3:string):Promise<main.RaspunsDate>;
@@ -265,6 +271,8 @@ export function StergeConfigurare(arg1:string,arg2:string,arg3:string):Promise<m
 export function StergeSablonAI(arg1:string):Promise<main.RaspunsInstrumenteAI>;
 
 export function StergeSchimbareContract(arg1:string,arg2:string):Promise<main.RaspunsIstoricContract>;
+
+export function StergeTraduceriLimba(arg1:string):Promise<main.RaspunsTraduceri>;
 
 export function TraduceriLipsa(arg1:string):Promise<Array<string>>;
 
@@ -275,6 +283,8 @@ export function UltimaModificareCelula(arg1:string,arg2:string):Promise<main.Ras
 export function UnesteRapoarteSectii(arg1:rapoarte.Cerere,arg2:Array<string>):Promise<main.RaspunsRaport>;
 
 export function VerificaBackup(arg1:string):Promise<main.RaspunsVerificareBackup>;
+
+export function VerificaFolderTraduceri():Promise<main.RaspunsTraduceri>;
 
 export function VerificaPontajAI(arg1:ai.IntentiePlan):Promise<main.RaspunsInstrumenteAI>;
 

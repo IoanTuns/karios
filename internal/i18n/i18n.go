@@ -14,6 +14,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"sync"
 )
 
 type Limba string
@@ -89,14 +90,67 @@ func adauga(tinta map[Limba]map[string]string, numeFisier string, data []byte) e
 	return nil
 }
 
+// corecturi: textele importate din folderul de traduceri și păstrate în baza criptată
+// (F03-T11, D004, D106). Au prioritate față de cataloagele incluse; se schimbă când se
+// deschide baza sau după un import, deci sunt păzite de un mutex.
+var (
+	corecturiMu sync.RWMutex
+	corecturi   = map[Limba]map[string]string{}
+)
+
+// SeteazaCorecturi înlocuiește corecturile (limbă → cheie → text). nil le șterge pe toate.
+func SeteazaCorecturi(c map[Limba]map[string]string) {
+	nou := map[Limba]map[string]string{}
+	for l, texte := range c {
+		nou[l] = map[string]string{}
+		for k, v := range texte {
+			nou[l][k] = v
+		}
+	}
+	corecturiMu.Lock()
+	corecturi = nou
+	corecturiMu.Unlock()
+}
+
+func corectura(limba Limba, cheie string) (string, bool) {
+	corecturiMu.RLock()
+	defer corecturiMu.RUnlock()
+	text, ok := corecturi[limba][cheie]
+	return text, ok && text != ""
+}
+
+// TextInclus întoarce textul din catalogul inclus în .exe, fără corecturi și fără rezervă.
+func TextInclus(limba Limba, cheie string) string {
+	return cataloage[limba][cheie]
+}
+
+// CheieCunoscuta spune dacă cheia există în limba implicită (singurele chei care se pot corecta).
+func CheieCunoscuta(cheie string) bool {
+	_, ok := cataloage[Implicita][cheie]
+	return ok
+}
+
+// CodLimbaValid spune dacă un cod are forma unei limbi (ro, en, pt-BR).
+func CodLimbaValid(cod string) bool { return reLimba.MatchString(cod) }
+
 // Limbi întoarce limbile disponibile, cu limba implicită prima.
 func Limbi() []Limba {
 	rez := []Limba{Implicita}
+	vazute := map[Limba]bool{Implicita: true}
 	for l := range cataloage {
-		if l != Implicita {
+		if !vazute[l] {
+			vazute[l] = true
 			rez = append(rez, l)
 		}
 	}
+	corecturiMu.RLock()
+	for l := range corecturi {
+		if !vazute[l] {
+			vazute[l] = true
+			rez = append(rez, l)
+		}
+	}
+	corecturiMu.RUnlock()
 	sort.Slice(rez[1:], func(i, j int) bool { return rez[1+i] < rez[1+j] })
 	return rez
 }
@@ -104,9 +158,14 @@ func Limbi() []Limba {
 // T întoarce textul cheii în limba cerută, cu {{param}} înlocuiți. Dacă textul
 // lipsește, folosește limba implicită, iar dacă lipsește și acolo, cheia.
 func T(limba Limba, cheie string, param map[string]string) string {
-	text, ok := cataloage[limba][cheie]
+	text, ok := corectura(limba, cheie)
+	if !ok {
+		text, ok = cataloage[limba][cheie]
+	}
 	if !ok || text == "" {
-		text, ok = cataloage[Implicita][cheie]
+		if text, ok = corectura(Implicita, cheie); !ok {
+			text, ok = cataloage[Implicita][cheie]
+		}
 	}
 	if !ok {
 		return cheie
@@ -132,7 +191,7 @@ func Catalog(limba Limba) map[string]string {
 func Lipsa(limba Limba) []string {
 	var rez []string
 	for cheie := range cataloage[Implicita] {
-		if cataloage[limba][cheie] == "" {
+		if _, corectat := corectura(limba, cheie); cataloage[limba][cheie] == "" && !corectat {
 			rez = append(rez, cheie)
 		}
 	}

@@ -237,6 +237,11 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
         VerificaBackup: async () => ({}),
         CitesteUltimeleLiniiJurnal: async () => '',
         Limbi: async () => [limba, ...Object.keys(cataloage).filter(l => l !== limba)],
+        StareTraduceri: async () => ({folder:'karios/traduceri',corecturi:structuredClone(stare.corecturiTraduceri||{})}),
+        ScrieFisierTraduceri: async l => ({folder:'karios/traduceri',corecturi:structuredClone(stare.corecturiTraduceri||{}),cale:'karios/traduceri/'+l+'.json'}),
+        VerificaFolderTraduceri: async () => ({folder:'karios/traduceri',corecturi:structuredClone(stare.corecturiTraduceri||{}),rezumate:[{limba:'en',noi:0,modificate:2,revenite:0,neschimbate:5,probleme:[{cheie:'cheie.necunoscuta',motiv:'necunoscuta'}]}]}),
+        ImportaFolderTraduceri: async () => { stare.corecturiTraduceri={en:2};raspuns();return {folder:'karios/traduceri',corecturi:{en:2}}; },
+        StergeTraduceriLimba: async l => { delete (stare.corecturiTraduceri||{})[l];raspuns();return {folder:'karios/traduceri',corecturi:structuredClone(stare.corecturiTraduceri||{})}; },
         TraduceriLipsa: async l => Object.keys(cataloage[limba]).filter(k => !cataloage[l]?.[k]),
         Catalog: async l => cataloage[l], Informatii: async () => ({versiune: versiuneAplicatie, commit: 'verificare'}),
         DateInitiale: async () => raspuns(),
@@ -1000,6 +1005,15 @@ try {
     await completeaza('select[name="setari_limba_rapoarte"]','en');
     assert.equal(await evalueaza(`localStorage.getItem('pontix-limba-rapoarte')`),'en','Limba rapoartelor nu se reține.');
     await completeaza('select[name="setari_limba_rapoarte"]','interfata');
+    // F03-T11 (D106): traducerile din folder — verificare, import, stergere.
+    await asteapta(()=>evalueaza(`document.querySelector('.traduceri-folder')?.textContent.includes('Nu există traduceri importate')`),'Secțiunea traducerilor din folder lipsește.');
+    await apasa('Verifică folderul');
+    await asteapta(()=>evalueaza(`document.querySelectorAll('.tabel-traduceri tbody tr').length===1`),'Verificarea folderului de traduceri nu arată rezumatul.');
+    await evalueaza(`window.confirm=()=>true`);
+    await apasa('Importă traducerile');
+    await asteapta(()=>evalueaza(`JSON.parse(localStorage.getItem('pontix-test')).corecturiTraduceri?.en===2 && document.querySelector('.lista-corecturi')?.textContent.includes('2')`),'Importul traducerilor nu este afișat.');
+    await apasa('Șterge traducerile importate');
+    await asteapta(()=>evalueaza(`document.querySelector('.traduceri-folder')?.textContent.includes('Nu există traduceri importate')`),'Ștergerea traducerilor importate nu este afișată.');
     await apasa('Normă și structură');
     // Scenariu de categorii: date strict fictive, separat de regresiile anterioare.
     await evalueaza(`(() => {
