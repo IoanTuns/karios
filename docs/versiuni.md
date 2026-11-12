@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.99 - 2026-11-12
+
+F09-T06. Rapoartele flexibile au și ele un test cu fișier de referință (versiunea 21), ca toate rapoartele standard. Fără schimbări pentru utilizator.
+
 ## 0.92.98 - 2026-11-12
 
 F10-T06 (I130). Exportul Excel al pontajului are textele în cataloagele de traduceri și folosește limba implicită a rapoartelor; în engleză sunt traduse titlurile, foile, lunile și antetele. Versiunea exportului 1.3.0 (în română, conținut identic cu 1.2.0).
