@@ -30,7 +30,7 @@ func TestMigrareCategoriiAbsentePastreazaEfectele(t *testing.T) {
 	if _, e := db.Exec(`INSERT INTO coduri_absenta(cod,denumire,categorie,efect_ore,activ,creat_la,modificat_la) VALUES('DEPL','{"ro":"Deplasare demo"}','SPECIAL','NORMA',0,'x','y');INSERT INTO angajati(id,nume,marca,creat_la,modificat_la) VALUES('a','Exemplu','TEST','x','x');INSERT INTO absente_zile(angajat_id,data,cod,minute_creditate,creat_la,modificat_la) VALUES('a','2026-10-05','DEPL',420,'x','x')`); e != nil {
 		t.Fatal(e)
 	}
-	if n, e := Migreaza(ctx, db, Migrari); e != nil || n != 9 {
+	if n, e := Migreaza(ctx, db, Migrari); e != nil || n != 10 {
 		t.Fatal(n, e)
 	}
 	var cat, natura, efect, mod string

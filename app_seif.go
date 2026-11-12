@@ -31,6 +31,8 @@ func (a *App) aplicaDeschiderea(d *stocare.Deschidere) {
 		return
 	}
 	a.db, a.paza, a.codRecuperare = d.DB, d.Paza, d.CodRecuperare
+	// F03-T11 (D106): textele corectate din bază, peste cataloagele incluse.
+	a.incarcaTraduceri()
 	// Până la autentificare (sau crearea primului cont), scrierile sunt refuzate (D045).
 	a.paza.CereAutentificare(true)
 	if r := a.paza.Rezultat(); r.Stare == audit.StareIncident {
