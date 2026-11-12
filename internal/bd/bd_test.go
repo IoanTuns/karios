@@ -46,8 +46,16 @@ func TestDeschideSiMigreaza(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if n != 37 {
-		t.Errorf("migrări aplicate: %d, așteptat 37", n)
+	if n != 38 {
+		t.Errorf("migrări aplicate: %d, așteptat 38", n)
+	}
+
+	// F04-T10 (I131, D105): tabelele de tarif din D003 au fost șterse prin migrarea 0038.
+	for _, tabel := range []string{"categorii_ore", "seturi_reguli", "reguli_interval"} {
+		var exista int
+		if err := db.QueryRow(`SELECT count(*) FROM sqlite_schema WHERE name = ?`, tabel).Scan(&exista); err != nil || exista != 0 {
+			t.Errorf("tabelul %s a rămas (%v)", tabel, err)
+		}
 	}
 
 	// Setările fiecărei conexiuni.
@@ -61,7 +69,7 @@ func TestDeschideSiMigreaza(t *testing.T) {
 	}
 
 	for _, tabel := range []string{"setari", "sectii", "angajati", "tipuri_schimb", "coduri_absenta",
-		"sarbatori", "categorii_ore", "seturi_reguli", "reguli_interval", "pontaj", "jurnal_modificari"} {
+		"sarbatori", "pontaj", "jurnal_modificari"} {
 		var exista int
 		if err := db.QueryRow(`SELECT count(*) FROM sqlite_schema WHERE type = 'table' AND name = ?`, tabel).Scan(&exista); err != nil || exista != 1 {
 			t.Errorf("tabelul %s lipsește (%v)", tabel, err)
@@ -102,9 +110,6 @@ func TestConstrangeri(t *testing.T) {
 		{"marcă duplicată", `INSERT INTO angajati (id, nume, marca, creat_la, modificat_la) VALUES ('a2', 'Alt', '101', 'x', 'x')`},
 		{"denumire care nu e JSON", `INSERT INTO sectii (id, denumire, creat_la, modificat_la) VALUES ('s1', 'Secția 1', 'x', 'x')`},
 		{"dată invalidă", `INSERT INTO sarbatori (data, denumire, creat_la, modificat_la) VALUES ('2026-13-01', '{"ro":"x"}', 'x', 'x')`},
-		{"interval după 24:00", `INSERT INTO seturi_reguli (id, denumire, valabil_de_la, creat_la, modificat_la) VALUES ('r1', 'x', '2026-01-01', 'x', 'x');
-			INSERT INTO categorii_ore (cod, denumire, creat_la, modificat_la) VALUES ('ZI', '{"ro":"Zi"}', 'x', 'x');
-			INSERT INTO reguli_interval (id, set_id, tip_zi, ora_start, ora_sfarsit, categorie_cod) VALUES ('i1', 'r1', 'LUCRATOARE', 360, 1500, 'ZI')`},
 	}
 	for _, g := range gresite {
 		if _, err := db.Exec(g.sql); err == nil {

@@ -61,11 +61,11 @@ func TestCataloageIncluseComplete(t *testing.T) {
 }
 
 func TestT(t *testing.T) {
-	param := map[string]string{"tip": "SAMBATA", "de_la": "06:00", "pana_la": "07:00"}
-	if got, want := T(Engleza, "reguli.gol", param), "SAMBATA: there is a gap between 06:00 and 07:00."; got != want {
+	param := map[string]string{"luna": "10.2026"}
+	if got, want := T(Engleza, "pontaj.schimbare_ora_luna_inchisa", param), "Month 10.2026 is closed and contains a daylight saving time change night. Reopen the month first, with a reason, then change the option."; got != want {
 		t.Errorf("en: %q, așteptat %q", got, want)
 	}
-	if got, want := T(Romana, "reguli.gol", param), "SAMBATA: există un gol între 06:00 și 07:00."; got != want {
+	if got, want := T(Romana, "pontaj.schimbare_ora_luna_inchisa", param), "Luna 10.2026 este închisă și conține o noapte cu schimbarea orei. Redeschide întâi luna, cu motiv, apoi schimbă opțiunea."; got != want {
 		t.Errorf("ro: %q, așteptat %q", got, want)
 	}
 	if got := T("de", "tip_zi.SAMBATA", nil); got != "Sâmbătă" {
@@ -134,7 +134,7 @@ func TestCatalog(t *testing.T) {
 	if c["tip_zi.SAMBATA"] != "Szombat" || c["tip_zi.DUMINICA"] != "Duminică" {
 		t.Errorf("traducerea și rezerva din limba implicită: %q, %q", c["tip_zi.SAMBATA"], c["tip_zi.DUMINICA"])
 	}
-	if got := Catalog(Engleza)["reguli.gol"]; !strings.Contains(got, "{{de_la}}") {
+	if got := Catalog(Engleza)["pontaj.schimbare_ora_luna_inchisa"]; !strings.Contains(got, "{{luna}}") {
 		t.Errorf("parametrii trebuie să rămână pentru interfață: %q", got)
 	}
 }
@@ -158,8 +158,8 @@ func TestAlegeLimba(t *testing.T) {
 }
 
 func TestEroare(t *testing.T) {
-	e := &Eroare{"reguli.gol", map[string]string{"tip": "SAMBATA", "de_la": "06:00", "pana_la": "07:00"}}
-	if got := e.Text(Engleza); got != "SAMBATA: there is a gap between 06:00 and 07:00." {
+	e := &Eroare{"pontaj.schimbare_ora_luna_inchisa", map[string]string{"luna": "10.2026"}}
+	if got := e.Text(Engleza); got != "Month 10.2026 is closed and contains a daylight saving time change night. Reopen the month first, with a reason, then change the option." {
 		t.Errorf("en: %q", got)
 	}
 	if e.Error() != e.Text(Implicita) {

@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.107 - 2026-11-12
+
+F04-T10 (I131, D105). Tabelele de tarif nefolosite (`categorii_ore`, `seturi_reguli`, `reguli_interval`) și codul lor au fost șterse; migrarea 0038. Fără schimbări pentru utilizator.
+
 ## 0.92.106 - 2026-11-12
 
 F10-T07 (I132). În exportul Excel al pontajului, coloana de gardă are antetul „Ore gardă 200%”, ca în aplicație (înainte „Ore Noapte / Gardă” și „Ore Gărzi”). Versiunea exportului 1.4.0.
