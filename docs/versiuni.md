@@ -6,7 +6,7 @@ Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei d
 
 ## 0.92.102 - 2026-11-12
 
-F02-T30.  în forma lăsată de  (fără spații la sfârșit de rând), ca build-ul să nu mai modifice fișiere urmărite. Fără schimbări pentru utilizator.
+F02-T30. `frontend/wailsjs/go/models.ts` în forma lăsată de `build.ps1` (fără spații la sfârșit de rând), ca build-ul să nu mai modifice fișiere urmărite. Fără schimbări pentru utilizator.
 
 ## 0.92.101 - 2026-11-12
 
