@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.102 - 2026-11-12
+
+F02-T30.  în forma lăsată de  (fără spații la sfârșit de rând), ca build-ul să nu mai modifice fișiere urmărite. Fără schimbări pentru utilizator.
+
 ## 0.92.101 - 2026-11-12
 
 F14-T21. Dependențe indirecte actualizate: go-sqlite3-wasm 6.6.35401, echo 4.16.4, tiff 1.0.8. interpolate rămâne la 0.0.2 (0.2.0 nu e compatibilă cu goose 3.30). Fără schimbări pentru utilizator.
