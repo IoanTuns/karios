@@ -140,3 +140,23 @@ Acum Pontix numără durata nominală (12 ore) în ambele nopți. Întrebarea pe
 
 Răspuns 2026-11-12 (Ioan Tuns): alegerea devine o opțiune în setări, implicit durata din program; fiecare unitate alege, eventual cu contabilitatea ([D102](../decizii/D102-schimbarea-orei-configurabila.md), F04-T08, 0.92.93).
 
+### Răspunsuri la chestionarul de ore, versiunea 2 - 2026-11-12 (Ioan Tuns)
+
+Răspunsurile date de Ioan Tuns la [chestionarul pentru contabilitate](../chestionar-contabilitate-ore.md), transcrise fără interpretare:
+
+| Întrebare | Răspuns |
+| --- | --- |
+| A1. Ce e ora suplimentară | Orele lucrate peste norma zilnică (de exemplu peste 8 ore într-o zi). |
+| A2. Coloană separată | Da. |
+| A3. Gărzile | Pentru gardă există doar diferențierea între zilele lucrătoare și zilele de weekend sau sărbători. |
+| B1. Scăderea pauzei | Să fie configurabil per program. |
+| B2. Când are loc pauza | Să fie configurabil. |
+| C1. Nopțile cu schimbarea orei | Configurabil (deja făcut: [D102](../decizii/D102-schimbarea-orei-configurabila.md)). |
+| D. Coloanele | ZNL: se aplică doar la ture, de preferat configurabil, și doar pentru orele lucrate în weekend și în zilele libere legale. Restul coloanelor sunt corecte. |
+| D1, D2 | Rămân deschise. |
+| E1. Programul de salarizare | Nu este stabilit; Ioan Tuns întreabă dacă se pot face formate pentru câteva programe uzuale. |
+| E2. Formatul | Excel sau CSV; poate fi și alt format. |
+| E3–E7, F1 | Rămân deschise. |
+
+Ce urmează: întrebările de clarificare de mai jos și taskurile F04-T04 (orele suplimentare), F04-T05 (pauza) și F10-T01/T03 (exportul) se deblochează pe baza acestor răspunsuri.
+
