@@ -1,6 +1,6 @@
 # D102 · Turele din nopțile cu schimbarea orei: opțiune în setări
 
-Stare: propusă · Data: 2026-11-12 · Taskuri: F04-T08 · Cerută de: Ioan Tuns, 2026-11-12 („Pentru F04-T08 poate fi implementat configurabil?” → „da”)
+Stare: acceptată · Data: 2026-11-12 · Taskuri: F04-T08 · Cerută de: Ioan Tuns, 2026-11-12 („Pentru F04-T08 poate fi implementat configurabil?” → „da”) · Decisă de: Ioan Tuns, 2026-11-12 (toată decizia, inclusiv detaliile: prima trecere prin ora repetată, 04:00 pentru ora lipsă, refuzul în lunile închise)
 
 ## Context
 
