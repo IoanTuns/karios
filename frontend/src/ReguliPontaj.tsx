@@ -6,11 +6,11 @@ import {CitesteConfiguratiePontaj, SalveazaConfiguratiePontaj} from '../wailsjs/
 import {calcul, datebaza} from '../wailsjs/go/models';
 
 // D092: surse noi pentru OL, CVE, TZLN si TOCN. Unitatea sursei trebuie sa fie a coloanei.
-const surseOre = ['TOTAL_ORE','ORE_ZNL','ORE_NORMA','ORE_SCHIMBURI','ORE_SCHIMBURI_ZNL','ORE_LUCRATE_CODURI','ORE_NORMA_LUNA'];
+const surseOre = ['TOTAL_ORE','ORE_ZNL','ORE_NORMA','ORE_SCHIMBURI','ORE_SCHIMBURI_ZNL','ORE_LUCRATE_CODURI','ORE_NORMA_LUNA','ORE_SUPLIMENTARE'];
 const surseZile = ['ZILE_ABSENTA','ZILE_ABSENTA_ALTELE','ZILE_LUCRATOARE_NETE'];
 const surse = ['NEDEFINITA',...surseOre,...surseZile];
 const zile = ['CO','CEV','CFS','CM','deleg','CFP','CVE','DLG','FMP','TZLN'];
-const ore = ['ore_lucrate','T','ZNL','ore_norma','ore_garda','OL','TOCN'];
+const ore = ['ore_lucrate','T','ZNL','ore_norma','ore_garda','OL','TOCN','OS'];
 const sursaPermisa = (coloana:string,s:string) => s==='NEDEFINITA' || (zile.includes(coloana) ? surseZile.includes(s) : ore.includes(coloana) ? surseOre.includes(s) : true);
 // Sursele cu lista de coduri: obligatorie la cele dintai, optionala la OL (incluse) si CVE (excluse).
 const cuCoduriObligatorii = (s:string) => s==='ORE_SCHIMBURI'||s==='ORE_SCHIMBURI_ZNL'||s==='ZILE_ABSENTA';

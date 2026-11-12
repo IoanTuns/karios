@@ -2179,7 +2179,7 @@
   "pontaj.sursa_ZILE_ABSENTA_ALTELE": "Days of the other absences, without the chosen types",
   "pontaj.sursa_ZILE_LUCRATOARE_NETE": "Net working days (without weekends and public holidays)",
   "pontaj.sursa_ORE_NORMA_LUNA": "Net working days × daily norm",
-  "pontaj.motiv_fara_norma": "The employee has no daily norm (on-call or contract without a daily norm), so TOCN cannot be calculated.",
+  "pontaj.motiv_fara_norma": "The employee has no daily norm (on-call or a contract without a daily norm), so the column cannot be calculated (TOCN, overtime).",
   "ux30.selectie_text": "Selection: {{persoane}} · {{perioada}}",
   "ux30.selectie_si_altii": "and {{numar}} more",
   "motiv.luna_inchisa": "The month is closed for payroll; reopen it to save.",
@@ -2289,5 +2289,10 @@
   "pontaj.zile_libere_znl": "Days off added to the calendar, in ZNL",
   "pontaj.zile_libere_znl_TOATE": "Count in ZNL (like holidays)",
   "pontaj.zile_libere_znl_LEGALE": "Do not count: ZNL only for weekends and public holidays",
-  "pontaj.zile_libere_luna_inchisa": "Month {{luna}} is closed and contains an added day off. Reopen the month first, with a reason, then change the option."
+  "pontaj.zile_libere_luna_inchisa": "Month {{luna}} is closed and contains an added day off. Reopen the month first, with a reason, then change the option.",
+  "pontaj.motiv_garda_fara_os": "No overtime is calculated on the on-call row; there are only On-call hours 200% and Working hours.",
+  "pontaj.total_OS": "OT",
+  "pontaj.sursa_ORE_SUPLIMENTARE": "Overtime (above the daily norm)",
+  "rapoarte.legenda_OS": "Overtime: hours worked each day above the daily norm; on weekends and days off, all hours",
+  "pontaj.total_titlu_OS": "Overtime: hours worked each day above the daily norm; on weekends and days off, all hours"
 }

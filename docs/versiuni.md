@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.110 - 2026-11-12
+
+F04-T04 ([D107](decizii/D107-ore-suplimentare-pauza-znl.md)). Coloana nouă **OS** (ore suplimentare): orele lucrate în fiecare zi peste norma zilnică; în weekend și în zilele libere toate orele; fără ore suplimentare la gărzi. Apare în grila Pontaj, în rapoartele SQL (`pontaj_totaluri.os`) și se configurează în Configurare pontaj. Rapoarte cu versiune nouă: Pontaj 24, Pontaj detaliat 27, Fișa individuală 24, rapoartele flexibile 22.
+
 ## 0.92.109 - 2026-11-12
 
 F04-T11 ([D107](decizii/D107-ore-suplimentare-pauza-znl.md)). Zilele din calendar au un tip: sărbătoare legală sau zi liberă adăugată. O opțiune nouă în Configurare pontaj alege dacă zilele libere adăugate intră în ZNL (implicit da, ca până acum). Migrarea 0040.

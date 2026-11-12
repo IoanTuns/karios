@@ -1082,3 +1082,12 @@ Textele aplicației se pot corecta, iar o limbă nouă se poate adăuga, fără 
 
 Programele care intră în ZNL se aleg tot în Configurare pontaj: pentru coloana ZNL alegeți sursa „Ore din programele selectate, în ZNL” și bifați programele (de exemplu cele de tip Tură și Noapte).
 
+## Orele suplimentare (0.92.110)
+
+Coloana **OS** din Pontaj arată orele suplimentare: pentru fiecare zi, orele lucrate peste norma zilnică a persoanei. În weekend și în zilele libere din calendar nu există normă, deci toate orele lucrate acolo sunt suplimentare (ele apar și în ZNL).
+
+- Norma zilei vine din fișa angajatului și din **Istoric normă și concediu**.
+- Zilele de concediu sau de formare nu adaugă ore suplimentare.
+- La rândurile de gardă și la persoanele fără normă zilnică coloana arată „—”, cu motivul în titlu.
+- Regula coloanei se poate schimba în **Setări › Configurare pontaj** (sursa „Ore suplimentare”).
+

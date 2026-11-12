@@ -42,6 +42,15 @@ func calculeazaPontajBaza(ctx context.Context, q *acces.Queries, an, luna int, m
 	if c.Norme, err = q.NormeSoldPontaj(ctx); err != nil {
 		return gol, c, err
 	}
+	// Istoricul normei (D101), pentru norma fiecarei zile la orele suplimentare (D107).
+	istoric, err := q.ListaIstoricContract(ctx)
+	if err != nil {
+		return gol, c, err
+	}
+	c.IstoricNorme = map[string][]calcul.SchimbareContract{}
+	for id, r := range istoric {
+		c.IstoricNorme[id] = schimbariCalcul(r)
+	}
 	// Randurile marcii de garda, pentru regulile din D093.
 	if c.Garzi, err = randuriGarda(ctx, q); err != nil {
 		return gol, c, err

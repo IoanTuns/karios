@@ -2179,7 +2179,7 @@
   "pontaj.sursa_ZILE_ABSENTA_ALTELE": "Zilele celorlalte absențe, fără tipurile alese",
   "pontaj.sursa_ZILE_LUCRATOARE_NETE": "Zile lucrătoare nete (fără weekend și sărbători legale)",
   "pontaj.sursa_ORE_NORMA_LUNA": "Zile lucrătoare nete × norma zilnică",
-  "pontaj.motiv_fara_norma": "Angajatul nu are normă zilnică (gardă sau contract fără normă zilnică), deci TOCN nu se poate calcula.",
+  "pontaj.motiv_fara_norma": "Angajatul nu are normă zilnică (gardă sau contract fără normă zilnică), deci coloana nu se poate calcula (TOCN, ore suplimentare).",
   "ux30.selectie_text": "Selecție: {{persoane}} · {{perioada}}",
   "ux30.selectie_si_altii": "și încă {{numar}}",
   "motiv.luna_inchisa": "Luna este închisă pentru salarii; redeschideți-o ca să salvați.",
@@ -2289,5 +2289,10 @@
   "pontaj.zile_libere_znl": "Zilele libere adăugate în calendar, în ZNL",
   "pontaj.zile_libere_znl_TOATE": "Intră în ZNL (ca sărbătorile)",
   "pontaj.zile_libere_znl_LEGALE": "Nu intră: în ZNL doar weekendul și sărbătorile legale",
-  "pontaj.zile_libere_luna_inchisa": "Luna {{luna}} este închisă și conține o zi liberă adăugată. Redeschide întâi luna, cu motiv, apoi schimbă opțiunea."
+  "pontaj.zile_libere_luna_inchisa": "Luna {{luna}} este închisă și conține o zi liberă adăugată. Redeschide întâi luna, cu motiv, apoi schimbă opțiunea.",
+  "pontaj.motiv_garda_fara_os": "Pe rândul mărcii de gardă nu se calculează ore suplimentare; există doar Ore gardă 200% și Ore lucrătoare.",
+  "pontaj.total_OS": "OS",
+  "pontaj.sursa_ORE_SUPLIMENTARE": "Ore suplimentare (peste norma zilnică)",
+  "rapoarte.legenda_OS": "Ore suplimentare: orele lucrate în fiecare zi peste norma zilnică; în weekend și în zilele libere toate orele",
+  "pontaj.total_titlu_OS": "Ore suplimentare: orele lucrate în fiecare zi peste norma zilnică; în weekend și în zilele libere, toate orele"
 }

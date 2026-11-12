@@ -13,7 +13,7 @@ export async function verificaAbsentePontaj({evalueaza,asteapta,apasa,completeaz
  assert.equal(await evalueaza("document.querySelector('select[name=filtru_stare_angajati_pontaj]').value"),'ACTIVE','Pontaj nu porneste pe activi');
  // D092: grila pastreaza doar OL, CO, CM, CFP, CVE, DLG, FMP, cu numele complet in titlu.
  const antetTotaluri=await evalueaza("[...document.querySelectorAll('.grila-pontaj thead tr:first-child th abbr')].map(a=>a.textContent)");
- assert.deepEqual(antetTotaluri,['OL','CO','CM','CFP','CVE','DLG','FMP'],'Coloanele de total din Pontaj: '+JSON.stringify(antetTotaluri));
+ assert.deepEqual(antetTotaluri,['OL','OS','CO','CM','CFP','CVE','DLG','FMP'],'Coloanele de total din Pontaj: '+JSON.stringify(antetTotaluri));
  assert(await evalueaza("Boolean(document.querySelector('.grila-pontaj thead abbr[title]')?.title.length>5)"),'Titlul complet al coloanei lipseste');
  // R2: la 1024x640 se vad cel putin 5 randuri de angajati fara derularea paginii.
  await evalueaza('window.scrollTo(0,0)');
@@ -22,7 +22,7 @@ export async function verificaAbsentePontaj({evalueaza,asteapta,apasa,completeaz
  // R3: vederea Totaluri arata toate cele 7 coloane in cadrul grilei, fara zile.
  await apasa(t('pontaj.vedere_totaluri'));
  const totaluriVizibile=await evalueaza("(()=>{const c=document.querySelector('.grila-container')||document.querySelector('.grila-pontaj').parentElement;const r=c.getBoundingClientRect();return [...document.querySelectorAll('.grila-pontaj thead tr:first-child th abbr')].filter(a=>{const b=a.closest('th').getBoundingClientRect();return b.width>0&&b.right<=r.right+1&&b.left>=r.left-1;}).length})()");
- assert.equal(totaluriVizibile,7,'Totaluri vizibile in vederea Totaluri: '+totaluriVizibile);
+ assert.equal(totaluriVizibile,8,'Totaluri vizibile in vederea Totaluri: '+totaluriVizibile);
  assert(await evalueaza("[...document.querySelectorAll('.grila-pontaj thead th.col-zi')].every(th=>th.getBoundingClientRect().width===0)"),'Zilele raman vizibile in vederea Totaluri');
  await captura('pontaj-totaluri-'+limba+'.png');
  await apasa(t('pontaj.vedere_zile'));

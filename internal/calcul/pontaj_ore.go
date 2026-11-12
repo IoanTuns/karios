@@ -53,6 +53,8 @@ type ConfiguratiePontaj struct {
 	Profile      map[string]ProfilPontaj `json:"-"`
 	// Norme: norma zilnica in minute pe angajat, pentru TOCN (D092); nil = fara norma zilnica.
 	Norme map[string]*int64 `json:"-"`
+	// IstoricNorme: schimbarile normei pe angajat (D101), pentru norma fiecarei zile la OS (D107).
+	IstoricNorme map[string][]SchimbareContract `json:"-"`
 	// Garzi: randurile marcii de garda (D060), cu regulile din D093 pentru ZNL, Ore garda 200% si Ore lucratoare.
 	Garzi        map[string]bool `json:"-"`
 	Atribuire    string          `json:"atribuire"`
@@ -67,7 +69,7 @@ type ConfiguratiePontaj struct {
 
 func ColoanePontaj() []string {
 	return []string{"ore_lucrate", "T", "ZNL", "CO", "CEV", "CFS", "ore_norma", "form_prof", "CM", "L_FIN", "deleg", "ore_garda",
-		"OL", "CFP", "CVE", "DLG", "FMP", "TZLN", "TOCN"}
+		"OL", "CFP", "CVE", "DLG", "FMP", "TZLN", "TOCN", "OS"}
 }
 
 // ColoaneRapoarte sunt coloanele de total pe care le arata rapoartele standard si
@@ -78,7 +80,7 @@ func ColoaneRapoarte() []string { return ColoanePontaj()[:12] }
 // ColoaneGrilaPontaj sunt coloanele de total afisate in grila Pontaj (D092); celelalte
 // raman in calcul pentru rapoarte si export. TZLN si TOCN sunt ascunse.
 func ColoaneGrilaPontaj() []string {
-	return []string{"OL", "CO", "CM", "CFP", "CVE", "DLG", "FMP"}
+	return []string{"OL", "OS", "CO", "CM", "CFP", "CVE", "DLG", "FMP"}
 }
 
 // CoduriRedenumite: codurile de absenta redenumite prin D092 (vechi -> nou).
@@ -93,7 +95,7 @@ var CoduriExcluseCVE = []string{"CO", "CM", "CFP", "DLG", "FMP"}
 
 func UnitateColoana(c string) string {
 	switch c {
-	case "ore_lucrate", "T", "ZNL", "ore_norma", "ore_garda", "OL", "TOCN":
+	case "ore_lucrate", "T", "ZNL", "ore_norma", "ore_garda", "OL", "TOCN", "OS":
 		return "ORE"
 	case "CO", "CEV", "CFS", "CM", "deleg", "CFP", "CVE", "DLG", "FMP", "TZLN":
 		return "ZILE"
@@ -125,6 +127,9 @@ func ConfiguratiePontajInitiala() ConfiguratiePontaj {
 			r.Sursa = "ZILE_LUCRATOARE_NETE"
 		case "TOCN":
 			r.Sursa = "ORE_NORMA_LUNA"
+		case "OS":
+			// Orele peste norma zilnica (D107).
+			r.Sursa = "ORE_SUPLIMENTARE"
 		}
 		c.Reguli = append(c.Reguli, r)
 	}
@@ -188,7 +193,7 @@ func ValideazaConfiguratiePontaj(c ConfiguratiePontaj) error {
 		switch r.Sursa {
 		case "NEDEFINITA":
 			unitate = ""
-		case "TOTAL_ORE", "ORE_ZNL", "ORE_NORMA", "ORE_SCHIMBURI", "ORE_SCHIMBURI_ZNL", "ORE_LUCRATE_CODURI", "ORE_NORMA_LUNA":
+		case "TOTAL_ORE", "ORE_ZNL", "ORE_NORMA", "ORE_SCHIMBURI", "ORE_SCHIMBURI_ZNL", "ORE_LUCRATE_CODURI", "ORE_NORMA_LUNA", "ORE_SUPLIMENTARE":
 		case "ZILE_ABSENTA", "ZILE_ABSENTA_ALTELE", "ZILE_LUCRATOARE_NETE":
 			unitate = "ZILE"
 		default:
@@ -262,8 +267,10 @@ const (
 	MotivFaraOraInceput     = "fara_ora_inceput"
 	// MotivGardaFaraZNL: pe randul marcii de garda ZNL nu se calculeaza (D093).
 	MotivGardaFaraZNL = "garda_fara_znl"
-	// MotivFaraNorma: TOCN cere norma zilnica, pe care garzile si unele contracte nu o au (D092).
+	// MotivFaraNorma: TOCN si OS cer norma zilnica, pe care garzile si unele contracte nu o au (D092, D107).
 	MotivFaraNorma = "fara_norma"
+	// MotivGardaFaraOS: randurile de garda nu au ore suplimentare (D107).
+	MotivGardaFaraOS = "garda_fara_os"
 )
 
 var ordineMotive = []string{MotivValoareNecunoscuta, MotivDurataInvalida, MotivPauza, MotivAbsentaFaraOre, MotivFaraOraInceput}
@@ -334,6 +341,8 @@ type acumularePontaj struct {
 	motiveComplet, motiveCalendar map[string]string
 	// credite: minutele creditate de absente, pe cod (pentru OL, D092).
 	credite map[string]int64
+	// lucratZi: minutele lucrate (programe si ore manuale, fara credite) pe ziua creditata, pentru OS (D107).
+	lucratZi map[string]int64
 }
 
 // CalculeazaPontaj folosește durata nominală a programelor, fără reguli salariale.
@@ -357,7 +366,7 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 	oameni := map[string]*acumularePontaj{}
 	persoana := func(id string) *acumularePontaj {
 		if oameni[id] == nil {
-			oameni[id] = &acumularePontaj{complet: true, calendar: true, schimburi: map[string]int64{}, schimburiZNL: map[string]int64{}, motiveComplet: map[string]string{}, motiveCalendar: map[string]string{}, credite: map[string]int64{}}
+			oameni[id] = &acumularePontaj{complet: true, calendar: true, schimburi: map[string]int64{}, schimburiZNL: map[string]int64{}, motiveComplet: map[string]string{}, motiveCalendar: map[string]string{}, credite: map[string]int64{}, lucratZi: map[string]int64{}}
 		}
 		return oameni[id]
 	}
@@ -479,6 +488,7 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 			}
 			z.Minute += n
 			a.total += n
+			a.lucratZi[zi] += n
 			if program {
 				a.schimburi[p.Cod] += n
 			}
@@ -626,6 +636,30 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 			case "ZILE_LUCRATOARE_NETE":
 				v.Unitate = "ZILE"
 				v.Sutimi = tzln * 100
+			case "ORE_SUPLIMENTARE":
+				// D107: pe fiecare zi, orele lucrate peste norma zilei; in weekend si in zilele
+				// libere norma e 0, deci toate orele sunt suplimentare.
+				v.Unitate = "ORE"
+				if c.Norme[id] == nil {
+					v.Definita = false
+					break
+				}
+				v.Definita = a.complet
+				for zi, lucrat := range a.lucratZi {
+					d, e := time.Parse(time.DateOnly, zi)
+					if e != nil {
+						continue
+					}
+					var norma int64
+					if d.Weekday() != time.Saturday && d.Weekday() != time.Sunday && !libere[zi] {
+						if n := NormaLaData(c.Norme[id], c.IstoricNorme[id], zi); n != nil {
+							norma = *n
+						}
+					}
+					if lucrat > norma {
+						v.Sutimi += (lucrat - norma) * r.FactorSutimi
+					}
+				}
 			case "ORE_NORMA_LUNA":
 				v.Unitate = "ORE"
 				if n := c.Norme[id]; n != nil {
@@ -651,7 +685,7 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 				switch {
 				case r.Sursa == "NEDEFINITA":
 					v.Motiv = MotivRegulaNedefinita
-				case r.Sursa == "ORE_NORMA_LUNA":
+				case r.Sursa == "ORE_NORMA_LUNA" || (r.Sursa == "ORE_SUPLIMENTARE" && c.Norme[id] == nil):
 					v.Motiv = MotivFaraNorma
 				case !a.complet:
 					v.Motiv, v.MotivCod = primulMotiv(a.motiveComplet)
@@ -704,4 +738,8 @@ func aplicaReguliGarda(v map[string]ValoarePontaj, a *acumularePontaj) {
 	}
 	v["ore_garda"] = g
 	v["ore_lucratoare"] = l
+	// D107: randurile de garda nu au ore suplimentare.
+	if _, exista := v["OS"]; exista {
+		v["OS"] = ValoarePontaj{Unitate: "ORE", Motiv: MotivGardaFaraOS}
+	}
 }

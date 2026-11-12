@@ -29,7 +29,7 @@ export type ContextPontaj = {
     derulareX: number; derulareY: number;
 };
 // D092: grila pastreaza doar aceste coloane; TZLN, TOCN si coloanele vechi raman in calcul si rapoarte.
-const totaluri = ['OL', 'CO', 'CM', 'CFP', 'CVE', 'DLG', 'FMP'];
+const totaluri = ['OL', 'OS', 'CO', 'CM', 'CFP', 'CVE', 'DLG', 'FMP'];
 
 // motivTotal: de ce un total nu se calculeaza si ce se poate face (F05-T20, I049).
 // Motivul vine din calcul; fara el (de exemplu fara date) ramane regula coloanei.
