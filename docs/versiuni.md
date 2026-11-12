@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.105 - 2026-11-12
+
+F08-T17 (I066). Salvarea pontajului scrie celulele și jurnalul în loturi: o lună întreagă pentru 300 de angajați se salvează în circa 1,5 s în loc de 2,5–3 s. Auditul și jurnalul pe celulă rămân la fel.
+
 ## 0.92.104 - 2026-11-12
 
 F02-T33 (I020). Generarea legăturilor Wails nu mai pregătește folderul de date și nu mai deschide baza. Fără schimbări pentru utilizator.
