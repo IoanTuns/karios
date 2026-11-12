@@ -1063,3 +1063,14 @@ Alegerile se păstrează în folderul `karios`, lângă program, deci călătore
 
 Exportul Excel din **Pontaj** folosește limba implicită a rapoartelor, aleasă în **Setări › General › Limbă**. În engleză se traduc titlurile, foile, lunile și antetele coloanelor. În română fișierul rămâne la fel ca înainte.
 
+## Corectarea textelor și limbi noi (0.92.108)
+
+Textele aplicației se pot corecta, iar o limbă nouă se poate adăuga, fără o versiune nouă a programului. În **Setări › General › Limbă**, la **Traduceri din folder**:
+
+1. Alegeți limba (de exemplu `en`, sau un cod nou, ca `hu`) și apăsați **Scrie fișierul de lucru**. În folderul `karios/traduceri`, lângă program, apare fișierul `<limba>.json` cu toate textele.
+2. Deschideți fișierul într-un editor de text și schimbați doar textele din dreapta, păstrând cheile din stânga și textele dintre acolade duble, de exemplu `{{luna}}`.
+3. Apăsați **Verifică folderul**: vedeți câte texte sunt noi sau modificate și care nu se pot importa (cheie necunoscută, parametri schimbați).
+4. Apăsați **Importă traducerile** (doar administratorul). Textele se schimbă imediat și se păstrează în baza criptată; fișierul poate fi apoi șters.
+
+**Șterge traducerile importate** readuce textele unei limbi la cele incluse în program. O limbă nouă se alege din fila Limbă; rapoartele rămân în română și engleză.
+

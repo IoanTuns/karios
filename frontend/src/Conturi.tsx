@@ -11,6 +11,7 @@ import {parolaValida} from './parola';
 import {Autentifica, ConfirmaCheiaRecuperare, CreeazaCont, CreeazaPrimulAdministrator, DeblocheazaCuParola, DeblocheazaCuRecuperare, GenereazaCheieRecuperareNoua, IesireDinCont, IntrebariRecuperare, ListaConturi, ModificaCont, RecupereazaCont, ReseteazaParolaCont, SchimbaIntrebarileMele, SchimbaParolaMea, StareCont, StareRecuperare, StareSeif} from '../wailsjs/go/main/App';
 import {conturi, main} from '../wailsjs/go/models';
 import {Dialog} from './Formulare';
+import {reincarcaTraduceri} from './i18n';
 import {notifica} from './Toast';
 
 interface StareContext {
@@ -224,7 +225,7 @@ function EcranDeblocare({gata}: {gata: (r: main.RaspunsStareCont) => void}) {
         e.preventDefault();
         setOcupat(true); setEroare('');
         (cuCheie ? DeblocheazaCuRecuperare(cheie) : DeblocheazaCuParola(nume, parola))
-            .then(r => { if (r.eroare) { setEroare(textEroare(t, r.eroare)); setParola(''); } else gata(r); })
+            .then(async r => { if (r.eroare) { setEroare(textEroare(t, r.eroare)); setParola(''); } else { await reincarcaTraduceri().catch(() => {}); gata(r); } })
             .catch(() => setEroare(t('date.eroare')))
             .finally(() => setOcupat(false));
     }

@@ -2,7 +2,7 @@
 
 Stare: acceptată · Data: 2026-10-24 · Taskuri: toate din F03
 
-> Folderul de traduceri de lângă `.exe` devine sursă de import: traducerile corectate se păstrează în baza criptată ([D008](D008-criptarea-datelor.md)).
+> Folderul de traduceri de lângă `.exe` devine sursă de import: traducerile corectate se păstrează în baza criptată ([D008](D008-criptarea-datelor.md)). Implementat în F03-T11: folderul `karios/traduceri`, importul din Setări › Limbă ([D106](D106-import-traduceri.md)).
 
 ## Context
 
