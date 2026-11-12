@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.111 - 2026-11-12
+
+F04-T05 ([D107](decizii/D107-ore-suplimentare-pauza-znl.md)). Pauza se configurează pe fiecare program: nu se scade, din total, la o oră fixă sau la mijlocul turei. Programele vechi cu pauză rămân necalculate până se alege modul. Migrarea 0041.
+
 ## 0.92.110 - 2026-11-12
 
 F04-T04 ([D107](decizii/D107-ore-suplimentare-pauza-znl.md)). Coloana nouă **OS** (ore suplimentare): orele lucrate în fiecare zi peste norma zilnică; în weekend și în zilele libere toate orele; fără ore suplimentare la gărzi. Apare în grila Pontaj, în rapoartele SQL (`pontaj_totaluri.os`) și se configurează în Configurare pontaj. Rapoarte cu versiune nouă: Pontaj 24, Pontaj detaliat 27, Fișa individuală 24, rapoartele flexibile 22.

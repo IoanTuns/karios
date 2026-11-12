@@ -2110,7 +2110,7 @@
   "pontaj.motiv_regula_nedefinita": "This column has no calculation rule yet. You can configure it in Settings › Timesheet settings; pay rules are set by accounting.",
   "pontaj.motiv_valoare_necunoscuta": "“{{cod}}” is neither a defined schedule nor a number of hours. Correct the cell or add the schedule in Settings › Shift types.",
   "pontaj.motiv_durata_invalida": "Schedule {{cod}} has a duration outside the limits (1 minute – 48 hours). Correct it in Settings › Shift types.",
-  "pontaj.motiv_pauza": "Schedule {{cod}} has a break, and the rule for deducting breaks is not set yet (accounting decides it). If the schedule has no break, set the break to 0 in Settings › Shift types.",
+  "pontaj.motiv_pauza": "Schedule {{cod}} has a break, but how it is deducted has not been chosen. Choose the break mode in Settings › Shifts (or set the break to 0).",
   "pontaj.motiv_absenta_fara_ore": "Absence {{cod}} is credited with hours, but for one day they could not be determined: the employee has no daily norm or no planned schedule that day. Fill in the norm on the employee record or the schedule in Scheduling.",
   "pontaj.motiv_fara_ora_inceput": "Schedule {{cod}} has no start time, so its hours cannot be split into working days and days off. Fill in the time in Settings › Shift types.",
   "pontaj.motive_titlu": "{{numar}} values cannot be calculated. See why",
@@ -2294,5 +2294,16 @@
   "pontaj.total_OS": "OT",
   "pontaj.sursa_ORE_SUPLIMENTARE": "Overtime (above the daily norm)",
   "rapoarte.legenda_OS": "Overtime: hours worked each day above the daily norm; on weekends and days off, all hours",
-  "pontaj.total_titlu_OS": "Overtime: hours worked each day above the daily norm; on weekends and days off, all hours"
+  "pontaj.total_titlu_OS": "Overtime: hours worked each day above the daily norm; on weekends and days off, all hours",
+  "schimburi.mod_pauza": "How the break is deducted",
+  "schimburi.mod_pauza_NESTABILIT": "Not set (hours are not calculated)",
+  "schimburi.mod_pauza_NU_SE_SCADE": "Not deducted (the break is informative only)",
+  "schimburi.mod_pauza_DIN_TOTAL": "From the total of the day the shift starts",
+  "schimburi.mod_pauza_LA_ORA": "At a fixed time",
+  "schimburi.mod_pauza_LA_MIJLOC": "In the middle of the shift",
+  "schimburi.pauza_ora": "Break start time",
+  "schimburi.pauza_mod_invalid": "The break mode is not valid.",
+  "schimburi.pauza_prea_mare": "The break can be at most half of the schedule duration.",
+  "schimburi.pauza_ora_lipsa": "Choose the break start time.",
+  "schimburi.pauza_in_afara_turei": "The break must fall inside the schedule."
 }

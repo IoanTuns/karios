@@ -1091,3 +1091,14 @@ Coloana **OS** din Pontaj arată orele suplimentare: pentru fiecare zi, orele lu
 - La rândurile de gardă și la persoanele fără normă zilnică coloana arată „—”, cu motivul în titlu.
 - Regula coloanei se poate schimba în **Setări › Configurare pontaj** (sursa „Ore suplimentare”).
 
+## Pauza programelor (0.92.111)
+
+În **Setări › Schimburi**, la un program cu pauză, alegeți **Cum se scade pauza**:
+
+- **Nu se scade**: pauza e doar informativă; orele rămân cele din program;
+- **Din totalul zilei în care începe tura**;
+- **La o oră fixă**: alegeți ora de început a pauzei (de exemplu 12:00); pauza trebuie să cadă în interiorul programului;
+- **La mijlocul turei**.
+
+Cu ora fixă sau la mijloc, pauza se scade din ziua în care cade (contează la împărțirea pe zile și la ZNL). Pauza poate fi cel mult jumătate din program. Programele care aveau deja pauză rămân **Nestabilit** — orele lor nu se calculează până alegeți modul.
+

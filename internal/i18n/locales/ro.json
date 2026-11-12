@@ -2110,7 +2110,7 @@
   "pontaj.motiv_regula_nedefinita": "Coloana nu are încă regulă de calcul. O puteți configura în Setări › Configurare pontaj; regulile de plată le stabilește contabilitatea.",
   "pontaj.motiv_valoare_necunoscuta": "„{{cod}}” nu este un program definit și nici un număr de ore. Corectați celula sau adăugați programul în Setări › Schimburi.",
   "pontaj.motiv_durata_invalida": "Programul {{cod}} are o durată în afara limitelor (1 minut – 48 de ore). Corectați-l în Setări › Schimburi.",
-  "pontaj.motiv_pauza": "Programul {{cod}} are pauză, iar regula de scădere a pauzei nu e stabilită încă (o stabilește contabilitatea). Dacă programul nu are pauză, puneți pauza 0 în Setări › Schimburi.",
+  "pontaj.motiv_pauza": "Programul {{cod}} are pauză, dar nu s-a ales cum se scade. Alegeți modul pauzei în Setări › Schimburi (sau puneți pauza 0).",
   "pontaj.motiv_absenta_fara_ore": "Absența {{cod}} se creditează cu ore, dar pentru o zi nu s-au putut stabili: angajatul nu are normă zilnică sau nu are program planificat în ziua respectivă. Completați norma în fișa angajatului sau programul în Planificare.",
   "pontaj.motiv_fara_ora_inceput": "Programul {{cod}} nu are oră de început, deci orele nu se pot împărți pe zile lucrătoare și libere. Completați ora în Setări › Schimburi.",
   "pontaj.motive_titlu": "{{numar}} valori nu se pot calcula. Vezi de ce",
@@ -2294,5 +2294,16 @@
   "pontaj.total_OS": "OS",
   "pontaj.sursa_ORE_SUPLIMENTARE": "Ore suplimentare (peste norma zilnică)",
   "rapoarte.legenda_OS": "Ore suplimentare: orele lucrate în fiecare zi peste norma zilnică; în weekend și în zilele libere toate orele",
-  "pontaj.total_titlu_OS": "Ore suplimentare: orele lucrate în fiecare zi peste norma zilnică; în weekend și în zilele libere, toate orele"
+  "pontaj.total_titlu_OS": "Ore suplimentare: orele lucrate în fiecare zi peste norma zilnică; în weekend și în zilele libere, toate orele",
+  "schimburi.mod_pauza": "Cum se scade pauza",
+  "schimburi.mod_pauza_NESTABILIT": "Nestabilit (orele nu se calculează)",
+  "schimburi.mod_pauza_NU_SE_SCADE": "Nu se scade (pauza e doar informativă)",
+  "schimburi.mod_pauza_DIN_TOTAL": "Din totalul zilei în care începe tura",
+  "schimburi.mod_pauza_LA_ORA": "La o oră fixă",
+  "schimburi.mod_pauza_LA_MIJLOC": "La mijlocul turei",
+  "schimburi.pauza_ora": "Ora de început a pauzei",
+  "schimburi.pauza_mod_invalid": "Modul pauzei nu este valid.",
+  "schimburi.pauza_prea_mare": "Pauza poate fi cel mult jumătate din durata programului.",
+  "schimburi.pauza_ora_lipsa": "Alegeți ora de început a pauzei.",
+  "schimburi.pauza_in_afara_turei": "Pauza trebuie să cadă în interiorul programului."
 }

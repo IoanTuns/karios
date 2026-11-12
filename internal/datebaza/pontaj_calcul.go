@@ -158,9 +158,13 @@ func calculeazaPontajBaza(ctx context.Context, q *acces.Queries, an, luna int, m
 	if err != nil {
 		return gol, c, err
 	}
+	pauze, err := q.ListaPauzeProgram(ctx)
+	if err != nil {
+		return gol, c, err
+	}
 	programe := []calcul.ProgramPontaj{}
 	for _, s := range schimburi {
-		programe = append(programe, calcul.ProgramPontaj{Cod: s.Cod, OraStart: s.OraStart, DurataMinute: s.DurataMinute, PauzaMinute: s.PauzaMinute})
+		programe = append(programe, calcul.ProgramPontaj{Cod: s.Cod, OraStart: s.OraStart, DurataMinute: s.DurataMinute, PauzaMinute: s.PauzaMinute, ModPauza: pauze[s.ID].Mod, PauzaOra: pauze[s.ID].Ora})
 	}
 	sarbatori, err := q.ListaToateSarbatori(ctx)
 	if err != nil {

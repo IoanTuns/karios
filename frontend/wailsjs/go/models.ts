@@ -845,6 +845,22 @@ export namespace calcul {
 		    return a;
 		}
 	}
+	export class SchimbareContract {
+	    DeLa: string;
+	    NormaMinute?: number;
+	    ConcediuZileAn?: number;
+
+	    static createFrom(source: any = {}) {
+	        return new SchimbareContract(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.DeLa = source["DeLa"];
+	        this.NormaMinute = source["NormaMinute"];
+	        this.ConcediuZileAn = source["ConcediuZileAn"];
+	    }
+	}
 
 
 
@@ -2148,6 +2164,8 @@ export namespace datebaza {
 	    activ: boolean;
 	    culoare: string;
 	    culoare_afisata: string;
+	    mod_pauza: string;
+	    pauza_ora?: number;
 
 	    static createFrom(source: any = {}) {
 	        return new Schimb(source);
@@ -2170,6 +2188,8 @@ export namespace datebaza {
 	        this.activ = source["activ"];
 	        this.culoare = source["culoare"];
 	        this.culoare_afisata = source["culoare_afisata"];
+	        this.mod_pauza = source["mod_pauza"];
+	        this.pauza_ora = source["pauza_ora"];
 	    }
 	}
 	export class SchitaLuna {

@@ -18,6 +18,34 @@ const AtribuireCalendar = "ZILE_CALENDARISTICE"
 const SchimbareOraNominala = "NOMINALA"
 const SchimbareOraEfectiva = "EFECTIVA"
 
+// Modurile pauzei unui program (F04-T05, D107). NESTABILIT: programul cu pauza ramane necalculat.
+const (
+	PauzaNestabilita = "NESTABILIT"
+	PauzaNuSeScade   = "NU_SE_SCADE"
+	PauzaDinTotal    = "DIN_TOTAL"
+	PauzaLaOra       = "LA_ORA"
+	PauzaLaMijloc    = "LA_MIJLOC"
+)
+
+// PauzaCunoscuta spune daca orele programului se pot calcula: fara pauza sau cu modul ales.
+func PauzaCunoscuta(p ProgramPontaj) bool {
+	switch {
+	case p.PauzaMinute == 0, p.ModPauza == PauzaNuSeScade, p.ModPauza == PauzaDinTotal, p.ModPauza == PauzaLaMijloc:
+		return true
+	case p.ModPauza == PauzaLaOra:
+		return p.PauzaOra != nil
+	}
+	return false
+}
+
+// pauzaScazuta: minutele pauzei care se scad din ore (0 daca pauza nu se scade).
+func pauzaScazuta(p ProgramPontaj) int64 {
+	if p.PauzaMinute == 0 || p.ModPauza == PauzaNuSeScade || !PauzaCunoscuta(p) {
+		return 0
+	}
+	return p.PauzaMinute
+}
+
 // Zilele libere adaugate de utilizator (punti etc.) in ZNL (F04-T11, D107): TOATE (implicit,
 // ca inainte) le numara in ZNL; LEGALE numara doar weekendul si sarbatorile legale.
 const ZileLibereZNLToate = "TOATE"
@@ -231,6 +259,9 @@ func ValideazaConfiguratiePontaj(c ConfiguratiePontaj) error {
 type ProgramPontaj struct {
 	Cod                                 string
 	OraStart, DurataMinute, PauzaMinute int64
+	// ModPauza si PauzaOra: cum se scade pauza (F04-T05, D107); PauzaOra in minute de la miezul noptii.
+	ModPauza string
+	PauzaOra *int64
 }
 type IntrarePontaj struct {
 	AngajatID, Data, Valoare, Absenta, StareAprobare string
@@ -447,8 +478,9 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 		minute, manual := OreManuale(in.Valoare)
 		cunoscut := manual
 		if program {
-			minute = p.DurataMinute
-			cunoscut = minute > 0 && minute <= 2880 && p.PauzaMinute == 0
+			// Totalul fara ora de inceput scade pauza din total, oricare ar fi modul ales (D107).
+			minute = p.DurataMinute - pauzaScazuta(p)
+			cunoscut = p.DurataMinute > 0 && p.DurataMinute <= 2880 && PauzaCunoscuta(p)
 		}
 		faraStart := program && (p.OraStart < 0 || p.OraStart >= 1440)
 		// Lipsa orei de început nu afectează totalul nominal, dar împiedică clasificarea calendaristică.
@@ -461,7 +493,7 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 			motivNecunoscut = MotivValoareNecunoscuta
 		case program && (p.DurataMinute <= 0 || p.DurataMinute > 2880):
 			motivNecunoscut = MotivDurataInvalida
-		case program && p.PauzaMinute != 0:
+		case program && !PauzaCunoscuta(p):
 			motivNecunoscut = MotivPauza
 		case faraStart:
 			motivNecunoscut = MotivFaraOraInceput
@@ -527,6 +559,24 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 			inceput = MomentLocal(data, p.OraStart)
 			sfarsit = MomentLocal(data, p.OraStart+p.DurataMinute)
 		}
+		// Pauza (D107): DIN_TOTAL se scade din primele minute ale turei (ziua inceperii); LA_ORA
+		// si LA_MIJLOC scot intervalul pauzei din fragmentele care il contin.
+		deScazut := int64(0)
+		var pauzaDe, pauzaPana time.Time
+		if s := pauzaScazuta(p); s > 0 {
+			switch p.ModPauza {
+			case PauzaDinTotal:
+				deScazut = s
+			case PauzaLaOra:
+				decalaj := (*p.PauzaOra - p.OraStart + 1440) % 1440
+				pauzaDe = inceput.Add(time.Duration(decalaj) * time.Minute)
+			case PauzaLaMijloc:
+				pauzaDe = inceput.Add((sfarsit.Sub(inceput) - time.Duration(s)*time.Minute) / 2)
+			}
+			if !pauzaDe.IsZero() {
+				pauzaPana = pauzaDe.Add(time.Duration(s) * time.Minute)
+			}
+		}
 		for curent := inceput; curent.Before(sfarsit); {
 			// Miezul noptii in acelasi fus ca momentele turei (UTC nominal sau Europe/Bucharest).
 			limita := time.Date(curent.Year(), curent.Month(), curent.Day()+1, 0, 0, 0, 0, curent.Location())
@@ -534,6 +584,16 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 				limita = sfarsit
 			}
 			n := int64(limita.Sub(curent) / time.Minute)
+			if !pauzaDe.IsZero() {
+				de, pana := maxTimp(curent, pauzaDe), minTimp(limita, pauzaPana)
+				if pana.After(de) {
+					n -= int64(pana.Sub(de) / time.Minute)
+				}
+			}
+			if deScazut > 0 {
+				x := min(n, deScazut)
+				n, deScazut = n-x, deScazut-x
+			}
 			zi := curent.Format(time.DateOnly)
 			credit := zi
 			if c.Atribuire == AtribuireInceput {
@@ -742,4 +802,18 @@ func aplicaReguliGarda(v map[string]ValoarePontaj, a *acumularePontaj) {
 	if _, exista := v["OS"]; exista {
 		v["OS"] = ValoarePontaj{Unitate: "ORE", Motiv: MotivGardaFaraOS}
 	}
+}
+
+func maxTimp(a, b time.Time) time.Time {
+	if a.After(b) {
+		return a
+	}
+	return b
+}
+
+func minTimp(a, b time.Time) time.Time {
+	if a.Before(b) {
+		return a
+	}
+	return b
 }

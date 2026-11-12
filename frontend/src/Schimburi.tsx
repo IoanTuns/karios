@@ -80,7 +80,7 @@ export function Schimburi({date,onDate}:{date:datebaza.Date;onDate:(date:datebaz
 
 function FormularSchimb({tipuri,regimuri,categorii, schimb, ocupat, eroare, inchide, salveaza}: {tipuri:datebaza.ElementNomenclator[];regimuri:datebaza.ElementNomenclator[];categorii:datebaza.ElementNomenclator[];schimb: datebaza.Schimb; ocupat: boolean; eroare: string; inchide: () => void; salveaza: (s: datebaza.Schimb) => Promise<void>}) {
     const {t,i18n} = useTranslation();
-    const initial = {cod: schimb.cod, ro: schimb.denumire.ro || '', en: schimb.denumire.en || '', ora: schimb.ora_start < 0 ? '' : oraText(schimb.ora_start), durata: schimb.durata_minute > 0 ? String(schimb.durata_minute) : '', pauza: String(schimb.pauza_minute), tip: schimb.tip_id||schimb.tip, regim: schimb.regim_id||schimb.regim||'LUCRATOARE', categorie: schimb.categorie || 'CUSTOM', activ: schimb.activ, culoare: schimb.culoare || ''};
+    const initial = {cod: schimb.cod, ro: schimb.denumire.ro || '', en: schimb.denumire.en || '', ora: schimb.ora_start < 0 ? '' : oraText(schimb.ora_start), durata: schimb.durata_minute > 0 ? String(schimb.durata_minute) : '', pauza: String(schimb.pauza_minute), tip: schimb.tip_id||schimb.tip, regim: schimb.regim_id||schimb.regim||'LUCRATOARE', categorie: schimb.categorie || 'CUSTOM', activ: schimb.activ, culoare: schimb.culoare || '', modPauza: schimb.mod_pauza || 'NESTABILIT', oraPauza: schimb.pauza_ora == null ? '' : oraText(schimb.pauza_ora)};
     const [campuri, setCampuri] = useState(initial);
     const [validare, setValidare] = useState('');
     function seteaza<K extends keyof typeof campuri>(cheie: K, valoare: typeof campuri[K]) { setCampuri(c => ({...c, [cheie]: valoare})); }
@@ -91,8 +91,10 @@ function FormularSchimb({tipuri,regimuri,categorii, schimb, ocupat, eroare, inch
             const durata = Number(campuri.durata), pauza = Number(campuri.pauza);
             if (!campuri.ro.trim() && !campuri.en.trim()) { setValidare(t('sarbatori.denumire_obligatorie')); return; }
             if (!Number.isSafeInteger(durata) || !Number.isSafeInteger(pauza) || durata < 1 || durata > 2880 || pauza < 0 || pauza > durata || !/^\d{2}:\d{2}$/.test(campuri.ora)) { setValidare(t('schimburi.interval_invalid')); return; }
+            if (pauza > 0 && campuri.modPauza === 'LA_ORA' && !/^\d{2}:\d{2}$/.test(campuri.oraPauza)) { setValidare(t('schimburi.pauza_ora_lipsa')); return; }
             const [ore, minute] = campuri.ora.split(':').map(Number);
-            await salveaza(new datebaza.Schimb({id: schimb.id, cod: campuri.cod, denumire: {...schimb.denumire, ro: campuri.ro, en: campuri.en}, ora_start: ore * 60 + minute, durata_minute: durata, pauza_minute: pauza, tip: tipuri.find(t=>t.id===campuri.tip)?.comportament||schimb.tip, regim:regimuri.find(r=>r.id===campuri.regim)?.comportament||schimb.regim, tip_id:campuri.tip,regim_id:campuri.regim, categorie: campuri.categorie, activ: campuri.activ, culoare: campuri.culoare, culoare_afisata: ''}));
+            const [oreP, minuteP] = campuri.oraPauza.split(':').map(Number);
+            await salveaza(new datebaza.Schimb({id: schimb.id, cod: campuri.cod, denumire: {...schimb.denumire, ro: campuri.ro, en: campuri.en}, ora_start: ore * 60 + minute, durata_minute: durata, pauza_minute: pauza, tip: tipuri.find(t=>t.id===campuri.tip)?.comportament||schimb.tip, regim:regimuri.find(r=>r.id===campuri.regim)?.comportament||schimb.regim, tip_id:campuri.tip,regim_id:campuri.regim, categorie: campuri.categorie, activ: campuri.activ, culoare: campuri.culoare, culoare_afisata: '', mod_pauza: campuri.modPauza, pauza_ora: campuri.modPauza === 'LA_ORA' && campuri.oraPauza ? oreP * 60 + minuteP : undefined}));
         }}>
             <div className="corp-dialog">{(validare || eroare) && <p className="mesaj eroare" role="alert">{validare || eroare}</p>}
                 <fieldset className="campuri" disabled={ocupat}>
@@ -103,6 +105,11 @@ function FormularSchimb({tipuri,regimuri,categorii, schimb, ocupat, eroare, inch
                     <label>{t('schimburi.inceput')} *<input type="text" name="ora_inceput" required pattern="([01][0-9]|2[0-3]):[0-5][0-9]" maxLength={5} title={t('schimburi.format_ora')} value={campuri.ora} onChange={e => seteaza('ora', e.target.value)}/></label>
                     <label>{t('schimburi.durata_minute')} *<input type="number" required min="1" max="2880" step="1" value={campuri.durata} onChange={e => seteaza('durata', e.target.value)}/></label>
                     <label>{t('schimburi.pauza_minute')}<input type="number" required min="0" max={campuri.durata || '2880'} step="1" value={campuri.pauza} onChange={e => seteaza('pauza', e.target.value)}/></label>
+                    {/* F04-T05 (D107): cum se scade pauza; la o ora fixa se alege si ora. */}
+                    {Number(campuri.pauza) > 0 && <label>{t('schimburi.mod_pauza')}<select name="mod_pauza" value={campuri.modPauza} onChange={e => seteaza('modPauza', e.target.value)}>
+                        {['NESTABILIT', 'NU_SE_SCADE', 'DIN_TOTAL', 'LA_ORA', 'LA_MIJLOC'].map(m => <option key={m} value={m}>{t(`schimburi.mod_pauza_${m}`)}</option>)}
+                    </select></label>}
+                    {Number(campuri.pauza) > 0 && campuri.modPauza === 'LA_ORA' && <label>{t('schimburi.pauza_ora')}<input type="time" name="pauza_ora" required value={campuri.oraPauza} onChange={e => seteaza('oraPauza', e.target.value)}/></label>}
                     <label className="bifa"><input type="checkbox" checked={campuri.activ} onChange={e => seteaza('activ', e.target.checked)}/>{t('ui.activ_indiciu')}</label>
                     <label className="latime-completa">{t('schimburi.regim')}<select name="regim" value={campuri.regim} onChange={e => seteaza('regim', e.target.value)}>{regimuri.filter(r=>r.activ||r.id===campuri.regim).map(r => <option key={r.id} value={r.id}>{r.denumire[i18n.language]||r.denumire.ro}</option>)}</select></label>
                     {/* F07-T42 (D097): culoarea programului in grile si rapoarte; fara alegere, implicita dupa tip. */}
