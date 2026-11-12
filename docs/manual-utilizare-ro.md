@@ -1040,3 +1040,13 @@ De reținut:
 - opțiunea nu se poate schimba cât timp o lună cu schimbarea orei (martie sau octombrie) este închisă; redeschideți întâi luna, cu motiv;
 - cu **Orele efective**, legenda rapoartelor de pontaj spune cum au fost numărate aceste nopți.
 
+## Limba interfeței și a rapoartelor (0.92.95)
+
+În **Setări › General**, fila **Limbă**:
+
+- **Limba interfeței**: se păstrează la următoarea pornire. O puteți schimba și din bara laterală;
+- **Limba implicită a rapoartelor**: **La fel ca interfața** (implicit), **Română** sau **English**. Ecranul **Rapoarte** pornește cu această limbă, dar puteți genera orice raport în altă limbă;
+- **Texte netraduse**: câte texte nu sunt traduse în fiecare limbă; acestea apar în limba implicită.
+
+Alegerile se păstrează în folderul `karios`, lângă program, deci călătoresc împreună cu stickul.
+

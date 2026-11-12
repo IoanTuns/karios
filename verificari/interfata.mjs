@@ -237,6 +237,7 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
         VerificaBackup: async () => ({}),
         CitesteUltimeleLiniiJurnal: async () => '',
         Limbi: async () => [limba, ...Object.keys(cataloage).filter(l => l !== limba)],
+        TraduceriLipsa: async l => Object.keys(cataloage[limba]).filter(k => !cataloage[l]?.[k]),
         Catalog: async l => cataloage[l], Informatii: async () => ({versiune: versiuneAplicatie, commit: 'verificare'}),
         DateInitiale: async () => raspuns(),
         SalveazaCategorieProgram:async c=>{
@@ -978,6 +979,14 @@ try {
     await completeaza('input[name="cautare_absente"]', '');
     await completeaza('select[name="limba_interfata"]', 'ro');
     await asteapta(() => evalueaza(`document.querySelector('h1')?.textContent === 'Concedii și absențe'`), 'Selectorul de limbă din bara laterală nu schimbă limba interfeței.');
+    // F03-T05/F03-T08 (D103): fila Limbă din Setări, limba rapoartelor retinuta local.
+    assert.equal(await evalueaza(`localStorage.getItem('pontix-limba-interfata')`),'ro','Limba interfeței nu se reține.');
+    await apasa('Setări');await apasa('General');await apasa('Limbă');
+    await asteapta(()=>evalueaza(`document.querySelector('.setari-limba')?.textContent.includes('toate textele sunt traduse')`),'Fila Limbă nu arată textele netraduse.');
+    await completeaza('select[name="setari_limba_rapoarte"]','en');
+    assert.equal(await evalueaza(`localStorage.getItem('pontix-limba-rapoarte')`),'en','Limba rapoartelor nu se reține.');
+    await completeaza('select[name="setari_limba_rapoarte"]','interfata');
+    await apasa('Normă și structură');
     // Scenariu de categorii: date strict fictive, separat de regresiile anterioare.
     await evalueaza(`(() => {
         const s=JSON.parse(localStorage.getItem('pontix-test'));

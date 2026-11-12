@@ -2219,5 +2219,15 @@
   "rapoarte.legenda_CVE": "Zilele oricărui alt tip de absență, în afară de CO, CM, CFP, DLG și FMP (evenimente speciale)",
   "rapoarte.legenda_CFP": "Zile de concediu fără plată",
   "rapoarte.legenda_FMP": "Zile de formare profesională; orele lor intră și în OL",
-  "rapoarte.legenda_DLG": "Zile de delegație"
+  "rapoarte.legenda_DLG": "Zile de delegație",
+  "setari.fila_limba": "Limbă",
+  "limba.titlu": "Limbă",
+  "limba.descriere": "Limba aleasă se păstrează la următoarea pornire, pe acest calculator sau stick (în folderul karios, lângă program).",
+  "limba.rapoarte": "Limba implicită a rapoartelor",
+  "limba.rapoarte_interfata": "La fel ca interfața",
+  "limba.rapoarte_indiciu": "Fiecare raport poate fi generat în altă limbă din ecranul Rapoarte.",
+  "limba.traduceri_lipsa": "Texte netraduse",
+  "limba.lipsa_numar": "{{limba}}: {{numar}} texte netraduse; se afișează în limba implicită.",
+  "limba.lipsa_niciuna": "{{limba}}: toate textele sunt traduse.",
+  "limba.lipsa_lista": "Arată textele netraduse"
 }

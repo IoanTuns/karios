@@ -13,6 +13,7 @@ import {datebaza, main, rapoarte} from '../wailsjs/go/models';
 import {Dialog, denumireDepartament, denumireSectie} from './Formulare';
 import {completeazaRaport, sablonPePagina} from './raportPdfme';
 import {notifica} from './Toast';
+import {limbaRapoarte} from './limba';
 
 const copiaza = <T,>(v: T): T => JSON.parse(JSON.stringify(v));
 export type DateSimple<T> = T extends Array<infer V> ? DateSimple<V>[] : T extends object ? {[K in keyof T as T[K] extends Function ? never : K]: DateSimple<T[K]>} : T;
@@ -154,7 +155,7 @@ export function GenerareRapoarte({date,initial,onPerioada}: {date: datebaza.Date
     const {t,i18n} = useTranslation();
     const {configuratie,incarcare,eroare,setEroare,reincarca} = useModele();
     const [filtruProfesional,setFiltruProfesional]=useState({...filtruProfesionalGol});
-    const [selectie,setSelectie] = useState({model:'',an:initial?.an??new Date().getFullYear(),luna:initial?.luna??new Date().getMonth()+1,sectie:'',departament:'',angajat:'',limba:i18n.language==='en'?'en':'ro'});
+    const [selectie,setSelectie] = useState({model:'',an:initial?.an??new Date().getFullYear(),luna:initial?.luna??new Date().getMonth()+1,sectie:'',departament:'',angajat:'',limba:limbaRapoarte()});
     useEffect(()=>onPerioada?.({an:selectie.an,luna:selectie.luna}),[selectie.an,selectie.luna,onPerioada]);
     const [ocupat,setOcupat] = useState(false);
  const [stareCopie,setStareCopie]=useState({modificat:false,ocupat:false});

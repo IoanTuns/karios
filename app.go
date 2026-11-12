@@ -85,6 +85,16 @@ func (a *App) Catalog(limba string) map[string]string {
 	return i18n.Catalog(i18n.Limba(limba))
 }
 
+// TraduceriLipsa întoarce cheile din limba implicită fără traducere în limba cerută (F03-T08),
+// pentru ecranul de limbă din Setări. O limbă necunoscută le are pe toate lipsă.
+func (a *App) TraduceriLipsa(limba string) []string {
+	rez := i18n.Lipsa(i18n.Limba(limba))
+	if rez == nil {
+		rez = []string{}
+	}
+	return rez
+}
+
 // Limbi întoarce codurile limbilor disponibile, cu limba implicită prima.
 func (a *App) Limbi() []string {
 	var rez []string

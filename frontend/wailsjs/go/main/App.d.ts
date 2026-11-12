@@ -266,6 +266,8 @@ export function StergeConfigurare(arg1:string,arg2:string,arg3:string):Promise<m
 
 export function StergeSablonAI(arg1:string):Promise<main.RaspunsInstrumenteAI>;
 
+export function TraduceriLipsa(arg1:string):Promise<Array<string>>;
+
 export function TrimiteRaportProblemaPeGitHub(arg1:string,arg2:string):Promise<main.RaspunsRaportProblema>;
 
 export function UltimaModificareCelula(arg1:string,arg2:string):Promise<main.RaspunsUltimaModificare>;

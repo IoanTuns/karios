@@ -2219,5 +2219,15 @@
   "rapoarte.legenda_CVE": "Days of any other absence type except CO, CM, CFP, DLG and FMP (special events)",
   "rapoarte.legenda_CFP": "Unpaid leave days",
   "rapoarte.legenda_FMP": "Professional training days; their hours also count in OL",
-  "rapoarte.legenda_DLG": "Business trip days"
+  "rapoarte.legenda_DLG": "Business trip days",
+  "setari.fila_limba": "Language",
+  "limba.titlu": "Language",
+  "limba.descriere": "The chosen language is kept for the next start, on this computer or USB stick (in the karios folder, next to the program).",
+  "limba.rapoarte": "Default report language",
+  "limba.rapoarte_interfata": "Same as the interface",
+  "limba.rapoarte_indiciu": "Each report can be generated in another language from the Reports screen.",
+  "limba.traduceri_lipsa": "Untranslated texts",
+  "limba.lipsa_numar": "{{limba}}: {{numar}} untranslated texts; they are shown in the default language.",
+  "limba.lipsa_niciuna": "{{limba}}: all texts are translated.",
+  "limba.lipsa_lista": "Show untranslated texts"
 }

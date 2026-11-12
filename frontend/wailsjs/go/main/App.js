@@ -510,6 +510,10 @@ export function StergeSablonAI(arg1) {
   return window['go']['main']['App']['StergeSablonAI'](arg1);
 }
 
+export function TraduceriLipsa(arg1) {
+  return window['go']['main']['App']['TraduceriLipsa'](arg1);
+}
+
 export function TrimiteRaportProblemaPeGitHub(arg1, arg2) {
   return window['go']['main']['App']['TrimiteRaportProblemaPeGitHub'](arg1, arg2);
 }
