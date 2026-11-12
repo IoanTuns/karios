@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.92.94 - 2026-11-12
+
+F04-T08, actualizarea dependențelor (D007): Go 1.27.3 → 1.27.4; goose 3.29.0 → 3.30.0, golang.org/x/crypto 0.58.0 → 0.59.0, x/image 0.47.0 → 0.48.0, x/sys 0.49.0 → 0.50.0, x/text 0.43.0 → 0.44.0 (indirect: x/sync 0.25.0, yaml 3.0.6); i18next 27.0.1 → 27.1.1, vite 8.3.6 → 8.3.8. Fără schimbări de funcționalitate.
+
 ## 0.92.93 - 2026-11-12
 
 F04-T08 ([D102](decizii/D102-schimbarea-orei-configurabila.md), propusă). În **Setări › Configurare pontaj**, opțiunea nouă **Turele din nopțile cu schimbarea orei** alege între durata din program (implicit, ca până acum) și orele efective: o tură 19–07 are atunci 13 ore în noaptea din octombrie și 11 ore în cea din martie. Opțiunea nu se poate schimba cât timp e închisă o lună cu schimbarea orei. Cu orele efective, legenda rapoartelor o spune. Rapoarte cu versiune nouă: Pontaj 23, Pontaj detaliat 26, Fișa individuală 23, rapoartele flexibile 21 (conținut neschimbat cu opțiunea implicită).
