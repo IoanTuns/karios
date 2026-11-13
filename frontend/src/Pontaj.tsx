@@ -20,6 +20,7 @@ import {notifica} from './Toast';
 import {formatData, dataAfisata} from './formatare';
 import {AsistentAI} from './AsistentAI';
 import {DialogExportSalarizare} from './ExportSalarizare';
+import {DialogVerificaLuna} from './VerificaLuna';
 import {limbaRapoarte} from './limba';
 
 type Pozitie = {rand: number; zi: number};
@@ -50,7 +51,8 @@ function textMotiv(t: TFunction, motiv: string, cod?: string): string {
 }
 const cheie = (id: string, data: string) => JSON.stringify([id, data]);
 const oreText = (minute: number) => String(Number((minute/60).toFixed(4)));
-const valoareText = (v?: calcul.ValoarePontaj) => v?.definita ? String(Number((v.sutimi/(v.unitate==='ORE'?6000:100)).toFixed(4))) : '—';
+// F08-T18: o coloana care nu se aplica randului (nu_se_aplica) e goala; „—” = nu se poate calcula.
+const valoareText = (v?: calcul.ValoarePontaj) => v?.nu_se_aplica ? '' : v?.definita ? String(Number((v.sutimi/(v.unitate==='ORE'?6000:100)).toFixed(4))) : '—';
 const normalizat = (text: string) => text.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLocaleLowerCase();
 function manual(text: string): string | null {
     if(!text.trim())return '';
@@ -173,6 +175,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
     const [incarcare, setIncarcare] = useState(true);
     const [ocupat, setOcupat] = useState(false);
     const [exportSalarizare, setExportSalarizare] = useState(false);
+    const [verificaLuna, setVerificaLuna] = useState(false);
     const [eroare, setEroare] = useState('');
     const [mesaj, setMesaj] = useState('');
     const [reincarcare, setReincarcare] = useState(0);
@@ -805,6 +808,7 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
 
     useSalvareParasire('pontaj',modificari.size,()=>salveaza(),()=>{setModificari(new Map());setIstoricInapoi([]);setIstoricInainte([]);});
     return <section className="pontaj-lunar">
+        {verificaLuna && <DialogVerificaLuna an={an} luna={luna} nesalvate={modificari.size} inchide={() => setVerificaLuna(false)}/>}
         {exportSalarizare && <DialogExportSalarizare an={an} luna={luna} sectie={sectie} numeSectie={sectie ? numeSectie(sectie) : ''} inchide={() => setExportSalarizare(false)}/>}
         <div className="unelte-calendar unelte-perioada"><form onSubmit={async e => { e.preventDefault(); const nou = Number(anText); if (!Number.isInteger(nou) || nou < 1 || nou > 9999) { setEroare(t('sarbatori.an_invalid')); return; } if (nou !== an) { if (await poateAbandona()) setAn(nou); else setAnText(String(an)); } }}>
             <label>{t('sarbatori.an')}<input aria-label={t('sarbatori.an')} type="number" min="1" max="9999" required disabled={ocupat} value={anText} onChange={e => setAnText(e.target.value)}/></label>
@@ -874,6 +878,8 @@ export function Pontaj({date, context, onModificari, onOcupat, onDeschideAbsente
                         <button type="button" className="buton secundar" title={!randuri.length ? t('motiv.fara_angajati') : !programCompletare ? t('motiv.alege_program') : t('program.completare_program_indiciu')} disabled={ocupat||!randuri.length||!programCompletare} onClick={precompleteazaLV}>{t('pontaj.precompleteaza_lv')}</button>
                         <button type="button" className="buton secundar" disabled={ocupat||!randuri.length} onClick={()=>void previzualizeazaCategorii(false)}>{t('program.precompleteaza')}</button>
                         <button type="button" className="buton secundar" title={t('pontaj.export_excel_titlu')} disabled={ocupat||!randuri.length} onClick={exportaExcel}>📊 {t('pontaj.export_excel')}</button>
+                        {/* F12-T06: constatarile lunii inainte de inchidere. */}
+                        <button type="button" className="buton secundar" disabled={ocupat} onClick={() => setVerificaLuna(true)}>{t('verifica_luna.buton')}</button>
                         {/* F10-T03 (D108): exportul pentru salarizare, dupa un model; foloseste datele salvate. */}
                         <button type="button" className="buton secundar" title={modificari.size ? t('export_salarizare.salvati_intai') : t('export_salarizare.titlu')} disabled={ocupat||!randuri.length||modificari.size>0} onClick={() => setExportSalarizare(true)}>{t('export_salarizare.titlu')}</button>
                         <button type="button" className={`buton secundar buton-drawer-ai ${drawerAI ? 'panou-activ' : ''}`} title={t('pontaj.asistent_drawer_titlu')} onClick={() => setDrawerAI(v => !v)}>

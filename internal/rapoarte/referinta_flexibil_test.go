@@ -66,3 +66,18 @@ func TestReferintaRaportFlexibil(t *testing.T) {
 		t.Fatalf("raportul flexibil difera de referinta; verifica schimbarea si versiunea raportului: %s", cale)
 	}
 }
+
+// F09-T37 (D107): tabelul de date pontaj_detaliat are si coloana total_OS (ore suplimentare).
+func TestPontajDetaliatSQLAreOreSuplimentare(t *testing.T) {
+	m := pregateste(t)
+	fixture(t, m)
+	d := modelFlexTest()
+	d.Continut.Flexibil.SQL = `SELECT marca, total_T, total_OS FROM pontaj_detaliat WHERE grup = 0 ORDER BY marca`
+	doc, err := m.s.PrevizualizeazaFlexibil(context.Background(), d, Cerere{An: 2026, Luna: 10, Limba: "ro"}, momentFix)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(doc.Coloane) != 3 || doc.Coloane[2].Cod != "total_OS" || len(doc.Randuri) == 0 {
+		t.Fatalf("coloane %+v, randuri %d", doc.Coloane, len(doc.Randuri))
+	}
+}

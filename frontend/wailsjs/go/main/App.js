@@ -526,6 +526,10 @@ export function StergeConfigurare(arg1, arg2, arg3) {
   return window['go']['main']['App']['StergeConfigurare'](arg1, arg2, arg3);
 }
 
+export function StergeRegulaConfigurabila(arg1) {
+  return window['go']['main']['App']['StergeRegulaConfigurabila'](arg1);
+}
+
 export function StergeSablonAI(arg1) {
   return window['go']['main']['App']['StergeSablonAI'](arg1);
 }
@@ -560,6 +564,10 @@ export function VerificaBackup(arg1) {
 
 export function VerificaFolderTraduceri() {
   return window['go']['main']['App']['VerificaFolderTraduceri']();
+}
+
+export function VerificaLuna(arg1, arg2) {
+  return window['go']['main']['App']['VerificaLuna'](arg1, arg2);
 }
 
 export function VerificaPontajAI(arg1) {

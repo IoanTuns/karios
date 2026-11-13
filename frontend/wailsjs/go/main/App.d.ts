@@ -275,6 +275,8 @@ export function StatisticiDiagnoza():Promise<diagnoza.StatisticiDiagnoza>;
 
 export function StergeConfigurare(arg1:string,arg2:string,arg3:string):Promise<main.RaspunsDate>;
 
+export function StergeRegulaConfigurabila(arg1:string):Promise<main.RaspunsListaReguli>;
+
 export function StergeSablonAI(arg1:string):Promise<main.RaspunsInstrumenteAI>;
 
 export function StergeSchimbareContract(arg1:string,arg2:string):Promise<main.RaspunsIstoricContract>;
@@ -292,6 +294,8 @@ export function UnesteRapoarteSectii(arg1:rapoarte.Cerere,arg2:Array<string>):Pr
 export function VerificaBackup(arg1:string):Promise<main.RaspunsVerificareBackup>;
 
 export function VerificaFolderTraduceri():Promise<main.RaspunsTraduceri>;
+
+export function VerificaLuna(arg1:number,arg2:number):Promise<main.RaspunsVerificareLuna>;
 
 export function VerificaPontajAI(arg1:ai.IntentiePlan):Promise<main.RaspunsInstrumenteAI>;
 

@@ -160,3 +160,9 @@ Răspunsurile date de Ioan Tuns la [chestionarul pentru contabilitate](../chesti
 
 Ce urmează: întrebările de clarificare de mai jos și taskurile F04-T04 (orele suplimentare), F04-T05 (pauza) și F10-T01/T03 (exportul) se deblochează pe baza acestor răspunsuri.
 
+### Validarea pe date reale - 2026-11-13 (Ioan Tuns)
+
+Ioan Tuns: „Validările sunt făcute, pare să fie ce trebuie.” Verificarea pe date reale a funcțiilor livrate până la 0.92.112 a fost făcută de utilizator, fără diferențe semnalate. Nu s-a primit un centralizator de referință pentru testele automate (F04-T07 rămâne blocat).
+
+D1 (semnificația celulelor roșii și a chenarelor), D2 (coloane lipsă sau în plus) și F1 (luna de referință pentru comparația rând cu rând) rămân deschise: nu există încă o decizie finală.
+

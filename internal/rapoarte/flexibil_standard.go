@@ -59,6 +59,10 @@ func definitieStandard(sursa string) Definitie {
 	coloane := []string{}
 	if s != nil {
 		coloane = append(coloane, s.Coloane...)
+		// F09-T37: tabelul de date are si orele suplimentare (total_OS), dupa celelalte totaluri.
+		if len(coloane) > 0 && coloane[len(coloane)-1] == "totaluri" {
+			coloane = append(coloane, "totaluri_os")
+		}
 	}
 	return Definitie{
 		ID: "sql-" + strings.ToLower(sursa), Denumire: i18n.Text{"ro": sursa, "en": sursa},

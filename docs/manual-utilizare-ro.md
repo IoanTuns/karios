@@ -1100,7 +1100,7 @@ Coloana **OS** din Pontaj arată orele suplimentare: pentru fiecare zi, orele lu
 - **La o oră fixă**: alegeți ora de început a pauzei (de exemplu 12:00); pauza trebuie să cadă în interiorul programului;
 - **La mijlocul turei**.
 
-Cu ora fixă sau la mijloc, pauza se scade din ziua în care cade (contează la împărțirea pe zile și la ZNL). Pauza poate fi cel mult jumătate din program. Programele care aveau deja pauză rămân **Nestabilit** — orele lor nu se calculează până alegeți modul.
+Cu ora fixă sau la mijloc, pauza se scade din ziua în care cade (contează la împărțirea pe zile și la ZNL). Pauza poate fi cel mult jumătate din program. Programele care aveau deja pauză rămân **Nestabilit** — orele lor nu se calculează până alegeți modul. Din 0.93.3, programele cu modul pauzei ales se pot și planifica și precompleta; la precompletare, orele fără pauză trebuie să fie egale cu norma zilnică.
 
 ## Exportul pentru salarizare (0.92.112)
 
@@ -1109,4 +1109,29 @@ Pontix predă programului de salarizare orele și zilele, nu sume de bani.
 **Modelele** (Setări › General › Export salarizare) descriu fișierul: CSV sau Excel, separatorul de câmpuri și cel zecimal, numărul de zecimale, orele ca zecimal (7,5) sau ore:minute (7:30), primul rând cu denumirile coloanelor și coloanele, în ordinea dorită. O coloană poate fi: marca, numele, secția, funcția, perioada, orice total din Pontaj (de exemplu OL, OS, ZNL, CO, CM) sau un text fix. La instalare există „CSV generic” și „Excel generic”; administratorul poate salva modele noi (butonul **Model nou** pornește de la o copie).
 
 **Exportul**: în **Pontaj**, **Mai multe › Export pentru salarizare**, alegeți modelul (și, dacă e cazul, doar secția filtrată) și locul fișierului. Se exportă datele salvate, câte un rând pe marcă; dacă aveți modificări nesalvate, salvați-le întâi. Valorile necalculate („—”) rămân goale, iar aplicația spune câte au fost.
+
+## Ștergerea regulilor de planificare (0.93.0)
+
+În **Planificare**, în dialogul regulilor (repaus minim, plafon de gărzi, succesiuni interzise), fiecare regulă are acum butonul **Șterge**. Ștergerea e definitivă și cere confirmare; pentru a opri doar o regulă, debifați-o.
+
+## Celule goale și „—” (0.93.1)
+
+În totalurile din Pontaj, din rapoarte și din exporturi:
+
+- o celulă **goală** înseamnă că acea coloană nu se aplică rândului: regula coloanei e „Nedefinită” (de exemplu Ore gardă 200% la cei fără gardă), ZNL sau OS pe un rând de gardă, TOCN sau OS la o persoană fără normă zilnică;
+- **„—”** înseamnă că valoarea ar trebui să existe, dar nu se poate calcula (de exemplu un program cu pauză pentru care nu s-a ales modul). Motivul apare când țineți mouse-ul pe celulă.
+
+## Orele suplimentare în Pontaj detaliat (0.93.2)
+
+Pentru a adăuga coloana OS în raportul **Pontaj detaliat (editor vizual)**: în **Rapoarte › Definire rapoarte**, editați modelul, iar în SQL adăugați `total_OS` după celelalte totaluri (de exemplu după `total_ore_garda`), apăsați **Verifică raportul**, apoi **Actualizează tabelul din SQL** și salvați. Modelele existente nu s-au schimbat automat, ca personalizările voastre să rămână.
+
+## Verifică luna (0.93.4)
+
+În **Pontaj**, **Mai multe › Verifică luna** arată, înainte de închiderea lunii, ce trebuie văzut:
+
+- **De corectat**: valorile care nu se pot calcula, pe motiv, cu mărcile persoanelor;
+- **De verificat**: programele cu pauză fără modul ales, absențele care așteaptă aprobarea, anul fără sărbători în calendar;
+- **Informativ**: angajații activi fără nicio înregistrare în lună, luna deja închisă.
+
+Verificarea folosește datele salvate și nu schimbă nimic. Pașii completi sunt în procedura de control lunar.
 

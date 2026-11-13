@@ -1,0 +1,406 @@
+{
+  "document": {
+    "variabile_raport": {
+      "an": "2026",
+      "angajat": "Șerban Ana",
+      "angajat_id": "a",
+      "compartiment": "",
+      "concediu_CO": "0",
+      "concediu_zile_an": "—",
+      "de_la": "2026-10-01",
+      "departament": "",
+      "diferenta": "0.00",
+      "luna": "10",
+      "marca": "DEMO-R01",
+      "norma_zilnica": "7",
+      "pana_la": "2026-10-31",
+      "perioada": "2026-10",
+      "programe": "11",
+      "schimbari_contract": "0",
+      "sectie": "",
+      "total_ore_cf_contract": "154",
+      "total_ore_lucratoare": "154",
+      "zile": "2"
+    },
+    "flexibil": {
+      "inaltime_rand": 0,
+      "ascunse": null,
+      "sql": "SELECT l.angajat_id, l.angajat, l.marca, l.total_ore_cf_contract, l.total_ore_lucratoare, l.concediu_CO,\n\t\ta.norma_zilnica, a.concediu_zile_an,\n\t\t(SELECT count(*) FROM istoric_contract i WHERE i.angajat_id=l.angajat_id) AS schimbari_contract,\n\t\t(SELECT count(*) FROM programe) AS programe\n\t\tFROM lunar l JOIN angajati a ON a.angajat_id=l.angajat_id ORDER BY l.marca",
+      "mod_aspect": "TABEL",
+      "markdown": "",
+      "elemente": null,
+      "calculate": [
+        {
+          "cod": "diferenta",
+          "denumire": {
+            "ro": "Diferenta"
+          },
+          "unitate": "ORE",
+          "mod": "FORMULA",
+          "expresie": "total_ore_cf_contract-total_ore_lucratoare",
+          "zecimale": 2,
+          "lipsa_zero": false,
+          "activ": true
+        },
+        {
+          "cod": "zile",
+          "denumire": null,
+          "unitate": "ZILE",
+          "mod": "SQL",
+          "expresie": "SELECT count(*) FROM absente WHERE angajat_id=:angajat_id AND activ=1",
+          "zecimale": 0,
+          "lipsa_zero": false,
+          "activ": true
+        }
+      ],
+      "concedii_tipuri": null,
+      "concedii_categorii": null,
+      "weekend": true,
+      "sarbatori": true
+    },
+    "schema": [
+      {
+        "cod": "angajati",
+        "campuri": [
+          "angajat_id",
+          "angajat",
+          "marca",
+          "functie",
+          "sectie_id",
+          "sectie",
+          "compartiment_id",
+          "compartiment",
+          "contract",
+          "garda",
+          "norma_zilnica",
+          "activ",
+          "nume",
+          "prenume",
+          "concediu_zile_an",
+          "angajat_principal_id",
+          "prefix"
+        ]
+      },
+      {
+        "cod": "istoric_contract",
+        "campuri": [
+          "angajat_id",
+          "de_la",
+          "norma_zilnica",
+          "concediu_zile_an"
+        ]
+      },
+      {
+        "cod": "calendar",
+        "campuri": [
+          "data",
+          "weekend",
+          "sarbatoare",
+          "lucratoare"
+        ]
+      },
+      {
+        "cod": "tipuri_absenta",
+        "campuri": [
+          "cod",
+          "denumire",
+          "categorie_id",
+          "natura",
+          "efect_ore",
+          "activ"
+        ]
+      },
+      {
+        "cod": "absente",
+        "campuri": [
+          "angajat_id",
+          "data",
+          "cod",
+          "categorie_id",
+          "activ",
+          "stare_aprobare"
+        ]
+      },
+      {
+        "cod": "categorii_absenta",
+        "campuri": [
+          "cod",
+          "denumire",
+          "natura",
+          "efect_ore",
+          "activ"
+        ]
+      },
+      {
+        "cod": "pontaj_schita",
+        "campuri": [
+          "angajat_id",
+          "data",
+          "valoare"
+        ]
+      },
+      {
+        "cod": "programe",
+        "campuri": [
+          "id",
+          "cod",
+          "denumire",
+          "start_minute",
+          "durata_minute",
+          "tip",
+          "regim",
+          "activ",
+          "culoare"
+        ]
+      },
+      {
+        "cod": "pontaj_efectiv",
+        "campuri": [
+          "angajat_id",
+          "data",
+          "inceput",
+          "sfarsit"
+        ]
+      },
+      {
+        "cod": "planificare",
+        "campuri": [
+          "angajat_id",
+          "data",
+          "schimb_id",
+          "cod",
+          "sectiune",
+          "activ",
+          "culoare"
+        ]
+      },
+      {
+        "cod": "garzi",
+        "campuri": [
+          "angajat_id",
+          "angajat",
+          "marca",
+          "data",
+          "program",
+          "inceput",
+          "sfarsit",
+          "ore",
+          "ore_eligibile",
+          "culoare"
+        ]
+      },
+      {
+        "cod": "garzi_zile",
+        "campuri": [
+          "angajat_id",
+          "angajat",
+          "marca",
+          "data",
+          "program",
+          "inceput",
+          "sfarsit",
+          "ore",
+          "ore_eligibile",
+          "weekend",
+          "sarbatoare",
+          "culoare"
+        ]
+      },
+      {
+        "cod": "lunar",
+        "campuri": [
+          "angajat_id",
+          "angajat",
+          "marca",
+          "total_zile_cf_contract",
+          "total_ore_cf_contract",
+          "total_zile_concediu",
+          "total_ore_lucratoare",
+          "total_ore_lucrate",
+          "total_ore_garda",
+          "total_ore_garda_weekend_sarbatori",
+          "L_INCEPUT",
+          "L_FIN",
+          "concediu_CM",
+          "concediu_CO"
+        ]
+      },
+      {
+        "cod": "pontaj_totaluri",
+        "campuri": [
+          "angajat_id",
+          "angajat",
+          "marca",
+          "ol",
+          "co",
+          "cm",
+          "cfp",
+          "cve",
+          "dlg",
+          "fmp",
+          "tzln",
+          "tocn",
+          "os"
+        ]
+      }
+    ],
+    "legenda": [
+      "Contract: zile lucrătoare fără weekend/sărbători x norma. Ore lucrătoare: obligația contractuală minus absențe aprobate cu reducere; deplasările creditate nu se scad. Concedii: selecția tipurilor/categoriilor, fără dublare. Gărzi: ore active efective, iar în lipsa lor programul activ; ore eligibile intersectate cu zilele selectate 00-24, limitate la lună. Coloanele concediu_* numără zile aprobate pe tip.",
+      "SQL: SELECT l.angajat_id, l.angajat, l.marca, l.total_ore_cf_contract, l.total_ore_lucratoare, l.concediu_CO,\n\t\ta.norma_zilnica, a.concediu_zile_an,\n\t\t(SELECT count(*) FROM istoric_contract i WHERE i.angajat_id=l.angajat_id) AS schimbari_contract,\n\t\t(SELECT count(*) FROM programe) AS programe\n\t\tFROM lunar l JOIN angajati a ON a.angajat_id=l.angajat_id ORDER BY l.marca",
+      "diferenta [ORE]: total_ore_cf_contract-total_ore_lucratoare",
+      "zile [ZILE]: SELECT count(*) FROM absente WHERE angajat_id=:angajat_id AND activ=1"
+    ],
+    "titlu": "Raport flexibil demo",
+    "sursa": "CALCULATE_LUNAR",
+    "versiune_raport": 23,
+    "revizie_model": "",
+    "pagina": {
+      "format": "A4",
+      "orientare": "PEISAJ",
+      "margine_mm": 10,
+      "font_pt": 8
+    },
+    "antet": [
+      "",
+      "",
+      ""
+    ],
+    "introducere": "",
+    "coloane": [
+      {
+        "cod": "angajat_id",
+        "titlu": "angajat id",
+        "pondere": 10,
+        "culoare": ""
+      },
+      {
+        "cod": "angajat",
+        "titlu": "angajat",
+        "pondere": 10,
+        "culoare": ""
+      },
+      {
+        "cod": "marca",
+        "titlu": "marca",
+        "pondere": 10,
+        "culoare": ""
+      },
+      {
+        "cod": "total_ore_cf_contract",
+        "titlu": "total ore cf contract",
+        "pondere": 10,
+        "culoare": ""
+      },
+      {
+        "cod": "total_ore_lucratoare",
+        "titlu": "total ore lucratoare",
+        "pondere": 10,
+        "culoare": ""
+      },
+      {
+        "cod": "concediu_CO",
+        "titlu": "concediu CO",
+        "pondere": 10,
+        "culoare": ""
+      },
+      {
+        "cod": "norma_zilnica",
+        "titlu": "norma zilnica",
+        "pondere": 10,
+        "culoare": ""
+      },
+      {
+        "cod": "concediu_zile_an",
+        "titlu": "concediu zile an",
+        "pondere": 10,
+        "culoare": ""
+      },
+      {
+        "cod": "schimbari_contract",
+        "titlu": "schimbari contract",
+        "pondere": 10,
+        "culoare": ""
+      },
+      {
+        "cod": "programe",
+        "titlu": "programe",
+        "pondere": 10,
+        "culoare": ""
+      },
+      {
+        "cod": "diferenta",
+        "titlu": "Diferenta",
+        "pondere": 10,
+        "culoare": ""
+      },
+      {
+        "cod": "zile",
+        "titlu": "zile",
+        "pondere": 10,
+        "culoare": ""
+      }
+    ],
+    "randuri": [
+      {
+        "valori": [
+          "a",
+          "Șerban Ana",
+          "DEMO-R01",
+          "154",
+          "154",
+          "0",
+          "7",
+          "—",
+          "0",
+          "11",
+          "0.00",
+          "2"
+        ],
+        "culori": null
+      },
+      {
+        "valori": [
+          "b",
+          "Țincu Răzvan",
+          "DEMO-R02",
+          "154",
+          "154",
+          "0",
+          "7",
+          "—",
+          "0",
+          "11",
+          "0.00",
+          "0"
+        ],
+        "culori": null
+      },
+      {
+        "valori": [
+          "c",
+          "Fictiv Inactiv",
+          "DEMO-R03",
+          "154",
+          "154",
+          "0",
+          "7",
+          "—",
+          "0",
+          "11",
+          "0.00",
+          "0"
+        ],
+        "culori": null
+      }
+    ],
+    "subsol": [
+      "",
+      "",
+      ""
+    ],
+    "metadate": "Raport flexibil demo |  | \u003caplicatie\u003e | necunoscut | 2026-10-25T12:30:00Z | local",
+    "nota": "DOCUMENT DE LUCRU · valori din schița de pontaj și absențe; fără calcul de salarizare.",
+    "fara_date": "Nu există înregistrări pentru selecția curentă.",
+    "paginare": "Pagina {current} din {total}"
+  }
+}

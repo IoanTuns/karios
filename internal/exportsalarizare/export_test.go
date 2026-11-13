@@ -124,3 +124,17 @@ func TestReferintaExportSalarizare(t *testing.T) {
 		t.Fatalf("exportul pentru salarizare difera de referinta %s", cale)
 	}
 }
+
+// F08-T18: o valoare care nu se aplica randului e goala si nu se numara ca necalculata.
+func TestNuSeAplicaNuENecalculata(t *testing.T) {
+	m := modelTest(FormatCSV)
+	if err := Valideaza(&m); err != nil {
+		t.Fatal(err)
+	}
+	r := randuriTest()
+	r[1].Valori["OS"] = calcul.ValoarePontaj{Unitate: "ORE", Motiv: calcul.MotivGardaFaraOS, NuSeAplica: true}
+	tabel, necalculate := Tabel(m, r)
+	if tabel[2][4] != "" || necalculate != 0 {
+		t.Fatal(tabel, necalculate)
+	}
+}

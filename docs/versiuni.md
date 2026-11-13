@@ -4,6 +4,26 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.93.4 - 2026-11-13
+
+F12-T06. Pontaj › Mai multe › **Verifică luna** adună constatările lunii înainte de închidere: valori necalculate, programe cu pauză nestabilită, absențe în așteptare, calendar fără sărbători, angajați fără înregistrări.
+
+## 0.93.3 - 2026-11-13
+
+F04-T12 (I133). Programele cu modul pauzei ales se pot planifica și precompleta (norma se compară cu orele fără pauză), iar creditul absențelor „după program” scade pauza.
+
+## 0.93.2 - 2026-11-13
+
+F09-T37. În rapoartele SQL, tabelul de date `pontaj_detaliat` are coloana `total_OS` (ore suplimentare), care se poate adăuga în Pontaj detaliat din editorul vizual. Rapoartele flexibile 23.
+
+## 0.93.1 - 2026-11-13
+
+F08-T18. Coloanele care nu se aplică unui rând (regulă nedefinită, ZNL/OS la gărzi, TOCN/OS fără normă zilnică) apar goale; „—” rămâne doar pentru valorile care nu se pot calcula. Pontaj detaliat 28, exportul Excel 1.5.0.
+
+## 0.93.0 - 2026-11-13
+
+Începutul seriei 0.93 (finisare înainte de versiunea 1). F11-T23: regulile de planificare se pot șterge, cu confirmare și jurnal.
+
 ## 0.92.112 - 2026-11-12
 
 F10-T03 ([D108](decizii/D108-export-salarizare-configurabil.md), propusă). Exportul pentru salarizare: modele configurabile (CSV sau Excel, coloane, separatori, zecimale, ore zecimal sau ore:minute), editate în Setări › General › Export salarizare; exportul din Pontaj › Mai multe. Doar ore și zile, câte un rând pe marcă. Migrarea 0042.

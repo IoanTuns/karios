@@ -2360,5 +2360,22 @@
   "export_salarizare.sursa_invalida": "Coloana „{{sursa}}” nu este cunoscută.",
   "export_salarizare.titlu_invalid": "Titlul sau textul fix al unei coloane este prea lung.",
   "export_salarizare.model_inexistent": "Modelul de export nu mai există.",
-  "export_salarizare.conflict": "Modelul a fost modificat între timp. Reîncărcați pagina și încercați din nou."
+  "export_salarizare.conflict": "Modelul a fost modificat între timp. Reîncărcați pagina și încercați din nou.",
+  "planificare.confirma_stergere_regula": "Ștergeți definitiv regula „{{nume}}”? Pentru a o opri doar, debifați-o.",
+  "planificare.regula_stearsa": "Regula a fost ștearsă.",
+  "reguli.inexistenta": "Regula nu mai există.",
+  "verifica_luna.buton": "Verifică luna",
+  "verifica_luna.titlu": "Verificarea lunii {{luna}}",
+  "verifica_luna.nesalvate": "Aveți {{numar}} modificări nesalvate; verificarea folosește datele salvate.",
+  "verifica_luna.nimic": "Nu s-a găsit nimic de verificat. Luna poate fi închisă după procedura voastră.",
+  "verifica_luna.indiciu": "Verificarea nu schimbă nimic. Lista completă a pașilor e în procedura de control lunar.",
+  "verifica_luna.gravitate_EROARE": "De corectat:",
+  "verifica_luna.gravitate_AVERTISMENT": "De verificat:",
+  "verifica_luna.gravitate_INFO": "Informativ:",
+  "verifica_luna.persoane": "({{numar}} persoane)",
+  "verifica_luna.pauza_nestabilita": "{{numar}} programe au pauză fără modul ales (Setări › Schimburi); orele lor nu se calculează.",
+  "verifica_luna.absente_in_asteptare": "{{numar}} zile de absență așteaptă aprobarea.",
+  "verifica_luna.fara_sarbatori": "Calendarul anului {{an}} nu are sărbători (Setări › Sărbători legale).",
+  "verifica_luna.fara_inregistrari": "{{numar}} angajați activi nu au nicio înregistrare în lună.",
+  "verifica_luna.luna_inchisa": "Luna este deja închisă sau blocată ({{stare}})."
 }

@@ -29,7 +29,22 @@ type ProgramPrecompletare struct {
 	ID, Cod, Tip, Regim                 string
 	OraStart, DurataMinute, PauzaMinute int64
 	Activ                               bool
+	// ModPauza, PauzaOra: cum se scade pauza (D107); cu modul ales, programul se poate
+	// planifica si precompleta (F04-T12, I133).
+	ModPauza string
+	PauzaOra *int64
 }
+
+func (p ProgramPrecompletare) pontaj() ProgramPontaj {
+	return ProgramPontaj{OraStart: p.OraStart, DurataMinute: p.DurataMinute, PauzaMinute: p.PauzaMinute, ModPauza: p.ModPauza, PauzaOra: p.PauzaOra}
+}
+
+// PauzaStabilita: programul nu are pauza sau are modul pauzei ales.
+func (p ProgramPrecompletare) PauzaStabilita() bool { return PauzaCunoscuta(p.pontaj()) }
+
+// MinuteLucrate: durata programului fara pauza care se scade (D107).
+func (p ProgramPrecompletare) MinuteLucrate() int64 { return p.DurataMinute - pauzaScazuta(p.pontaj()) }
+
 type CelulaPrecompletare struct {
 	AngajatID string `json:"angajat_id"`
 	Data      string `json:"data"`
@@ -117,11 +132,11 @@ func PlanificaPrecompletare(deLa, panaLa string, angajati []AngajatPrecompletare
 				motiv = "schimb_inactiv"
 			case ProgramDePlanificat(p):
 				motiv = "planificare_separata"
-			case p.OraStart < 0 || p.OraStart >= 1440 || p.DurataMinute <= 0 || p.DurataMinute > 2880 || p.PauzaMinute != 0:
+			case p.OraStart < 0 || p.OraStart >= 1440 || p.DurataMinute <= 0 || p.DurataMinute > 2880 || !p.PauzaStabilita():
 				motiv = "program_incomplet"
 			case p.Regim == "NELUCRATOARE" || p.Regim == "INTRARE_ZI_LIBERA" || p.Tip == "GARDA":
 				motiv = "alegere_manuala"
-			case p.DurataMinute != a.normaZi(data):
+			case p.MinuteLucrate() != a.normaZi(data):
 				motiv = "norma_diferita"
 			case garzi[k]:
 				motiv = "dupa_garda"
