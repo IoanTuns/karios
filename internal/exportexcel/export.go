@@ -18,7 +18,7 @@ import (
 )
 
 // VersiuneExport reprezintă versiunea formatului de export Excel (D009).
-const VersiuneExport = "1.4.0"
+const VersiuneExport = "1.5.0"
 
 // OptiuniExport conține parametrii pentru generarea registrului Excel.
 type OptiuniExport struct {

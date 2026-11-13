@@ -60,8 +60,8 @@ func TestDetaliatGarziMarciDistincteFaraDublare(t *testing.T) {
 		t.Fatal(normal, garda)
 	}
 	// D093: garda de luni nu are ore in weekend/sarbatori (Ore garda 200% = 0), ZNL nu se
-	// calculeaza pe randul de garda, Ore lucratoare = 24 - 0.
-	if garda["2026-10-10"] != "" || garda["2026-10-11"] != "" || garda["total_ore_garda"] != "0" || garda["total_ZNL"] != "—" || garda["total_ore_lucratoare"] != "24" {
+	// calculeaza pe randul de garda (celula goala: nu se aplica, F08-T18), Ore lucratoare = 24 - 0.
+	if garda["2026-10-10"] != "" || garda["2026-10-11"] != "" || garda["total_ore_garda"] != "0" || garda["total_ZNL"] != "" || garda["total_ore_lucratoare"] != "24" {
 		t.Fatal("regulile D093 pe randul de garda", garda)
 	}
 	if _, err := m.db.Exec("UPDATE angajati SET activ=0 WHERE id='g'"); err != nil {

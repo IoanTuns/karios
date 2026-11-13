@@ -148,7 +148,7 @@ func Valideaza(m *Model) error {
 
 // numar scrie o valoare de total după model; ok=false pentru valorile necalculate.
 func numar(m Model, v calcul.ValoarePontaj) (string, bool) {
-	if !v.Definita {
+	if !v.Definita || v.NuSeAplica {
 		return "", false
 	}
 	if v.Unitate == "ORE" && m.FormaOre == OreOreMinute {
@@ -193,7 +193,8 @@ func Tabel(m Model, randuri []Rand) ([][]string, int) {
 			case strings.HasPrefix(c.Sursa, PrefixTotal):
 				v, exista := r.Valori[strings.TrimPrefix(c.Sursa, PrefixTotal)]
 				text, ok := numar(m, v)
-				if !ok && exista {
+				// Valorile care nu se aplica randului (F08-T18) sunt goale fara sa fie „necalculate”.
+				if !ok && exista && !v.NuSeAplica {
 					necalculate++
 				}
 				linie[i] = text

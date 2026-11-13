@@ -49,3 +49,35 @@ func TestOreSuplimentare(t *testing.T) {
 		t.Errorf("zi necalculabila: %+v", v)
 	}
 }
+
+// F08-T18: „nu se aplica” (gol) e diferit de „nu se poate calcula” („—”).
+func TestNuSeAplicaFataDeNecalculat(t *testing.T) {
+	opt := int64(480)
+	c := ConfiguratiePontajInitiala()
+	c.Norme = map[string]*int64{"a": &opt, "g": &opt, "fara": nil}
+	c.Garzi = map[string]bool{"g": true}
+	p := []ProgramPontaj{{Cod: "Z8", OraStart: 7 * 60, DurataMinute: 480}, {Cod: "P8", OraStart: 7 * 60, DurataMinute: 480, PauzaMinute: 30}}
+	in := []IntrarePontaj{{AngajatID: "a", Data: "2026-10-05", Valoare: "Z8"}, {AngajatID: "g", Data: "2026-10-05", Valoare: "Z8"}, {AngajatID: "fara", Data: "2026-10-05", Valoare: "P8"}}
+	r, err := CalculeazaPontaj("2026-10-01", "2026-10-31", c, p, in, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	val := map[string]map[string]ValoarePontaj{}
+	for _, x := range r.Totaluri {
+		val[x.AngajatID] = x.Valori
+	}
+	for _, caz := range []struct {
+		id, col, text string
+	}{
+		{"a", "ore_garda", ""}, // regula nedefinita
+		{"g", "ZNL", ""},       // garda: fara ZNL
+		{"g", "OS", ""},        // garda: fara ore suplimentare
+		{"fara", "TOCN", ""},   // fara norma zilnica
+		{"fara", "T", "—"},     // program cu pauza nestabilita: nu se poate calcula
+		{"a", "OS", "0"},
+	} {
+		if v := TextValoarePontaj(val[caz.id][caz.col]); v != caz.text {
+			t.Errorf("%s/%s: %q, asteptat %q", caz.id, caz.col, v, caz.text)
+		}
+	}
+}

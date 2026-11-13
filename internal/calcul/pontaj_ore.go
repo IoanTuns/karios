@@ -285,6 +285,22 @@ type ValoarePontaj struct {
 	// codul de program sau de absență în cauză; ambele lipsesc la valorile definite.
 	Motiv    string `json:"motiv,omitempty"`
 	MotivCod string `json:"motiv_cod,omitempty"`
+	// NuSeAplica (F08-T18): coloana nu se aplica acestui rand (regula nedefinita, ZNL/OS la garda,
+	// TOCN/OS fara norma zilnica); se afiseaza gol, nu „—” (care inseamna „nu se poate calcula”).
+	NuSeAplica bool `json:"nu_se_aplica,omitempty"`
+}
+
+// motiveNuSeAplica: motivele pentru care o valoare nedefinita nu se aplica, in loc sa fie necalculabila.
+var motiveNuSeAplica = map[string]bool{MotivRegulaNedefinita: true, MotivGardaFaraZNL: true, MotivGardaFaraOS: true, MotivFaraNorma: true}
+
+// marcheazaNuSeAplica pune NuSeAplica pe valorile nedefinite cu un motiv de „nu se aplica”.
+func marcheazaNuSeAplica(v map[string]ValoarePontaj) {
+	for k, x := range v {
+		if !x.Definita && motiveNuSeAplica[x.Motiv] {
+			x.NuSeAplica = true
+			v[k] = x
+		}
+	}
 }
 
 // Motivele unei valori nedefinite, în ordinea în care se afișează când sunt mai multe.
@@ -350,6 +366,9 @@ func OreManuale(text string) (int64, bool) {
 	return int64(minute), e == nil && ore >= 0 && ore <= 48 && math.Abs(ore*60-minute) < 0.00001
 }
 func TextValoarePontaj(v ValoarePontaj) string {
+	if v.NuSeAplica {
+		return ""
+	}
 	if !v.Definita {
 		return "—"
 	}
@@ -758,6 +777,7 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 		if c.Garzi[id] {
 			aplicaReguliGarda(t.Valori, a)
 		}
+		marcheazaNuSeAplica(t.Valori)
 		rez.Totaluri = append(rez.Totaluri, t)
 	}
 	sort.Slice(rez.Totaluri, func(i, j int) bool { return rez.Totaluri[i].AngajatID < rez.Totaluri[j].AngajatID })

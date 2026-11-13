@@ -1114,3 +1114,10 @@ Pontix predă programului de salarizare orele și zilele, nu sume de bani.
 
 În **Planificare**, în dialogul regulilor (repaus minim, plafon de gărzi, succesiuni interzise), fiecare regulă are acum butonul **Șterge**. Ștergerea e definitivă și cere confirmare; pentru a opri doar o regulă, debifați-o.
 
+## Celule goale și „—” (0.93.1)
+
+În totalurile din Pontaj, din rapoarte și din exporturi:
+
+- o celulă **goală** înseamnă că acea coloană nu se aplică rândului: regula coloanei e „Nedefinită” (de exemplu Ore gardă 200% la cei fără gardă), ZNL sau OS pe un rând de gardă, TOCN sau OS la o persoană fără normă zilnică;
+- **„—”** înseamnă că valoarea ar trebui să existe, dar nu se poate calcula (de exemplu un program cu pauză pentru care nu s-a ales modul). Motivul apare când țineți mouse-ul pe celulă.
+

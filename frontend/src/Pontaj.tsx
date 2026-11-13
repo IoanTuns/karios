@@ -50,7 +50,8 @@ function textMotiv(t: TFunction, motiv: string, cod?: string): string {
 }
 const cheie = (id: string, data: string) => JSON.stringify([id, data]);
 const oreText = (minute: number) => String(Number((minute/60).toFixed(4)));
-const valoareText = (v?: calcul.ValoarePontaj) => v?.definita ? String(Number((v.sutimi/(v.unitate==='ORE'?6000:100)).toFixed(4))) : '—';
+// F08-T18: o coloana care nu se aplica randului (nu_se_aplica) e goala; „—” = nu se poate calcula.
+const valoareText = (v?: calcul.ValoarePontaj) => v?.nu_se_aplica ? '' : v?.definita ? String(Number((v.sutimi/(v.unitate==='ORE'?6000:100)).toFixed(4))) : '—';
 const normalizat = (text: string) => text.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLocaleLowerCase();
 function manual(text: string): string | null {
     if(!text.trim())return '';

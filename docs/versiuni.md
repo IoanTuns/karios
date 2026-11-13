@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.93.1 - 2026-11-13
+
+F08-T18. Coloanele care nu se aplică unui rând (regulă nedefinită, ZNL/OS la gărzi, TOCN/OS fără normă zilnică) apar goale; „—” rămâne doar pentru valorile care nu se pot calcula. Pontaj detaliat 28, exportul Excel 1.5.0.
+
 ## 0.93.0 - 2026-11-13
 
 Începutul seriei 0.93 (finisare înainte de versiunea 1). F11-T23: regulile de planificare se pot șterge, cu confirmare și jurnal.

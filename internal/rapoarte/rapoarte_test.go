@@ -124,7 +124,7 @@ func TestDetaliatFolosesteAceleasiOreSiReguliCaGrila(t *testing.T) {
 		}
 		valori[col.Cod] = doc.Randuri[0].Valori[i]
 	}
-	if valori["2026-10-23"] != "2" || valori["2026-10-24"] != "7" || valori["total_T"] != "9" || valori["total_ZNL"] != "7" || valori["total_CO"] != "2" || valori["2026-10-26"] != "CO" || valori["total_ore_garda"] != "—" {
+	if valori["2026-10-23"] != "2" || valori["2026-10-24"] != "7" || valori["total_T"] != "9" || valori["total_ZNL"] != "7" || valori["total_CO"] != "2" || valori["2026-10-26"] != "CO" || valori["total_ore_garda"] != "" {
 		t.Fatal(valori)
 	}
 	for _, r := range rez.Totaluri {

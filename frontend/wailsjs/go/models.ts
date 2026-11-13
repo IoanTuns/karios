@@ -767,6 +767,7 @@ export namespace calcul {
 	    definita: boolean;
 	    motiv?: string;
 	    motiv_cod?: string;
+	    nu_se_aplica?: boolean;
 
 	    static createFrom(source: any = {}) {
 	        return new ValoarePontaj(source);
@@ -779,6 +780,7 @@ export namespace calcul {
 	        this.definita = source["definita"];
 	        this.motiv = source["motiv"];
 	        this.motiv_cod = source["motiv_cod"];
+	        this.nu_se_aplica = source["nu_se_aplica"];
 	    }
 	}
 	export class TotalPontaj {

@@ -1,4 +1,4 @@
 // Package detaliat identifica versiunea raportului cu totaluri configurabile.
 package detaliat
 
-const Versiune = 27
+const Versiune = 28

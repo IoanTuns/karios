@@ -12,7 +12,7 @@ func TestPontajOreCalendarSiAtribuire(t *testing.T) {
 				t.Fatal(err)
 			}
 			v := r.Totaluri[0].Valori
-			for cod, asteptat := range map[string]string{"T": "9", "ore_norma": "2", "ZNL": "7", "ore_garda": "—"} {
+			for cod, asteptat := range map[string]string{"T": "9", "ore_norma": "2", "ZNL": "7", "ore_garda": ""} {
 				if obtinut := TextValoarePontaj(v[cod]); obtinut != asteptat {
 					t.Errorf("%s=%s; asteptat %s", cod, obtinut, asteptat)
 				}
