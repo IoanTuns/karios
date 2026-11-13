@@ -1,6 +1,6 @@
 # D108 · Exportul pentru salarizare, configurabil
 
-Stare: propusă · Data: 2026-11-12 · Taskuri: F10-T01, F10-T03 · Cerută de: Ioan Tuns, 2026-11-12 (chestionarul F01-T02: E1 „nu este nimic stabilit; poți face formate pentru câteva programe uzuale?”, E2 „Excel sau CSV; poate fi și alt format”; apoi „da” la exportul configurabil)
+Stare: acceptată · Data: 2026-11-12 · Taskuri: F10-T01, F10-T03 · Cerută de: Ioan Tuns, 2026-11-12 (chestionarul F01-T02: E1 „nu este nimic stabilit; poți face formate pentru câteva programe uzuale?”, E2 „Excel sau CSV; poate fi și alt format”; apoi „da” la exportul configurabil) · Decisă de: Ioan Tuns, 2026-11-13 („accept toate”)
 
 ## Context
 

@@ -10,7 +10,7 @@ Fiecare tură introdusă se împarte automat pe categorii de tarif, corect și �
 
 - [D003](../decizii/D003-motor-calcul.md) — principiile motorului
 - [D002](../decizii/D002-portabilitate.md) — fusul orar inclus în `.exe`
-- [D107](../decizii/D107-ore-suplimentare-pauza-znl.md) — orele suplimentare, pauza și zilele din ZNL (regulile acceptate)
+- [D107](../decizii/D107-ore-suplimentare-pauza-znl.md) — orele suplimentare, pauza și zilele din ZNL (acceptată)
 - [D105](../decizii/D105-stergere-tarife.md) — ștergerea tabelelor și a codului de tarif nefolosite
 - [D102](../decizii/D102-schimbarea-orei-configurabila.md) — turele din nopțile cu schimbarea orei, opțiune în setări (acceptată, Ioan Tuns)
 

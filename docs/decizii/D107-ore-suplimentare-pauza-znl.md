@@ -1,6 +1,6 @@
 # D107 · Orele suplimentare, pauza și zilele din ZNL
 
-Stare: acceptată (regulile) · propusă (detaliile tehnice) · Data: 2026-11-12 · Taskuri: F04-T04, F04-T05, F04-T11 · Decisă de: Ioan Tuns, 2026-11-12 (regulile, prin răspunsurile la chestionarul F01-T02 și la întrebările de clarificare)
+Stare: acceptată · Data: 2026-11-12 · Taskuri: F04-T04, F04-T05, F04-T11 · Decisă de: Ioan Tuns, 2026-11-12 (regulile, prin răspunsurile la chestionarul F01-T02 și la întrebările de clarificare); detaliile tehnice: Ioan Tuns, 2026-11-13 („accept toate”)
 
 ## Context
 
@@ -16,7 +16,7 @@ Orele suplimentare (F04-T04) și scăderea pauzei (F04-T05) așteptau regulile d
 4. **Pauza** se configurează pe fiecare program: dacă se scade și când are loc.
 5. **ZNL:** programele care intră se aleg în Configurare pontaj, iar intrarea zilelor libere adăugate de utilizator (de exemplu o punte) e o opțiune.
 
-### Detaliile tehnice (propuse)
+### Detaliile tehnice (acceptate)
 
 **Ore suplimentare (coloana OS)**
 - Pentru fiecare persoană și zi se iau minutele lucrate în acea zi: programe și ore scrise de mână, după repartizarea configurată (ziua începerii sau zile calendaristice). Creditele absențelor (FMP, absențele cu ore) nu intră.
