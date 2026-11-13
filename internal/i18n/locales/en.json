@@ -2363,5 +2363,19 @@
   "export_salarizare.conflict": "The template was changed in the meantime. Reload the page and try again.",
   "planificare.confirma_stergere_regula": "Permanently delete the rule \"{{nume}}\"? To only stop it, uncheck it.",
   "planificare.regula_stearsa": "The rule was deleted.",
-  "reguli.inexistenta": "The rule no longer exists."
+  "reguli.inexistenta": "The rule no longer exists.",
+  "verifica_luna.buton": "Check the month",
+  "verifica_luna.titlu": "Month check {{luna}}",
+  "verifica_luna.nesalvate": "You have {{numar}} unsaved changes; the check uses the saved data.",
+  "verifica_luna.nimic": "Nothing to check was found. The month can be closed according to your procedure.",
+  "verifica_luna.indiciu": "The check changes nothing. The full list of steps is in the monthly control procedure.",
+  "verifica_luna.gravitate_EROARE": "To fix:",
+  "verifica_luna.gravitate_AVERTISMENT": "To check:",
+  "verifica_luna.gravitate_INFO": "For information:",
+  "verifica_luna.persoane": "({{numar}} people)",
+  "verifica_luna.pauza_nestabilita": "{{numar}} schedules have a break without a chosen mode (Settings › Shifts); their hours are not calculated.",
+  "verifica_luna.absente_in_asteptare": "{{numar}} absence days are awaiting approval.",
+  "verifica_luna.fara_sarbatori": "The {{an}} calendar has no holidays (Settings › Public holidays).",
+  "verifica_luna.fara_inregistrari": "{{numar}} active employees have no record in the month.",
+  "verifica_luna.luna_inchisa": "The month is already closed or locked ({{stare}})."
 }

@@ -244,6 +244,7 @@ function simulare(demo, cataloage, limba, calendarSursa, versiuneAplicatie, schi
         StergeTraduceriLimba: async l => { delete (stare.corecturiTraduceri||{})[l];raspuns();return {folder:'karios/traduceri',corecturi:structuredClone(stare.corecturiTraduceri||{})}; },
         ListaModeleExportSalarizare: async () => ({modele:structuredClone(stare.modeleExport||[{id:'export-csv-generic',denumire:'CSV generic',format:'CSV',separator:';',bom:true,separator_zecimal:',',zecimale:2,forma_ore:'ZECIMAL',antet:true,coloane:[{sursa:'marca',titlu:'Marca'},{sursa:'total:OL',titlu:'Ore lucrate'}],activ:true,revizie:'1'}]),surse:['marca','nume','nume_complet','total:OL','total:OS','total:CO','CONSTANTA']}),
         SalveazaModelExportSalarizare: async m => { const lista=stare.modeleExport||[{id:'export-csv-generic',denumire:'CSV generic',format:'CSV',separator:';',bom:true,separator_zecimal:',',zecimale:2,forma_ore:'ZECIMAL',antet:true,coloane:[{sursa:'marca',titlu:'Marca'},{sursa:'total:OL',titlu:'Ore lucrate'}],activ:true,revizie:'1'}];const nou={...structuredClone(m),id:m.id||'model-'+lista.length,revizie:String(Number(m.revizie||0)+1)};stare.modeleExport=[...lista.filter(x=>x.id!==nou.id),nou];raspuns();return {modele:structuredClone(stare.modeleExport),model:nou,surse:['marca','nume','nume_complet','total:OL','total:OS','total:CO','CONSTANTA']}; },
+        VerificaLuna: async (an,luna) => ({verificare:{an,luna,probleme:[{cod:'pauza_nestabilita',gravitate:'AVERTISMENT',numar:1,exemple:['P8']},{cod:'fara_inregistrari',gravitate:'INFO',numar:2,exemple:['M1','M2']}]}}),
         ExportaSalarizare: async (id,an,luna,sectie) => { stare.exportSalarizare={id,an,luna,sectie};raspuns();return {cale:'Pontix_Salarizare.csv',randuri:3,necalculate:0}; },
         TraduceriLipsa: async l => Object.keys(cataloage[limba]).filter(k => !cataloage[l]?.[k]),
         Catalog: async l => cataloage[l], Informatii: async () => ({versiune: versiuneAplicatie, commit: 'verificare'}),
@@ -957,6 +958,11 @@ try {
     await completeaza('select[name="filtru_randuri"]', 'avertismente');
     await asteapta(() => evalueaza(`document.querySelectorAll('.grila-pontaj tbody tr').length === 1`), 'Filtrul pentru angajați cu avertismente nu izolează rândul.');
     await completeaza('select[name="filtru_randuri"]', 'toti');
+    // F12-T06: Verifica luna arata constatarile si avertizeaza despre modificarile nesalvate.
+    await evalueaza(`[...document.querySelectorAll('.lista-mai-multe button')].find(b=>b.textContent==='Verifică luna').click()`);
+    await asteapta(()=>evalueaza(`document.querySelectorAll('.lista-verificare-luna li').length===2 && document.querySelector('.verifica-luna')?.textContent.includes('nesalvate')`),'Verificarea lunii nu arată constatările.');
+    await evalueaza(`[...document.querySelectorAll('.subsol-dialog button')].find(b=>b.textContent==='Închide').click()`);
+    await asteapta(()=>evalueaza(`!document.querySelector('.verifica-luna')`),'Dialogul verificării lunii nu se închide.');
     // F10-T03 (D108): cu modificari nesalvate, exportul pentru salarizare asteapta salvarea.
     assert(await evalueaza(`[...document.querySelectorAll('.lista-mai-multe button')].find(b=>b.textContent==='Export pentru salarizare')?.disabled===true`),'Exportul pentru salarizare nu cere salvarea modificărilor.');
     await completeaza('input[name="cautare_pontaj"]', 'TEST-001');

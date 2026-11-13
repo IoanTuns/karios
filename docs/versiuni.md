@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.93.4 - 2026-11-13
+
+F12-T06. Pontaj › Mai multe › **Verifică luna** adună constatările lunii înainte de închidere: valori necalculate, programe cu pauză nestabilită, absențe în așteptare, calendar fără sărbători, angajați fără înregistrări.
+
 ## 0.93.3 - 2026-11-13
 
 F04-T12 (I133). Programele cu modul pauzei ales se pot planifica și precompleta (norma se compară cu orele fără pauză), iar creditul absențelor „după program” scade pauza.

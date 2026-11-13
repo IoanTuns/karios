@@ -1628,3 +1628,10 @@ fieldset.filtre-profesionale{border:0;padding:0;min-width:0}
 .istoric-contract .tabel-istoric-contract { width: 100%; border-collapse: collapse; margin: 6px 0 10px; font-size: 12px; }
 .istoric-contract .tabel-istoric-contract th, .istoric-contract .tabel-istoric-contract td { padding: 4px 6px; border-bottom: 1px solid var(--linie); text-align: left; }
 .istoric-contract .campuri > button { align-self: end; }
+
+/* F12-T06: Verifica luna */
+.lista-verificare-luna { list-style: none; padding: 0; margin: 0 0 12px; display: grid; gap: 8px; }
+.lista-verificare-luna li { padding: 8px 10px; border-radius: 6px; border-left: 4px solid var(--border, #c9d3cc); background: var(--fundal-secundar, rgba(0, 0, 0, .03)); }
+.lista-verificare-luna li.gravitate-eroare { border-left-color: #b3261e; }
+.lista-verificare-luna li.gravitate-avertisment { border-left-color: #b26a00; }
+.lista-verificare-luna li.gravitate-info { border-left-color: #4f6b5a; }

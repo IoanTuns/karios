@@ -295,6 +295,8 @@ export function VerificaBackup(arg1:string):Promise<main.RaspunsVerificareBackup
 
 export function VerificaFolderTraduceri():Promise<main.RaspunsTraduceri>;
 
+export function VerificaLuna(arg1:number,arg2:number):Promise<main.RaspunsVerificareLuna>;
+
 export function VerificaPontajAI(arg1:ai.IntentiePlan):Promise<main.RaspunsInstrumenteAI>;
 
 export function VerificaReguliPlanificare(arg1:number,arg2:number):Promise<main.RaspunsVerificaReguli>;

@@ -566,6 +566,10 @@ export function VerificaFolderTraduceri() {
   return window['go']['main']['App']['VerificaFolderTraduceri']();
 }
 
+export function VerificaLuna(arg1, arg2) {
+  return window['go']['main']['App']['VerificaLuna'](arg1, arg2);
+}
+
 export function VerificaPontajAI(arg1) {
   return window['go']['main']['App']['VerificaPontajAI'](arg1);
 }

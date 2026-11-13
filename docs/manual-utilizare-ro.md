@@ -1125,3 +1125,13 @@ Pontix predă programului de salarizare orele și zilele, nu sume de bani.
 
 Pentru a adăuga coloana OS în raportul **Pontaj detaliat (editor vizual)**: în **Rapoarte › Definire rapoarte**, editați modelul, iar în SQL adăugați `total_OS` după celelalte totaluri (de exemplu după `total_ore_garda`), apăsați **Verifică raportul**, apoi **Actualizează tabelul din SQL** și salvați. Modelele existente nu s-au schimbat automat, ca personalizările voastre să rămână.
 
+## Verifică luna (0.93.4)
+
+În **Pontaj**, **Mai multe › Verifică luna** arată, înainte de închiderea lunii, ce trebuie văzut:
+
+- **De corectat**: valorile care nu se pot calcula, pe motiv, cu mărcile persoanelor;
+- **De verificat**: programele cu pauză fără modul ales, absențele care așteaptă aprobarea, anul fără sărbători în calendar;
+- **Informativ**: angajații activi fără nicio înregistrare în lună, luna deja închisă.
+
+Verificarea folosește datele salvate și nu schimbă nimic. Pașii completi sunt în procedura de control lunar.
+
