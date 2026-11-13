@@ -106,9 +106,13 @@ func (s *Serviciu) PrevizualizeazaPrecompletare(ctx context.Context, an, luna in
 	if err != nil {
 		return gol, traduceEroare(err)
 	}
+	pauze, err := q.ListaPauzeProgram(ctx)
+	if err != nil {
+		return gol, traduceEroare(err)
+	}
 	programe := []calcul.ProgramPrecompletare{}
 	for _, p := range schimburi {
-		programe = append(programe, calcul.ProgramPrecompletare{ID: p.ID, Cod: p.Cod, Tip: p.Tip, Regim: p.Regim, OraStart: p.OraStart, DurataMinute: p.DurataMinute, PauzaMinute: p.PauzaMinute, Activ: p.Activ == 1})
+		programe = append(programe, calcul.ProgramPrecompletare{ID: p.ID, Cod: p.Cod, Tip: p.Tip, Regim: p.Regim, OraStart: p.OraStart, DurataMinute: p.DurataMinute, PauzaMinute: p.PauzaMinute, Activ: p.Activ == 1, ModPauza: pauze[p.ID].Mod, PauzaOra: pauze[p.ID].Ora})
 	}
 	prima, _ := time.Parse(time.DateOnly, deLa)
 	ultima, _ := time.Parse(time.DateOnly, panaLa)

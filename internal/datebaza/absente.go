@@ -502,6 +502,11 @@ func (s *Serviciu) salveazaAbsente(ctx context.Context, zile []ZiAbsenta, conver
 			}
 			return id
 		}
+		// F04-T12 (I133): creditul „dupa program” scade pauza programului, daca modul e ales.
+		pauze, err := q.ListaPauzeProgram(ctx)
+		if err != nil {
+			return err
+		}
 		peCod := map[string]acces.ListaSchimburiRow{}
 		peID := map[string]acces.ListaSchimburiRow{}
 		for _, p := range schimburi {
@@ -612,8 +617,9 @@ func (s *Serviciu) salveazaAbsente(ctx context.Context, zile []ZiAbsenta, conver
 					for _, p := range pozitii {
 						if p.Activ == 1 && p.AngajatID == z.AngajatID && p.Data == z.Data {
 							program := peID[p.SchimbID]
-							if program.DurataMinute > 0 && program.PauzaMinute == 0 {
-								totalMinute += program.DurataMinute
+							pp := calcul.ProgramPrecompletare{DurataMinute: program.DurataMinute, PauzaMinute: program.PauzaMinute, ModPauza: pauze[program.ID].Mod, PauzaOra: pauze[program.ID].Ora}
+							if program.DurataMinute > 0 && pp.PauzaStabilita() {
+								totalMinute += pp.MinuteLucrate()
 							}
 						}
 					}

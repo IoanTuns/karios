@@ -25,7 +25,7 @@ type IntervalPlanificare struct {
 // VerificaTuraPlanificata verifică intervale nominale; nu stabilește tarife sau repaus legal.
 func VerificaTuraPlanificata(angajatID, data string, p ProgramPrecompletare, absente map[string]bool, intervale []IntervalPlanificare, ignora map[string]bool) string {
 	d, err := time.Parse(time.DateOnly, data)
-	if err != nil || p.OraStart < 0 || p.OraStart >= 1440 || p.DurataMinute <= 0 || p.DurataMinute > 2880 || p.PauzaMinute != 0 {
+	if err != nil || p.OraStart < 0 || p.OraStart >= 1440 || p.DurataMinute <= 0 || p.DurataMinute > 2880 || !p.PauzaStabilita() {
 		return "program_incomplet"
 	}
 	start := d.Add(time.Duration(p.OraStart) * time.Minute)

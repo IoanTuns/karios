@@ -51,3 +51,30 @@ func TestPauzaPeModuri(t *testing.T) {
 		})
 	}
 }
+
+// F04-T12 (I133): un program cu modul pauzei ales se precompleteaza si se planifica; norma se
+// compara cu orele fara pauza; fara mod ales, programul ramane „incomplet”.
+func TestPauzaInPrecompletareSiPlanificare(t *testing.T) {
+	a := []AngajatPrecompletare{{ID: "a", CategorieID: "c", NormaMinute: 480, Activ: true}}
+	c := []CategoriePrecompletare{{ID: "c", ImplicitID: "p", Activ: true}}
+	cuPauza := ProgramPrecompletare{ID: "p", Cod: "P8", OraStart: 7 * 60, DurataMinute: 510, PauzaMinute: 30, ModPauza: PauzaDinTotal, Activ: true}
+	plan, err := PlanificaPrecompletare("2026-10-05", "2026-10-05", a, c, []ProgramPrecompletare{cuPauza}, nil, nil, nil, nil)
+	if err != nil || len(plan.Celule) != 1 || plan.Celule[0].Valoare != "P8" {
+		t.Fatalf("precompletare cu pauza din total: %+v %v", plan, err)
+	}
+	nestabilit := cuPauza
+	nestabilit.ModPauza = PauzaNestabilita
+	plan, _ = PlanificaPrecompletare("2026-10-05", "2026-10-05", a, c, []ProgramPrecompletare{nestabilit}, nil, nil, nil, nil)
+	if len(plan.Celule) != 0 || plan.Omise["program_incomplet"] != 1 {
+		t.Fatalf("pauza nestabilita: %+v", plan)
+	}
+	if m := VerificaTuraPlanificata("a", "2026-10-05", cuPauza, nil, nil, nil); m != "" {
+		t.Fatalf("planificare cu pauza: %q", m)
+	}
+	if m := VerificaTuraPlanificata("a", "2026-10-05", nestabilit, nil, nil, nil); m != "program_incomplet" {
+		t.Fatalf("planificare fara mod: %q", m)
+	}
+	if cuPauza.MinuteLucrate() != 480 {
+		t.Fatal(cuPauza.MinuteLucrate())
+	}
+}

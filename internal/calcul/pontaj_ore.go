@@ -446,7 +446,7 @@ func CalculeazaPontaj(deLa, panaLa string, c ConfiguratiePontaj, programe []Prog
 				if !ok {
 					return rez, &Eroare{Cod: "pontaj.celula_invalida"}
 				}
-				program := ProgramPrecompletare{OraStart: p.OraStart, DurataMinute: p.DurataMinute, PauzaMinute: p.PauzaMinute}
+				program := ProgramPrecompletare{OraStart: p.OraStart, DurataMinute: p.DurataMinute, PauzaMinute: p.PauzaMinute, ModPauza: p.ModPauza, PauzaOra: p.PauzaOra}
 				if motiv := VerificaTuraPlanificata(in.AngajatID, in.Data, program, nil, intervale, nil); motiv != "" {
 					return rez, &Eroare{Cod: "planificare.motiv_" + motiv}
 				}

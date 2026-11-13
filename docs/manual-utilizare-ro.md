@@ -1100,7 +1100,7 @@ Coloana **OS** din Pontaj arată orele suplimentare: pentru fiecare zi, orele lu
 - **La o oră fixă**: alegeți ora de început a pauzei (de exemplu 12:00); pauza trebuie să cadă în interiorul programului;
 - **La mijlocul turei**.
 
-Cu ora fixă sau la mijloc, pauza se scade din ziua în care cade (contează la împărțirea pe zile și la ZNL). Pauza poate fi cel mult jumătate din program. Programele care aveau deja pauză rămân **Nestabilit** — orele lor nu se calculează până alegeți modul.
+Cu ora fixă sau la mijloc, pauza se scade din ziua în care cade (contează la împărțirea pe zile și la ZNL). Pauza poate fi cel mult jumătate din program. Programele care aveau deja pauză rămân **Nestabilit** — orele lor nu se calculează până alegeți modul. Din 0.93.3, programele cu modul pauzei ales se pot și planifica și precompleta; la precompletare, orele fără pauză trebuie să fie egale cu norma zilnică.
 
 ## Exportul pentru salarizare (0.92.112)
 

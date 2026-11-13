@@ -125,8 +125,12 @@ func sursePentruPlanificare(ctx context.Context, q *acces.Queries, deLa, panaLa 
 	if err != nil {
 		return s, err
 	}
+	pauze, err := q.ListaPauzeProgram(ctx)
+	if err != nil {
+		return s, err
+	}
 	for _, p := range schimburi {
-		program := calcul.ProgramPrecompletare{ID: p.ID, Cod: p.Cod, Tip: p.Tip, Regim: p.Regim, OraStart: p.OraStart, DurataMinute: p.DurataMinute, PauzaMinute: p.PauzaMinute, Activ: p.Activ == 1}
+		program := calcul.ProgramPrecompletare{ID: p.ID, Cod: p.Cod, Tip: p.Tip, Regim: p.Regim, OraStart: p.OraStart, DurataMinute: p.DurataMinute, PauzaMinute: p.PauzaMinute, Activ: p.Activ == 1, ModPauza: pauze[p.ID].Mod, PauzaOra: pauze[p.ID].Ora}
 		s.schimburi[p.ID] = program
 		s.coduri[strings.ToUpper(p.Cod)] = program
 	}
