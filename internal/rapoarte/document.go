@@ -469,8 +469,14 @@ func pregatesteStandard(ctx context.Context, tx *sql.Tx, q *acces.Queries, d Def
 		return false
 	}
 	for _, cod := range d.Continut.Coloane {
+		// F09-T37 (D107): „totaluri_os” adauga doar coloana orelor suplimentare; o folosesc
+		// tabelele de date SQL (definitieStandard), nu modelele salvate, ca rapoartele lor sa ramana.
+		coloaneTotal := calcul.ColoaneRapoarte()
+		if cod == "totaluri_os" {
+			cod, coloaneTotal = "totaluri", []string{"OS"}
+		}
 		if cod == "totaluri" {
-			for _, col := range calcul.ColoaneRapoarte() {
+			for _, col := range coloaneTotal {
 				if col == "ore_lucrate" && d.Continut.Sursa == "PONTAJ_DETALIAT" {
 					col = "ore_lucratoare"
 				}

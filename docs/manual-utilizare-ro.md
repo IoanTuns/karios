@@ -1121,3 +1121,7 @@ Pontix predă programului de salarizare orele și zilele, nu sume de bani.
 - o celulă **goală** înseamnă că acea coloană nu se aplică rândului: regula coloanei e „Nedefinită” (de exemplu Ore gardă 200% la cei fără gardă), ZNL sau OS pe un rând de gardă, TOCN sau OS la o persoană fără normă zilnică;
 - **„—”** înseamnă că valoarea ar trebui să existe, dar nu se poate calcula (de exemplu un program cu pauză pentru care nu s-a ales modul). Motivul apare când țineți mouse-ul pe celulă.
 
+## Orele suplimentare în Pontaj detaliat (0.93.2)
+
+Pentru a adăuga coloana OS în raportul **Pontaj detaliat (editor vizual)**: în **Rapoarte › Definire rapoarte**, editați modelul, iar în SQL adăugați `total_OS` după celelalte totaluri (de exemplu după `total_ore_garda`), apăsați **Verifică raportul**, apoi **Actualizează tabelul din SQL** și salvați. Modelele existente nu s-au schimbat automat, ca personalizările voastre să rămână.
+

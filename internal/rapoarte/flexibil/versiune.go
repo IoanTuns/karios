@@ -9,5 +9,6 @@ package flexibil
 // coloana culoare in date si fundal din coloana (19, D099), istoricul normei si al
 // concediului (tabelul istoric_contract, norma la inceputul lunii, dreptul pe an; 20, D101),
 // optiunea pentru turele din noptile cu schimbarea orei (21, D102),
-// coloana os (ore suplimentare) in pontaj_totaluri si zilele libere din ZNL (22, D107).
-const Versiune = 22
+// coloana os (ore suplimentare) in pontaj_totaluri si zilele libere din ZNL (22, D107),
+// total_OS in tabelul de date pontaj_detaliat (23, F09-T37).
+const Versiune = 23
