@@ -2,35 +2,53 @@
 
 Commit livrare: {{COMMIT}}.
 
-## Ce aduce aceasta livrare
+## Despre această versiune
 
-- Pachet ZIP cu executabil, manualele aceleiasi versiuni si instructiuni de actualizare.
-- Checklist pentru verificarea primei porniri, pontajului, rapoartelor si recuperarii.
-- Verificari automate ale traducerilor si trimiterilor locale din manual.
+Pontix 1.0 este prima versiune pentru folosire curentă. A trecut proba de acceptanță pe un PC Windows curat, de pe un stick USB și la actualizarea de la o versiune veche cu date.
 
-Sunt disponibile si remediile UX din 0.88.15: confirmare la navigarea AI cu modificari nesalvate, indicator neutru pentru persoane cu inregistrari, ghiduri fara model, panou AI adaptat ecranelor mici si Shift+F10 pentru actiunile celulei.
+Pontix ține evidența orelor și a zilelor și le predă programului de salarizare; nu calculează bani.
 
-Din meniul lateral puteti raporta o problema sau trimite o parere: verificati raportul, salvati fisierul sau deschideti GitHub pentru confirmarea trimiterii. Jurnalul este optional; eliminati datele personale inainte de publicare.
+## Ce face
 
-Planul AI include filtrele Doar exceptii si Arata doar selectati, plus numarul persoanelor efectiv afectate. Mesajele panoului de eroare sunt traduse; datele absente sau invalide sunt tratate defensiv in Jurnal, Restaurare si Planificare.
+- **Angajații:** contracte, norme și zile de concediu, cu istoric; secții, funcții, grupuri profesionale; mărci separate pentru gardă.
+- **Pontajul lunar:**
+  - completare în lot, precompletare din program;
+  - reguli configurabile pentru coloanele de total;
+  - orele suplimentare (OS), ZNL, pauza pe program, gărzile, nopțile cu schimbarea orei.
+- **Concediile și absențele:** cereri, aprobare, vedere pe zile și pe cereri.
+- **Planificarea turelor:** reguli, publicarea în Pontaj, comparația dintre planificare și pontaj.
+- **Rapoartele:**
+  - în PDF și Excel, cu editor vizual și rapoarte proprii pe SQL;
+  - opțional, o pagină nouă pentru fiecare secție.
+- **Exportul pentru salarizare:** CSV sau Excel, cu modele configurabile.
+- **Controlul lunii:**
+  - **Verifică luna**, înainte de închidere;
+  - închiderea și redeschiderea lunii, cu motiv;
+  - jurnalul modificărilor.
+- **Siguranța datelor:**
+  - conturi și roluri, date criptate;
+  - backup zilnic și la cerere, restaurare, cheie de recuperare;
+  - a doua fereastră deschisă doar în citire.
+- **Limba:** română și engleză; traducerile se pot corecta și importa din Setări.
+- **Ajutorul:** ghiduri în aplicație și manualul inclus, în MD, HTML și PDF. Asistentul AI este opțional.
 
-Corectii 0.89.4: cursorul ramane la locul editarii in formulare, dialogurile au marire/restaurare, iar importul recunoaste zilele anuale de concediu si norma din sabloanele oficiale. Concediul este vizibil in previzualizare; zero zile ramane distinct de un camp necompletat.
+## Înainte de actualizare
 
-Noutati 0.90.0: categorii configurabile pentru programele din Schimburi si lista de Functii in Setari. Functia se alege la angajat si apare in Pontaj. Categoriile LAB/CUSTOM si functiile existente sunt pastrate prin migrare.
-
-## Inainte de actualizare
-
-Urmati ACTUALIZARE.md. Pastrati copia completa a datelor si cheia de recuperare; nu copiati numai baza. Nu folositi un executabil vechi pe datele migrate de o versiune noua.
+Urmați ACTUALIZARE.md:
+- păstrați copia completă a datelor și cheia de recuperare;
+- nu copiați numai baza de date;
+- nu folosiți un executabil vechi pe datele migrate de o versiune nouă.
 
 ## Limite cunoscute
 
-- Indicatorul zilnic nu stabileste necesarul de personal sau deficitul.
-- Regulile de salarizare neconfirmate si formatul pentru programul de salarizare necesita validarea contabilitatii.
-- AI generativ necesita motor si model compatibile, distribuite separat in pachetul standard.
-- Checklistul inclus nu este o certificare a testarii pe calculatorul utilizatorului. Pentru pilot raman proba pe Windows curat si validarea operatorului.
-
-Din 0.91.0, marca distincta de garda se leaga de angajatul principal din formularul Angajati. Raportul detaliat v4 grupeaza cele doua marci pe randuri separate si include planificarea GARZI pentru intrarile lipsa din Pontaj, fara dublarea orelor publicate.
-
-Din 0.91.1, dimensiunea initiala si minima a ferestrei se adapteaza zonei utile a monitorului principal si scalarii Windows. Ramane disponibila maximizarea manuala.
-
-Din 0.92.0: grupuri profesionale si functii de conducere, contracte configurabile inclusiv Garda fara norma, filtre profesionale si rapoarte grupate. Configurare pontaj permite reguli conditionate; factorul 2 inseamna total 200% in ore echivalente. Nu se calculeaza lei sau zile compensatorii fara formule confirmate. Exportati Excel din previzualizarea Rapoarte pentru a pastra filtrele.
+- **Executabilul nu este încă semnat digital.** La prima pornire, Windows poate afișa un avertisment SmartScreen.
+- **Regulile de plată nu vin cu aplicația.** Procentele, sporurile și interpretările legale se configurează de unitate, împreună cu contabilitatea.
+- **Exportul pentru salarizare are doar modelele generice** CSV și Excel. Formatul unui program de salarizare anume se adaugă după documentația lui de import, când programul e ales.
+- **Unele întrebări despre raportul de referință sunt încă deschise:**
+  - ce înseamnă celulele roșii și chenarele;
+  - ce coloane lipsesc sau sunt în plus;
+  - ce lună se folosește pentru comparația rând cu rând.
+- **Valorile „—” nu se pot calcula.** Motivul apare la trecerea mouse-ului peste celulă, iar **Verifică luna** le adună înainte de închidere.
+- **Indicatorul zilnic** nu stabilește necesarul de personal sau deficitul.
+- **AI generativ** necesită un motor și un model compatibile, distribuite separat. Ghidurile din aplicație merg fără ele.
+- **Fișa de acceptanță inclusă** este pentru verificarea pe calculatorul vostru, cu date fictive. Nu este o certificare.

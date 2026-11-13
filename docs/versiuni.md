@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 1.0.0 - 2026-11-13
+
+F05-T29. **Pontix 1.0**, prima versiune pentru folosire curentă ([D009](decizii/D009-versionare.md)): proba de acceptanță (F05-T07) trecută pe 0.93.4, pe un PC curat, de pe stick USB și la actualizarea de la o versiune veche cu date. Codul este cel din 0.93.4; se schimbă doar versiunea și notele pentru utilizatori din pachet (ce face aplicația și limitele cunoscute). Fără migrări noi, fără schimbări de rapoarte.
+
 ## 0.93.4 - 2026-11-13
 
 F12-T06. Pontaj › Mai multe › **Verifică luna** adună constatările lunii înainte de închidere: valori necalculate, programe cu pauză nestabilită, absențe în așteptare, calendar fără sărbători, angajați fără înregistrări.
