@@ -1,6 +1,6 @@
 # D106 · Importul traducerilor din folder în baza criptată
 
-Stare: propusă · Data: 2026-11-12 · Taskuri: F03-T11 · Cerută de: Ioan Tuns, 2026-11-12 („Mergi pentru F03-T11”)
+Stare: acceptată · Data: 2026-11-12 · Taskuri: F03-T11 · Cerută de: Ioan Tuns, 2026-11-12 („Mergi pentru F03-T11”) · Decisă de: Ioan Tuns, 2026-11-13 („accept toate”)
 
 ## Context
 
