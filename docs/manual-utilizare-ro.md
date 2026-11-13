@@ -1110,3 +1110,7 @@ Pontix predă programului de salarizare orele și zilele, nu sume de bani.
 
 **Exportul**: în **Pontaj**, **Mai multe › Export pentru salarizare**, alegeți modelul (și, dacă e cazul, doar secția filtrată) și locul fișierului. Se exportă datele salvate, câte un rând pe marcă; dacă aveți modificări nesalvate, salvați-le întâi. Valorile necalculate („—”) rămân goale, iar aplicația spune câte au fost.
 
+## Ștergerea regulilor de planificare (0.93.0)
+
+În **Planificare**, în dialogul regulilor (repaus minim, plafon de gărzi, succesiuni interzise), fiecare regulă are acum butonul **Șterge**. Ștergerea e definitivă și cere confirmare; pentru a opri doar o regulă, debifați-o.
+

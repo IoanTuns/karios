@@ -43,3 +43,11 @@ func (a *App) VerificaReguliPlanificare(an, luna int) RaspunsVerificaReguli {
 	}
 	return RaspunsVerificaReguli{Incalcari: inc}
 }
+
+// StergeRegulaConfigurabila sterge o regula de planificare (F11-T23).
+func (a *App) StergeRegulaConfigurabila(id string) RaspunsListaReguli {
+	if err := datebaza.Nou(a.db).StergeRegulaConfigurabila(a.contextLucru(), id); err != nil {
+		return RaspunsListaReguli{Eroare: eroareInterfata(err)}
+	}
+	return a.ListaReguliConfigurabile()
+}

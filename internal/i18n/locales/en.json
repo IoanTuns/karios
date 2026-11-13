@@ -2360,5 +2360,8 @@
   "export_salarizare.sursa_invalida": "Column \"{{sursa}}\" is not known.",
   "export_salarizare.titlu_invalid": "A column title or fixed text is too long.",
   "export_salarizare.model_inexistent": "The export template no longer exists.",
-  "export_salarizare.conflict": "The template was changed in the meantime. Reload the page and try again."
+  "export_salarizare.conflict": "The template was changed in the meantime. Reload the page and try again.",
+  "planificare.confirma_stergere_regula": "Permanently delete the rule \"{{nume}}\"? To only stop it, uncheck it.",
+  "planificare.regula_stearsa": "The rule was deleted.",
+  "reguli.inexistenta": "The rule no longer exists."
 }

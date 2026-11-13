@@ -4,6 +4,10 @@ Istoricul versiunilor aplicației, cea mai nouă prima ([D009](decizii/D009-vers
 
 Pe lângă versiunea aplicației, fiecare raport și fiecare schimbare a bazei de date au versiunea lor; ele se trec în secțiunea versiunii aplicației care le aduce.
 
+## 0.93.0 - 2026-11-13
+
+Începutul seriei 0.93 (finisare înainte de versiunea 1). F11-T23: regulile de planificare se pot șterge, cu confirmare și jurnal.
+
 ## 0.92.112 - 2026-11-12
 
 F10-T03 ([D108](decizii/D108-export-salarizare-configurabil.md), propusă). Exportul pentru salarizare: modele configurabile (CSV sau Excel, coloane, separatori, zecimale, ore zecimal sau ore:minute), editate în Setări › General › Export salarizare; exportul din Pontaj › Mai multe. Doar ore și zile, câte un rând pe marcă. Migrarea 0042.

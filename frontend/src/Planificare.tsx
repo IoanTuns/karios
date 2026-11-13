@@ -23,6 +23,7 @@ import {
     SalveazaPDFRaport,
     SalveazaPlanificare,
     ListaReguliConfigurabile,
+    StergeRegulaConfigurabila,
     SalveazaRegulaConfigurabila,
     VerificaReguliPlanificare
 } from '../wailsjs/go/main/App';
@@ -1270,6 +1271,20 @@ function DialogConfigurareReguli({
         setReguli(prev => prev.map(reg => reg.id === id ? { ...reg, [camp]: val } : reg));
     };
 
+    const stergeRegula = async (reg: calcul.RegulaConfigurabila) => {
+        if (!window.confirm(t('planificare.confirma_stergere_regula', {nume: reg.denumire}))) return;
+        setSalvand(true); setMesaj(''); setEroare('');
+        try {
+            const r = await StergeRegulaConfigurabila(reg.id);
+            if (r.eroare) setEroare(t(r.eroare.cod, r.eroare.param ?? {}));
+            else { setReguli(r.reguli ?? []); setMesaj(t('planificare.regula_stearsa')); onSalvat(); }
+        } catch {
+            setEroare(t('planificare.reguli_eroare_salvare'));
+        } finally {
+            setSalvand(false);
+        }
+    };
+
     const salveazaTot = async () => {
         setSalvand(true);
         setMesaj('');
@@ -1314,6 +1329,8 @@ function DialogConfigurareReguli({
                                         <strong>{reg.denumire}</strong>
                                     </label>
                                     <span className="cod-regula">[{reg.cod}]</span>
+                                    {/* F11-T23: stergerea definitiva a unei reguli, cu confirmare. */}
+                                    <button type="button" className="legatura" disabled={salvand} onClick={() => void stergeRegula(reg)}>{t('ui.sterge')}</button>
                                 </div>
                                 <p className="descriere-regula">{reg.descriere}</p>
                                 <div className="parametri-regula">

@@ -56,3 +56,28 @@ func TestIncidentulBlocheazaServiciul(t *testing.T) {
 		t.Fatalf("citirea trebuie să meargă: %v", err)
 	}
 }
+
+// F11-T23: o regula de planificare se poate sterge; stergerea intra in jurnal.
+func TestStergeRegulaConfigurabila(t *testing.T) {
+	m := pregateste(t)
+	ctx := context.Background()
+	r := calcul.RegulaConfigurabila{Cod: "sterge", Denumire: "De șters", TipRegula: "PLAFON_LUNAR", Severitate: "INFO", CoduriSchimb: "G24", ValoareNumerica: 3, Activ: true}
+	if err := m.serviciu.SalveazaRegulaConfigurabila(ctx, r); err != nil {
+		t.Fatal(err)
+	}
+	var id string
+	if err := m.db.QueryRow(`SELECT id FROM reguli_configurabile WHERE cod = 'STERGE'`).Scan(&id); err != nil {
+		t.Fatal(err)
+	}
+	if err := m.serviciu.StergeRegulaConfigurabila(ctx, id); err != nil {
+		t.Fatal(err)
+	}
+	var n int
+	if err := m.db.QueryRow(`SELECT count(*) FROM reguli_configurabile WHERE id = ?`, id).Scan(&n); err != nil || n != 0 {
+		t.Fatal("regula a ramas", n, err)
+	}
+	if err := m.db.QueryRow(`SELECT count(*) FROM jurnal_modificari WHERE tabel = 'reguli_configurabile' AND rand_id = ?`, id).Scan(&n); err != nil || n != 2 {
+		t.Fatal("jurnal", n, err)
+	}
+	verificaCod(t, m.serviciu.StergeRegulaConfigurabila(ctx, id), "reguli.inexistenta")
+}

@@ -3,6 +3,7 @@ package datebaza
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"pontix/internal/i18n"
 	"pontix/internal/identitate"
 	"strings"
@@ -158,4 +159,26 @@ func (s *Serviciu) VerificaReguliPlanificare(ctx context.Context, an, luna int) 
 	}
 
 	return calcul.EvalueazaReguli(reguli, pozitii), nil
+}
+
+// StergeRegulaConfigurabila sterge definitiv o regula de planificare (F11-T23); stergerea intra
+// in jurnalul de modificari, cu regula de dinainte.
+func (s *Serviciu) StergeRegulaConfigurabila(ctx context.Context, id string) error {
+	return s.modificaTx(ctx, func(tx *sql.Tx, q *acces.Queries) error {
+		var vechi calcul.RegulaConfigurabila
+		var activ int
+		err := tx.QueryRowContext(ctx, `SELECT id, cod, denumire, descriere, tip_regula, severitate, coduri_schimb, valoare_numerica, activ
+			FROM reguli_configurabile WHERE id = ?`, id).Scan(&vechi.ID, &vechi.Cod, &vechi.Denumire, &vechi.Descriere, &vechi.TipRegula, &vechi.Severitate, &vechi.CoduriSchimb, &vechi.ValoareNumerica, &activ)
+		if errors.Is(err, sql.ErrNoRows) {
+			return eroare("reguli.inexistenta")
+		}
+		if err != nil {
+			return err
+		}
+		vechi.Activ = activ == 1
+		if _, err := tx.ExecContext(ctx, `DELETE FROM reguli_configurabile WHERE id = ?`, id); err != nil {
+			return err
+		}
+		return jurnal(ctx, q, "reguli_configurabile", id, vechi, nil)
+	})
 }
