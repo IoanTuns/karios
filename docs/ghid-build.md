@@ -73,3 +73,8 @@ python verificari/documentatie.py --html <manual-generat.html>
 ```
 
 Controlul traducerilor compara cheile RO/EN, parametrii si apelurile t cu cheie statica. Cheile construite dinamic si textele scrise direct in cod necesita verificari suplimentare. Controlul manualului verifica ancorele locale, duplicatele si toate articolele catalogului; nu verifica disponibilitatea paginilor externe pe internet. ZIP-ul este verificat dupa scriere, iar un hash pentru arhiva este salvat separat. SHA256 detecteaza modificarea fisierelor fata de referinta; nu este semnatura digitala a editorului.
+
+## Codul de acces la bază (sqlc)
+
+Interogările din `internal/bd/interogari/*.sql` generează codul din `internal/bd/acces` cu **sqlc 1.31.1** (`sqlc.yaml`). După o schimbare a interogărilor sau a unei migrări folosite de ele: `sqlc generate`, apoi `sqlc compile` și testele. Pe Windows, fără compilator C, se folosește binarul oficial (`sqlc_<versiune>_windows_amd64.zip` de pe GitHub), verificat cu suma SHA-256 publicată la lansare. Fișierele scrise de mână din `internal/bd/acces` (de exemplu `calendar.go`, `pauze_programe.go`) nu sunt atinse de sqlc; nu se editează de mână fișierele `*.sql.go` (F02-T36).
+
